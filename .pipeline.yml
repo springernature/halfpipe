@@ -89,13 +89,15 @@ jobs:
           - |
             export ROOT=$PWD
             export GOPATH=$PWD
+            export VERSION=`cat version/version`
             cd src/github.com/springernature/halfpipe
-            CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin cmd/halfpipe.go
-            CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux cmd/halfpipe.go
+            CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin -ldflags "-X main.version=$VERSION" cmd/halfpipe.go
+            CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "-X main.version=$VERSION" cmd/halfpipe.go
             cp halfpipe_darwin halfpipe_linux $ROOT/binaries
         inputs:
         - name: halfpipe
           path: src/github.com/springernature/halfpipe
+        - name: version
         outputs:
         - name: binaries
     - put: halfpipe
