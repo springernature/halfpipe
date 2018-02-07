@@ -2,10 +2,9 @@ package main
 
 import (
 	"fmt"
-	"reflect"
 )
 
-var(
+var (
 	// This field will be populated in Concourse from the version resource
 	// go build -ldflags "-X main.version`cat version/version`"
 	version string
