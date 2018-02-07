@@ -21,15 +21,13 @@ resources:
   source:
       owner: springernature
       repository: halfpipe
-      access_token:
+      access_token: ((api-keys.halfpipe))
 
 resource_types: []
 jobs:
 - name: Test
   serial: true
   plan:
-  - get: version
-    trigger: false
   - get: halfpipe
     trigger: true
   - task: Test
@@ -54,34 +52,19 @@ jobs:
         path: /src/github.com/springernature/halfpipe
 - name: Bump Major
   plan:
-    - aggregate:
-      - get: halfpipe
-        trigger: false
-        passed:
-          - Test
-      - put: version
-        params:
-          {bump: major}
+    - put: version
+      params:
+        {bump: major}
 - name: Bump Minor
   plan:
-    - aggregate:
-      - get: halfpipe
-        trigger: false
-        passed:
-          - Test
-      - put: version
-        params:
-          {bump: minor}
+    - put: version
+      params:
+        {bump: minor}
 - name: Bump Patch
   plan:
-    - aggregate:
-      - get: halfpipe
-        trigger: false
-        passed:
-          - Test
-      - put: version
-        params:
-          {bump: patch}
+    - put: version
+      params:
+        {bump: patch}
 
 - name: Build and create github release
   plan:
@@ -89,9 +72,6 @@ jobs:
       - get: halfpipe
         passed:
           - Test
-          - Bump Major
-          - Bump Minor
-          - Bump Patch
       - get: version
         trigger: true
     - task: Build
