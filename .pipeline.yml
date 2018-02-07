@@ -67,6 +67,7 @@ jobs:
         {bump: patch}
 
 - name: Build and create github release
+  disable_manual_trigger: true
   plan:
     - aggregate:
       - get: halfpipe
