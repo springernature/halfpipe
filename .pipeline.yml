@@ -21,7 +21,7 @@ resources:
   source:
       owner: springernature
       repository: halfpipe
-      access_token: 
+      access_token:
 
 resource_types: []
 jobs:
@@ -85,10 +85,15 @@ jobs:
 
 - name: Build and create github release
   plan:
-    - get: version
-      trigger: true
-    - get: halfpipe
-      trigger: false
+    - aggregate:
+      - get: halfpipe
+        passed:
+          - Test
+          - Bump Major
+          - Bump Minor
+          - Bump Patch
+      - get: version
+        trigger: true
     - task: Build
       config:
         platform: linux
@@ -117,3 +122,9 @@ jobs:
       params:
         repository: halfpipe
         tag: version/version
+    - put: release
+      params:
+        name: halfpipe/name
+        tag: version/version
+        globs:
+          - binaries/halfpipe_*
