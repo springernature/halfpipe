@@ -38,7 +38,7 @@ var _ = Describe("Sync", func() {
 
 			Expect(sync.Check()).To(Not(HaveOccurred()))
 		})
-		It("returns true when the binary is out of date", func() {
+		It("returns error when the binary is out of date", func() {
 			sync := sync.Sync{
 				CurrentVersion: semver.Version{
 					Major: 0,
