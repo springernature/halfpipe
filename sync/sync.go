@@ -5,18 +5,22 @@ import (
 	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"fmt"
-	"runtime"
-	"strings"
 	"github.com/inconshreveable/go-update"
 	"net/http"
+	"strconv"
+	"gopkg.in/cheggaaa/pb.v1"
 )
 
-type Sync struct {
+type Sync interface {
+	Check() error
+	Update() error
+}
+type Syncer struct {
 	CurrentVersion semver.Version
-	GithubRelease  githubRelease.GithubReleaseI
+	GithubRelease  githubRelease.GithubReleaser
 }
 
-func (s Sync) Check() error {
+func (s Syncer) Check() error {
 	latestVersion, err := s.GithubRelease.GetLatestVersion()
 	if err != nil {
 		return err
@@ -29,36 +33,30 @@ func (s Sync) Check() error {
 	return nil
 }
 
-func (s Sync) getDownloadUrl() (string, error) {
-	url, err := s.GithubRelease.GetLatestBinaryURLS()
-	if err != nil {
-		return "", err
-	}
-	for _, u := range url {
-		if strings.Contains(u, runtime.GOOS) {
-			return u, nil
-		}
-	}
-	return "", errors.New("Could not find a binary for your OS..")
-}
-
-func (s Sync) Update() error {
-	url, err := s.getDownloadUrl()
+func (s Syncer) Update() error {
+	url, err := s.GithubRelease.GetLatestBinaryURL()
 	if err != nil {
 		return err
 	}
-	fmt.Printf("downloading halfpipe from %s... \n", url)
 
 	updateOptions := update.Options{}
 	err = updateOptions.CheckPermissions()
 	if err != nil {
 		return err
 	}
+	fmt.Printf("downloading latest version from %s... \n", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
 	}
-	err = update.Apply(resp.Body, updateOptions)
+
+	filesSize, _ := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
+	progressBar := pb.New64(filesSize).SetUnits(pb.U_BYTES)
+	progressBar.Start()
+	defer progressBar.FinishPrint(fmt.Sprintf("successfully updated"))
+	reader := progressBar.NewProxyReader(resp.Body)
+
+	err = update.Apply(reader, updateOptions)
 	if err != nil {
 		return err
 	}

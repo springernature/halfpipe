@@ -37,19 +37,15 @@ func printAndExit(err error) {
 func main() {
 	currentVersion, err := getVersion()
 	printAndExit(err)
-	fmt.Println("Hello World")
 
-	sync := sync.Sync{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
-	fmt.Println(os.Args)
+	sync := sync.Syncer{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
 	if len(os.Args) == 1 {
-		err = sync.Check()
-		printAndExit(err)
+		printAndExit(sync.Check())
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
-		err = sync.Update()
-		printAndExit(err)
-		fmt.Println("Yay, updated binary!")
-		syscall.Exit(0)
+		printAndExit(sync.Update())
+		return
 	}
 
+	fmt.Println("Hello World")
 	fmt.Println("Current version is: " + currentVersion.String())
 }

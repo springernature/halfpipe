@@ -11,7 +11,7 @@ type FakeGithubRelease struct {
 	Version semver.Version
 }
 
-func (f FakeGithubRelease) GetLatestBinaryURLS() (assets []string, err error) {
+func (f FakeGithubRelease) GetLatestBinaryURL() (string, error) {
 	panic("implement me")
 }
 
@@ -23,7 +23,7 @@ var _ = Describe("Sync", func() {
 
 	Context("Check", func() {
 		It("returns empty error if up to date", func() {
-			sync := sync.Sync{
+			sync := sync.Syncer{
 				CurrentVersion: semver.Version{
 					Major: 0,
 					Minor: 0,
@@ -38,8 +38,9 @@ var _ = Describe("Sync", func() {
 
 			Expect(sync.Check()).To(Not(HaveOccurred()))
 		})
+
 		It("returns error when the binary is out of date", func() {
-			sync := sync.Sync{
+			sync := sync.Syncer{
 				CurrentVersion: semver.Version{
 					Major: 0,
 					Minor: 0,

@@ -4,11 +4,14 @@ import (
 	"github.com/blang/semver"
 	"github.com/google/go-github/github"
 	"context"
+	"strings"
+	"runtime"
+	"errors"
 )
 
-type GithubReleaseI interface {
+type GithubReleaser interface {
 	GetLatestVersion() (semver.Version, error)
-	GetLatestBinaryURLS() (assets []string, err error)
+	GetLatestBinaryURL() (string, error)
 }
 
 type GithubRelease struct{}
@@ -26,15 +29,18 @@ func (GithubRelease) GetLatestVersion() (semver.Version, error) {
 	return version, nil
 }
 
-func (GithubRelease) GetLatestBinaryURLS() (assets []string, err error) {
+func (GithubRelease) GetLatestBinaryURL() (string, error) {
 	client := github.NewClient(nil)
 	release, _, err := client.Repositories.GetLatestRelease(context.Background(), "springernature", "halfpipe")
 	if err != nil {
-		return assets, err
+		return "", err
 	}
 
 	for _, asset := range release.Assets {
-		assets = append(assets, *asset.BrowserDownloadURL)
+		if strings.Contains(*asset.BrowserDownloadURL, runtime.GOOS) {
+			downloadUrl := *asset.BrowserDownloadURL
+			return downloadUrl, nil
+		}
 	}
-	return assets, nil
+	return "", errors.New("Could not find a binary for your OS..")
 }
