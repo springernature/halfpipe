@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"strconv"
 	"gopkg.in/cheggaaa/pb.v1"
+	"github.com/springernature/halfpipe"
 )
 
 type Sync interface {
@@ -21,6 +22,10 @@ type Syncer struct {
 }
 
 func (s Syncer) Check() error {
+	if s.CurrentVersion.EQ(halfpipe.DevVersion) {
+		return nil
+	}
+
 	latestVersion, err := s.GithubRelease.GetLatestVersion()
 	if err != nil {
 		return err
@@ -34,6 +39,10 @@ func (s Syncer) Check() error {
 }
 
 func (s Syncer) Update() error {
+	if s.CurrentVersion.EQ(halfpipe.DevVersion) {
+		return errors.New("Can not upgrade dev release...")
+	}
+
 	url, err := s.GithubRelease.GetLatestBinaryURL()
 	if err != nil {
 		return err

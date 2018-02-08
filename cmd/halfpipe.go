@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"github.com/blang/semver"
 	"syscall"
-	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
 	"os"
+	"fmt"
+	"github.com/springernature/halfpipe/sync"
+	"github.com/springernature/halfpipe"
 )
 
 var (
@@ -17,8 +18,7 @@ var (
 
 func getVersion() (semver.Version, error) {
 	if version == "" {
-		version, _ := semver.Make("0.0.0-DEV")
-		return version, nil
+		return halfpipe.DevVersion, nil
 	}
 	version, err := semver.Make(version)
 	if err != nil {
