@@ -64,7 +64,7 @@ type Vars map[string]string
 func (r *Vars) UnmarshalJSON(b []byte) error {
 	rawVars := make(map[string]interface{})
 	if err := json.Unmarshal(b, &rawVars); err != nil {
-		//nilNewInvalidField("var", err.Error())
+		NewInvalidField("var", err.Error())
 		return err
 	}
 	stringVars := make(Vars)
@@ -74,7 +74,7 @@ func (r *Vars) UnmarshalJSON(b []byte) error {
 		case string, bool, float64:
 			stringVars[key] = fmt.Sprintf("%v", value)
 		default:
-			return nil //NewInvalidField("var", fmt.Sprintf("value of key '%v' must be a string", key))
+			return NewInvalidField("var", fmt.Sprintf("value of key '%v' must be a string", key))
 		}
 	}
 	*r = stringVars

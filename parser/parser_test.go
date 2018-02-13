@@ -3,7 +3,7 @@ package parser
 import (
 	"testing"
 
-	. "github.com/robwhitby/halfpipe-cli/model"
+	. "github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
 )
 
