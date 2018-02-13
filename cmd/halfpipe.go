@@ -1,13 +1,16 @@
 package main
 
 import (
-	"github.com/blang/semver"
-	"syscall"
-	"github.com/springernature/halfpipe/sync/githubRelease"
-	"os"
 	"fmt"
-	"github.com/springernature/halfpipe/sync"
+	"os"
+	"syscall"
+
+	"github.com/blang/semver"
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
+	"github.com/springernature/halfpipe/controller"
+	"github.com/springernature/halfpipe/sync"
+	"github.com/springernature/halfpipe/sync/githubRelease"
 )
 
 var (
@@ -35,17 +38,25 @@ func printAndExit(err error) {
 }
 
 func main() {
+	checkVersion()
+
+	fs := afero.Afero{Fs: afero.NewOsFs()}
+
+	err := controller.Process(fs)
+	printAndExit(err)
+
+	fmt.Println("ok")
+}
+
+func checkVersion() {
 	currentVersion, err := getVersion()
 	printAndExit(err)
 
-	sync := sync.Syncer{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
+	syncer := sync.Syncer{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
 	if len(os.Args) == 1 {
-		printAndExit(sync.Check())
+		printAndExit(syncer.Check())
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
-		printAndExit(sync.Update())
+		printAndExit(syncer.Update())
 		return
 	}
-
-	fmt.Println("Hello World")
-	fmt.Println("Current version is: " + currentVersion.String())
 }
