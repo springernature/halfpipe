@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ghodss/yaml"
+	"github.com/springernature/halfpipe/errors"
 	. "github.com/springernature/halfpipe/model"
 )
 
@@ -15,7 +16,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	}
 
 	if err := yaml.Unmarshal([]byte(manifestYaml), &man); err != nil {
-		addError(NewParseError(err.Error()))
+		addError(errors.NewParseError(err.Error()))
 		return
 	}
 
@@ -23,13 +24,13 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		Tasks []json.RawMessage
 	}
 	if err := yaml.Unmarshal([]byte(manifestYaml), &rawTasks); err != nil {
-		addError(NewParseError(err.Error()))
+		addError(errors.NewParseError(err.Error()))
 		return
 	}
 
 	parseTask := func(rawTask json.RawMessage, t Task, index int) error {
 		if err := json.Unmarshal(rawTask, t); err != nil {
-			addError(NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, err.Error())))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, err.Error())))
 			return err
 		}
 		return nil
@@ -42,7 +43,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		}{}
 
 		if err := json.Unmarshal(rawTask, &taskName); err != nil {
-			addError(NewInvalidField("task", fmt.Sprintf("task %v %s", i+1, err.Error())))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", i+1, err.Error())))
 			return
 		}
 
@@ -63,9 +64,9 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "":
-			addError(NewInvalidField("task", fmt.Sprintf("task %v is missing name field", i+1)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing name field", i+1)))
 		default:
-			addError(NewInvalidField("task", fmt.Sprintf("task %v has unknown name '%s'", i+1, taskName.Name)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown name '%s'", i+1, taskName.Name)))
 		}
 	}
 	return

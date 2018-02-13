@@ -3,6 +3,7 @@ package parser
 import (
 	"testing"
 
+	"github.com/springernature/halfpipe/errors"
 	. "github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -91,8 +92,8 @@ func TestReportMultipleInvalidTasks(t *testing.T) {
 	_, errs := Parse("tasks: [{ name: unknown, foo: bar }, { name: run, image: alpine, script: build.sh }, { notname: foo }]")
 
 	assert.Equal(t, len(errs), 2)
-	assert.IsType(t, errs[0], NewInvalidField("", ""))
-	assert.IsType(t, errs[1], NewInvalidField("", ""))
+	assert.IsType(t, errs[0], errors.NewInvalidField("", ""))
+	assert.IsType(t, errs[1], errors.NewInvalidField("", ""))
 }
 
 func TestVarsParsedAsString(t *testing.T) {
@@ -129,12 +130,12 @@ tasks:
 func TestInvalidVars(t *testing.T) {
 	_, errs := Parse(`
 tasks:
-- name: run
+- task: run
   image: alpine
   script: build.sh
   vars:
     EMPTY:
 `)
-	expected := NewInvalidField("task", "")
+	expected := errors.NewInvalidField("task", "")
 	assert.IsType(t, expected, errs[0])
 }

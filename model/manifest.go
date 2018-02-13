@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/springernature/halfpipe/errors"
 )
 
 type Manifest struct {
@@ -79,7 +81,7 @@ type Vars map[string]string
 func (r *Vars) UnmarshalJSON(b []byte) error {
 	rawVars := make(map[string]interface{})
 	if err := json.Unmarshal(b, &rawVars); err != nil {
-		NewInvalidField("var", err.Error())
+		errors.NewInvalidField("var", err.Error())
 		return err
 	}
 	stringVars := make(Vars)
@@ -89,7 +91,7 @@ func (r *Vars) UnmarshalJSON(b []byte) error {
 		case string, bool, float64:
 			stringVars[key] = fmt.Sprintf("%v", value)
 		default:
-			return NewInvalidField("var", fmt.Sprintf("value of key '%v' must be a string", key))
+			return errors.NewInvalidField("var", fmt.Sprintf("value of key '%v' must be a string", key))
 		}
 	}
 	*r = stringVars

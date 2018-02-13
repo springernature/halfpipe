@@ -1,14 +1,16 @@
 package controller
 
 import (
-	"github.com/pkg/errors"
+	"github.com/concourse/atc"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/parser"
-	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/pipeline"
 )
+
+const halfpipeFile = ".halfpipe.io"
 
 type Controller struct {
 	Fs       afero.Afero
@@ -17,24 +19,24 @@ type Controller struct {
 }
 
 func (c Controller) halfpipeExists() []error {
-	exists, err := c.Fs.Exists(".halfpipe.io")
+	exists, err := c.Fs.Exists(halfpipeFile)
 	if err != nil {
 		return []error{err}
 	}
 	if !exists {
-		return []error{errors.New(".halfpipe.io does not exist")}
+		return []error{errors.NewFileError(halfpipeFile, "is missing")}
 	}
 	return nil
 }
 
 func (c Controller) readManifest() (model.Manifest, []error) {
-	content, err := c.Fs.ReadFile(".halfpipe.io")
+	content, err := c.Fs.ReadFile(halfpipeFile)
 	if err != nil {
 		return model.Manifest{}, nil
 	}
 
 	if len(content) == 0 {
-		return model.Manifest{}, []error{errors.New(".halfpipe.io must not be empty")}
+		return model.Manifest{}, []error{errors.NewFileError(halfpipeFile, "must not be empty")}
 	}
 
 	stringContent := string(content)
@@ -66,4 +68,5 @@ func (c Controller) Process() (atc.Config, []error) {
 	}
 
 	return c.Renderer.Render(manifest), nil
+
 }

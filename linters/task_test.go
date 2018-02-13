@@ -3,6 +3,7 @@ package linters
 import (
 	"testing"
 
+	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,5 +15,5 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 
 	errs := taskLinter.Lint(man)
 	assert.Len(t, errs, 1)
-	assert.IsType(t, model.MissingField{}, errs[0])
+	assert.IsType(t, errors.MissingField{}, errs[0])
 }

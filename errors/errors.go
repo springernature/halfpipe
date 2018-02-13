@@ -1,4 +1,4 @@
-package model
+package errors
 
 import "fmt"
 
@@ -35,18 +35,35 @@ func NewMissingField(name string) MissingField {
 	return MissingField{name}
 }
 
-type parseError struct {
+type ParseError struct {
 	Message string
 }
 
-func (e parseError) Error() string {
+func (e ParseError) Error() string {
 	return fmt.Sprintf("Error parsing manifest: %s", e.Message)
 }
 
-func (e parseError) DocumentationPath() string {
+func (e ParseError) DocumentationPath() string {
 	return "/docs/manifest"
 }
 
-func NewParseError(message string) parseError {
-	return parseError{message}
+func NewParseError(message string) ParseError {
+	return ParseError{message}
+}
+
+type FileError struct {
+	Path   string
+	Reason string
+}
+
+func (e FileError) Error() string {
+	return fmt.Sprintf("'%s' %s", e.Path, e.Reason)
+}
+
+func (e FileError) DocumentationPath() string {
+	return "/docs/manifest/required-files"
+}
+
+func NewFileError(path string, reason string) FileError {
+	return FileError{Path: path, Reason: reason}
 }
