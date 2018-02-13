@@ -44,7 +44,7 @@ func main() {
 	ctrl := controller.Controller{
 		Fs: afero.Afero{Fs: afero.NewOsFs()},
 		Linters: []linters.Linter{
-			linters.Repo{},
+			linters.RepoLinter{},
 		},
 	}
 

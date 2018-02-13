@@ -6,9 +6,9 @@ import (
 	"github.com/springernature/halfpipe/model"
 )
 
-type Repo struct{}
+type RepoLinter struct{}
 
-func (r Repo) Lint(man model.Manifest) []error {
+func (r RepoLinter) Lint(man model.Manifest) []error {
 	var errs []error
 	if man.Repo.Uri == "" {
 		errs = append(errs, model.NewMissingField("repo.uri"))

@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var repoLinter = Repo{}
+var repoLinter = RepoLinter{}
 
 func TestRepoIsEmpty(t *testing.T) {
 	man := model.Manifest{}
