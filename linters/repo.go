@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/springernature/halfpipe/model"
+	"regexp"
 )
 
 type RepoLinter struct{}
@@ -15,8 +16,9 @@ func (r RepoLinter) Lint(man model.Manifest) []error {
 		return errs
 	}
 
-	if !strings.HasSuffix(man.Repo.Uri, ".git") {
-		errs = append(errs, model.NewInvalidField("repo.uri", "must end with .git"))
+	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, man.Repo.Uri)
+	if !match {
+		errs = append(errs, model.NewInvalidField("repo.uri", "must be a valid git uri"))
 	}
 
 	if strings.HasPrefix(man.Repo.Uri, "git@") && man.Repo.PrivateKey == "" {

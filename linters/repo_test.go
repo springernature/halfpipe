@@ -28,7 +28,7 @@ func TestRepInvalidUri(t *testing.T) {
 
 func TestRepoUriIsValidUri(t *testing.T) {
 	man := model.Manifest{}
-	man.Repo.Uri = "https://avlalbalba/halfpipe.git"
+	man.Repo.Uri = "https://github.com/springernature/halfpipe.git"
 
 	errs := repoLinter.Lint(man)
 	assert.Empty(t, errs)
@@ -36,7 +36,7 @@ func TestRepoUriIsValidUri(t *testing.T) {
 
 func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	manifest := model.Manifest{}
-	manifest.Repo.Uri = "git@avlalbalba:halfpipe.git"
+	manifest.Repo.Uri = "git@github.com:springernature/halfpipe.git"
 
 	errs := repoLinter.Lint(manifest)
 	assert.Len(t, errs, 1)
