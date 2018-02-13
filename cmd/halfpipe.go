@@ -44,6 +44,7 @@ func main() {
 	ctrl := controller.Controller{
 		Fs: afero.Afero{Fs: afero.NewOsFs()},
 		Linters: []linters.Linter{
+			linters.TeamLinter{},
 			linters.RepoLinter{},
 		},
 	}
@@ -51,6 +52,9 @@ func main() {
 	pipeline, errs := ctrl.Process()
 	if len(errs) > 0 {
 		println("there were some errors")
+		for _, err := range errs {
+			fmt.Println(err)
+		}
 	}
 
 	fmt.Println(pipeline)

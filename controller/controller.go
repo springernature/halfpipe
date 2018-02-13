@@ -13,66 +13,50 @@ type Controller struct {
 	Linters []linters.Linter
 }
 
-func (c Controller) Process() (string, []error) {
-
-	//1. setup
+func (c Controller) halfpipeExists() []error {
 	exists, err := c.Fs.Exists(".halfpipe.io")
 	if err != nil {
-		return "", []error{err}
+		return []error{err}
 	}
 	if !exists {
-		return "", []error{errors.New(".halfpipe.io does not exist")}
+		return []error{errors.New(".halfpipe.io does not exist")}
 	}
-
-	var blah model.Manifest
-
-	//2. linters
-	var errs []error
-	for _, linter := range c.Linters {
-		errs = append(errs, linter.Lint(blah)...)
-	}
-
-	if len(errs) > 0 {
-		return "", errs
-	}
-
-	//interate + accumulate errors
-
-	//3. generate pipeline
-
-	return "pipeline!", nil
-
-	//exists, err := fs.Exists(".halfpipe.io")
-	//if err != nil {
-	//	return err
-	//}
-	//if !exists {
-	//	return errors.New("missing .halfpipe.io")
-	//}
-	//
-	//_, err = ParseManifest(fs)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//return nil
+	return nil
 }
 
-func ParseManifest(fs afero.Afero) (model.Manifest, error) {
-	content, err := fs.ReadFile(".halfpipe.io")
+func (c Controller) readManifest() (model.Manifest, []error) {
+	content, err := c.Fs.ReadFile(".halfpipe.io")
 	if err != nil {
 		return model.Manifest{}, nil
 	}
 
 	if len(content) == 0 {
-		return model.Manifest{}, errors.New(".halfpipe.io must not be empty")
+		return model.Manifest{}, []error{errors.New(".halfpipe.io must not be empty")}
 	}
 
 	stringContent := string(content)
 	man, errs := parser.Parse(stringContent)
 	if len(errs) != 0 {
-		return model.Manifest{}, errs[0]
+		return model.Manifest{}, errs
 	}
 
 	return man, nil
+}
+
+func (c Controller) Process() (string, []error) {
+	errs := c.halfpipeExists()
+	if errs != nil {
+		return "", errs
+	}
+
+	manifest, errs := c.readManifest()
+	if errs != nil {
+		return "", errs
+	}
+
+	for _, linter := range c.Linters {
+		errs = append(errs, linter.Lint(manifest)...)
+	}
+
+	return "", errs
 }
