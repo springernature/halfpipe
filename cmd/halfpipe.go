@@ -12,6 +12,9 @@ import (
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
+	"github.com/springernature/halfpipe/pipeline"
+	"github.com/concourse/atc"
+	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -48,9 +51,10 @@ func main() {
 			linters.RepoLinter{},
 			linters.TaskLinter{},
 		},
+		Renderer: pipeline.Pipeline{},
 	}
 
-	pipeline, errs := ctrl.Process()
+	config, errs := ctrl.Process()
 	if len(errs) > 0 {
 		println("there were some errors")
 		for _, err := range errs {
@@ -58,8 +62,12 @@ func main() {
 		}
 		syscall.Exit(1)
 	}
+	renderManifest(config)
+}
 
-	fmt.Println(pipeline)
+func renderManifest(config atc.Config) {
+	renderedPipeline, _ := yaml.Marshal(config)
+	fmt.Println(string(renderedPipeline))
 }
 
 func checkVersion() {

@@ -8,6 +8,7 @@ import (
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/concourse/atc"
 )
 
 func setup() Controller {
@@ -58,4 +59,30 @@ func TestAppliesAllLinters(t *testing.T) {
 	assert.Len(t, errs, 2)
 	assert.Equal(t, e1, errs[0])
 	assert.Equal(t, e2, errs[1])
+}
+
+type FakeRenderer struct {
+	Config atc.Config
+}
+
+func (f FakeRenderer) Render(manifest model.Manifest) atc.Config {
+	return f.Config
+}
+
+func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
+	c := setup()
+	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
+
+	config := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: "Yolo",
+			},
+		},
+	}
+	c.Renderer = FakeRenderer{Config: config}
+
+	pipeline, errs := c.Process()
+	assert.Len(t, errs, 0)
+	assert.Equal(t, config, pipeline)
 }

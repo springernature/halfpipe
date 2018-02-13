@@ -3,6 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type Manifest struct {
@@ -14,6 +15,20 @@ type Manifest struct {
 type Repo struct {
 	Uri        string
 	PrivateKey string `json:"private_key"`
+}
+
+func (repo Repo) GetName() string {
+	var withoutPostfix string
+	if strings.HasSuffix(repo.Uri, ".git/") {
+		withoutPostfix = strings.Split(repo.Uri, ".git/")[0]
+	} else if strings.HasSuffix(repo.Uri, ".git") {
+		withoutPostfix = strings.Split(repo.Uri, ".git")[0]
+	} else {
+		withoutPostfix = repo.Uri
+	}
+
+	parts := strings.Split(withoutPostfix, "/")
+	return parts[len(parts)-1]
 }
 
 type Task interface {

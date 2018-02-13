@@ -6,11 +6,14 @@ import (
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/parser"
+	"github.com/concourse/atc"
+	"github.com/springernature/halfpipe/pipeline"
 )
 
 type Controller struct {
-	Fs      afero.Afero
-	Linters []linters.Linter
+	Fs       afero.Afero
+	Linters  []linters.Linter
+	Renderer pipeline.Renderer
 }
 
 func (c Controller) halfpipeExists() []error {
@@ -43,20 +46,24 @@ func (c Controller) readManifest() (model.Manifest, []error) {
 	return man, nil
 }
 
-func (c Controller) Process() (string, []error) {
+func (c Controller) Process() (atc.Config, []error) {
 	errs := c.halfpipeExists()
 	if errs != nil {
-		return "", errs
+		return atc.Config{}, errs
 	}
 
 	manifest, errs := c.readManifest()
 	if errs != nil {
-		return "", errs
+		return atc.Config{}, errs
 	}
 
 	for _, linter := range c.Linters {
 		errs = append(errs, linter.Lint(manifest)...)
 	}
 
-	return "", errs
+	if errs != nil {
+		return atc.Config{}, errs
+	}
+
+	return c.Renderer.Render(manifest), nil
 }
