@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/controller"
+	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
 )
@@ -40,12 +41,19 @@ func printAndExit(err error) {
 func main() {
 	checkVersion()
 
-	fs := afero.Afero{Fs: afero.NewOsFs()}
+	ctrl := controller.Controller{
+		Fs: afero.Afero{Fs: afero.NewOsFs()},
+		Linters: []linters.Linter{
+			linters.Repo{},
+		},
+	}
 
-	err := controller.Process(fs)
-	printAndExit(err)
+	pipeline, errs := ctrl.Process()
+	if len(errs) > 0 {
+		println("there were some errors")
+	}
 
-	fmt.Println("ok")
+	fmt.Println(pipeline)
 }
 
 func checkVersion() {
