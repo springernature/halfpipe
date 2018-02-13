@@ -18,5 +18,10 @@ func (r Repo) Lint(man model.Manifest) []error {
 	if !strings.HasSuffix(man.Repo.Uri, ".git") {
 		errs = append(errs, model.NewInvalidField("repo.uri", "must end with .git"))
 	}
+
+	if strings.HasPrefix(man.Repo.Uri, "git@") && man.Repo.PrivateKey == "" {
+		errs = append(errs, model.NewMissingField("repo.private_key"))
+	}
+
 	return errs
 }
