@@ -46,6 +46,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
+			linters.TaskLinter{},
 		},
 	}
 
@@ -55,6 +56,7 @@ func main() {
 		for _, err := range errs {
 			fmt.Println(err)
 		}
+		syscall.Exit(1)
 	}
 
 	fmt.Println(pipeline)
@@ -69,6 +71,5 @@ func checkVersion() {
 		printAndExit(syncer.Check())
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
 		printAndExit(syncer.Update())
-		return
 	}
 }
