@@ -35,13 +35,14 @@ func lintRunTask(t TaskLinter, run model.Run) []error {
 	var errs []error
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("script"))
-	}
-	if run.Image == "" {
-		errs = append(errs, errors.NewMissingField("image"))
+	} else {
+		if err := CheckFile(t.Fs, run.Script, true); err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	if err := CheckFile(t.Fs, run.Script, true); err != nil {
-		errs = append(errs, err)
+	if run.Image == "" {
+		errs = append(errs, errors.NewMissingField("image"))
 	}
 
 	return errs

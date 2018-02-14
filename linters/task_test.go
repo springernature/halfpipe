@@ -32,7 +32,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	}
 
 	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 3)
+	assert.Len(t, errs, 2)
 
 	assert.IsType(t, errors.MissingField{}, errs[0])
 	assert.IsType(t, errors.MissingField{}, errs[1])
