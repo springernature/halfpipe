@@ -6,14 +6,14 @@ import (
 	"syscall"
 
 	"github.com/blang/semver"
+	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/linters"
+	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
-	"github.com/springernature/halfpipe/pipeline"
-	"github.com/concourse/atc"
 	"gopkg.in/yaml.v2"
 )
 
@@ -44,12 +44,15 @@ func printAndExit(err error) {
 func main() {
 	checkVersion()
 
+	fs := afero.Afero{Fs: afero.NewOsFs()}
 	ctrl := controller.Controller{
-		Fs: afero.Afero{Fs: afero.NewOsFs()},
+		Fs: fs,
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
-			linters.TaskLinter{},
+			linters.TaskLinter{
+				Fs: fs,
+			},
 		},
 		Renderer: pipeline.Pipeline{},
 	}

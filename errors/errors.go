@@ -7,6 +7,10 @@ type InvalidField struct {
 	Reason string
 }
 
+type Documented interface {
+	DocumentationPath() string
+}
+
 func (e InvalidField) Error() string {
 	return fmt.Sprintf("Invalid value for '%s': %s", e.Name, e.Reason)
 }

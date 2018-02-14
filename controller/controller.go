@@ -49,9 +49,8 @@ func (c Controller) readManifest() (model.Manifest, []error) {
 }
 
 func (c Controller) Process() (atc.Config, []error) {
-	errs := c.halfpipeExists()
-	if errs != nil {
-		return atc.Config{}, errs
+	if err := linters.CheckFile(c.Fs, halfpipeFile, false); err != nil {
+		return atc.Config{}, []error{err}
 	}
 
 	manifest, errs := c.readManifest()
