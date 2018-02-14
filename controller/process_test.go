@@ -3,12 +3,12 @@ package controller
 import (
 	"testing"
 
+	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/concourse/atc"
 )
 
 func setup() Controller {
