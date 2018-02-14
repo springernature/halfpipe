@@ -14,14 +14,14 @@ resources:
     uri: git@github.com:springernature/halfpipe.git
     branch: version
     file: version
-    private_key: ((deploy-keys.halfpipe))
+    private_key: ((deploy-keys.halfpipe-cli))
 
 - name: release
   type: github-release
   source:
       owner: springernature
       repository: halfpipe
-      access_token: ((api-keys.halfpipe))
+      access_token: ((api-keys.halfpipe-cli))
 
 resource_types: []
 jobs:
@@ -101,7 +101,7 @@ jobs:
             # Create git changelog from last release
             LAST_TAG=`git tag --sort=v:refname | tail -n1`
             echo "# GIT CHANGELOG" > $ROOT/binaries/changelog
-            git log --format="(%h) %B" $LAST_TAG..HEAD >> $ROOT/binaries/changelog
+            #echo git log --format="(%h) %B" $LAST_TAG..HEAD >> $ROOT/binaries/changelog
 
         inputs:
         - name: halfpipe
