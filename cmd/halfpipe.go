@@ -6,7 +6,6 @@ import (
 	"syscall"
 
 	"github.com/blang/semver"
-	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/controller"
@@ -14,7 +13,6 @@ import (
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
-	"gopkg.in/yaml.v2"
 )
 
 var (
@@ -57,7 +55,7 @@ func main() {
 		Renderer: pipeline.Pipeline{},
 	}
 
-	config, errs := ctrl.Process()
+	pipelineConfig, errs := ctrl.Process()
 	if len(errs) > 0 {
 		println("there were some errors")
 		for _, err := range errs {
@@ -65,12 +63,11 @@ func main() {
 		}
 		syscall.Exit(1)
 	}
-	renderManifest(config)
-}
 
-func renderManifest(config atc.Config) {
-	renderedPipeline, _ := yaml.Marshal(config)
-	fmt.Println(string(renderedPipeline))
+	pipelineYaml, err := pipeline.ToString(pipelineConfig)
+	printAndExit(err)
+
+	fmt.Println(pipelineYaml)
 }
 
 func checkVersion() {
