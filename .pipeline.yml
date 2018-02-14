@@ -5,7 +5,7 @@ resources:
   source:
     uri: git@github.com:springernature/halfpipe.git
     branch: master
-    private_key: ((deploy-keys.halfpipe))
+    private_key: ((deploy-keys.halfpipe-cli))
 
 - name: version
   type: semver
