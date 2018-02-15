@@ -37,8 +37,12 @@ func lintDeployCFTask(cf model.DeployCF) []error {
 	if cf.Api == "" {
 		errs = append(errs, errors.NewMissingField("api"))
 	}
+
 	if cf.Space == "" {
 		errs = append(errs, errors.NewMissingField("space"))
+	}
+	if cf.Org == "" {
+		errs = append(errs, errors.NewMissingField("org"))
 	}
 	return errs
 }

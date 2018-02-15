@@ -24,6 +24,15 @@ func assertMissingField(t *testing.T, name string, err error) {
 	}
 }
 
+func assertInvalidField(t *testing.T, name string, err error) {
+	mf, ok := err.(errors.InvalidField)
+	if !ok {
+		assert.Fail(t, "error is not a MissingField", err)
+	} else {
+		assert.Equal(t, name, mf.Name)
+	}
+}
+
 func TestAtLeastOneTaskExists(t *testing.T) {
 	man := model.Manifest{}
 	taskLinter := setup()
@@ -79,7 +88,7 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	assert.Len(t, errs, 0)
 }
 
-func TestCFDeployTaskWithoutApi(t *testing.T) {
+func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	taskLinter := setup()
 	man := model.Manifest{}
 	man.Tasks = []model.Task{
@@ -87,7 +96,8 @@ func TestCFDeployTaskWithoutApi(t *testing.T) {
 	}
 
 	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 2)
+	assert.Len(t, errs, 3)
 	assertMissingField(t, "api", errs[0])
 	assertMissingField(t, "space", errs[1])
+	assertMissingField(t, "org", errs[2])
 }
