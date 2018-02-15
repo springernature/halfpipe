@@ -23,11 +23,23 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) []error {
 		switch task := t.(type) {
 		case model.Run:
 			errs = append(errs, lintRunTask(taskLinter, task)...)
+		case model.DeployCF:
+			errs = append(errs, lintDeployCFTask(task)...)
 		default:
 			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
 		}
 	}
 
+	return errs
+}
+func lintDeployCFTask(cf model.DeployCF) []error {
+	var errs []error
+	if cf.Api == "" {
+		errs = append(errs, errors.NewMissingField("api"))
+	}
+	if cf.Space == "" {
+		errs = append(errs, errors.NewMissingField("space"))
+	}
 	return errs
 }
 

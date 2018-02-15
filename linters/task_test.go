@@ -52,6 +52,23 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 	assert.Len(t, errs, 1)
 	assert.IsType(t, errors.FileError{}, errs[0])
 }
+func TestCFDeployTaskWithoutApi(t *testing.T) {
+	taskLinter := setup()
+	man := model.Manifest{}
+	man.Tasks = []model.Task{
+		model.DeployCF{},
+	}
+
+	errs := taskLinter.Lint(man)
+	assert.Len(t, errs, 2)
+	assert.IsType(t, errors.MissingField{}, errs[0])
+
+	mfError, _ := errs[0].(errors.MissingField)
+	assert.Equal(t, "api", mfError.Name)
+
+	mfError, _ = errs[1].(errors.MissingField)
+	assert.Equal(t, "space", mfError.Name)
+}
 
 func TestRunTaskScriptFileExists(t *testing.T) {
 	taskLinter := setup()
