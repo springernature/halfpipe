@@ -82,7 +82,6 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	assertMissingField(t, "org", result.Errors[2])
 }
 
-
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	taskLinter := setup()
 	man := model.Manifest{

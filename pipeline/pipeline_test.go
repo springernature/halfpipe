@@ -102,53 +102,83 @@ func TestRenderRunTask(t *testing.T) {
 	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
 }
 
-//func TestRenderCfDeployTask(t *testing.T) {
-//	manifest := model.Manifest{}
-//	manifest.Repo.Uri = "http://github.com:/springernature/foo.git"
-//	manifest.Tasks = []model.Task{
-//		model.DeployCF{
-//			Name:     "App",
-//			Api:      "https://api.com",
-//			Space:    "space",
-//			Org:      "org",
-//			Username: "red",
-//			Password: "supersecret",
-//			Manifest: "./manifest.yml",
-//			Vars:     nil,
-//		},
-//	}
-//
-//	expected := atc.TaskConfig{
-//		Name:   "./yolo.sh",
-//		Serial: true,
-//		Plan: atc.PlanSequence{
-//			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
-//			atc.PlanConfig{Task: "./yolo.sh", TaskConfig: &atc.TaskConfig{
-//				Platform: "linux",
-//				Params: map[string]string{
-//					"VAR1": "Value1",
-//					"VAR2": "Value2",
-//				},
-//				ImageResource: &atc.ImageResource{
-//					Type: "docker-image",
-//					Source: atc.Source{
-//						"repository": "imagename",
-//						"tag":        "TAG",
-//					},
-//				},
-//				Run: atc.TaskRunConfig{
-//					Path: "/bin/sh",
-//					Dir:  manifest.Repo.GetName(),
-//					Args: []string{"-exc", fmt.Sprintf("././yolo.sh")},
-//				},
-//				Inputs: []atc.TaskInputConfig{
-//					{Name: manifest.Repo.GetName()},
-//				},
-//			}},
-//		}}
-//
-//	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
-//}
+func TestRenderDockerPushTask(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
+
+	username := "halfpipe"
+	password := "secret"
+	repo := "halfpipe/halfpipe-cli"
+	manifest.Tasks = []model.Task{
+		model.DockerPush{
+			Username: username,
+			Password: password,
+			Repo:     repo,
+		},
+	}
+
+	expectedResource := atc.ResourceConfig{
+		Name: "docker-push",
+		Type: "docker-image",
+		Source: atc.Source{
+			"username":   username,
+			"password":   password,
+			"repository": repo,
+		},
+	}
+
+	expectedJobConfig := atc.JobConfig{
+		Name:   "docker-push",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Put: "docker-push", Params: atc.Params{"build": manifest.Repo.GetName()}},
+		},
+	}
+
+	// First resource will always be the git resource.
+	assert.Equal(t, expectedResource, pipe.Render(manifest).Resources[1])
+	assert.Equal(t, expectedJobConfig, pipe.Render(manifest).Jobs[0])
+}
+
+func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
+
+	task1 := model.Run{Script: "asd.sh"}
+	task2 := model.Run{Script: "bakaha.sh"}
+	task3 := model.DockerPush{}
+	manifest := model.Manifest{
+		Repo: model.Repo{
+			Uri: "git@github.com:/springernature/foo.git",
+		},
+		Tasks: []model.Task{
+			task1,
+			task2,
+			task3,
+		},
+	}
+
+	config := pipe.Render(manifest)
+	assert.Equal(t, config.Jobs[0].Plan[0], atc.PlanConfig{
+		Get:     manifest.Repo.GetName(),
+		Trigger: true,
+		Passed:  nil,
+	})
+
+	assert.Equal(t, config.Jobs[1].Plan[0], atc.PlanConfig{
+		Get:     manifest.Repo.GetName(),
+		Trigger: true,
+		Passed: []string{
+			task1.GetName(),
+		}})
+
+	assert.Equal(t, config.Jobs[2].Plan[0], atc.PlanConfig{
+		Get:     manifest.Repo.GetName(),
+		Trigger: true,
+		Passed: []string{
+			task2.GetName(),
+		}})
+
+}
 
 func TestToString(t *testing.T) {
 	man := model.Manifest{}

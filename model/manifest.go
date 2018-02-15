@@ -45,7 +45,7 @@ type Run struct {
 }
 
 func (t Run) GetName() string {
-	return t.Name
+	return t.Script
 }
 
 type DockerPush struct {
@@ -57,7 +57,7 @@ type DockerPush struct {
 }
 
 func (t DockerPush) GetName() string {
-	return t.Name
+	return "docker-push"
 }
 
 type DeployCF struct {
