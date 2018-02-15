@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/concourse/atc"
-	"github.com/ghodss/yaml"
+	"gopkg.in/yaml.v2"
 	"github.com/springernature/halfpipe/model"
 )
 
