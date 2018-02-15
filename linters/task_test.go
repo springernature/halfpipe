@@ -92,10 +92,12 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 3)
+	assert.Len(t, result.Errors, 4)
 	assertMissingField(t, "username", result.Errors[0])
 	assertMissingField(t, "password", result.Errors[1])
 	assertMissingField(t, "repo", result.Errors[2])
+	assertFileError(t, "Dockerfile", result.Errors[3])
+
 }
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
@@ -111,12 +113,33 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
+	assert.Len(t, result.Errors, 2)
 	assertInvalidField(t, "repo", result.Errors[0])
+	assertFileError(t, "Dockerfile", result.Errors[1])
+
+}
+
+func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
+	taskLinter := setup()
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.DockerPush{
+				Username: "asd",
+				Password: "asd",
+				Repo: "asd/asd",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertFileError(t, "Dockerfile", result.Errors[0])
 }
 
 func TestDockerPushTaskWithCorrectData(t *testing.T) {
 	taskLinter := setup()
+	taskLinter.Fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
 	man := model.Manifest{
 		Tasks: []model.Task{
 			model.DockerPush{

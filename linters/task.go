@@ -28,7 +28,7 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 		case model.DeployCF:
 			result.Errors = append(result.Errors, lintDeployCFTask(task)...)
 		case model.DockerPush:
-			result.Errors = append(result.Errors, lintDockerPushTask(task)...)
+			result.Errors = append(result.Errors, lintDockerPushTask(taskLinter, task)...)
 		default:
 			result.Errors = append(result.Errors, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
 		}
@@ -51,7 +51,7 @@ func lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	return
 }
 
-func lintDockerPushTask(docker model.DockerPush) (errs []error) {
+func lintDockerPushTask(t TaskLinter, docker model.DockerPush) (errs []error) {
 	if docker.Username == "" {
 		errs = append(errs, errors.NewMissingField("username"))
 	}
@@ -66,6 +66,11 @@ func lintDockerPushTask(docker model.DockerPush) (errs []error) {
 			errs = append(errs, errors.NewInvalidField("repo", "must be specified as 'owner/image'"))
 		}
 	}
+
+	if err := CheckFile(t.Fs, "Dockerfile", false); err != nil {
+		errs = append(errs, err)
+	}
+
 	return
 }
 
