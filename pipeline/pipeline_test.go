@@ -32,33 +32,6 @@ func TestRendersHttpGitResource(t *testing.T) {
 	assert.Equal(t, expected, pipe.Render(manifest))
 }
 
-func TestRendersCfDeployResource(t *testing.T) {
-	manifest := model.Manifest{}
-	manifest.Tasks = []model.Task{
-		model.DeployCF{
-			Api:      "api",
-			Space:    "space-station",
-			Org:      "springer",
-			Username: "rob",
-			Password: "supersecret",
-		},
-	}
-
-	expected := atc.ResourceConfig{
-				Name: "resource-deploy-cf",
-				Type: "cf",
-				Source: atc.Source{
-					"api": "api",
-					"space": "space-station",
-					"organization": "springer",
-					"password": "supersecret",
-					"username": "rob",
-				},
-	}
-	assert.Equal(t, expected, pipe.Render(manifest).Resources[1])
-}
-
-
 func TestRendersSshGitResource(t *testing.T) {
 	name := "asdf"
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
@@ -128,6 +101,7 @@ func TestRenderRunTask(t *testing.T) {
 
 	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
 }
+
 //func TestRenderCfDeployTask(t *testing.T) {
 //	manifest := model.Manifest{}
 //	manifest.Repo.Uri = "http://github.com:/springernature/foo.git"

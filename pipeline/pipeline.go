@@ -31,7 +31,7 @@ func (Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 	}
 }
 
-func (pipeline Pipeline) cfDeployResource(deployCF model.DeployCF) atc.ResourceConfig {
+func (pipeline Pipeline) cfDeployResource(deployCF model.DeployCF, taskIndex int) atc.ResourceConfig {
 	sources := atc.Source{
 		"api":          deployCF.Api,
 		"organization": deployCF.Org,
@@ -41,7 +41,7 @@ func (pipeline Pipeline) cfDeployResource(deployCF model.DeployCF) atc.ResourceC
 	}
 
 	return atc.ResourceConfig{
-		Name:   "resource-deploy-cf",
+		Name:   fmt.Sprintf("resource-deploy-cf_Task%v", taskIndex),
 		Type:   "cf",
 		Source: sources,
 	}
@@ -93,12 +93,12 @@ func (p Pipeline) Render(manifest model.Manifest) atc.Config {
 		},
 	}
 
-	for _, t := range manifest.Tasks {
+	for i, t := range manifest.Tasks {
 		switch task := t.(type) {
 		case model.Run:
 			config.Jobs = append(config.Jobs, p.makeRunJob(task, manifest.Repo))
 		case model.DeployCF:
-			config.Resources = append(config.Resources, p.cfDeployResource(task))
+			config.Resources = append(config.Resources, p.cfDeployResource(task, i))
 		}
 	}
 	return config
