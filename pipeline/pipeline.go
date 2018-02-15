@@ -31,6 +31,22 @@ func (Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 	}
 }
 
+func (pipeline Pipeline) cfDeployResource(deployCF model.DeployCF) atc.ResourceConfig {
+	sources := atc.Source{
+		"api":          deployCF.Api,
+		"organization": deployCF.Org,
+		"space":        deployCF.Space,
+		"username":     deployCF.Username,
+		"password":     deployCF.Password,
+	}
+
+	return atc.ResourceConfig{
+		Name:   "resource-deploy-cf",
+		Type:   "cf",
+		Source: sources,
+	}
+}
+
 func (p Pipeline) makeImageResource(image string) *atc.ImageResource {
 	repo, tag := image, "latest"
 	if strings.Contains(image, ":") {
@@ -81,6 +97,8 @@ func (p Pipeline) Render(manifest model.Manifest) atc.Config {
 		switch task := t.(type) {
 		case model.Run:
 			config.Jobs = append(config.Jobs, p.makeRunJob(task, manifest.Repo))
+		case model.DeployCF:
+			config.Resources = append(config.Resources, p.cfDeployResource(task))
 		}
 	}
 	return config

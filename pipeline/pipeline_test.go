@@ -32,6 +32,33 @@ func TestRendersHttpGitResource(t *testing.T) {
 	assert.Equal(t, expected, pipe.Render(manifest))
 }
 
+func TestRendersCfDeployResource(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Tasks = []model.Task{
+		model.DeployCF{
+			Api:      "api",
+			Space:    "space-station",
+			Org:      "springer",
+			Username: "rob",
+			Password: "supersecret",
+		},
+	}
+
+	expected := atc.ResourceConfig{
+				Name: "resource-deploy-cf",
+				Type: "cf",
+				Source: atc.Source{
+					"api": "api",
+					"space": "space-station",
+					"organization": "springer",
+					"password": "supersecret",
+					"username": "rob",
+				},
+	}
+	assert.Equal(t, expected, pipe.Render(manifest).Resources[1])
+}
+
+
 func TestRendersSshGitResource(t *testing.T) {
 	name := "asdf"
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
@@ -101,6 +128,53 @@ func TestRenderRunTask(t *testing.T) {
 
 	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
 }
+//func TestRenderCfDeployTask(t *testing.T) {
+//	manifest := model.Manifest{}
+//	manifest.Repo.Uri = "http://github.com:/springernature/foo.git"
+//	manifest.Tasks = []model.Task{
+//		model.DeployCF{
+//			Name:     "App",
+//			Api:      "https://api.com",
+//			Space:    "space",
+//			Org:      "org",
+//			Username: "red",
+//			Password: "supersecret",
+//			Manifest: "./manifest.yml",
+//			Vars:     nil,
+//		},
+//	}
+//
+//	expected := atc.TaskConfig{
+//		Name:   "./yolo.sh",
+//		Serial: true,
+//		Plan: atc.PlanSequence{
+//			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+//			atc.PlanConfig{Task: "./yolo.sh", TaskConfig: &atc.TaskConfig{
+//				Platform: "linux",
+//				Params: map[string]string{
+//					"VAR1": "Value1",
+//					"VAR2": "Value2",
+//				},
+//				ImageResource: &atc.ImageResource{
+//					Type: "docker-image",
+//					Source: atc.Source{
+//						"repository": "imagename",
+//						"tag":        "TAG",
+//					},
+//				},
+//				Run: atc.TaskRunConfig{
+//					Path: "/bin/sh",
+//					Dir:  manifest.Repo.GetName(),
+//					Args: []string{"-exc", fmt.Sprintf("././yolo.sh")},
+//				},
+//				Inputs: []atc.TaskInputConfig{
+//					{Name: manifest.Repo.GetName()},
+//				},
+//			}},
+//		}}
+//
+//	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
+//}
 
 func TestToString(t *testing.T) {
 	man := model.Manifest{}
