@@ -91,7 +91,7 @@ func TestRenderRunTask(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  manifest.Repo.GetName(),
-					Args: []string{"-exc", "./yolo.sh"},
+					Args: []string{"-exc", fmt.Sprintf("././yolo.sh")},
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: manifest.Repo.GetName()},
