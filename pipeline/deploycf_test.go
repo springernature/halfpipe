@@ -17,6 +17,11 @@ func TestRendersCfDeployResources(t *testing.T) {
 			Org:      "springer",
 			Username: "rob",
 			Password: "supersecret",
+			Manifest: "manifest-dev.yml",
+			Vars: model.Vars{
+				"VAR1": "value1",
+				"VAR2": "value2",
+			},
 		},
 		model.DeployCF{
 			Api:      "live-api",
@@ -24,10 +29,11 @@ func TestRendersCfDeployResources(t *testing.T) {
 			Org:      "springer",
 			Username: "rob",
 			Password: "supersecret",
+			Manifest: "manifest-live.yml",
 		},
 	}
 
-	expectedDev := atc.ResourceConfig{
+	expectedDevResource := atc.ResourceConfig{
 		Name: "resource-deploy-cf_Task0",
 		Type: "cf",
 		Source: atc.Source{
@@ -39,7 +45,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	expectedLive := atc.ResourceConfig{
+	expectedLiveResource := atc.ResourceConfig{
 		Name: "resource-deploy-cf_Task1",
 		Type: "cf",
 		Source: atc.Source{
@@ -50,6 +56,32 @@ func TestRendersCfDeployResources(t *testing.T) {
 			"username":     "rob",
 		},
 	}
-	assert.Equal(t, expectedDev, pipe.Render(manifest).Resources[1])
-	assert.Equal(t, expectedLive, pipe.Render(manifest).Resources[2])
+
+	expectedDevJob := atc.JobConfig{
+		Name:   "deploy-cf",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{
+				Put: "resource-deploy-cf_Task0",
+				Params: atc.Params{
+					"manifest": "manifest-dev.yml",
+					"environment_variables": map[string]interface{}{
+						"VAR1": "value1",
+						"VAR2": "value2",
+					},
+				},
+			},
+		},
+	}
+
+	config := pipe.Render(manifest)
+
+	//yaml, _ := ToString(config)
+	//fmt.Println(yaml)
+
+	assert.Equal(t, expectedDevResource, config.Resources[1])
+	assert.Equal(t, expectedLiveResource, config.Resources[2])
+
+	assert.Equal(t, expectedDevJob, config.Jobs[0])
 }

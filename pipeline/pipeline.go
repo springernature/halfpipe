@@ -86,6 +86,31 @@ func (p Pipeline) makeRunJob(task model.Run, repo model.Repo) atc.JobConfig {
 				}}}}
 }
 
+func convertVars(vars model.Vars) map[string]interface{} {
+	out := make(map[string]interface{})
+	for k, v := range vars {
+		out[k] = v
+	}
+	return out
+}
+
+func (p Pipeline) makeCfDeployJob(task model.DeployCF, repoName string, taskIndex int) atc.JobConfig {
+	return atc.JobConfig{
+		Name:   "deploy-cf",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: repoName, Trigger: true},
+			atc.PlanConfig{
+				Put: fmt.Sprintf("resource-deploy-cf_Task%v", taskIndex),
+				Params: atc.Params{
+					"manifest":              task.Manifest,
+					"environment_variables": convertVars(task.Vars),
+				},
+			},
+		},
+	}
+}
+
 func (p Pipeline) Render(manifest model.Manifest) atc.Config {
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -99,6 +124,7 @@ func (p Pipeline) Render(manifest model.Manifest) atc.Config {
 			config.Jobs = append(config.Jobs, p.makeRunJob(task, manifest.Repo))
 		case model.DeployCF:
 			config.Resources = append(config.Resources, p.cfDeployResource(task, i))
+			config.Jobs = append(config.Jobs, p.makeCfDeployJob(task, manifest.Repo.GetName(), i))
 		}
 	}
 	return config
