@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/model"
+	"regexp"
 )
 
 type TaskLinter struct {
@@ -26,6 +27,8 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 			result.Errors = append(result.Errors, lintRunTask(taskLinter, task)...)
 		case model.DeployCF:
 			result.Errors = append(result.Errors, lintDeployCFTask(task)...)
+		case model.DockerPush:
+			result.Errors = append(result.Errors, lintDockerPushTask(task)...)
 		default:
 			result.Errors = append(result.Errors, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
 		}
@@ -41,8 +44,27 @@ func lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if cf.Space == "" {
 		errs = append(errs, errors.NewMissingField("space"))
 	}
+
 	if cf.Org == "" {
 		errs = append(errs, errors.NewMissingField("org"))
+	}
+	return
+}
+
+func lintDockerPushTask(docker model.DockerPush) (errs []error) {
+	if docker.Username == "" {
+		errs = append(errs, errors.NewMissingField("username"))
+	}
+	if docker.Password == "" {
+		errs = append(errs, errors.NewMissingField("password"))
+	}
+	if docker.Repo == "" {
+		errs = append(errs, errors.NewMissingField("repo"))
+	} else {
+		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Repo))
+		if !matched {
+			errs = append(errs, errors.NewInvalidField("repo", "must be specified as 'owner/image'"))
+		}
 	}
 	return
 }

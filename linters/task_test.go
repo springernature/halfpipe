@@ -81,3 +81,53 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	assertMissingField(t, "space", result.Errors[1])
 	assertMissingField(t, "org", result.Errors[2])
 }
+
+
+func TestDockerPushTaskWithEmptyTask(t *testing.T) {
+	taskLinter := setup()
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.DockerPush{},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 3)
+	assertMissingField(t, "username", result.Errors[0])
+	assertMissingField(t, "password", result.Errors[1])
+	assertMissingField(t, "repo", result.Errors[2])
+}
+
+func TestDockerPushTaskWithBadRepo(t *testing.T) {
+	taskLinter := setup()
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.DockerPush{
+				Username: "asd",
+				Password: "asd",
+				Repo: "asd",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidField(t, "repo", result.Errors[0])
+}
+
+func TestDockerPushTaskWithCorrectData(t *testing.T) {
+	taskLinter := setup()
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.DockerPush{
+				Username: "asd",
+				Password: "asd",
+				Repo: "asd/asd",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+}
+
