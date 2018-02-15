@@ -3,7 +3,6 @@ package linters
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +14,7 @@ func TestRepoIsEmpty(t *testing.T) {
 
 	errs := repoLinter.Lint(man)
 	assert.Len(t, errs, 1)
-	assert.IsType(t, errors.MissingField{}, errs[0])
+	assertMissingField(t, "repo.uri", errs[0])
 }
 
 func TestRepInvalidUri(t *testing.T) {
@@ -24,7 +23,7 @@ func TestRepInvalidUri(t *testing.T) {
 
 	errs := repoLinter.Lint(man)
 	assert.Len(t, errs, 1)
-	assert.IsType(t, errors.InvalidField{}, errs[0])
+	assertInvalidField(t, "repo.uri", errs[0])
 }
 
 func TestRepoUriIsValidUri(t *testing.T) {
@@ -41,7 +40,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 
 	errs := repoLinter.Lint(manifest)
 	assert.Len(t, errs, 1)
-	assert.IsType(t, errors.MissingField{}, errs[0])
+	assertMissingField(t, "repo.private_key", errs[0])
 
 	manifest.Repo.PrivateKey = "somekey"
 	errs = repoLinter.Lint(manifest)
