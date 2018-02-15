@@ -12,28 +12,28 @@ type TaskLinter struct {
 	Fs afero.Afero
 }
 
-func (taskLinter TaskLinter) Lint(man model.Manifest) []error {
-	var errs []error
+func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult) {
+	result.Linter = "Tasks Linter"
+
 	if len(man.Tasks) == 0 {
-		errs = append(errs, errors.NewMissingField("tasks"))
-		return errs
+		result.Errors = append(result.Errors, errors.NewMissingField("tasks"))
+		return
 	}
 
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
 		case model.Run:
-			errs = append(errs, lintRunTask(taskLinter, task)...)
+			result.Errors = append(result.Errors, lintRunTask(taskLinter, task)...)
 		case model.DeployCF:
-			errs = append(errs, lintDeployCFTask(task)...)
+			result.Errors = append(result.Errors, lintDeployCFTask(task)...)
 		default:
-			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
+			result.Errors = append(result.Errors, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
 		}
 	}
 
-	return errs
+	return
 }
-func lintDeployCFTask(cf model.DeployCF) []error {
-	var errs []error
+func lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if cf.Api == "" {
 		errs = append(errs, errors.NewMissingField("api"))
 	}
@@ -44,7 +44,7 @@ func lintDeployCFTask(cf model.DeployCF) []error {
 	if cf.Org == "" {
 		errs = append(errs, errors.NewMissingField("org"))
 	}
-	return errs
+	return
 }
 
 func lintRunTask(t TaskLinter, run model.Run) []error {

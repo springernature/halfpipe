@@ -7,11 +7,12 @@ import (
 
 type TeamLinter struct{}
 
-func (TeamLinter) Lint(manifest model.Manifest) []error {
+func (TeamLinter) Lint(manifest model.Manifest) (result errors.LintResult) {
+	result.Linter = "Team Linter"
+
 	if manifest.Team == "" {
-		return []error{
-			errors.NewMissingField("team"),
-		}
+		result.Errors = append(result.Errors, errors.NewMissingField("team"))
 	}
-	return nil
+
+	return
 }

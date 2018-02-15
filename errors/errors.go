@@ -2,6 +2,37 @@ package errors
 
 import "fmt"
 
+type LintResults []LintResult
+func (e LintResults) HasErrors() bool {
+	for _, lintResult := range e {
+		if lintResult.HasErrors() {
+			return true
+		}
+	}
+	return false
+}
+
+type LintResult struct {
+	Linter string
+	Errors []error
+}
+
+func (e LintResult) Error() (out string) {
+	out += fmt.Sprintf("%s\n", e.Linter)
+	if e.HasErrors() {
+		for _, error := range e.Errors {
+			out += fmt.Sprintf("\t%s\n", error)
+		}
+	} else {
+		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
+	}
+	return
+}
+
+func (e LintResult) HasErrors() bool {
+	return len(e.Errors) != 0
+}
+
 type InvalidField struct {
 	Name   string
 	Reason string

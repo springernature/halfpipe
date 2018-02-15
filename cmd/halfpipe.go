@@ -56,8 +56,7 @@ func main() {
 	}
 
 	pipelineConfig, errs := ctrl.Process()
-	if len(errs) > 0 {
-		println("there were some errors")
+	if errs.HasErrors() {
 		for _, err := range errs {
 			fmt.Println(err)
 		}

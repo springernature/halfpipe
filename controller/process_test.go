@@ -18,29 +18,31 @@ func setup() Controller {
 
 func TestProcessDoesNothingWhenFileDoesntExist(t *testing.T) {
 	c := setup()
-	pipeline, errs := c.Process()
+	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
-	assert.Len(t, errs, 1)
-	assert.IsType(t, errors.FileError{}, errs[0])
+	assert.Len(t, results, 1)
+	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
 }
 
 func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
 	c := setup()
 	c.Fs.WriteFile(".halfpipe.io", []byte(""), 0777)
-	pipeline, errs := c.Process()
+	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
-	assert.Len(t, errs, 1)
-	assert.IsType(t, errors.FileError{}, errs[0])
+	assert.Len(t, results, 1)
+	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
 }
 
 type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest model.Manifest) []error {
-	return []error{f.Error}
+func (f fakeLinter) Lint(manifest model.Manifest) errors.LintResult {
+	return errors.LintResult{
+		Errors: []error{f.Error},
+	}
 }
 
 func TestAppliesAllLinters(t *testing.T) {
@@ -53,12 +55,12 @@ func TestAppliesAllLinters(t *testing.T) {
 	error2 := fakeLinter{e2}
 	c.Linters = []linters.Linter{error1, error2}
 
-	pipeline, errs := c.Process()
+	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
-	assert.Len(t, errs, 2)
-	assert.Equal(t, e1, errs[0])
-	assert.Equal(t, e2, errs[1])
+	assert.Len(t, results, 2)
+	assert.Equal(t, e1, results[0].Errors[0])
+	assert.Equal(t, e2, results[1].Errors[0])
 }
 
 type FakeRenderer struct {
@@ -82,7 +84,7 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	}
 	c.Renderer = FakeRenderer{Config: config}
 
-	pipeline, errs := c.Process()
-	assert.Len(t, errs, 0)
+	pipeline, results := c.Process()
+	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
 }

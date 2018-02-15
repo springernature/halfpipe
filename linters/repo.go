@@ -11,21 +11,23 @@ import (
 
 type RepoLinter struct{}
 
-func (r RepoLinter) Lint(man model.Manifest) []error {
-	var errs []error
+func (r RepoLinter) Lint(man model.Manifest) (result errors.LintResult) {
+	result.Linter = "Repo Linter"
+
 	if man.Repo.Uri == "" {
-		errs = append(errs, errors.NewMissingField("repo.uri"))
-		return errs
+		result.Errors = append(result.Errors, errors.NewMissingField("repo.uri"))
+		return
 	}
 
 	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, man.Repo.Uri)
 	if !match {
-		errs = append(errs, errors.NewInvalidField("repo.uri", "must be a valid git uri"))
+		result.Errors = append(result.Errors, errors.NewInvalidField("repo.uri", "must be a valid git uri"))
+		return
 	}
 
 	if strings.HasPrefix(man.Repo.Uri, "git@") && man.Repo.PrivateKey == "" {
-		errs = append(errs, errors.NewMissingField("repo.private_key"))
+		result.Errors = append(result.Errors, errors.NewMissingField("repo.private_key"))
 	}
 
-	return errs
+	return
 }

@@ -11,9 +11,9 @@ var teamLinter = TeamLinter{}
 
 func TestTeamIsEmpty(t *testing.T) {
 	man := model.Manifest{}
-	errs := teamLinter.Lint(man)
-	assert.Len(t, errs, 1)
-	assertMissingField(t, "team", errs[0])
+	result := teamLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "team", result.Errors[0])
 }
 
 func TestTeamIsValid(t *testing.T) {
@@ -21,6 +21,6 @@ func TestTeamIsValid(t *testing.T) {
 		Team: "yolo",
 	}
 
-	errs := teamLinter.Lint(man)
-	assert.Empty(t, errs)
+	result := teamLinter.Lint(man)
+	assert.False(t, result.HasErrors())
 }

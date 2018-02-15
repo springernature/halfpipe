@@ -18,9 +18,9 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	man := model.Manifest{}
 	taskLinter := setup()
 
-	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 1)
-	assertMissingField(t, "tasks", errs[0])
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "tasks", result.Errors[0])
 }
 
 func TestRunTaskWithoutScriptAndImage(t *testing.T) {
@@ -31,10 +31,10 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 		model.Run{},
 	}
 
-	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 2)
-	assertMissingField(t, "script", errs[0])
-	assertMissingField(t, "image", errs[1])
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 2)
+	assertMissingField(t, "script", result.Errors[0])
+	assertMissingField(t, "image", result.Errors[1])
 }
 
 func TestRunTaskWithScriptAndImage(t *testing.T) {
@@ -47,9 +47,9 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 		},
 	}
 
-	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 1)
-	assertFileError(t, "./build.sh", errs[0])
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertFileError(t, "./build.sh", result.Errors[0])
 }
 
 func TestRunTaskScriptFileExists(t *testing.T) {
@@ -64,8 +64,8 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 		},
 	}
 
-	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 0)
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
 }
 
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
@@ -75,9 +75,9 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 		model.DeployCF{},
 	}
 
-	errs := taskLinter.Lint(man)
-	assert.Len(t, errs, 3)
-	assertMissingField(t, "api", errs[0])
-	assertMissingField(t, "space", errs[1])
-	assertMissingField(t, "org", errs[2])
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 3)
+	assertMissingField(t, "api", result.Errors[0])
+	assertMissingField(t, "space", result.Errors[1])
+	assertMissingField(t, "org", result.Errors[2])
 }
