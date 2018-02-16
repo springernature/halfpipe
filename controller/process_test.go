@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() Controller {
+func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	return Controller{Fs: fs}
 }
 
 func TestProcessDoesNothingWhenFileDoesntExist(t *testing.T) {
-	c := setup()
+	c := testController()
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
@@ -26,7 +26,7 @@ func TestProcessDoesNothingWhenFileDoesntExist(t *testing.T) {
 }
 
 func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
-	c := setup()
+	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 	pipeline, results := c.Process()
 
@@ -46,7 +46,7 @@ func (f fakeLinter) Lint(manifest model.Manifest) errors.LintResult {
 }
 
 func TestAppliesAllLinters(t *testing.T) {
-	c := setup()
+	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
 
 	e1 := errors.NewFileError("file", "is missing")
@@ -72,7 +72,7 @@ func (f FakeRenderer) Render(manifest model.Manifest) atc.Config {
 }
 
 func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
-	c := setup()
+	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
 
 	config := atc.Config{

@@ -90,7 +90,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	config := pipe.Render(manifest)
+	config := testPipeline().Render(manifest)
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])

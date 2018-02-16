@@ -8,19 +8,19 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func fs() afero.Afero {
+func testFs() afero.Afero {
 	return afero.Afero{Fs: afero.NewMemMapFs()}
 }
 
 func TestFile_NotExists(t *testing.T) {
-	fs := fs()
+	fs := testFs()
 	err := CheckFile(fs, "missing.file", false)
 
 	assert.Equal(t, errors.NewFileError("missing.file", "does not exist"), err)
 }
 
 func TestFile_Empty(t *testing.T) {
-	fs := fs()
+	fs := testFs()
 	fs.WriteFile(".halfpipe.io", []byte{}, 0777)
 
 	err := CheckFile(fs, ".halfpipe.io", false)
@@ -28,7 +28,7 @@ func TestFile_Empty(t *testing.T) {
 }
 
 func TestFile_IsDirectory(t *testing.T) {
-	fs := fs()
+	fs := testFs()
 	fs.Mkdir("build", 0777)
 
 	err := CheckFile(fs, "build", false)
@@ -36,7 +36,7 @@ func TestFile_IsDirectory(t *testing.T) {
 }
 
 func TestFile_NotExecutable(t *testing.T) {
-	fs := fs()
+	fs := testFs()
 	fs.WriteFile("build.sh", []byte("go test"), 0400)
 
 	err := CheckFile(fs, "build.sh", true)
@@ -47,7 +47,7 @@ func TestFile_NotExecutable(t *testing.T) {
 }
 
 func TestFile_Happy(t *testing.T) {
-	fs := fs()
+	fs := testFs()
 	fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
 	err := CheckFile(fs, ".halfpipe.io", true)
 

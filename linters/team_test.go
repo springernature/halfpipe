@@ -7,11 +7,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var teamLinter = TeamLinter{}
+func testTeamLinter() TeamLinter {
+	return TeamLinter{}
+}
 
 func TestTeamIsEmpty(t *testing.T) {
 	man := model.Manifest{}
-	result := teamLinter.Lint(man)
+	result := testTeamLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "team", result.Errors[0])
 }
@@ -21,6 +23,6 @@ func TestTeamIsValid(t *testing.T) {
 		Team: "yolo",
 	}
 
-	result := teamLinter.Lint(man)
+	result := testTeamLinter().Lint(man)
 	assert.False(t, result.HasErrors())
 }

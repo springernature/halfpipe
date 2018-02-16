@@ -9,7 +9,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var pipe = Pipeline{}
+func testPipeline() Pipeline {
+	return Pipeline{}
+}
 
 func TestRendersHttpGitResource(t *testing.T) {
 	name := "yolo"
@@ -29,7 +31,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, pipe.Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(manifest))
 }
 
 func TestRendersSshGitResource(t *testing.T) {
@@ -53,7 +55,7 @@ func TestRendersSshGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, pipe.Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(manifest))
 }
 
 func TestRenderRunTask(t *testing.T) {
@@ -99,7 +101,7 @@ func TestRenderRunTask(t *testing.T) {
 			}},
 		}}
 
-	assert.Equal(t, expected, pipe.Render(manifest).Jobs[0])
+	assert.Equal(t, expected, testPipeline().Render(manifest).Jobs[0])
 }
 
 func TestRenderDockerPushTask(t *testing.T) {
@@ -137,8 +139,8 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, pipe.Render(manifest).Resources[1])
-	assert.Equal(t, expectedJobConfig, pipe.Render(manifest).Jobs[0])
+	assert.Equal(t, expectedResource, testPipeline().Render(manifest).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().Render(manifest).Jobs[0])
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
@@ -157,7 +159,7 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 		},
 	}
 
-	config := pipe.Render(manifest)
+	config := testPipeline().Render(manifest)
 	assert.Equal(t, config.Jobs[0].Plan[0], atc.PlanConfig{
 		Get:     manifest.Repo.GetName(),
 		Trigger: true,
@@ -184,7 +186,7 @@ func TestToString(t *testing.T) {
 	man := model.Manifest{}
 	man.Repo.Uri = "repo.git"
 
-	actual, err := ToString(pipe.Render(man))
+	actual, err := ToString(testPipeline().Render(man))
 	expected := "uri: repo.git"
 
 	assert.Nil(t, err)

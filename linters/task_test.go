@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() TaskLinter {
+func testTaskLinter() TaskLinter {
 	return TaskLinter{
 		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
 	}
@@ -16,7 +16,7 @@ func setup() TaskLinter {
 
 func TestAtLeastOneTaskExists(t *testing.T) {
 	man := model.Manifest{}
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -25,7 +25,7 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 
 func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	man := model.Manifest{}
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 
 	man.Tasks = []model.Task{
 		model.Run{},
@@ -38,7 +38,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 }
 
 func TestRunTaskWithScriptAndImage(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	man := model.Manifest{}
 	man.Tasks = []model.Task{
 		model.Run{
@@ -53,7 +53,7 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 }
 
 func TestRunTaskScriptFileExists(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
 
 	man := model.Manifest{}
@@ -69,7 +69,7 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 }
 
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	man := model.Manifest{}
 	man.Tasks = []model.Task{
 		model.DeployCF{},
@@ -83,7 +83,7 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 }
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	man := model.Manifest{
 		Tasks: []model.Task{
 			model.DockerPush{},
@@ -100,13 +100,13 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 }
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	man := model.Manifest{
 		Tasks: []model.Task{
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo: "asd",
+				Repo:     "asd",
 			},
 		},
 	}
@@ -119,13 +119,13 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 }
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	man := model.Manifest{
 		Tasks: []model.Task{
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo: "asd/asd",
+				Repo:     "asd/asd",
 			},
 		},
 	}
@@ -136,7 +136,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 }
 
 func TestDockerPushTaskWithCorrectData(t *testing.T) {
-	taskLinter := setup()
+	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 	man := model.Manifest{
@@ -144,7 +144,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo: "asd/asd",
+				Repo:     "asd/asd",
 			},
 		},
 	}
@@ -152,4 +152,3 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
-
