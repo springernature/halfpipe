@@ -39,3 +39,14 @@ func assertFileError(t *testing.T, path string, err error) {
 		assert.Equal(t, path, mf.Path)
 	}
 }
+
+func assertVaultError(t *testing.T, key string, err error) {
+	t.Helper()
+
+	mf, ok := err.(errors.VaultError)
+	if !ok {
+		assert.Fail(t, "error is not a VaultError", err)
+	} else {
+		assert.Equal(t, key, mf.Key)
+	}
+}

@@ -3,17 +3,27 @@ package linters
 import (
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/errors"
-	"github.com/hashicorp/vault/api"
 	"regexp"
 	"fmt"
+	"strings"
+	"github.com/springernature/halfpipe/vault"
 )
 
 type SecretsLinter struct {
-
+	VaultClient vault.VaultClient
 }
 
 func (secretsLinter SecretsLinter) Lint(man model.Manifest) (result errors.LintResult) {
 	result.Linter = "Secrets Linter"
+
+	for _, secret := range requiredSecrets(man) {
+		if !validKey(secret) {
+			result.Errors = append(result.Errors, errors.NewVaultError(secret, ""))
+		} else {
+			secretsLinter.VaultClient.Exists(secret)
+		}
+	}
+
 
 	//for _, secret := range requiredSecrets(man) {
 	//	//var []vaultPaths := buildVaultPath(man, secret)
@@ -24,12 +34,6 @@ func (secretsLinter SecretsLinter) Lint(man model.Manifest) (result errors.LintR
 	return
 }
 
-func buildVaultPath(man model.Manifest, secret string) ([]string) {
-	return []string{
-		fmt.Sprintf("/springernature/%s/%s", man.Team, secret),
-		fmt.Sprintf("/springernature/%s/%/%s", man.Team, man.Repo.GetName(), secret),
-		}
-}
 
 func requiredSecrets(man model.Manifest) (secrets []string) {
 	re := regexp.MustCompile(`\(\(([^\)]+)\)\)`)
@@ -38,6 +42,20 @@ func requiredSecrets(man model.Manifest) (secrets []string) {
 	}
 	return
 }
+
+func validKey(key string) bool {
+	return len(strings.Split(key, ".")) == 2
+}
+
+/*
+
+func buildVaultPath(man model.Manifest, secret string) ([]string) {
+	return []string{
+		fmt.Sprintf("/springernature/%s/%s", man.Team, secret),
+		fmt.Sprintf("/springernature/%s/%/%s", man.Team, man.Repo.GetName(), secret),
+		}
+}
+
 
 func secretChecker(path string) (error) {
 
@@ -63,3 +81,4 @@ func secretChecker(path string) (error) {
 
 	return true
 }
+*/

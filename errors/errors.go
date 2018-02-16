@@ -111,11 +111,13 @@ func NewFileError(path string, reason string) FileError {
 }
 
 type VaultError struct {
+	Path string
+	Key string
 	Message string
 }
 
-func NewVaultError(message string) VaultError {
-	return VaultError{message}
+func NewVaultError(key string, message string) VaultError {
+	return VaultError{Key: key, Message:message}
 }
 
 func (e VaultError) Error() string {
