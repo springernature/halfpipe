@@ -12,6 +12,7 @@ import (
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
+	"github.com/springernature/halfpipe/vault"
 )
 
 var (
@@ -29,7 +30,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
-			linters.SecretsLinter{},
+			linters.SecretsLinter{vault.Vault{}, "concourse"},
 			linters.TaskLinter{Fs: fs},
 		},
 		Renderer: pipeline.Pipeline{},

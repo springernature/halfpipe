@@ -1,11 +1,11 @@
 package vault
 
 type VaultClient interface {
-	Exists(path string) (bool, error)
+	Exists(prefix string, team string, pipeline string, mapKey string, keyName string) (bool, error)
 }
 
 type Vault struct{}
 
-func (Vault) Exists(path string) (bool, error) {
+func (Vault) Exists(prefix string, team string, pipeline string, mapKey string, keyName string) (bool, error) {
 	return false, nil
 }

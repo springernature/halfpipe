@@ -6,23 +6,16 @@ import (
 	"testing"
 	"github.com/golang/mock/gomock"
 	"github.com/springernature/halfpipe/vault"
-	"fmt"
+	"github.com/springernature/halfpipe/errors"
 )
-
-func setupSecretLinter(t *testing.T) (secretLinter SecretsLinter) {
-	ctrl := gomock.NewController(t)
-
-	mockClient := vault.NewMockVaultClient(ctrl)
-	return SecretsLinter{VaultClient: mockClient}
-}
 
 func TestFindSecretsDoesNothingIfThereAreNoSecrets(t *testing.T) {
 	man := model.Manifest{}
-	result := setupSecretLinter(t).Lint(man)
+	result := SecretsLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
 
-func TestFindSecretsPlaceholder(t *testing.T) {
+func TestErrorsForBadKeys(t *testing.T) {
 	wrong1 := "((a))"
 	wrong2 := "((b))"
 	wrong3 := "((c))"
@@ -35,97 +28,41 @@ func TestFindSecretsPlaceholder(t *testing.T) {
 		},
 	}
 
-	result := setupSecretLinter(t).Lint(man)
+	result := SecretsLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 3)
-	assertVaultError(t, "a", result.Errors[0])
-	assertVaultError(t, "b", result.Errors[1])
-	assertVaultError(t, "c", result.Errors[2])
+	assert.Equal(t, errors.NewBadVaultSecretError(wrong1), result.Errors[0])
+	assert.Equal(t, errors.NewBadVaultSecretError(wrong2), result.Errors[1])
+	assert.Equal(t, errors.NewBadVaultSecretError(wrong3), result.Errors[2])
 }
 
-func TestFindSecretsReturnsErrorIfASecretIsMalformed(t *testing.T) {
-	key := "((a))"
-	man := model.Manifest{
-		Repo: model.Repo{
-			PrivateKey: key,
+func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
+	foundSecret := "((found.secret))"
+	notFoundSecret := "((not.found))"
+	man := model.Manifest{}
+	man.Team = "team"
+	man.Repo.Uri = "https://github.com/Masterminds/squirrel"
+	man.Tasks = []model.Task{
+		model.DeployCF{
+			Username: foundSecret,
+			Password: notFoundSecret,
 		},
 	}
 
-	linter := setupSecretLinter(t)
+	ctrl := gomock.NewController(t)
+	mockClient := vault.NewMockVaultClient(ctrl)
+	prefix := "springernature"
+	linter := SecretsLinter{
+		mockClient,
+		prefix,
+	}
+
+	mockClient.EXPECT().Exists(prefix, man.Team, man.Repo.GetName(), "found", "secret").
+		Return(true, nil)
+	mockClient.EXPECT().Exists(prefix, man.Team, man.Repo.GetName(), "not", "found").
+		Return(false, nil)
+
 	result := linter.Lint(man)
+
 	assert.Len(t, result.Errors, 1)
-	assertVaultError(t, "a", result.Errors[0])
+	assert.Equal(t, errors.NewNotFoundVaultSecretError(notFoundSecret), result.Errors[0])
 }
-
-func TestFindSecretsReturnsErrorIfASecretIsNotInVault(t *testing.T) {
-	man := model.Manifest{
-		Team: "yolo",
-		Repo: model.Repo{
-			Uri:        "git@github.com:springernature/halfpipe.git",
-			PrivateKey: "((deploy.key))",
-		},
-	}
-
-	path1 := fmt.Sprintf(VaultPathWithRepoName, man.Team, man.Repo.GetName(), "deploy", "key")
-	path2 := fmt.Sprintf(VaultPathWithoutRepoName, man.Team, "deploy", "key")
-
-	linter := setupSecretLinter(t)
-	ctrl := gomock.NewController(t)
-	mockClient := vault.NewMockVaultClient(ctrl)
-	mockClient.EXPECT().Exists(path1).Return(false, nil)
-	mockClient.EXPECT().Exists(path2).Return(false, nil)
-	linter.VaultClient = mockClient
-
-	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertVaultError(t, "deploy.key", result.Errors[0])
-}
-
-func TestFindSecretsReturnsNoErrorIfASecretIsInVault(t *testing.T) {
-	man := model.Manifest{
-		Team: "yolo",
-		Repo: model.Repo{
-			Uri:        "git@github.com:springernature/halfpipe.git",
-			PrivateKey: "((deploy.key))",
-		},
-	}
-
-	path1 := fmt.Sprintf(VaultPathWithRepoName, man.Team, man.Repo.GetName(), "deploy", "key")
-	path2 := fmt.Sprintf(VaultPathWithoutRepoName, man.Team, "deploy", "key")
-
-	linter := setupSecretLinter(t)
-	ctrl := gomock.NewController(t)
-	mockClient := vault.NewMockVaultClient(ctrl)
-	mockClient.EXPECT().Exists(path1).Return(false, nil)
-	mockClient.EXPECT().Exists(path2).Return(true, nil)
-	linter.VaultClient = mockClient
-
-	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-func TestFindSecretsReturnsNoErrorAnsShortCirtcuitsIfASecretIsInVault(t *testing.T) {
-	man := model.Manifest{
-		Team: "yolo",
-		Repo: model.Repo{
-			Uri:        "git@github.com:springernature/halfpipe.git",
-			PrivateKey: "((deploy.key))",
-		},
-	}
-
-	path1 := fmt.Sprintf(VaultPathWithRepoName, man.Team, man.Repo.GetName(), "deploy", "key")
-
-	linter := setupSecretLinter(t)
-	ctrl := gomock.NewController(t)
-	mockClient := vault.NewMockVaultClient(ctrl)
-	mockClient.EXPECT().Exists(path1).Return(true, nil)
-	linter.VaultClient = mockClient
-
-	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-
-// Given this manifest
-// I call out in this way
-// And if stuff returns from dep
-// I give back these errors.
