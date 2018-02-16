@@ -16,9 +16,10 @@ import (
 )
 
 var (
-	// This field will be populated in Concourse from the version resource
-	// go build -ldflags "-X main.version`cat version/version`"
+	// These field will be populated in Concourse
+	// go build -ldflags "-X main.version=..."
 	version string
+	vaultPrefix string
 )
 
 func main() {
@@ -30,7 +31,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
-			linters.SecretsLinter{vault.Vault{}, "concourse"},
+			linters.SecretsLinter{vault.NewVaultClient(vaultPrefix)},
 			linters.TaskLinter{Fs: fs},
 		},
 		Renderer: pipeline.Pipeline{},

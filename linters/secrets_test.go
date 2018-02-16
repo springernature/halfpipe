@@ -49,20 +49,20 @@ func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
 	}
 
 	ctrl := gomock.NewController(t)
-	mockClient := vault.NewMockVaultClient(ctrl)
-	prefix := "springernature"
+	mockClient := vault.NewMockClient(ctrl)
 	linter := SecretsLinter{
 		mockClient,
-		prefix,
 	}
 
-	mockClient.EXPECT().Exists(prefix, man.Team, man.Repo.GetName(), "found", "secret").
+	pipelineName := man.Repo.GetName()
+	mockClient.EXPECT().Exists(man.Team, pipelineName, "found", "secret").
 		Return(true, nil)
-	mockClient.EXPECT().Exists(prefix, man.Team, man.Repo.GetName(), "not", "found").
+	mockClient.EXPECT().Exists(man.Team, pipelineName, "not", "found").
 		Return(false, nil)
+	mockClient.EXPECT().VaultPrefix().Return(man.Repo.GetName())
 
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Errors, 1)
-	assert.Equal(t, errors.NewNotFoundVaultSecretError(notFoundSecret), result.Errors[0])
+	assert.IsType(t, errors.NotFoundVaultSecretError{}, result.Errors[0])
 }

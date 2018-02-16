@@ -5,14 +5,13 @@ import (
 	"regexp"
 	"fmt"
 	"strings"
-	"github.com/springernature/halfpipe/vault"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/vault"
 )
 
 type SecretsLinter struct {
-	VaultClient vault.VaultClient
-	Prefix      string
+	VaultClient vault.Client
 }
 
 func (s SecretsLinter) Lint(manifest model.Manifest) (result errors.LintResult) {
@@ -23,11 +22,13 @@ func (s SecretsLinter) Lint(manifest model.Manifest) (result errors.LintResult) 
 			result.Errors = append(result.Errors, errors.NewBadVaultSecretError(secret))
 		} else {
 			mapName, keyName := helpers.SecretToMapAndKey(secret)
-			found, err := s.VaultClient.Exists(s.Prefix, manifest.Team, manifest.Repo.GetName(), mapName, keyName)
+			team := manifest.Team
+			pipeline := manifest.Repo.GetName()
+			found, err := s.VaultClient.Exists(team, pipeline, mapName, keyName)
 			if err != nil {
 				result.Errors = append(result.Errors, err)
 			} else if !found {
-				result.Errors = append(result.Errors, errors.NewNotFoundVaultSecretError(secret))
+				result.Errors = append(result.Errors, errors.NewNotFoundVaultSecretError(s.VaultClient.VaultPrefix(), team, pipeline, secret))
 			}
 		}
 	}

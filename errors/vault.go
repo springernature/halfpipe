@@ -5,33 +5,39 @@ import (
 	"github.com/springernature/halfpipe/helpers"
 )
 
-type BadSecret struct {
+type BadVaultSecretError struct {
 	Secret string
 }
 
-func NewBadVaultSecretError(key string) BadSecret {
-	return BadSecret{key}
+func NewBadVaultSecretError(secret string) BadVaultSecretError {
+	return BadVaultSecretError{secret}
 }
 
-func (e BadSecret) Error() string {
+func (e BadVaultSecretError) Error() string {
 	return fmt.Sprintf("'%s' is not a valid key", e.Secret)
 }
 
 type NotFoundVaultSecretError struct {
-	Secret string
+	prefix   string
+	team     string
+	pipeline string
+	Secret   string
 }
 
-func NewNotFoundVaultSecretError(secret string) NotFoundVaultSecretError {
+func NewNotFoundVaultSecretError(prefix string, team string, pipeline string, secret string) NotFoundVaultSecretError {
 	return NotFoundVaultSecretError{
-		Secret: secret,
+		prefix,
+		team,
+		pipeline,
+		secret,
 	}
 }
 
 func (e NotFoundVaultSecretError) Error() string {
 	mapName, keyName := helpers.SecretToMapAndKey(e.Secret)
 
-	path1 := fmt.Sprintf("/springernature/team/pipeline/%s", mapName)
-	path2 := fmt.Sprintf("/springernature/team/%s", mapName)
+	path1 := fmt.Sprintf("/%s/%s/%s/%s", e.prefix, e.team, e.pipeline, mapName)
+	path2 := fmt.Sprintf("/%s/%s/%s", e.prefix, e.team, mapName)
 
 	return fmt.Sprintf("Could not find '%s' under '%s' or '%s'", keyName, path1, path2)
 }

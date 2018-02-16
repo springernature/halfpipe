@@ -5,42 +5,54 @@
 package vault
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
+	"github.com/golang/mock/gomock"
+	"reflect"
 )
 
-// MockVaultClient is a mock of VaultClient interface
-type MockVaultClient struct {
+// MockClient is a mock of Client interface
+type MockClient struct {
 	ctrl     *gomock.Controller
-	recorder *MockVaultClientMockRecorder
+	recorder *MockClientMockRecorder
 }
 
-// MockVaultClientMockRecorder is the mock recorder for MockVaultClient
-type MockVaultClientMockRecorder struct {
-	mock *MockVaultClient
+// MockClientMockRecorder is the mock recorder for MockClient
+type MockClientMockRecorder struct {
+	mock *MockClient
 }
 
-// NewMockVaultClient creates a new mock instance
-func NewMockVaultClient(ctrl *gomock.Controller) *MockVaultClient {
-	mock := &MockVaultClient{ctrl: ctrl}
-	mock.recorder = &MockVaultClientMockRecorder{mock}
+// NewMockClient creates a new mock instance
+func NewMockClient(ctrl *gomock.Controller) *MockClient {
+	mock := &MockClient{ctrl: ctrl}
+	mock.recorder = &MockClientMockRecorder{mock}
 	return mock
 }
 
 // EXPECT returns an object that allows the caller to indicate expected use
-func (m *MockVaultClient) EXPECT() *MockVaultClientMockRecorder {
+func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
 // Exists mocks base method
-func (m *MockVaultClient) Exists(prefix, team, pipeline, mapKey, keyName string) (bool, error) {
-	ret := m.ctrl.Call(m, "Exists", prefix, team, pipeline, mapKey, keyName)
+func (m *MockClient) Exists(team, pipeline, mapKey, keyName string) (bool, error) {
+	ret := m.ctrl.Call(m, "Exists", team, pipeline, mapKey, keyName)
 	ret0, _ := ret[0].(bool)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Exists indicates an expected call of Exists
-func (mr *MockVaultClientMockRecorder) Exists(prefix, team, pipeline, mapKey, keyName interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockVaultClient)(nil).Exists), prefix, team, pipeline, mapKey, keyName)
+func (mr *MockClientMockRecorder) Exists(team, pipeline, mapKey, keyName interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Exists", reflect.TypeOf((*MockClient)(nil).Exists), team, pipeline, mapKey, keyName)
+}
+
+// VaultPrefix mocks base method
+func (m *MockClient) VaultPrefix() string {
+	ret := m.ctrl.Call(m, "VaultPrefix")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// VaultPrefix indicates an expected call of VaultPrefix
+func (mr *MockClientMockRecorder) VaultPrefix() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VaultPrefix", reflect.TypeOf((*MockClient)(nil).VaultPrefix))
 }
