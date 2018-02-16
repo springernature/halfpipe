@@ -129,7 +129,7 @@ func (p Pipeline) makeDockerPushJob(task model.DockerPush, repoName, jobName, re
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: repoName, Trigger: true},
-			atc.PlanConfig{Put: task.GetName(), Params: atc.Params{"build": repoName}},
+			atc.PlanConfig{Put: resourceName, Params: atc.Params{"build": repoName}},
 		},
 	}
 }

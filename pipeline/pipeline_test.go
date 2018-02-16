@@ -132,7 +132,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
-			atc.PlanConfig{Put: "docker-push", Params: atc.Params{"build": manifest.Repo.GetName()}},
+			atc.PlanConfig{Put: "1. Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName()}},
 		},
 	}
 
