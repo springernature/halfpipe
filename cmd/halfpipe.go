@@ -29,6 +29,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
+			linters.SecretsLinter{},
 			linters.TaskLinter{Fs: fs},
 		},
 		Renderer: pipeline.Pipeline{},

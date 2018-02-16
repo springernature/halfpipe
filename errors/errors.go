@@ -109,3 +109,29 @@ func (e FileError) DocumentationPath() string {
 func NewFileError(path string, reason string) FileError {
 	return FileError{Path: path, Reason: reason}
 }
+
+type VaultError struct {
+	Message string
+}
+
+func NewVaultError(message string) VaultError {
+	return VaultError{message}
+}
+
+func (e VaultError) Error() string {
+	return fmt.Sprintf("Vault error: %s", e.Message)
+}
+
+type MissingVaultPath struct {
+	Path string
+}
+
+func (e MissingVaultPath) Error() string {
+	return fmt.Sprintf("Missing vault secret: %s", e.Path)
+}
+
+func NewMissingVaultPath(path string) MissingVaultPath {
+	return MissingVaultPath{path}
+}
+
+
