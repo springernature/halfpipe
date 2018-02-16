@@ -7,4 +7,5 @@ type VaultClient interface {
 type Vault struct{}
 
 func (Vault) Exists(path string) (bool, error) {
+	return false, nil
 }
