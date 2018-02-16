@@ -178,10 +178,6 @@ func (build *execBuild) buildStepFactory(logger lager.Logger, plan atc.Plan) exe
 		return build.buildTryStep(logger, plan)
 	}
 
-	if plan.OnAbort != nil {
-		return build.buildOnAbortStep(logger, plan)
-	}
-
 	if plan.OnSuccess != nil {
 		return build.buildOnSuccessStep(logger, plan)
 	}

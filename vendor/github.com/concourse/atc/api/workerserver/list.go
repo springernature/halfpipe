@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
 	"github.com/concourse/atc/api/present"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/db"
 )
 
@@ -34,10 +34,6 @@ func (s *Server) ListWorkers(team db.Team) http.Handler {
 			workers[i] = present.Worker(savedWorker)
 		}
 
-		err = json.NewEncoder(w).Encode(workers)
-		if err != nil {
-			logger.Error("failed-to-encode-workers", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(workers)
 	})
 }

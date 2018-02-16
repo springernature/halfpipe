@@ -37,7 +37,7 @@ func (tracker *ConnectionTracker) Current() []string {
 
 	tracker.sessionsL.Lock()
 
-	for session := range tracker.sessions {
+	for session, _ := range tracker.sessions {
 		stacks = append(stacks, session.stack)
 	}
 

@@ -61,7 +61,7 @@ func (f *resourceConfigFactory) FindResourceConfig(
 	if err != nil {
 		return nil, false, err
 	}
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	usedResourceConfig, found, err := resourceConfig.Find(tx)
 	if err != nil {
@@ -108,10 +108,9 @@ func constructResourceConfig(
 			return ResourceConfig{}, err
 		}
 
-		// TODO: https://github.com/concourse/concourse/issues/1838
-		// if customType.Version == nil {
-		// 	return ResourceConfig{}, ErrCustomResourceTypeVersionNotFound{Name: customType.Name}
-		// }
+		if customType.Version == nil {
+			return ResourceConfig{}, ErrCustomResourceTypeVersionNotFound{Name: customType.Name}
+		}
 
 		resourceConfig.CreatedByResourceCache = &ResourceCache{
 			ResourceConfig: customTypeResourceConfig,
@@ -148,7 +147,7 @@ func (f *resourceConfigFactory) CleanUnreferencedConfigs() error {
 		PlaceholderFormat(sq.Dollar).
 		RunWith(f.conn).Exec()
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqFKeyViolationErrCode {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "foreign_key_violation" {
 			// this can happen if a use or resource cache is created referencing the
 			// config; as the subqueries above are not atomic
 			return nil
@@ -158,4 +157,15 @@ func (f *resourceConfigFactory) CleanUnreferencedConfigs() error {
 	}
 
 	return nil
+}
+
+func resourceTypesList(resourceTypeName string, allResourceTypes []atc.ResourceType, resultResourceTypes []atc.ResourceType) []atc.ResourceType {
+	for _, resourceType := range allResourceTypes {
+		if resourceType.Name == resourceTypeName {
+			resultResourceTypes = append(resultResourceTypes, resourceType)
+			return resourceTypesList(resourceType.Type, allResourceTypes, resultResourceTypes)
+		}
+	}
+
+	return resultResourceTypes
 }

@@ -79,12 +79,7 @@ func (s *Server) ListResourceVersions(pipeline db.Pipeline) http.Handler {
 		for i := 0; i < len(versions); i++ {
 			resourceVersions[i] = present.SavedVersionedResource(versions[i])
 		}
-
-		err = json.NewEncoder(w).Encode(resourceVersions)
-		if err != nil {
-			logger.Error("failed-to-encode-resource-versions", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(resourceVersions)
 	})
 }
 

@@ -7,8 +7,8 @@ import (
 	"strconv"
 
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
 	"github.com/concourse/atc/api/present"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/db"
 )
 
@@ -74,7 +74,6 @@ func (s *Server) ListBuilds(w http.ResponseWriter, r *http.Request) {
 		s.addPreviousLink(w, *pagination.Previous)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
 	atc := make([]atc.Build, len(builds))
@@ -83,11 +82,7 @@ func (s *Server) ListBuilds(w http.ResponseWriter, r *http.Request) {
 		atc[i] = present.Build(build)
 	}
 
-	err = json.NewEncoder(w).Encode(atc)
-	if err != nil {
-		logger.Error("failed-to-encode-builds", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	json.NewEncoder(w).Encode(atc)
 }
 
 func (s *Server) addNextLink(w http.ResponseWriter, page db.Page) {

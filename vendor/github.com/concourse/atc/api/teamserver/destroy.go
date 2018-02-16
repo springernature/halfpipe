@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 )
 
 func (s *Server) DestroyTeam(w http.ResponseWriter, r *http.Request) {

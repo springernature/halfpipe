@@ -19,16 +19,13 @@ import (
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc"
 	"github.com/concourse/atc/api"
-	"github.com/concourse/atc/api/auth"
 	"github.com/concourse/atc/api/buildserver"
-	"github.com/concourse/atc/api/containerserver"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/builds"
 	"github.com/concourse/atc/creds"
 	"github.com/concourse/atc/creds/noop"
 	"github.com/concourse/atc/db"
-	"github.com/concourse/atc/db/encryption"
 	"github.com/concourse/atc/db/lock"
-	"github.com/concourse/atc/db/migration"
 	"github.com/concourse/atc/engine"
 	"github.com/concourse/atc/exec"
 	"github.com/concourse/atc/gc"
@@ -38,12 +35,14 @@ import (
 	"github.com/concourse/atc/radar"
 	"github.com/concourse/atc/resource"
 	"github.com/concourse/atc/scheduler"
+	"github.com/concourse/atc/web"
+	"github.com/concourse/atc/web/manifest"
+	"github.com/concourse/atc/web/publichandler"
+	"github.com/concourse/atc/web/robotstxt"
 	"github.com/concourse/atc/worker"
 	"github.com/concourse/atc/worker/image"
 	"github.com/concourse/atc/wrappa"
 	"github.com/concourse/retryhttp"
-	"github.com/concourse/skymarshal"
-	"github.com/concourse/web"
 	"github.com/cppforlife/go-semi-semantic/version"
 	jwt "github.com/dgrijalva/jwt-go"
 	multierror "github.com/hashicorp/go-multierror"
@@ -54,34 +53,24 @@ import (
 	"github.com/tedsuo/ifrit/sigmon"
 	"github.com/xoebus/zest"
 
-	"github.com/concourse/skymarshal/provider"
+	"github.com/concourse/atc/auth/provider"
+	"github.com/concourse/atc/auth/routes"
 
 	// dynamically registered auth providers
-	_ "github.com/concourse/skymarshal/basicauth"
-	_ "github.com/concourse/skymarshal/bitbucket/cloud"
-	_ "github.com/concourse/skymarshal/bitbucket/server"
-	_ "github.com/concourse/skymarshal/genericoauth"
-	_ "github.com/concourse/skymarshal/github"
-	_ "github.com/concourse/skymarshal/gitlab"
-	_ "github.com/concourse/skymarshal/noauth"
-	_ "github.com/concourse/skymarshal/uaa"
+	_ "github.com/concourse/atc/auth/genericoauth"
+	_ "github.com/concourse/atc/auth/github"
+	_ "github.com/concourse/atc/auth/gitlab"
+	_ "github.com/concourse/atc/auth/uaa"
 
 	// dynamically registered metric emitters
 	_ "github.com/concourse/atc/metric/emitter"
 
 	// dynamically registered credential managers
 	_ "github.com/concourse/atc/creds/credhub"
-	_ "github.com/concourse/atc/creds/kubernetes"
-	_ "github.com/concourse/atc/creds/ssm"
 	_ "github.com/concourse/atc/creds/vault"
 )
 
-var defaultDriverName = "postgres"
-var retryingDriverName = "too-many-connections-retrying"
-
 type ATCCommand struct {
-	Migration Migration `group:"Migration Options"`
-
 	Logger LagerFlag
 
 	BindIP   IPFlag `long:"bind-ip"   default:"0.0.0.0" description:"IP address on which to listen for web traffic."`
@@ -98,7 +87,8 @@ type ATCCommand struct {
 	ProviderAuth   provider.AuthConfigs
 
 	AuthDuration time.Duration `long:"auth-duration" default:"24h" description:"Length of time for which tokens are valid. Afterwards, users will have to log back in."`
-	OAuthBaseURL URLFlag       `long:"oauth-base-url" description:"URL used as the base of OAuth redirect URIs. If not specified, the external URL is used."`
+
+	OAuthBaseURL URLFlag `long:"oauth-base-url" description:"URL used as the base of OAuth redirect URIs. If not specified, the external URL is used."`
 
 	Postgres PostgresConfig `group:"PostgreSQL Configuration" namespace:"postgres"`
 
@@ -113,11 +103,9 @@ type ATCCommand struct {
 
 	SessionSigningKey FileFlag `long:"session-signing-key" description:"File containing an RSA private key, used to sign session tokens."`
 
-	InterceptIdleTimeout              time.Duration `long:"intercept-idle-timeout" default:"0m" description:"Length of time for a intercepted session to be idle before terminating."`
 	ResourceCheckingInterval          time.Duration `long:"resource-checking-interval" default:"1m" description:"Interval on which to check for new versions of resources."`
 	OldResourceGracePeriod            time.Duration `long:"old-resource-grace-period" default:"5m" description:"How long to cache the result of a get step after a newer version of the resource is found."`
 	ResourceCacheCleanupInterval      time.Duration `long:"resource-cache-cleanup-interval" default:"30s" description:"Interval on which to cleanup old caches of resources."`
-	ContainerPlacementStrategy        string        `long:"container-placement-strategy" default:"volume-locality" choice:"volume-locality" choice:"random" description:"Method by which a worker is selected during container placement."`
 	BaggageclaimResponseHeaderTimeout time.Duration `long:"baggageclaim-response-header-timeout" default:"1m" description:"How long to wait for Baggageclaim to send the response header."`
 
 	CLIArtifactsDir DirFlag `long:"cli-artifacts-dir" description:"Directory containing downloadable CLI binaries."`
@@ -154,100 +142,6 @@ type ATCCommand struct {
 	BuildTrackerInterval time.Duration `long:"build-tracker-interval" default:"10s" description:"Interval on which to run build tracking."`
 
 	TelemetryOptIn bool `long:"telemetry-opt-in" hidden:"true" description:"Enable anonymous concourse version reporting."`
-}
-
-type Migration struct {
-	CurrentDBVersion   bool `long:"current-db-version" description:"Print the current database version and exit"`
-	SupportedDBVersion bool `long:"supported-db-version" description:"Print the max supported database version and exit"`
-	MigrateDBToVersion int  `long:"migrate-db-to-version" description:"Migrate to the specified database version and exit"`
-}
-
-func (m *Migration) CommandProvided() bool {
-	return m.CurrentDBVersion || m.SupportedDBVersion || m.MigrateDBToVersion > 0
-}
-
-func (cmd *ATCCommand) RunMigrationCommand() error {
-	if cmd.Migration.CurrentDBVersion {
-		return cmd.currentDBVersion()
-	}
-	if cmd.Migration.SupportedDBVersion {
-		return cmd.supportedDBVersion()
-	}
-	if cmd.Migration.MigrateDBToVersion > 0 {
-		return cmd.migrateDBToVersion()
-	}
-	return nil
-}
-
-func (cmd *ATCCommand) currentDBVersion() error {
-	helper := migration.NewOpenHelper(
-		defaultDriverName,
-		cmd.Postgres.ConnectionString(),
-		nil,
-		encryption.NewNoEncryption(),
-	)
-
-	version, err := helper.CurrentVersion()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(version)
-	return nil
-}
-
-func (cmd *ATCCommand) supportedDBVersion() error {
-	helper := migration.NewOpenHelper(
-		defaultDriverName,
-		cmd.Postgres.ConnectionString(),
-		nil,
-		encryption.NewNoEncryption(),
-	)
-
-	version, err := helper.SupportedVersion()
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(version)
-	return nil
-}
-
-func (cmd *ATCCommand) migrateDBToVersion() error {
-	version := cmd.Migration.MigrateDBToVersion
-
-	var newKey *encryption.Key
-	if cmd.EncryptionKey.AEAD != nil {
-		newKey = encryption.NewKey(cmd.EncryptionKey.AEAD)
-	}
-
-	var strategy encryption.Strategy
-	if newKey != nil {
-		strategy = newKey
-	} else {
-		strategy = encryption.NewNoEncryption()
-	}
-
-	lockConn, err := cmd.constructLockConn(defaultDriverName)
-	if err != nil {
-		return err
-	}
-	defer lockConn.Close()
-
-	helper := migration.NewOpenHelper(
-		defaultDriverName,
-		cmd.Postgres.ConnectionString(),
-		lock.NewLockFactory(lockConn),
-		strategy,
-	)
-
-	err = helper.MigrateToVersion(version)
-	if err != nil {
-		return errors.New(fmt.Sprintf("Could not migrate to version: %d Reason: %s", version, err.Error()))
-	}
-
-	fmt.Println("Successfully migrated to version:", version)
-	return nil
 }
 
 func (cmd *ATCCommand) WireDynamicFlags(commandFlags *flags.Command) {
@@ -298,20 +192,14 @@ func (cmd *ATCCommand) WireDynamicFlags(commandFlags *flags.Command) {
 
 	managerConfigs := make(creds.Managers)
 	for name, p := range creds.ManagerFactories() {
-		managerConfigs[name] = p.AddConfig(credsGroup)
+		managerConfigs[name] = p.AddConfig(authGroup)
 	}
 	cmd.CredentialManagers = managerConfigs
 
 	metric.WireEmitters(metricsGroup)
-
 }
 
 func (cmd *ATCCommand) Execute(args []string) error {
-
-	if cmd.Migration.CommandProvided() {
-		return cmd.RunMigrationCommand()
-	}
-
 	runner, err := cmd.Runner(args)
 	if err != nil {
 		return err
@@ -320,17 +208,7 @@ func (cmd *ATCCommand) Execute(args []string) error {
 	return <-ifrit.Invoke(sigmon.New(runner)).Wait()
 }
 
-func (cmd *ATCCommand) constructMembers(
-	positionalArguments []string,
-	requiredMemberNames []string,
-	maxConns int,
-	connectionName string,
-	logger lager.Logger,
-	reconfigurableSink *lager.ReconfigurableSink,
-) ([]grouper.Member, error) {
-	if len(positionalArguments) != 0 {
-		return nil, fmt.Errorf("unexpected positional arguments: %v", positionalArguments)
-	}
+func (cmd *ATCCommand) Runner(args []string) (ifrit.Runner, error) {
 	err := cmd.validate()
 	if err != nil {
 		return nil, err
@@ -345,6 +223,17 @@ func (cmd *ATCCommand) constructMembers(
 
 		workerVersion = &version
 	}
+
+	logger, reconfigurableSink := cmd.constructLogger()
+
+	go metric.PeriodicallyEmit(logger.Session("periodic-metrics"), 10*time.Second)
+
+	if err := cmd.configureMetrics(logger); err != nil {
+		return nil, err
+	}
+
+	retryingDriverName := "too-many-connections-retrying"
+	db.SetupConnectionRetryingDriver("postgres", cmd.Postgres.ConnectionString(), retryingDriverName)
 
 	var variablesFactory creds.VariablesFactory = noop.NewNoopFactory()
 	for name, manager := range cmd.CredentialManagers {
@@ -367,14 +256,19 @@ func (cmd *ATCCommand) constructMembers(
 		break
 	}
 
-	var newKey *encryption.Key
+	var newKey *db.EncryptionKey
 	if cmd.EncryptionKey.AEAD != nil {
-		newKey = encryption.NewKey(cmd.EncryptionKey.AEAD)
+		newKey = db.NewEncryptionKey(cmd.EncryptionKey.AEAD)
 	}
 
-	var oldKey *encryption.Key
+	var oldKey *db.EncryptionKey
 	if cmd.OldEncryptionKey.AEAD != nil {
-		oldKey = encryption.NewKey(cmd.OldEncryptionKey.AEAD)
+		oldKey = db.NewEncryptionKey(cmd.OldEncryptionKey.AEAD)
+	}
+
+	dbConn, err := cmd.constructDBConn(retryingDriverName, logger, newKey, oldKey)
+	if err != nil {
+		return nil, err
 	}
 
 	lockConn, err := cmd.constructLockConn(retryingDriverName)
@@ -384,14 +278,10 @@ func (cmd *ATCCommand) constructMembers(
 
 	lockFactory := lock.NewLockFactory(lockConn)
 
-	dbConn, err := cmd.constructDBConn(retryingDriverName, logger, newKey, oldKey, maxConns, connectionName, lockFactory)
-	if err != nil {
-		return nil, err
-	}
-
 	bus := dbConn.Bus()
 
 	teamFactory := db.NewTeamFactory(dbConn, lockFactory)
+	resourceFactoryFactory := resource.NewResourceFactoryFactory()
 	dbBuildFactory := db.NewBuildFactory(dbConn, lockFactory)
 	dbVolumeFactory := db.NewVolumeFactory(dbConn)
 	dbContainerRepository := db.NewContainerRepository(dbConn)
@@ -406,36 +296,24 @@ func (cmd *ATCCommand) constructMembers(
 	dbWorkerBaseResourceTypeFactory := db.NewWorkerBaseResourceTypeFactory(dbConn)
 	dbWorkerTaskCacheFactory := db.NewWorkerTaskCacheFactory(dbConn)
 	resourceFetcherFactory := resource.NewFetcherFactory(lockFactory, clock.NewClock(), dbResourceCacheFactory)
-
-	imageResourceFetcherFactory := image.NewImageResourceFetcherFactory(
-		resourceFetcherFactory,
-		dbResourceCacheFactory,
-		dbResourceConfigFactory,
-		clock.NewClock(),
-	)
-
-	workerProvider := worker.NewDBWorkerProvider(
+	workerClient := cmd.constructWorkerPool(
+		logger,
 		lockFactory,
-		retryhttp.NewExponentialBackOffFactory(5*time.Minute),
-		image.NewImageFactory(imageResourceFetcherFactory),
+		resourceFetcherFactory,
+		resourceFactoryFactory,
 		dbResourceCacheFactory,
 		dbResourceConfigFactory,
 		dbWorkerBaseResourceTypeFactory,
 		dbWorkerTaskCacheFactory,
 		dbVolumeFactory,
-		teamFactory,
 		dbWorkerFactory,
+		teamFactory,
 		workerVersion,
 		cmd.BaggageclaimResponseHeaderTimeout,
 	)
 
-	workerClient := cmd.constructWorkerPool(
-		logger,
-		workerProvider,
-	)
-
 	resourceFetcher := resourceFetcherFactory.FetcherFor(workerClient)
-	resourceFactory := resource.NewResourceFactory(workerClient)
+	resourceFactory := resourceFactoryFactory.FactoryFor(workerClient)
 	engine := cmd.constructEngine(workerClient, resourceFetcher, resourceFactory, dbResourceCacheFactory, variablesFactory)
 
 	radarSchedulerFactory := pipelines.NewRadarSchedulerFactory(
@@ -468,6 +346,16 @@ func (cmd *ATCCommand) constructMembers(
 		return nil, err
 	}
 
+	providerFactory := auth.NewOAuthFactory(
+		logger.Session("oauth-provider-factory"),
+		cmd.oauthBaseURL(),
+		routes.OAuthRoutes,
+		routes.OAuthCallback,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	drain := make(chan struct{})
 
 	apiHandler, err := cmd.constructAPIHandler(
@@ -479,10 +367,10 @@ func (cmd *ATCCommand) constructMembers(
 		dbVolumeFactory,
 		dbContainerRepository,
 		dbBuildFactory,
+		providerFactory,
 		signingKey,
 		engine,
 		workerClient,
-		workerProvider,
 		drain,
 		radarSchedulerFactory,
 		radarScannerFactory,
@@ -493,16 +381,14 @@ func (cmd *ATCCommand) constructMembers(
 		return nil, err
 	}
 
-	authHandler, err := skymarshal.NewHandler(&skymarshal.Config{
-		cmd.ExternalURL.String(),
-		cmd.oauthBaseURL(),
+	oauthHandler, err := auth.NewOAuthHandler(
+		logger,
+		providerFactory,
+		teamFactory,
 		signingKey,
 		cmd.AuthDuration,
 		cmd.isTLSEnabled(),
-		teamFactory,
-		logger,
-	})
-
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -511,17 +397,24 @@ func (cmd *ATCCommand) constructMembers(
 	if err != nil {
 		return nil, err
 	}
-
 	webHandler = metric.WrapHandler(logger, "web", webHandler)
+
+	publicHandler, err := publichandler.NewHandler()
+	if err != nil {
+		return nil, err
+	}
 
 	var httpHandler, httpsHandler http.Handler
 	if cmd.isTLSEnabled() {
 		httpHandler = cmd.constructHTTPHandler(
 			logger,
-
 			tlsRedirectHandler{
 				externalHost: cmd.ExternalURL.URL().Host,
 				baseHandler:  webHandler,
+			},
+			tlsRedirectHandler{
+				externalHost: cmd.ExternalURL.URL().Host,
+				baseHandler:  publicHandler,
 			},
 
 			// note: intentionally not wrapping API; redirecting is more trouble than
@@ -535,24 +428,32 @@ func (cmd *ATCCommand) constructMembers(
 
 			tlsRedirectHandler{
 				externalHost: cmd.ExternalURL.URL().Host,
-				baseHandler:  authHandler,
+				baseHandler:  oauthHandler,
 			},
 		)
 
 		httpsHandler = cmd.constructHTTPHandler(
 			logger,
 			webHandler,
+			publicHandler,
 			apiHandler,
-			authHandler,
+			oauthHandler,
 		)
 	} else {
 		httpHandler = cmd.constructHTTPHandler(
 			logger,
 			webHandler,
+			publicHandler,
 			apiHandler,
-			authHandler,
+			oauthHandler,
 		)
 	}
+
+	http.HandleFunc("/debug/connections", func(w http.ResponseWriter, r *http.Request) {
+		for _, stack := range db.GlobalConnectionTracker.Current() {
+			fmt.Fprintln(w, stack)
+		}
+	})
 
 	members := []grouper.Member{
 		{"drainer", drainer{
@@ -711,71 +612,6 @@ func (cmd *ATCCommand) constructMembers(
 		httpHandler,
 	)})
 
-	var filteredMembers []grouper.Member
-	for _, member := range members {
-		for _, requiredMemberName := range requiredMemberNames {
-			if member.Name == requiredMemberName {
-				filteredMembers = append(filteredMembers, member)
-				break
-			}
-		}
-	}
-
-	return filteredMembers, nil
-}
-
-func (cmd *ATCCommand) Runner(positionalArguments []string) (ifrit.Runner, error) {
-	var members []grouper.Member
-
-	//FIXME: These only need to run once for the entire binary. At the moment,
-	//they rely on state of the command.
-	db.SetupConnectionRetryingDriver("postgres", cmd.Postgres.ConnectionString(), retryingDriverName)
-	logger, reconfigurableSink := cmd.constructLogger()
-	http.HandleFunc("/debug/connections", func(w http.ResponseWriter, r *http.Request) {
-		for _, stack := range db.GlobalConnectionTracker.Current() {
-			fmt.Fprintln(w, stack)
-		}
-	})
-
-	if err := cmd.configureMetrics(logger); err != nil {
-		return nil, err
-	}
-	go metric.PeriodicallyEmit(logger.Session("periodic-metrics"), 10*time.Second)
-
-	apiMembers, err := cmd.constructMembers(positionalArguments, []string{
-		"debug",
-		"web-tls",
-		"web",
-	},
-		32,
-		"api",
-		logger,
-		reconfigurableSink,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	serviceMembers, err := cmd.constructMembers(positionalArguments, []string{
-		"drainer",
-		"pipelines",
-		"builds",
-		"collector",
-		"build-reaper",
-		"static-worker",
-	},
-		32,
-		"backend",
-		logger,
-		reconfigurableSink,
-	)
-	if err != nil {
-		return nil, err
-	}
-
-	members = append(members, apiMembers...)
-	members = append(members, serviceMembers...)
-
 	return onReady(grouper.NewParallel(os.Interrupt, members), func() {
 		logData := lager.Data{
 			"http":  cmd.nonTLSBindAddr(),
@@ -823,9 +659,9 @@ func (cmd *ATCCommand) validate() error {
 	var errs *multierror.Error
 	isConfigured := false
 
-	for _, config := range cmd.ProviderAuth {
-		if config.IsConfigured() {
-			err := config.Validate()
+	for _, p := range cmd.ProviderAuth {
+		if p.IsConfigured() {
+			err := p.Validate()
 
 			if err != nil {
 				errs = multierror.Append(errs, err)
@@ -835,7 +671,15 @@ func (cmd *ATCCommand) validate() error {
 		}
 	}
 
-	if !isConfigured {
+	if cmd.Authentication.BasicAuth.IsConfigured() {
+		err := cmd.Authentication.BasicAuth.Validate()
+		if err != nil {
+			errs = multierror.Append(errs, err)
+		}
+		isConfigured = true
+	}
+
+	if !isConfigured && !cmd.Authentication.NoAuth {
 		errs = multierror.Append(
 			errs,
 			errors.New("must configure basic auth, OAuth, UAAAuth, or provide no-auth flag"),
@@ -902,23 +746,15 @@ func (cmd *ATCCommand) configureMetrics(logger lager.Logger) error {
 	return metric.Initialize(logger.Session("metrics"), host, cmd.Metrics.Attributes)
 }
 
-func (cmd *ATCCommand) constructDBConn(
-	driverName string,
-	logger lager.Logger,
-	newKey *encryption.Key,
-	oldKey *encryption.Key,
-	maxConn int,
-	connectionName string,
-	lockFactory lock.LockFactory,
-) (db.Conn, error) {
-	dbConn, err := db.Open(logger.Session("db"), driverName, cmd.Postgres.ConnectionString(), newKey, oldKey, connectionName, lockFactory)
+func (cmd *ATCCommand) constructDBConn(driverName string, logger lager.Logger, newKey *db.EncryptionKey, oldKey *db.EncryptionKey) (db.Conn, error) {
+	dbConn, err := db.Open(logger.Session("db"), driverName, cmd.Postgres.ConnectionString(), newKey, oldKey)
 	if err != nil {
 		return nil, fmt.Errorf("failed to migrate database: %s", err)
 	}
 
 	// Instrument with Metrics
 	dbConn = metric.CountQueries(dbConn)
-	metric.Databases = append(metric.Databases, dbConn)
+	metric.Database = dbConn
 
 	// Instrument with Logging
 	if cmd.LogDBQueries {
@@ -926,7 +762,7 @@ func (cmd *ATCCommand) constructDBConn(
 	}
 
 	// Prepare
-	dbConn.SetMaxOpenConns(maxConn)
+	dbConn.SetMaxOpenConns(64)
 
 	return dbConn, nil
 }
@@ -946,20 +782,41 @@ func (cmd *ATCCommand) constructLockConn(driverName string) (*sql.DB, error) {
 
 func (cmd *ATCCommand) constructWorkerPool(
 	logger lager.Logger,
-	workerProvider worker.WorkerProvider,
+	lockFactory lock.LockFactory,
+	resourceFetcherFactory resource.FetcherFactory,
+	resourceFactoryFactory resource.ResourceFactoryFactory,
+	dbResourceCacheFactory db.ResourceCacheFactory,
+	dbResourceConfigFactory db.ResourceConfigFactory,
+	dbWorkerBaseResourceTypeFactory db.WorkerBaseResourceTypeFactory,
+	dbWorkerTaskCacheFactory db.WorkerTaskCacheFactory,
+	dbVolumeFactory db.VolumeFactory,
+	dbWorkerFactory db.WorkerFactory,
+	teamFactory db.TeamFactory,
+	workerVersion *version.Version,
+	baggageclaimResponseHeaderTimeout time.Duration,
 ) worker.Client {
-
-	var strategy worker.ContainerPlacementStrategy
-	switch cmd.ContainerPlacementStrategy {
-	case "random":
-		strategy = worker.NewRandomPlacementStrategy()
-	default:
-		strategy = worker.NewVolumeLocalityPlacementStrategy()
-	}
-
+	imageResourceFetcherFactory := image.NewImageResourceFetcherFactory(
+		resourceFetcherFactory,
+		resourceFactoryFactory,
+		dbResourceCacheFactory,
+		dbResourceConfigFactory,
+		clock.NewClock(),
+	)
 	return worker.NewPool(
-		workerProvider,
-		strategy,
+		worker.NewDBWorkerProvider(
+			lockFactory,
+			retryhttp.NewExponentialBackOffFactory(5*time.Minute),
+			image.NewImageFactory(imageResourceFetcherFactory),
+			dbResourceCacheFactory,
+			dbResourceConfigFactory,
+			dbWorkerBaseResourceTypeFactory,
+			dbWorkerTaskCacheFactory,
+			dbVolumeFactory,
+			teamFactory,
+			dbWorkerFactory,
+			workerVersion,
+			baggageclaimResponseHeaderTimeout,
+		),
 	)
 }
 
@@ -998,44 +855,29 @@ func (cmd *ATCCommand) configureAuthForDefaultTeam(teamFactory db.TeamFactory) e
 		return errors.New("default team not found")
 	}
 
-	// var basicAuth *atc.BasicAuth
-	// if cmd.Authentication.BasicAuth.IsConfigured() {
-	// 	basicAuth = &atc.BasicAuth{
-	// 		BasicAuthUsername: cmd.Authentication.BasicAuth.Username,
-	// 		BasicAuthPassword: cmd.Authentication.BasicAuth.Password,
-	// 	}
-	// }
-
-	// err = team.UpdateBasicAuth(basicAuth)
-	// if err != nil {
-	// 	return err
-	// }
-
-	providers := provider.GetProviders()
-	teamAuth := make(map[string]*json.RawMessage)
-
-	for name, config := range cmd.ProviderAuth {
-
-		if config.IsConfigured() {
-			if err := config.Finalize(); err == nil {
-
-				p, found := providers[name]
-				if !found {
-					return errors.New("provider not found: " + name)
-				}
-
-				data, err := p.MarshalConfig(config)
-				if err != nil {
-					return err
-				}
-
-				teamAuth[name] = data
-			}
+	var basicAuth *atc.BasicAuth
+	if cmd.Authentication.BasicAuth.IsConfigured() {
+		basicAuth = &atc.BasicAuth{
+			BasicAuthUsername: cmd.Authentication.BasicAuth.Username,
+			BasicAuthPassword: cmd.Authentication.BasicAuth.Password,
 		}
 	}
 
-	if len(teamAuth) > 1 {
-		delete(teamAuth, "noauth")
+	err = team.UpdateBasicAuth(basicAuth)
+	if err != nil {
+		return err
+	}
+
+	teamAuth := make(map[string]*json.RawMessage)
+	for name, config := range cmd.ProviderAuth {
+		if config.IsConfigured() {
+			data, err := json.Marshal(config)
+			if err != nil {
+				return err
+			}
+
+			teamAuth[name] = (*json.RawMessage)(&data)
+		}
 	}
 
 	err = team.UpdateProviderAuth(teamAuth)
@@ -1075,13 +917,16 @@ func (cmd *ATCCommand) constructEngine(
 func (cmd *ATCCommand) constructHTTPHandler(
 	logger lager.Logger,
 	webHandler http.Handler,
+	publicHandler http.Handler,
 	apiHandler http.Handler,
-	authHandler http.Handler,
+	oauthHandler http.Handler,
 ) http.Handler {
 	webMux := http.NewServeMux()
 	webMux.Handle("/api/v1/", apiHandler)
-	webMux.Handle("/oauth/", authHandler)
-	webMux.Handle("/auth/", authHandler)
+	webMux.Handle("/auth/", oauthHandler)
+	webMux.Handle("/public/", publicHandler)
+	webMux.Handle("/manifest.json", manifest.NewHandler())
+	webMux.Handle("/robots.txt", robotstxt.Handler{})
 	webMux.Handle("/", webHandler)
 
 	httpHandler := wrappa.LoggerHandler{
@@ -1110,25 +955,36 @@ func (cmd *ATCCommand) constructAPIHandler(
 	dbVolumeFactory db.VolumeFactory,
 	dbContainerRepository db.ContainerRepository,
 	dbBuildFactory db.BuildFactory,
+	providerFactory auth.OAuthFactory,
 	signingKey *rsa.PrivateKey,
 	engine engine.Engine,
 	workerClient worker.Client,
-	workerProvider worker.WorkerProvider,
 	drain <-chan struct{},
 	radarSchedulerFactory pipelines.RadarSchedulerFactory,
 	radarScannerFactory radar.ScannerFactory,
 	variablesFactory creds.VariablesFactory,
 ) (http.Handler, error) {
+	authValidator := auth.JWTValidator{
+		PublicKey: &signingKey.PublicKey,
+	}
 
-	checkPipelineAccessHandlerFactory := auth.NewCheckPipelineAccessHandlerFactory(teamFactory)
+	getTokenValidator := auth.NewGetTokenValidator(teamFactory)
+
+	checkPipelineAccessHandlerFactory := auth.NewCheckPipelineAccessHandlerFactory(
+		teamFactory,
+	)
+
 	checkBuildReadAccessHandlerFactory := auth.NewCheckBuildReadAccessHandlerFactory(dbBuildFactory)
+
 	checkBuildWriteAccessHandlerFactory := auth.NewCheckBuildWriteAccessHandlerFactory(dbBuildFactory)
+
 	checkWorkerTeamAccessHandlerFactory := auth.NewCheckWorkerTeamAccessHandlerFactory(dbWorkerFactory)
 
 	apiWrapper := wrappa.MultiWrappa{
 		wrappa.NewAPIMetricsWrappa(logger),
 		wrappa.NewAPIAuthWrappa(
-			auth.JWTValidator{PublicKey: &signingKey.PublicKey},
+			authValidator,
+			getTokenValidator,
 			auth.JWTReader{PublicKey: &signingKey.PublicKey},
 			checkPipelineAccessHandlerFactory,
 			checkBuildReadAccessHandlerFactory,
@@ -1143,6 +999,9 @@ func (cmd *ATCCommand) constructAPIHandler(
 		cmd.ExternalURL.String(),
 		apiWrapper,
 
+		auth.NewAuthTokenGenerator(signingKey),
+		auth.NewCSRFTokenGenerator(),
+		providerFactory,
 		cmd.oauthBaseURL(),
 
 		teamFactory,
@@ -1158,7 +1017,6 @@ func (cmd *ATCCommand) constructAPIHandler(
 
 		engine,
 		workerClient,
-		workerProvider,
 		radarSchedulerFactory,
 		radarScannerFactory,
 
@@ -1172,7 +1030,6 @@ func (cmd *ATCCommand) constructAPIHandler(
 		Version,
 		WorkerVersion,
 		variablesFactory,
-		containerserver.NewInterceptTimeoutFactory(cmd.InterceptIdleTimeout),
 	)
 }
 
@@ -1263,7 +1120,4 @@ func (cmd *ATCCommand) appendStaticWorker(
 
 func (cmd *ATCCommand) isTLSEnabled() bool {
 	return cmd.TLSBindPort != 0
-}
-
-func init() {
 }

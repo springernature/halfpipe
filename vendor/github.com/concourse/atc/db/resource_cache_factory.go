@@ -64,13 +64,18 @@ func (f *resourceCacheFactory) FindOrCreateResourceCache(
 	var usedResourceCache *UsedResourceCache
 
 	err = safeFindOrCreate(f.conn, func(tx Tx) error {
-		var findOrCreateErr error
-		usedResourceCache, findOrCreateErr = resourceCache.findOrCreate(logger, tx)
-		if findOrCreateErr != nil {
-			return findOrCreateErr
+		var err error
+		usedResourceCache, err = resourceCache.findOrCreate(logger, tx)
+		if err != nil {
+			return err
 		}
 
-		return resourceCache.use(logger, tx, usedResourceCache, resourceCacheUser)
+		err = resourceCache.use(logger, tx, usedResourceCache, resourceCacheUser)
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
 
 	if err != nil {
@@ -90,7 +95,11 @@ func (f *resourceCacheFactory) UpdateResourceCacheMetadata(resourceCache *UsedRe
 		Where(sq.Eq{"id": resourceCache.ID}).
 		RunWith(f.conn).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (f *resourceCacheFactory) ResourceCacheMetadata(resourceCache *UsedResourceCache) (ResourceMetadataFields, error) {

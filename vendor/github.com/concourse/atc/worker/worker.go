@@ -33,8 +33,6 @@ func (err MalformedMetadataError) Error() string {
 	return fmt.Sprintf("malformed image metadata: %s", err.UnmarshalError)
 }
 
-const certsVolumeName = "certificates"
-
 const ephemeralPropertyName = "concourse:ephemeral"
 const volumePropertyName = "concourse:volumes"
 const volumeMountsPropertyName = "concourse:volume-mounts"
@@ -60,18 +58,18 @@ type Worker interface {
 	FindVolumeForResourceCache(logger lager.Logger, resourceCache *db.UsedResourceCache) (Volume, bool, error)
 	FindVolumeForTaskCache(lager.Logger, int, int, string, string) (Volume, bool, error)
 
-	CertsVolume(lager.Logger) (volume Volume, found bool, err error)
-
 	GardenClient() garden.Client
 	BaggageclaimClient() baggageclaim.Client
 }
 
 type gardenWorker struct {
-	gardenClient       garden.Client
+	containerProviderFactory ContainerProviderFactory
+	gardenClient             garden.Client
+
+	volumeClient       VolumeClient
 	baggageclaimClient baggageclaim.Client
 
-	volumeClient      VolumeClient
-	containerProvider ContainerProvider
+	provider WorkerProvider
 
 	clock clock.Clock
 
@@ -86,29 +84,38 @@ type gardenWorker struct {
 }
 
 func NewGardenWorker(
+	containerProviderFactory ContainerProviderFactory,
+	volumeClient VolumeClient,
+	provider WorkerProvider,
+	clock clock.Clock,
+	activeContainers int,
+	resourceTypes []atc.WorkerResourceType,
+	platform string,
+	tags atc.Tags,
+	teamID int,
+	name string,
+	startTime int64,
+	version *string,
 	gardenClient garden.Client,
 	baggageclaimClient baggageclaim.Client,
-	containerProvider ContainerProvider,
-	volumeClient VolumeClient,
-	dbWorker db.Worker,
-	clock clock.Clock,
 ) Worker {
-
 	return &gardenWorker{
-		gardenClient:       gardenClient,
-		baggageclaimClient: baggageclaimClient,
-		volumeClient:       volumeClient,
-		containerProvider:  containerProvider,
+		containerProviderFactory: containerProviderFactory,
+		gardenClient:             gardenClient,
 
+		volumeClient:       volumeClient,
+		baggageclaimClient: baggageclaimClient,
+
+		provider:         provider,
 		clock:            clock,
-		activeContainers: dbWorker.ActiveContainers(),
-		resourceTypes:    dbWorker.ResourceTypes(),
-		platform:         dbWorker.Platform(),
-		tags:             dbWorker.Tags(),
-		teamID:           dbWorker.TeamID(),
-		name:             dbWorker.Name(),
-		startTime:        dbWorker.StartTime(),
-		version:          dbWorker.Version(),
+		activeContainers: activeContainers,
+		resourceTypes:    resourceTypes,
+		platform:         platform,
+		tags:             tags,
+		teamID:           teamID,
+		name:             name,
+		startTime:        startTime,
+		version:          version,
 	}
 }
 
@@ -173,10 +180,6 @@ func (worker *gardenWorker) FindVolumeForTaskCache(logger lager.Logger, teamID i
 	return worker.volumeClient.FindVolumeForTaskCache(logger, teamID, jobID, stepName, path)
 }
 
-func (worker *gardenWorker) CertsVolume(logger lager.Logger) (Volume, bool, error) {
-	return worker.volumeClient.FindOrCreateVolumeForResourceCerts(logger.Session("find-or-create"))
-}
-
 func (worker *gardenWorker) LookupVolume(logger lager.Logger, handle string) (Volume, bool, error) {
 	return worker.volumeClient.LookupVolume(logger, handle)
 }
@@ -190,8 +193,9 @@ func (worker *gardenWorker) FindOrCreateContainer(
 	spec ContainerSpec,
 	resourceTypes creds.VersionedResourceTypes,
 ) (Container, error) {
+	containerProvider := worker.containerProviderFactory.ContainerProviderFor(worker)
 
-	return worker.containerProvider.FindOrCreateContainer(
+	return containerProvider.FindOrCreateContainer(
 		logger,
 		cancel,
 		owner,
@@ -203,7 +207,8 @@ func (worker *gardenWorker) FindOrCreateContainer(
 }
 
 func (worker *gardenWorker) FindContainerByHandle(logger lager.Logger, teamID int, handle string) (Container, bool, error) {
-	return worker.containerProvider.FindCreatedContainerByHandle(logger, handle, teamID)
+	containerProvider := worker.containerProviderFactory.ContainerProviderFor(worker)
+	return containerProvider.FindCreatedContainerByHandle(logger, handle, teamID)
 }
 
 func (worker *gardenWorker) ActiveContainers() int {

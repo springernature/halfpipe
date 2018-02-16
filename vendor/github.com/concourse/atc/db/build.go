@@ -11,7 +11,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/db/encryption"
 	"github.com/concourse/atc/db/lock"
 	"github.com/concourse/atc/event"
 	"github.com/lib/pq"
@@ -210,7 +209,7 @@ func (b *build) Start(engine, metadata string, plan atc.Plan) (bool, error) {
 		return false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	encryptedMetadata, nonce, err := b.conn.EncryptionStrategy().Encrypt([]byte(metadata))
 	if err != nil {
@@ -284,7 +283,7 @@ func (b *build) Finish(status BuildStatus) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	var endTime time.Time
 
@@ -351,7 +350,11 @@ func (b *build) Finish(status BuildStatus) error {
 	}
 
 	_, err = b.conn.Exec(`REFRESH MATERIALIZED VIEW CONCURRENTLY transition_builds_per_job`)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *build) Delete() (bool, error) {
@@ -393,7 +396,12 @@ func (b *build) MarkAsAborted() error {
 		return err
 	}
 
-	return b.conn.Bus().Notify(buildAbortChannel(b.id))
+	err = b.conn.Bus().Notify(buildAbortChannel(b.id))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // AbortNotifier returns a Notifier that can be watched for when the build
@@ -460,7 +468,7 @@ func (b *build) SaveImageResourceVersion(rc *UsedResourceCache) error {
 		RunWith(b.conn).
 		Exec()
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqUniqueViolationErrCode {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
 			return nil
 		}
 
@@ -677,7 +685,7 @@ func (b *build) SaveEvent(event atc.Event) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	err = b.saveEvent(tx, event)
 	if err != nil {
@@ -689,7 +697,12 @@ func (b *build) SaveEvent(event atc.Event) error {
 		return err
 	}
 
-	return b.conn.Bus().Notify(buildEventsChannel(b.id))
+	err = b.conn.Bus().Notify(buildEventsChannel(b.id))
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *build) SaveInput(input BuildInput) error {
@@ -702,7 +715,7 @@ func (b *build) SaveInput(input BuildInput) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	row := pipelinesQuery.
 		Where(sq.Eq{"p.id": b.pipelineID}).
@@ -720,7 +733,12 @@ func (b *build) SaveInput(input BuildInput) error {
 		return err
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (b *build) SaveOutput(vr VersionedResource, explicit bool) error {
@@ -747,7 +765,7 @@ func (b *build) UseInputs(inputs []BuildInput) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	_, err = psql.Delete("build_inputs").
 		Where(sq.Eq{"build_id": b.id}).
@@ -809,7 +827,7 @@ func (b *build) Resources() ([]BuildInput, []BuildOutput, error) {
 		return nil, nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var inputName string
@@ -817,7 +835,7 @@ func (b *build) Resources() ([]BuildInput, []BuildOutput, error) {
 		var firstOccurrence bool
 
 		var version, metadata string
-		err = rows.Scan(&inputName, &vr.Resource, &vr.Type, &version, &metadata, &firstOccurrence)
+		err := rows.Scan(&inputName, &vr.Resource, &vr.Type, &version, &metadata, &firstOccurrence)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -852,7 +870,7 @@ func (b *build) Resources() ([]BuildInput, []BuildOutput, error) {
 		return nil, nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var vr VersionedResource
@@ -920,7 +938,7 @@ func (b *build) getVersionedResources(resourceRequest string) (SavedVersionedRes
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	savedVersionedResources := SavedVersionedResources{}
 
@@ -960,7 +978,7 @@ func buildEventSeq(buildid int) string {
 	return fmt.Sprintf("build_event_id_seq_%d", buildid)
 }
 
-func scanBuild(b *build, row scannable, encryptionStrategy encryption.Strategy) error {
+func scanBuild(b *build, row scannable, encryptionStrategy EncryptionStrategy) error {
 	var (
 		jobID, pipelineID                                         sql.NullInt64
 		engine, engineMetadata, jobName, pipelineName, publicPlan sql.NullString
@@ -985,13 +1003,10 @@ func scanBuild(b *build, row scannable, encryptionStrategy encryption.Strategy) 
 	b.endTime = endTime.Time
 	b.reapTime = reapTime.Time
 
-	var (
-		noncense                *string
-		decryptedEngineMetadata []byte
-	)
+	var noncense *string
 	if nonce.Valid {
 		noncense = &nonce.String
-		decryptedEngineMetadata, err = encryptionStrategy.Decrypt(string(engineMetadata.String), noncense)
+		decryptedEngineMetadata, err := encryptionStrategy.Decrypt(string(engineMetadata.String), noncense)
 		if err != nil {
 			return err
 		}
@@ -1025,7 +1040,11 @@ func (b *build) saveEvent(tx Tx, event atc.Event) error {
 		Values(sq.Expr("nextval('"+buildEventSeq(b.id)+"')"), b.id, string(event.EventType()), string(event.Version()), payload).
 		RunWith(tx).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func createBuild(tx Tx, build *build, vals map[string]interface{}) error {
@@ -1050,7 +1069,12 @@ func createBuild(tx Tx, build *build, vals map[string]interface{}) error {
 		return err
 	}
 
-	return createBuildEventSeq(tx, buildID)
+	err = createBuildEventSeq(tx, buildID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func buildEventsChannel(buildID int) string {

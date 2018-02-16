@@ -29,7 +29,6 @@ var ErrImageGetDidNotProduceVolume = errors.New("fetching the image did not prod
 type ImageResourceFetcherFactory interface {
 	NewImageResourceFetcher(
 		worker.Worker,
-		resource.ResourceFactory,
 		worker.ImageResource,
 		atc.Version,
 		int,
@@ -51,6 +50,7 @@ type ImageResourceFetcher interface {
 
 type imageResourceFetcherFactory struct {
 	resourceFetcherFactory  resource.FetcherFactory
+	resourceFactoryFactory  resource.ResourceFactoryFactory
 	dbResourceCacheFactory  db.ResourceCacheFactory
 	dbResourceConfigFactory db.ResourceConfigFactory
 	clock                   clock.Clock
@@ -58,12 +58,14 @@ type imageResourceFetcherFactory struct {
 
 func NewImageResourceFetcherFactory(
 	resourceFetcherFactory resource.FetcherFactory,
+	resourceFactoryFactory resource.ResourceFactoryFactory,
 	dbResourceCacheFactory db.ResourceCacheFactory,
 	dbResourceConfigFactory db.ResourceConfigFactory,
 	clock clock.Clock,
 ) ImageResourceFetcherFactory {
 	return &imageResourceFetcherFactory{
 		resourceFetcherFactory:  resourceFetcherFactory,
+		resourceFactoryFactory:  resourceFactoryFactory,
 		dbResourceCacheFactory:  dbResourceCacheFactory,
 		dbResourceConfigFactory: dbResourceConfigFactory,
 		clock: clock,
@@ -72,7 +74,6 @@ func NewImageResourceFetcherFactory(
 
 func (f *imageResourceFetcherFactory) NewImageResourceFetcher(
 	worker worker.Worker,
-	resourceFactory resource.ResourceFactory,
 	imageResource worker.ImageResource,
 	version atc.Version,
 	teamID int,
@@ -81,7 +82,7 @@ func (f *imageResourceFetcherFactory) NewImageResourceFetcher(
 ) ImageResourceFetcher {
 	return &imageResourceFetcher{
 		resourceFetcher:         f.resourceFetcherFactory.FetcherFor(worker),
-		resourceFactory:         resourceFactory,
+		resourceFactory:         f.resourceFactoryFactory.FactoryFor(worker),
 		dbResourceCacheFactory:  f.dbResourceCacheFactory,
 		dbResourceConfigFactory: f.dbResourceConfigFactory,
 		clock: f.clock,
@@ -214,68 +215,11 @@ func (i *imageResourceFetcher) Fetch(
 	return volume, releasingReader, version, nil
 }
 
-func (i *imageResourceFetcher) ensureVersionOfType(
-	logger lager.Logger,
-	signals <-chan os.Signal,
-	container db.CreatingContainer,
-	resourceType creds.VersionedResourceType,
-) error {
-
-	checkResourceType, err := i.resourceFactory.NewResource(
-		logger,
-		signals,
-		db.NewImageCheckContainerOwner(container),
-		db.ContainerMetadata{
-			Type: db.ContainerTypeCheck,
-		},
-		worker.ContainerSpec{
-			ImageSpec: worker.ImageSpec{
-				ResourceType: resourceType.Name,
-			},
-			Tags:   i.worker.Tags(),
-			TeamID: i.teamID,
-		}, i.customTypes,
-		worker.NoopImageFetchingDelegate{},
-	)
-	if err != nil {
-		return err
-	}
-
-	source, err := resourceType.Source.Evaluate()
-	if err != nil {
-		return err
-	}
-
-	versions, err := checkResourceType.Check(source, nil)
-	if err != nil {
-		return err
-	}
-
-	if len(versions) == 0 {
-		return ErrImageUnavailable
-	}
-
-	resourceType.Version = versions[0]
-
-	i.customTypes = append(i.customTypes.Without(resourceType.Name), resourceType)
-
-	return nil
-}
-
 func (i *imageResourceFetcher) getLatestVersion(
 	logger lager.Logger,
 	signals <-chan os.Signal,
 	container db.CreatingContainer,
 ) (atc.Version, error) {
-
-	resourceType, found := i.customTypes.Lookup(i.imageResource.Type)
-	if found && resourceType.Version == nil {
-		err := i.ensureVersionOfType(logger, signals, container, resourceType)
-		if err != nil {
-			return nil, err
-		}
-	}
-
 	resourceSpec := worker.ContainerSpec{
 		ImageSpec: worker.ImageSpec{
 			ResourceType: i.imageResource.Type,

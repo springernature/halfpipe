@@ -1,7 +1,10 @@
 package db
 
 import (
+	"database/sql"
 	"errors"
+
+	"github.com/lib/pq"
 )
 
 var ErrSafeRetryFindOrCreate = errors.New("failed-to-run-safe-find-or-create-retrying")
@@ -18,7 +21,7 @@ func safeFindOrCreate(conn Conn, findOrCreateFunc func(tx Tx) error) error {
 
 		err = findOrCreateFunc(tx)
 		if err != nil {
-			_ = tx.Rollback()
+			tx.Rollback()
 
 			if err == ErrSafeRetryFindOrCreate {
 				continue
@@ -27,6 +30,47 @@ func safeFindOrCreate(conn Conn, findOrCreateFunc func(tx Tx) error) error {
 			return err
 		}
 
-		return tx.Commit()
+		err = tx.Commit()
+		if err != nil {
+			return err
+		}
+
+		return nil
 	}
+}
+
+func safeCreateOrUpdate(conn Conn, createFunc func(tx Tx) (sql.Result, error), updateFunc func(tx Tx) (sql.Result, error)) error {
+	tx, err := conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	rows, err := updateFunc(tx)
+	if err != nil {
+		return err
+	}
+
+	affected, err := rows.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if affected == 0 {
+		_, err := createFunc(tx)
+		if err != nil {
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
+				tx.Rollback()
+				return safeCreateOrUpdate(conn, createFunc, updateFunc)
+			}
+		}
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -16,6 +16,7 @@ var _ = Describe("PipelineLocks", func() {
 		var (
 			someResource               db.Resource
 			resourceConfigCheckSession db.ResourceConfigCheckSession
+			variables                  creds.Variables
 		)
 
 		ownerExpiries := db.ContainerOwnerExpiries{
@@ -25,15 +26,17 @@ var _ = Describe("PipelineLocks", func() {
 		}
 
 		BeforeEach(func() {
+			variables = template.StaticVariables{}
+
 			var err error
 			var found bool
 
 			someResource, found, err = defaultPipeline.Resource("some-resource")
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(found).To(BeTrue())
 
 			pipelineResourceTypes, err := defaultPipeline.ResourceTypes()
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 
 			resourceConfigCheckSession, err = resourceConfigCheckSessionFactory.FindOrCreateResourceConfigCheckSession(
 				logger,
@@ -42,39 +45,36 @@ var _ = Describe("PipelineLocks", func() {
 				creds.NewVersionedResourceTypes(template.StaticVariables{}, pipelineResourceTypes.Deserialize()),
 				ownerExpiries,
 			)
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		Context("when there has been a check recently", func() {
 			Context("when acquiring immediately", func() {
 				It("gets the lock", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 				})
 			})
 
 			Context("when not acquiring immediately", func() {
 				It("does not get the lock", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
-					_, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeFalse())
 				})
 			})
@@ -84,105 +84,97 @@ var _ = Describe("PipelineLocks", func() {
 			Context("when acquiring immediately", func() {
 				It("gets and keeps the lock and stops others from periodically getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 				})
 
 				It("gets and keeps the lock and stops others from immediately getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 				})
 			})
 
 			Context("when not acquiring immediately", func() {
 				It("gets and keeps the lock and stops others from periodically getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 				})
 
 				It("gets and keeps the lock and stops others from immediately getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
 
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					lock, acquired, err = defaultPipeline.AcquireResourceCheckingLockWithIntervalCheck(logger, someResource.Name(), resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 				})
 			})
 		})
@@ -191,6 +183,7 @@ var _ = Describe("PipelineLocks", func() {
 	Describe("AcquireResourceTypeCheckingLockWithIntervalCheck", func() {
 		var (
 			resourceConfigCheckSession db.ResourceConfigCheckSession
+			variables                  creds.Variables
 		)
 
 		ownerExpiries := db.ContainerOwnerExpiries{
@@ -200,12 +193,14 @@ var _ = Describe("PipelineLocks", func() {
 		}
 
 		BeforeEach(func() {
+			variables = template.StaticVariables{}
+
 			someResourceType, found, err := defaultPipeline.ResourceType("some-type")
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(found).To(BeTrue())
 
 			pipelineResourceTypes, err := defaultPipeline.ResourceTypes()
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 
 			resourceConfigCheckSession, err = resourceConfigCheckSessionFactory.FindOrCreateResourceConfigCheckSession(
 				logger,
@@ -214,41 +209,39 @@ var _ = Describe("PipelineLocks", func() {
 				creds.NewVersionedResourceTypes(template.StaticVariables{}, pipelineResourceTypes.Deserialize().Without(someResourceType.Name())),
 				ownerExpiries,
 			)
-			Expect(err).ToNot(HaveOccurred())
+			Expect(err).NotTo(HaveOccurred())
 		})
 
 		Context("when there has been a check recently", func() {
 			Context("when acquiring immediately", func() {
 				It("gets the lock", func() {
 					dbLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = dbLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					dbLock.Release()
 
 					dbLock, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = dbLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					dbLock.Release()
 				})
 			})
 
 			Context("when not acquiring immediately", func() {
 				It("does not get the lock", func() {
 					dbLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					_ = dbLock.Release()
+					dbLock.Release()
 
 					_, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeFalse())
 
-					_ = dbLock.Release()
+					dbLock.Release()
 				})
 			})
 		})
@@ -257,105 +250,96 @@ var _ = Describe("PipelineLocks", func() {
 			Context("when acquiring immediately", func() {
 				It("gets and keeps the lock and stops others from periodically getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					newLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = newLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					newLock.Release()
 				})
 
 				It("gets and keeps the lock and stops others from immediately getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					newLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = newLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					newLock.Release()
 				})
 			})
 
 			Context("when not acquiring immediately", func() {
 				It("gets and keeps the lock and stops others from periodically getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					newLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = newLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					newLock.Release()
 				})
 
 				It("gets and keeps the lock and stops others from immediately getting it", func() {
 					lock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
 					Consistently(func() bool {
 						_, acquired, err = defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, true)
-						Expect(err).ToNot(HaveOccurred())
+						Expect(err).NotTo(HaveOccurred())
 
 						return acquired
 					}, 1500*time.Millisecond, 100*time.Millisecond).Should(BeFalse())
 
-					err = lock.Release()
-
-					Expect(err).ToNot(HaveOccurred())
+					lock.Release()
 
 					time.Sleep(time.Second)
 
 					newLock, acquired, err := defaultPipeline.AcquireResourceTypeCheckingLockWithIntervalCheck(logger, "some-type", resourceConfigCheckSession.ResourceConfig(), 1*time.Second, false)
-					Expect(err).ToNot(HaveOccurred())
+					Expect(err).NotTo(HaveOccurred())
 					Expect(acquired).To(BeTrue())
 
-					err = newLock.Release()
-					Expect(err).ToNot(HaveOccurred())
+					newLock.Release()
 				})
 			})
 		})

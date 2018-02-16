@@ -259,7 +259,6 @@ func (build *dbBuild) Resume(logger lager.Logger) {
 		JobName:      build.build.JobName(),
 		BuildName:    build.build.Name(),
 		BuildID:      build.build.ID(),
-		TeamName:     build.build.TeamName(),
 	}.Emit(logger)
 
 	logger.Info("running", lager.Data{
@@ -288,7 +287,6 @@ func (build *dbBuild) Resume(logger lager.Logger) {
 			BuildID:       build.build.ID(),
 			BuildStatus:   build.build.Status(),
 			BuildDuration: build.build.EndTime().Sub(build.build.StartTime()),
-			TeamName:      build.build.TeamName(),
 		}.Emit(logger)
 	}
 }

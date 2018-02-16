@@ -7,7 +7,7 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 )
 
 func (s *Server) ReadPipe(w http.ResponseWriter, r *http.Request) {
@@ -66,7 +66,7 @@ func (s *Server) ReadPipe(w http.ResponseWriter, r *http.Request) {
 
 		copied := make(chan struct{})
 		go func() {
-			_, _ = io.Copy(w, pipe.read)
+			io.Copy(w, pipe.read)
 			close(copied)
 		}()
 
@@ -77,7 +77,7 @@ func (s *Server) ReadPipe(w http.ResponseWriter, r *http.Request) {
 				break dance
 			case <-closed:
 				// connection died; terminate the pipe
-				_ = pipe.write.Close()
+				pipe.write.Close()
 			}
 		}
 
@@ -99,7 +99,7 @@ func (s *Server) ReadPipe(w http.ResponseWriter, r *http.Request) {
 
 		copied := make(chan struct{})
 		go func() {
-			_, _ = io.Copy(w, response.Body)
+			io.Copy(w, response.Body)
 			close(copied)
 		}()
 

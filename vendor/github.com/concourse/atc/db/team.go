@@ -10,6 +10,8 @@ import (
 
 	"code.cloudfoundry.org/lager"
 
+	"golang.org/x/crypto/bcrypt"
+
 	sq "github.com/Masterminds/squirrel"
 	"github.com/concourse/atc"
 	"github.com/concourse/atc/creds"
@@ -27,11 +29,10 @@ type Team interface {
 	Name() string
 	Admin() bool
 
-	// BasicAuth() *atc.BasicAuth
+	BasicAuth() *atc.BasicAuth
 	Auth() map[string]*json.RawMessage
 
 	Delete() error
-	Rename(string) error
 
 	SavePipeline(
 		pipelineName string,
@@ -64,7 +65,7 @@ type Team interface {
 	FindContainerOnWorker(workerName string, owner ContainerOwner) (CreatingContainer, CreatedContainer, error)
 	CreateContainer(workerName string, owner ContainerOwner, meta ContainerMetadata) (CreatingContainer, error)
 
-	// UpdateBasicAuth(basicAuth *atc.BasicAuth) error
+	UpdateBasicAuth(basicAuth *atc.BasicAuth) error
 	UpdateProviderAuth(auth map[string]*json.RawMessage) error
 
 	CreatePipe(string, string) error
@@ -79,16 +80,15 @@ type team struct {
 	name  string
 	admin bool
 
-	// basicAuth *atc.BasicAuth
+	basicAuth *atc.BasicAuth
 
 	auth map[string]*json.RawMessage
 }
 
-func (t *team) ID() int      { return t.id }
-func (t *team) Name() string { return t.name }
-func (t *team) Admin() bool  { return t.admin }
-
-// func (t *team) BasicAuth() *atc.BasicAuth         { return t.basicAuth }
+func (t *team) ID() int                           { return t.id }
+func (t *team) Name() string                      { return t.name }
+func (t *team) Admin() bool                       { return t.admin }
+func (t *team) BasicAuth() *atc.BasicAuth         { return t.basicAuth }
 func (t *team) Auth() map[string]*json.RawMessage { return t.auth }
 
 func (t *team) Delete() error {
@@ -97,7 +97,7 @@ func (t *team) Delete() error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	_, err = psql.Delete("teams").
 		Where(sq.Eq{
@@ -118,19 +118,12 @@ func (t *team) Delete() error {
 		return err
 	}
 
-	return tx.Commit()
-}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
 
-func (t *team) Rename(name string) error {
-	_, err := psql.Update("teams").
-		Set("name", name).
-		Where(sq.Eq{
-			"id": t.id,
-		}).
-		RunWith(t.conn).
-		Exec()
-
-	return err
+	return nil
 }
 
 func (t *team) Workers() ([]Worker, error) {
@@ -201,7 +194,7 @@ func (t *team) CreateContainer(workerName string, owner ContainerOwner, meta Con
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	insMap := meta.SQLMap()
 	insMap["worker_name"] = workerName
@@ -224,7 +217,7 @@ func (t *team) CreateContainer(workerName string, owner ContainerOwner, meta Con
 		QueryRow().
 		Scan(cols...)
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqFKeyViolationErrCode {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "foreign_key_violation" {
 			return nil, ErrBuildDisappeared
 		}
 
@@ -276,7 +269,7 @@ func (t *team) FindContainersByMetadata(metadata ContainerMetadata) ([]Container
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	var containers []Container
 	for rows.Next() {
@@ -359,7 +352,7 @@ func (t *team) FindCheckContainers(logger lager.Logger, pipelineName string, res
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	var containers []Container
 	for rows.Next() {
@@ -418,7 +411,7 @@ func (t *team) SavePipeline(
 		return nil, false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	err = tx.QueryRow(`
 		SELECT COUNT(1)
@@ -696,7 +689,7 @@ func (t *team) OrderPipelines(pipelineNames []string) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	for i, name := range pipelineNames {
 		_, err := psql.Update("pipelines").
@@ -721,7 +714,7 @@ func (t *team) CreateOneOffBuild() (Build, error) {
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	build := &build{conn: t.conn, lockFactory: t.lockFactory}
 	err = createBuild(tx, build, map[string]interface{}{
@@ -754,7 +747,7 @@ func (t *team) SaveWorker(atcWorker atc.Worker, ttl time.Duration) (Worker, erro
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	savedWorker, err := saveWorker(tx, atcWorker, &t.id, ttl, t.conn)
 	if err != nil {
@@ -769,23 +762,23 @@ func (t *team) SaveWorker(atcWorker atc.Worker, ttl time.Duration) (Worker, erro
 	return savedWorker, nil
 }
 
-// func (t *team) UpdateBasicAuth(basicAuth *atc.BasicAuth) error {
-// 	encryptedBasicAuth, err := encryptedJSON(basicAuth)
-// 	if err != nil {
-// 		return err
-// 	}
+func (t *team) UpdateBasicAuth(basicAuth *atc.BasicAuth) error {
+	encryptedBasicAuth, err := encryptedJSON(basicAuth)
+	if err != nil {
+		return err
+	}
 
-// 	query := `
-// 		UPDATE teams
-// 		SET basic_auth = $1
-// 		WHERE id = $2
-// 		RETURNING id, name, admin, basic_auth, auth, nonce
-// 	`
+	query := `
+		UPDATE teams
+		SET basic_auth = $1
+		WHERE LOWER(name) = LOWER($2)
+		RETURNING id, name, admin, basic_auth, auth, nonce
+	`
 
-// 	params := []interface{}{encryptedBasicAuth, t.id}
+	params := []interface{}{encryptedBasicAuth, t.name}
 
-// 	return t.queryTeam(query, params)
-// }
+	return t.queryTeam(query, params)
+}
 
 func (t *team) UpdateProviderAuth(auth map[string]*json.RawMessage) error {
 	jsonEncodedProviderAuth, err := json.Marshal(auth)
@@ -802,10 +795,10 @@ func (t *team) UpdateProviderAuth(auth map[string]*json.RawMessage) error {
 	query := `
 		UPDATE teams
 		SET auth = $1, nonce = $3
-		WHERE id = $2
-		RETURNING id, name, admin, auth, nonce
+		WHERE LOWER(name) = LOWER($2)
+		RETURNING id, name, admin, basic_auth, auth, nonce
 	`
-	params := []interface{}{string(encryptedAuth), t.id, nonce}
+	params := []interface{}{string(encryptedAuth), t.name, nonce}
 	return t.queryTeam(query, params)
 }
 
@@ -815,21 +808,29 @@ func (t *team) CreatePipe(pipeGUID string, url string) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	_, err = tx.Exec(`
 		INSERT INTO pipes(id, url, team_id)
 		VALUES (
 			$1,
 			$2,
-			$3
+			( SELECT id
+				FROM teams
+				WHERE name = $3
+			)
 		)
-	`, pipeGUID, url, t.id)
+	`, pipeGUID, url, t.name)
 	if err != nil {
 		return err
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *team) GetPipe(pipeGUID string) (Pipe, error) {
@@ -838,7 +839,7 @@ func (t *team) GetPipe(pipeGUID string) (Pipe, error) {
 		return Pipe{}, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	var pipe Pipe
 
@@ -1052,7 +1053,7 @@ func scanPipeline(p *pipeline, scan scannable) error {
 }
 
 func scanPipelines(conn Conn, lockFactory lock.LockFactory, rows *sql.Rows) ([]Pipeline, error) {
-	defer Close(rows)
+	defer rows.Close()
 
 	pipelines := []Pipeline{}
 
@@ -1071,18 +1072,19 @@ func scanPipelines(conn Conn, lockFactory lock.LockFactory, rows *sql.Rows) ([]P
 }
 
 func (t *team) queryTeam(query string, params []interface{}) error {
-	var providerAuth, nonce sql.NullString
+	var basicAuth, providerAuth, nonce sql.NullString
 
 	tx, err := t.conn.Begin()
 	if err != nil {
 		return err
 	}
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	err = tx.QueryRow(query, params...).Scan(
 		&t.id,
 		&t.name,
 		&t.admin,
+		&basicAuth,
 		&providerAuth,
 		&nonce,
 	)
@@ -1093,13 +1095,13 @@ func (t *team) queryTeam(query string, params []interface{}) error {
 	if err != nil {
 		return err
 	}
-	// if basicAuth.Valid {
-	// 	err = json.Unmarshal([]byte(basicAuth.String), &t.basicAuth)
+	if basicAuth.Valid {
+		err = json.Unmarshal([]byte(basicAuth.String), &t.basicAuth)
 
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+		if err != nil {
+			return err
+		}
+	}
 
 	if providerAuth.Valid {
 		es := t.conn.EncryptionStrategy()
@@ -1123,19 +1125,19 @@ func (t *team) queryTeam(query string, params []interface{}) error {
 	return nil
 }
 
-// func encryptedJSON(b *atc.BasicAuth) (string, error) {
-// 	var result *atc.BasicAuth
-// 	if b != nil && b.BasicAuthUsername != "" && b.BasicAuthPassword != "" {
-// 		encryptedPw, err := bcrypt.GenerateFromPassword([]byte(b.BasicAuthPassword), 4)
-// 		if err != nil {
-// 			return "", err
-// 		}
-// 		result = &atc.BasicAuth{
-// 			BasicAuthPassword: string(encryptedPw),
-// 			BasicAuthUsername: b.BasicAuthUsername,
-// 		}
-// 	}
+func encryptedJSON(b *atc.BasicAuth) (string, error) {
+	var result *atc.BasicAuth
+	if b != nil && b.BasicAuthUsername != "" && b.BasicAuthPassword != "" {
+		encryptedPw, err := bcrypt.GenerateFromPassword([]byte(b.BasicAuthPassword), 4)
+		if err != nil {
+			return "", err
+		}
+		result = &atc.BasicAuth{
+			BasicAuthPassword: string(encryptedPw),
+			BasicAuthUsername: b.BasicAuthUsername,
+		}
+	}
 
-// 	json, err := json.Marshal(result)
-// 	return string(json), err
-// }
+	json, err := json.Marshal(result)
+	return string(json), err
+}

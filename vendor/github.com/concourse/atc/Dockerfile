@@ -1,4 +1,4 @@
-FROM ubuntu:17.10
+FROM ubuntu:17.04
 
 # The Basics
 RUN apt-get update && apt-get -y install curl

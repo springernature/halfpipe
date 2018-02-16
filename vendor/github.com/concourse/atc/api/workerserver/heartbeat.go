@@ -65,9 +65,5 @@ func (s *Server) HeartbeatWorker(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	err = json.NewEncoder(w).Encode(present.Worker(savedWorker))
-	if err != nil {
-		logger.Error("failed-to-encode-worker", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	json.NewEncoder(w).Encode(present.Worker(savedWorker))
 }

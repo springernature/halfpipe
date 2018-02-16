@@ -19,7 +19,6 @@ const (
 	LockTypeBatch
 	LockTypeVolumeCreating
 	LockTypeContainerCreating
-	LockTypeDatabaseMigration
 )
 
 var ErrLostLock = errors.New("lock was lost while held, possibly due to connection breakage")
@@ -46,10 +45,6 @@ func NewVolumeCreatingLockID(volumeID int) LockID {
 
 func NewContainerCreatingLockID(containerID int) LockID {
 	return LockID{LockTypeContainerCreating, containerID}
-}
-
-func NewDatabaseMigrationLockID() LockID {
-	return LockID{LockTypeDatabaseMigration}
 }
 
 //go:generate counterfeiter . LockFactory

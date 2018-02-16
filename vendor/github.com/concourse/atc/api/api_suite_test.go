@@ -14,15 +14,14 @@ import (
 	. "github.com/onsi/gomega"
 
 	"github.com/concourse/atc/api"
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/creds/credsfakes"
 	"github.com/concourse/atc/db"
 	"github.com/concourse/atc/db/dbfakes"
 
-	"github.com/concourse/atc/api/auth/authfakes"
-	"github.com/concourse/atc/api/containerserver/containerserverfakes"
 	"github.com/concourse/atc/api/jobserver/jobserverfakes"
 	"github.com/concourse/atc/api/resourceserver/resourceserverfakes"
+	"github.com/concourse/atc/auth/authfakes"
 	"github.com/concourse/atc/engine/enginefakes"
 	"github.com/concourse/atc/worker/workerfakes"
 	"github.com/concourse/atc/wrappa"
@@ -34,32 +33,34 @@ var (
 	externalURL  = "https://example.com"
 	oAuthBaseURL = "https://oauth.example.com"
 
-	jwtValidator            *authfakes.FakeValidator
-	userContextReader       *authfakes.FakeUserContextReader
-	fakeEngine              *enginefakes.FakeEngine
-	fakeWorkerClient        *workerfakes.FakeClient
-	fakeWorkerProvider      *workerfakes.FakeWorkerProvider
-	fakeVolumeFactory       *dbfakes.FakeVolumeFactory
-	fakeContainerRepository *dbfakes.FakeContainerRepository
-	dbTeamFactory           *dbfakes.FakeTeamFactory
-	dbPipelineFactory       *dbfakes.FakePipelineFactory
-	fakePipeline            *dbfakes.FakePipeline
-	dbWorkerFactory         *dbfakes.FakeWorkerFactory
-	dbWorkerLifecycle       *dbfakes.FakeWorkerLifecycle
-	build                   *dbfakes.FakeBuild
-	dbBuildFactory          *dbfakes.FakeBuildFactory
-	dbTeam                  *dbfakes.FakeTeam
-	fakeSchedulerFactory    *jobserverfakes.FakeSchedulerFactory
-	fakeScannerFactory      *resourceserverfakes.FakeScannerFactory
-	fakeVariablesFactory    *credsfakes.FakeVariablesFactory
-	interceptTimeoutFactory *containerserverfakes.FakeInterceptTimeoutFactory
-	interceptTimeout        *containerserverfakes.FakeInterceptTimeout
-	peerAddr                string
-	drain                   chan struct{}
-	expire                  time.Duration
-	isTLSEnabled            bool
-	cliDownloadsDir         string
-	logger                  *lagertest.TestLogger
+	jwtValidator                  *authfakes.FakeValidator
+	getTokenValidator             *authfakes.FakeValidator
+	userContextReader             *authfakes.FakeUserContextReader
+	fakeAuthTokenGenerator        *authfakes.FakeAuthTokenGenerator
+	fakeCSRFTokenGenerator        *authfakes.FakeCSRFTokenGenerator
+	providerFactory               *authfakes.FakeProviderFactory
+	fakeEngine                    *enginefakes.FakeEngine
+	fakeWorkerClient              *workerfakes.FakeClient
+	fakeVolumeFactory             *dbfakes.FakeVolumeFactory
+	fakeContainerRepository       *dbfakes.FakeContainerRepository
+	dbTeamFactory                 *dbfakes.FakeTeamFactory
+	dbPipelineFactory             *dbfakes.FakePipelineFactory
+	fakePipeline                  *dbfakes.FakePipeline
+	dbWorkerFactory               *dbfakes.FakeWorkerFactory
+	dbWorkerLifecycle             *dbfakes.FakeWorkerLifecycle
+	build                         *dbfakes.FakeBuild
+	dbBuildFactory                *dbfakes.FakeBuildFactory
+	dbTeam                        *dbfakes.FakeTeam
+	fakeSchedulerFactory          *jobserverfakes.FakeSchedulerFactory
+	fakeScannerFactory            *resourceserverfakes.FakeScannerFactory
+	fakeVariablesFactory          *credsfakes.FakeVariablesFactory
+	configValidationErrorMessages []string
+	peerAddr                      string
+	drain                         chan struct{}
+	expire                        time.Duration
+	isTLSEnabled                  bool
+	cliDownloadsDir               string
+	logger                        *lagertest.TestLogger
 
 	constructedEventHandler *fakeEventHandlerFactory
 
@@ -83,7 +84,7 @@ func (f *fakeEventHandlerFactory) Construct(
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("fake event handler factory was here"))
+		w.Write([]byte("fake event handler factory was here"))
 	})
 }
 
@@ -91,10 +92,6 @@ var _ = BeforeEach(func() {
 	dbTeamFactory = new(dbfakes.FakeTeamFactory)
 	dbPipelineFactory = new(dbfakes.FakePipelineFactory)
 	dbBuildFactory = new(dbfakes.FakeBuildFactory)
-
-	interceptTimeoutFactory = new(containerserverfakes.FakeInterceptTimeoutFactory)
-	interceptTimeout = new(containerserverfakes.FakeInterceptTimeout)
-	interceptTimeoutFactory.NewInterceptTimeoutReturns(interceptTimeout)
 
 	dbTeam = new(dbfakes.FakeTeam)
 	dbTeam.IDReturns(734)
@@ -108,14 +105,18 @@ var _ = BeforeEach(func() {
 	dbWorkerLifecycle = new(dbfakes.FakeWorkerLifecycle)
 
 	jwtValidator = new(authfakes.FakeValidator)
+	getTokenValidator = new(authfakes.FakeValidator)
+
 	userContextReader = new(authfakes.FakeUserContextReader)
+	fakeAuthTokenGenerator = new(authfakes.FakeAuthTokenGenerator)
+	fakeCSRFTokenGenerator = new(authfakes.FakeCSRFTokenGenerator)
+	providerFactory = new(authfakes.FakeProviderFactory)
 
 	peerAddr = "127.0.0.1:1234"
 	drain = make(chan struct{})
 
 	fakeEngine = new(enginefakes.FakeEngine)
 	fakeWorkerClient = new(workerfakes.FakeClient)
-	fakeWorkerProvider = new(workerfakes.FakeWorkerProvider)
 
 	fakeSchedulerFactory = new(jobserverfakes.FakeSchedulerFactory)
 	fakeScannerFactory = new(resourceserverfakes.FakeScannerFactory)
@@ -157,6 +158,7 @@ var _ = BeforeEach(func() {
 
 		wrappa.NewAPIAuthWrappa(
 			jwtValidator,
+			getTokenValidator,
 			userContextReader,
 			checkPipelineAccessHandlerFactory,
 			checkBuildReadAccessHandlerFactory,
@@ -164,6 +166,9 @@ var _ = BeforeEach(func() {
 			checkWorkerTeamAccessHandlerFactory,
 		),
 
+		fakeAuthTokenGenerator,
+		fakeCSRFTokenGenerator,
+		providerFactory,
 		oAuthBaseURL,
 
 		dbTeamFactory,
@@ -179,7 +184,6 @@ var _ = BeforeEach(func() {
 
 		fakeEngine,
 		fakeWorkerClient,
-		fakeWorkerProvider,
 
 		fakeSchedulerFactory,
 		fakeScannerFactory,
@@ -194,7 +198,6 @@ var _ = BeforeEach(func() {
 		"1.2.3",
 		"4.5.6",
 		fakeVariablesFactory,
-		interceptTimeoutFactory,
 	)
 	Expect(err).NotTo(HaveOccurred())
 

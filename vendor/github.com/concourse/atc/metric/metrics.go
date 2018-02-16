@@ -8,7 +8,7 @@ import (
 	"github.com/concourse/atc/db"
 )
 
-var Databases []db.Conn
+var Database db.Conn
 var DatabaseQueries = Meter(0)
 
 var ContainersCreated = Meter(0)
@@ -300,7 +300,6 @@ type BuildStarted struct {
 	JobName      string
 	BuildName    string
 	BuildID      int
-	TeamName     string
 }
 
 func (event BuildStarted) Emit(logger lager.Logger) {
@@ -315,7 +314,6 @@ func (event BuildStarted) Emit(logger lager.Logger) {
 				"job":        event.JobName,
 				"build_name": event.BuildName,
 				"build_id":   strconv.Itoa(event.BuildID),
-				"team_name":  event.TeamName,
 			},
 		},
 	)
@@ -328,7 +326,6 @@ type BuildFinished struct {
 	BuildID       int
 	BuildStatus   db.BuildStatus
 	BuildDuration time.Duration
-	TeamName      string
 }
 
 func (event BuildFinished) Emit(logger lager.Logger) {
@@ -344,7 +341,6 @@ func (event BuildFinished) Emit(logger lager.Logger) {
 				"build_name":   event.BuildName,
 				"build_id":     strconv.Itoa(event.BuildID),
 				"build_status": string(event.BuildStatus),
-				"team_name":    event.TeamName,
 			},
 		},
 	)

@@ -343,9 +343,8 @@ type TaskRunConfig struct {
 }
 
 type TaskInputConfig struct {
-	Name     string `json:"name" yaml:"name"`
-	Path     string `json:"path,omitempty" yaml:"path"`
-	Optional bool   `json:"optional,omitempty" yaml:"optional"`
+	Name string `json:"name" yaml:"name"`
+	Path string `json:"path,omitempty" yaml:"path"`
 }
 
 func (input TaskInputConfig) resolvePath() string {

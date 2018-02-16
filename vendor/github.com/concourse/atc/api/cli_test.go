@@ -16,7 +16,9 @@ var _ = Describe("CLI Downloads API", func() {
 	)
 
 	BeforeEach(func() {
-		err := ioutil.WriteFile(filepath.Join(cliDownloadsDir, "fly_darwin_amd64"), []byte("soi soi soi"), 0644)
+		var err error
+
+		err = ioutil.WriteFile(filepath.Join(cliDownloadsDir, "fly_darwin_amd64"), []byte("soi soi soi"), 0644)
 		Expect(err).NotTo(HaveOccurred())
 
 		err = ioutil.WriteFile(filepath.Join(cliDownloadsDir, "fly_windows_amd64.exe"), []byte("soi soi soi.notavirus.bat"), 0644)
@@ -24,7 +26,7 @@ var _ = Describe("CLI Downloads API", func() {
 	})
 
 	AfterEach(func() {
-		_ = os.RemoveAll(cliDownloadsDir)
+		os.RemoveAll(cliDownloadsDir)
 	})
 
 	Describe("GET /api/v1/cli?platform=darwin&arch=amd64", func() {

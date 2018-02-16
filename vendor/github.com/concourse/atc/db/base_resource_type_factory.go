@@ -26,7 +26,7 @@ func (f *baseResourceTypeFactory) Find(name string) (*UsedBaseResourceType, bool
 		return nil, false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	ubrt, found, err := brt.Find(tx)
 	if err != nil {

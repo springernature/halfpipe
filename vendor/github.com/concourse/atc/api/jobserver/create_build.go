@@ -11,7 +11,6 @@ import (
 
 func (s *Server) CreateJobBuild(pipeline db.Pipeline) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
 		logger := s.logger.Session("create-job-build")
 
 		jobName := r.FormValue(":job_name")
@@ -59,10 +58,6 @@ func (s *Server) CreateJobBuild(pipeline db.Pipeline) http.Handler {
 			return
 		}
 
-		err = json.NewEncoder(w).Encode(present.Build(build))
-		if err != nil {
-			logger.Error("failed-to-encode-build", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(present.Build(build))
 	})
 }

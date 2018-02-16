@@ -19,6 +19,7 @@ import (
 
 var _ = Describe("ResourceCacheFactory", func() {
 	var (
+		usedBaseResourceType      *db.UsedBaseResourceType
 		usedImageBaseResourceType *db.UsedBaseResourceType
 
 		resourceCacheLifecycle db.ResourceCacheLifecycle
@@ -41,7 +42,7 @@ var _ = Describe("ResourceCacheFactory", func() {
 			Name: "some-base-type",
 		}
 
-		_, err = baseResourceType.FindOrCreate(setupTx)
+		usedBaseResourceType, err = baseResourceType.FindOrCreate(setupTx)
 		Expect(err).NotTo(HaveOccurred())
 
 		imageBaseResourceType := db.BaseResourceType{

@@ -114,11 +114,11 @@ func (cache ResourceCache) findOrCreate(
 			QueryRow().
 			Scan(&id)
 		if err != nil {
-			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqFKeyViolationErrCode {
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "foreign_key_violation" {
 				return nil, ErrSafeRetryFindOrCreate
 			}
 
-			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqUniqueViolationErrCode {
+			if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
 				return nil, ErrSafeRetryFindOrCreate
 			}
 
@@ -141,7 +141,7 @@ func (cache ResourceCache) use(
 	rc *UsedResourceCache,
 	user ResourceCacheUser,
 ) error {
-	cols := user.SQLMap()
+	cols := user.SqlMap()
 	cols["resource_cache_id"] = rc.ID
 
 	var resourceCacheUseExists int
@@ -166,7 +166,19 @@ func (cache ResourceCache) use(
 		SetMap(cols).
 		RunWith(tx).
 		Exec()
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cache ResourceCache) lockName() (string, error) {
+	cacheJSON, err := json.Marshal(cache)
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%x", sha256.Sum256(cacheJSON)), nil
 }
 
 func (cache ResourceCache) findWithResourceConfig(tx Tx, resourceConfig *UsedResourceConfig) (*UsedResourceCache, bool, error) {
@@ -196,12 +208,12 @@ func (cache ResourceCache) version() string {
 	return string(j)
 }
 
-func (cache *UsedResourceCache) BaseResourceType() *UsedBaseResourceType {
-	if cache.ResourceConfig.CreatedByBaseResourceType != nil {
-		return cache.ResourceConfig.CreatedByBaseResourceType
+func (usedResourceCache *UsedResourceCache) BaseResourceType() *UsedBaseResourceType {
+	if usedResourceCache.ResourceConfig.CreatedByBaseResourceType != nil {
+		return usedResourceCache.ResourceConfig.CreatedByBaseResourceType
 	}
 
-	return cache.ResourceConfig.CreatedByResourceCache.BaseResourceType()
+	return usedResourceCache.ResourceConfig.CreatedByResourceCache.BaseResourceType()
 }
 
 func paramsHash(p atc.Params) string {

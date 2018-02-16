@@ -5,16 +5,14 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
-	"io"
 	"strings"
 	"time"
 
 	"code.cloudfoundry.org/lager"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/concourse/atc/db/encryption"
-	"github.com/concourse/atc/db/lock"
 	"github.com/concourse/atc/db/migration"
+	"github.com/concourse/atc/db/migrations"
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/lib/pq"
 )
@@ -23,7 +21,7 @@ import (
 
 type Conn interface {
 	Bus() NotificationsBus
-	EncryptionStrategy() encryption.Strategy
+	EncryptionStrategy() EncryptionStrategy
 
 	Ping() error
 	Driver() driver.Driver
@@ -39,7 +37,6 @@ type Conn interface {
 	Stats() sql.DBStats
 
 	Close() error
-	Name() string
 }
 
 //go:generate counterfeiter . Tx
@@ -54,16 +51,16 @@ type Tx interface {
 	Stmt(stmt *sql.Stmt) *sql.Stmt
 }
 
-func Open(logger lager.Logger, sqlDriver string, sqlDataSource string, newKey *encryption.Key, oldKey *encryption.Key, connectionName string, lockFactory lock.LockFactory) (Conn, error) {
+func Open(logger lager.Logger, sqlDriver string, sqlDataSource string, newKey *EncryptionKey, oldKey *EncryptionKey) (Conn, error) {
 	for {
-		var strategy encryption.Strategy
+		var strategy EncryptionStrategy
 		if newKey != nil {
 			strategy = newKey
 		} else {
-			strategy = encryption.NewNoEncryption()
+			strategy = NewNoEncryption()
 		}
 
-		sqlDb, err := migration.NewOpenHelper(sqlDriver, sqlDataSource, lockFactory, strategy).Open()
+		sqlDb, err := migration.Open(sqlDriver, sqlDataSource, migrations.New(strategy))
 		if err != nil {
 			if strings.Contains(err.Error(), "dial ") {
 				logger.Error("failed-to-open-db-retrying", err)
@@ -98,7 +95,6 @@ func Open(logger lager.Logger, sqlDriver string, sqlDataSource string, newKey *e
 
 			bus:        NewNotificationsBus(listener, sqlDb),
 			encryption: strategy,
-			name:       connectionName,
 		}, nil
 	}
 }
@@ -111,7 +107,7 @@ var encryptedColumns = map[string]string{
 	"builds":         "engine_metadata",
 }
 
-func encryptPlaintext(logger lager.Logger, sqlDB *sql.DB, key *encryption.Key) error {
+func encryptPlaintext(logger lager.Logger, sqlDB *sql.DB, key *EncryptionKey) error {
 	for table, col := range encryptedColumns {
 		rows, err := sqlDB.Query(`
 			SELECT id, ` + col + `
@@ -177,7 +173,7 @@ func encryptPlaintext(logger lager.Logger, sqlDB *sql.DB, key *encryption.Key) e
 	return nil
 }
 
-func decryptToPlaintext(logger lager.Logger, sqlDB *sql.DB, oldKey *encryption.Key) error {
+func decryptToPlaintext(logger lager.Logger, sqlDB *sql.DB, oldKey *EncryptionKey) error {
 	for table, col := range encryptedColumns {
 		rows, err := sqlDB.Query(`
 			SELECT id, nonce, ` + col + `
@@ -241,7 +237,7 @@ func decryptToPlaintext(logger lager.Logger, sqlDB *sql.DB, oldKey *encryption.K
 
 var ErrEncryptedWithUnknownKey = errors.New("row encrypted with neither old nor new key")
 
-func encryptWithNewKey(logger lager.Logger, sqlDB *sql.DB, newKey *encryption.Key, oldKey *encryption.Key) error {
+func encryptWithNewKey(logger lager.Logger, sqlDB *sql.DB, newKey *EncryptionKey, oldKey *EncryptionKey) error {
 	for table, col := range encryptedColumns {
 		rows, err := sqlDB.Query(`
 			SELECT id, nonce, ` + col + `
@@ -319,19 +315,14 @@ type db struct {
 	*sql.DB
 
 	bus        NotificationsBus
-	encryption encryption.Strategy
-	name       string
-}
-
-func (db *db) Name() string {
-	return db.name
+	encryption EncryptionStrategy
 }
 
 func (db *db) Bus() NotificationsBus {
 	return db.bus
 }
 
-func (db *db) EncryptionStrategy() encryption.Strategy {
+func (db *db) EncryptionStrategy() EncryptionStrategy {
 	return db.encryption
 }
 
@@ -348,12 +339,6 @@ func (db *db) Close() error {
 	}
 
 	return errs
-}
-
-// Close ignores errors, and should used with defer.
-// makes errcheck happy that those errs are captured
-func Close(c io.Closer) {
-	_ = c.Close()
 }
 
 func (db *db) Begin() (Tx, error) {
@@ -405,12 +390,6 @@ func (tx *dbTx) Commit() error {
 func (tx *dbTx) Rollback() error {
 	defer tx.session.Release()
 	return tx.Tx.Rollback()
-}
-
-// Rollback ignores errors, and should be used with defer.
-// makes errcheck happy that those errs are captured
-func Rollback(tx Tx) {
-	_ = tx.Rollback()
 }
 
 type nonOneRowAffectedError struct {

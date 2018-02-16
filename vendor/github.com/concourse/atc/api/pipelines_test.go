@@ -132,6 +132,7 @@ var _ = Describe("Pipelines API", func() {
 				{
 					"id": 1,
 					"name": "public-pipeline",
+					"url": "/teams/main/pipelines/public-pipeline",
 					"paused": true,
 					"public": true,
 					"team_name": "main",
@@ -146,6 +147,7 @@ var _ = Describe("Pipelines API", func() {
 				{
 					"id": 2,
 					"name": "another-pipeline",
+					"url": "/teams/another/pipelines/another-pipeline",
 					"paused": true,
 					"public": true,
 					"team_name": "another"
@@ -168,6 +170,7 @@ var _ = Describe("Pipelines API", func() {
 				{
 					"id": 3,
 					"name": "private-pipeline",
+					"url": "/teams/main/pipelines/private-pipeline",
 					"paused": false,
 					"public": false,
 					"team_name": "main",
@@ -182,6 +185,7 @@ var _ = Describe("Pipelines API", func() {
 				{
 					"id": 1,
 					"name": "public-pipeline",
+					"url": "/teams/main/pipelines/public-pipeline",
 					"paused": true,
 					"public": true,
 					"team_name": "main",
@@ -196,6 +200,7 @@ var _ = Describe("Pipelines API", func() {
 				{
 					"id": 2,
 					"name": "another-pipeline",
+					"url": "/teams/another/pipelines/another-pipeline",
 					"paused": true,
 					"public": true,
 					"team_name": "another"
@@ -255,6 +260,7 @@ var _ = Describe("Pipelines API", func() {
 					{
 						"id": 3,
 						"name": "private-pipeline",
+						"url": "/teams/main/pipelines/private-pipeline",
 						"paused": false,
 						"public": false,
 						"team_name": "main",
@@ -269,6 +275,7 @@ var _ = Describe("Pipelines API", func() {
 					{
 						"id": 1,
 						"name": "public-pipeline",
+						"url": "/teams/main/pipelines/public-pipeline",
 						"paused": true,
 						"public": true,
 						"team_name": "main",
@@ -308,6 +315,7 @@ var _ = Describe("Pipelines API", func() {
 					{
 						"id": 1,
 						"name": "public-pipeline",
+						"url": "/teams/main/pipelines/public-pipeline",
 						"paused": true,
 						"public": true,
 						"team_name": "main",
@@ -337,6 +345,7 @@ var _ = Describe("Pipelines API", func() {
 					{
 						"id": 1,
 						"name": "public-pipeline",
+						"url": "/teams/main/pipelines/public-pipeline",
 						"paused": true,
 						"public": true,
 						"team_name": "main",
@@ -422,6 +431,7 @@ var _ = Describe("Pipelines API", func() {
 					{
 						"id": 4,
 						"name": "some-specific-pipeline",
+						"url": "/teams/a-team/pipelines/some-specific-pipeline",
 						"paused": false,
 						"public": true,
 						"team_name": "a-team",
@@ -1554,6 +1564,7 @@ var _ = Describe("Pipelines API", func() {
 								"name": "1",
 								"team_name": "a-team",
 								"status": "started",
+								"url": "/builds/42",
 								"api_url": "/api/v1/builds/42",
 								"start_time": 1,
 								"end_time": 100,

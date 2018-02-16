@@ -26,11 +26,6 @@ func (e ErrResourceNotFound) Error() string {
 
 //go:generate counterfeiter . Pipeline
 
-type Cause struct {
-	VersionedResourceID int `json:"versioned_resource_id"`
-	BuildID             int `json:"build_id"`
-}
-
 type Pipeline interface {
 	ID() int
 	Name() string
@@ -45,8 +40,6 @@ type Pipeline interface {
 	CheckPaused() (bool, error)
 	Reload() (bool, error)
 
-	Causality(versionedResourceID int) ([]Cause, error)
-
 	SetResourceCheckError(Resource, error) error
 	SaveResourceVersions(atc.ResourceConfig, []atc.Version) error
 	GetResourceVersions(resourceName string, page Page) ([]SavedVersionedResource, Pagination, bool, error)
@@ -56,7 +49,6 @@ type Pipeline interface {
 	GetLatestVersionedResource(resourceName string) (SavedVersionedResource, bool, error)
 	GetVersionedResourceByVersion(atcVersion atc.Version, resourceName string) (SavedVersionedResource, bool, error)
 
-	VersionedResource(versionedResourceID int) (SavedVersionedResource, bool, error)
 	DisableVersionedResource(versionedResourceID int) error
 	EnableVersionedResource(versionedResourceID int) error
 	GetBuildsWithVersionAsInput(versionedResourceID int) ([]Build, error)
@@ -64,6 +56,7 @@ type Pipeline interface {
 
 	DeleteBuildEventsByBuildIDs(buildIDs []int) error
 
+	// Needs test (from db/lock_test.go)
 	AcquireSchedulingLock(lager.Logger, time.Duration) (lock.Lock, bool, error)
 
 	AcquireResourceCheckingLockWithIntervalCheck(
@@ -183,54 +176,7 @@ func (p *pipeline) ScopedName(n string) string {
 	return p.name + ":" + n
 }
 
-func (p *pipeline) Causality(versionedResourceID int) ([]Cause, error) {
-	rows, err := p.conn.Query(`
-		WITH RECURSIVE causality(versioned_resource_id, build_id) AS (
-				SELECT bi.versioned_resource_id, bi.build_id
-				FROM build_inputs bi
-				WHERE bi.versioned_resource_id = $1
-			UNION
-				SELECT bi.versioned_resource_id, bi.build_id
-				FROM causality t
-				INNER JOIN build_outputs bo ON bo.build_id = t.build_id
-				INNER JOIN build_inputs bi ON bi.versioned_resource_id = bo.versioned_resource_id
-				INNER JOIN builds b ON b.id = bi.build_id
-				WHERE bo.explicit
-				AND NOT EXISTS (
-					SELECT 1
-					FROM build_outputs obo
-					INNER JOIN builds ob ON ob.id = obo.build_id
-					WHERE obo.build_id < bi.build_id
-					AND ob.job_id = b.job_id
-					AND obo.versioned_resource_id = bi.versioned_resource_id
-				)
-		)
-		SELECT c.versioned_resource_id, c.build_id
-		FROM causality c
-		INNER JOIN builds b ON b.id = c.build_id
-		ORDER BY b.start_time ASC, c.versioned_resource_id ASC
-	`, versionedResourceID)
-	if err != nil {
-		return nil, err
-	}
-
-	var causality []Cause
-	for rows.Next() {
-		var vrID, buildID int
-		err := rows.Scan(&vrID, &buildID)
-		if err != nil {
-			return nil, err
-		}
-
-		causality = append(causality, Cause{
-			VersionedResourceID: vrID,
-			BuildID:             buildID,
-		})
-	}
-
-	return causality, nil
-}
-
+// Write test
 func (p *pipeline) CheckPaused() (bool, error) {
 	var paused bool
 
@@ -269,7 +215,7 @@ func (p *pipeline) CreateJobBuild(jobName string) (Build, error) {
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	buildName, jobID, err := getNewBuildNameForJob(tx, jobName, p.id)
 	if err != nil {
@@ -348,7 +294,7 @@ func (p *pipeline) GetAllPendingBuilds() (map[string][]Build, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		build := &build{conn: p.conn, lockFactory: p.lockFactory}
@@ -369,7 +315,7 @@ func (p *pipeline) SaveResourceVersions(config atc.ResourceConfig, versions []at
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	for _, version := range versions {
 		vr := VersionedResource{
@@ -405,7 +351,12 @@ func (p *pipeline) SaveResourceVersions(config atc.ResourceConfig, versions []at
 		}
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *pipeline) GetResourceVersions(resourceName string, page Page) ([]SavedVersionedResource, Pagination, bool, error) {
@@ -492,7 +443,7 @@ func (p *pipeline) GetResourceVersions(resourceName string, page Page) ([]SavedV
 		}
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	savedVersionedResources := make([]SavedVersionedResource, 0)
 	for rows.Next() {
@@ -500,7 +451,7 @@ func (p *pipeline) GetResourceVersions(resourceName string, page Page) ([]SavedV
 
 		var versionString, metadataString string
 
-		err = rows.Scan(
+		err := rows.Scan(
 			&savedVersionedResource.ID,
 			&savedVersionedResource.Enabled,
 			&savedVersionedResource.Type,
@@ -654,40 +605,6 @@ func (p *pipeline) GetVersionedResourceByVersion(atcVersion atc.Version, resourc
 	return svr, true, nil
 }
 
-func (p *pipeline) VersionedResource(versionedResourceID int) (SavedVersionedResource, bool, error) {
-	svr := SavedVersionedResource{
-		VersionedResource: VersionedResource{},
-	}
-
-	var versionBytes, metadataBytes string
-	err := psql.Select("v.id", "v.enabled", "v.type", "v.version", "v.metadata", "v.check_order", "r.name").
-		From("versioned_resources v").
-		Join("resources r ON r.id = v.resource_id").
-		Where(sq.Eq{"v.id": versionedResourceID}).
-		RunWith(p.conn).
-		QueryRow().
-		Scan(&svr.ID, &svr.Enabled, &svr.Type, &versionBytes, &metadataBytes, &svr.CheckOrder, &svr.VersionedResource.Resource)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return SavedVersionedResource{}, false, nil
-		}
-
-		return SavedVersionedResource{}, false, err
-	}
-
-	err = json.Unmarshal([]byte(versionBytes), &svr.Version)
-	if err != nil {
-		return SavedVersionedResource{}, false, err
-	}
-
-	err = json.Unmarshal([]byte(metadataBytes), &svr.Metadata)
-	if err != nil {
-		return SavedVersionedResource{}, false, err
-	}
-
-	return svr, true, nil
-}
-
 func (p *pipeline) DisableVersionedResource(versionedResourceID int) error {
 	return p.toggleVersionedResource(versionedResourceID, false)
 }
@@ -707,7 +624,7 @@ func (p *pipeline) GetBuildsWithVersionAsInput(versionedResourceID int) ([]Build
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	builds := []Build{}
 	for rows.Next() {
@@ -733,7 +650,7 @@ func (p *pipeline) GetBuildsWithVersionAsOutput(versionedResourceID int) ([]Buil
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	builds := []Build{}
 	for rows.Next() {
@@ -774,7 +691,7 @@ func (p *pipeline) Resources() (Resources, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	var resources Resources
 
@@ -796,7 +713,7 @@ func (p *pipeline) ResourceTypes() (ResourceTypes, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	resourceTypes := []ResourceType{}
 
@@ -998,7 +915,7 @@ func (p *pipeline) Destroy() error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	_, err = tx.Exec(fmt.Sprintf(`
 		DROP TABLE pipeline_build_events_%d
@@ -1051,11 +968,11 @@ func (p *pipeline) LoadVersionsDB() (*algorithm.VersionsDB, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var output algorithm.BuildOutput
-		err = rows.Scan(&output.VersionID, &output.CheckOrder, &output.ResourceID, &output.BuildID, &output.JobID)
+		err := rows.Scan(&output.VersionID, &output.CheckOrder, &output.ResourceID, &output.BuildID, &output.JobID)
 		if err != nil {
 			return nil, err
 		}
@@ -1080,11 +997,11 @@ func (p *pipeline) LoadVersionsDB() (*algorithm.VersionsDB, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var input algorithm.BuildInput
-		err = rows.Scan(&input.VersionID, &input.CheckOrder, &input.ResourceID, &input.BuildID, &input.InputName, &input.JobID)
+		err := rows.Scan(&input.VersionID, &input.CheckOrder, &input.ResourceID, &input.BuildID, &input.InputName, &input.JobID)
 		if err != nil {
 			return nil, err
 		}
@@ -1107,11 +1024,11 @@ func (p *pipeline) LoadVersionsDB() (*algorithm.VersionsDB, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var output algorithm.ResourceVersion
-		err = rows.Scan(&output.VersionID, &output.CheckOrder, &output.ResourceID)
+		err := rows.Scan(&output.VersionID, &output.CheckOrder, &output.ResourceID)
 		if err != nil {
 			return nil, err
 		}
@@ -1128,12 +1045,12 @@ func (p *pipeline) LoadVersionsDB() (*algorithm.VersionsDB, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var name string
 		var id int
-		err = rows.Scan(&name, &id)
+		err := rows.Scan(&name, &id)
 		if err != nil {
 			return nil, err
 		}
@@ -1150,12 +1067,12 @@ func (p *pipeline) LoadVersionsDB() (*algorithm.VersionsDB, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var name string
 		var id int
-		err = rows.Scan(&name, &id)
+		err := rows.Scan(&name, &id)
 		if err != nil {
 			return nil, err
 		}
@@ -1189,7 +1106,7 @@ func (p *pipeline) DeleteBuildEventsByBuildIDs(buildIDs []int) error {
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	_, err = tx.Exec(`
    DELETE FROM build_events
@@ -1213,6 +1130,27 @@ func (p *pipeline) DeleteBuildEventsByBuildIDs(buildIDs []int) error {
 }
 
 func (p *pipeline) AcquireSchedulingLock(logger lager.Logger, interval time.Duration) (lock.Lock, bool, error) {
+	tx, err := p.conn.Begin()
+	if err != nil {
+		return nil, false, err
+	}
+
+	defer tx.Rollback()
+
+	updated, err := checkIfRowsUpdated(tx, `
+		UPDATE pipelines
+		SET last_scheduled = now()
+		WHERE id = $1
+			AND now() - last_scheduled > ($2 || ' SECONDS')::INTERVAL
+	`, p.id, interval.Seconds())
+	if err != nil {
+		return nil, false, err
+	}
+
+	if !updated {
+		return nil, false, nil
+	}
+
 	lock, acquired, err := p.lockFactory.Acquire(
 		logger.Session("lock", lager.Data{
 			"pipeline": p.name,
@@ -1227,36 +1165,11 @@ func (p *pipeline) AcquireSchedulingLock(logger lager.Logger, interval time.Dura
 		return nil, false, nil
 	}
 
-	var keepLock bool
-	defer func() {
-		if !keepLock {
-			err = lock.Release()
-			if err != nil {
-				logger.Error("failed-to-release-lock", err)
-			}
-		}
-	}()
-
-	result, err := p.conn.Exec(`
-		UPDATE pipelines
-		SET last_scheduled = now()
-		WHERE id = $1
-			AND now() - last_scheduled > ($2 || ' SECONDS')::INTERVAL
-	`, p.id, interval.Seconds())
+	err = tx.Commit()
 	if err != nil {
+		lock.Release()
 		return nil, false, err
 	}
-
-	rows, err := result.RowsAffected()
-	if err != nil {
-		return nil, false, err
-	}
-
-	if rows == 0 {
-		return nil, false, nil
-	}
-
-	keepLock = true
 
 	return lock, true, nil
 }
@@ -1267,7 +1180,7 @@ func (p *pipeline) saveOutput(buildID int, vr VersionedResource, explicit bool) 
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	var resourceID int
 	err = psql.Select("id").
@@ -1289,8 +1202,7 @@ func (p *pipeline) saveOutput(buildID int, vr VersionedResource, explicit bool) 
 	}
 
 	if created {
-		var versionJSON []byte
-		versionJSON, err = json.Marshal(vr.Version)
+		versionJSON, err := json.Marshal(vr.Version)
 		if err != nil {
 			return err
 		}
@@ -1310,7 +1222,12 @@ func (p *pipeline) saveOutput(buildID int, vr VersionedResource, explicit bool) 
 		return err
 	}
 
-	return tx.Commit()
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *pipeline) CreateOneOffBuild() (Build, error) {
@@ -1319,7 +1236,7 @@ func (p *pipeline) CreateOneOffBuild() (Build, error) {
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	build := &build{conn: p.conn, lockFactory: p.lockFactory}
 	err = createBuild(tx, build, map[string]interface{}{
@@ -1369,7 +1286,13 @@ func (p *pipeline) saveInputTx(tx Tx, buildID int, input BuildInput) error {
 		)
 	`, buildID, svr.ID, input.Name)
 
-	return swallowUniqueViolation(err)
+	err = swallowUniqueViolation(err)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (p *pipeline) saveVersionedResource(tx Tx, resourceID int, vr VersionedResource) (SavedVersionedResource, bool, error) {
@@ -1385,8 +1308,8 @@ func (p *pipeline) saveVersionedResource(tx Tx, resourceID int, vr VersionedReso
 
 	var id int
 	var enabled bool
-	var modifiedTime time.Time
-	var checkOrder int
+	var modified_time time.Time
+	var check_order int
 
 	result, err := tx.Exec(`
 		INSERT INTO versioned_resources (resource_id, type, version, metadata, modified_time)
@@ -1428,7 +1351,7 @@ func (p *pipeline) saveVersionedResource(tx Tx, resourceID int, vr VersionedReso
 			Suffix("RETURNING id, enabled, metadata, modified_time, check_order").
 			RunWith(tx).
 			QueryRow().
-			Scan(&id, &enabled, &savedMetadata, &modifiedTime, &checkOrder)
+			Scan(&id, &enabled, &savedMetadata, &modified_time, &check_order)
 	} else {
 		err = psql.Select("id, enabled, metadata, modified_time, check_order").
 			From("versioned_resources").
@@ -1439,7 +1362,7 @@ func (p *pipeline) saveVersionedResource(tx Tx, resourceID int, vr VersionedReso
 			}).
 			RunWith(tx).
 			QueryRow().
-			Scan(&id, &enabled, &savedMetadata, &modifiedTime, &checkOrder)
+			Scan(&id, &enabled, &savedMetadata, &modified_time, &check_order)
 	}
 	if err != nil {
 		return SavedVersionedResource{}, false, err
@@ -1454,10 +1377,10 @@ func (p *pipeline) saveVersionedResource(tx Tx, resourceID int, vr VersionedReso
 	return SavedVersionedResource{
 		ID:           id,
 		Enabled:      enabled,
-		ModifiedTime: modifiedTime,
+		ModifiedTime: modified_time,
 
 		VersionedResource: vr,
-		CheckOrder:        checkOrder,
+		CheckOrder:        check_order,
 	}, created, nil
 }
 
@@ -1477,7 +1400,165 @@ func (p *pipeline) incrementCheckOrderWhenNewerVersion(tx Tx, resourceID int, re
 		AND type = $2
 		AND version = $3
 		AND check_order <= mc.co;`, resourceID, resourceType, version)
-	return err
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (p *pipeline) getJobBuildInputs(table string, jobName string) ([]BuildInput, error) {
+	rows, err := psql.Select("i.input_name, i.first_occurrence, r.name, v.type, v.version, v.metadata").
+		From(table + " i").
+		Join("jobs j ON i.job_id = j.id").
+		Join("versioned_resources v ON v.id = i.version_id").
+		Join("resources r ON r.id = v.resource_id").
+		Where(sq.Eq{
+			"j.name":        jobName,
+			"j.pipeline_id": p.id,
+		}).
+		RunWith(p.conn).
+		Query()
+	if err != nil {
+		return nil, err
+	}
+
+	buildInputs := []BuildInput{}
+	for rows.Next() {
+		var (
+			inputName       string
+			firstOccurrence bool
+			resourceName    string
+			resourceType    string
+			versionBlob     string
+			metadataBlob    string
+			version         ResourceVersion
+			metadata        []ResourceMetadataField
+		)
+
+		err := rows.Scan(&inputName, &firstOccurrence, &resourceName, &resourceType, &versionBlob, &metadataBlob)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal([]byte(versionBlob), &version)
+		if err != nil {
+			return nil, err
+		}
+
+		err = json.Unmarshal([]byte(metadataBlob), &metadata)
+		if err != nil {
+			return nil, err
+		}
+
+		buildInputs = append(buildInputs, BuildInput{
+			Name: inputName,
+			VersionedResource: VersionedResource{
+				Resource: resourceName,
+				Type:     resourceType,
+				Version:  version,
+				Metadata: metadata,
+			},
+			FirstOccurrence: firstOccurrence,
+		})
+	}
+	return buildInputs, nil
+}
+
+func (p *pipeline) saveJobInputMapping(table string, inputMapping algorithm.InputMapping, jobName string) error {
+	tx, err := p.conn.Begin()
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback()
+
+	var jobID int
+	switch table {
+	case "independent_build_inputs":
+		err = psql.Select("id").
+			From("jobs").
+			Where(sq.Eq{
+				"name":        jobName,
+				"pipeline_id": p.id,
+			}).
+			RunWith(tx).
+			QueryRow().
+			Scan(&jobID)
+	case "next_build_inputs":
+		err = psql.Update("jobs").
+			Set("inputs_determined", true).
+			Where(sq.Eq{
+				"name":        jobName,
+				"pipeline_id": p.id,
+			}).
+			Suffix("RETURNING id").
+			RunWith(tx).
+			QueryRow().
+			Scan(&jobID)
+	default:
+		panic("unknown table " + table)
+	}
+	if err != nil {
+		return err
+	}
+
+	rows, err := psql.Select("input_name, version_id, first_occurrence").
+		From(table).
+		Where(sq.Eq{"job_id": jobID}).
+		RunWith(tx).
+		Query()
+	if err != nil {
+		return err
+	}
+
+	oldInputMapping := algorithm.InputMapping{}
+	for rows.Next() {
+		var inputName string
+		var inputVersion algorithm.InputVersion
+		err := rows.Scan(&inputName, &inputVersion.VersionID, &inputVersion.FirstOccurrence)
+		if err != nil {
+			return err
+		}
+
+		oldInputMapping[inputName] = inputVersion
+	}
+
+	for inputName, oldInputVersion := range oldInputMapping {
+		inputVersion, found := inputMapping[inputName]
+		if !found || inputVersion != oldInputVersion {
+			_, err = psql.Delete(table).
+				Where(sq.Eq{
+					"job_id":     jobID,
+					"input_name": inputName,
+				}).
+				RunWith(tx).
+				Exec()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for inputName, inputVersion := range inputMapping {
+		oldInputVersion, found := oldInputMapping[inputName]
+		if !found || inputVersion != oldInputVersion {
+			_, err := psql.Insert(table).
+				SetMap(map[string]interface{}{
+					"job_id":           jobID,
+					"input_name":       inputName,
+					"version_id":       inputVersion.VersionID,
+					"first_occurrence": inputVersion.FirstOccurrence,
+				}).
+				RunWith(tx).
+				Exec()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return tx.Commit()
 }
 
 func (p *pipeline) toggleVersionedResource(versionedResourceID int, enable bool) error {
@@ -1504,7 +1585,7 @@ func (p *pipeline) toggleVersionedResource(versionedResourceID int, enable bool)
 }
 
 func (p *pipeline) getLatestModifiedTime() (time.Time, error) {
-	var maxModifiedTime time.Time
+	var max_modified_time time.Time
 
 	err := p.conn.QueryRow(`
 	SELECT
@@ -1534,9 +1615,9 @@ func (p *pipeline) getLatestModifiedTime() (time.Time, error) {
 			LEFT OUTER JOIN resources r ON r.id = vr.resource_id
 			WHERE r.pipeline_id = $1
 		) vr
-	`, p.id).Scan(&maxModifiedTime)
+	`, p.id).Scan(&max_modified_time)
 
-	return maxModifiedTime, err
+	return max_modified_time, err
 }
 
 func (p *pipeline) getBuildsFrom(view string) (map[string]Build, error) {
@@ -1548,7 +1629,7 @@ func (p *pipeline) getBuildsFrom(view string) (map[string]Build, error) {
 		return nil, err
 	}
 
-	defer Close(rows)
+	defer rows.Close()
 
 	nextBuilds := make(map[string]Build)
 

@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"code.cloudfoundry.org/clock"
 	"code.cloudfoundry.org/garden"
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc"
@@ -33,12 +32,6 @@ type WorkerProvider interface {
 		teamID int,
 		owner db.ContainerOwner,
 	) (Worker, bool, error)
-
-	NewGardenWorker(
-		logger lager.Logger,
-		tikTok clock.Clock,
-		savedWorker db.Worker,
-	) Worker
 }
 
 var (
@@ -67,15 +60,13 @@ func (err NoCompatibleWorkersError) Error() string {
 type pool struct {
 	provider WorkerProvider
 
-	rand     *rand.Rand
-	strategy ContainerPlacementStrategy
+	rand *rand.Rand
 }
 
-func NewPool(provider WorkerProvider, strategy ContainerPlacementStrategy) Client {
+func NewPool(provider WorkerProvider) Client {
 	return &pool{
 		provider: provider,
 		rand:     rand.New(rand.NewSource(time.Now().UnixNano())),
-		strategy: strategy,
 	}
 }
 
@@ -153,10 +144,32 @@ func (pool *pool) FindOrCreateContainer(
 			return nil, err
 		}
 
-		worker, err = pool.strategy.Choose(compatibleWorkers, spec)
-		if err != nil {
-			return nil, err
+		workersByCount := map[int][]Worker{}
+		var highestCount int
+		for _, w := range compatibleWorkers {
+			candidateInputCount := 0
+
+			for _, inputSource := range spec.Inputs {
+				_, found, err := inputSource.Source().VolumeOn(w)
+				if err != nil {
+					return nil, err
+				}
+
+				if found {
+					candidateInputCount++
+				}
+			}
+
+			workersByCount[candidateInputCount] = append(workersByCount[candidateInputCount], w)
+
+			if candidateInputCount >= highestCount {
+				highestCount = candidateInputCount
+			}
 		}
+
+		workers := workersByCount[highestCount]
+
+		worker = workers[pool.rand.Intn(len(workers))]
 	}
 
 	return worker.FindOrCreateContainer(

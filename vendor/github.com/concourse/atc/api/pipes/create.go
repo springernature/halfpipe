@@ -9,7 +9,7 @@ import (
 	"github.com/tedsuo/rata"
 
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 )
 
 func (s *Server) CreatePipe(w http.ResponseWriter, r *http.Request) {
@@ -89,9 +89,5 @@ func (s *Server) CreatePipe(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 
-	err = json.NewEncoder(w).Encode(pipeResource)
-	if err != nil {
-		logger.Error("failed-to-encode-pipe", err)
-		w.WriteHeader(http.StatusInternalServerError)
-	}
+	json.NewEncoder(w).Encode(pipeResource)
 }

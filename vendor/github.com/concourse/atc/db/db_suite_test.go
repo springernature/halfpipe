@@ -3,6 +3,7 @@ package db_test
 import (
 	"os"
 	"testing"
+	"time"
 
 	"code.cloudfoundry.org/lager/lagertest"
 	sq "github.com/Masterminds/squirrel"
@@ -114,14 +115,11 @@ var _ = BeforeEach(func() {
 		Version: "some-brt-version",
 	}
 
-	certsPath := "/etc/ssl/certs"
-
 	defaultWorkerPayload = atc.Worker{
 		ResourceTypes:   []atc.WorkerResourceType{defaultWorkerResourceType},
 		Name:            "default-worker",
 		GardenAddr:      "1.2.3.4:7777",
 		BaggageclaimURL: "5.6.7.8:7878",
-		CertsPath:       &certsPath,
 	}
 
 	defaultWorker, err = workerFactory.SaveWorker(defaultWorkerPayload, 0)
@@ -184,5 +182,5 @@ var _ = AfterEach(func() {
 
 var _ = AfterSuite(func() {
 	dbProcess.Signal(os.Interrupt)
-	<-dbProcess.Wait()
+	Eventually(dbProcess.Wait(), 10*time.Second).Should(Receive())
 })

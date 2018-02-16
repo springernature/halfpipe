@@ -4,6 +4,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/atc"
 	"github.com/concourse/atc/creds"
 	"github.com/concourse/atc/db"
@@ -13,8 +14,11 @@ import (
 
 var _ = Describe("ResourceConfigFactory", func() {
 	var build db.Build
+	var variables creds.Variables
 
 	BeforeEach(func() {
+		variables = template.StaticVariables{}
+
 		var err error
 		job, found, err := defaultPipeline.Job("some-job")
 		Expect(err).NotTo(HaveOccurred())

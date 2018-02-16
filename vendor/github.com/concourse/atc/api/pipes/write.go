@@ -7,7 +7,7 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 )
 
 func (s *Server) WritePipe(w http.ResponseWriter, r *http.Request) {
@@ -58,8 +58,8 @@ func (s *Server) WritePipe(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, _ = io.Copy(pipe.write, r.Body)
-		_ = pipe.write.Close()
+		io.Copy(pipe.write, r.Body)
+		pipe.write.Close()
 
 		s.pipesL.Lock()
 		delete(s.pipes, pipeID)

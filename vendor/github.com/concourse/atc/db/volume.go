@@ -48,12 +48,11 @@ const (
 type VolumeType string
 
 const (
-	VolumeTypeContainer     VolumeType = "container"
-	VolumeTypeResource      VolumeType = "resource"
-	VolumeTypeResourceType  VolumeType = "resource-type"
-	VolumeTypeResourceCerts VolumeType = "resource-certs"
-	VolumeTypeTaskCache     VolumeType = "task-cache"
-	VolumeTypeUknown        VolumeType = "unknown" // for migration to life
+	VolumeTypeContainer    VolumeType = "container"
+	VolumeTypeResource     VolumeType = "resource"
+	VolumeTypeResourceType VolumeType = "resource-type"
+	VolumeTypeTaskCache    VolumeType = "task-cache"
+	VolumeTypeUknown       VolumeType = "unknown" // for migration to life
 )
 
 //go:generate counterfeiter . CreatingVolume
@@ -77,7 +76,6 @@ type creatingVolume struct {
 	resourceCacheID          int
 	workerBaseResourceTypeID int
 	workerTaskCacheID        int
-	workerResourceCertsID    int
 	conn                     Conn
 }
 
@@ -112,7 +110,6 @@ func (volume *creatingVolume) Created() (CreatedVolume, error) {
 		resourceCacheID:          volume.resourceCacheID,
 		workerBaseResourceTypeID: volume.workerBaseResourceTypeID,
 		workerTaskCacheID:        volume.workerTaskCacheID,
-		workerResourceCertsID:    volume.workerResourceCertsID,
 	}, nil
 }
 
@@ -164,12 +161,12 @@ type createdVolume struct {
 	path                     string
 	teamID                   int
 	typ                      VolumeType
+	bytes                    int64
 	containerHandle          string
 	parentHandle             string
 	resourceCacheID          int
 	workerBaseResourceTypeID int
 	workerTaskCacheID        int
-	workerResourceCertsID    int
 	conn                     Conn
 }
 
@@ -354,7 +351,7 @@ func (volume *createdVolume) InitializeResourceCache(resourceCache *UsedResource
 		RunWith(volume.conn).
 		Exec()
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqUniqueViolationErrCode {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
 			// leave it owned by the container
 			return nil
 		}
@@ -399,7 +396,7 @@ func (volume *createdVolume) InitializeTaskCache(jobID int, stepName string, pat
 		return err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	// release other old volumes for gc
 	_, err = psql.Update("volumes").
@@ -417,7 +414,7 @@ func (volume *createdVolume) InitializeTaskCache(jobID int, stepName string, pat
 		RunWith(tx).
 		Exec()
 	if err != nil {
-		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqUniqueViolationErrCode {
+		if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
 			// leave it owned by the container
 			return nil
 		}
@@ -443,7 +440,7 @@ func (volume *createdVolume) CreateChildForContainer(container CreatingContainer
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	handle, err := uuid.NewV4()
 	if err != nil {
@@ -516,7 +513,7 @@ func (volume *createdVolume) Destroying() (DestroyingVolume, error) {
 		}
 
 		if pqErr, ok := err.(*pq.Error); ok &&
-			pqErr.Code.Name() == pqFKeyViolationErrCode &&
+			pqErr.Code.Name() == "foreign_key_violation" &&
 			pqErr.Constraint == "volumes_parent_id_fkey" {
 			return nil, ErrVolumeCannotBeDestroyedWithChildrenPresent
 		}

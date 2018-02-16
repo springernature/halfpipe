@@ -46,11 +46,7 @@ func (s *Server) ListContainers(team db.Team) http.Handler {
 			presentedContainers[i] = present.Container(container)
 		}
 
-		err = json.NewEncoder(w).Encode(presentedContainers)
-		if err != nil {
-			hLog.Error("failed-to-encode-containers", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(presentedContainers)
 	})
 }
 

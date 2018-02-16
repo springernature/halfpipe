@@ -36,7 +36,6 @@ var workersQuery = psql.Select(`
 		w.addr,
 		w.state,
 		w.baggageclaim_url,
-		w.certs_path,
 		w.http_proxy_url,
 		w.https_proxy_url,
 		w.no_proxy,
@@ -82,7 +81,7 @@ func getWorkers(conn Conn, query sq.SelectBuilder) ([]Worker, error) {
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	workers := []Worker{}
 
@@ -105,7 +104,6 @@ func scanWorker(worker *worker, row scannable) error {
 		addStr        sql.NullString
 		state         string
 		bcURLStr      sql.NullString
-		certsPathStr  sql.NullString
 		httpProxyURL  sql.NullString
 		httpsProxyURL sql.NullString
 		noProxy       sql.NullString
@@ -124,7 +122,6 @@ func scanWorker(worker *worker, row scannable) error {
 		&addStr,
 		&state,
 		&bcURLStr,
-		&certsPathStr,
 		&httpProxyURL,
 		&httpsProxyURL,
 		&noProxy,
@@ -151,10 +148,6 @@ func scanWorker(worker *worker, row scannable) error {
 
 	if bcURLStr.Valid {
 		worker.baggageclaimURL = &bcURLStr.String
-	}
-
-	if certsPathStr.Valid {
-		worker.certsPath = &certsPathStr.String
 	}
 
 	worker.state = WorkerState(state)
@@ -196,7 +189,11 @@ func scanWorker(worker *worker, row scannable) error {
 		return err
 	}
 
-	return json.Unmarshal(tags, &worker.tags)
+	err = json.Unmarshal(tags, &worker.tags)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (f *workerFactory) HeartbeatWorker(atcWorker atc.Worker, ttl time.Duration) (Worker, error) {
@@ -210,14 +207,14 @@ func (f *workerFactory) HeartbeatWorker(atcWorker atc.Worker, ttl time.Duration)
 	if err != nil {
 		return nil, err
 	}
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	expires := "NULL"
 	if ttl != 0 {
 		expires = fmt.Sprintf(`NOW() + '%d second'::INTERVAL`, int(ttl.Seconds()))
 	}
 
-	cSQL, _, err := sq.Case("state").
+	cSql, _, err := sq.Case("state").
 		When("'landing'::worker_state", "'landing'::worker_state").
 		When("'landed'::worker_state", "'landed'::worker_state").
 		When("'retiring'::worker_state", "'retiring'::worker_state").
@@ -228,7 +225,7 @@ func (f *workerFactory) HeartbeatWorker(atcWorker atc.Worker, ttl time.Duration)
 		return nil, err
 	}
 
-	addrSQL, _, err := sq.Case("state").
+	addrSql, _, err := sq.Case("state").
 		When("'landed'::worker_state", "NULL").
 		Else("'" + atcWorker.GardenAddr + "'").
 		ToSql()
@@ -236,7 +233,7 @@ func (f *workerFactory) HeartbeatWorker(atcWorker atc.Worker, ttl time.Duration)
 		return nil, err
 	}
 
-	bcSQL, _, err := sq.Case("state").
+	bcSql, _, err := sq.Case("state").
 		When("'landed'::worker_state", "NULL").
 		Else("'" + atcWorker.BaggageclaimURL + "'").
 		ToSql()
@@ -246,10 +243,10 @@ func (f *workerFactory) HeartbeatWorker(atcWorker atc.Worker, ttl time.Duration)
 
 	_, err = psql.Update("workers").
 		Set("expires", sq.Expr(expires)).
-		Set("addr", sq.Expr("("+addrSQL+")")).
-		Set("baggageclaim_url", sq.Expr("("+bcSQL+")")).
+		Set("addr", sq.Expr("("+addrSql+")")).
+		Set("baggageclaim_url", sq.Expr("("+bcSql+")")).
 		Set("active_containers", atcWorker.ActiveContainers).
-		Set("state", sq.Expr("("+cSQL+")")).
+		Set("state", sq.Expr("("+cSql+")")).
 		Where(sq.Eq{"name": atcWorker.Name}).
 		RunWith(tx).
 		Exec()
@@ -287,7 +284,7 @@ func (f *workerFactory) SaveWorker(atcWorker atc.Worker, ttl time.Duration) (Wor
 		return nil, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	savedWorker, err := saveWorker(tx, atcWorker, nil, ttl, f.conn)
 	if err != nil {
@@ -347,7 +344,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 					"tags",
 					"platform",
 					"baggageclaim_url",
-					"certs_path",
 					"http_proxy_url",
 					"https_proxy_url",
 					"no_proxy",
@@ -365,7 +361,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 					tags,
 					atcWorker.Platform,
 					atcWorker.BaggageclaimURL,
-					atcWorker.CertsPath,
 					atcWorker.HTTPProxyURL,
 					atcWorker.HTTPSProxyURL,
 					atcWorker.NoProxy,
@@ -397,7 +392,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 			Set("tags", tags).
 			Set("platform", atcWorker.Platform).
 			Set("baggageclaim_url", atcWorker.BaggageclaimURL).
-			Set("certs_path", atcWorker.CertsPath).
 			Set("http_proxy_url", atcWorker.HTTPProxyURL).
 			Set("https_proxy_url", atcWorker.HTTPSProxyURL).
 			Set("no_proxy", atcWorker.NoProxy).
@@ -426,7 +420,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 		state:            workerState,
 		gardenAddr:       &atcWorker.GardenAddr,
 		baggageclaimURL:  &atcWorker.BaggageclaimURL,
-		certsPath:        atcWorker.CertsPath,
 		httpProxyURL:     atcWorker.HTTPProxyURL,
 		httpsProxyURL:    atcWorker.HTTPSProxyURL,
 		noProxy:          atcWorker.NoProxy,
@@ -441,13 +434,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 	}
 
 	workerBaseResourceTypeIDs := []int{}
-
-	var (
-		brt  BaseResourceType
-		ubrt *UsedBaseResourceType
-		uwrt *UsedWorkerResourceType
-	)
-
 	for _, resourceType := range atcWorker.ResourceTypes {
 		workerResourceType := WorkerResourceType{
 			Worker:  savedWorker,
@@ -458,11 +444,11 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 			},
 		}
 
-		brt = BaseResourceType{
+		brt := BaseResourceType{
 			Name: resourceType.Type,
 		}
 
-		ubrt, err = brt.FindOrCreate(tx)
+		ubrt, err := brt.FindOrCreate(tx)
 		if err != nil {
 			return nil, err
 		}
@@ -480,7 +466,7 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 		if err != nil {
 			return nil, err
 		}
-		uwrt, err = workerResourceType.FindOrCreate(tx)
+		uwrt, err := workerResourceType.FindOrCreate(tx)
 		if err != nil {
 			return nil, err
 		}
@@ -499,17 +485,6 @@ func saveWorker(tx Tx, atcWorker atc.Worker, teamID *int, ttl time.Duration, con
 		Exec()
 	if err != nil {
 		return nil, err
-	}
-
-	if atcWorker.CertsPath != nil {
-		_, err := WorkerResourceCerts{
-			WorkerName: atcWorker.Name,
-			CertsPath:  *atcWorker.CertsPath,
-		}.FindOrCreate(tx)
-
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return savedWorker, nil

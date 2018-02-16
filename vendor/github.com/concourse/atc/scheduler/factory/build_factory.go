@@ -296,11 +296,6 @@ type constructionParams struct {
 func (factory *buildFactory) applyHooks(cp constructionParams) (atc.Plan, error) {
 	var err error
 
-	cp, err = factory.abortIfPresent(cp)
-	if err != nil {
-		return atc.Plan{}, err
-	}
-
 	cp, err = factory.failureIfPresent(cp)
 	if err != nil {
 		return atc.Plan{}, err
@@ -378,26 +373,5 @@ func (factory *buildFactory) ensureIfPresent(cp constructionParams) (constructio
 			Next: nextPlan,
 		})
 	}
-	return cp, nil
-}
-
-func (factory *buildFactory) abortIfPresent(cp constructionParams) (constructionParams, error) {
-	if cp.hooks.Abort != nil {
-		nextPlan, err := factory.constructPlanFromConfig(
-			*cp.hooks.Abort,
-			cp.resources,
-			cp.resourceTypes,
-			cp.inputs,
-		)
-		if err != nil {
-			return constructionParams{}, err
-		}
-
-		cp.plan = factory.planFactory.NewPlan(atc.OnAbortPlan{
-			Step: cp.plan,
-			Next: nextPlan,
-		})
-	}
-
 	return cp, nil
 }

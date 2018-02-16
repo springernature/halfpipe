@@ -11,8 +11,6 @@ import (
 )
 
 func (s *Server) ListBuildsWithVersionAsInput(pipeline db.Pipeline) http.Handler {
-	logger := s.logger.Session("list-builds-with-version-as-input")
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		versionIDString := r.FormValue(":resource_version_id")
 		versionID, _ := strconv.Atoi(versionIDString)
@@ -32,10 +30,6 @@ func (s *Server) ListBuildsWithVersionAsInput(pipeline db.Pipeline) http.Handler
 
 		w.WriteHeader(http.StatusOK)
 
-		err = json.NewEncoder(w).Encode(presentedBuilds)
-		if err != nil {
-			logger.Error("failed-to-encode-builds", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(presentedBuilds)
 	})
 }

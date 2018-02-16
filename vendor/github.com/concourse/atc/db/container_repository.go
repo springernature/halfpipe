@@ -53,21 +53,14 @@ func (repository *containerRepository) FindOrphanedContainers() ([]CreatingConta
 	if err != nil {
 		return nil, nil, nil, err
 	}
-
-	defer Close(rows)
+	defer rows.Close()
 
 	creatingContainers := []CreatingContainer{}
 	createdContainers := []CreatedContainer{}
 	destroyingContainers := []DestroyingContainer{}
 
-	var (
-		creatingContainer   CreatingContainer
-		createdContainer    CreatedContainer
-		destroyingContainer DestroyingContainer
-	)
-
 	for rows.Next() {
-		creatingContainer, createdContainer, destroyingContainer, _, err = scanContainer(rows, repository.conn)
+		creatingContainer, createdContainer, destroyingContainer, _, err := scanContainer(rows, repository.conn)
 		if err != nil {
 			return nil, nil, nil, err
 		}
@@ -185,7 +178,7 @@ func (repository *containerRepository) FindFailedContainers() ([]FailedContainer
 	if err != nil {
 		return nil, err
 	}
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		_, _, _, failedContainer, err := scanContainer(rows, repository.conn)

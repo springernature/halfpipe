@@ -43,7 +43,6 @@ var _ = Describe("Pipeline Factory", func() {
 				},
 			}, db.ConfigVersion(1), db.PipelineUnpaused)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(pipeline2.Reload()).To(BeTrue())
 
 			pipeline3, _, err = defaultTeam.SavePipeline("fake-pipeline-three", atc.Config{
 				Jobs: atc.JobConfigs{
@@ -108,7 +107,6 @@ var _ = Describe("Pipeline Factory", func() {
 				},
 			}, db.ConfigVersion(1), db.PipelineUnpaused)
 			Expect(err).ToNot(HaveOccurred())
-			Expect(pipeline2.Reload()).To(BeTrue())
 
 			pipeline3, _, err = defaultTeam.SavePipeline("fake-pipeline-three", atc.Config{
 				Jobs: atc.JobConfigs{

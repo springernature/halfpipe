@@ -40,10 +40,6 @@ func (s *Server) CreateBuild(pipelineDB db.Pipeline) http.Handler {
 
 		w.WriteHeader(http.StatusCreated)
 
-		err = json.NewEncoder(w).Encode(present.Build(build))
-		if err != nil {
-			logger.Error("failed-to-encode-build", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(present.Build(build))
 	})
 }

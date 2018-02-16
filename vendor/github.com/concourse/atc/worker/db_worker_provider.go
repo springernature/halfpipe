@@ -80,7 +80,7 @@ func (provider *dbWorkerProvider) RunningWorkers(logger lager.Logger) ([]Worker,
 		}
 
 		workerLog := logger.Session("running-worker")
-		worker := provider.NewGardenWorker(workerLog, tikTok, savedWorker)
+		worker := provider.newGardenWorker(workerLog, tikTok, savedWorker)
 		if !worker.IsVersionCompatible(workerLog, provider.workerVersion) {
 			continue
 		}
@@ -108,7 +108,7 @@ func (provider *dbWorkerProvider) FindWorkerForContainerByOwner(
 		return nil, false, nil
 	}
 
-	worker := provider.NewGardenWorker(logger, clock.NewClock(), dbWorker)
+	worker := provider.newGardenWorker(logger, clock.NewClock(), dbWorker)
 	if !worker.IsVersionCompatible(logger, provider.workerVersion) {
 		return nil, false, nil
 	}
@@ -132,14 +132,14 @@ func (provider *dbWorkerProvider) FindWorkerForContainer(
 		return nil, false, nil
 	}
 
-	worker := provider.NewGardenWorker(logger, clock.NewClock(), dbWorker)
+	worker := provider.newGardenWorker(logger, clock.NewClock(), dbWorker)
 	if !worker.IsVersionCompatible(logger, provider.workerVersion) {
 		return nil, false, nil
 	}
 	return worker, true, err
 }
 
-func (provider *dbWorkerProvider) NewGardenWorker(logger lager.Logger, tikTok clock.Clock, savedWorker db.Worker) Worker {
+func (provider *dbWorkerProvider) newGardenWorker(logger lager.Logger, tikTok clock.Clock, savedWorker db.Worker) Worker {
 	gcf := NewGardenConnectionFactory(
 		provider.dbWorkerFactory,
 		logger.Session("garden-connection"),
@@ -162,32 +162,44 @@ func (provider *dbWorkerProvider) NewGardenWorker(logger lager.Logger, tikTok cl
 
 	volumeClient := NewVolumeClient(
 		bClient,
-		savedWorker,
-		clock.NewClock(),
 		provider.lockFactory,
 		provider.dbVolumeFactory,
 		provider.dbWorkerBaseResourceTypeFactory,
 		provider.dbWorkerTaskCacheFactory,
+		clock.NewClock(),
+		savedWorker,
 	)
 
-	containerProvider := NewContainerProvider(
+	containerProviderFactory := NewContainerProviderFactory(
 		gClient,
 		bClient,
 		volumeClient,
-		savedWorker,
-		tikTok,
 		provider.imageFactory,
 		provider.dbVolumeFactory,
+		provider.dbResourceCacheFactory,
+		provider.dbResourceConfigFactory,
 		provider.dbTeamFactory,
 		provider.lockFactory,
+		savedWorker.HTTPProxyURL(),
+		savedWorker.HTTPSProxyURL(),
+		savedWorker.NoProxy(),
+		clock.NewClock(),
 	)
 
 	return NewGardenWorker(
+		containerProviderFactory,
+		volumeClient,
+		provider,
+		tikTok,
+		savedWorker.ActiveContainers(),
+		savedWorker.ResourceTypes(),
+		savedWorker.Platform(),
+		savedWorker.Tags(),
+		savedWorker.TeamID(),
+		savedWorker.Name(),
+		savedWorker.StartTime(),
+		savedWorker.Version(),
 		gClient,
 		bClient,
-		containerProvider,
-		volumeClient,
-		savedWorker,
-		tikTok,
 	)
 }

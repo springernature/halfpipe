@@ -8,7 +8,6 @@ import (
 
 	"github.com/Masterminds/squirrel"
 	"github.com/concourse/atc/db"
-	"github.com/concourse/atc/db/encryption"
 )
 
 type FakeConn struct {
@@ -21,14 +20,14 @@ type FakeConn struct {
 	busReturnsOnCall map[int]struct {
 		result1 db.NotificationsBus
 	}
-	EncryptionStrategyStub        func() encryption.Strategy
+	EncryptionStrategyStub        func() db.EncryptionStrategy
 	encryptionStrategyMutex       sync.RWMutex
 	encryptionStrategyArgsForCall []struct{}
 	encryptionStrategyReturns     struct {
-		result1 encryption.Strategy
+		result1 db.EncryptionStrategy
 	}
 	encryptionStrategyReturnsOnCall map[int]struct {
-		result1 encryption.Strategy
+		result1 db.EncryptionStrategy
 	}
 	PingStub        func() error
 	pingMutex       sync.RWMutex
@@ -140,15 +139,6 @@ type FakeConn struct {
 	closeReturnsOnCall map[int]struct {
 		result1 error
 	}
-	NameStub        func() string
-	nameMutex       sync.RWMutex
-	nameArgsForCall []struct{}
-	nameReturns     struct {
-		result1 string
-	}
-	nameReturnsOnCall map[int]struct {
-		result1 string
-	}
 	invocations      map[string][][]interface{}
 	invocationsMutex sync.RWMutex
 }
@@ -193,7 +183,7 @@ func (fake *FakeConn) BusReturnsOnCall(i int, result1 db.NotificationsBus) {
 	}{result1}
 }
 
-func (fake *FakeConn) EncryptionStrategy() encryption.Strategy {
+func (fake *FakeConn) EncryptionStrategy() db.EncryptionStrategy {
 	fake.encryptionStrategyMutex.Lock()
 	ret, specificReturn := fake.encryptionStrategyReturnsOnCall[len(fake.encryptionStrategyArgsForCall)]
 	fake.encryptionStrategyArgsForCall = append(fake.encryptionStrategyArgsForCall, struct{}{})
@@ -214,22 +204,22 @@ func (fake *FakeConn) EncryptionStrategyCallCount() int {
 	return len(fake.encryptionStrategyArgsForCall)
 }
 
-func (fake *FakeConn) EncryptionStrategyReturns(result1 encryption.Strategy) {
+func (fake *FakeConn) EncryptionStrategyReturns(result1 db.EncryptionStrategy) {
 	fake.EncryptionStrategyStub = nil
 	fake.encryptionStrategyReturns = struct {
-		result1 encryption.Strategy
+		result1 db.EncryptionStrategy
 	}{result1}
 }
 
-func (fake *FakeConn) EncryptionStrategyReturnsOnCall(i int, result1 encryption.Strategy) {
+func (fake *FakeConn) EncryptionStrategyReturnsOnCall(i int, result1 db.EncryptionStrategy) {
 	fake.EncryptionStrategyStub = nil
 	if fake.encryptionStrategyReturnsOnCall == nil {
 		fake.encryptionStrategyReturnsOnCall = make(map[int]struct {
-			result1 encryption.Strategy
+			result1 db.EncryptionStrategy
 		})
 	}
 	fake.encryptionStrategyReturnsOnCall[i] = struct {
-		result1 encryption.Strategy
+		result1 db.EncryptionStrategy
 	}{result1}
 }
 
@@ -688,46 +678,6 @@ func (fake *FakeConn) CloseReturnsOnCall(i int, result1 error) {
 	}{result1}
 }
 
-func (fake *FakeConn) Name() string {
-	fake.nameMutex.Lock()
-	ret, specificReturn := fake.nameReturnsOnCall[len(fake.nameArgsForCall)]
-	fake.nameArgsForCall = append(fake.nameArgsForCall, struct{}{})
-	fake.recordInvocation("Name", []interface{}{})
-	fake.nameMutex.Unlock()
-	if fake.NameStub != nil {
-		return fake.NameStub()
-	}
-	if specificReturn {
-		return ret.result1
-	}
-	return fake.nameReturns.result1
-}
-
-func (fake *FakeConn) NameCallCount() int {
-	fake.nameMutex.RLock()
-	defer fake.nameMutex.RUnlock()
-	return len(fake.nameArgsForCall)
-}
-
-func (fake *FakeConn) NameReturns(result1 string) {
-	fake.NameStub = nil
-	fake.nameReturns = struct {
-		result1 string
-	}{result1}
-}
-
-func (fake *FakeConn) NameReturnsOnCall(i int, result1 string) {
-	fake.NameStub = nil
-	if fake.nameReturnsOnCall == nil {
-		fake.nameReturnsOnCall = make(map[int]struct {
-			result1 string
-		})
-	}
-	fake.nameReturnsOnCall[i] = struct {
-		result1 string
-	}{result1}
-}
-
 func (fake *FakeConn) Invocations() map[string][][]interface{} {
 	fake.invocationsMutex.RLock()
 	defer fake.invocationsMutex.RUnlock()
@@ -757,8 +707,6 @@ func (fake *FakeConn) Invocations() map[string][][]interface{} {
 	defer fake.statsMutex.RUnlock()
 	fake.closeMutex.RLock()
 	defer fake.closeMutex.RUnlock()
-	fake.nameMutex.RLock()
-	defer fake.nameMutex.RUnlock()
 	copiedInvocations := map[string][][]interface{}{}
 	for key, value := range fake.invocations {
 		copiedInvocations[key] = value

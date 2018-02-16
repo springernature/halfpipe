@@ -10,7 +10,7 @@ import (
 
 	"code.cloudfoundry.org/lager"
 	"github.com/concourse/atc"
-	"github.com/concourse/atc/api/auth"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/metric"
 )
 
@@ -58,10 +58,6 @@ func (s *Server) RegisterWorker(w http.ResponseWriter, r *http.Request) {
 		registration.Name = registration.GardenAddr
 	}
 
-	if registration.CertsPath != nil && *registration.CertsPath == "" {
-		registration.CertsPath = nil
-	}
-
 	metric.WorkerContainers{
 		WorkerName: registration.Name,
 		Containers: registration.ActiveContainers,
@@ -93,7 +89,7 @@ func (s *Server) RegisterWorker(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	} else {
-		_, err = s.dbWorkerFactory.SaveWorker(registration, ttl)
+		_, err := s.dbWorkerFactory.SaveWorker(registration, ttl)
 		if err != nil {
 			logger.Error("failed-to-save-worker", err)
 			w.WriteHeader(http.StatusInternalServerError)

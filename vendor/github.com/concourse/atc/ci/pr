@@ -2,23 +2,13 @@
 
 set -e -u -x
 
-export GOPATH=$PWD/concourse
-export PATH=$PWD/concourse/bin:$PATH
+export GOPATH=$PWD/gopath
+export PATH=$PWD/gopath/bin:$PATH
 
-export PR_REPO=$PWD/atc
-
-pushd atc
-  git checkout -b pr
-popd
-
-cd concourse/src/github.com/concourse/atc
-
-git remote add pr $PR_REPO
-git fetch pr
-git checkout pr/pr
+cd gopath/src/github.com/concourse/atc
 
 go get -t -d ./...
 
 go install github.com/onsi/ginkgo/ginkgo
 
-ginkgo -r -p -race -skipPackage acceptance "$@"
+ginkgo -r -p -race "$@"

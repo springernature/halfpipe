@@ -123,10 +123,6 @@ var _ = Describe("I'm a BuildStarter", func() {
 						fakeScanner.ScanReturns(disaster)
 					})
 
-					It("doesn't reload the resource types list", func() {
-						Expect(fakePipeline.ResourceTypesCallCount()).To(Equal(0))
-					})
-
 					It("returns an error", func() {
 						Expect(tryStartErr).To(Equal(disaster))
 					})
@@ -139,28 +135,6 @@ var _ = Describe("I'm a BuildStarter", func() {
 							Expect(fakePipeline.LoadVersionsDBCallCount()).To(BeZero())
 							return nil
 						}
-						fakeDBResourceType := new(dbfakes.FakeResourceType)
-						fakeDBResourceType.NameReturns("fake-resource-type")
-						fakeDBResourceType.TypeReturns("fake")
-						fakeDBResourceType.SourceReturns(atc.Source{"im": "fake"})
-						fakeDBResourceType.PrivilegedReturns(true)
-						fakeDBResourceType.VersionReturns(atc.Version{"version": "1.2.3"})
-
-						fakePipeline.ResourceTypesReturns(db.ResourceTypes{fakeDBResourceType}, nil)
-
-					})
-
-					Context("when reloading the resource types list fails", func() {
-						BeforeEach(func() {
-							fakePipeline.ResourceTypesReturns(db.ResourceTypes{}, errors.New("failed to reload types"))
-						})
-						It("returns the error", func() {
-							Expect(tryStartErr).To(MatchError("failed to reload types"))
-						})
-					})
-
-					It("reloads the resource types list", func() {
-						Expect(fakePipeline.ResourceTypesCallCount()).To(Equal(1))
 					})
 
 					Context("when loading the versions DB fails", func() {
@@ -255,31 +229,6 @@ var _ = Describe("I'm a BuildStarter", func() {
 							It("saved the next input mapping and returns the build", func() {
 								Expect(tryStartErr).NotTo(HaveOccurred())
 							})
-
-							Context("when creaing a build plan", func() {
-								BeforeEach(func() {
-									job.GetNextBuildInputsReturns([]db.BuildInput{}, true, nil)
-									fakePipeline.CheckPausedReturns(false, nil)
-									createdBuild.ScheduleReturns(true, nil)
-									createdBuild.UseInputsReturns(nil)
-									fakeEngine.CreateBuildReturns(new(enginefakes.FakeBuild), nil)
-								})
-
-								It("uses the updated list of resource types", func() {
-									Expect(fakeFactory.CreateCallCount()).To(Equal(1))
-									_, _, types, _ := fakeFactory.CreateArgsForCall(0)
-									Expect(types).To(ConsistOf(atc.VersionedResourceTypes{atc.VersionedResourceType{
-										ResourceType: atc.ResourceType{
-											Name:       "fake-resource-type",
-											Type:       "fake",
-											Source:     atc.Source{"im": "fake"},
-											Privileged: true,
-										},
-										Version: atc.Version{"version": "1.2.3"},
-									}}))
-								})
-							})
-
 						})
 					})
 				})
@@ -291,7 +240,6 @@ var _ = Describe("I'm a BuildStarter", func() {
 				job = new(dbfakes.FakeJob)
 				job.NameReturns("some-job")
 				job.ConfigReturns(atc.JobConfig{Name: "some-job"})
-				createdBuild.IsManuallyTriggeredReturns(false)
 			})
 
 			JustBeforeEach(func() {
@@ -314,10 +262,6 @@ var _ = Describe("I'm a BuildStarter", func() {
 					Expect(tryStartErr).To(Equal(disaster))
 				})
 			}
-
-			It("doesn't reload the resource types list", func() {
-				Expect(fakePipeline.ResourceTypesCallCount()).To(Equal(0))
-			})
 
 			itDoesntReturnAnErrorOrMarkTheBuildAsScheduled := func() {
 				It("doesn't return an error", func() {

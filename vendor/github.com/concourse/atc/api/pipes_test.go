@@ -140,7 +140,7 @@ var _ = Describe("Pipes API", func() {
 						})
 
 						AfterEach(func() {
-							_ = readRes.Body.Close()
+							readRes.Body.Close()
 						})
 
 						It("responds with 200", func() {
@@ -176,7 +176,7 @@ var _ = Describe("Pipes API", func() {
 								})
 
 								AfterEach(func() {
-									_ = writeRes.Body.Close()
+									writeRes.Body.Close()
 								})
 
 								It("responds with 200", func() {
@@ -190,7 +190,7 @@ var _ = Describe("Pipes API", func() {
 								It("reaps the pipe", func() {
 									Eventually(func() int {
 										secondReadRes := readPipe(pipe.ID)
-										defer db.Close(secondReadRes.Body)
+										defer secondReadRes.Body.Close()
 
 										return secondReadRes.StatusCode
 									}).Should(Equal(http.StatusNotFound))
@@ -200,13 +200,13 @@ var _ = Describe("Pipes API", func() {
 
 						Context("when the reader disconnects", func() {
 							BeforeEach(func() {
-								_ = readRes.Body.Close()
+								readRes.Body.Close()
 							})
 
 							It("reaps the pipe", func() {
 								Eventually(func() int {
 									secondReadRes := readPipe(pipe.ID)
-									defer db.Close(secondReadRes.Body)
+									defer secondReadRes.Body.Close()
 
 									return secondReadRes.StatusCode
 								}).Should(Equal(http.StatusNotFound))
@@ -218,12 +218,12 @@ var _ = Describe("Pipes API", func() {
 				Describe("with an invalid id", func() {
 					It("returns 404", func() {
 						readRes := readPipe("bogus-id")
-						defer db.Close(readRes.Body)
+						defer readRes.Body.Close()
 
 						Expect(readRes.StatusCode).To(Equal(http.StatusNotFound))
 
 						writeRes := writePipe("bogus-id", nil)
-						defer db.Close(writeRes.Body)
+						defer writeRes.Body.Close()
 
 						Expect(writeRes.StatusCode).To(Equal(http.StatusNotFound))
 					})
@@ -305,7 +305,7 @@ var _ = Describe("Pipes API", func() {
 			})
 
 			AfterEach(func() {
-				_ = response.Body.Close()
+				response.Body.Close()
 			})
 
 			It("returns 401", func() {
@@ -325,7 +325,7 @@ var _ = Describe("Pipes API", func() {
 			})
 
 			AfterEach(func() {
-				_ = response.Body.Close()
+				response.Body.Close()
 			})
 
 			It("returns 401", func() {

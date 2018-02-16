@@ -13,14 +13,13 @@ type JobConfig struct {
 
 	Plan PlanSequence `yaml:"plan,omitempty" json:"plan,omitempty" mapstructure:"plan"`
 
-	Abort   *PlanConfig `yaml:"on_abort,omitempty" json:"on_abort,omitempty" mapstructure:"on_abort"`
 	Failure *PlanConfig `yaml:"on_failure,omitempty" json:"on_failure,omitempty" mapstructure:"on_failure"`
 	Ensure  *PlanConfig `yaml:"ensure,omitempty" json:"ensure,omitempty" mapstructure:"ensure"`
 	Success *PlanConfig `yaml:"on_success,omitempty" json:"on_success,omitempty" mapstructure:"on_success"`
 }
 
 func (config JobConfig) Hooks() Hooks {
-	return Hooks{Abort: config.Abort, Failure: config.Failure, Ensure: config.Ensure, Success: config.Success}
+	return Hooks{config.Failure, config.Ensure, config.Success}
 }
 
 func (config JobConfig) MaxInFlight() int {
@@ -48,23 +47,16 @@ func (config JobConfig) GetSerialGroups() []string {
 }
 
 func (config JobConfig) Plans() []PlanConfig {
-	plan := collectPlans(PlanConfig{
+	return collectPlans(PlanConfig{
 		Do:      &config.Plan,
-		Abort:   config.Abort,
 		Ensure:  config.Ensure,
 		Failure: config.Failure,
 		Success: config.Success,
 	})
-
-	return plan
 }
 
 func collectPlans(plan PlanConfig) []PlanConfig {
 	var plans []PlanConfig
-
-	if plan.Abort != nil {
-		plans = append(plans, collectPlans(*plan.Abort)...)
-	}
 
 	if plan.Success != nil {
 		plans = append(plans, collectPlans(*plan.Success)...)

@@ -14,6 +14,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"time"
 
 	"github.com/tedsuo/ifrit"
@@ -334,7 +335,7 @@ func (a *ATCCommand) getATCCommand() *exec.Cmd {
 	}
 
 	if a.telemetryOptIn {
-		params = append(params, "--telemetry-opt-in")
+		params = append(params, "--telemetry-opt-in", strconv.FormatBool(a.telemetryOptIn))
 	}
 
 	return exec.Command(a.atcBin, params...)

@@ -22,7 +22,7 @@ func (f *workerBaseResourceTypeFactory) Find(name string, worker Worker) (*UsedW
 		return nil, false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	return WorkerBaseResourceType{
 		Name:       name,

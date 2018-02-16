@@ -28,18 +28,12 @@ func (p *pipeline) AcquireResourceCheckingLockWithIntervalCheck(
 
 	intervalUpdated, err := p.checkIfResourceIntervalUpdated(resourceName, interval, immediate)
 	if err != nil {
-		lockErr := lock.Release()
-		if lockErr != nil {
-			logger.Fatal("failed-to-release-lock", lockErr)
-		}
+		lock.Release()
 		return nil, false, err
 	}
 
 	if !intervalUpdated {
-		lockErr := lock.Release()
-		if lockErr != nil {
-			logger.Fatal("failed-to-release-lock", lockErr)
-		}
+		lock.Release()
 		return nil, false, nil
 	}
 
@@ -67,15 +61,12 @@ func (p *pipeline) AcquireResourceTypeCheckingLockWithIntervalCheck(
 
 	intervalUpdated, err := p.checkIfResourceTypeIntervalUpdated(resourceTypeName, interval, immediate)
 	if err != nil {
-
+		lock.Release()
 		return nil, false, err
 	}
 
 	if !intervalUpdated {
-		lockErr := lock.Release()
-		if lockErr != nil {
-			logger.Fatal("failed-to-release-lock", lockErr)
-		}
+		lock.Release()
 		return nil, false, nil
 	}
 
@@ -92,7 +83,7 @@ func (p *pipeline) checkIfResourceTypeIntervalUpdated(
 		return false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	params := []interface{}{resourceTypeName, p.id}
 
@@ -134,13 +125,13 @@ func (p *pipeline) checkIfResourceIntervalUpdated(
 		return false, err
 	}
 
-	defer Rollback(tx)
+	defer tx.Rollback()
 
 	params := []interface{}{resourceName, p.id}
 
 	condition := ""
 	if !immediate {
-		condition = "AND (now() - last_checked > ($3 || ' SECONDS')::INTERVAL OR last_checked IS NULL)"
+		condition = "AND now() - last_checked > ($3 || ' SECONDS')::INTERVAL"
 		params = append(params, interval.Seconds())
 	}
 

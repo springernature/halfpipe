@@ -168,7 +168,7 @@ func workersAffected(rows *sql.Rows) ([]string, error) {
 		workerNames []string
 	)
 
-	defer Close(rows)
+	defer rows.Close()
 
 	for rows.Next() {
 		var name string

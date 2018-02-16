@@ -9,8 +9,8 @@ import (
 	"net/http"
 
 	"github.com/concourse/atc"
-	"github.com/concourse/skymarshal/provider"
-	"github.com/concourse/skymarshal/provider/providerfakes"
+	"github.com/concourse/atc/auth/provider"
+	"github.com/concourse/atc/auth/provider/providerfakes"
 	"github.com/concourse/atc/db"
 	"github.com/concourse/atc/db/dbfakes"
 	. "github.com/onsi/ginkgo"
@@ -22,12 +22,6 @@ func jsonEncode(object interface{}) *bytes.Buffer {
 	Expect(err).NotTo(HaveOccurred())
 
 	return bytes.NewBuffer(reqPayload)
-}
-
-func fakeData(contents string) *json.RawMessage {
-	data := []byte(contents)
-
-	return (*json.RawMessage)(&data)
 }
 
 var _ = Describe("Teams API", func() {
@@ -82,16 +76,17 @@ var _ = Describe("Teams API", func() {
 
 				fakeTeamTwo.IDReturns(9)
 				fakeTeamTwo.NameReturns("aliens")
-				fakeTeamTwo.AuthReturns(map[string]*json.RawMessage{
-					"basicauth": fakeData(`{"username": "fake user", "password": "no, bad"}`),
+				fakeTeamTwo.BasicAuthReturns(&atc.BasicAuth{
+					BasicAuthUsername: "fake user",
+					BasicAuthPassword: "no, bad",
 				})
 
+				data := []byte(`{"hello": "world"}`)
 				fakeTeamThree.IDReturns(22)
 				fakeTeamThree.NameReturns("predators")
 				fakeTeamThree.AuthReturns(map[string]*json.RawMessage{
-					"fake-provider": fakeData(`{"hello": "world"}`),
+					"fake-provider": (*json.RawMessage)(&data),
 				})
-
 				dbTeamFactory.GetTeamsReturns([]db.Team{fakeTeamOne, fakeTeamTwo, fakeTeamThree}, nil)
 			})
 
@@ -148,36 +143,14 @@ var _ = Describe("Teams API", func() {
 
 		authorizedTeamTests := func() {
 			Context("when the team has basic auth configured", func() {
-				var (
-					fakeProviderName    = "basicauth"
-					fakeProviderFactory *providerfakes.FakeProviderFactory
-					fakeAuthConfig      *providerfakes.FakeAuthConfig
-				)
-				BeforeEach(func() {
-					fakeAuthData := fakeData(`{"username":"fries","password":"shake"}`)
-
-					atcTeam = atc.Team{
-						Auth: map[string]*json.RawMessage{
-							fakeProviderName: fakeAuthData,
-						},
-					}
-					fakeAuthConfig = new(providerfakes.FakeAuthConfig)
-					fakeProviderFactory = new(providerfakes.FakeProviderFactory)
-					fakeProviderFactory.UnmarshalConfigReturns(fakeAuthConfig, nil)
-					fakeProviderFactory.MarshalConfigReturns(fakeAuthData, nil)
-
-					provider.Register(fakeProviderName, fakeProviderFactory)
-				})
-
 				Context("when the basic auth is invalid", func() {
 					Context("when only password is given", func() {
 						BeforeEach(func() {
 							atcTeam = atc.Team{
-								Auth: map[string]*json.RawMessage{
-									fakeProviderName: fakeData(`{"password": "fries"}`),
+								BasicAuth: &atc.BasicAuth{
+									BasicAuthPassword: "Batman",
 								},
 							}
-							fakeAuthConfig.ValidateReturns(errors.New("nope"))
 						})
 
 						It("returns a 400 Bad Request", func() {
@@ -188,11 +161,10 @@ var _ = Describe("Teams API", func() {
 					Context("when only username is given", func() {
 						BeforeEach(func() {
 							atcTeam = atc.Team{
-								Auth: map[string]*json.RawMessage{
-									fakeProviderName: fakeData(`{"username": "fries"}`),
+								BasicAuth: &atc.BasicAuth{
+									BasicAuthUsername: "Ironman",
 								},
 							}
-							fakeAuthConfig.ValidateReturns(errors.New("nope"))
 						})
 
 						It("returns a 400 Bad Request", func() {
@@ -201,27 +173,16 @@ var _ = Describe("Teams API", func() {
 					})
 				})
 
-				Context("when the auth config cannot be finalized", func() {
-					BeforeEach(func() {
-						fakeAuthConfig.FinalizeReturns(errors.New("finalize error"))
-					})
-
-					It("returns a 400 Bad Request", func() {
-						Expect(response.StatusCode).To(Equal(http.StatusBadRequest))
-					})
-				})
-
-				Context("when the auth config marshaling fails", func() {
-					BeforeEach(func() {
-						fakeProviderFactory.MarshalConfigReturns(nil, errors.New("fail"))
-					})
-
-					It("returns a 400 Bad Request", func() {
-						Expect(response.StatusCode).To(Equal(http.StatusBadRequest))
-					})
-				})
-
 				Context("when the basic auth is valid", func() {
+					BeforeEach(func() {
+						atcTeam = atc.Team{
+							BasicAuth: &atc.BasicAuth{
+								BasicAuthPassword: "Kool",
+								BasicAuthUsername: "Aid",
+							},
+						}
+					})
+
 					Context("when the team is found", func() {
 						BeforeEach(func() {
 							dbTeamFactory.FindTeamReturns(fakeTeam, true, nil)
@@ -229,15 +190,15 @@ var _ = Describe("Teams API", func() {
 
 						It("updates basic auth", func() {
 							Expect(response.StatusCode).To(Equal(http.StatusOK))
-							Expect(fakeTeam.UpdateProviderAuthCallCount()).To(Equal(1))
+							Expect(fakeTeam.UpdateBasicAuthCallCount()).To(Equal(1))
 
-							updatedBasicAuth := fakeTeam.UpdateProviderAuthArgsForCall(0)
-							Expect(updatedBasicAuth).To(Equal(atcTeam.Auth))
+							updatedBasicAuth := fakeTeam.UpdateBasicAuthArgsForCall(0)
+							Expect(updatedBasicAuth).To(Equal(atcTeam.BasicAuth))
 						})
 
 						Context("when updating basic auth fails", func() {
 							BeforeEach(func() {
-								fakeTeam.UpdateProviderAuthReturns(errors.New("stop trying to make fetch happen"))
+								fakeTeam.UpdateBasicAuthReturns(errors.New("stop trying to make fetch happen"))
 							})
 
 							It("returns 500 Internal Server error", func() {
@@ -251,17 +212,18 @@ var _ = Describe("Teams API", func() {
 			Context("when the team has provider auth configured", func() {
 				var (
 					fakeProviderName    = "FakeProvider"
-					fakeProviderFactory *providerfakes.FakeProviderFactory
+					fakeProviderFactory *providerfakes.FakeTeamProvider
 				)
 				BeforeEach(func() {
-					fakeProviderFactory = new(providerfakes.FakeProviderFactory)
+					fakeProviderFactory = new(providerfakes.FakeTeamProvider)
 					provider.Register(fakeProviderName, fakeProviderFactory)
 				})
 				Context("when the provider is not found", func() {
 					BeforeEach(func() {
+						data := []byte(`{"mcdonalds": "fries"}`)
 						atcTeam = atc.Team{
 							Auth: map[string]*json.RawMessage{
-								"fake-suraci": fakeData(`{"mcdonalds": "fries"}`),
+								"fake-suraci": (*json.RawMessage)(&data),
 							},
 						}
 					})
@@ -273,9 +235,10 @@ var _ = Describe("Teams API", func() {
 				Context("when the provider is found", func() {
 					Context("when the auth is malformed", func() {
 						BeforeEach(func() {
+							data := []byte(`{"cold": "fries"}`)
 							atcTeam = atc.Team{
 								Auth: map[string]*json.RawMessage{
-									fakeProviderName: fakeData(`{"cold": "fries"}`),
+									fakeProviderName: (*json.RawMessage)(&data),
 								},
 							}
 							fakeProviderFactory.UnmarshalConfigReturns(nil, errors.New("nope not this time"))
@@ -289,14 +252,13 @@ var _ = Describe("Teams API", func() {
 						var fakeAuthConfig *providerfakes.FakeAuthConfig
 						BeforeEach(func() {
 							fakeAuthConfig = new(providerfakes.FakeAuthConfig)
-							fakeAuthData := fakeData(`{"mcdonalds":"fries"}`)
+							data := []byte(`{"mcdonalds":"fries"}`)
 							atcTeam = atc.Team{
 								Auth: map[string]*json.RawMessage{
-									fakeProviderName: fakeAuthData,
+									fakeProviderName: (*json.RawMessage)(&data),
 								},
 							}
 							fakeProviderFactory.UnmarshalConfigReturns(fakeAuthConfig, nil)
-							fakeProviderFactory.MarshalConfigReturns(fakeAuthData, nil)
 						})
 						Context("when the auth is invalid", func() {
 							BeforeEach(func() {
@@ -403,12 +365,14 @@ var _ = Describe("Teams API", func() {
 		var request *http.Request
 		var response *http.Response
 
+		var atcTeam atc.Team
 		var team db.Team
 		var teamName string
 
 		BeforeEach(func() {
 			teamName = "team venture"
 
+			atcTeam = atc.Team{}
 			fakeTeam.IDReturns(2)
 			fakeTeam.NameReturns(teamName)
 		})
@@ -532,103 +496,6 @@ var _ = Describe("Teams API", func() {
 
 			It("returns 500 internal server error", func() {
 				Expect(response.StatusCode).To(Equal(http.StatusInternalServerError))
-			})
-		})
-	})
-
-	Describe("PUT /api/v1/teams/:team_name/rename", func() {
-		var response *http.Response
-		var teamName string
-
-		JustBeforeEach(func() {
-			request, err := http.NewRequest(
-				"PUT",
-				server.URL+"/api/v1/teams/"+teamName+"/rename",
-				bytes.NewBufferString(`{"name":"some-new-name"}`),
-			)
-			Expect(err).NotTo(HaveOccurred())
-
-			response, err = client.Do(request)
-			Expect(err).NotTo(HaveOccurred())
-		})
-
-		BeforeEach(func() {
-			fakeTeam.IDReturns(2)
-		})
-
-		Context("when authenticated", func() {
-			BeforeEach(func() {
-				jwtValidator.IsAuthenticatedReturns(true)
-			})
-			Context("when requester belongs to an admin team", func() {
-				BeforeEach(func() {
-					teamName = "a-team"
-					fakeTeam.NameReturns(teamName)
-					userContextReader.GetTeamReturns(atc.DefaultTeamName, true, true)
-					dbTeamFactory.FindTeamReturns(fakeTeam, true, nil)
-				})
-
-				It("constructs teamDB with provided team name", func() {
-					Expect(dbTeamFactory.FindTeamCallCount()).To(Equal(1))
-					Expect(dbTeamFactory.FindTeamArgsForCall(0)).To(Equal("a-team"))
-				})
-
-				It("renames the team to the name provided", func() {
-					Expect(fakeTeam.RenameCallCount()).To(Equal(1))
-					Expect(fakeTeam.RenameArgsForCall(0)).To(Equal("some-new-name"))
-				})
-
-				It("returns 204 no content", func() {
-					Expect(response.StatusCode).To(Equal(http.StatusNoContent))
-				})
-			})
-
-			Context("when requester belongs to the team", func() {
-				BeforeEach(func() {
-					teamName = "a-team"
-					fakeTeam.NameReturns(teamName)
-					userContextReader.GetTeamReturns("a-team", true, true)
-					dbTeamFactory.FindTeamReturns(fakeTeam, true, nil)
-				})
-
-				It("constructs teamDB with provided team name", func() {
-					Expect(dbTeamFactory.FindTeamCallCount()).To(Equal(1))
-					Expect(dbTeamFactory.FindTeamArgsForCall(0)).To(Equal("a-team"))
-				})
-
-				It("renames the team to the name provided", func() {
-					Expect(fakeTeam.RenameCallCount()).To(Equal(1))
-					Expect(fakeTeam.RenameArgsForCall(0)).To(Equal("some-new-name"))
-				})
-
-				It("returns 204 no content", func() {
-					Expect(response.StatusCode).To(Equal(http.StatusNoContent))
-				})
-			})
-
-			Context("when requester does not belong to the team", func() {
-				BeforeEach(func() {
-					teamName = "a-team"
-					fakeTeam.NameReturns(teamName)
-					userContextReader.GetTeamReturns("another-team", false, true)
-					dbTeamFactory.FindTeamReturns(fakeTeam, true, nil)
-				})
-
-				It("returns 403 Forbidden", func() {
-					Expect(response.StatusCode).To(Equal(http.StatusForbidden))
-					Expect(fakeTeam.RenameCallCount()).To(Equal(0))
-				})
-			})
-		})
-
-		Context("when not authenticated", func() {
-			BeforeEach(func() {
-				jwtValidator.IsAuthenticatedReturns(false)
-			})
-
-			It("returns 401 Unauthorized", func() {
-				Expect(response.StatusCode).To(Equal(http.StatusUnauthorized))
-				Expect(fakeTeam.RenameCallCount()).To(Equal(0))
 			})
 		})
 	})

@@ -315,7 +315,8 @@ var _ = Describe("Containers API", func() {
 						})
 
 						It("does not lookup containers", func() {
-							_, _ = client.Do(req)
+							client.Do(req)
+
 							Expect(dbTeam.FindContainersByMetadataCallCount()).To(Equal(0))
 						})
 					})
@@ -521,7 +522,7 @@ var _ = Describe("Containers API", func() {
 
 		AfterEach(func() {
 			if !expectBadHandshake {
-				_ = conn.Close()
+				conn.Close()
 			}
 		})
 
@@ -642,8 +643,6 @@ var _ = Describe("Containers API", func() {
 
 							_, io := fakeContainer.RunArgsForCall(0)
 							Expect(bufio.NewReader(io.Stdin).ReadBytes('\n')).To(Equal([]byte("some stdin\n")))
-
-							Expect(interceptTimeout.ResetCallCount()).To(Equal(1))
 						})
 					})
 
@@ -793,28 +792,6 @@ var _ = Describe("Containers API", func() {
 							Expect(hijackOutput).To(Equal(atc.HijackOutput{
 								Error: "oh no!",
 							}))
-						})
-					})
-
-					Context("when intercept timeout channel sends a value", func() {
-						var (
-							interceptTimeoutChannel chan time.Time
-						)
-
-						BeforeEach(func() {
-							interceptTimeoutChannel = make(chan time.Time)
-							interceptTimeout.ChannelReturns(interceptTimeoutChannel)
-						})
-
-						It("exits with timeout error", func() {
-							interceptTimeout.ErrorReturns(errors.New("too slow"))
-							interceptTimeoutChannel <- time.Time{}
-
-							var hijackOutput atc.HijackOutput
-							err := conn.ReadJSON(&hijackOutput)
-							Expect(err).NotTo(HaveOccurred())
-
-							Expect(hijackOutput.Error).To(Equal("too slow"))
 						})
 					})
 				})

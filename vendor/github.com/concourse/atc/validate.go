@@ -24,6 +24,13 @@ type Warning struct {
 	Message string `json:"message"`
 }
 
+func newDeprecationWarning(message string) Warning {
+	return Warning{
+		Type:    "deprecation",
+		Message: message,
+	}
+}
+
 func (c Config) Validate() ([]Warning, []string) {
 	warnings := []Warning{}
 	errorMessages := []string{}
@@ -227,34 +234,6 @@ func validateJobs(c Config) ([]Warning, error) {
 		planWarnings, planErrMessages := validatePlan(c, identifier+".plan", PlanConfig{Do: &job.Plan})
 		warnings = append(warnings, planWarnings...)
 		errorMessages = append(errorMessages, planErrMessages...)
-
-		if job.Abort != nil {
-			subIdentifier := fmt.Sprintf("%s.abort", identifier)
-			planWarnings, planErrMessages := validatePlan(c, subIdentifier, *job.Abort)
-			warnings = append(warnings, planWarnings...)
-			errorMessages = append(errorMessages, planErrMessages...)
-		}
-
-		if job.Failure != nil {
-			subIdentifier := fmt.Sprintf("%s.failure", identifier)
-			planWarnings, planErrMessages := validatePlan(c, subIdentifier, *job.Failure)
-			warnings = append(warnings, planWarnings...)
-			errorMessages = append(errorMessages, planErrMessages...)
-		}
-
-		if job.Ensure != nil {
-			subIdentifier := fmt.Sprintf("%s.ensure", identifier)
-			planWarnings, planErrMessages := validatePlan(c, subIdentifier, *job.Ensure)
-			warnings = append(warnings, planWarnings...)
-			errorMessages = append(errorMessages, planErrMessages...)
-		}
-
-		if job.Success != nil {
-			subIdentifier := fmt.Sprintf("%s.success", identifier)
-			planWarnings, planErrMessages := validatePlan(c, subIdentifier, *job.Success)
-			warnings = append(warnings, planWarnings...)
-			errorMessages = append(errorMessages, planErrMessages...)
-		}
 
 		encountered := map[string]int{}
 		for _, input := range job.Inputs() {
@@ -478,7 +457,7 @@ func validatePlan(c Config, identifier string, plan PlanConfig) ([]Warning, []st
 		}
 
 		if plan.TaskConfig != nil && plan.TaskConfigPath != "" {
-			errorMessages = append(errorMessages, identifier+" specifies both `file` and `config` in a task step")
+			warnings = append(warnings, newDeprecationWarning(identifier+" specifies both `file` and `config` in a task step"))
 		}
 
 		if plan.TaskConfig != nil {
@@ -498,13 +477,6 @@ func validatePlan(c Config, identifier string, plan PlanConfig) ([]Warning, []st
 	case plan.Try != nil:
 		subIdentifier := fmt.Sprintf("%s.try", identifier)
 		planWarnings, planErrMessages := validatePlan(c, subIdentifier, *plan.Try)
-		warnings = append(warnings, planWarnings...)
-		errorMessages = append(errorMessages, planErrMessages...)
-	}
-
-	if plan.Abort != nil {
-		subIdentifier := fmt.Sprintf("%s.abort", identifier)
-		planWarnings, planErrMessages := validatePlan(c, subIdentifier, *plan.Abort)
 		warnings = append(warnings, planWarnings...)
 		errorMessages = append(errorMessages, planErrMessages...)
 	}

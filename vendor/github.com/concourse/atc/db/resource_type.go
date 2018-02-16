@@ -25,7 +25,6 @@ type ResourceType interface {
 	Type() string
 	Privileged() bool
 	Source() atc.Source
-	Params() atc.Params
 
 	SetResourceConfig(int) error
 
@@ -46,7 +45,6 @@ func (resourceTypes ResourceTypes) Deserialize() atc.VersionedResourceTypes {
 				Name:       t.Name(),
 				Type:       t.Type(),
 				Source:     t.Source(),
-				Params:     t.Params(),
 				Privileged: t.Privileged(),
 			},
 			Version: t.Version(),
@@ -64,7 +62,6 @@ func (resourceTypes ResourceTypes) Configs() atc.ResourceTypes {
 			Name:       r.Name(),
 			Type:       r.Type(),
 			Source:     r.Source(),
-			Params:     r.Params(),
 			Privileged: r.Privileged(),
 		})
 	}
@@ -82,7 +79,6 @@ type resourceType struct {
 	type_      string
 	privileged bool
 	source     atc.Source
-	params     atc.Params
 	version    atc.Version
 
 	conn Conn
@@ -93,7 +89,6 @@ func (t *resourceType) Name() string       { return t.name }
 func (t *resourceType) Type() string       { return t.type_ }
 func (t *resourceType) Privileged() bool   { return t.privileged }
 func (t *resourceType) Source() atc.Source { return t.source }
-func (t *resourceType) Params() atc.Params { return t.params }
 
 func (t *resourceType) Version() atc.Version { return t.version }
 func (t *resourceType) SaveVersion(version atc.Version) error {
@@ -161,7 +156,7 @@ func scanResourceType(t *resourceType, row scannable) error {
 	}
 
 	if version.Valid {
-		err = json.Unmarshal([]byte(version.String), &t.version)
+		err := json.Unmarshal([]byte(version.String), &t.version)
 		if err != nil {
 			return err
 		}
@@ -186,7 +181,6 @@ func scanResourceType(t *resourceType, row scannable) error {
 	}
 
 	t.source = config.Source
-	t.params = config.Params
 	t.privileged = config.Privileged
 
 	return nil

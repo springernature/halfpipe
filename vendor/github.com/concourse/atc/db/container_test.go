@@ -16,7 +16,7 @@ var _ = Describe("Container", func() {
 
 	var safelyCloseConection = func() {
 		BeforeEach(func() {
-			_ = dbConn.Close()
+			dbConn.Close()
 		})
 		AfterEach(func() {
 			dbConn = postgresRunner.OpenConn()

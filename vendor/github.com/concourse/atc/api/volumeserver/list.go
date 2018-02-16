@@ -25,20 +25,17 @@ func (s *Server) ListVolumes(team db.Team) http.Handler {
 
 		hLog.Debug("listed", lager.Data{"volume-count": len(volumes)})
 
-		presentedVolumes := []atc.Volume{}
+		presentedVolumes := make([]atc.Volume, len(volumes))
 		for i := 0; i < len(volumes); i++ {
 			volume := volumes[i]
-			if vol, err := present.Volume(volume); err != nil {
+			presentedVolumes[i], err = present.Volume(volume)
+			if err != nil {
 				hLog.Error("failed-to-present-volume", err)
-			} else {
-				presentedVolumes = append(presentedVolumes, vol)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
 			}
 		}
 
-		err = json.NewEncoder(w).Encode(presentedVolumes)
-		if err != nil {
-			hLog.Error("failed-to-encode-volumes", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(presentedVolumes)
 	})
 }

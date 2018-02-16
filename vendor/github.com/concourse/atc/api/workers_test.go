@@ -12,7 +12,6 @@ import (
 	"github.com/concourse/atc"
 	"github.com/concourse/atc/db"
 	"github.com/concourse/atc/db/dbfakes"
-	"github.com/concourse/atc/worker/workerfakes"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -118,21 +117,17 @@ var _ = Describe("Workers API", func() {
 
 	Describe("POST /api/v1/workers", func() {
 		var (
-			worker    atc.Worker
-			ttl       string
-			certsPath string
+			worker atc.Worker
+			ttl    string
 
-			response         *http.Response
-			fakeGardenWorker *workerfakes.FakeWorker
+			response *http.Response
 		)
 
 		BeforeEach(func() {
-			certsPath = "/some/certs/path"
 			worker = atc.Worker{
 				Name:             "worker-name",
 				GardenAddr:       "1.2.3.4:7777",
 				BaggageclaimURL:  "5.6.7.8:7788",
-				CertsPath:        &certsPath,
 				HTTPProxyURL:     "http://example.com",
 				HTTPSProxyURL:    "https://example.com",
 				NoProxy:          "example.com,127.0.0.1,localhost",
@@ -148,9 +143,6 @@ var _ = Describe("Workers API", func() {
 			ttl = "30s"
 			userContextReader.GetTeamReturns("some-team", true, true)
 			userContextReader.GetSystemReturns(true, true)
-
-			fakeGardenWorker = new(workerfakes.FakeWorker)
-			fakeWorkerProvider.NewGardenWorkerReturns(fakeGardenWorker)
 		})
 
 		JustBeforeEach(func() {
@@ -176,7 +168,6 @@ var _ = Describe("Workers API", func() {
 					GardenAddr:       "1.2.3.4:7777",
 					Name:             "worker-name",
 					BaggageclaimURL:  "5.6.7.8:7788",
-					CertsPath:        &certsPath,
 					HTTPProxyURL:     "http://example.com",
 					HTTPSProxyURL:    "https://example.com",
 					NoProxy:          "example.com,127.0.0.1,localhost",
@@ -276,68 +267,6 @@ var _ = Describe("Workers API", func() {
 						GardenAddr:       "1.2.3.4:7777",
 						Name:             "1.2.3.4:7777",
 						BaggageclaimURL:  "5.6.7.8:7788",
-						CertsPath:        &certsPath,
-						HTTPProxyURL:     "http://example.com",
-						HTTPSProxyURL:    "https://example.com",
-						NoProxy:          "example.com,127.0.0.1,localhost",
-						ActiveContainers: 2,
-						ResourceTypes: []atc.WorkerResourceType{
-							{Type: "some-resource", Image: "some-resource-image"},
-						},
-						Platform: "haiku",
-						Tags:     []string{"not", "a", "limerick"},
-						Version:  "1.2.3",
-					}))
-
-					Expect(savedTTL.String()).To(Equal(ttl))
-				})
-			})
-
-			Context("when the certs path is null", func() {
-				BeforeEach(func() {
-					worker.CertsPath = nil
-				})
-
-				It("saves the worker with a null certs path", func() {
-					Expect(dbWorkerFactory.SaveWorkerCallCount()).To(Equal(1))
-
-					savedInfo, savedTTL := dbWorkerFactory.SaveWorkerArgsForCall(0)
-					Expect(savedInfo).To(Equal(atc.Worker{
-						GardenAddr:       "1.2.3.4:7777",
-						Name:             "worker-name",
-						BaggageclaimURL:  "5.6.7.8:7788",
-						CertsPath:        nil,
-						HTTPProxyURL:     "http://example.com",
-						HTTPSProxyURL:    "https://example.com",
-						NoProxy:          "example.com,127.0.0.1,localhost",
-						ActiveContainers: 2,
-						ResourceTypes: []atc.WorkerResourceType{
-							{Type: "some-resource", Image: "some-resource-image"},
-						},
-						Platform: "haiku",
-						Tags:     []string{"not", "a", "limerick"},
-						Version:  "1.2.3",
-					}))
-
-					Expect(savedTTL.String()).To(Equal(ttl))
-				})
-			})
-
-			Context("when the certs path is an empty string", func() {
-				BeforeEach(func() {
-					emptyString := ""
-					worker.CertsPath = &emptyString
-				})
-
-				It("saves the worker with a null certs path", func() {
-					Expect(dbWorkerFactory.SaveWorkerCallCount()).To(Equal(1))
-
-					savedInfo, savedTTL := dbWorkerFactory.SaveWorkerArgsForCall(0)
-					Expect(savedInfo).To(Equal(atc.Worker{
-						GardenAddr:       "1.2.3.4:7777",
-						Name:             "worker-name",
-						BaggageclaimURL:  "5.6.7.8:7788",
-						CertsPath:        nil,
 						HTTPProxyURL:     "http://example.com",
 						HTTPSProxyURL:    "https://example.com",
 						NoProxy:          "example.com,127.0.0.1,localhost",
@@ -355,16 +284,13 @@ var _ = Describe("Workers API", func() {
 			})
 
 			Context("when saving the worker succeeds", func() {
-				var fakeWorker *dbfakes.FakeWorker
 				BeforeEach(func() {
-					fakeWorker = new(dbfakes.FakeWorker)
-					dbWorkerFactory.SaveWorkerReturns(fakeWorker, nil)
+					dbWorkerFactory.SaveWorkerReturns(new(dbfakes.FakeWorker), nil)
 				})
 
 				It("returns 200", func() {
 					Expect(response.StatusCode).To(Equal(http.StatusOK))
 				})
-
 			})
 
 			Context("when saving the worker fails", func() {

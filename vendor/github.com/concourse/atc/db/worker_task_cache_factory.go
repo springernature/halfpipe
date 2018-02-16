@@ -70,7 +70,11 @@ func (f *workerTaskCacheFactory) FindOrCreate(jobID int, stepName string, path s
 	err := safeFindOrCreate(f.conn, func(tx Tx) error {
 		var err error
 		usedWorkerTaskCache, err = workerTaskCache.FindOrCreate(tx)
-		return err
+		if err != nil {
+			return err
+		}
+
+		return nil
 	})
 
 	if err != nil {
@@ -122,7 +126,7 @@ func (wtc WorkerTaskCache) FindOrCreate(
 				QueryRow().
 				Scan(&id)
 			if err != nil {
-				if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == pqUniqueViolationErrCode {
+				if pqErr, ok := err.(*pq.Error); ok && pqErr.Code.Name() == "unique_violation" {
 					return nil, ErrSafeRetryFindOrCreate
 				}
 

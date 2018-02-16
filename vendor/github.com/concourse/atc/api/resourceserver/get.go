@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"code.cloudfoundry.org/lager"
-	"github.com/concourse/atc/api/auth"
 	"github.com/concourse/atc/api/present"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/db"
 )
 
@@ -38,10 +38,6 @@ func (s *Server) GetResource(pipeline db.Pipeline) http.Handler {
 
 		w.WriteHeader(http.StatusOK)
 
-		err = json.NewEncoder(w).Encode(resource)
-		if err != nil {
-			logger.Error("failed-to-encode-resource", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(resource)
 	})
 }

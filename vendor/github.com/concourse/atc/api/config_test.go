@@ -20,6 +20,12 @@ import (
 	. "github.com/onsi/gomega"
 )
 
+type RemoraConfig struct {
+	atc.Config
+
+	Extra string `json:"extra"`
+}
+
 var _ = Describe("Config API", func() {
 	var (
 		pipelineConfig   atc.Config
@@ -708,7 +714,7 @@ jobs:
 								Expect(err).NotTo(HaveOccurred())
 							}
 
-							_ = writer.Close()
+							writer.Close()
 
 							request.Header.Set("Content-Type", writer.FormDataContentType())
 							request.Body = gbytes.BufferWithBytes(body.Bytes())
@@ -781,7 +787,7 @@ jobs:
 
 							Context("when the config includes deprecations", func() {
 								BeforeEach(func() {
-									pipelineConfig.Jobs[0].Plan[1].ImageArtifactName = "some-image-artifact"
+									pipelineConfig.Jobs[0].Plan[1].TaskConfigPath = "some/config/path.yml"
 									writeMultiPart()
 								})
 
@@ -789,8 +795,8 @@ jobs:
 									Expect(response.StatusCode).To(Equal(http.StatusOK))
 									Expect(ioutil.ReadAll(response.Body)).To(MatchJSON(`{
 										"warnings": [{
-											"type": "pipeline",
-											"message": "jobs.some-job.plan[1].task.some-task specifies an image artifact to use as the container's image but also specifies an image or image resource in the task configuration; the image artifact takes precedence"
+											"type": "deprecation",
+											"message": "jobs.some-job.plan[1].task.some-task specifies both ` + "`file` and `config`" + ` in a task step"
 										}]
 									}`))
 								})
@@ -846,7 +852,7 @@ jobs:
 								err = writer.WriteField("paused", "junk")
 								Expect(err).NotTo(HaveOccurred())
 
-								_ = writer.Close()
+								writer.Close()
 
 								request.Header.Set("Content-Type", writer.FormDataContentType())
 								request.Body = gbytes.BufferWithBytes(body.Bytes())
@@ -882,7 +888,7 @@ jobs:
 
 									Expect(err).NotTo(HaveOccurred())
 
-									_ = writer.Close()
+									writer.Close()
 
 									request.Header.Set("Content-Type", writer.FormDataContentType())
 									request.Body = gbytes.BufferWithBytes(body.Bytes())
@@ -921,7 +927,7 @@ jobs:
 									_, err = yamlWriter.Write([]byte("{"))
 									Expect(err).NotTo(HaveOccurred())
 
-									_ = writer.Close()
+									writer.Close()
 
 									request.Header.Set("Content-Type", writer.FormDataContentType())
 									request.Body = gbytes.BufferWithBytes(body.Bytes())

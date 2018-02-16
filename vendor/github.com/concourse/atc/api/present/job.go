@@ -3,6 +3,8 @@ package present
 import (
 	"github.com/concourse/atc"
 	"github.com/concourse/atc/db"
+	"github.com/concourse/atc/web"
+	"github.com/tedsuo/rata"
 )
 
 func Job(
@@ -13,6 +15,21 @@ func Job(
 	nextBuild db.Build,
 	transitionBuild db.Build,
 ) atc.Job {
+	generator := rata.NewRequestGenerator("", web.Routes)
+
+	req, err := generator.CreateRequest(
+		web.GetJob,
+		rata.Params{
+			"job":           job.Name(),
+			"pipeline_name": job.PipelineName(),
+			"team_name":     teamName,
+		},
+		nil,
+	)
+	if err != nil {
+		panic("failed to generate url: " + err.Error())
+	}
+
 	var presentedNextBuild, presentedFinishedBuild, presentedTransitionBuild *atc.Build
 
 	if nextBuild != nil {
@@ -61,8 +78,7 @@ func Job(
 		ID: job.ID(),
 
 		Name:                 job.Name(),
-		PipelineName:         job.PipelineName(),
-		TeamName:             teamName,
+		URL:                  req.URL.String(),
 		DisableManualTrigger: job.Config().DisableManualTrigger,
 		Paused:               job.Paused(),
 		FirstLoggedBuildID:   job.FirstLoggedBuildID(),

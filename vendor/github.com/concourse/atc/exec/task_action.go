@@ -343,7 +343,7 @@ func (action *TaskAction) containerSpec(logger lager.Logger, repository *worker.
 		Outputs: worker.OutputPaths{},
 	}
 
-	var missingRequiredInputs []string
+	var missingInputs []string
 	for _, input := range config.Inputs {
 		inputName := input.Name
 		if sourceName, ok := action.inputMapping[inputName]; ok {
@@ -352,9 +352,7 @@ func (action *TaskAction) containerSpec(logger lager.Logger, repository *worker.
 
 		source, found := repository.SourceFor(worker.ArtifactName(inputName))
 		if !found {
-			if !input.Optional {
-				missingRequiredInputs = append(missingRequiredInputs, inputName)
-			}
+			missingInputs = append(missingInputs, inputName)
 			continue
 		}
 
@@ -365,8 +363,8 @@ func (action *TaskAction) containerSpec(logger lager.Logger, repository *worker.
 		})
 	}
 
-	if len(missingRequiredInputs) > 0 {
-		return worker.ContainerSpec{}, MissingInputsError{missingRequiredInputs}
+	if len(missingInputs) > 0 {
+		return worker.ContainerSpec{}, MissingInputsError{missingInputs}
 	}
 
 	for _, cacheConfig := range config.Caches {

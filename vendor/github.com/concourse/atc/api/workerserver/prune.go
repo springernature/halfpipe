@@ -40,11 +40,7 @@ func (s *Server) PruneWorker(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
-		err = json.NewEncoder(w).Encode(responseBody)
-		if err != nil {
-			logger.Error("failed-to-encode-prune-worker-response-body", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(responseBody)
 		return
 	}
 

@@ -35,12 +35,10 @@ const (
 	CheckResourceWebHook = "CheckResourceWebHook"
 
 	ListResourceVersions          = "ListResourceVersions"
-	GetResourceVersion            = "GetResourceVersion"
 	EnableResourceVersion         = "EnableResourceVersion"
 	DisableResourceVersion        = "DisableResourceVersion"
 	ListBuildsWithVersionAsInput  = "ListBuildsWithVersionAsInput"
 	ListBuildsWithVersionAsOutput = "ListBuildsWithVersionAsOutput"
-	GetResourceCausality          = "GetResourceCausality"
 
 	ListAllPipelines    = "ListAllPipelines"
 	ListPipelines       = "ListPipelines"
@@ -79,13 +77,12 @@ const (
 
 	ListVolumes = "ListVolumes"
 
-	LegacyListAuthMethods = "LegacyListAuthMethods"
-	LegacyGetAuthToken    = "LegacyGetAuthToken"
-	LegacyGetUser         = "LegacyGetUser"
+	ListAuthMethods = "ListAuthMethods"
+	GetAuthToken    = "GetAuthToken"
+	GetUser         = "GetUser"
 
 	ListTeams   = "ListTeams"
 	SetTeam     = "SetTeam"
-	RenameTeam  = "RenameTeam"
 	DestroyTeam = "DestroyTeam"
 )
 
@@ -135,12 +132,10 @@ var Routes = rata.Routes([]rata.Route{
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/check/webhook", Method: "POST", Name: CheckResourceWebHook},
 
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions", Method: "GET", Name: ListResourceVersions},
-	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id", Method: "GET", Name: GetResourceVersion},
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id/enable", Method: "PUT", Name: EnableResourceVersion},
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id/disable", Method: "PUT", Name: DisableResourceVersion},
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id/input_to", Method: "GET", Name: ListBuildsWithVersionAsInput},
 	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id/output_of", Method: "GET", Name: ListBuildsWithVersionAsOutput},
-	{Path: "/api/v1/teams/:team_name/pipelines/:pipeline_name/resources/:resource_name/versions/:resource_version_id/causality", Method: "GET", Name: GetResourceCausality},
 
 	{Path: "/api/v1/pipes", Method: "POST", Name: CreatePipe},
 	{Path: "/api/v1/pipes/:pipe_id", Method: "PUT", Name: WritePipe},
@@ -166,12 +161,11 @@ var Routes = rata.Routes([]rata.Route{
 
 	{Path: "/api/v1/volumes", Method: "GET", Name: ListVolumes},
 
-	{Path: "/api/v1/teams/:team_name/auth/methods", Method: "GET", Name: LegacyListAuthMethods},
-	{Path: "/api/v1/teams/:team_name/auth/token", Method: "GET", Name: LegacyGetAuthToken},
-	{Path: "/api/v1/user", Method: "GET", Name: LegacyGetUser},
+	{Path: "/api/v1/teams/:team_name/auth/methods", Method: "GET", Name: ListAuthMethods},
+	{Path: "/api/v1/teams/:team_name/auth/token", Method: "GET", Name: GetAuthToken},
+	{Path: "/api/v1/user", Method: "GET", Name: GetUser},
 
 	{Path: "/api/v1/teams", Method: "GET", Name: ListTeams},
 	{Path: "/api/v1/teams/:team_name", Method: "PUT", Name: SetTeam},
-	{Path: "/api/v1/teams/:team_name/rename", Method: "PUT", Name: RenameTeam},
 	{Path: "/api/v1/teams/:team_name", Method: "DELETE", Name: DestroyTeam},
 })

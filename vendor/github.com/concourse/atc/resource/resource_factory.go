@@ -9,7 +9,19 @@ import (
 	"github.com/concourse/atc/worker"
 )
 
-func NewResourceFactory(workerClient worker.Client) ResourceFactory {
+//go:generate counterfeiter . ResourceFactoryFactory
+
+type ResourceFactoryFactory interface {
+	FactoryFor(workerClient worker.Client) ResourceFactory
+}
+
+type resourceFactoryFactory struct{}
+
+func NewResourceFactoryFactory() ResourceFactoryFactory {
+	return &resourceFactoryFactory{}
+}
+
+func (f *resourceFactoryFactory) FactoryFor(workerClient worker.Client) ResourceFactory {
 	return &resourceFactory{
 		workerClient: workerClient,
 	}
@@ -33,7 +45,6 @@ type resourceFactory struct {
 	workerClient worker.Client
 }
 
-//TODO ~> workerClient.Resource()
 func (f *resourceFactory) NewResource(
 	logger lager.Logger,
 	signals <-chan os.Signal,
@@ -43,11 +54,6 @@ func (f *resourceFactory) NewResource(
 	resourceTypes creds.VersionedResourceTypes,
 	imageFetchingDelegate worker.ImageFetchingDelegate,
 ) (Resource, error) {
-
-	containerSpec.BindMounts = []worker.BindMountSource{
-		&worker.CertsVolumeMount{Logger: logger},
-	}
-
 	container, err := f.workerClient.FindOrCreateContainer(
 		logger,
 		signals,

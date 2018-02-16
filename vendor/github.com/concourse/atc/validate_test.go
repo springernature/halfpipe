@@ -13,7 +13,8 @@ var _ = Describe("ValidateConfig", func() {
 	var (
 		config Config
 
-		errorMessages []string
+		errorMessages  []string
+		configWarnings []Warning
 	)
 
 	BeforeEach(func() {
@@ -84,7 +85,7 @@ var _ = Describe("ValidateConfig", func() {
 	})
 
 	JustBeforeEach(func() {
-		_, errorMessages = config.Validate()
+		configWarnings, errorMessages = config.Validate()
 	})
 
 	Context("when the config is valid", func() {
@@ -242,10 +243,6 @@ var _ = Describe("ValidateConfig", func() {
 						Type: "some-type",
 					},
 					{
-						Name: "abort",
-						Type: "some-type",
-					},
-					{
 						Name: "failure",
 						Type: "some-type",
 					},
@@ -297,13 +294,6 @@ var _ = Describe("ValidateConfig", func() {
 									{
 										Get: "aggregate",
 									},
-								},
-							},
-							{
-								Task:           "some-task",
-								TaskConfigPath: "some/config/path.yml",
-								Failure: &PlanConfig{
-									Get: "abort",
 								},
 							},
 							{
@@ -666,10 +656,11 @@ var _ = Describe("ValidateConfig", func() {
 					config.Jobs = append(config.Jobs, job)
 				})
 
-				It("returns an error", func() {
-					Expect(errorMessages).To(HaveLen(1))
-					Expect(errorMessages[0]).To(ContainSubstring("invalid jobs:"))
-					Expect(errorMessages[0]).To(ContainSubstring("jobs.some-other-job.plan[0].task.lol specifies both `file` and `config` in a task step"))
+				It("returns a deprecation warning", func() {
+					Expect(configWarnings).To(ContainElement(Warning{
+						Type:    "deprecation",
+						Message: "jobs.some-other-job.plan[0].task.lol specifies both `file` and `config` in a task step",
+					}))
 				})
 			})
 
@@ -808,36 +799,6 @@ var _ = Describe("ValidateConfig", func() {
 				})
 			})
 
-			Context("when a job ensure hook refers to a resource that does exist", func() {
-				BeforeEach(func() {
-					job.Ensure = &PlanConfig{
-						Get: "some-resource",
-					}
-
-					config.Jobs = append(config.Jobs, job)
-				})
-
-				It("does not return an error", func() {
-					Expect(errorMessages).To(HaveLen(0))
-				})
-			})
-
-			Context("when a job ensure hook refers to a resource that does not exist", func() {
-				BeforeEach(func() {
-					job.Ensure = &PlanConfig{
-						Get: "some-nonexistent-resource",
-					}
-
-					config.Jobs = append(config.Jobs, job)
-				})
-
-				It("returns an error", func() {
-					Expect(errorMessages).To(HaveLen(1))
-					Expect(errorMessages[0]).To(ContainSubstring("invalid jobs:"))
-					Expect(errorMessages[0]).To(ContainSubstring("jobs.some-other-job.ensure.get.some-nonexistent-resource refers to a resource that does not exist"))
-				})
-			})
-
 			Context("when a get plan refers to a 'put' resource that exists in another job's hook", func() {
 				var (
 					job1 JobConfig
@@ -970,25 +931,6 @@ var _ = Describe("ValidateConfig", func() {
 				})
 			})
 
-			Context("when a plan has an invalid step within an abort", func() {
-				BeforeEach(func() {
-					job.Plan = append(job.Plan, PlanConfig{
-						Get: "some-resource",
-						Abort: &PlanConfig{
-							Put:      "custom-name",
-							Resource: "some-missing-resource",
-						},
-					})
-
-					config.Jobs = append(config.Jobs, job)
-				})
-
-				It("throws a validation error", func() {
-					Expect(errorMessages).To(HaveLen(1))
-					Expect(errorMessages[0]).To(ContainSubstring("jobs.some-other-job.plan[0].get.some-resource.abort.put.custom-name refers to a resource that does not exist ('some-missing-resource')"))
-				})
-			})
-
 			Context("when a plan has an invalid step within an ensure", func() {
 				BeforeEach(func() {
 					job.Plan = append(job.Plan, PlanConfig{
@@ -1005,25 +947,6 @@ var _ = Describe("ValidateConfig", func() {
 				It("throws a validation error", func() {
 					Expect(errorMessages).To(HaveLen(1))
 					Expect(errorMessages[0]).To(ContainSubstring("jobs.some-other-job.plan[0].get.some-resource.ensure.put.custom-name refers to a resource that does not exist ('some-missing-resource')"))
-				})
-			})
-
-			Context("when a plan has an invalid step within an abort", func() {
-				BeforeEach(func() {
-					job.Plan = append(job.Plan, PlanConfig{
-						Get: "some-resource",
-						Abort: &PlanConfig{
-							Put:      "custom-name",
-							Resource: "some-missing-resource",
-						},
-					})
-
-					config.Jobs = append(config.Jobs, job)
-				})
-
-				It("throws a validation error", func() {
-					Expect(errorMessages).To(HaveLen(1))
-					Expect(errorMessages[0]).To(ContainSubstring("jobs.some-other-job.plan[0].get.some-resource.abort.put.custom-name refers to a resource that does not exist ('some-missing-resource')"))
 				})
 			})
 

@@ -14,8 +14,8 @@ import (
 	"code.cloudfoundry.org/lager/lagertest"
 
 	"github.com/concourse/atc/db"
-	"github.com/concourse/atc/db/encryption"
 	"github.com/concourse/atc/db/migration"
+	"github.com/concourse/atc/db/migrations"
 	"github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gexec"
@@ -96,39 +96,12 @@ func (runner Runner) Run(signals <-chan os.Signal, ready chan<- struct{}) error 
 	return ginkgoRunner.Run(signals, ready)
 }
 
-func (runner *Runner) MigrateToVersion(version int) {
-	err := migration.NewOpenHelper(
-		"postgres",
-		runner.DataSourceName(),
-		nil,
-		encryption.NewNoEncryption(),
-	).MigrateToVersion(version)
-	Expect(err).NotTo(HaveOccurred())
-}
-
-func (runner *Runner) OpenDBAtVersion(version int) *sql.DB {
-	dbConn, err := migration.NewOpenHelper(
-		"postgres",
-		runner.DataSourceName(),
-		nil,
-		encryption.NewNoEncryption(),
-	).OpenAtVersion(version)
-	Expect(err).NotTo(HaveOccurred())
-
-	// only allow one connection so that we can detect any code paths that
-	// require more than one, which will deadlock if it's at the limit
-	dbConn.SetMaxOpenConns(1)
-
-	return dbConn
-}
-
 func (runner *Runner) OpenDB() *sql.DB {
-	dbConn, err := migration.NewOpenHelper(
+	dbConn, err := migration.Open(
 		"postgres",
 		runner.DataSourceName(),
-		nil,
-		encryption.NewNoEncryption(),
-	).Open()
+		migrations.New(db.NewNoEncryption()),
+	)
 	Expect(err).NotTo(HaveOccurred())
 
 	// only allow one connection so that we can detect any code paths that
@@ -144,8 +117,6 @@ func (runner *Runner) OpenConn() db.Conn {
 		"postgres",
 		runner.DataSourceName(),
 		nil,
-		nil,
-		"postgresrunner",
 		nil,
 	)
 	Expect(err).NotTo(HaveOccurred())
@@ -218,7 +189,7 @@ func (runner *Runner) Truncate() {
 			DECLARE
 					statements CURSOR FOR
 							SELECT tablename FROM pg_tables
-							WHERE schemaname = 'public' AND tablename != 'schema_migrations';
+							WHERE schemaname = 'public' AND tablename != 'migration_version';
 			BEGIN
 					FOR stmt IN statements LOOP
 							EXECUTE 'TRUNCATE TABLE ' || quote_ident(stmt.tablename) || ' RESTART IDENTITY CASCADE;';
@@ -270,10 +241,25 @@ func (runner *Runner) Truncate() {
 			END;
 			$$ LANGUAGE plpgsql;
 
+			CREATE OR REPLACE FUNCTION reinsert_default_data() RETURNS void AS $$
+			DECLARE
+					statements CURSOR FOR
+							SELECT tablename FROM pg_tables
+							WHERE tablename = 'teams';
+			BEGIN
+					FOR stmt IN statements LOOP
+						INSERT INTO teams (name) VALUES ('main');
+						CREATE TABLE team_build_events_1 ()
+						INHERITS (build_events);
+					END LOOP;
+			END;
+			$$ LANGUAGE plpgsql;
+
 			SELECT truncate_tables();
 			SELECT drop_ephemeral_sequences();
 			SELECT drop_ephemeral_tables();
 			SELECT reset_global_sequences();
+			SELECT reinsert_default_data();
 		`,
 	)
 

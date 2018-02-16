@@ -9,13 +9,13 @@ import (
 	"github.com/tedsuo/rata"
 
 	"github.com/concourse/atc"
+	"github.com/concourse/atc/api/authserver"
 	"github.com/concourse/atc/api/buildserver"
 	"github.com/concourse/atc/api/cliserver"
 	"github.com/concourse/atc/api/configserver"
 	"github.com/concourse/atc/api/containerserver"
 	"github.com/concourse/atc/api/infoserver"
 	"github.com/concourse/atc/api/jobserver"
-	"github.com/concourse/atc/api/legacyserver"
 	"github.com/concourse/atc/api/loglevelserver"
 	"github.com/concourse/atc/api/pipelineserver"
 	"github.com/concourse/atc/api/pipes"
@@ -24,6 +24,7 @@ import (
 	"github.com/concourse/atc/api/teamserver"
 	"github.com/concourse/atc/api/volumeserver"
 	"github.com/concourse/atc/api/workerserver"
+	"github.com/concourse/atc/auth"
 	"github.com/concourse/atc/creds"
 	"github.com/concourse/atc/db"
 	"github.com/concourse/atc/engine"
@@ -39,6 +40,9 @@ func NewHandler(
 
 	wrapper wrappa.Wrappa,
 
+	authTokenGenerator auth.AuthTokenGenerator,
+	csrfTokenGenerator auth.CSRFTokenGenerator,
+	providerFactory auth.ProviderFactory,
 	oAuthBaseURL string,
 
 	dbTeamFactory db.TeamFactory,
@@ -54,7 +58,6 @@ func NewHandler(
 
 	engine engine.Engine,
 	workerClient worker.Client,
-	workerProvider worker.WorkerProvider,
 
 	schedulerFactory jobserver.SchedulerFactory,
 	scannerFactory resourceserver.ScannerFactory,
@@ -69,9 +72,7 @@ func NewHandler(
 	version string,
 	workerVersion string,
 	variablesFactory creds.VariablesFactory,
-	interceptTimeoutFactory containerserver.InterceptTimeoutFactory,
 ) (http.Handler, error) {
-
 	absCLIDownloadsDir, err := filepath.Abs(cliDownloadsDir)
 	if err != nil {
 		return nil, err
@@ -81,29 +82,62 @@ func NewHandler(
 	buildHandlerFactory := buildserver.NewScopedHandlerFactory(logger)
 	teamHandlerFactory := NewTeamScopedHandlerFactory(logger, dbTeamFactory)
 
-	buildServer := buildserver.NewServer(logger, externalURL, engine, workerClient, dbTeamFactory, dbBuildFactory, eventHandlerFactory, drain)
+	authServer := authserver.NewServer(
+		logger,
+		externalURL,
+		oAuthBaseURL,
+		authTokenGenerator,
+		csrfTokenGenerator,
+		providerFactory,
+		dbTeamFactory,
+		expire,
+		isTLSEnabled,
+	)
+
+	buildServer := buildserver.NewServer(
+		logger,
+		externalURL,
+		engine,
+		workerClient,
+		dbTeamFactory,
+		dbBuildFactory,
+		eventHandlerFactory,
+		drain,
+	)
+
 	jobServer := jobserver.NewServer(logger, schedulerFactory, externalURL, variablesFactory)
 	resourceServer := resourceserver.NewServer(logger, scannerFactory)
 	versionServer := versionserver.NewServer(logger, externalURL)
 	pipeServer := pipes.NewServer(logger, peerURL, externalURL, dbTeamFactory)
+
 	pipelineServer := pipelineserver.NewServer(logger, dbTeamFactory, dbPipelineFactory, engine)
+
 	configServer := configserver.NewServer(logger, dbTeamFactory)
-	workerServer := workerserver.NewServer(logger, dbTeamFactory, dbWorkerFactory, workerProvider)
+
+	workerServer := workerserver.NewServer(logger, dbTeamFactory, dbWorkerFactory)
+
 	logLevelServer := loglevelserver.NewServer(logger, sink)
+
 	cliServer := cliserver.NewServer(logger, absCLIDownloadsDir)
-	containerServer := containerserver.NewServer(logger, workerClient, variablesFactory, interceptTimeoutFactory)
+
+	containerServer := containerserver.NewServer(logger, workerClient, variablesFactory)
+
 	volumesServer := volumeserver.NewServer(logger, volumeFactory)
+
 	teamServer := teamserver.NewServer(logger, dbTeamFactory)
+
 	infoServer := infoserver.NewServer(logger, version, workerVersion)
-	legacyServer := legacyserver.NewServer(logger)
 
 	handlers := map[string]http.Handler{
+		atc.ListAuthMethods: http.HandlerFunc(authServer.ListAuthMethods),
+		atc.GetAuthToken:    http.HandlerFunc(authServer.GetAuthToken),
+
 		atc.GetConfig:  http.HandlerFunc(configServer.GetConfig),
 		atc.SaveConfig: http.HandlerFunc(configServer.SaveConfig),
 
+		atc.GetBuild:            buildHandlerFactory.HandlerFor(buildServer.GetBuild),
 		atc.ListBuilds:          http.HandlerFunc(buildServer.ListBuilds),
 		atc.CreateBuild:         teamHandlerFactory.HandlerFor(buildServer.CreateBuild),
-		atc.GetBuild:            buildHandlerFactory.HandlerFor(buildServer.GetBuild),
 		atc.BuildResources:      buildHandlerFactory.HandlerFor(buildServer.BuildResources),
 		atc.AbortBuild:          buildHandlerFactory.HandlerFor(buildServer.AbortBuild),
 		atc.GetBuildPlan:        buildHandlerFactory.HandlerFor(buildServer.GetBuildPlan),
@@ -143,12 +177,10 @@ func NewHandler(
 		atc.CheckResourceWebHook: pipelineHandlerFactory.HandlerFor(resourceServer.CheckResourceWebHook),
 
 		atc.ListResourceVersions:          pipelineHandlerFactory.HandlerFor(versionServer.ListResourceVersions),
-		atc.GetResourceVersion:            pipelineHandlerFactory.HandlerFor(versionServer.GetResourceVersion),
 		atc.EnableResourceVersion:         pipelineHandlerFactory.HandlerFor(versionServer.EnableResourceVersion),
 		atc.DisableResourceVersion:        pipelineHandlerFactory.HandlerFor(versionServer.DisableResourceVersion),
 		atc.ListBuildsWithVersionAsInput:  pipelineHandlerFactory.HandlerFor(versionServer.ListBuildsWithVersionAsInput),
 		atc.ListBuildsWithVersionAsOutput: pipelineHandlerFactory.HandlerFor(versionServer.ListBuildsWithVersionAsOutput),
-		atc.GetResourceCausality:          pipelineHandlerFactory.HandlerFor(versionServer.GetCausality),
 
 		atc.CreatePipe: http.HandlerFunc(pipeServer.CreatePipe),
 		atc.WritePipe:  http.HandlerFunc(pipeServer.WritePipe),
@@ -167,6 +199,7 @@ func NewHandler(
 
 		atc.DownloadCLI: http.HandlerFunc(cliServer.Download),
 		atc.GetInfo:     http.HandlerFunc(infoServer.Info),
+		atc.GetUser:     http.HandlerFunc(authServer.GetUser),
 
 		atc.ListContainers:  teamHandlerFactory.HandlerFor(containerServer.ListContainers),
 		atc.GetContainer:    teamHandlerFactory.HandlerFor(containerServer.GetContainer),
@@ -174,13 +207,8 @@ func NewHandler(
 
 		atc.ListVolumes: teamHandlerFactory.HandlerFor(volumesServer.ListVolumes),
 
-		atc.LegacyListAuthMethods: http.HandlerFunc(legacyServer.ListAuthMethods),
-		atc.LegacyGetAuthToken:    http.HandlerFunc(legacyServer.GetAuthToken),
-		atc.LegacyGetUser:         http.HandlerFunc(legacyServer.GetUser),
-
 		atc.ListTeams:   http.HandlerFunc(teamServer.ListTeams),
 		atc.SetTeam:     http.HandlerFunc(teamServer.SetTeam),
-		atc.RenameTeam:  http.HandlerFunc(teamServer.RenameTeam),
 		atc.DestroyTeam: http.HandlerFunc(teamServer.DestroyTeam),
 	}
 

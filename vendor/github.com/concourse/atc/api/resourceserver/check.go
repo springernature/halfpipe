@@ -51,11 +51,7 @@ func (s *Server) CheckResource(dbPipeline db.Pipeline) http.Handler {
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
-			err = json.NewEncoder(w).Encode(checkResponseBody)
-			if err != nil {
-				logger.Error("failed-to-encode-check-response-body", err)
-				w.WriteHeader(http.StatusInternalServerError)
-			}
+			json.NewEncoder(w).Encode(checkResponseBody)
 		case db.ResourceNotFoundError:
 			w.WriteHeader(http.StatusNotFound)
 		case error:

@@ -2,7 +2,6 @@ package metric
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	flags "github.com/jessevdk/go-flags"
@@ -25,12 +24,10 @@ const EventStateOK EventState = "ok"
 const EventStateWarning EventState = "warning"
 const EventStateCritical EventState = "critical"
 
-//go:generate counterfeiter . Emitter
 type Emitter interface {
 	Emit(lager.Logger, Event)
 }
 
-//go:generate counterfeiter . EmitterFactory
 type EmitterFactory interface {
 	Description() string
 	IsConfigured() bool
@@ -64,16 +61,6 @@ type eventEmission struct {
 var emissions = make(chan eventEmission, 1000)
 
 func Initialize(logger lager.Logger, host string, attributes map[string]string) error {
-	var emitterDescriptions []string
-	for _, factory := range emitterFactories {
-		if factory.IsConfigured() {
-			emitterDescriptions = append(emitterDescriptions, factory.Description())
-		}
-	}
-	if len(emitterDescriptions) > 1 {
-		return fmt.Errorf("Multiple emitters configured: %s", strings.Join(emitterDescriptions, ", "))
-	}
-
 	var err error
 	for _, factory := range emitterFactories {
 		if factory.IsConfigured() {

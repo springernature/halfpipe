@@ -333,8 +333,7 @@ var _ = Describe("ResourceCacheLifecycle", func() {
 
 				rc := createResourceCacheWithUser(db.ForContainer(container.ID()))
 
-				err = defaultResource.SetResourceConfig(rc.ResourceConfig.ID)
-				Expect(err).ToNot(HaveOccurred())
+				defaultResource.SetResourceConfig(rc.ResourceConfig.ID)
 
 				err = defaultPipeline.SaveResourceVersions(atc.ResourceConfig{
 					Name: defaultResource.Name(),
@@ -346,12 +345,11 @@ var _ = Describe("ResourceCacheLifecycle", func() {
 				Expect(found).To(BeTrue())
 				Expect(err).ToNot(HaveOccurred())
 
-				err = defaultJob.SaveNextInputMapping(algorithm.InputMapping{
+				defaultJob.SaveNextInputMapping(algorithm.InputMapping{
 					"some-resource": algorithm.InputVersion{
 						VersionID: versionedResource.ID,
 					},
 				})
-				Expect(err).ToNot(HaveOccurred())
 
 				createdContainer, err := container.Created()
 				Expect(err).ToNot(HaveOccurred())

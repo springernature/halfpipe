@@ -89,7 +89,7 @@ var _ = Describe("Build", func() {
 			events, err := build.Events(0)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(events)
+			defer events.Close()
 
 			Expect(events.Next()).To(Equal(envelope(event.Status{
 				Status: atc.StatusStarted,
@@ -132,7 +132,7 @@ var _ = Describe("Build", func() {
 			events, err := build.Events(0)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(events)
+			defer events.Close()
 
 			Expect(events.Next()).To(Equal(envelope(event.Status{
 				Status: atc.StatusSucceeded,
@@ -183,7 +183,7 @@ var _ = Describe("Build", func() {
 			events, err := build.Events(0)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(events)
+			defer events.Close()
 
 			By("emitting a status event when started")
 			started, err := build.Start("engine", `{"meta":"data"}`, atc.Plan{})
@@ -227,7 +227,7 @@ var _ = Describe("Build", func() {
 			events, err := build.Events(0)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(events)
+			defer events.Close()
 
 			By("saving them in order")
 			err = build.SaveEvent(event.Log{
@@ -252,7 +252,7 @@ var _ = Describe("Build", func() {
 			eventsFrom1, err := build.Events(1)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(eventsFrom1)
+			defer eventsFrom1.Close()
 
 			Expect(eventsFrom1.Next()).To(Equal(envelope(event.Log{
 				Payload: "log",
@@ -806,10 +806,9 @@ var _ = Describe("Build", func() {
 					Expect(found).To(BeTrue())
 					Expect(versions).To(HaveLen(1))
 
-					err = job.SaveNextInputMapping(algorithm.InputMapping{
+					job.SaveNextInputMapping(algorithm.InputMapping{
 						"some-input": {VersionID: versions[0].ID, FirstOccurrence: true},
 					})
-					Expect(err).NotTo(HaveOccurred())
 
 					expectedBuildPrep.Inputs = map[string]db.BuildPreparationStatus{
 						"some-input": db.BuildPreparationStatusNotBlocking,
@@ -987,10 +986,9 @@ var _ = Describe("Build", func() {
 					Expect(found).To(BeTrue())
 					Expect(versions).To(HaveLen(1))
 
-					err = job.SaveIndependentInputMapping(algorithm.InputMapping{
+					job.SaveIndependentInputMapping(algorithm.InputMapping{
 						"input1": {VersionID: versions[0].ID, FirstOccurrence: true},
 					})
-					Expect(err).NotTo(HaveOccurred())
 
 					expectedBuildPrep.Inputs = map[string]db.BuildPreparationStatus{
 						"input1": db.BuildPreparationStatusNotBlocking,
@@ -1170,8 +1168,8 @@ var _ = Describe("Build", func() {
 				Resource: "weird",
 				Type:     "type",
 			}
-
-			err := build.UseInputs([]db.BuildInput{
+			var err error
+			err = build.UseInputs([]db.BuildInput{
 				{
 					Name:              "some-other-input",
 					VersionedResource: someVersionedResource,
@@ -1216,7 +1214,7 @@ var _ = Describe("Build", func() {
 			events, err := build.Events(0)
 			Expect(err).NotTo(HaveOccurred())
 
-			defer db.Close(events)
+			defer events.Close()
 
 			Expect(events.Next()).To(Equal(envelope(event.Error{
 				Message: "disaster",

@@ -198,7 +198,8 @@ var _ = Describe("Worker", func() {
 			})
 
 			It("raises ErrWorkerNotPresent", func() {
-				err := worker.Prune()
+				var err error
+				err = worker.Prune()
 				Expect(err).To(Equal(ErrWorkerNotPresent))
 			})
 		})

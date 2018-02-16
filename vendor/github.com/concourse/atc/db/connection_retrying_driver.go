@@ -16,7 +16,7 @@ func SetupConnectionRetryingDriver(delegateDriverName, sqlDataSource, newDriverN
 	delegateDBConn, err := sql.Open(delegateDriverName, sqlDataSource)
 	if err == nil {
 		// ignoring any connection errors since we only need this to access the driver struct
-		_ = delegateDBConn.Close()
+		delegateDBConn.Close()
 	}
 
 	connectionRetryingDriver := &connectionRetryingDriver{delegateDBConn.Driver()}

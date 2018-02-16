@@ -32,8 +32,6 @@ type Worker interface {
 	State() WorkerState
 	GardenAddr() *string
 	BaggageclaimURL() *string
-	CertsPath() *string
-	ResourceCerts() (*UsedWorkerResourceCerts, bool, error)
 	HTTPProxyURL() string
 	HTTPSProxyURL() string
 	NoProxy() string
@@ -73,14 +71,12 @@ type worker struct {
 	teamName         string
 	startTime        int64
 	expiresAt        time.Time
-	certsPath        *string
 }
 
 func (worker *worker) Name() string                            { return worker.name }
 func (worker *worker) Version() *string                        { return worker.version }
 func (worker *worker) State() WorkerState                      { return worker.state }
 func (worker *worker) GardenAddr() *string                     { return worker.gardenAddr }
-func (worker *worker) CertsPath() *string                      { return worker.certsPath }
 func (worker *worker) BaggageclaimURL() *string                { return worker.baggageclaimURL }
 func (worker *worker) HTTPProxyURL() string                    { return worker.httpProxyURL }
 func (worker *worker) HTTPSProxyURL() string                   { return worker.httpsProxyURL }
@@ -113,7 +109,7 @@ func (worker *worker) Reload() (bool, error) {
 }
 
 func (worker *worker) Land() error {
-	cSQL, _, err := sq.Case("state").
+	cSql, _, err := sq.Case("state").
 		When("'landed'::worker_state", "'landed'::worker_state").
 		Else("'landing'::worker_state").
 		ToSql()
@@ -122,7 +118,7 @@ func (worker *worker) Land() error {
 	}
 
 	result, err := psql.Update("workers").
-		Set("state", sq.Expr("("+cSQL+")")).
+		Set("state", sq.Expr("("+cSql+")")).
 		Where(sq.Eq{"name": worker.name}).
 		RunWith(worker.conn).
 		Exec()
@@ -217,18 +213,9 @@ func (worker *worker) Delete() error {
 		RunWith(worker.conn).
 		Exec()
 
-	return err
-}
-
-func (worker *worker) ResourceCerts() (*UsedWorkerResourceCerts, bool, error) {
-	if worker.certsPath != nil {
-		wrc := &WorkerResourceCerts{
-			WorkerName: worker.name,
-			CertsPath:  *worker.certsPath,
-		}
-
-		return wrc.Find(worker.conn)
+	if err != nil {
+		return err
 	}
 
-	return nil, false, nil
+	return nil
 }

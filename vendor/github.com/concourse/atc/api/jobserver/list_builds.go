@@ -68,19 +68,13 @@ func (s *Server) ListJobBuilds(pipeline db.Pipeline) http.Handler {
 			s.addPreviousLink(w, teamName, pipeline.Name(), jobName, *pagination.Previous)
 		}
 
-		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 
 		jobBuilds := make([]atc.Build, len(builds))
 		for i := 0; i < len(builds); i++ {
 			jobBuilds[i] = present.Build(builds[i])
 		}
-
-		err = json.NewEncoder(w).Encode(jobBuilds)
-		if err != nil {
-			logger.Error("failed-to-encode-job-builds", err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
+		json.NewEncoder(w).Encode(jobBuilds)
 	})
 }
 
