@@ -19,6 +19,11 @@ type Controller struct {
 }
 
 func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
+	if err := linters.CheckFile(c.Fs, halfpipeFile, false); err != nil {
+		errors = append(errors, err)
+		return
+	}
+
 	content, err := c.Fs.ReadFile(halfpipeFile)
 	if err != nil {
 		errors = append(errors, err)
@@ -36,14 +41,10 @@ func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
 }
 
 func (c Controller) Process() (config atc.Config, results errors.LintResults) {
-	if err := linters.CheckFile(c.Fs, halfpipeFile, false); err != nil {
-		results = append(results, errors.LintResult{"Halfpipe", []error{err}})
-		return
-	}
 
 	manifest, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, errors.LintResult{"Halfpipe", errs})
+		results = append(results, errors.NewLintResult("Halfpipe", errs))
 		return
 	}
 

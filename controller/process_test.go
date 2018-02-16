@@ -16,7 +16,7 @@ func testController() Controller {
 	return Controller{Fs: fs}
 }
 
-func TestProcessDoesNothingWhenFileDoesntExist(t *testing.T) {
+func TestProcessDoesNothingWhenFileDoesNotExist(t *testing.T) {
 	c := testController()
 	pipeline, results := c.Process()
 
@@ -40,9 +40,7 @@ type fakeLinter struct {
 }
 
 func (f fakeLinter) Lint(manifest model.Manifest) errors.LintResult {
-	return errors.LintResult{
-		Errors: []error{f.Error},
-	}
+	return errors.NewLintResult("fake", []error{f.Error})
 }
 
 func TestAppliesAllLinters(t *testing.T) {
