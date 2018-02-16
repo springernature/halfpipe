@@ -45,6 +45,24 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
+	expectedDevJob := atc.JobConfig{
+		Name:   "1. deploy-cf",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{
+				Put: "1. Cloud Foundry",
+				Params: atc.Params{
+					"manifest": "manifest-dev.yml",
+					"environment_variables": map[string]interface{}{
+						"VAR1": "value1",
+						"VAR2": "value2",
+					},
+				},
+			},
+		},
+	}
+
 	expectedLiveResource := atc.ResourceConfig{
 		Name: "2. Cloud Foundry",
 		Type: "cf",
@@ -57,19 +75,16 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	expectedDevJob := atc.JobConfig{
-		Name:   "1. deploy-cf",
+	expectedLiveJob := atc.JobConfig{
+		Name:   "2. deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true, Passed: []string{"1. deploy-cf"}},
 			atc.PlanConfig{
-				Put: "1. deploy-cf",
+				Put: "2. Cloud Foundry",
 				Params: atc.Params{
-					"manifest": "manifest-dev.yml",
-					"environment_variables": map[string]interface{}{
-						"VAR1": "value1",
-						"VAR2": "value2",
-					},
+					"manifest":              "manifest-live.yml",
+					"environment_variables": map[string]interface{}{},
 				},
 			},
 		},
@@ -78,8 +93,8 @@ func TestRendersCfDeployResources(t *testing.T) {
 	config := pipe.Render(manifest)
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
-	assert.Equal(t, expectedLiveResource, config.Resources[2])
+	assert.Equal(t, expectedDevJob, config.Jobs[0])
 
-	assert.Equal(t, expectedDevJob, config.Jobs[0])
-	assert.Equal(t, expectedDevJob, config.Jobs[0])
+	assert.Equal(t, expectedLiveResource, config.Resources[2])
+	assert.Equal(t, expectedLiveJob, config.Jobs[1])
 }
