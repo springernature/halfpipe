@@ -41,7 +41,7 @@ func (pipeline Pipeline) cfDeployResource(deployCF model.DeployCF, taskIndex int
 	}
 
 	return atc.ResourceConfig{
-		Name:   fmt.Sprintf("resource-deploy-cf_Task%v", taskIndex),
+		Name:   fmt.Sprintf("%v. deploy-cf", taskIndex+1),
 		Type:   "cf",
 		Source: sources,
 	}
@@ -108,12 +108,12 @@ func convertVars(vars model.Vars) map[string]interface{} {
 
 func (p Pipeline) makeCfDeployJob(task model.DeployCF, repoName string, taskIndex int) atc.JobConfig {
 	return atc.JobConfig{
-		Name:   "deploy-cf",
+		Name:   fmt.Sprintf("%v. deploy-cf", taskIndex+1),
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: repoName, Trigger: true},
 			atc.PlanConfig{
-				Put: fmt.Sprintf("resource-deploy-cf_Task%v", taskIndex),
+				Put: fmt.Sprintf("%v. deploy-cf", taskIndex+1),
 				Params: atc.Params{
 					"manifest":              task.Manifest,
 					"environment_variables": convertVars(task.Vars),
@@ -137,7 +137,6 @@ func (p Pipeline) makeDockerPushJob(task model.DockerPush, repo model.Repo) atc.
 func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
 
-	var lastTask model.Task
 	for i, t := range manifest.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
@@ -151,12 +150,11 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 			jobConfig = p.makeDockerPushJob(task, manifest.Repo)
 		}
 
-		if lastTask != nil {
+		if i > 0 {
 			// Plan[0] of a job is ALWAYS the git get.
-			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, lastTask.GetName())
+			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, config.Jobs[i-1].Name)
 		}
 		config.Jobs = append(config.Jobs, jobConfig)
-		lastTask = manifest.Tasks[i]
 	}
 	return
 }

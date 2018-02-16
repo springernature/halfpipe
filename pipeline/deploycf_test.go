@@ -34,7 +34,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevResource := atc.ResourceConfig{
-		Name: "resource-deploy-cf_Task0",
+		Name: "1. deploy-cf",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "dev-api",
@@ -46,7 +46,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "resource-deploy-cf_Task1",
+		Name: "2. deploy-cf",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",
@@ -58,12 +58,12 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevJob := atc.JobConfig{
-		Name:   "deploy-cf",
+		Name:   "1. deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
 			atc.PlanConfig{
-				Put: "resource-deploy-cf_Task0",
+				Put: "1. deploy-cf",
 				Params: atc.Params{
 					"manifest": "manifest-dev.yml",
 					"environment_variables": map[string]interface{}{
@@ -80,5 +80,6 @@ func TestRendersCfDeployResources(t *testing.T) {
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedLiveResource, config.Resources[2])
 
+	assert.Equal(t, expectedDevJob, config.Jobs[0])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])
 }

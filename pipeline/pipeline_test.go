@@ -144,7 +144,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 
 	task1 := model.Run{Script: "asd.sh"}
-	task2 := model.Run{Script: "bakaha.sh"}
+	task2 := model.DeployCF{}
 	task3 := model.DockerPush{}
 	manifest := model.Manifest{
 		Repo: model.Repo{
@@ -168,14 +168,14 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 		Get:     manifest.Repo.GetName(),
 		Trigger: true,
 		Passed: []string{
-			task1.GetName(),
+			config.Jobs[0].Name,
 		}})
 
 	assert.Equal(t, config.Jobs[2].Plan[0], atc.PlanConfig{
 		Get:     manifest.Repo.GetName(),
 		Trigger: true,
 		Passed: []string{
-			task2.GetName(),
+			config.Jobs[1].Name,
 		}})
 
 }
