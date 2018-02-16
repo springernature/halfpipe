@@ -40,7 +40,6 @@ func TestRunTask(t *testing.T) {
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Name:   "run",
 				Image:  "alpine",
 				Script: "build.sh",
 				Vars: Vars{
@@ -60,20 +59,15 @@ func TestMultipleTasks(t *testing.T) {
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Name:   "run",
 				Image:  "img",
 				Script: "build.sh",
 			},
 			DockerPush{
-				Name:     "docker-push",
 				Username: "bob",
 			},
-			Run{
-				Name: "run",
-			},
+			Run{},
 			DeployCF{
-				Name: "deploy-cf",
-				Org:  "foo",
+				Org: "foo",
 			},
 		},
 	}
@@ -111,7 +105,6 @@ tasks:
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Name:   "run",
 				Image:  "alpine",
 				Script: "build.sh",
 				Vars: Vars{

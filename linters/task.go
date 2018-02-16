@@ -31,7 +31,7 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 		case model.DockerPush:
 			result.AddError(lintDockerPushTask(taskLinter, task)...)
 		default:
-			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
+			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
 		}
 	}
 

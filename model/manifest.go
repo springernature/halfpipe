@@ -33,35 +33,22 @@ func (repo Repo) GetName() string {
 	return parts[len(parts)-1]
 }
 
-type Task interface {
-	GetName() string
-}
+type Task interface{}
 
 type Run struct {
-	Name   string
 	Script string
 	Image  string
 	Vars   Vars
 }
 
-func (t Run) GetName() string {
-	return t.Script
-}
-
 type DockerPush struct {
-	Name     string
 	Username string
 	Password string
 	Repo     string
 	Vars     Vars
 }
 
-func (t DockerPush) GetName() string {
-	return "docker-push"
-}
-
 type DeployCF struct {
-	Name     string
 	Api      string
 	Space    string
 	Org      string
@@ -69,10 +56,6 @@ type DeployCF struct {
 	Password string
 	Manifest string
 	Vars     Vars
-}
-
-func (t DeployCF) GetName() string {
-	return t.Name
 }
 
 type Vars map[string]string
