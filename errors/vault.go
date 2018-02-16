@@ -39,7 +39,7 @@ func (e NotFoundVaultSecretError) Error() string {
 	path1 := fmt.Sprintf("/%s/%s/%s/%s", e.prefix, e.team, e.pipeline, mapName)
 	path2 := fmt.Sprintf("/%s/%s/%s", e.prefix, e.team, mapName)
 
-	return fmt.Sprintf("Could not find '%s' under '%s' or '%s'", keyName, path1, path2)
+	return fmt.Sprintf("Could not find '%s' in '%s' or '%s'", keyName, path1, path2)
 }
 
 type VaultClientError struct {

@@ -90,7 +90,7 @@ func (p Pipeline) makeRunJob(task model.Run, repoName, jobName string) atc.JobCo
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  repoName,
-						Args: []string{"-exc", fmt.Sprintf("./%s", task.Script)},
+						Args: []string{"-exc", fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))},
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: repoName},
