@@ -34,7 +34,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevResource := atc.ResourceConfig{
-		Name: "1. Cloud Foundry",
+		Name: "Cloud Foundry",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "dev-api",
@@ -46,12 +46,12 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevJob := atc.JobConfig{
-		Name:   "1. deploy-cf",
+		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
 			atc.PlanConfig{
-				Put: "1. Cloud Foundry",
+				Put: "Cloud Foundry",
 				Params: atc.Params{
 					"manifest": "manifest-dev.yml",
 					"environment_variables": map[string]interface{}{
@@ -64,7 +64,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "2. Cloud Foundry",
+		Name: "Cloud Foundry (1)",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",
@@ -76,12 +76,12 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveJob := atc.JobConfig{
-		Name:   "2. deploy-cf",
+		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true, Passed: []string{"1. deploy-cf"}},
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
-				Put: "2. Cloud Foundry",
+				Put: "Cloud Foundry (1)",
 				Params: atc.Params{
 					"manifest":              "manifest-live.yml",
 					"environment_variables": map[string]interface{}{},

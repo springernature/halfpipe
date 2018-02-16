@@ -138,20 +138,24 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
 	repoName := manifest.Repo.GetName()
 
+	uniqueName := func(name string) string {
+		return getUniqueName(name, &config, 0)
+	}
+
 	for i, t := range manifest.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case model.Run:
-			jobName := fmt.Sprintf("%v. Run %s", i+1, task.Script)
+			jobName := uniqueName(fmt.Sprintf("run %s", task.Script))
 			jobConfig = p.makeRunJob(task, repoName, jobName)
 		case model.DeployCF:
-			resourceName := fmt.Sprintf("%v. Cloud Foundry", i+1)
-			jobName := fmt.Sprintf("%v. deploy-cf", i+1)
+			resourceName := uniqueName("Cloud Foundry")
+			jobName := uniqueName("deploy-cf")
 			config.Resources = append(config.Resources, p.cfDeployResource(task, resourceName))
 			jobConfig = p.makeCfDeployJob(task, repoName, jobName, resourceName)
 		case model.DockerPush:
-			resourceName := fmt.Sprintf("%v. Docker Registry", i+1)
-			jobName := fmt.Sprintf("%v. docker-push", i+1)
+			resourceName := uniqueName("Docker Registry")
+			jobName := uniqueName("docker-push")
 			config.Resources = append(config.Resources, p.dockerResource(task, resourceName))
 			jobConfig = p.makeDockerPushJob(task, repoName, jobName, resourceName)
 		}
@@ -163,6 +167,24 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		config.Jobs = append(config.Jobs, jobConfig)
 	}
 	return
+}
+
+func getUniqueName(name string, config *atc.Config, counter int) string {
+	name = strings.Replace(name, "/", "__", -1) //avoid bug in atc web interface
+	if counter > 0 {
+		name = fmt.Sprintf("%s (%v)", name, counter)
+	}
+	for _, job := range config.Jobs {
+		if job.Name == name {
+			return getUniqueName(name, config, counter+1)
+		}
+	}
+	for _, res := range config.Resources {
+		if res.Name == name {
+			return getUniqueName(name, config, counter+1)
+		}
+	}
+	return name
 }
 
 func ToString(pipeline atc.Config) (string, error) {

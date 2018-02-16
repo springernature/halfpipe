@@ -4,7 +4,7 @@ resources:
   type: git
   source:
     uri: https://github.com/springernature/foo.git
-- name: 3. Cloud Foundry
+- name: Cloud Foundry
   type: cf
   source:
     api: sdpokasd
@@ -12,7 +12,7 @@ resources:
     password: pwd
     space: spacename
     username: uname
-- name: 4. Cloud Foundry
+- name: Cloud Foundry (1)
   type: cf
   source:
     api: sdpokasd2
@@ -20,7 +20,7 @@ resources:
     password: pwd2
     space: spacename2
     username: uname2
-- name: 6. Docker Registry
+- name: Docker Registry
   type: docker-image
   source:
     password: pass1
@@ -28,7 +28,7 @@ resources:
     username: user1
 resource_types: []
 jobs:
-- name: 1. Run ./test.sh
+- name: run .__test.sh
   serial: true
   plan:
   - get: foo
@@ -50,12 +50,12 @@ jobs:
       inputs:
       - name: foo
         path: ""
-- name: 2. Run ./build.sh
+- name: run .__build.sh
   serial: true
   plan:
   - get: foo
     passed:
-    - 1. Run ./test.sh
+    - run .__test.sh
     trigger: true
   - task: ./build.sh
     config:
@@ -74,34 +74,34 @@ jobs:
       inputs:
       - name: foo
         path: ""
-- name: 3. deploy-cf
+- name: deploy-cf
   serial: true
   plan:
   - get: foo
     passed:
-    - 2. Run ./build.sh
+    - run .__build.sh
     trigger: true
-  - put: 3. Cloud Foundry
+  - put: Cloud Foundry
     params:
       environment_variables: {}
       manifest: ""
-- name: 4. deploy-cf
+- name: deploy-cf (1)
   serial: true
   plan:
   - get: foo
     passed:
-    - 3. deploy-cf
+    - deploy-cf
     trigger: true
-  - put: 4. Cloud Foundry
+  - put: Cloud Foundry (1)
     params:
       environment_variables: {}
       manifest: ""
-- name: 5. Run ./notify.sh
+- name: run .__notify.sh
   serial: true
   plan:
   - get: foo
     passed:
-    - 4. deploy-cf
+    - deploy-cf (1)
     trigger: true
   - task: ./notify.sh
     config:
@@ -120,14 +120,14 @@ jobs:
       inputs:
       - name: foo
         path: ""
-- name: 6. docker-push
+- name: docker-push
   serial: true
   plan:
   - get: foo
     passed:
-    - 5. Run ./notify.sh
+    - run .__notify.sh
     trigger: true
-  - put: 6. Docker Registry
+  - put: Docker Registry
     params:
       build: foo
 
