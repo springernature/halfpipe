@@ -11,7 +11,7 @@ func (TeamLinter) Lint(manifest model.Manifest) (result errors.LintResult) {
 	result.Linter = "Team Linter"
 
 	if manifest.Team == "" {
-		result.Errors = append(result.Errors, errors.NewMissingField("team"))
+		result.AddError(errors.NewMissingField("team"))
 	}
 
 	return

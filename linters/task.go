@@ -3,10 +3,11 @@ package linters
 import (
 	"fmt"
 
+	"regexp"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/model"
-	"regexp"
 )
 
 type TaskLinter struct {
@@ -17,20 +18,20 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 	result.Linter = "Tasks Linter"
 
 	if len(man.Tasks) == 0 {
-		result.Errors = append(result.Errors, errors.NewMissingField("tasks"))
+		result.AddError(errors.NewMissingField("tasks"))
 		return
 	}
 
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
 		case model.Run:
-			result.Errors = append(result.Errors, lintRunTask(taskLinter, task)...)
+			result.AddError(lintRunTask(taskLinter, task)...)
 		case model.DeployCF:
-			result.Errors = append(result.Errors, lintDeployCFTask(task)...)
+			result.AddError(lintDeployCFTask(task)...)
 		case model.DockerPush:
-			result.Errors = append(result.Errors, lintDockerPushTask(taskLinter, task)...)
+			result.AddError(lintDockerPushTask(taskLinter, task)...)
 		default:
-			result.Errors = append(result.Errors, errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
+			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v '%s' is not a known task", i+1, task.GetName())))
 		}
 	}
 

@@ -3,6 +3,7 @@ package errors
 import "fmt"
 
 type LintResults []LintResult
+
 func (e LintResults) HasErrors() bool {
 	for _, lintResult := range e {
 		if lintResult.HasErrors() {
@@ -17,11 +18,11 @@ type LintResult struct {
 	Errors []error
 }
 
-func (e LintResult) Error() (out string) {
-	out += fmt.Sprintf("%s\n", e.Linter)
-	if e.HasErrors() {
-		for _, error := range e.Errors {
-			out += fmt.Sprintf("\t%s\n", error)
+func (lr LintResult) Error() (out string) {
+	out += fmt.Sprintf("%s\n", lr.Linter)
+	if lr.HasErrors() {
+		for _, err := range lr.Errors {
+			out += fmt.Sprintf("\t%s\n", err)
 		}
 	} else {
 		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
@@ -29,8 +30,14 @@ func (e LintResult) Error() (out string) {
 	return
 }
 
-func (e LintResult) HasErrors() bool {
-	return len(e.Errors) != 0
+func (lr LintResult) HasErrors() bool {
+	return len(lr.Errors) != 0
+}
+
+func (lr *LintResult) AddError(err ...error) {
+	for _, e := range err {
+		lr.Errors = append(lr.Errors, e)
+	}
 }
 
 type InvalidField struct {

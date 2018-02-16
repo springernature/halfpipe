@@ -18,18 +18,7 @@ type Controller struct {
 	Renderer pipeline.Renderer
 }
 
-func (c Controller) halfpipeExists() []error {
-	exists, err := c.Fs.Exists(halfpipeFile)
-	if err != nil {
-		return []error{err}
-	}
-	if !exists {
-		return []error{errors.NewFileError(halfpipeFile, "is missing")}
-	}
-	return nil
-}
-
-func (c Controller) readManifest() (model model.Manifest, errors []error) {
+func (c Controller) readManifest() (manifest model.Manifest, errors []error) {
 	content, err := c.Fs.ReadFile(halfpipeFile)
 	if err != nil {
 		errors = append(errors, err)
@@ -37,7 +26,7 @@ func (c Controller) readManifest() (model model.Manifest, errors []error) {
 	}
 
 	stringContent := string(content)
-	model, errs := parser.Parse(stringContent)
+	manifest, errs := parser.Parse(stringContent)
 	if len(errs) != 0 {
 		errors = append(errors, errs...)
 		return
@@ -46,23 +35,23 @@ func (c Controller) readManifest() (model model.Manifest, errors []error) {
 	return
 }
 
-func (c Controller) Process() (config atc.Config, result errors.LintResults) {
+func (c Controller) Process() (config atc.Config, results errors.LintResults) {
 	if err := linters.CheckFile(c.Fs, halfpipeFile, false); err != nil {
-		result = append(result, errors.LintResult{"Halfpipe", []error{err}})
+		results = append(results, errors.LintResult{"Halfpipe", []error{err}})
 		return
 	}
 
 	manifest, errs := c.readManifest()
 	if errs != nil {
-		result = append(result, errors.LintResult{"Halfpipe", errs})
+		results = append(results, errors.LintResult{"Halfpipe", errs})
 		return
 	}
 
 	for _, linter := range c.Linters {
-		result = append(result, linter.Lint(manifest))
+		results = append(results, linter.Lint(manifest))
 	}
 
-	for _, lintResult := range result {
+	for _, lintResult := range results {
 		if lintResult.HasErrors() {
 			return
 		}

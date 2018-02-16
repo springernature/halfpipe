@@ -21,24 +21,6 @@ var (
 	version string
 )
 
-func getVersion() (semver.Version, error) {
-	if version == "" {
-		return halfpipe.DevVersion, nil
-	}
-	version, err := semver.Make(version)
-	if err != nil {
-		return semver.Version{}, err
-	}
-	return version, nil
-}
-
-func printAndExit(err error) {
-	if err != nil {
-		fmt.Println(err)
-		syscall.Exit(-1)
-	}
-}
-
 func main() {
 	checkVersion()
 
@@ -48,16 +30,14 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
-			linters.TaskLinter{
-				Fs: fs,
-			},
+			linters.TaskLinter{Fs: fs},
 		},
 		Renderer: pipeline.Pipeline{},
 	}
 
-	pipelineConfig, errs := ctrl.Process()
-	if errs.HasErrors() {
-		for _, err := range errs {
+	pipelineConfig, lintResults := ctrl.Process()
+	if lintResults.HasErrors() {
+		for _, err := range lintResults {
 			fmt.Println(err)
 		}
 		syscall.Exit(1)
@@ -78,5 +58,23 @@ func checkVersion() {
 		printAndExit(syncer.Check())
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
 		printAndExit(syncer.Update())
+	}
+}
+
+func getVersion() (semver.Version, error) {
+	if version == "" {
+		return halfpipe.DevVersion, nil
+	}
+	version, err := semver.Make(version)
+	if err != nil {
+		return semver.Version{}, err
+	}
+	return version, nil
+}
+
+func printAndExit(err error) {
+	if err != nil {
+		fmt.Println(err)
+		syscall.Exit(-1)
 	}
 }
