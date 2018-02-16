@@ -18,7 +18,7 @@ import (
 var (
 	// These field will be populated in Concourse
 	// go build -ldflags "-X main.version=..."
-	version string
+	version     string
 	vaultPrefix string
 )
 

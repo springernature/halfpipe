@@ -41,3 +41,17 @@ func (e NotFoundVaultSecretError) Error() string {
 
 	return fmt.Sprintf("Could not find '%s' under '%s' or '%s'", keyName, path1, path2)
 }
+
+type VaultClientError struct {
+	message string
+}
+
+func NewVaultClientError(message string) VaultClientError {
+	return VaultClientError{
+		message: message,
+	}
+}
+
+func (e VaultClientError) Error() string {
+	return e.message
+}

@@ -2,5 +2,5 @@
 
 go test -cover ./...
 
-go build cmd/halfpipe.go
+go build -ldflags "-X main.vaultPrefix=springernature" cmd/halfpipe.go
 
