@@ -1,0 +1,133 @@
+groups: []
+resources:
+- name: foo
+  type: git
+  source:
+    uri: https://github.com/springernature/foo.git
+- name: 3. Cloud Foundry
+  type: cf
+  source:
+    api: sdpokasd
+    organization: orgname
+    password: pwd
+    space: spacename
+    username: uname
+- name: 4. Cloud Foundry
+  type: cf
+  source:
+    api: sdpokasd2
+    organization: orgname2
+    password: pwd2
+    space: spacename2
+    username: uname2
+- name: 6. Docker Registry
+  type: docker-image
+  source:
+    password: pass1
+    repository: foo/bar
+    username: user1
+resource_types: []
+jobs:
+- name: 1. Run ./test.sh
+  serial: true
+  plan:
+  - get: foo
+    trigger: true
+  - task: ./test.sh
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: busybox
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -exc
+        - ././test.sh
+        dir: foo
+      inputs:
+      - name: foo
+        path: ""
+- name: 2. Run ./build.sh
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - 1. Run ./test.sh
+    trigger: true
+  - task: ./build.sh
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: busybox
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -exc
+        - ././build.sh
+        dir: foo
+      inputs:
+      - name: foo
+        path: ""
+- name: 3. deploy-cf
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - 2. Run ./build.sh
+    trigger: true
+  - put: 3. Cloud Foundry
+    params:
+      environment_variables: {}
+      manifest: ""
+- name: 4. deploy-cf
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - 3. deploy-cf
+    trigger: true
+  - put: 4. Cloud Foundry
+    params:
+      environment_variables: {}
+      manifest: ""
+- name: 5. Run ./notify.sh
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - 4. deploy-cf
+    trigger: true
+  - task: ./notify.sh
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: busybox
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -exc
+        - ././notify.sh
+        dir: foo
+      inputs:
+      - name: foo
+        path: ""
+- name: 6. docker-push
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - 5. Run ./notify.sh
+    trigger: true
+  - put: 6. Docker Registry
+    params:
+      build: foo
+
