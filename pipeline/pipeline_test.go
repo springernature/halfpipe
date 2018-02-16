@@ -71,7 +71,7 @@ func TestRenderRunTask(t *testing.T) {
 	}
 
 	expected := atc.JobConfig{
-		Name:   "./yolo.sh",
+		Name:   "1. Run ./yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
@@ -118,7 +118,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: "docker-push",
+		Name: "1. Docker Registry",
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -128,7 +128,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	expectedJobConfig := atc.JobConfig{
-		Name:   "docker-push",
+		Name:   "1. docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},

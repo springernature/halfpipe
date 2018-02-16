@@ -34,7 +34,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevResource := atc.ResourceConfig{
-		Name: "1. deploy-cf",
+		Name: "1. Cloud Foundry",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "dev-api",
@@ -46,7 +46,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "2. deploy-cf",
+		Name: "2. Cloud Foundry",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",

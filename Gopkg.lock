@@ -167,7 +167,7 @@
     "html/atom",
     "html/charset"
   ]
-  revision = "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1"
+  revision = "2e7f24ace30034db6c258ddb329e5236a68c27fa"
 
 [[projects]]
   branch = "master"
@@ -200,7 +200,7 @@
     "unicode/cldr",
     "unicode/norm"
   ]
-  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
+  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
 [[projects]]
   name = "gopkg.in/cheggaaa/pb.v1"
