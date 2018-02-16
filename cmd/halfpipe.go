@@ -7,7 +7,6 @@ import (
 
 	"github.com/blang/semver"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/pipeline"
@@ -63,7 +62,7 @@ func checkVersion() {
 
 func getVersion() (semver.Version, error) {
 	if version == "" {
-		return halfpipe.DevVersion, nil
+		return sync.DevVersion, nil
 	}
 	version, err := semver.Make(version)
 	if err != nil {

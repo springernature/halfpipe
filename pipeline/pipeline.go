@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/concourse/atc"
-	"gopkg.in/yaml.v2"
 	"github.com/springernature/halfpipe/model"
+	"gopkg.in/yaml.v2"
 )
 
 type Renderer interface {
@@ -149,7 +149,6 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		case model.DockerPush:
 			config.Resources = append(config.Resources, p.dockerResource(task))
 			jobConfig = p.makeDockerPushJob(task, manifest.Repo)
-
 		}
 
 		if lastTask != nil {

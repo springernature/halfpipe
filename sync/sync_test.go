@@ -1,11 +1,10 @@
 package sync_test
 
 import (
+	"github.com/blang/semver"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"github.com/springernature/halfpipe/sync"
-	"github.com/blang/semver"
-	"github.com/springernature/halfpipe"
 )
 
 type FakeGithubRelease struct {
@@ -33,7 +32,7 @@ var _ = Describe("Sync", func() {
 		It("returns empty error if using dev release and doesnt check github", func() {
 			release := FakeGithubRelease{}
 			sync := sync.Syncer{
-				CurrentVersion: halfpipe.DevVersion,
+				CurrentVersion: sync.DevVersion,
 				GithubRelease:  release,
 			}
 			Expect(sync.Check()).To(Not(HaveOccurred()))
@@ -82,7 +81,7 @@ var _ = Describe("Sync", func() {
 		It("returns error when trying to upgrade dev release", func() {
 			release := FakeGithubRelease{}
 			sync := sync.Syncer{
-				CurrentVersion: halfpipe.DevVersion,
+				CurrentVersion: sync.DevVersion,
 				GithubRelease:  release,
 			}
 			Expect(sync.Update()).To(HaveOccurred())

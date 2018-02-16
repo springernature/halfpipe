@@ -77,9 +77,6 @@ func TestRendersCfDeployResources(t *testing.T) {
 
 	config := pipe.Render(manifest)
 
-	//yaml, _ := ToString(config)
-	//fmt.Println(yaml)
-
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedLiveResource, config.Resources[2])
 

@@ -1,15 +1,16 @@
 package sync
 
 import (
-	"github.com/springernature/halfpipe/sync/githubRelease"
-	"github.com/blang/semver"
-	"github.com/pkg/errors"
 	"fmt"
-	"github.com/inconshreveable/go-update"
 	"net/http"
 	"strconv"
+
+	"github.com/blang/semver"
+	"github.com/inconshreveable/go-update"
+	"github.com/pkg/errors"
+	"github.com/springernature/halfpipe/sync/githubRelease"
+
 	"gopkg.in/cheggaaa/pb.v1"
-	"github.com/springernature/halfpipe"
 )
 
 type Sync interface {
@@ -22,7 +23,7 @@ type Syncer struct {
 }
 
 func (s Syncer) Check() error {
-	if s.CurrentVersion.EQ(halfpipe.DevVersion) {
+	if s.CurrentVersion.EQ(DevVersion) {
 		return nil
 	}
 
@@ -39,7 +40,7 @@ func (s Syncer) Check() error {
 }
 
 func (s Syncer) Update() error {
-	if s.CurrentVersion.EQ(halfpipe.DevVersion) {
+	if s.CurrentVersion.EQ(DevVersion) {
 		return errors.New("Can not upgrade dev release...")
 	}
 

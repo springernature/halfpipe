@@ -18,7 +18,7 @@ type Controller struct {
 	Renderer pipeline.Renderer
 }
 
-func (c Controller) readManifest() (manifest model.Manifest, errors []error) {
+func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
 	content, err := c.Fs.ReadFile(halfpipeFile)
 	if err != nil {
 		errors = append(errors, err)
@@ -41,11 +41,13 @@ func (c Controller) Process() (config atc.Config, results errors.LintResults) {
 		return
 	}
 
-	manifest, errs := c.readManifest()
+	manifest, errs := c.getManifest()
 	if errs != nil {
 		results = append(results, errors.LintResult{"Halfpipe", errs})
 		return
 	}
+
+	//set magic defaults here before linting?
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(manifest))
