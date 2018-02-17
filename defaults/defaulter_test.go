@@ -45,6 +45,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	expectedTask1 := model.DeployCF{
 		Api:      manifestDefaults.CfApiAliases["live"],
+		ApiAlias: "live",
 		Org:      "ee",
 		Username: manifestDefaults.CfUsername,
 		Password: manifestDefaults.CfPassword,
