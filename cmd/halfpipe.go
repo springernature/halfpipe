@@ -8,6 +8,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/controller"
+	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
@@ -26,6 +27,19 @@ func main() {
 	checkVersion()
 
 	fs := afero.Afero{Fs: afero.NewOsFs()}
+
+	//put here for now
+	manifestDefaults := defaults.Defaults{
+		RepoPrivateKey: "((deploy-key))",
+		CfUsername:     "((cf-credentials.username))",
+		CfPassword:     "((cf-credentials.password))",
+		CfManifest:     "manifest.yml",
+		CfApiAliases: map[string]string{
+			"dev":  "https://dev....com",
+			"live": "https://live...com",
+		},
+	}
+
 	ctrl := controller.Controller{
 		Fs: fs,
 		Linters: []linters.Linter{
@@ -34,7 +48,8 @@ func main() {
 			linters.SecretsLinter{vault.NewVaultClient(vaultPrefix)},
 			linters.TaskLinter{Fs: fs},
 		},
-		Renderer: pipeline.Pipeline{},
+		Renderer:  pipeline.Pipeline{},
+		Defaulter: manifestDefaults.Update,
 	}
 
 	pipelineConfig, lintResults := ctrl.Process()

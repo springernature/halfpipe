@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
@@ -13,9 +14,10 @@ import (
 const halfpipeFile = ".halfpipe.io"
 
 type Controller struct {
-	Fs       afero.Afero
-	Linters  []linters.Linter
-	Renderer pipeline.Renderer
+	Fs        afero.Afero
+	Linters   []linters.Linter
+	Renderer  pipeline.Renderer
+	Defaulter defaults.Defaulter
 }
 
 func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
@@ -48,7 +50,7 @@ func (c Controller) Process() (config atc.Config, results errors.LintResults) {
 		return
 	}
 
-	//set magic defaults here before linting?
+	manifest = c.Defaulter(manifest)
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(manifest))
@@ -61,5 +63,4 @@ func (c Controller) Process() (config atc.Config, results errors.LintResults) {
 	}
 	config = c.Renderer.Render(manifest)
 	return
-
 }

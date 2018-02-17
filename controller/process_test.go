@@ -13,7 +13,10 @@ import (
 
 func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
-	return Controller{Fs: fs}
+	return Controller{
+		Fs:        fs,
+		Defaulter: func(m model.Manifest) model.Manifest { return m },
+	}
 }
 
 func TestProcessDoesNothingWhenFileDoesNotExist(t *testing.T) {
@@ -47,18 +50,16 @@ func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
 
-	e1 := errors.NewFileError("file", "is missing")
-	e2 := errors.NewMissingField("field")
-	error1 := fakeLinter{e1}
-	error2 := fakeLinter{e2}
-	c.Linters = []linters.Linter{error1, error2}
+	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
+	linter2 := fakeLinter{errors.NewMissingField("field")}
+	c.Linters = []linters.Linter{linter1, linter2}
 
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 2)
-	assert.Equal(t, e1, results[0].Errors[0])
-	assert.Equal(t, e2, results[1].Errors[0])
+	assert.Equal(t, linter1.Error, results[0].Errors[0])
+	assert.Equal(t, linter2.Error, results[1].Errors[0])
 }
 
 type FakeRenderer struct {
@@ -85,4 +86,32 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	pipeline, results := c.Process()
 	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
+}
+
+type fakeLinterFunc struct {
+	LintFunc func(model.Manifest) errors.LintResult
+}
+
+func (f fakeLinterFunc) Lint(manifest model.Manifest) errors.LintResult {
+	return f.LintFunc(manifest)
+}
+
+func TestCallsTheDefaultsUpdater(t *testing.T) {
+	c := testController()
+	c.Fs.WriteFile(".halfpipe.io", []byte("team: before"), 0777)
+
+	c.Defaulter = func(m model.Manifest) model.Manifest {
+		m.Team = "after"
+		return m
+	}
+
+	//very hacky - use a linter to check the manifest has been updated
+	linter := fakeLinterFunc{func(m model.Manifest) errors.LintResult {
+		return errors.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
+	}}
+	c.Linters = []linters.Linter{linter}
+
+	_, results := c.Process()
+
+	assert.Equal(t, "after", results[0].Errors[0].(errors.InvalidField).Reason)
 }

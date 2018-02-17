@@ -2,7 +2,7 @@ team: asd
 
 repo:
   uri: https://github.com/springernature/foo.git
-
+  private_key: rrrr
 
 tasks:
 - name: run
@@ -14,18 +14,23 @@ tasks:
   image: busybox
 
 - name: deploy-cf
-  api: sdpokasd
-  username: uname
-  password: pwd
-  org: orgname
-  space: spacename
+  api: dev
+  space: spacename1
+  username: uname1
+  password: pwd1
 
 - name: deploy-cf
-  api: sdpokasd2
+  api: https://some.custom.cf
   username: uname2
   password: pwd2
   org: orgname2
   space: spacename2
+
+- name: deploy-cf
+  api: live
+  username: uname3
+  password: pwd3
+  space: spacename3
 
 - name: run
   script: ./notify.sh
