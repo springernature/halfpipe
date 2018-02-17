@@ -6,7 +6,6 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/model"
-	"gopkg.in/yaml.v2"
 )
 
 type Renderer interface {
@@ -31,7 +30,7 @@ func (p Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 	}
 }
 
-func (p Pipeline) cfDeployResource(deployCF model.DeployCF, resourceName string) atc.ResourceConfig {
+func (p Pipeline) deployCFResource(deployCF model.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
 		"api":          deployCF.Api,
 		"organization": deployCF.Org,
@@ -47,7 +46,7 @@ func (p Pipeline) cfDeployResource(deployCF model.DeployCF, resourceName string)
 	}
 }
 
-func (p Pipeline) dockerResource(docker model.DockerPush, resourceName string) atc.ResourceConfig {
+func (p Pipeline) dockerPushResource(docker model.DockerPush, resourceName string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: resourceName,
 		Type: "docker-image",
@@ -59,7 +58,7 @@ func (p Pipeline) dockerResource(docker model.DockerPush, resourceName string) a
 	}
 }
 
-func (p Pipeline) makeImageResource(image string) *atc.ImageResource {
+func (p Pipeline) imageResource(image string) *atc.ImageResource {
 	repo, tag := image, "latest"
 	if strings.Contains(image, ":") {
 		split := strings.Split(image, ":")
@@ -75,7 +74,7 @@ func (p Pipeline) makeImageResource(image string) *atc.ImageResource {
 	}
 }
 
-func (p Pipeline) makeRunJob(task model.Run, repoName, jobName string) atc.JobConfig {
+func (p Pipeline) runJob(task model.Run, repoName, jobName string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -86,7 +85,7 @@ func (p Pipeline) makeRunJob(task model.Run, repoName, jobName string) atc.JobCo
 				TaskConfig: &atc.TaskConfig{
 					Platform:      "linux",
 					Params:        task.Vars,
-					ImageResource: p.makeImageResource(task.Image),
+					ImageResource: p.imageResource(task.Image),
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  repoName,
@@ -98,15 +97,7 @@ func (p Pipeline) makeRunJob(task model.Run, repoName, jobName string) atc.JobCo
 				}}}}
 }
 
-func convertVars(vars model.Vars) map[string]interface{} {
-	out := make(map[string]interface{})
-	for k, v := range vars {
-		out[k] = v
-	}
-	return out
-}
-
-func (p Pipeline) makeCfDeployJob(task model.DeployCF, repoName, jobName, resourceName string) atc.JobConfig {
+func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceName string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -123,7 +114,7 @@ func (p Pipeline) makeCfDeployJob(task model.DeployCF, repoName, jobName, resour
 	}
 }
 
-func (p Pipeline) makeDockerPushJob(task model.DockerPush, repoName, jobName, resourceName string) atc.JobConfig {
+func (p Pipeline) dockerPushJob(task model.DockerPush, repoName, jobName, resourceName string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -147,17 +138,17 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		switch task := t.(type) {
 		case model.Run:
 			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.makeRunJob(task, repoName, jobName)
+			jobConfig = p.runJob(task, repoName, jobName)
 		case model.DeployCF:
-			resourceName := uniqueName("Cloud Foundry")
+			resourceName := uniqueName(deployCFResourceName(task))
 			jobName := uniqueName("deploy-cf")
-			config.Resources = append(config.Resources, p.cfDeployResource(task, resourceName))
-			jobConfig = p.makeCfDeployJob(task, repoName, jobName, resourceName)
+			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
+			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName)
 		case model.DockerPush:
 			resourceName := uniqueName("Docker Registry")
 			jobName := uniqueName("docker-push")
-			config.Resources = append(config.Resources, p.dockerResource(task, resourceName))
-			jobConfig = p.makeDockerPushJob(task, repoName, jobName, resourceName)
+			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
+			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName)
 		}
 
 		if i > 0 {
@@ -167,27 +158,4 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		config.Jobs = append(config.Jobs, jobConfig)
 	}
 	return
-}
-
-func getUniqueName(name string, config *atc.Config, counter int) string {
-	candidate := strings.Replace(name, "/", "__", -1) //avoid bug in atc web interface
-	if counter > 0 {
-		candidate = fmt.Sprintf("%s (%v)", name, counter)
-	}
-	for _, job := range config.Jobs {
-		if job.Name == candidate {
-			return getUniqueName(name, config, counter+1)
-		}
-	}
-	for _, res := range config.Resources {
-		if res.Name == candidate {
-			return getUniqueName(name, config, counter+1)
-		}
-	}
-	return candidate
-}
-
-func ToString(pipeline atc.Config) (string, error) {
-	renderedPipeline, err := yaml.Marshal(pipeline)
-	return string(renderedPipeline), err
 }

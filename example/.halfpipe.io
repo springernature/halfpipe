@@ -1,4 +1,4 @@
-team: asd
+team: ee
 
 repo:
   uri: https://github.com/springernature/foo.git
@@ -15,22 +15,19 @@ tasks:
 
 - name: deploy-cf
   api: dev
-  space: spacename1
-  username: uname1
-  password: pwd1
-
-- name: deploy-cf
-  api: https://some.custom.cf
-  username: uname2
-  password: pwd2
-  org: orgname2
-  space: spacename2
+  space: dev
 
 - name: deploy-cf
   api: live
-  username: uname3
-  password: pwd3
-  space: spacename3
+  space: staging
+
+- name: deploy-cf
+  api: live
+  space: live
+
+- name: deploy-cf
+  api: https://some.custom.cf
+  space: live
 
 - name: run
   script: ./notify.sh

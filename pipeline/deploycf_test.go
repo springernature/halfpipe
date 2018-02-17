@@ -13,7 +13,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	manifest.Tasks = []model.Task{
 		model.DeployCF{
 			Api:      "dev-api",
-			Space:    "space-station",
+			Space:    "dev",
 			Org:      "springer",
 			Username: "rob",
 			Password: "supersecret",
@@ -25,7 +25,8 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 		model.DeployCF{
 			Api:      "live-api",
-			Space:    "space-station",
+			ApiAlias: "live",
+			Space:    "prod",
 			Org:      "springer",
 			Username: "rob",
 			Password: "supersecret",
@@ -34,11 +35,11 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedDevResource := atc.ResourceConfig{
-		Name: "Cloud Foundry",
+		Name: "CF springer-dev",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "dev-api",
-			"space":        "space-station",
+			"space":        "dev",
 			"organization": "springer",
 			"password":     "supersecret",
 			"username":     "rob",
@@ -51,7 +52,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
 			atc.PlanConfig{
-				Put: "Cloud Foundry",
+				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"manifest": "manifest-dev.yml",
 					"environment_variables": map[string]interface{}{
@@ -64,11 +65,11 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "Cloud Foundry (1)",
+		Name: "CF live-springer-prod",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",
-			"space":        "space-station",
+			"space":        "prod",
 			"organization": "springer",
 			"password":     "supersecret",
 			"username":     "rob",
@@ -81,7 +82,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
-				Put: "Cloud Foundry (1)",
+				Put: expectedLiveResource.Name,
 				Params: atc.Params{
 					"manifest":              "manifest-live.yml",
 					"environment_variables": map[string]interface{}{},

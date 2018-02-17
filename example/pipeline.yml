@@ -5,30 +5,38 @@ resources:
   source:
     private_key: rrrr
     uri: https://github.com/springernature/foo.git
-- name: Cloud Foundry
+- name: CF dev-ee-dev
   type: cf
   source:
     api: https://dev....com
-    organization: asd
-    password: pwd1
-    space: spacename1
-    username: uname1
-- name: Cloud Foundry (1)
-  type: cf
-  source:
-    api: https://some.custom.cf
-    organization: orgname2
-    password: pwd2
-    space: spacename2
-    username: uname2
-- name: Cloud Foundry (2)
+    organization: ee
+    password: ((cf-credentials.password))
+    space: dev
+    username: ((cf-credentials.username))
+- name: CF live-ee-staging
   type: cf
   source:
     api: https://live...com
-    organization: asd
-    password: pwd3
-    space: spacename3
-    username: uname3
+    organization: ee
+    password: ((cf-credentials.password))
+    space: staging
+    username: ((cf-credentials.username))
+- name: CF live-ee-live
+  type: cf
+  source:
+    api: https://live...com
+    organization: ee
+    password: ((cf-credentials.password))
+    space: live
+    username: ((cf-credentials.username))
+- name: CF ee-live
+  type: cf
+  source:
+    api: https://some.custom.cf
+    organization: ee
+    password: ((cf-credentials.password))
+    space: live
+    username: ((cf-credentials.username))
 - name: Docker Registry
   type: docker-image
   source:
@@ -90,7 +98,7 @@ jobs:
     passed:
     - run build.sh
     trigger: true
-  - put: Cloud Foundry
+  - put: CF dev-ee-dev
     params:
       environment_variables: {}
       manifest: manifest.yml
@@ -101,7 +109,7 @@ jobs:
     passed:
     - deploy-cf
     trigger: true
-  - put: Cloud Foundry (1)
+  - put: CF live-ee-staging
     params:
       environment_variables: {}
       manifest: manifest.yml
@@ -112,7 +120,18 @@ jobs:
     passed:
     - deploy-cf (1)
     trigger: true
-  - put: Cloud Foundry (2)
+  - put: CF live-ee-live
+    params:
+      environment_variables: {}
+      manifest: manifest.yml
+- name: deploy-cf (3)
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - deploy-cf (2)
+    trigger: true
+  - put: CF ee-live
     params:
       environment_variables: {}
       manifest: manifest.yml
@@ -121,7 +140,7 @@ jobs:
   plan:
   - get: foo
     passed:
-    - deploy-cf (2)
+    - deploy-cf (3)
     trigger: true
   - task: ./notify.sh
     config:
