@@ -73,7 +73,7 @@ func TestRenderRunTask(t *testing.T) {
 	}
 
 	expected := atc.JobConfig{
-		Name:   "run .__yolo.sh",
+		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
@@ -144,42 +144,18 @@ func TestRenderDockerPushTask(t *testing.T) {
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
-
-	task1 := model.Run{Script: "asd.sh"}
-	task2 := model.DeployCF{}
-	task3 := model.DockerPush{}
 	manifest := model.Manifest{
-		Repo: model.Repo{
-			Uri: "git@github.com:/springernature/foo.git",
-		},
 		Tasks: []model.Task{
-			task1,
-			task2,
-			task3,
+			model.Run{Script: "asd.sh"},
+			model.DeployCF{},
+			model.DockerPush{},
 		},
 	}
-
 	config := testPipeline().Render(manifest)
-	assert.Equal(t, config.Jobs[0].Plan[0], atc.PlanConfig{
-		Get:     manifest.Repo.GetName(),
-		Trigger: true,
-		Passed:  nil,
-	})
 
-	assert.Equal(t, config.Jobs[1].Plan[0], atc.PlanConfig{
-		Get:     manifest.Repo.GetName(),
-		Trigger: true,
-		Passed: []string{
-			config.Jobs[0].Name,
-		}})
-
-	assert.Equal(t, config.Jobs[2].Plan[0], atc.PlanConfig{
-		Get:     manifest.Repo.GetName(),
-		Trigger: true,
-		Passed: []string{
-			config.Jobs[1].Name,
-		}})
-
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], config.Jobs[0].Name)
+	assert.Equal(t, config.Jobs[2].Plan[0].Passed[0], config.Jobs[1].Name)
 }
 
 func TestToString(t *testing.T) {
@@ -191,4 +167,58 @@ func TestToString(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Contains(t, actual, expected)
+}
+
+func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
+	manifest := model.Manifest{
+		Repo: model.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
+		Tasks: []model.Task{
+			model.Run{Script: "asd.sh"},
+			model.Run{Script: "asd.sh"},
+			model.Run{Script: "asd.sh"},
+			model.Run{Script: "fgh.sh"},
+			model.DeployCF{},
+			model.DeployCF{},
+			model.DeployCF{},
+			model.DockerPush{},
+			model.DockerPush{},
+			model.DockerPush{},
+		},
+	}
+	config := testPipeline().Render(manifest)
+
+	expectedJobNames := []string{
+		"run asd.sh",
+		"run asd.sh (1)",
+		"run asd.sh (2)",
+		"run fgh.sh",
+		"deploy-cf",
+		"deploy-cf (1)",
+		"deploy-cf (2)",
+		"docker-push",
+		"docker-push (1)",
+		"docker-push (2)",
+	}
+
+	expectedResourceNames := []string{
+		"halfpipe",
+		"Cloud Foundry",
+		"Cloud Foundry (1)",
+		"Cloud Foundry (2)",
+		"Docker Registry",
+		"Docker Registry (1)",
+		"Docker Registry (2)",
+	}
+
+	assert.Len(t, config.Jobs, len(expectedJobNames))
+	assert.Len(t, config.Resources, len(expectedResourceNames))
+
+	for i, name := range expectedJobNames {
+		assert.Equal(t, name, config.Jobs[i].Name)
+	}
+
+	for i, name := range expectedResourceNames {
+		assert.Equal(t, name, config.Resources[i].Name)
+	}
+
 }

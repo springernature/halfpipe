@@ -146,7 +146,7 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case model.Run:
-			jobName := uniqueName(fmt.Sprintf("run %s", task.Script))
+			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.makeRunJob(task, repoName, jobName)
 		case model.DeployCF:
 			resourceName := uniqueName("Cloud Foundry")
@@ -170,21 +170,21 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 }
 
 func getUniqueName(name string, config *atc.Config, counter int) string {
-	name = strings.Replace(name, "/", "__", -1) //avoid bug in atc web interface
+	candidate := strings.Replace(name, "/", "__", -1) //avoid bug in atc web interface
 	if counter > 0 {
-		name = fmt.Sprintf("%s (%v)", name, counter)
+		candidate = fmt.Sprintf("%s (%v)", name, counter)
 	}
 	for _, job := range config.Jobs {
-		if job.Name == name {
+		if job.Name == candidate {
 			return getUniqueName(name, config, counter+1)
 		}
 	}
 	for _, res := range config.Resources {
-		if res.Name == name {
+		if res.Name == candidate {
 			return getUniqueName(name, config, counter+1)
 		}
 	}
-	return name
+	return candidate
 }
 
 func ToString(pipeline atc.Config) (string, error) {

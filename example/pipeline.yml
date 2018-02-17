@@ -3,23 +3,32 @@ resources:
 - name: foo
   type: git
   source:
+    private_key: rrrr
     uri: https://github.com/springernature/foo.git
 - name: Cloud Foundry
   type: cf
   source:
-    api: sdpokasd
-    organization: orgname
-    password: pwd
-    space: spacename
-    username: uname
+    api: https://dev....com
+    organization: asd
+    password: pwd1
+    space: spacename1
+    username: uname1
 - name: Cloud Foundry (1)
   type: cf
   source:
-    api: sdpokasd2
+    api: https://some.custom.cf
     organization: orgname2
     password: pwd2
     space: spacename2
     username: uname2
+- name: Cloud Foundry (2)
+  type: cf
+  source:
+    api: https://live...com
+    organization: asd
+    password: pwd3
+    space: spacename3
+    username: uname3
 - name: Docker Registry
   type: docker-image
   source:
@@ -28,7 +37,7 @@ resources:
     username: user1
 resource_types: []
 jobs:
-- name: run .__test.sh
+- name: run test.sh
   serial: true
   plan:
   - get: foo
@@ -45,17 +54,17 @@ jobs:
         path: /bin/sh
         args:
         - -exc
-        - ././test.sh
+        - ./test.sh
         dir: foo
       inputs:
       - name: foo
         path: ""
-- name: run .__build.sh
+- name: run build.sh
   serial: true
   plan:
   - get: foo
     passed:
-    - run .__test.sh
+    - run test.sh
     trigger: true
   - task: ./build.sh
     config:
@@ -69,7 +78,7 @@ jobs:
         path: /bin/sh
         args:
         - -exc
-        - ././build.sh
+        - ./build.sh
         dir: foo
       inputs:
       - name: foo
@@ -79,12 +88,12 @@ jobs:
   plan:
   - get: foo
     passed:
-    - run .__build.sh
+    - run build.sh
     trigger: true
   - put: Cloud Foundry
     params:
       environment_variables: {}
-      manifest: ""
+      manifest: manifest.yml
 - name: deploy-cf (1)
   serial: true
   plan:
@@ -95,13 +104,24 @@ jobs:
   - put: Cloud Foundry (1)
     params:
       environment_variables: {}
-      manifest: ""
-- name: run .__notify.sh
+      manifest: manifest.yml
+- name: deploy-cf (2)
   serial: true
   plan:
   - get: foo
     passed:
     - deploy-cf (1)
+    trigger: true
+  - put: Cloud Foundry (2)
+    params:
+      environment_variables: {}
+      manifest: manifest.yml
+- name: run notify.sh
+  serial: true
+  plan:
+  - get: foo
+    passed:
+    - deploy-cf (2)
     trigger: true
   - task: ./notify.sh
     config:
@@ -115,7 +135,7 @@ jobs:
         path: /bin/sh
         args:
         - -exc
-        - ././notify.sh
+        - ./notify.sh
         dir: foo
       inputs:
       - name: foo
@@ -125,7 +145,7 @@ jobs:
   plan:
   - get: foo
     passed:
-    - run .__notify.sh
+    - run notify.sh
     trigger: true
   - put: Docker Registry
     params:
