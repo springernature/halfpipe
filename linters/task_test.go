@@ -72,14 +72,15 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
 	man := model.Manifest{}
 	man.Tasks = []model.Task{
-		model.DeployCF{},
+		model.DeployCF{Manifest: "manifest.yml"},
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 3)
+	assert.Len(t, result.Errors, 4)
 	assertMissingField(t, "api", result.Errors[0])
 	assertMissingField(t, "space", result.Errors[1])
 	assertMissingField(t, "org", result.Errors[2])
+	assertFileError(t, "manifest.yml", result.Errors[3])
 }
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {

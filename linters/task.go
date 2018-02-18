@@ -14,7 +14,7 @@ type TaskLinter struct {
 	Fs afero.Afero
 }
 
-func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult) {
+func (linter TaskLinter) Lint(man model.Manifest) (result errors.LintResult) {
 	result.Linter = "Tasks Linter"
 
 	if len(man.Tasks) == 0 {
@@ -25,11 +25,11 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
 		case model.Run:
-			result.AddError(lintRunTask(taskLinter, task)...)
+			result.AddError(linter.lintRunTask(task)...)
 		case model.DeployCF:
-			result.AddError(lintDeployCFTask(task)...)
+			result.AddError(linter.lintDeployCFTask(task)...)
 		case model.DockerPush:
-			result.AddError(lintDockerPushTask(taskLinter, task)...)
+			result.AddError(linter.lintDockerPushTask(task)...)
 		default:
 			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
 		}
@@ -37,22 +37,23 @@ func (taskLinter TaskLinter) Lint(man model.Manifest) (result errors.LintResult)
 
 	return
 }
-func lintDeployCFTask(cf model.DeployCF) (errs []error) {
+func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if cf.Api == "" {
 		errs = append(errs, errors.NewMissingField("api"))
 	}
-
 	if cf.Space == "" {
 		errs = append(errs, errors.NewMissingField("space"))
 	}
-
 	if cf.Org == "" {
 		errs = append(errs, errors.NewMissingField("org"))
+	}
+	if err := CheckFile(linter.Fs, cf.Manifest, false); err != nil {
+		errs = append(errs, err)
 	}
 	return
 }
 
-func lintDockerPushTask(t TaskLinter, docker model.DockerPush) (errs []error) {
+func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []error) {
 	if docker.Username == "" {
 		errs = append(errs, errors.NewMissingField("username"))
 	}
@@ -68,19 +69,19 @@ func lintDockerPushTask(t TaskLinter, docker model.DockerPush) (errs []error) {
 		}
 	}
 
-	if err := CheckFile(t.Fs, "Dockerfile", false); err != nil {
+	if err := CheckFile(linter.Fs, "Dockerfile", false); err != nil {
 		errs = append(errs, err)
 	}
 
 	return
 }
 
-func lintRunTask(t TaskLinter, run model.Run) []error {
+func (linter TaskLinter) lintRunTask(run model.Run) []error {
 	var errs []error
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("script"))
 	} else {
-		if err := CheckFile(t.Fs, run.Script, true); err != nil {
+		if err := CheckFile(linter.Fs, run.Script, true); err != nil {
 			errs = append(errs, err)
 		}
 	}
