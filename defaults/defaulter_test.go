@@ -34,15 +34,10 @@ func TestCFDeployDefaults(t *testing.T) {
 		CfUsername: "((cf-credentials.username))",
 		CfPassword: "((cf-credentials.password))",
 		CfManifest: "manifest.yml",
-		CfApiAliases: map[string]string{
-			"dev":  "https://dev....com",
-			"live": "https://live...com",
-		},
 	}
 
-	task1 := model.DeployCF{Api: "live"}
+	task1 := model.DeployCF{}
 	task2 := model.DeployCF{
-		Api:      "https://doo",
 		Org:      "org",
 		Space:    "space",
 		Username: "user",
@@ -53,8 +48,6 @@ func TestCFDeployDefaults(t *testing.T) {
 	manifest := model.Manifest{Team: "ee", Tasks: []model.Task{task1, task2}}
 
 	expectedTask1 := model.DeployCF{
-		Api:      manifestDefaults.CfApiAliases["live"],
-		ApiAlias: "live",
 		Org:      "ee",
 		Username: manifestDefaults.CfUsername,
 		Password: manifestDefaults.CfPassword,

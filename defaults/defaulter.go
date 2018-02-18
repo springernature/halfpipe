@@ -11,7 +11,6 @@ type Defaults struct {
 	CfUsername     string
 	CfPassword     string
 	CfManifest     string
-	CfApiAliases   map[string]string
 }
 
 func (d Defaults) Update(man model.Manifest) model.Manifest {
@@ -22,10 +21,6 @@ func (d Defaults) Update(man model.Manifest) model.Manifest {
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
 		case model.DeployCF:
-			if value, found := d.CfApiAliases[task.Api]; found {
-				task.ApiAlias = task.Api
-				task.Api = value
-			}
 			if task.Org == "" {
 				task.Org = man.Team
 			}

@@ -49,7 +49,6 @@ type DockerPush struct {
 
 type DeployCF struct {
 	Api      string
-	ApiAlias string
 	Space    string
 	Org      string
 	Username string
