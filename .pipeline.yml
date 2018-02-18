@@ -37,7 +37,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.9.2-alpine3.7
+          tag: 1.10-alpine3.7
       run:
         path: /bin/sh
         args:
@@ -82,7 +82,7 @@ jobs:
           type: docker-image
           source:
             repository: golang
-            tag: 1.9.2-alpine3.7
+            tag: 1.10-alpine3.7
         run:
           path: /bin/sh
           args:
