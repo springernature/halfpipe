@@ -15,8 +15,7 @@ type Defaults struct {
 }
 
 func (d Defaults) Update(man model.Manifest) model.Manifest {
-	//should we set default if it's a public repo?
-	if man.Repo.PrivateKey == "" {
+	if !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
 

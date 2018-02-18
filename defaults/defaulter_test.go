@@ -7,13 +7,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRepoDefaults(t *testing.T) {
+func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((deploy_key))"}
 
-	man := model.Manifest{Repo: model.Repo{}}
+	man := model.Manifest{Repo: model.Repo{Uri: "https://github.com/public/repo"}}
+	man = manifestDefaults.Update(man)
+	assert.Empty(t, man.Repo.PrivateKey)
+}
+
+func TestRepoDefaultsForPrivateRepo(t *testing.T) {
+	manifestDefaults := Defaults{RepoPrivateKey: "((deploy_key))"}
+
+	man := model.Manifest{Repo: model.Repo{Uri: "ssh@github.com:private/repo"}}
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
 
+	//doesn't replace existing value
 	man.Repo.PrivateKey = "foo"
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, "foo", man.Repo.PrivateKey)

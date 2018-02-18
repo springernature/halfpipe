@@ -3,7 +3,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
+	"regexp"
 
 	"github.com/springernature/halfpipe/errors"
 )
@@ -20,17 +20,16 @@ type Repo struct {
 }
 
 func (repo Repo) GetName() string {
-	var withoutPostfix string
-	if strings.HasSuffix(repo.Uri, ".git/") {
-		withoutPostfix = strings.Split(repo.Uri, ".git/")[0]
-	} else if strings.HasSuffix(repo.Uri, ".git") {
-		withoutPostfix = strings.Split(repo.Uri, ".git")[0]
-	} else {
-		withoutPostfix = repo.Uri
+	re := regexp.MustCompile(`^(?:.+\/)([^.]+)(?:\.git\/?)?$`)
+	matches := re.FindStringSubmatch(repo.Uri)
+	if len(matches) != 2 {
+		return repo.Uri
 	}
+	return matches[1]
+}
 
-	parts := strings.Split(withoutPostfix, "/")
-	return parts[len(parts)-1]
+func (repo Repo) IsPublic() bool {
+	return len(repo.Uri) > 4 && repo.Uri[:4] == "http"
 }
 
 type Task interface{}
