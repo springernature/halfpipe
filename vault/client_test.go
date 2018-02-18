@@ -1,11 +1,12 @@
 package vault
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/springernature/halfpipe/errors"
 	"os"
+	"testing"
+
 	"github.com/hashicorp/vault/api"
+	"github.com/springernature/halfpipe/errors"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestErrorWhenVaultAddrNotSet(t *testing.T) {

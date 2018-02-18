@@ -5,8 +5,9 @@
 package vault
 
 import (
-	"github.com/golang/mock/gomock"
 	"reflect"
+
+	"github.com/golang/mock/gomock"
 )
 
 // MockClient is a mock of Client interface

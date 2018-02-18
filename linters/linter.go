@@ -1,8 +1,8 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/model"
 )
 
 type Linter interface {

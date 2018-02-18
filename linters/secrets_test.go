@@ -1,12 +1,13 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/model"
-	"github.com/stretchr/testify/assert"
 	"testing"
+
 	"github.com/golang/mock/gomock"
-	"github.com/springernature/halfpipe/vault"
 	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/vault"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindSecretsDoesNothingIfThereAreNoSecrets(t *testing.T) {

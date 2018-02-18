@@ -1,12 +1,13 @@
 package githubRelease
 
 import (
+	"context"
+	"errors"
+	"runtime"
+	"strings"
+
 	"github.com/blang/semver"
 	"github.com/google/go-github/github"
-	"context"
-	"strings"
-	"runtime"
-	"errors"
 )
 
 type GithubReleaser interface {

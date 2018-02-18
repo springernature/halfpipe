@@ -33,7 +33,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{},
-			linters.SecretsLinter{vault.NewVaultClient(vaultPrefix)},
+			linters.SecretsLinter{VaultClient: vault.NewVaultClient(vaultPrefix)},
 			linters.TaskLinter{Fs: fs},
 		},
 		Renderer:  pipeline.Pipeline{},

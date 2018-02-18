@@ -1,4 +1,4 @@
-team: ee
+team: engineering-enablement
 
 repo:
   uri: https://github.com/springernature/foo.git

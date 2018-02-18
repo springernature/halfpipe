@@ -8,4 +8,3 @@ func SecretToMapAndKey(secret string) (string, string) {
 	mapName, keyName := parts[0], parts[1]
 	return mapName, keyName
 }
-

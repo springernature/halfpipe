@@ -1,14 +1,15 @@
 package vault
 
 import (
-	"os"
-	"github.com/springernature/halfpipe/errors"
-	"github.com/hashicorp/vault/api"
-	"github.com/concourse/atc/creds/vault"
-	"github.com/cloudfoundry/bosh-cli/director/template"
-	"os/user"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"os/user"
+
+	"github.com/cloudfoundry/bosh-cli/director/template"
+	"github.com/concourse/atc/creds/vault"
+	"github.com/hashicorp/vault/api"
+	"github.com/springernature/halfpipe/errors"
 )
 
 type Client interface {
@@ -32,10 +33,10 @@ func (v Vault) Exists(team string, pipeline string, mapKey string, keyName strin
 	}
 
 	vault := vault.Vault{
-		client,
-		v.prefix,
-		team,
-		pipeline,
+		VaultClient:  client,
+		PathPrefix:   v.prefix,
+		TeamName:     team,
+		PipelineName: pipeline,
 	}
 
 	data, found, err := vault.Get(template.VariableDefinition{Name: mapKey})
