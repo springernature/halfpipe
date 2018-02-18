@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"path"
 	"strings"
 
 	"github.com/concourse/atc"
@@ -106,8 +107,9 @@ func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceNa
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"manifest":              task.Manifest,
+					"manifest":              path.Join(repoName, task.Manifest),
 					"environment_variables": convertVars(task.Vars),
+					"path":                  repoName,
 				},
 			},
 		},

@@ -9,7 +9,7 @@ import (
 )
 
 func TestRendersCfDeployResources(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := model.Manifest{Repo: model.Repo{Uri: "git@github.com:foo/reponame"}}
 	manifest.Tasks = []model.Task{
 		model.DeployCF{
 			Api:      "dev-api",
@@ -50,15 +50,16 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: "reponame", Trigger: true},
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
-					"manifest": "manifest-dev.yml",
+					"manifest": "reponame/manifest-dev.yml",
 					"environment_variables": map[string]interface{}{
 						"VAR1": "value1",
 						"VAR2": "value2",
 					},
+					"path": "reponame",
 				},
 			},
 		},
@@ -80,12 +81,13 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true, Passed: []string{"deploy-cf"}},
+			atc.PlanConfig{Get: "reponame", Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
-					"manifest":              "manifest-live.yml",
+					"manifest":              "reponame/manifest-live.yml",
 					"environment_variables": map[string]interface{}{},
+					"path":                  "reponame",
 				},
 			},
 		},
