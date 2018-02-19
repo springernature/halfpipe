@@ -10,17 +10,6 @@ import (
 // TODO: better env var?
 var DocBaseUrl = ""
 
-type LintResults []LintResult
-
-func (e LintResults) HasErrors() bool {
-	for _, lintResult := range e {
-		if lintResult.HasErrors() {
-			return true
-		}
-	}
-	return false
-}
-
 func NewLintResult(linter string, errs []error) LintResult {
 	return LintResult{
 		Linter: linter,
@@ -28,13 +17,20 @@ func NewLintResult(linter string, errs []error) LintResult {
 	}
 }
 
+type LintResults []LintResult
+
 type LintResult struct {
 	Linter string
 	Errors []error
 }
 
-type Documented interface {
-	DocId() string
+func (lr LintResults) HasErrors() bool {
+	for _, lintResult := range lr {
+		if lintResult.HasErrors() {
+			return true
+		}
+	}
+	return false
 }
 
 func (lr LintResult) Error() (out string) {
@@ -51,6 +47,16 @@ func (lr LintResult) Error() (out string) {
 		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
 	}
 	return
+}
+
+func (lr LintResult) HasErrors() bool {
+	return len(lr.Errors) != 0
+}
+
+func (lr *LintResult) AddError(err ...error) {
+	for _, e := range err {
+		lr.Errors = append(lr.Errors, e)
+	}
 }
 
 func renderDocLink(linterName string, docId string) string {
@@ -70,14 +76,4 @@ func renderDocAnchor(docId string) string {
 
 func normalize(value string) string {
 	return govalidator.CamelCaseToUnderscore(govalidator.WhiteList(value, "A-Za-z_"))
-}
-
-func (lr LintResult) HasErrors() bool {
-	return len(lr.Errors) != 0
-}
-
-func (lr *LintResult) AddError(err ...error) {
-	for _, e := range err {
-		lr.Errors = append(lr.Errors, e)
-	}
 }

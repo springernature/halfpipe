@@ -2,6 +2,10 @@ package errors
 
 import "fmt"
 
+type Documented interface {
+	DocId() string
+}
+
 type InvalidField struct {
 	Name   string
 	Reason string
