@@ -2,14 +2,13 @@ package errors
 
 import "fmt"
 import (
-	"net/http"
-
-	"strings"
-
 	"github.com/asaskevich/govalidator"
 )
 
-var docBaseUrl = "https://half-pipe-landing.apps.public.gcp.springernature.io"
+// This field will be populated in Concourse
+// go build -ldflags "-X ..."
+// TODO: better env var?
+var DocBaseUrl = ""
 
 type LintResults []LintResult
 
@@ -34,11 +33,19 @@ type LintResult struct {
 	Errors []error
 }
 
+type Documented interface {
+	DocId() string
+}
+
 func (lr LintResult) Error() (out string) {
-	out += fmt.Sprintf("%s %s\n", lr.Linter, helpLink(lr.Linter))
+	out += fmt.Sprintf("%s\n", lr.Linter)
 	if lr.HasErrors() {
 		for _, err := range lr.Errors {
-			out += fmt.Sprintf("\t%s\n", err)
+			docId := ""
+			if doc, ok := err.(Documented); ok {
+				docId = doc.DocId()
+			}
+			out += fmt.Sprintf("\t%s\n\t%s\n", err, renderDocLink(lr.Linter, docId))
 		}
 	} else {
 		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
@@ -46,23 +53,23 @@ func (lr LintResult) Error() (out string) {
 	return
 }
 
-func helpLink(linterName string) string {
-	docUrl := fmt.Sprintf("%s/docs/linter/%s/errors", docBaseUrl,
-		govalidator.CamelCaseToUnderscore(strings.Replace(linterName, " ", "", -1)))
+func renderDocLink(linterName string, docId string) string {
+	return fmt.Sprintf("[see: %s%s%s]", DocBaseUrl, renderDocPath(linterName), renderDocAnchor(docId))
+}
 
-	if isDocValid(docUrl) {
-		return fmt.Sprintf("[see: %s]", docUrl)
+func renderDocPath(linterName string) string {
+	return fmt.Sprintf("/docs/help_%s", normalize(linterName))
+}
+
+func renderDocAnchor(docId string) string {
+	if docId != "" {
+		return fmt.Sprintf("#%s", normalize(docId))
 	}
 	return ""
 }
 
-func isDocValid(docUrl string) bool {
-	resp, err := http.Head(docUrl)
-	if err != nil {
-		return false
-	}
-	//return resp.StatusCode >= 200 && resp.StatusCode < 400
-	return resp.StatusCode != 0
+func normalize(value string) string {
+	return govalidator.CamelCaseToUnderscore(govalidator.WhiteList(value, "A-Za-z_"))
 }
 
 func (lr LintResult) HasErrors() bool {

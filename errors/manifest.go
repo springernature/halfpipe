@@ -11,6 +11,10 @@ func (e InvalidField) Error() string {
 	return fmt.Sprintf("Invalid value for '%s': %s", e.Name, e.Reason)
 }
 
+func (e InvalidField) DocId() string {
+	return e.Name
+}
+
 func NewInvalidField(name string, reason string) InvalidField {
 	return InvalidField{name, reason}
 }
@@ -21,6 +25,10 @@ type MissingField struct {
 
 func (e MissingField) Error() string {
 	return fmt.Sprintf("Missing field: %s", e.Name)
+}
+
+func (e MissingField) DocId() string {
+	return e.Name
 }
 
 func NewMissingField(name string) MissingField {
@@ -46,6 +54,10 @@ type FileError struct {
 
 func (e FileError) Error() string {
 	return fmt.Sprintf("'%s' %s", e.Path, e.Reason)
+}
+
+func (e FileError) DocId() string {
+	return e.Reason
 }
 
 func NewFileError(path string, reason string) FileError {
