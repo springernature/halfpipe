@@ -1,5 +1,7 @@
 set -e
 
-../halfpipe | tee pipeline.yml
+HALFPIPE_PATH=${1:-"../halfpipe"}
+
+${HALFPIPE_PATH} | tee pipeline.yml
 
 fly validate-pipeline -c pipeline.yml
