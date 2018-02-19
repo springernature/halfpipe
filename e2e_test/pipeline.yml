@@ -1,0 +1,71 @@
+groups: []
+resources:
+- name: halfpipe-example-nodejs
+  type: git
+  source:
+    uri: https://github.com/robwhitby/halfpipe-example-nodejs
+- name: CF engineering-enablement-dev
+  type: cf
+  source:
+    api: ((cf-api.gcp))
+    organization: engineering-enablement
+    password: ((cf-credentials.password))
+    space: dev
+    username: ((cf-credentials.username))
+- name: CF pe-staging
+  type: cf
+  source:
+    api: ((cf-api.dev))
+    organization: pe
+    password: ((cf-credentials.password))
+    space: staging
+    username: ((cf-credentials.username))
+resource_types: []
+jobs:
+- name: run test.sh
+  serial: true
+  plan:
+  - get: halfpipe-example-nodejs
+    trigger: true
+  - task: test.sh
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: node
+          tag: 9.5.0-alpine
+      run:
+        path: /bin/sh
+        args:
+        - -exc
+        - ./test.sh
+        dir: halfpipe-example-nodejs
+      inputs:
+      - name: halfpipe-example-nodejs
+        path: ""
+- name: deploy-cf
+  serial: true
+  plan:
+  - get: halfpipe-example-nodejs
+    passed:
+    - run test.sh
+    trigger: true
+  - put: CF engineering-enablement-dev
+    params:
+      environment_variables: {}
+      manifest: halfpipe-example-nodejs/manifest.yml
+      path: halfpipe-example-nodejs
+- name: deploy-cf (1)
+  serial: true
+  plan:
+  - get: halfpipe-example-nodejs
+    passed:
+    - deploy-cf
+    trigger: true
+  - put: CF pe-staging
+    params:
+      environment_variables: {}
+      manifest: halfpipe-example-nodejs/manifest.yml
+      path: halfpipe-example-nodejs
+
