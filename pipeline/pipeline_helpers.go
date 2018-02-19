@@ -18,10 +18,7 @@ func convertVars(vars model.Vars) map[string]interface{} {
 }
 
 func deployCFResourceName(task model.DeployCF) string {
-	if task.ApiAlias == "" {
-		return fmt.Sprintf("CF %s-%s", task.Org, task.Space)
-	}
-	return fmt.Sprintf("CF %s-%s-%s", task.ApiAlias, task.Org, task.Space)
+	return fmt.Sprintf("CF %s-%s", task.Org, task.Space)
 }
 
 func getUniqueName(name string, config *atc.Config, counter int) string {

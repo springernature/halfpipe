@@ -25,7 +25,6 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 		model.DeployCF{
 			Api:      "live-api",
-			ApiAlias: "live",
 			Space:    "prod",
 			Org:      "springer",
 			Username: "rob",
@@ -66,7 +65,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "CF live-springer-prod",
+		Name: "CF springer-prod",
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",
