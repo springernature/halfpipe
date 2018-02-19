@@ -1,6 +1,14 @@
 package errors
 
 import "fmt"
+import (
+	"net/http"
+
+	"github.com/asaskevich/govalidator"
+	"strings"
+)
+
+var docBaseUrl = "https://half-pipe-landing.apps.public.gcp.springernature.io"
 
 type LintResults []LintResult
 
@@ -26,7 +34,7 @@ type LintResult struct {
 }
 
 func (lr LintResult) Error() (out string) {
-	out += fmt.Sprintf("%s\n", lr.Linter)
+	out += fmt.Sprintf("%s %s\n", lr.Linter, helpLink(lr.Linter))
 	if lr.HasErrors() {
 		for _, err := range lr.Errors {
 			out += fmt.Sprintf("\t%s\n", err)
@@ -35,6 +43,25 @@ func (lr LintResult) Error() (out string) {
 		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
 	}
 	return
+}
+
+func helpLink(linterName string) string {
+	docUrl := fmt.Sprintf("%s/docs/linter/%s/errors", docBaseUrl,
+		govalidator.CamelCaseToUnderscore(strings.Replace(linterName, " ", "", -1)))
+
+	if isDocValid(docUrl) {
+		return fmt.Sprintf("[see: %s]", docUrl)
+	}
+	return ""
+}
+
+func isDocValid(docUrl string) bool {
+	resp, err := http.Head(docUrl)
+	if err != nil {
+		return false
+	}
+	//return resp.StatusCode >= 200 && resp.StatusCode < 400
+	return resp.StatusCode != 0
 }
 
 func (lr LintResult) HasErrors() bool {
