@@ -8,6 +8,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/asaskevich/govalidator"
+  packages = ["."]
+  revision = "521b25f4b05fd26bec69d9dedeb8f9c9a83939a8"
+  version = "v8"
+
+[[projects]]
   name = "github.com/blang/semver"
   packages = ["."]
   revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
@@ -340,6 +346,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9ba6b5227a6b18832a7108e73255482df080c14275c4473d7c25aee6a78a32f2"
+  inputs-digest = "3ef82c748a1891c8944e0fd44071f9f4fa7489b937e7ba115bb6072b4e50f7f1"
   solver-name = "gps-cdcl"
   solver-version = 1
