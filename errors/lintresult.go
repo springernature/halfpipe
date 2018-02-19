@@ -4,8 +4,9 @@ import "fmt"
 import (
 	"net/http"
 
-	"github.com/asaskevich/govalidator"
 	"strings"
+
+	"github.com/asaskevich/govalidator"
 )
 
 var docBaseUrl = "https://half-pipe-landing.apps.public.gcp.springernature.io"
