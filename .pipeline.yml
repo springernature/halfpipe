@@ -1,26 +1,28 @@
 groups: []
 resources:
-- name: release
-  type: github-release
-  source:
-    access_token: ((api-keys.halfpipe-cli))
-    owner: springernature
-    repository: halfpipe
 - name: halfpipe
   type: git
   source:
+    uri: git@github.com:springernature/halfpipe.git
     branch: master
     private_key: ((deploy-keys.halfpipe-cli))
-    uri: git@github.com:springernature/halfpipe.git
+
 - name: version
   type: semver
   source:
-    branch: version
     driver: git
+    uri: git@github.com:springernature/halfpipe.git
+    branch: version
     file: version
     private_key: ((deploy-keys.halfpipe-cli))
-    uri: git@github.com:springernature/halfpipe.git
-resource_types: []
+
+- name: release
+  type: github-release
+  source:
+      owner: springernature
+      repository: halfpipe
+      access_token: ((api-keys.halfpipe-cli))
+
 jobs:
 - name: Test
   serial: true
@@ -47,77 +49,7 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
-- name: Bump Major
-  plan:
-  - put: version
-    params:
-      bump: major
-- name: Bump Minor
-  plan:
-  - put: version
-    params:
-      bump: minor
-- name: Bump Patch
-  plan:
-  - put: version
-    params:
-      bump: patch
-- name: Build and create github release
-  disable_manual_trigger: true
-  plan:
-  - aggregate:
-    - get: halfpipe
-      passed:
-      - End2EndTest
-    - get: version
-      trigger: true
-  - task: Build
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          repository: golang
-          tag: 1.10-alpine3.7
-      run:
-        path: /bin/sh
-        args:
-        - -ec
-        - |
-          export ROOT=$PWD
-          export GOPATH=$PWD
-          export VERSION=`cat version/version`
-          export LDFLAGS="-X main.version=$VERSION -X main.vaultPrefix=springernature -X github.com/springernature/halfpipe/errors.docHost=docs.halfpipe.io"
 
-          # Build binaries
-          cd src/github.com/springernature/halfpipe
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin -ldflags "$LDFLAGS" cmd/halfpipe.go
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "$LDFLAGS" cmd/halfpipe.go
-          cp halfpipe_darwin halfpipe_linux $ROOT/binaries
-
-          # Create git changelog from last release
-          LAST_TAG=`git tag --sort=v:refname | tail -n1`
-          echo "# GIT CHANGELOG" > $ROOT/binaries/changelog
-          #echo git log --format="(%h) %B" $LAST_TAG..HEAD >> $ROOT/binaries/changelog
-      inputs:
-      - name: halfpipe
-        path: src/github.com/springernature/halfpipe
-      - name: version
-        path: ""
-      outputs:
-      - name: binaries
-        path: ""
-  - put: halfpipe
-    params:
-      repository: halfpipe
-      tag: version/version
-  - put: release
-    params:
-      body: binaries/changelog
-      globs:
-      - binaries/halfpipe_*
-      name: halfpipe/name
-      tag: version/version
 - name: End2EndTest
   serial: true
   plan:
@@ -146,3 +78,74 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
+
+- name: Bump Major
+  plan:
+    - put: version
+      params:
+        {bump: major}
+- name: Bump Minor
+  plan:
+    - put: version
+      params:
+        {bump: minor}
+- name: Bump Patch
+  plan:
+    - put: version
+      params:
+        {bump: patch}
+
+- name: Build and create github release
+  disable_manual_trigger: true
+  plan:
+    - aggregate:
+      - get: halfpipe
+        passed:
+          - End2EndTest
+      - get: version
+        trigger: true
+    - task: Build
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: golang
+            tag: 1.10-alpine3.7
+        run:
+          path: /bin/sh
+          args:
+          - -ec
+          - |
+            export ROOT=$PWD
+            export GOPATH=$PWD
+            export VERSION=`cat version/version`
+
+            # Build binaries
+            cd src/github.com/springernature/halfpipe
+            CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin -ldflags "-X main.version=$VERSION" cmd/halfpipe.go
+            CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "-X main.version=$VERSION" cmd/halfpipe.go
+            cp halfpipe_darwin halfpipe_linux $ROOT/binaries
+
+            # Create git changelog from last release
+            LAST_TAG=`git tag --sort=v:refname | tail -n1`
+            echo "# GIT CHANGELOG" > $ROOT/binaries/changelog
+            #echo git log --format="(%h) %B" $LAST_TAG..HEAD >> $ROOT/binaries/changelog
+
+        inputs:
+        - name: halfpipe
+          path: src/github.com/springernature/halfpipe
+        - name: version
+        outputs:
+        - name: binaries
+    - put: halfpipe
+      params:
+        repository: halfpipe
+        tag: version/version
+    - put: release
+      params:
+        name: halfpipe/name
+        tag: version/version
+        body: binaries/changelog
+        globs:
+          - binaries/halfpipe_*

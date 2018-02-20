@@ -9,11 +9,15 @@ tasks:
   image: node:9.5.0-alpine
 
 - name: deploy-cf
-  api: ((cf-api.gcp))
+  api: dev-api
   space: dev
   manifest: manifest.yml
+  username: michiel
+  password: very-secret
 
 - name: deploy-cf
-  api: ((cf-api.dev))
+  api: live-api
   org: pe
   space: staging
+  username: michiel
+  password: very-secret
