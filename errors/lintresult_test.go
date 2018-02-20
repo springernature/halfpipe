@@ -11,7 +11,7 @@ func TestLintResultErrorOutputWithAnchor(t *testing.T) {
 	lintResult := NewLintResult("Test Linter", []error{
 		NewInvalidField("fieldname.value_x", "reason")})
 	assert.Contains(t, lintResult.Error(),
-		"[see: https://localhost/docs/test-linter#invalid-field-fieldname.value_x]")
+		"[see: https://localhost/docs/test-linter#invalid-field-fieldname.value_x ]")
 }
 
 func TestLintResultErrorOutputWithoutAnchor(t *testing.T) {
@@ -19,5 +19,5 @@ func TestLintResultErrorOutputWithoutAnchor(t *testing.T) {
 	lintResult := NewLintResult("Vault Linter", []error{
 		NewVaultClientError("error message")})
 	assert.Contains(t, lintResult.Error(),
-		"[see: https://localhost/docs/vault-linter#vault-client-error]")
+		"[see: https://localhost/docs/vault-linter#vault-client-error ]")
 }
