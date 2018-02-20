@@ -35,6 +35,49 @@ func TestRepo(t *testing.T) {
 	assert.Equal(t, expected, man)
 }
 
+func TestRepoWithPaths(t *testing.T) {
+	man, errs := Parse(`repo: { paths: { watch: ["a", "b"] }}`)
+	expected := Manifest{
+		Repo: Repo{
+			Paths: GitPaths{
+				Watch: []string{"a", "b"},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+
+	///
+
+	man, errs = Parse(`repo: { paths: {ignore: ["a", "b"] }}`)
+	expected = Manifest{
+		Repo: Repo{
+			Paths: GitPaths{
+				Ignore: []string{"a", "b"},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+
+	///
+
+	man, errs = Parse(`repo: { paths: { watch: ["a", "b"], ignore: ["c", "d"] }}`)
+	expected = Manifest{
+		Repo: Repo{
+			Paths: GitPaths{
+				Watch:  []string{"a", "b"},
+				Ignore: []string{"c", "d"},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}
+
 func TestRunTask(t *testing.T) {
 	man, errs := Parse("tasks: [{ name: run, image: alpine, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
 	expected := Manifest{

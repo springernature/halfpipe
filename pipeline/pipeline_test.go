@@ -58,6 +58,37 @@ func TestRendersSshGitResource(t *testing.T) {
 	assert.Equal(t, expected, testPipeline().Render(manifest))
 }
 
+func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
+	name := "asdf"
+	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
+	privateKey := "blurgh"
+
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = gitUri
+	manifest.Repo.PrivateKey = privateKey
+
+	watches := []string{"watch1", "watch2"}
+	ignores := []string{"ignore1", "ignore2"}
+	manifest.Repo.Paths.Watch = watches
+	manifest.Repo.Paths.Ignore = ignores
+
+	expected := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: name,
+				Type: "git",
+				Source: atc.Source{
+					"uri":          gitUri,
+					"private_key":  privateKey,
+					"paths":        watches,
+					"ignore_paths": ignores,
+				},
+			},
+		},
+	}
+	assert.Equal(t, expected, testPipeline().Render(manifest))
+}
+
 func TestRenderRunTask(t *testing.T) {
 	manifest := model.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"

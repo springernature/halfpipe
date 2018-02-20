@@ -32,7 +32,7 @@ func main() {
 		Fs: fs,
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
-			linters.RepoLinter{},
+			linters.RepoLinter{Fs: fs},
 			linters.SecretsLinter{VaultClient: vault.NewVaultClient(vaultPrefix)},
 			linters.TaskLinter{Fs: fs},
 		},

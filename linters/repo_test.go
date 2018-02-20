@@ -3,12 +3,15 @@ package linters
 import (
 	"testing"
 
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func testRepoLinter() RepoLinter {
-	return RepoLinter{}
+	return RepoLinter{
+		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
+	}
 }
 
 func TestRepoIsEmpty(t *testing.T) {
@@ -47,4 +50,20 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	manifest.Repo.PrivateKey = "somekey"
 	result = testRepoLinter().Lint(manifest)
 	assert.Len(t, result.Errors, 0)
+}
+
+func TestItChecksForWatchAndIgnores(t *testing.T) {
+	watches := []string{"watches/there", "watches/no-there/**"}
+	ignores := []string{"c/*", "d"}
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	manifest.Repo.Paths.Watch = watches
+	manifest.Repo.Paths.Ignore = ignores
+
+	linter := testRepoLinter()
+	linter.Fs.Mkdir("watches/there", 0777)
+	linter.Fs.Mkdir("c/d/e/f/g/h", 0777)
+
+	result := linter.Lint(manifest)
+	assert.Len(t, result.Errors, 2)
 }

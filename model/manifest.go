@@ -16,7 +16,13 @@ type Manifest struct {
 
 type Repo struct {
 	Uri        string
-	PrivateKey string `json:"private_key"`
+	PrivateKey string   `json:"private_key"`
+	Paths      GitPaths `json:"paths"`
+}
+
+type GitPaths struct {
+	Watch  []string `json:"watch"`
+	Ignore []string `json:"ignore"`
 }
 
 func (repo Repo) GetName() string {
