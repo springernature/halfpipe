@@ -16,7 +16,7 @@ func (e InvalidField) Error() string {
 }
 
 func (e InvalidField) DocId() string {
-	return e.Name
+	return "invalid-field-" + e.Name
 }
 
 func NewInvalidField(name string, reason string) InvalidField {
@@ -32,7 +32,7 @@ func (e MissingField) Error() string {
 }
 
 func (e MissingField) DocId() string {
-	return e.Name
+	return "missing-field-" + e.Name
 }
 
 func NewMissingField(name string) MissingField {
@@ -45,6 +45,10 @@ type ParseError struct {
 
 func (e ParseError) Error() string {
 	return fmt.Sprintf("Error parsing manifest: %s", e.Message)
+}
+
+func (e ParseError) DocId() string {
+	return "parse-error"
 }
 
 func NewParseError(message string) ParseError {
@@ -61,7 +65,7 @@ func (e FileError) Error() string {
 }
 
 func (e FileError) DocId() string {
-	return e.Reason
+	return "file-error-" + e.Reason
 }
 
 func NewFileError(path string, reason string) FileError {

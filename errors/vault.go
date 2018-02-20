@@ -18,6 +18,10 @@ func (e BadVaultSecretError) Error() string {
 	return fmt.Sprintf("'%s' is not a valid key", e.Secret)
 }
 
+func (e BadVaultSecretError) DocId() string {
+	return "bad-vault-secret-error"
+}
+
 type NotFoundVaultSecretError struct {
 	prefix   string
 	team     string
@@ -43,6 +47,10 @@ func (e NotFoundVaultSecretError) Error() string {
 	return fmt.Sprintf("Could not find '%s' in '%s' or '%s'", keyName, path1, path2)
 }
 
+func (e NotFoundVaultSecretError) DocId() string {
+	return "not-found-vault-secret-error"
+}
+
 type VaultClientError struct {
 	message string
 }
@@ -55,4 +63,8 @@ func NewVaultClientError(message string) VaultClientError {
 
 func (e VaultClientError) Error() string {
 	return e.message
+}
+
+func (e VaultClientError) DocId() string {
+	return "vault-client-error"
 }
