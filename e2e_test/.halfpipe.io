@@ -2,7 +2,7 @@ team: engineering-enablement
 
 repo:
   uri: https://github.com/robwhitby/halfpipe-example-nodejs
-  git_crypt_key: ((cloudfoundry.password))
+  git_crypt_key: can't do secrets in e2e test :(
 
 tasks:
 - name: run
