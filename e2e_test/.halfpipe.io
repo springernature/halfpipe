@@ -23,8 +23,8 @@ tasks:
   password: very-secret
 
 - name: docker-push
-  username: ((docker-hub.username))
-  password: ((docker-hub.password))
+  username: rob
+  password: verysecret
   repo: springerplatformengineering/halfpipe-fly
 
 - name: run
