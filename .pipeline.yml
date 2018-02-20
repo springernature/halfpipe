@@ -23,7 +23,6 @@ resources:
       repository: halfpipe
       access_token: ((api-keys.halfpipe-cli))
 
-resource_types: []
 jobs:
 - name: Test
   serial: true
@@ -50,6 +49,36 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
+
+- name: End2EndTest
+  serial: true
+  plan:
+  - get: halfpipe
+    passed:
+    - Test
+    trigger: true
+  - task: Test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: springerplatformengineering/halfpipe-fly
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -ec
+        - |
+          export GOPATH=$PWD
+          cd src/github.com/springernature/halfpipe
+          go build -o halfpipe cmd/halfpipe.go
+          cd e2e_test
+          ./test.sh ../halfpipe
+      inputs:
+      - name: halfpipe
+        path: /src/github.com/springernature/halfpipe
+
 - name: Bump Major
   plan:
     - put: version
@@ -72,7 +101,7 @@ jobs:
     - aggregate:
       - get: halfpipe
         passed:
-          - Test
+          - End2EndTest
       - get: version
         trigger: true
     - task: Build
