@@ -21,3 +21,12 @@ tasks:
   space: staging
   username: michiel
   password: very-secret
+
+- name: docker-push
+  username: ((docker-hub.username))
+  password: ((docker-hub.password))
+  repo: springerplatformengineering/halfpipe-fly
+
+- name: run
+  script: ./notify.sh
+  image: busybox
