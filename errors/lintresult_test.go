@@ -7,7 +7,7 @@ import (
 )
 
 func TestLintResultErrorOutputWithAnchor(t *testing.T) {
-	DocHost = "localhost"
+	docHost = "localhost"
 	lintResult := NewLintResult("Test Linter", []error{
 		NewInvalidField("fieldname.value_x", "reason")})
 	assert.Contains(t, lintResult.Error(),
@@ -15,7 +15,7 @@ func TestLintResultErrorOutputWithAnchor(t *testing.T) {
 }
 
 func TestLintResultErrorOutputWithoutAnchor(t *testing.T) {
-	DocHost = "localhost"
+	docHost = "localhost"
 	lintResult := NewLintResult("Vault Linter", []error{
 		NewVaultClientError("error message")})
 	assert.Contains(t, lintResult.Error(),

@@ -8,7 +8,7 @@ import (
 // This field will be populated in Concourse
 // go build -ldflags "-X ..."
 // TODO: better env var?
-var DocHost = ""
+var docHost = ""
 
 func NewLintResult(linter string, errs []error) LintResult {
 	return LintResult{
@@ -60,7 +60,7 @@ func (lr *LintResult) AddError(err ...error) {
 }
 
 func renderDocLink(linterName string, docId string) string {
-	return fmt.Sprintf("https://%s%s%s", DocHost, renderDocPath(linterName), renderDocAnchor(docId))
+	return fmt.Sprintf("https://%s%s%s", docHost, renderDocPath(linterName), renderDocAnchor(docId))
 }
 
 func renderDocPath(linterName string) string {
