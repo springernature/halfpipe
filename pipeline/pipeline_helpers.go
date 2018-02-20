@@ -26,6 +26,7 @@ func getUniqueName(name string, config *atc.Config, counter int) string {
 	if counter > 0 {
 		candidate = fmt.Sprintf("%s (%v)", name, counter)
 	}
+
 	for _, job := range config.Jobs {
 		if job.Name == candidate {
 			return getUniqueName(name, config, counter+1)

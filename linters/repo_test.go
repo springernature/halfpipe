@@ -67,3 +67,22 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 	result := linter.Lint(manifest)
 	assert.Len(t, result.Errors, 2)
 }
+
+func TestRepoHasValidGitCryptKey(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	manifest.Repo.GitCryptKey = "((gitcrypt.key))"
+
+	result := testRepoLinter().Lint(manifest)
+	assert.Len(t, result.Errors, 0)
+}
+
+func TestRepoHasInvalidGitCryptKey(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	manifest.Repo.GitCryptKey = "CLEARTEXTKEY_BADASS"
+
+	result := testRepoLinter().Lint(manifest)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidField(t, "repo.git_crypt_key", result.Errors[0])
+}

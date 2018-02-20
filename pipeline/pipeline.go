@@ -32,6 +32,10 @@ func (p Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 		sources["ignore_paths"] = repo.IgnoredPaths
 	}
 
+	if repo.GitCryptKey != "" {
+		sources["git_crypt_key"] = repo.GitCryptKey
+	}
+
 	return atc.ResourceConfig{
 		Name:   repo.GetName(),
 		Type:   "git",

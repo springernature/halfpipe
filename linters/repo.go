@@ -50,5 +50,9 @@ func (r RepoLinter) Lint(man model.Manifest) (result errors.LintResult) {
 		}
 	}
 
+	if man.Repo.GitCryptKey != "" && !regexp.MustCompile(`\(\([a-zA-Z-_]+\.[a-zA-Z-_]+\)\)`).MatchString(man.Repo.GitCryptKey) {
+		result.AddError(errors.NewInvalidField("repo.git_crypt_key", "must be a vault secret"))
+	}
+
 	return
 }

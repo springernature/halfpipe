@@ -19,6 +19,12 @@ type Repo struct {
 	PrivateKey   string   `json:"private_key"`
 	WatchedPaths []string `json:"watched_paths"`
 	IgnoredPaths []string `json:"ignored_paths"`
+	GitCryptKey  string   `json:"git_crypt_key"`
+}
+
+type GitPaths struct {
+	Watch  []string `json:"watch"`
+	Ignore []string `json:"ignore"`
 }
 
 func (repo Repo) GetName() string {

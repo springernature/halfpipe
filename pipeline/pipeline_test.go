@@ -188,3 +188,27 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], config.Jobs[0].Name)
 	assert.Equal(t, config.Jobs[2].Plan[0].Passed[0], config.Jobs[1].Name)
 }
+
+func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
+	name := "yolo"
+	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitCrypt := "AABBFF66"
+
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = gitUri
+	manifest.Repo.GitCryptKey = gitCrypt
+
+	expected := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: name,
+				Type: "git",
+				Source: atc.Source{
+					"uri":           gitUri,
+					"git_crypt_key": gitCrypt,
+				},
+			},
+		},
+	}
+	assert.Equal(t, expected, testPipeline().Render(manifest))
+}
