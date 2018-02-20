@@ -24,12 +24,12 @@ func (p Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 		sources["private_key"] = repo.PrivateKey
 	}
 
-	if len(repo.Paths.Watch) > 0 {
-		sources["paths"] = repo.Paths.Watch
+	if len(repo.WatchedPaths) > 0 {
+		sources["paths"] = repo.WatchedPaths
 	}
 
-	if len(repo.Paths.Ignore) > 0 {
-		sources["ignore_paths"] = repo.Paths.Ignore
+	if len(repo.IgnoredPaths) > 0 {
+		sources["ignore_paths"] = repo.IgnoredPaths
 	}
 
 	return atc.ResourceConfig{

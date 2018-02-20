@@ -57,8 +57,8 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 	ignores := []string{"c/*", "d"}
 	manifest := model.Manifest{}
 	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
-	manifest.Repo.Paths.Watch = watches
-	manifest.Repo.Paths.Ignore = ignores
+	manifest.Repo.WatchedPaths = watches
+	manifest.Repo.IgnoredPaths = ignores
 
 	linter := testRepoLinter()
 	linter.Fs.Mkdir("watches/there", 0777)

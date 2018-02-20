@@ -44,7 +44,7 @@ func (r RepoLinter) Lint(man model.Manifest) (result errors.LintResult) {
 		result.AddError(errors.NewMissingField("repo.private_key"))
 	}
 
-	for _, glob := range append(man.Repo.Paths.Watch, man.Repo.Paths.Ignore...) {
+	for _, glob := range append(man.Repo.WatchedPaths, man.Repo.IgnoredPaths...) {
 		if err := r.checkGlob(glob); err != nil {
 			result.AddError(err)
 		}

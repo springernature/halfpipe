@@ -69,8 +69,8 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 
 	watches := []string{"watch1", "watch2"}
 	ignores := []string{"ignore1", "ignore2"}
-	manifest.Repo.Paths.Watch = watches
-	manifest.Repo.Paths.Ignore = ignores
+	manifest.Repo.WatchedPaths = watches
+	manifest.Repo.IgnoredPaths = ignores
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{

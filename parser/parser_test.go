@@ -36,12 +36,10 @@ func TestRepo(t *testing.T) {
 }
 
 func TestRepoWithPaths(t *testing.T) {
-	man, errs := Parse(`repo: { paths: { watch: ["a", "b"] }}`)
+	man, errs := Parse(`repo: { watched_paths: ["a", "b"] }`)
 	expected := Manifest{
 		Repo: Repo{
-			Paths: GitPaths{
-				Watch: []string{"a", "b"},
-			},
+			WatchedPaths: []string{"a", "b"},
 		},
 	}
 
@@ -50,12 +48,10 @@ func TestRepoWithPaths(t *testing.T) {
 
 	///
 
-	man, errs = Parse(`repo: { paths: {ignore: ["a", "b"] }}`)
+	man, errs = Parse(`repo: { ignored_paths: ["a", "b"] }`)
 	expected = Manifest{
 		Repo: Repo{
-			Paths: GitPaths{
-				Ignore: []string{"a", "b"},
-			},
+			IgnoredPaths: []string{"a", "b"},
 		},
 	}
 
@@ -64,13 +60,11 @@ func TestRepoWithPaths(t *testing.T) {
 
 	///
 
-	man, errs = Parse(`repo: { paths: { watch: ["a", "b"], ignore: ["c", "d"] }}`)
+	man, errs = Parse(`repo: { watched_paths: ["a", "b"], ignored_paths: ["c", "d"] }`)
 	expected = Manifest{
 		Repo: Repo{
-			Paths: GitPaths{
-				Watch:  []string{"a", "b"},
-				Ignore: []string{"c", "d"},
-			},
+			WatchedPaths: []string{"a", "b"},
+			IgnoredPaths: []string{"c", "d"},
 		},
 	}
 
