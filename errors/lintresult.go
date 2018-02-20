@@ -41,7 +41,7 @@ func (lr LintResult) Error() (out string) {
 			if doc, ok := err.(Documented); ok {
 				docId = doc.DocId()
 			}
-			out += fmt.Sprintf("\t%s\n\t[see: %s]\n", err, renderDocLink(lr.Linter, docId))
+			out += fmt.Sprintf("\t%s\n\t[see: %s]\n\n", err, renderDocLink(lr.Linter, docId))
 		}
 	} else {
 		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
