@@ -17,6 +17,9 @@ type SecretsLinter struct {
 
 func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 	result.Linter = "Secrets Linter"
+	if manifest.Team == "" {
+		return
+	}
 
 	for _, secret := range s.findSecrets(manifest) {
 		if s.invalidSecret(secret) {
