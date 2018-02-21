@@ -13,7 +13,3 @@ func NewParseError(message string) ParseError {
 func (e ParseError) Error() string {
 	return fmt.Sprintf("Error parsing manifest: %s", e.Message)
 }
-
-func (e ParseError) DocId() string {
-	return "parse-error"
-}

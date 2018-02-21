@@ -66,7 +66,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		case "":
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing name field", i+1)))
 		default:
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown name '%s'", i+1, taskName.Name)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown name '%s'. Must be one of 'run', 'deploy-cf', 'docker-push'", i+1, taskName.Name)))
 		}
 	}
 	return

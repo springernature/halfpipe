@@ -10,15 +10,18 @@ import (
 func TestLintResultErrorOutputWithAnchor(t *testing.T) {
 	docHost = "localhost"
 	lintResult := NewLintResult("Test Linter", []error{
-		errors.NewInvalidField("fieldname.value_x", "reason")})
+		errors.NewMissingField("repo.uri"),
+	})
+
 	assert.Contains(t, lintResult.Error(),
-		"[see: https://localhost/docs/test-linter#invalid-field-fieldname.value_x ]")
+		"[see: localhost/docs/linter-errors/#missing-field-repouri ]")
 }
 
-func TestLintResultErrorOutputWithoutAnchor(t *testing.T) {
+func TestLintResultErrorDoesntContainDocLink(t *testing.T) {
 	docHost = "localhost"
-	lintResult := NewLintResult("Vault Linter", []error{
-		errors.NewVaultClientError("error message")})
-	assert.Contains(t, lintResult.Error(),
-		"[see: https://localhost/docs/vault-linter#vault-client-error ]")
+	lintResult := NewLintResult("Test Linter", []error{
+		errors.NewFileError("some/path", "not found"),
+	})
+
+	assert.NotContains(t, lintResult.Error(), "[see: localhost/")
 }

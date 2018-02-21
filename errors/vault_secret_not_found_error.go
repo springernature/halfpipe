@@ -32,5 +32,5 @@ func (e VaultSecretNotFoundError) Error() string {
 }
 
 func (e VaultSecretNotFoundError) DocId() string {
-	return "not-found-vault-secret-error"
+	return "vault-secret-not-found"
 }

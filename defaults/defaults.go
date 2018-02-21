@@ -3,8 +3,8 @@ package defaults
 // this file could be overwritten before build in Concourse
 
 var DefaultValues = Defaults{
-	RepoPrivateKey: "((deploy-key))",
-	CfUsername:     "((cf-credentials.username))",
-	CfPassword:     "((cf-credentials.password))",
+	RepoPrivateKey: "((github.deploy-key))",
+	CfUsername:     "((cloudfoundry.username))",
+	CfPassword:     "((cloudfoundry.password))",
 	CfManifest:     "manifest.yml",
 }

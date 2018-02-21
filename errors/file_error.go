@@ -14,7 +14,3 @@ func NewFileError(path string, reason string) FileError {
 func (e FileError) Error() string {
 	return fmt.Sprintf("'%s' %s", e.Path, e.Reason)
 }
-
-func (e FileError) DocId() string {
-	return "file-error-" + e.Reason
-}

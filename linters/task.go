@@ -40,13 +40,13 @@ func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 }
 func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if cf.Api == "" {
-		errs = append(errs, errors.NewMissingField("api"))
+		errs = append(errs, errors.NewMissingField("deploy-cf.api"))
 	}
 	if cf.Space == "" {
-		errs = append(errs, errors.NewMissingField("space"))
+		errs = append(errs, errors.NewMissingField("deploy-cf.space"))
 	}
 	if cf.Org == "" {
-		errs = append(errs, errors.NewMissingField("org"))
+		errs = append(errs, errors.NewMissingField("deploy-cf.org"))
 	}
 	if err := file_checker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		errs = append(errs, err)
@@ -56,17 +56,17 @@ func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 
 func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []error) {
 	if docker.Username == "" {
-		errs = append(errs, errors.NewMissingField("username"))
+		errs = append(errs, errors.NewMissingField("docker-push.username"))
 	}
 	if docker.Password == "" {
-		errs = append(errs, errors.NewMissingField("password"))
+		errs = append(errs, errors.NewMissingField("docker-push.password"))
 	}
 	if docker.Repo == "" {
-		errs = append(errs, errors.NewMissingField("repo"))
+		errs = append(errs, errors.NewMissingField("docker-push.repo"))
 	} else {
 		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Repo))
 		if !matched {
-			errs = append(errs, errors.NewInvalidField("repo", "must be specified as 'owner/image'"))
+			errs = append(errs, errors.NewInvalidField("docker-push.repo", "must be specified as 'owner/image'"))
 		}
 	}
 
@@ -80,7 +80,7 @@ func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []err
 func (linter TaskLinter) lintRunTask(run model.Run) []error {
 	var errs []error
 	if run.Script == "" {
-		errs = append(errs, errors.NewMissingField("script"))
+		errs = append(errs, errors.NewMissingField("run.script"))
 	} else {
 		if err := file_checker.CheckFile(linter.Fs, run.Script, true); err != nil {
 			errs = append(errs, err)
@@ -88,7 +88,7 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 	}
 
 	if run.Image == "" {
-		errs = append(errs, errors.NewMissingField("image"))
+		errs = append(errs, errors.NewMissingField("run.image"))
 	}
 
 	return errs

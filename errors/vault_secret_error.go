@@ -15,5 +15,5 @@ func (e VaultSecretError) Error() string {
 }
 
 func (e VaultSecretError) DocId() string {
-	return "bad-vault-secret-error"
+	return "vault-secret-error"
 }

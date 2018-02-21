@@ -14,7 +14,7 @@ type Defaults struct {
 }
 
 func (d Defaults) Update(man model.Manifest) model.Manifest {
-	if !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
+	if man.Repo.Uri != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
 

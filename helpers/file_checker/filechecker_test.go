@@ -32,7 +32,7 @@ func TestFile_IsDirectory(t *testing.T) {
 	fs.Mkdir("build", 0777)
 
 	err := CheckFile(fs, "build", false)
-	assert.Equal(t, errors.NewFileError("build", "is not a regular file"), err)
+	assert.Equal(t, errors.NewFileError("build", "is not a file"), err)
 }
 
 func TestFile_NotExecutable(t *testing.T) {

@@ -14,7 +14,3 @@ func NewInvalidField(name string, reason string) InvalidFieldError {
 func (e InvalidFieldError) Error() string {
 	return fmt.Sprintf("Invalid value for '%s': %s", e.Name, e.Reason)
 }
-
-func (e InvalidFieldError) DocId() string {
-	return "invalid-field-" + e.Name
-}

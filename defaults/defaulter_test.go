@@ -8,7 +8,7 @@ import (
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((deploy_key))"}
+	manifestDefaults := Defaults{RepoPrivateKey: "((github.deploy_key))"}
 
 	man := model.Manifest{Repo: model.Repo{Uri: "https://github.com/public/repo"}}
 	man = manifestDefaults.Update(man)
@@ -16,7 +16,7 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 }
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((deploy_key))"}
+	manifestDefaults := Defaults{RepoPrivateKey: "((github.deploy_key))"}
 
 	man := model.Manifest{Repo: model.Repo{Uri: "ssh@github.com:private/repo"}}
 	man = manifestDefaults.Update(man)
@@ -31,8 +31,8 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 func TestCFDeployDefaults(t *testing.T) {
 
 	manifestDefaults := Defaults{
-		CfUsername: "((cf-credentials.username))",
-		CfPassword: "((cf-credentials.password))",
+		CfUsername: "((cloudfoundry.username))",
+		CfPassword: "((cloudfoundry.password))",
 		CfManifest: "manifest.yml",
 	}
 

@@ -16,7 +16,7 @@ func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
 	}
 
 	if !info.Mode().IsRegular() {
-		return errors.NewFileError(path, "is not a regular file")
+		return errors.NewFileError(path, "is not a file")
 	}
 
 	if info.Size() == 0 {

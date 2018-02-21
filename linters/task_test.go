@@ -33,8 +33,8 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 2)
-	assertMissingField(t, "script", result.Errors[0])
-	assertMissingField(t, "image", result.Errors[1])
+	assertMissingField(t, "run.script", result.Errors[0])
+	assertMissingField(t, "run.image", result.Errors[1])
 }
 
 func TestRunTaskWithScriptAndImage(t *testing.T) {
@@ -77,9 +77,9 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 4)
-	assertMissingField(t, "api", result.Errors[0])
-	assertMissingField(t, "space", result.Errors[1])
-	assertMissingField(t, "org", result.Errors[2])
+	assertMissingField(t, "deploy-cf.api", result.Errors[0])
+	assertMissingField(t, "deploy-cf.space", result.Errors[1])
+	assertMissingField(t, "deploy-cf.org", result.Errors[2])
 	assertFileError(t, "manifest.yml", result.Errors[3])
 }
 
@@ -93,9 +93,9 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 4)
-	assertMissingField(t, "username", result.Errors[0])
-	assertMissingField(t, "password", result.Errors[1])
-	assertMissingField(t, "repo", result.Errors[2])
+	assertMissingField(t, "docker-push.username", result.Errors[0])
+	assertMissingField(t, "docker-push.password", result.Errors[1])
+	assertMissingField(t, "docker-push.repo", result.Errors[2])
 	assertFileError(t, "Dockerfile", result.Errors[3])
 
 }
@@ -114,7 +114,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 2)
-	assertInvalidField(t, "repo", result.Errors[0])
+	assertInvalidField(t, "docker-push.repo", result.Errors[0])
 	assertFileError(t, "Dockerfile", result.Errors[1])
 
 }

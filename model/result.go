@@ -4,6 +4,9 @@ import "fmt"
 import (
 	"strings"
 
+	"net/url"
+	"path"
+
 	"github.com/springernature/halfpipe/errors"
 )
 
@@ -38,14 +41,14 @@ func (lr LintResult) Error() (out string) {
 	out += fmt.Sprintf("%s\n", lr.Linter)
 	if lr.HasErrors() {
 		for _, err := range lr.Errors {
-			docId := ""
+			out += fmt.Sprintf("\t* %s\n", err)
 			if doc, ok := err.(errors.Documented); ok {
-				docId = doc.DocId()
+				out += fmt.Sprintf("\t  [see: %s ]", renderDocLink(doc.DocId()))
 			}
-			out += fmt.Sprintf("\t%s\n\t[see: %s ]\n\n", err, renderDocLink(lr.Linter, docId))
+			out += fmt.Sprintf("\n\n")
 		}
 	} else {
-		out += fmt.Sprintf("\t%s\n", `No errors \o/`)
+		out += fmt.Sprintf("\t%s\n\n", `No errors \o/`)
 	}
 	return
 }
@@ -55,17 +58,13 @@ func (lr LintResult) HasErrors() bool {
 }
 
 func (lr *LintResult) AddError(err ...error) {
-	for _, e := range err {
-		lr.Errors = append(lr.Errors, e)
-	}
+	lr.Errors = append(lr.Errors, err...)
 }
 
-func renderDocLink(linterName string, docId string) string {
-	return fmt.Sprintf("https://%s%s%s", docHost, renderDocPath(linterName), renderDocAnchor(docId))
-}
+func renderDocLink(docId string) string {
+	u, _ := url.Parse(docHost)
 
-func renderDocPath(linterName string) string {
-	return fmt.Sprintf("/docs/%s", normalize(linterName))
+	return path.Join(u.Path, "/docs/linter-errors", renderDocAnchor(docId))
 }
 
 func renderDocAnchor(docId string) string {
@@ -76,5 +75,7 @@ func renderDocAnchor(docId string) string {
 }
 
 func normalize(value string) string {
-	return strings.Replace(strings.ToLower(value), " ", "-", -1)
+	remove_white_space := strings.Replace(strings.ToLower(value), " ", "-", -1)
+	return strings.Replace(remove_white_space, ".", "", -1)
+
 }
