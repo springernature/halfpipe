@@ -8,7 +8,7 @@ import (
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((github.deploy_key))"}
+	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
 	man := model.Manifest{Repo: model.Repo{Uri: "https://github.com/public/repo"}}
 	man = manifestDefaults.Update(man)
@@ -16,7 +16,7 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 }
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((github.deploy_key))"}
+	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
 	man := model.Manifest{Repo: model.Repo{Uri: "ssh@github.com:private/repo"}}
 	man = manifestDefaults.Update(man)
