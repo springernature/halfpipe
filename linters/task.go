@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/helpers/file_checker"
 	"github.com/springernature/halfpipe/model"
 )
 
@@ -47,7 +48,7 @@ func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if cf.Org == "" {
 		errs = append(errs, errors.NewMissingField("org"))
 	}
-	if err := CheckFile(linter.Fs, cf.Manifest, false); err != nil {
+	if err := file_checker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		errs = append(errs, err)
 	}
 	return
@@ -69,7 +70,7 @@ func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []err
 		}
 	}
 
-	if err := CheckFile(linter.Fs, "Dockerfile", false); err != nil {
+	if err := file_checker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -81,7 +82,7 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("script"))
 	} else {
-		if err := CheckFile(linter.Fs, run.Script, true); err != nil {
+		if err := file_checker.CheckFile(linter.Fs, run.Script, true); err != nil {
 			errs = append(errs, err)
 		}
 	}

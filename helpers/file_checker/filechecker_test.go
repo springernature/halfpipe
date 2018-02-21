@@ -1,4 +1,4 @@
-package linters
+package file_checker
 
 import (
 	"testing"

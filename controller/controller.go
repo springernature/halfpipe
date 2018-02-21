@@ -4,6 +4,7 @@ import (
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/helpers/file_checker"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/parser"
@@ -20,7 +21,7 @@ type Controller struct {
 }
 
 func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
-	if err := linters.CheckFile(c.Fs, halfpipeFile, false); err != nil {
+	if err := file_checker.CheckFile(c.Fs, halfpipeFile, false); err != nil {
 		errors = append(errors, err)
 		return
 	}

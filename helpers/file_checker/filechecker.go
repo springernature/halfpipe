@@ -1,4 +1,4 @@
-package linters
+package file_checker
 
 import (
 	"github.com/spf13/afero"
