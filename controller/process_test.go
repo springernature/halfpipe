@@ -42,8 +42,8 @@ type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest model.Manifest) errors.LintResult {
-	return errors.NewLintResult("fake", []error{f.Error})
+func (f fakeLinter) Lint(manifest model.Manifest) model.LintResult {
+	return model.NewLintResult("fake", []error{f.Error})
 }
 
 func TestAppliesAllLinters(t *testing.T) {
@@ -89,10 +89,10 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 }
 
 type fakeLinterFunc struct {
-	LintFunc func(model.Manifest) errors.LintResult
+	LintFunc func(model.Manifest) model.LintResult
 }
 
-func (f fakeLinterFunc) Lint(manifest model.Manifest) errors.LintResult {
+func (f fakeLinterFunc) Lint(manifest model.Manifest) model.LintResult {
 	return f.LintFunc(manifest)
 }
 
@@ -106,12 +106,12 @@ func TestCallsTheDefaultsUpdater(t *testing.T) {
 	}
 
 	//very hacky - use a linter to check the manifest has been updated
-	linter := fakeLinterFunc{func(m model.Manifest) errors.LintResult {
-		return errors.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
+	linter := fakeLinterFunc{func(m model.Manifest) model.LintResult {
+		return model.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
 	}}
 	c.Linters = []linters.Linter{linter}
 
 	_, results := c.Process()
 
-	assert.Equal(t, "after", results[0].Errors[0].(errors.InvalidField).Reason)
+	assert.Equal(t, "after", results[0].Errors[0].(errors.InvalidFieldError).Reason)
 }

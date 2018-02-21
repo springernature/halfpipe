@@ -4,7 +4,6 @@ import (
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
-	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/parser"
@@ -42,11 +41,11 @@ func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
 	return
 }
 
-func (c Controller) Process() (config atc.Config, results errors.LintResults) {
+func (c Controller) Process() (config atc.Config, results model.LintResults) {
 
 	manifest, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, errors.NewLintResult("Halfpipe", errs))
+		results = append(results, model.NewLintResult("Halfpipe", errs))
 		return
 	}
 

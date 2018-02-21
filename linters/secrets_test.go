@@ -31,9 +31,9 @@ func TestErrorsForBadKeys(t *testing.T) {
 
 	result := SecretsLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 3)
-	assert.Equal(t, errors.NewBadVaultSecretError(wrong1), result.Errors[0])
-	assert.Equal(t, errors.NewBadVaultSecretError(wrong2), result.Errors[1])
-	assert.Equal(t, errors.NewBadVaultSecretError(wrong3), result.Errors[2])
+	assert.Equal(t, errors.NewVaultSecretError(wrong1), result.Errors[0])
+	assert.Equal(t, errors.NewVaultSecretError(wrong2), result.Errors[1])
+	assert.Equal(t, errors.NewVaultSecretError(wrong3), result.Errors[2])
 }
 
 func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
@@ -65,5 +65,5 @@ func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Errors, 1)
-	assert.IsType(t, errors.NotFoundVaultSecretError{}, result.Errors[0])
+	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Errors[0])
 }

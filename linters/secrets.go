@@ -15,12 +15,12 @@ type SecretsLinter struct {
 	VaultClient vault.Client
 }
 
-func (s SecretsLinter) Lint(manifest model.Manifest) (result errors.LintResult) {
+func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 	result.Linter = "Secrets Linter"
 
 	for _, secret := range s.findSecrets(manifest) {
 		if s.invalidSecret(secret) {
-			result.Errors = append(result.Errors, errors.NewBadVaultSecretError(secret))
+			result.Errors = append(result.Errors, errors.NewVaultSecretError(secret))
 		} else {
 			mapName, keyName := helpers.SecretToMapAndKey(secret)
 			team := manifest.Team
@@ -29,7 +29,7 @@ func (s SecretsLinter) Lint(manifest model.Manifest) (result errors.LintResult) 
 			if err != nil {
 				result.Errors = append(result.Errors, err)
 			} else if !found {
-				result.Errors = append(result.Errors, errors.NewNotFoundVaultSecretError(s.VaultClient.VaultPrefix(), team, pipeline, secret))
+				result.Errors = append(result.Errors, errors.NewVaultSecretNotFoundError(s.VaultClient.VaultPrefix(), team, pipeline, secret))
 			}
 		}
 	}

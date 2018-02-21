@@ -1,8 +1,10 @@
-package errors
+package model
 
 import "fmt"
 import (
 	"strings"
+
+	"github.com/springernature/halfpipe/errors"
 )
 
 // This field will be populated in Concourse
@@ -10,18 +12,17 @@ import (
 // TODO: better env var?
 var docHost = ""
 
+type LintResults []LintResult
+type LintResult struct {
+	Linter string
+	Errors []error
+}
+
 func NewLintResult(linter string, errs []error) LintResult {
 	return LintResult{
 		Linter: linter,
 		Errors: errs,
 	}
-}
-
-type LintResults []LintResult
-
-type LintResult struct {
-	Linter string
-	Errors []error
 }
 
 func (lr LintResults) HasErrors() bool {
@@ -38,7 +39,7 @@ func (lr LintResult) Error() (out string) {
 	if lr.HasErrors() {
 		for _, err := range lr.Errors {
 			docId := ""
-			if doc, ok := err.(Documented); ok {
+			if doc, ok := err.(errors.Documented); ok {
 				docId = doc.DocId()
 			}
 			out += fmt.Sprintf("\t%s\n\t[see: %s ]\n\n", err, renderDocLink(lr.Linter, docId))

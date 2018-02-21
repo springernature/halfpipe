@@ -14,7 +14,7 @@ type TaskLinter struct {
 	Fs afero.Afero
 }
 
-func (linter TaskLinter) Lint(man model.Manifest) (result errors.LintResult) {
+func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 	result.Linter = "Tasks Linter"
 
 	if len(man.Tasks) == 0 {

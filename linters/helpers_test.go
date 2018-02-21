@@ -10,7 +10,7 @@ import (
 func assertMissingField(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.MissingField)
+	mf, ok := err.(errors.MissingFieldError)
 	if !ok {
 		assert.Fail(t, "error is not a MissingField", err)
 	} else {
@@ -21,7 +21,7 @@ func assertMissingField(t *testing.T, name string, err error) {
 func assertInvalidField(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.InvalidField)
+	mf, ok := err.(errors.InvalidFieldError)
 	if !ok {
 		assert.Fail(t, "error is not an InvalidField", err)
 	} else {

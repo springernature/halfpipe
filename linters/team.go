@@ -7,7 +7,7 @@ import (
 
 type TeamLinter struct{}
 
-func (TeamLinter) Lint(manifest model.Manifest) (result errors.LintResult) {
+func (TeamLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 	result.Linter = "Team Linter"
 
 	if manifest.Team == "" {
