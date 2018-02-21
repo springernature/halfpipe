@@ -18,4 +18,4 @@ if ! ds=$(dep status 2> /dev/null); then
 fi
 
 echo go build
-go build -ldflags "-X main.vaultPrefix=springernature -X github.com/springernature/halfpipe/errors.docHost=docs.halfpipe.io" cmd/halfpipe.go
+go build -ldflags "-X main.vaultPrefix=springernature -X github.com/springernature/halfpipe/model.docHost=docs.halfpipe.io" cmd/halfpipe.go

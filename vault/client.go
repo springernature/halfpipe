@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/user"
 
+	"strings"
+
 	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/atc/creds/vault"
 	"github.com/hashicorp/vault/api"
@@ -40,9 +42,18 @@ func (v Vault) Exists(team string, pipeline string, mapKey string, keyName strin
 	}
 
 	data, found, err := vault.Get(template.VariableDefinition{Name: mapKey})
-	if err != nil || !found {
+	if err != nil {
+		if strings.Contains(err.Error(), "permission denied") {
+			errorStr := fmt.Sprintf("You dont have permission to read secrets in /%s/%s/. If you were newly added to '%s' team you need to login with vault again", v.prefix, team, team)
+			error = errors.NewVaultClientError(errorStr)
+		} else {
+			error = errors.NewVaultClientError(err.Error())
+		}
+		return
+	}
+
+	if !found {
 		foundValue = found
-		error = err
 		return
 	}
 
@@ -72,7 +83,7 @@ func (v Vault) createRestClient() (client *api.Logical, error error) {
 
 	token, err := v.readToken()
 	if err != nil {
-		error = err
+		error = errors.NewVaultClientError("Cannot read ~/.vault-token, this most likely means you have not logged in with the CLI yet.")
 		return
 	}
 
