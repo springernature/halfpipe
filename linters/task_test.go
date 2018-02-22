@@ -169,22 +169,22 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 		Tasks: []model.Task{
 			model.Run{
 				Vars: map[string]string{
-					badKey1: "a",
-					goodKey1:       "sup",
+					badKey1:  "a",
+					goodKey1: "sup",
 				},
 			},
 
 			model.DockerPush{
 				Vars: map[string]string{
-					goodKey2:       "a",
-					badKey2: "B",
+					goodKey2: "a",
+					badKey2:  "B",
 				},
 			},
 
 			model.DeployCF{
 				Vars: map[string]string{
-					badKey3: "asd",
-					goodKey3:       "asd",
+					badKey3:  "asd",
+					goodKey3: "asd",
 				},
 			},
 		},

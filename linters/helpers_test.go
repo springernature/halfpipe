@@ -3,9 +3,10 @@ package linters
 import (
 	"testing"
 
+	"fmt"
+
 	"github.com/springernature/halfpipe/errors"
 	"github.com/stretchr/testify/assert"
-	"fmt"
 )
 
 func assertMissingField(t *testing.T, name string, err error) {
@@ -55,8 +56,6 @@ func assertInvalidFieldShouldNotBeInErrors(t *testing.T, name string, errs []err
 			}
 		}
 	}
-	return
-	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
 }
 
 func assertFileError(t *testing.T, path string, err error) {
