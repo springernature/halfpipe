@@ -66,8 +66,9 @@ func main() {
 }
 
 func projectData(fs afero.Afero, currentDir string) (project model.Project, error error) {
-	gitUri, repoName, error := gitConfig()
-	if error != nil {
+	origin, err := gitconfig.OriginURL()
+	if err != nil {
+		error = errors.New("Looks like you are not executing halfpipe from within a git repo?")
 		return
 	}
 
@@ -76,20 +77,8 @@ func projectData(fs afero.Afero, currentDir string) (project model.Project, erro
 		return
 	}
 
-	project.GitUri = gitUri
-	project.RepoName = repoName
+	project.GitUri = origin
 	project.BasePath = basePath
-	return
-}
-
-func gitConfig() (origin string, repoName string, error error) {
-	origin, err := gitconfig.OriginURL()
-	if err != nil {
-		error = errors.New("Looks like you are not executing halfpipe from within a git repo?")
-		return
-	}
-
-	repoName, _ = gitconfig.Repository()
 	return
 }
 
