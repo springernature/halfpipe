@@ -14,9 +14,8 @@ func PathRelativeToGit(fs afero.Afero, startPath string, maxIterations int) (pat
 }
 
 func traverse(fs afero.Afero, currentPath string, maxIterations int, acc []string, ttl int) (path string, error error) {
-	files, err := fs.ReadDir(currentPath)
-	if err != nil {
-		error = err
+	files, error := fs.ReadDir(currentPath)
+	if error != nil {
 		return
 	}
 

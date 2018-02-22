@@ -9,6 +9,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestErrorsOutIfStartPathCannotBeRead(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	startPath := "/home/simon/src/repo"
+
+	_, err := path_to_git.PathRelativeToGit(fs, startPath, -1)
+	assert.Error(t, err)
+}
+
 func TestEmptyPathWhenStartPathHasGit(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	startPath := "/home/simon/src/repo"
