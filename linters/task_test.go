@@ -153,3 +153,49 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
+
+func TestEnvVarsMustBeUpperCase(t *testing.T) {
+	taskLinter := testTaskLinter()
+
+	badKey1 := "KeHe"
+	badKey2 := "b"
+	badKey3 := "AAAAa"
+
+	goodKey1 := "YO"
+	goodKey2 := "A"
+	goodKey3 := "AOIJASOID"
+
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+				Vars: map[string]string{
+					badKey1: "a",
+					goodKey1:       "sup",
+				},
+			},
+
+			model.DockerPush{
+				Vars: map[string]string{
+					goodKey2:       "a",
+					badKey2: "B",
+				},
+			},
+
+			model.DeployCF{
+				Vars: map[string]string{
+					badKey3: "asd",
+					goodKey3:       "asd",
+				},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assertInvalidFieldInErrors(t, badKey1, result.Errors)
+	assertInvalidFieldInErrors(t, badKey2, result.Errors)
+	assertInvalidFieldInErrors(t, badKey3, result.Errors)
+
+	assertInvalidFieldShouldNotBeInErrors(t, goodKey1, result.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, goodKey2, result.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, goodKey3, result.Errors)
+}

@@ -5,6 +5,8 @@ import (
 
 	"regexp"
 
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/helpers/file_checker"
@@ -51,6 +53,9 @@ func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	if err := file_checker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		errs = append(errs, err)
 	}
+
+	errs = append(errs, linter.lintEnvVars(cf.Vars)...)
+
 	return
 }
 
@@ -74,6 +79,8 @@ func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []err
 		errs = append(errs, err)
 	}
 
+	errs = append(errs, linter.lintEnvVars(docker.Vars)...)
+
 	return
 }
 
@@ -91,5 +98,16 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 		errs = append(errs, errors.NewMissingField("run.image"))
 	}
 
+	errs = append(errs, linter.lintEnvVars(run.Vars)...)
+
 	return errs
+}
+
+func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
+	for key, _ := range vars {
+		if key != strings.ToUpper(key) {
+			errs = append(errs, errors.NewInvalidField(key, "Env vars mus be uppercase only"))
+		}
+	}
+	return
 }
