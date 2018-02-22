@@ -119,7 +119,7 @@ func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceNa
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"manifest":              path.Join(repoName, task.Manifest),
+					"manifest":              path.Join(repoName, basePath, task.Manifest),
 					"environment_variables": convertVars(task.Vars),
 					"path":                  path.Join(repoName, basePath),
 				},
