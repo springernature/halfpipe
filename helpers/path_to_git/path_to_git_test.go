@@ -1,11 +1,12 @@
 package path_to_git_test
 
 import (
-	"testing"
-	"github.com/stretchr/testify/assert"
-	"github.com/spf13/afero"
 	"path"
+	"testing"
+
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/helpers/path_to_git"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestEmptyPathWhenStartPathHasGit(t *testing.T) {
@@ -69,5 +70,3 @@ func TestErrorsOutIfWeHaveDoneMaxItterationsAndNotFoundGit(t *testing.T) {
 	_, err := path_to_git.PathRelativeToGit(fs, startPath, 2)
 	assert.Error(t, err)
 }
-
-

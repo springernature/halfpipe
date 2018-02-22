@@ -31,7 +31,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest))
 }
 
 func TestRendersSshGitResource(t *testing.T) {
@@ -55,7 +55,7 @@ func TestRendersSshGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest))
 }
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
@@ -86,7 +86,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest))
 }
 
 func TestRenderRunTask(t *testing.T) {
@@ -132,7 +132,55 @@ func TestRenderRunTask(t *testing.T) {
 			}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(manifest).Jobs[0])
+	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest).Jobs[0])
+}
+
+func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
+	project := model.Project{BasePath: "subapp"}
+
+	manifest.Tasks = []model.Task{
+		model.Run{
+			Script: "./yolo.sh",
+			Image:  "imagename:TAG",
+			Vars: map[string]string{
+				"VAR1": "Value1",
+				"VAR2": "Value2",
+			},
+		},
+	}
+
+	expected := atc.JobConfig{
+		Name:   "run yolo.sh",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Task: "./yolo.sh", TaskConfig: &atc.TaskConfig{
+				Platform: "linux",
+				Params: map[string]string{
+					"VAR1": "Value1",
+					"VAR2": "Value2",
+				},
+				ImageResource: &atc.ImageResource{
+					Type: "docker-image",
+					Source: atc.Source{
+						"repository": "imagename",
+						"tag":        "TAG",
+					},
+				},
+				Run: atc.TaskRunConfig{
+					Path: "/bin/sh",
+					Dir:  manifest.Repo.GetName() + "/" + project.BasePath,
+					Args: []string{"-exc", fmt.Sprintf("./yolo.sh")},
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: manifest.Repo.GetName()},
+				},
+			}},
+		}}
+
+	assert.Equal(t, expected, testPipeline().Render(project, manifest).Jobs[0])
 }
 
 func TestRenderDockerPushTask(t *testing.T) {
@@ -170,8 +218,48 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, testPipeline().Render(manifest).Resources[1])
-	assert.Equal(t, expectedJobConfig, testPipeline().Render(manifest).Jobs[0])
+	assert.Equal(t, expectedResource, testPipeline().Render(model.Project{}, manifest).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().Render(model.Project{}, manifest).Jobs[0])
+}
+
+func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
+	project := model.Project{BasePath: "subapp"}
+
+	username := "halfpipe"
+	password := "secret"
+	repo := "halfpipe/halfpipe-cli"
+	manifest.Tasks = []model.Task{
+		model.DockerPush{
+			Username: username,
+			Password: password,
+			Repo:     repo,
+		},
+	}
+
+	expectedResource := atc.ResourceConfig{
+		Name: "Docker Registry",
+		Type: "docker-image",
+		Source: atc.Source{
+			"username":   username,
+			"password":   password,
+			"repository": repo,
+		},
+	}
+
+	expectedJobConfig := atc.JobConfig{
+		Name:   "docker-push",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName() + "/" + project.BasePath}},
+		},
+	}
+
+	// First resource will always be the git resource.
+	assert.Equal(t, expectedResource, testPipeline().Render(project, manifest).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().Render(project, manifest).Jobs[0])
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
@@ -182,7 +270,7 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 			model.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(manifest)
+	config := testPipeline().Render(model.Project{}, manifest)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], config.Jobs[0].Name)
@@ -210,5 +298,5 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(manifest))
+	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest))
 }

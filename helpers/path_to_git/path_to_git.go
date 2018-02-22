@@ -1,11 +1,12 @@
 package path_to_git
 
 import (
-	"github.com/spf13/afero"
-	"strings"
-	"path/filepath"
-	"fmt"
 	"errors"
+	"fmt"
+	"path/filepath"
+	"strings"
+
+	"github.com/spf13/afero"
 )
 
 func PathRelativeToGit(fs afero.Afero, startPath string, maxIterations int) (path string, err error) {

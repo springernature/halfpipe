@@ -10,7 +10,7 @@ import (
 )
 
 type Renderer interface {
-	Render(manifest model.Manifest) atc.Config
+	Render(project model.Project, manifest model.Manifest) atc.Config
 }
 
 type Pipeline struct{}
@@ -87,7 +87,7 @@ func (p Pipeline) imageResource(image string) *atc.ImageResource {
 	}
 }
 
-func (p Pipeline) runJob(task model.Run, repoName, jobName string) atc.JobConfig {
+func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -101,7 +101,7 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string) atc.JobConfig
 					ImageResource: p.imageResource(task.Image),
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
-						Dir:  repoName,
+						Dir:  path.Join(repoName, basePath),
 						Args: []string{"-exc", fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))},
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -110,7 +110,7 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string) atc.JobConfig
 				}}}}
 }
 
-func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceName string) atc.JobConfig {
+func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -121,25 +121,29 @@ func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceNa
 				Params: atc.Params{
 					"manifest":              path.Join(repoName, task.Manifest),
 					"environment_variables": convertVars(task.Vars),
-					"path":                  repoName,
+					"path":                  path.Join(repoName, basePath),
 				},
 			},
 		},
 	}
 }
 
-func (p Pipeline) dockerPushJob(task model.DockerPush, repoName, jobName, resourceName string) atc.JobConfig {
+func (p Pipeline) dockerPushJob(task model.DockerPush, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: repoName, Trigger: true},
-			atc.PlanConfig{Put: resourceName, Params: atc.Params{"build": repoName}},
+			atc.PlanConfig{
+				Put: resourceName,
+				Params: atc.Params{
+					"build": path.Join(repoName, basePath),
+				}},
 		},
 	}
 }
 
-func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
+func (p Pipeline) Render(project model.Project, manifest model.Manifest) (config atc.Config) {
 	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
 	repoName := manifest.Repo.GetName()
 
@@ -152,17 +156,17 @@ func (p Pipeline) Render(manifest model.Manifest) (config atc.Config) {
 		switch task := t.(type) {
 		case model.Run:
 			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, jobName)
+			jobConfig = p.runJob(task, repoName, jobName, project.BasePath)
 		case model.DeployCF:
 			resourceName := uniqueName(deployCFResourceName(task))
 			jobName := uniqueName("deploy-cf")
 			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName)
+			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, project.BasePath)
 		case model.DockerPush:
 			resourceName := uniqueName("Docker Registry")
 			jobName := uniqueName("docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName)
+			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, project.BasePath)
 		}
 
 		if i > 0 {

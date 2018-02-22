@@ -15,6 +15,7 @@ const halfpipeFile = ".halfpipe.io"
 
 type Controller struct {
 	Fs        afero.Afero
+	Project   model.Project
 	Linters   []linters.Linter
 	Renderer  pipeline.Renderer
 	Defaulter defaults.Defaulter
@@ -50,6 +51,7 @@ func (c Controller) Process() (config atc.Config, results model.LintResults) {
 		return
 	}
 
+	manifest.Repo.Uri = c.Project.GitUri
 	manifest = c.Defaulter(manifest)
 
 	for _, linter := range c.Linters {
@@ -61,6 +63,6 @@ func (c Controller) Process() (config atc.Config, results model.LintResults) {
 			return
 		}
 	}
-	config = c.Renderer.Render(manifest)
+	config = c.Renderer.Render(c.Project, manifest)
 	return
 }

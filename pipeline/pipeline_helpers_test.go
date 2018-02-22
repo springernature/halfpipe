@@ -11,7 +11,7 @@ func TestToString(t *testing.T) {
 	man := model.Manifest{}
 	man.Repo.Uri = "repo.git"
 
-	actual, err := ToString(testPipeline().Render(man))
+	actual, err := ToString(testPipeline().Render(model.Project{}, man))
 	expected := "uri: repo.git"
 
 	assert.Nil(t, err)
@@ -34,7 +34,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 			model.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(manifest)
+	config := testPipeline().Render(model.Project{}, manifest)
 
 	expectedJobNames := []string{
 		"run asd.sh",

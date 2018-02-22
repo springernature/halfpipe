@@ -267,6 +267,12 @@
   version = "v1.2.1"
 
 [[projects]]
+  name = "github.com/tcnksm/go-gitconfig"
+  packages = ["."]
+  revision = "d154598bacbf4501c095a309753c5d4af66caa81"
+  version = "v0.1.2"
+
+[[projects]]
   name = "github.com/tedsuo/rata"
   packages = ["."]
   revision = "0649c23705dfb45a9693b668c4fc1c0666f485d9"
@@ -340,6 +346,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9ba6b5227a6b18832a7108e73255482df080c14275c4473d7c25aee6a78a32f2"
+  inputs-digest = "a375c67d98c65f86e7687180bcb974f2a3c4272f5f8554194770c612e5d64331"
   solver-name = "gps-cdcl"
   solver-version = 1

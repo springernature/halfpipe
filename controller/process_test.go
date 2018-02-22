@@ -66,7 +66,7 @@ type FakeRenderer struct {
 	Config atc.Config
 }
 
-func (f FakeRenderer) Render(manifest model.Manifest) atc.Config {
+func (f FakeRenderer) Render(project model.Project, manifest model.Manifest) atc.Config {
 	return f.Config
 }
 

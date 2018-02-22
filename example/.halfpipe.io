@@ -1,9 +1,5 @@
 team: engineering-enablement
 
-repo:
-  uri: https://github.com/springernature/foo.git
-  private_key: rrrr
-
 tasks:
 - name: run
   script: ./test.sh
