@@ -40,7 +40,7 @@ func (lr LintResults) HasErrors() bool {
 func (lr LintResult) Error() (out string) {
 	out += fmt.Sprintf("%s\n", lr.Linter)
 	if lr.HasErrors() {
-		for _, err := range lr.Errors {
+		for _, err := range deduplicateErrors(lr.Errors) {
 			out += fmt.Sprintf("\t* %s\n", err)
 			if doc, ok := err.(errors.Documented); ok {
 				out += fmt.Sprintf("\t  [see: %s ]", renderDocLink(doc.DocId()))
@@ -59,6 +59,24 @@ func (lr LintResult) HasErrors() bool {
 
 func (lr *LintResult) AddError(err ...error) {
 	lr.Errors = append(lr.Errors, err...)
+}
+
+func deduplicateErrors(errs []error) (errors []error) {
+	for _, err := range errs {
+		if !errorInErrors(err, errors) {
+			errors = append(errors, err)
+		}
+	}
+	return
+}
+
+func errorInErrors(err error, errs []error) bool {
+	for _, e := range errs {
+		if err == e {
+			return true
+		}
+	}
+	return false
 }
 
 func renderDocLink(docId string) string {
