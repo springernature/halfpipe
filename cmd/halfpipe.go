@@ -27,7 +27,26 @@ var (
 	vaultPrefix string
 )
 
+func invokedForHelp(args []string) bool {
+	return len(args) > 1 && (args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
+
+}
+
+func printHelpAndExit() {
+	version, _ := getVersion()
+	fmt.Println("Sup! Docs are at https://docs.halfpipe.io")
+	fmt.Printf("Current version is %s\n", version)
+	fmt.Println("Availible commands are")
+	fmt.Printf("\tsync - updates the halfpipe cli to latest version `halfpipe sync`\n")
+	syscall.Exit(0)
+
+}
+
 func main() {
+	if invokedForHelp(os.Args) {
+		printHelpAndExit()
+	}
+
 	checkVersion()
 
 	fs := afero.Afero{Fs: afero.NewOsFs()}
