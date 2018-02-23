@@ -42,11 +42,24 @@ func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 func (SecretsLinter) findSecrets(man model.Manifest) (secrets []string) {
 	re := regexp.MustCompile(`(\(\(([^\)]+)\)\))`)
 	for _, match := range re.FindAllStringSubmatch(fmt.Sprintf("%+v", man), -1) {
-		secrets = append(secrets, match[1])
+		if !secretAlreadySeen(match[1], secrets) {
+			secrets = append(secrets, match[1])
+		}
 	}
 	return
 }
 
 func (SecretsLinter) invalidSecret(secret string) bool {
 	return len(strings.Split(secret, ".")) != 2
+}
+
+func secretAlreadySeen(secret string, secrets []string) bool {
+	// This is stupid. But people will not have thousands of secrets so fuck it
+
+	for _, s := range secrets {
+		if s == secret {
+			return true
+		}
+	}
+	return false
 }
