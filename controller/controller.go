@@ -51,7 +51,10 @@ func (c Controller) Process() (config atc.Config, results model.LintResults) {
 		return
 	}
 
-	manifest.Repo.Uri = c.Project.GitUri
+	if manifest.Repo.Uri == "" {
+		manifest.Repo.Uri = c.Project.GitUri
+	}
+
 	manifest = c.Defaulter(manifest)
 
 	for _, linter := range c.Linters {
