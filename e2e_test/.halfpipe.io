@@ -2,7 +2,6 @@ team: engineering-enablement
 
 repo:
   uri: https://github.com/robwhitby/halfpipe-example-nodejs
-  #git_crypt_key: ((cloudfoundry.password))
 
 tasks:
 - name: run
