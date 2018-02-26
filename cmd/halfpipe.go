@@ -5,6 +5,8 @@ import (
 	"os"
 	"syscall"
 
+	"os/exec"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -78,6 +80,13 @@ func main() {
 }
 
 func projectData(fs afero.Afero, currentDir string) (project model.Project, error error) {
+	command := exec.Command("git", "version")
+	err := command.Run()
+	if err != nil {
+		error = errors.New("Looks like you don't have git installed? please make sure you do")
+		return
+	}
+
 	origin, err := gitconfig.OriginURL()
 	if err != nil {
 		error = errors.New("Looks like you are not executing halfpipe from within a git repo?")
