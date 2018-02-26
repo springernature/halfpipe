@@ -316,12 +316,42 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 
 	renderedPipeline := testPipeline().Render(model.Project{}, manifest)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expected := `./build.sh
+	expected := `ARTIFACTS_DIR=../artifacts
+./build.sh
 if [ ! -f build/libe/artifact.jar ]; then
     echo "Artifact that should be at path 'build/libe/artifact.jar' not found! Bailing out"
     exit -1
 fi
-cp build/libe/artifact.jar ../artifacts
+cp build/libe/artifact.jar $ARTIFACTS_DIR
+`
+	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
+}
+
+func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
+	// Without any save artifact there should not be a copy and a output
+	name := "yolo"
+	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = gitUri
+	manifest.Tasks = []model.Task{
+		model.Run{
+			Script:       "./build.sh",
+			SaveArtifact: "build/libe/artifact.jar",
+		},
+	}
+
+	project := model.Project{
+		BasePath: "apps/subapp1",
+	}
+	renderedPipeline := testPipeline().Render(project, manifest)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
+	expected := `ARTIFACTS_DIR=../../../artifacts
+./build.sh
+if [ ! -f build/libe/artifact.jar ]; then
+    echo "Artifact that should be at path 'build/libe/artifact.jar' not found! Bailing out"
+    exit -1
+fi
+cp build/libe/artifact.jar $ARTIFACTS_DIR
 `
 	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }

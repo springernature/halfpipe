@@ -15,6 +15,8 @@ type Renderer interface {
 
 type Pipeline struct{}
 
+const artifactsFolderName = "artifacts"
+
 func (p Pipeline) gitResource(repo model.Repo) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": repo.Uri,
@@ -87,6 +89,18 @@ func (p Pipeline) imageResource(image string) *atc.ImageResource {
 	}
 }
 
+func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
+	fullPath := path.Join(repoName, basePath)
+	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
+
+	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
+		artifactPath += "../"
+	}
+
+	artifactPath += artifactsFolderName
+	return
+}
+
 func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath string) atc.JobConfig {
 	script := fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
 
@@ -112,18 +126,18 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 				}}}}
 
 	if task.SaveArtifact != "" {
-		artifactDir := "artifacts"
 		jobConfig.Plan[1].TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactDir},
+			{Name: artifactsFolderName},
 		}
 
-		runScriptWithCopyArtifact := fmt.Sprintf(`%s
+		runScriptWithCopyArtifact := fmt.Sprintf(`ARTIFACTS_DIR=%s
+%s
 if [ ! -f %s ]; then
     echo "Artifact that should be at path '%s' not found! Bailing out"
     exit -1
 fi
-cp %s ../%s
-`, script, task.SaveArtifact, task.SaveArtifact, task.SaveArtifact, artifactDir)
+cp %s $ARTIFACTS_DIR
+`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifact, task.SaveArtifact, task.SaveArtifact)
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
 		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
 	}
