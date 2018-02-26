@@ -5,6 +5,8 @@ import (
 
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
+	"github.com/springernature/halfpipe/cmd/config"
+	"regexp"
 )
 
 func TestToString(t *testing.T) {
@@ -16,6 +18,17 @@ func TestToString(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Contains(t, actual, expected)
+}
+
+func TestToStringVersionComment(t *testing.T) {
+	man := model.Manifest{}
+	man.Repo.Uri = "repo.git"
+	config.Version = "0.0.1-yolo"
+
+	actual, err := ToString(testPipeline().Render(model.Project{}, man))
+
+	assert.Nil(t, err)
+	assert.Regexp(t, regexp.MustCompile(`^#.*0\.0\.1-yolo.*`), actual)
 }
 
 func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {

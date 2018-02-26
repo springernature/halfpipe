@@ -3,13 +3,15 @@ package model
 import (
 	"testing"
 
+	"strings"
+
+	"github.com/springernature/halfpipe/cmd/config"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/stretchr/testify/assert"
-	"strings"
 )
 
 func TestLintResultErrorOutputWithAnchor(t *testing.T) {
-	docHost = "localhost"
+	config.DocHost = "localhost"
 	lintResult := NewLintResult("Test Linter", []error{
 		errors.NewMissingField("repo.uri"),
 	})
@@ -19,7 +21,7 @@ func TestLintResultErrorOutputWithAnchor(t *testing.T) {
 }
 
 func TestLintResultErrorDoesntContainDocLink(t *testing.T) {
-	docHost = "localhost"
+	config.DocHost = "localhost"
 	lintResult := NewLintResult("Test Linter", []error{
 		errors.NewFileError("some/path", "not found"),
 	})

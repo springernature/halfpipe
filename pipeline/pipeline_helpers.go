@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/concourse/atc"
+	"github.com/springernature/halfpipe/helpers"
 	"github.com/springernature/halfpipe/model"
 	"gopkg.in/yaml.v2"
 )
@@ -42,5 +43,7 @@ func getUniqueName(name string, config *atc.Config, counter int) string {
 
 func ToString(pipeline atc.Config) (string, error) {
 	renderedPipeline, err := yaml.Marshal(pipeline)
-	return string(renderedPipeline), err
+	version, _ := helpers.GetVersion()
+	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", version)
+	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), err
 }

@@ -5,11 +5,12 @@ import (
 	"os"
 	"syscall"
 
-	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/cmd/config"
 	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/helpers"
 	"github.com/springernature/halfpipe/helpers/path_to_git"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
@@ -20,26 +21,18 @@ import (
 	"github.com/tcnksm/go-gitconfig"
 )
 
-var (
-	// These field will be populated in Concourse
-	// go build -ldflags "-X main.version=..."
-	version     string
-	vaultPrefix string
-)
-
 func invokedForHelp(args []string) bool {
 	return len(args) > 1 && (args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
 
 }
 
 func printHelpAndExit() {
-	version, _ := getVersion()
+	version, _ := helpers.GetVersion()
 	fmt.Println("Sup! Docs are at https://docs.halfpipe.io")
 	fmt.Printf("Current version is %s\n", version)
 	fmt.Println("Availible commands are")
 	fmt.Printf("\tsync - updates the halfpipe cli to latest version `halfpipe sync`\n")
 	syscall.Exit(0)
-
 }
 
 func main() {
@@ -63,7 +56,7 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{Fs: fs},
-			linters.SecretsLinter{VaultClient: vault.NewVaultClient(vaultPrefix)},
+			linters.SecretsLinter{VaultClient: vault.NewVaultClient(config.VaultPrefix)},
 			linters.TaskLinter{Fs: fs},
 		},
 		Renderer:  pipeline.Pipeline{},
@@ -102,7 +95,7 @@ func projectData(fs afero.Afero, currentDir string) (project model.Project, erro
 }
 
 func checkVersion() {
-	currentVersion, err := getVersion()
+	currentVersion, err := helpers.GetVersion()
 	printAndExit(err)
 
 	syncer := sync.Syncer{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
@@ -111,17 +104,6 @@ func checkVersion() {
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
 		printAndExit(syncer.Update())
 	}
-}
-
-func getVersion() (semver.Version, error) {
-	if version == "" {
-		return sync.DevVersion, nil
-	}
-	version, err := semver.Make(version)
-	if err != nil {
-		return semver.Version{}, err
-	}
-	return version, nil
 }
 
 func printAndExit(err error) {

@@ -7,13 +7,9 @@ import (
 	"net/url"
 	"path"
 
+	"github.com/springernature/halfpipe/cmd/config"
 	"github.com/springernature/halfpipe/errors"
 )
-
-// This field will be populated in Concourse
-// go build -ldflags "-X ..."
-// TODO: better env var?
-var docHost = ""
 
 type LintResults []LintResult
 type LintResult struct {
@@ -80,7 +76,7 @@ func errorInErrors(err error, errs []error) bool {
 }
 
 func renderDocLink(docId string) string {
-	u, _ := url.Parse(docHost)
+	u, _ := url.Parse(config.DocHost)
 
 	return path.Join(u.Path, "/docs/linter-errors", renderDocAnchor(docId))
 }
