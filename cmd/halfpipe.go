@@ -7,7 +7,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/cmd/config"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/helpers"

@@ -90,12 +90,12 @@ jobs:
           export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
-          export LDFLAGS=""
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.Version=${VERSION}"
+          export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
+          echo "LDFLAGS=${LDFLAGS}"
 
           # Build binaries
           cd src/github.com/springernature/halfpipe

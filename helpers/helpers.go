@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/blang/semver"
-	"github.com/springernature/halfpipe/cmd/config"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/sync"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"strings"
 
-	"github.com/springernature/halfpipe/cmd/config"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/errors"
 	"github.com/stretchr/testify/assert"
 )

@@ -3,10 +3,11 @@ package pipeline
 import (
 	"testing"
 
+	"regexp"
+
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/model"
 	"github.com/stretchr/testify/assert"
-	"github.com/springernature/halfpipe/cmd/config"
-	"regexp"
 )
 
 func TestToString(t *testing.T) {
