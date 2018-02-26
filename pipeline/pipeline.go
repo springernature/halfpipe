@@ -88,7 +88,9 @@ func (p Pipeline) imageResource(image string) *atc.ImageResource {
 }
 
 func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath string) atc.JobConfig {
-	return atc.JobConfig{
+	script := fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
+
+	jobConfig := atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
@@ -102,12 +104,31 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(repoName, basePath),
-						Args: []string{"-exc", fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))},
+						Args: []string{"-ec", script},
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: repoName},
 					},
 				}}}}
+
+	if task.SaveArtifact != "" {
+		artifactDir := "artifacts"
+		jobConfig.Plan[1].TaskConfig.Outputs = []atc.TaskOutputConfig{
+			{Name: artifactDir},
+		}
+
+		runScriptWithCopyArtifact := fmt.Sprintf(`%s
+if [ ! -f %s ]; then
+    echo "Artifact that should be at path '%s' not found! Bailing out"
+    exit -1
+fi
+cp %s ../%s
+`, script, task.SaveArtifact, task.SaveArtifact, task.SaveArtifact, artifactDir)
+		runArgs := []string{"-ec", runScriptWithCopyArtifact}
+		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
+	}
+
+	return jobConfig
 }
 
 func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {

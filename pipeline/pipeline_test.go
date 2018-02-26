@@ -124,7 +124,7 @@ func TestRenderRunTask(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  manifest.Repo.GetName(),
-					Args: []string{"-exc", fmt.Sprintf("./yolo.sh")},
+					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: manifest.Repo.GetName()},
@@ -172,7 +172,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  manifest.Repo.GetName() + "/" + project.BasePath,
-					Args: []string{"-exc", fmt.Sprintf("./yolo.sh")},
+					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: manifest.Repo.GetName()},
@@ -299,4 +299,29 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 		},
 	}
 	assert.Equal(t, expected, testPipeline().Render(model.Project{}, manifest))
+}
+
+func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
+	// Without any save artifact there should not be a copy and a output
+	name := "yolo"
+	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = gitUri
+	manifest.Tasks = []model.Task{
+		model.Run{
+			Script:       "./build.sh",
+			SaveArtifact: "build/libe/artifact.jar",
+		},
+	}
+
+	renderedPipeline := testPipeline().Render(model.Project{}, manifest)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
+	expected := `./build.sh
+if [ ! -f build/libe/artifact.jar ]; then
+    echo "Artifact that should be at path 'build/libe/artifact.jar' not found! Bailing out"
+    exit -1
+fi
+cp build/libe/artifact.jar ../artifacts
+`
+	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }
