@@ -46,6 +46,7 @@ type Run struct {
 	Script string
 	Image  string
 	Vars   Vars
+	SaveArtifact string `json:"save_artifact"`
 }
 
 type DockerPush struct {

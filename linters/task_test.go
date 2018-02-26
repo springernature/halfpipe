@@ -199,3 +199,34 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 	assertInvalidFieldShouldNotBeInErrors(t, goodKey2, result.Errors)
 	assertInvalidFieldShouldNotBeInErrors(t, goodKey3, result.Errors)
 }
+
+func TestCanOnlyHaveOneSaveArtifactInPipeline(t *testing.T) {
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+				SaveArtifact: "a",
+			},
+			model.Run{
+				SaveArtifact: "b",
+			},
+		},
+	}
+
+	result := testTaskLinter().Lint(man)
+	assertInvalidFieldInErrors(t, "run.save_artifact", result.Errors)
+
+	//
+
+	man = model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+			},
+			model.Run{
+				SaveArtifact: "b",
+			},
+		},
+	}
+
+	result = testTaskLinter().Lint(man)
+	assertInvalidFieldShouldNotBeInErrors(t, "run.save_artifact", result.Errors)
+}

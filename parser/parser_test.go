@@ -160,7 +160,7 @@ tasks:
 func TestInvalidVars(t *testing.T) {
 	_, errs := Parse(`
 tasks:
-- task: run
+- name: run
   image: alpine
   script: build.sh
   vars:
@@ -168,4 +168,18 @@ tasks:
 `)
 	expected := errors.NewInvalidField("task", "")
 	assert.IsType(t, expected, errs[0])
+}
+
+func TestSaveArtifact(t *testing.T) {
+	manifest, errs := Parse(`
+tasks:
+- name: run
+  image: alpine
+  script: build.sh
+  save_artifact: path/to/artifact.jar
+`)
+
+	assert.Nil(t, errs)
+	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(Run).SaveArtifact)
+
 }

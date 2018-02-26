@@ -38,6 +38,8 @@ func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 		}
 	}
 
+	result.AddError(linter.lintArtifact(man)...)
+
 	return
 }
 func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
@@ -109,5 +111,23 @@ func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
 			errs = append(errs, errors.NewInvalidField(key, "Env vars mus be uppercase only"))
 		}
 	}
+	return
+}
+
+func (TaskLinter) lintArtifact(manifest model.Manifest) (errs []error) {
+	var numberOfSaves int
+	for _, t := range manifest.Tasks {
+		switch task := t.(type) {
+		case model.Run:
+			if task.SaveArtifact != "" {
+				numberOfSaves += 1
+			}
+		}
+	}
+
+	if numberOfSaves > 1 {
+		errs = append(errs, errors.NewInvalidField("run.save_artifact", "Currently halfpipe only supports saving of one artifact per pipeline."))
+	}
+
 	return
 }
