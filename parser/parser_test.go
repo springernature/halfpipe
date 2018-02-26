@@ -183,3 +183,17 @@ tasks:
 	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(Run).SaveArtifact)
 
 }
+
+func TestDeployArtifact(t *testing.T) {
+	manifest, errs := Parse(`
+tasks:
+- name: deploy-cf
+  image: alpine
+  script: build.sh
+  deploy_artifact: path/to/artifact.jar
+`)
+
+	assert.Nil(t, errs)
+	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(DeployCF).DeployArtifact)
+
+}

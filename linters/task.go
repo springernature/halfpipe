@@ -115,18 +115,31 @@ func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
 }
 
 func (TaskLinter) lintArtifact(manifest model.Manifest) (errs []error) {
-	var numberOfSaves int
+	var artifacts int
+	var artifact string
 	for _, t := range manifest.Tasks {
 		switch task := t.(type) {
 		case model.Run:
 			if task.SaveArtifact != "" {
-				numberOfSaves += 1
+				artifacts += 1
+				artifact = task.SaveArtifact
+				if artifacts > 1 {
+					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving of one artifact per pipeline."))
+					return
+				}
+			}
+
+		case model.DeployCF:
+			if task.DeployArtifact != "" && task.DeployArtifact != artifact {
+				var errorStr string
+				if artifact == "" {
+					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s'", task.DeployArtifact)
+				} else {
+					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s', but I found a previous job that saves the artifact '%s'.", task.DeployArtifact, artifact)
+				}
+				errs = append(errs, errors.NewInvalidField("deploy-cf.deploy_artifact", errorStr))
 			}
 		}
-	}
-
-	if numberOfSaves > 1 {
-		errs = append(errs, errors.NewInvalidField("run.save_artifact", "Currently halfpipe only supports saving of one artifact per pipeline."))
 	}
 
 	return

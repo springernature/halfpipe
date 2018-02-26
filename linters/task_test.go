@@ -219,8 +219,7 @@ func TestCanOnlyHaveOneSaveArtifactInPipeline(t *testing.T) {
 
 	man = model.Manifest{
 		Tasks: []model.Task{
-			model.Run{
-			},
+			model.Run{},
 			model.Run{
 				SaveArtifact: "b",
 			},
@@ -229,4 +228,51 @@ func TestCanOnlyHaveOneSaveArtifactInPipeline(t *testing.T) {
 
 	result = testTaskLinter().Lint(man)
 	assertInvalidFieldShouldNotBeInErrors(t, "run.save_artifact", result.Errors)
+}
+
+func TestDeployArtifact(t *testing.T) {
+
+	// No previous jobs have defined a SaveArtifact
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.DeployCF{
+				DeployArtifact: "b",
+			},
+		},
+	}
+
+	result := testTaskLinter().Lint(man)
+	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
+
+	// Different name of the artifacts
+	man = model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+				SaveArtifact: "a",
+			},
+			model.DeployCF{
+				DeployArtifact: "b",
+			},
+		},
+	}
+
+	result = testTaskLinter().Lint(man)
+	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
+
+	// Alles OK!
+	man = model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+				SaveArtifact: "a",
+			},
+			model.Run{},
+			model.DeployCF{
+				DeployArtifact: "a",
+			},
+		},
+	}
+
+	result = testTaskLinter().Lint(man)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
+
 }
