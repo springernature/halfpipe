@@ -30,7 +30,7 @@ func printHelpAndExit() {
 	version, _ := helpers.GetVersion()
 	fmt.Println("Sup! Docs are at https://docs.halfpipe.io")
 	fmt.Printf("Current version is %s\n", version)
-	fmt.Println("Availible commands are")
+	fmt.Println("Available commands are")
 	fmt.Printf("\tsync - updates the halfpipe cli to latest version `halfpipe sync`\n")
 	syscall.Exit(0)
 }
