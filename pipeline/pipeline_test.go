@@ -309,8 +309,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 	manifest.Repo.Uri = gitUri
 	manifest.Tasks = []model.Task{
 		model.Run{
-			Script:       "./build.sh",
-			SaveArtifact: "build/libe/artifact.jar",
+			Script:        "./build.sh",
+			SaveArtifacts: []string{"build/lib/artifact.jar"},
 		},
 	}
 
@@ -318,11 +318,11 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
 	expected := `ARTIFACTS_DIR=../artifacts
 ./build.sh
-if [ ! -f build/libe/artifact.jar ]; then
-    echo "Artifact that should be at path 'build/libe/artifact.jar' not found! Bailing out"
+if [ ! -f build/lib/artifact.jar ]; then
+    echo "Artifact that should be at path 'build/lib/artifact.jar' not found! Bailing out"
     exit -1
 fi
-cp build/libe/artifact.jar $ARTIFACTS_DIR
+cp build/lib/artifact.jar $ARTIFACTS_DIR
 `
 	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }
@@ -335,8 +335,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	manifest.Repo.Uri = gitUri
 	manifest.Tasks = []model.Task{
 		model.Run{
-			Script:       "./build.sh",
-			SaveArtifact: "build/libe/artifact.jar",
+			Script:        "./build.sh",
+			SaveArtifacts: []string{"build/lib/artifact.jar"},
 		},
 	}
 
@@ -347,11 +347,11 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
 	expected := `ARTIFACTS_DIR=../../../artifacts
 ./build.sh
-if [ ! -f build/libe/artifact.jar ]; then
-    echo "Artifact that should be at path 'build/libe/artifact.jar' not found! Bailing out"
+if [ ! -f build/lib/artifact.jar ]; then
+    echo "Artifact that should be at path 'build/lib/artifact.jar' not found! Bailing out"
     exit -1
 fi
-cp build/libe/artifact.jar $ARTIFACTS_DIR
+cp build/lib/artifact.jar $ARTIFACTS_DIR
 `
 	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }

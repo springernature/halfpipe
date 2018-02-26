@@ -120,11 +120,15 @@ func (TaskLinter) lintArtifact(manifest model.Manifest) (errs []error) {
 	for _, t := range manifest.Tasks {
 		switch task := t.(type) {
 		case model.Run:
-			if task.SaveArtifact != "" {
+			if len(task.SaveArtifacts) > 0 {
 				artifacts += 1
-				artifact = task.SaveArtifact
+				artifact = task.SaveArtifacts[0]
 				if artifacts > 1 {
-					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving of one artifact per pipeline."))
+					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving artifacts from on task"))
+					return
+				}
+				if len(task.SaveArtifacts) > 1 {
+					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple artifacts in 'save_artifact', currently halfpipe only supports saving one artifacts"))
 					return
 				}
 			}

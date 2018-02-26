@@ -200,14 +200,18 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 	assertInvalidFieldShouldNotBeInErrors(t, goodKey3, result.Errors)
 }
 
-func TestCanOnlyHaveOneSaveArtifactInPipeline(t *testing.T) {
+func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 	man := model.Manifest{
 		Tasks: []model.Task{
 			model.Run{
-				SaveArtifact: "a",
+				SaveArtifacts: []string{
+					"a",
+				},
 			},
 			model.Run{
-				SaveArtifact: "b",
+				SaveArtifacts: []string{
+					"b",
+				},
 			},
 		},
 	}
@@ -215,19 +219,37 @@ func TestCanOnlyHaveOneSaveArtifactInPipeline(t *testing.T) {
 	result := testTaskLinter().Lint(man)
 	assertInvalidFieldInErrors(t, "run.save_artifact", result.Errors)
 
-	//
+	// Good!
 
 	man = model.Manifest{
 		Tasks: []model.Task{
 			model.Run{},
 			model.Run{
-				SaveArtifact: "b",
+				SaveArtifacts: []string{
+					"b",
+				},
 			},
 		},
 	}
 
 	result = testTaskLinter().Lint(man)
 	assertInvalidFieldShouldNotBeInErrors(t, "run.save_artifact", result.Errors)
+}
+
+func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
+	man := model.Manifest{
+		Tasks: []model.Task{
+			model.Run{
+				SaveArtifacts: []string{
+					"a",
+					"b",
+				},
+			},
+		},
+	}
+
+	result := testTaskLinter().Lint(man)
+	assertInvalidFieldInErrors(t, "run.save_artifact", result.Errors)
 }
 
 func TestDeployArtifact(t *testing.T) {
@@ -248,7 +270,9 @@ func TestDeployArtifact(t *testing.T) {
 	man = model.Manifest{
 		Tasks: []model.Task{
 			model.Run{
-				SaveArtifact: "a",
+				SaveArtifacts: []string{
+					"a",
+				},
 			},
 			model.DeployCF{
 				DeployArtifact: "b",
@@ -263,7 +287,9 @@ func TestDeployArtifact(t *testing.T) {
 	man = model.Manifest{
 		Tasks: []model.Task{
 			model.Run{
-				SaveArtifact: "a",
+				SaveArtifacts: []string{
+					"a",
+				},
 			},
 			model.Run{},
 			model.DeployCF{

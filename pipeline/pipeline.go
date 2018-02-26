@@ -125,7 +125,7 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 					},
 				}}}}
 
-	if task.SaveArtifact != "" {
+	if len(task.SaveArtifacts) > 0 {
 		jobConfig.Plan[1].TaskConfig.Outputs = []atc.TaskOutputConfig{
 			{Name: artifactsFolderName},
 		}
@@ -137,7 +137,7 @@ if [ ! -f %s ]; then
     exit -1
 fi
 cp %s $ARTIFACTS_DIR
-`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifact, task.SaveArtifact, task.SaveArtifact)
+`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0])
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
 		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
 	}

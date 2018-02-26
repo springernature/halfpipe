@@ -43,10 +43,10 @@ func (repo Repo) IsPublic() bool {
 type Task interface{}
 
 type Run struct {
-	Script       string
-	Image        string
-	Vars         Vars
-	SaveArtifact string `json:"save_artifact"`
+	Script        string
+	Image         string
+	Vars          Vars
+	SaveArtifacts []string `json:"save_artifacts"`
 }
 
 type DockerPush struct {

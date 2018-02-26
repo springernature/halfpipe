@@ -176,11 +176,12 @@ tasks:
 - name: run
   image: alpine
   script: build.sh
-  save_artifact: path/to/artifact.jar
+  save_artifacts:
+    - path/to/artifact.jar
 `)
 
 	assert.Nil(t, errs)
-	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(Run).SaveArtifact)
+	assert.Equal(t, []string{"path/to/artifact.jar"}, manifest.Tasks[0].(Run).SaveArtifacts)
 
 }
 
