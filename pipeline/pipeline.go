@@ -132,12 +132,15 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 
 		runScriptWithCopyArtifact := fmt.Sprintf(`ARTIFACTS_DIR=%s
 %s
-if [ ! -f %s ]; then
+if [ ! -e %s ]; then
     echo "Artifact that should be at path '%s' not found! Bailing out"
     exit -1
 fi
-cp %s $ARTIFACTS_DIR
-`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0])
+
+ARTIFACT_DIR_NAME=$(dirname %s)
+mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+cp %s $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0])
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
 		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
 	}
