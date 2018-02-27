@@ -81,7 +81,6 @@ func main() {
 
 func projectData(fs afero.Afero, currentDir string) (project model.Project, error error) {
 	_, err := exec.LookPath("git")
-
 	if err != nil {
 		error = errors.New("Looks like you don't have git installed? please make sure you do")
 		return

@@ -155,7 +155,7 @@ type runScriptInput struct {
 }
 
 func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
-	tmpl, _ := template.New("runScript").Parse(`ARTIFACTS_DIR={{.PathToArtifact}}
+	tmpl, err := template.New("runScript").Parse(`ARTIFACTS_DIR={{.PathToArtifact}}
 {{.Script}}
 if [ ! -e {{.SaveArtifactTask}} ]; then
     echo "Artifact that should be at path '{{.SaveArtifactTask}}' not found! Bailing out"
@@ -167,8 +167,17 @@ mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 `)
 
+	if err != nil {
+		panic(err)
+	}
+
 	byteBuffer := new(bytes.Buffer)
-	tmpl.Execute(byteBuffer, input)
+	err = tmpl.Execute(byteBuffer, input)
+
+	if err != nil {
+		panic(err)
+	}
+
 	return byteBuffer.String()
 }
 
