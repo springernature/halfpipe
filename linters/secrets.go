@@ -16,7 +16,7 @@ type SecretsLinter struct {
 }
 
 func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
-	result.Linter = "Secrets Linter"
+	result.Linter = "Secrets"
 	if manifest.Team == "" {
 		return
 	}

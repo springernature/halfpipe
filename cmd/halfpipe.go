@@ -60,6 +60,7 @@ func main() {
 			linters.RepoLinter{Fs: fs},
 			linters.SecretsLinter{VaultClient: vault.NewVaultClient(config.VaultPrefix)},
 			linters.TaskLinter{Fs: fs},
+			linters.ArtifactsLinter{},
 		},
 		Renderer:  pipeline.Pipeline{},
 		Defaulter: defaults.DefaultValues.Update,

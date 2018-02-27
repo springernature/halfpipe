@@ -18,7 +18,7 @@ type TaskLinter struct {
 }
 
 func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
-	result.Linter = "Tasks Linter"
+	result.Linter = "Tasks"
 
 	if len(man.Tasks) == 0 {
 		result.AddError(errors.NewMissingField("tasks"))
@@ -37,8 +37,6 @@ func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
 		}
 	}
-
-	result.AddError(linter.lintArtifact(man)...)
 
 	return
 }
@@ -111,40 +109,5 @@ func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
 			errs = append(errs, errors.NewInvalidField(key, "Env vars mus be uppercase only"))
 		}
 	}
-	return
-}
-
-func (TaskLinter) lintArtifact(manifest model.Manifest) (errs []error) {
-	var artifacts int
-	var artifact string
-	for _, t := range manifest.Tasks {
-		switch task := t.(type) {
-		case model.Run:
-			if len(task.SaveArtifacts) > 0 {
-				artifacts += 1
-				artifact = task.SaveArtifacts[0]
-				if artifacts > 1 {
-					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving artifacts from on task"))
-					return
-				}
-				if len(task.SaveArtifacts) > 1 {
-					errs = append(errs, errors.NewInvalidField("run.save_artifact", "Found multiple artifacts in 'save_artifact', currently halfpipe only supports saving one artifacts"))
-					return
-				}
-			}
-
-		case model.DeployCF:
-			if task.DeployArtifact != "" && task.DeployArtifact != artifact {
-				var errorStr string
-				if artifact == "" {
-					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s'", task.DeployArtifact)
-				} else {
-					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s', but I found a previous job that saves the artifact '%s'.", task.DeployArtifact, artifact)
-				}
-				errs = append(errs, errors.NewInvalidField("deploy-cf.deploy_artifact", errorStr))
-			}
-		}
-	}
-
 	return
 }

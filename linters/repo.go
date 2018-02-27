@@ -27,7 +27,7 @@ func (r RepoLinter) checkGlob(glob string) error {
 }
 
 func (r RepoLinter) Lint(man model.Manifest) (result model.LintResult) {
-	result.Linter = "Repo Linter"
+	result.Linter = "Repo"
 
 	if man.Repo.Uri == "" {
 		result.AddError(errors.NewMissingField("repo.uri"))

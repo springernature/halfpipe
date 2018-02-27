@@ -8,7 +8,7 @@ import (
 type TeamLinter struct{}
 
 func (TeamLinter) Lint(manifest model.Manifest) (result model.LintResult) {
-	result.Linter = "Team Linter"
+	result.Linter = "Team"
 
 	if manifest.Team == "" {
 		result.AddError(errors.NewMissingField("team"))
