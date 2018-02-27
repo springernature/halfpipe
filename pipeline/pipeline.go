@@ -5,6 +5,10 @@ import (
 	"path"
 	"strings"
 
+	"text/template"
+
+	"bytes"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/model"
 )
@@ -130,22 +134,42 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 			{Name: artifactsFolderName},
 		}
 
-		runScriptWithCopyArtifact := fmt.Sprintf(`ARTIFACTS_DIR=%s
-%s
-if [ ! -e %s ]; then
-    echo "Artifact that should be at path '%s' not found! Bailing out"
-    exit -1
-fi
+		scriptInput := runScriptInput{
+			PathToArtifact:   p.pathToArtifactsDir(repoName, basePath),
+			Script:           script,
+			SaveArtifactTask: task.SaveArtifacts[0],
+		}
 
-ARTIFACT_DIR_NAME=$(dirname %s)
-mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
-cp %s $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
-`, p.pathToArtifactsDir(repoName, basePath), script, task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0], task.SaveArtifacts[0])
+		runScriptWithCopyArtifact := scriptInput.renderRunScriptWithCopyArtifact()
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
 		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
 	}
 
 	return jobConfig
+}
+
+type runScriptInput struct {
+	PathToArtifact   string
+	Script           string
+	SaveArtifactTask string
+}
+
+func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
+	tmpl, _ := template.New("runScript").Parse(`ARTIFACTS_DIR={{.PathToArtifact}}
+{{.Script}}
+if [ ! -e {{.SaveArtifactTask}} ]; then
+    echo "Artifact that should be at path '{{.SaveArtifactTask}}' not found! Bailing out"
+    exit -1
+fi
+
+ARTIFACT_DIR_NAME=$(dirname {{.SaveArtifactTask}})
+mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+`)
+
+	byteBuffer := new(bytes.Buffer)
+	tmpl.Execute(byteBuffer, input)
+	return byteBuffer.String()
 }
 
 func (p Pipeline) deployCFJob(task model.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
