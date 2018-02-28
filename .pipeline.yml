@@ -133,8 +133,9 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: springerplatformengineering/halfpipe-fly
-          tag: latest
+          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+          username: _json_key
+          password: ((gcr.private_key))
       run:
         path: /bin/sh
         args:
