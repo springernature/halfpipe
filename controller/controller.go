@@ -56,11 +56,10 @@ func (c Controller) Process() (config atc.Config, results model.LintResults) {
 		results = append(results, linter.Lint(manifest))
 	}
 
-	for _, lintResult := range results {
-		if lintResult.HasErrors() {
-			return
-		}
+	if results.HasErrors() {
+		return
 	}
+
 	config = c.Renderer.Render(c.Project, manifest)
 	return
 }
