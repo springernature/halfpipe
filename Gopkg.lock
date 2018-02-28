@@ -2,22 +2,10 @@
 
 
 [[projects]]
-  name = "code.cloudfoundry.org/lager"
-  packages = ["."]
-  revision = "0bfa98e49e7a976af91e918d47978f07c00b081f"
-  version = "v1.0.0"
-
-[[projects]]
   name = "github.com/blang/semver"
   packages = ["."]
   revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
   version = "v3.5.1"
-
-[[projects]]
-  name = "github.com/bmatcuk/doublestar"
-  packages = ["."]
-  revision = "b3608229437ba4dc33dae64d56a79a2a73f1f6b2"
-  version = "v1.0.9"
 
 [[projects]]
   branch = "master"
@@ -26,41 +14,9 @@
   revision = "6226ea591a40176dd3ff9cd8eff81ed6ca721a00"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/charlievieth/fs"
-  packages = ["."]
-  revision = "7dc373669fa10ddf827c37c595dee30a2f001be9"
-
-[[projects]]
-  name = "github.com/cloudfoundry/bosh-cli"
-  packages = ["director/template"]
-  revision = "e94aeebdeed26c840d96c33a02126f523d7b226a"
-  version = "v2.0.48"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cloudfoundry/bosh-utils"
-  packages = [
-    "errors",
-    "logger",
-    "system"
-  ]
-  revision = "d052b28175edc3636cbf528dcdd5ad47ae587f6c"
-
-[[projects]]
   name = "github.com/concourse/atc"
-  packages = [
-    ".",
-    "creds",
-    "creds/vault"
-  ]
+  packages = ["."]
   revision = "f233e595b00f4308a63baececc96d52af4d8a92e"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cppforlife/go-patch"
-  packages = ["patch"]
-  revision = "250da0e0e68ce3367b4302f34218f6c064eb9559"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
@@ -81,12 +37,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/golang/mock"
-  packages = ["gomock"]
-  revision = "13f360950a79f5864a972c786a10a50e44b69541"
-  version = "v1.0.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/golang/snappy"
   packages = ["."]
@@ -103,6 +53,12 @@
   name = "github.com/google/go-querystring"
   packages = ["query"]
   revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
+
+[[projects]]
+  name = "github.com/google/uuid"
+  packages = ["."]
+  revision = "064e2069ce9c359c118179501254f67d7d37ba24"
+  version = "0.2"
 
 [[projects]]
   branch = "master"
@@ -346,6 +302,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a375c67d98c65f86e7687180bcb974f2a3c4272f5f8554194770c612e5d64331"
+  inputs-digest = "c55252eeb11f767f129dfaaf1bd82badef6a610e729c78476eabe78e79c6fc05"
   solver-name = "gps-cdcl"
   solver-version = 1

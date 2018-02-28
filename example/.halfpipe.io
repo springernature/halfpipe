@@ -14,7 +14,7 @@ tasks:
   space: dev
 
 - name: deploy-cf
-  api: live
+  api: ((a.b))
   space: staging
 
 - name: deploy-cf

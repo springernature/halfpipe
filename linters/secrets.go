@@ -6,13 +6,12 @@ import (
 	"strings"
 
 	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/linters/secret_resolver"
 	"github.com/springernature/halfpipe/model"
-	"github.com/springernature/halfpipe/vault"
 )
 
 type SecretsLinter struct {
-	VaultClient vault.Client
+	ConcourseResolv secret_resolver.ConcourseResolver
 }
 
 func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
@@ -25,14 +24,8 @@ func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 		if s.invalidSecret(secret) {
 			result.Errors = append(result.Errors, errors.NewVaultSecretError(secret))
 		} else {
-			mapName, keyName := helpers.SecretToMapAndKey(secret)
-			team := manifest.Team
-			pipeline := manifest.Repo.GetName()
-			found, err := s.VaultClient.Exists(team, pipeline, mapName, keyName)
-			if err != nil {
-				result.Errors = append(result.Errors, err)
-			} else if !found {
-				result.Errors = append(result.Errors, errors.NewVaultSecretNotFoundError(s.VaultClient.VaultPrefix(), team, pipeline, secret))
+			if err := s.ConcourseResolv.Exists(manifest.Team, manifest.Repo.GetName(), secret); err != nil {
+				result.AddError(err)
 			}
 		}
 	}

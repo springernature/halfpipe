@@ -15,11 +15,11 @@ import (
 	"github.com/springernature/halfpipe/helpers"
 	"github.com/springernature/halfpipe/helpers/path_to_git"
 	"github.com/springernature/halfpipe/linters"
+	"github.com/springernature/halfpipe/linters/secret_resolver"
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
-	"github.com/springernature/halfpipe/vault"
 	"github.com/tcnksm/go-gitconfig"
 )
 
@@ -58,7 +58,9 @@ func main() {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{Fs: fs},
-			linters.SecretsLinter{VaultClient: vault.NewVaultClient(config.VaultPrefix)},
+			linters.SecretsLinter{
+				ConcourseResolv: secret_resolver.NewConcourseResolver(config.VaultPrefix, secret_resolver.NewSecretResolver(fs)),
+			},
 			linters.TaskLinter{Fs: fs},
 			linters.ArtifactsLinter{},
 		},
