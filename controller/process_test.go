@@ -38,6 +38,16 @@ func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
 	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
 }
 
+func TestProcessDoesNothingWhenParserFails(t *testing.T) {
+	c := testController()
+	c.Fs.WriteFile(".halfpipe.io", []byte("WrYyYyYy"), 0777)
+	pipeline, results := c.Process()
+
+	assert.Empty(t, pipeline)
+	assert.Len(t, results, 1)
+	assert.IsType(t, errors.ParseError{}, results[0].Errors[0])
+}
+
 type fakeLinter struct {
 	Error error
 }
