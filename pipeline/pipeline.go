@@ -72,7 +72,7 @@ func (p Pipeline) dockerPushResource(docker model.DockerPush, resourceName strin
 		Source: atc.Source{
 			"username":   docker.Username,
 			"password":   docker.Password,
-			"repository": docker.Repo,
+			"repository": docker.Image,
 		},
 	}
 }

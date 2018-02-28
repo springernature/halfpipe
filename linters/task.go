@@ -66,12 +66,12 @@ func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []err
 	if docker.Password == "" {
 		errs = append(errs, errors.NewMissingField("docker-push.password"))
 	}
-	if docker.Repo == "" {
-		errs = append(errs, errors.NewMissingField("docker-push.repo"))
+	if docker.Image == "" {
+		errs = append(errs, errors.NewMissingField("docker-push.image"))
 	} else {
-		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Repo))
+		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
 		if !matched {
-			errs = append(errs, errors.NewInvalidField("docker-push.repo", "must be specified as 'owner/image'"))
+			errs = append(errs, errors.NewInvalidField("docker-push.image", "must be specified as 'user/image' or 'registry/user/image'"))
 		}
 	}
 
@@ -104,7 +104,7 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 }
 
 func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
-	for key, _ := range vars {
+	for key := range vars {
 		if key != strings.ToUpper(key) {
 			errs = append(errs, errors.NewInvalidField(key, "Env vars mus be uppercase only"))
 		}

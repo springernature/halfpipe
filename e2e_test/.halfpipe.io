@@ -25,7 +25,7 @@ tasks:
 - name: docker-push
   username: rob
   password: verysecret
-  repo: springerplatformengineering/halfpipe-fly
+  image: springerplatformengineering/halfpipe-fly
 
 - name: run
   script: ./notify.sh

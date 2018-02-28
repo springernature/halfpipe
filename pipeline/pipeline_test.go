@@ -194,7 +194,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		model.DockerPush{
 			Username: username,
 			Password: password,
-			Repo:     repo,
+			Image:    repo,
 		},
 	}
 
@@ -234,7 +234,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		model.DockerPush{
 			Username: username,
 			Password: password,
-			Repo:     repo,
+			Image:    repo,
 		},
 	}
 

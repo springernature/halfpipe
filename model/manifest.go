@@ -52,7 +52,7 @@ type Run struct {
 type DockerPush struct {
 	Username string
 	Password string
-	Repo     string
+	Image    string
 	Vars     Vars
 }
 

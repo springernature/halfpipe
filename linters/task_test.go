@@ -95,7 +95,7 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	assert.Len(t, result.Errors, 4)
 	assertMissingField(t, "docker-push.username", result.Errors[0])
 	assertMissingField(t, "docker-push.password", result.Errors[1])
-	assertMissingField(t, "docker-push.repo", result.Errors[2])
+	assertMissingField(t, "docker-push.image", result.Errors[2])
 	assertFileError(t, "Dockerfile", result.Errors[3])
 
 }
@@ -107,14 +107,14 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo:     "asd",
+				Image:    "asd",
 			},
 		},
 	}
 
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 2)
-	assertInvalidField(t, "docker-push.repo", result.Errors[0])
+	assertInvalidField(t, "docker-push.image", result.Errors[0])
 	assertFileError(t, "Dockerfile", result.Errors[1])
 
 }
@@ -126,7 +126,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo:     "asd/asd",
+				Image:    "asd/asd",
 			},
 		},
 	}
@@ -145,7 +145,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			model.DockerPush{
 				Username: "asd",
 				Password: "asd",
-				Repo:     "asd/asd",
+				Image:    "asd/asd",
 			},
 		},
 	}
