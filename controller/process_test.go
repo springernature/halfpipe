@@ -8,6 +8,7 @@ import (
 	"github.com/springernature/halfpipe/errors"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/project"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -76,7 +77,7 @@ type FakeRenderer struct {
 	Config atc.Config
 }
 
-func (f FakeRenderer) Render(project model.Project, manifest model.Manifest) atc.Config {
+func (f FakeRenderer) Render(project project.Project, manifest model.Manifest) atc.Config {
 	return f.Config
 }
 

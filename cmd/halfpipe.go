@@ -5,22 +5,17 @@ import (
 	"os"
 	"syscall"
 
-	"os/exec"
-
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/helpers"
-	"github.com/springernature/halfpipe/helpers/path_to_git"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secret_resolver"
-	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/sync/githubRelease"
-	"github.com/tcnksm/go-gitconfig"
 )
 
 func invokedForHelp(args []string) bool {
@@ -49,12 +44,12 @@ func main() {
 	currentDir, err := os.Getwd()
 	printAndExit(err)
 
-	projectData, err := projectData(fs, currentDir)
+	proj, err := project.NewConfig(fs).Parse(currentDir)
 	printAndExit(err)
 
 	ctrl := controller.Controller{
 		Fs:      fs,
-		Project: projectData,
+		Project: proj,
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{Fs: fs},
@@ -80,29 +75,6 @@ func main() {
 	printAndExit(err)
 
 	fmt.Println(pipelineYaml)
-}
-
-func projectData(fs afero.Afero, currentDir string) (project model.Project, error error) {
-	_, err := exec.LookPath("git")
-	if err != nil {
-		error = errors.New("Looks like you don't have git installed? please make sure you do")
-		return
-	}
-
-	origin, err := gitconfig.OriginURL()
-	if err != nil {
-		error = errors.New("Looks like you are not executing halfpipe from within a git repo?")
-		return
-	}
-
-	basePath, error := path_to_git.PathRelativeToGit(fs, currentDir, 5)
-	if error != nil {
-		return
-	}
-
-	project.GitUri = origin
-	project.BasePath = basePath
-	return
 }
 
 func checkVersion() {

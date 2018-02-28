@@ -9,13 +9,14 @@ import (
 	"github.com/springernature/halfpipe/model"
 	"github.com/springernature/halfpipe/parser"
 	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/project"
 )
 
 const halfpipeFile = ".halfpipe.io"
 
 type Controller struct {
 	Fs        afero.Afero
-	Project   model.Project
+	Project   project.Project
 	Linters   []linters.Linter
 	Renderer  pipeline.Renderer
 	Defaulter defaults.Defaulter

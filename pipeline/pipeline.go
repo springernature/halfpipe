@@ -11,10 +11,11 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/project"
 )
 
 type Renderer interface {
-	Render(project model.Project, manifest model.Manifest) atc.Config
+	Render(project project.Project, manifest model.Manifest) atc.Config
 }
 
 type Pipeline struct{}
@@ -214,7 +215,7 @@ func (p Pipeline) dockerPushJob(task model.DockerPush, repoName, jobName, resour
 	}
 }
 
-func (p Pipeline) Render(project model.Project, manifest model.Manifest) (config atc.Config) {
+func (p Pipeline) Render(project project.Project, manifest model.Manifest) (config atc.Config) {
 	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
 	repoName := manifest.Repo.GetName()
 
