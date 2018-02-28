@@ -23,19 +23,13 @@ type Controller struct {
 }
 
 func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
-	if err := file_checker.CheckFile(c.Fs, halfpipeFile, false); err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	content, err := c.Fs.ReadFile(halfpipeFile)
+	yaml, err := file_checker.ReadFile(c.Fs, halfpipeFile)
 	if err != nil {
 		errors = append(errors, err)
 		return
 	}
 
-	stringContent := string(content)
-	manifest, errs := parser.Parse(stringContent)
+	manifest, errs := parser.Parse(yaml)
 	if len(errs) != 0 {
 		errors = append(errors, errs...)
 		return

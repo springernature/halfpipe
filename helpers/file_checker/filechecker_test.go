@@ -53,3 +53,22 @@ func TestFile_Happy(t *testing.T) {
 
 	assert.Nil(t, err)
 }
+
+func TestRead(t *testing.T) {
+	fs := testFs()
+	fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
+
+	content, err := ReadFile(fs, ".halfpipe.io")
+
+	assert.Nil(t, err)
+	assert.Equal(t, "foo", content)
+}
+
+func TestReadDoesCheck(t *testing.T) {
+	fs := testFs()
+	fs.WriteFile(".halfpipe.io", []byte{}, 0700)
+
+	_, err := ReadFile(fs, ".halfpipe.io")
+
+	assert.Equal(t, errors.NewFileError(".halfpipe.io", "is empty"), err)
+}
