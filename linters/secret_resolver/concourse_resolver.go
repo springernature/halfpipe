@@ -34,7 +34,7 @@ func (c concourseResolver) Exists(team string, pipeline string, concourseSecret 
 
 	for _, p := range paths {
 		exists, e := c.secretsResolver.Exists(p, secretKey)
-		if err != nil {
+		if e != nil {
 			err = e
 			return
 		}
