@@ -34,7 +34,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 2)
 	assertMissingField(t, "run.script", result.Errors[0])
-	assertMissingField(t, "run.image", result.Errors[1])
+	assertMissingField(t, "run.docker.image", result.Errors[1])
 }
 
 func TestRunTaskWithScriptAndImage(t *testing.T) {
