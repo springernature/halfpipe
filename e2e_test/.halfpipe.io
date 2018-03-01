@@ -6,7 +6,8 @@ repo:
 tasks:
 - name: run
   script: test.sh
-  image: node:9.5.0-alpine
+  docker:
+    image: node:9.5.0-alpine
 
 - name: deploy-cf
   api: dev-api
@@ -31,5 +32,3 @@ tasks:
   script: ./notify.sh
   docker:
     image: busy
-    username: blah
-    password: blah
