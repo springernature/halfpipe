@@ -1,6 +1,8 @@
 package defaults
 
 import (
+	"strings"
+
 	"github.com/springernature/halfpipe/model"
 )
 
@@ -11,6 +13,8 @@ type Defaults struct {
 	CfUsername     string
 	CfPassword     string
 	CfManifest     string
+	DockerUsername string
+	DockerPassword string
 }
 
 func (d Defaults) Update(man model.Manifest) model.Manifest {
@@ -32,6 +36,12 @@ func (d Defaults) Update(man model.Manifest) model.Manifest {
 			}
 			if task.Manifest == "" {
 				task.Manifest = d.CfManifest
+			}
+			man.Tasks[i] = task
+		case model.Run:
+			if strings.HasPrefix(task.Docker.Image, "eu.gcr.io/halfpipe-io/") {
+				task.Docker.Username = d.DockerUsername
+				task.Docker.Password = d.DockerPassword
 			}
 			man.Tasks[i] = task
 		}

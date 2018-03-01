@@ -60,3 +60,41 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	assert.Equal(t, expected, actual)
 }
+
+func TestRunTaskDefault(t *testing.T) {
+
+	manifestDefaults := Defaults{
+		DockerUsername: "_json_key",
+		DockerPassword: "((gcr.private_key))",
+	}
+
+	task1 := model.Run{
+		Script: "./blah",
+		Docker: model.Docker{
+			Image: "Blah",
+		},
+	}
+	task2 := model.Run{
+		Script: "./blah",
+		Docker: model.Docker{
+			Image: "eu.gcr.io/halfpipe-io/runImage",
+		},
+	}
+
+	manifest := model.Manifest{Team: "ee", Tasks: []model.Task{task1, task2}}
+
+	expectedTask2 := model.Run{
+		Script: "./blah",
+		Docker: model.Docker{
+			Image:    "eu.gcr.io/halfpipe-io/runImage",
+			Username: manifestDefaults.DockerUsername,
+			Password: manifestDefaults.DockerPassword,
+		},
+	}
+
+	expected := model.Manifest{Team: "ee", Tasks: []model.Task{task1, expectedTask2}}
+
+	actual := manifestDefaults.Update(manifest)
+
+	assert.Equal(t, expected, actual)
+}

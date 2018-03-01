@@ -34,3 +34,8 @@ tasks:
     image: busy
     username: michiel
     password: blah
+
+- name: run
+  script: ./notify.sh
+  docker:
+    image: eu.gcr.io/halfpipe-io/blah
