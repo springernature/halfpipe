@@ -65,7 +65,7 @@ func main() {
 	pipelineConfig, lintResults := ctrl.Process()
 	if lintResults.HasErrors() {
 		for _, err := range lintResults {
-			fmt.Println(err)
+			fmt.Fprintln(os.Stderr, err)
 		}
 		syscall.Exit(1)
 	}
@@ -92,7 +92,7 @@ func checkVersion() {
 
 func printAndExit(err error) {
 	if err != nil {
-		fmt.Println(err)
+		fmt.Fprintln(os.Stderr, err)
 		syscall.Exit(-1)
 	}
 }
