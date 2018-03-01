@@ -15,7 +15,6 @@ import (
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
-	"github.com/springernature/halfpipe/sync/githubRelease"
 )
 
 func invokedForHelp(args []string) bool {
@@ -81,11 +80,13 @@ func checkVersion() {
 	currentVersion, err := helpers.GetVersion()
 	printAndExit(err)
 
-	syncer := sync.Syncer{CurrentVersion: currentVersion, GithubRelease: githubRelease.GithubRelease{}}
+	syncer := sync.NewSyncer(currentVersion)
 	if len(os.Args) == 1 {
 		printAndExit(syncer.Check())
 	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
-		printAndExit(syncer.Update())
+		err := syncer.Update(os.Stdout)
+		printAndExit(err)
+		syscall.Exit(0)
 	}
 }
 

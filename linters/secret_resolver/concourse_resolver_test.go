@@ -4,8 +4,9 @@ import (
 	"path"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"errors"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const prefix = "prefix"
@@ -78,7 +79,6 @@ func TestCallsOutTwiceAndReturnsNilIfFoundInSecondCall(t *testing.T) {
 
 }
 
-
 func TestPassesOnTheError(t *testing.T) {
 	myError := errors.New("Wryyy")
 
@@ -95,4 +95,3 @@ func TestPassesOnTheError(t *testing.T) {
 	assert.Equal(t, myError, err)
 
 }
-
