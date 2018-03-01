@@ -85,12 +85,25 @@ func (p Pipeline) imageResource(docker model.Docker) *atc.ImageResource {
 		repo = split[0]
 		tag = split[1]
 	}
-	return &atc.ImageResource{
-		Type: "docker-image",
-		Source: atc.Source{
-			"repository": repo,
-			"tag":        tag,
-		},
+	//this is horribe, but don't know how to make it better for now
+	if docker.Username != "" && docker.Password != "" {
+		return &atc.ImageResource{
+			Type: "docker-image",
+			Source: atc.Source{
+				"repository": repo,
+				"tag":        tag,
+				"username":   docker.Username,
+				"password":   docker.Password,
+			},
+		}
+	} else {
+		return &atc.ImageResource{
+			Type: "docker-image",
+			Source: atc.Source{
+				"repository": repo,
+				"tag":        tag,
+			},
+		}
 	}
 }
 

@@ -32,3 +32,5 @@ tasks:
   script: ./notify.sh
   docker:
     image: busy
+    username: michiel
+    password: blah

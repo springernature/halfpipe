@@ -139,6 +139,57 @@ func TestRenderRunTask(t *testing.T) {
 
 	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest).Jobs[0])
 }
+func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
+	manifest := model.Manifest{}
+	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
+	manifest.Tasks = []model.Task{
+		model.Run{
+			Script: "./yolo.sh",
+			Docker: model.Docker{
+				Image:    "imagename:TAG",
+				Username: "user",
+				Password: "pass",
+			},
+			Vars: map[string]string{
+				"VAR1": "Value1",
+				"VAR2": "Value2",
+			},
+		},
+	}
+
+	expected := atc.JobConfig{
+		Name:   "run yolo.sh",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Task: "./yolo.sh", TaskConfig: &atc.TaskConfig{
+				Platform: "linux",
+				Params: map[string]string{
+					"VAR1": "Value1",
+					"VAR2": "Value2",
+				},
+				ImageResource: &atc.ImageResource{
+					Type: "docker-image",
+					Source: atc.Source{
+						"repository": "imagename",
+						"tag":        "TAG",
+						"username":   "user",
+						"password":   "pass",
+					},
+				},
+				Run: atc.TaskRunConfig{
+					Path: "/bin/sh",
+					Dir:  manifest.Repo.GetName(),
+					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: manifest.Repo.GetName()},
+				},
+			}},
+		}}
+
+	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest).Jobs[0])
+}
 
 func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 	manifest := model.Manifest{}
