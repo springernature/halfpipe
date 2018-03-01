@@ -84,12 +84,11 @@ func TestCheckReturnsErrorWhenWeCannotParseTheTagFromTheRelease(t *testing.T) {
 
 	err := release.Check()
 	assert.Error(t, err)
-
 }
 
 func TestCheckReturnsErrorWhenCurrentVersionIsBehind(t *testing.T) {
 
-	currentVersion := semver.Version{Major: 0}
+	currentVersion := semver.Version{}
 	latestVersion := semver.Version{Major: 1}
 
 	release := sync{
@@ -107,6 +106,7 @@ func TestCheckReturnsErrorWhenCurrentVersionIsBehind(t *testing.T) {
 
 	err := release.Check()
 	assert.Error(t, err)
+	assert.Equal(t, err, OutOfDateBinaryError(currentVersion, latestVersion))
 }
 
 func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
@@ -115,6 +115,7 @@ func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
 	}
 	err := release.Update(&bytes.Buffer{})
 	assert.Error(t, err)
+	assert.Equal(t, err, UpdatingDevReleaseError)
 }
 
 func TestUpdateErrorsOutIfWeCannotGetLatestRelease(t *testing.T) {
@@ -151,6 +152,7 @@ func TestUpdateErrorsOutIfWeCannotFindDownloadUrlForOurArch(t *testing.T) {
 
 	err := release.Update(&bytes.Buffer{})
 	assert.Error(t, err)
+	assert.Equal(t, err, NoBinaryForArchError(release.os))
 
 }
 
@@ -205,6 +207,7 @@ func TestUpdateReturnsUpdateErrorFromUpdater(t *testing.T) {
 	}
 
 	err := release.Update(&bytes.Buffer{})
+	assert.Error(t, err)
 	assert.Equal(t, err, updateError)
 
 }

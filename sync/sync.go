@@ -16,6 +16,17 @@ import (
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
+var (
+	NoBinaryForArchError = func(os string) error {
+		return errors.New(fmt.Sprintf("Could not find a binary for your arch, '%s'", os))
+	}
+	UpdatingDevReleaseError = errors.New("cannot update a dev release")
+	OutOfDateBinaryError    = func(currentVersion semver.Version, latestVersion semver.Version) error {
+		errorMessage := fmt.Sprintf("Current version %s is behind latest version %s. Please run 'halfpipe sync'", currentVersion, latestVersion)
+		return errors.New(errorMessage)
+	}
+)
+
 type Sync interface {
 	Check() error
 	Update(out io.Writer) error
@@ -65,8 +76,7 @@ func (s sync) Check() (err error) {
 	}
 
 	if s.currentVersion.LT(latestVersion) {
-		errorMessage := fmt.Sprintf("Current version %s is behind latest version %s. Please run 'halfpipe sync'", s.currentVersion.String(), latestVersion.String())
-		err = errors.New(errorMessage)
+		err = OutOfDateBinaryError(s.currentVersion, latestVersion)
 	}
 
 	return
@@ -84,13 +94,13 @@ func (s sync) getLatestBinaryUrl() (url string, err error) {
 			return
 		}
 	}
-	err = errors.New(fmt.Sprintf("Could not find a binary for your arch, '%s'", s.os))
+	err = NoBinaryForArchError(s.os)
 	return
 }
 
 func (s sync) Update(out io.Writer) (err error) {
 	if s.currentVersion.EQ(DevVersion) {
-		return errors.New("cannot update a dev release")
+		return UpdatingDevReleaseError
 	}
 
 	binaryUrl, err := s.getLatestBinaryUrl()
