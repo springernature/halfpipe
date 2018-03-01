@@ -81,13 +81,17 @@ func TestCallsOutTwiceAndReturnsNilIfFoundInSecondCall(t *testing.T) {
 
 func TestPassesOnTheError(t *testing.T) {
 	myError := errors.New("Wryyy")
+
+	var numCalls int
 	resolver := NewConcourseResolver(prefix, SecretResolverDouble{
 		exists: func(path string, secretKey string) (bool, error) {
+			numCalls += 1
 			return false, myError
 		},
 	})
 
 	err := resolver.Exists(team, pipeline, concourseSecret)
+	assert.Equal(t, numCalls, 1)
 	assert.Equal(t, myError, err)
 
 }
