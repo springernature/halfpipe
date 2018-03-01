@@ -98,6 +98,13 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 		errs = append(errs, errors.NewMissingField("run.docker.image"))
 	}
 
+	if run.Docker.Username != "" && run.Docker.Password == "" {
+		errs = append(errs, errors.NewMissingField("run.docker.password"))
+	}
+	if run.Docker.Password != "" && run.Docker.Username == "" {
+		errs = append(errs, errors.NewMissingField("run.docker.username"))
+	}
+
 	errs = append(errs, linter.lintEnvVars(run.Vars)...)
 
 	return errs

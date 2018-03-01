@@ -54,6 +54,62 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 	assertFileError(t, "./build.sh", result.Errors[0])
 }
 
+func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
+	man := model.Manifest{}
+	man.Tasks = []model.Task{
+		model.Run{
+			Script: "./build.sh",
+			Docker: model.Docker{
+				Image:    "alpine",
+				Password: "secret",
+				Username: "Michiel",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+}
+
+func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
+	man := model.Manifest{}
+	man.Tasks = []model.Task{
+		model.Run{
+			Script: "./build.sh",
+			Docker: model.Docker{
+				Image:    "alpine",
+				Password: "secret",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "run.docker.username", result.Errors[0])
+}
+func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
+	man := model.Manifest{}
+	man.Tasks = []model.Task{
+		model.Run{
+			Script: "./build.sh",
+			Docker: model.Docker{
+				Image:    "alpine",
+				Username: "Michiel",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "run.docker.password", result.Errors[0])
+}
+
 func TestRunTaskScriptFileExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
