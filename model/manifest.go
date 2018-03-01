@@ -44,9 +44,15 @@ type Task interface{}
 
 type Run struct {
 	Script        string
-	Image         string
+	Docker        Docker
 	Vars          Vars
 	SaveArtifacts []string `json:"save_artifacts"`
+}
+
+type Docker struct {
+	Image    string
+	Username string
+	Password string
 }
 
 type DockerPush struct {

@@ -78,10 +78,10 @@ func (p Pipeline) dockerPushResource(docker model.DockerPush, resourceName strin
 	}
 }
 
-func (p Pipeline) imageResource(image string) *atc.ImageResource {
-	repo, tag := image, "latest"
-	if strings.Contains(image, ":") {
-		split := strings.Split(image, ":")
+func (p Pipeline) imageResource(docker model.Docker) *atc.ImageResource {
+	repo, tag := docker.Image, "latest"
+	if strings.Contains(docker.Image, ":") {
+		split := strings.Split(docker.Image, ":")
 		repo = split[0]
 		tag = split[1]
 	}
@@ -119,7 +119,7 @@ func (p Pipeline) runJob(task model.Run, repoName, jobName string, basePath stri
 				TaskConfig: &atc.TaskConfig{
 					Platform:      "linux",
 					Params:        task.Vars,
-					ImageResource: p.imageResource(task.Image),
+					ImageResource: p.imageResource(task.Docker),
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(repoName, basePath),

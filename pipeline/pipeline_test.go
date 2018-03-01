@@ -96,7 +96,11 @@ func TestRenderRunTask(t *testing.T) {
 	manifest.Tasks = []model.Task{
 		model.Run{
 			Script: "./yolo.sh",
-			Image:  "imagename:TAG",
+			Docker: model.Docker{
+				Image:    "imagename:TAG",
+				Username: "",
+				Password: "",
+			},
 			Vars: map[string]string{
 				"VAR1": "Value1",
 				"VAR2": "Value2",
@@ -144,7 +148,9 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 	manifest.Tasks = []model.Task{
 		model.Run{
 			Script: "./yolo.sh",
-			Image:  "imagename:TAG",
+			Docker: model.Docker{
+				Image: "imagename:TAG",
+			},
 			Vars: map[string]string{
 				"VAR1": "Value1",
 				"VAR2": "Value2",

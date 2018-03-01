@@ -73,11 +73,13 @@ func TestRepoWithPaths(t *testing.T) {
 }
 
 func TestRunTask(t *testing.T) {
-	man, errs := Parse("tasks: [{ name: run, image: alpine, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
+	man, errs := Parse("tasks: [{ name: run, docker: {image: alpine}, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Image:  "alpine",
+				Docker: Docker{
+					Image: "alpine",
+				},
 				Script: "build.sh",
 				Vars: Vars{
 					"FOO": "Foo",
@@ -92,11 +94,13 @@ func TestRunTask(t *testing.T) {
 }
 
 func TestMultipleTasks(t *testing.T) {
-	man, errs := Parse("tasks: [{ name: run, image: img, script: build.sh }, { name: docker-push, username: bob }, { name: run }, { name: deploy-cf, org: foo }]")
+	man, errs := Parse("tasks: [{ name: run, docker: {image: img}, script: build.sh }, { name: docker-push, username: bob }, { name: run }, { name: deploy-cf, org: foo }]")
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Image:  "img",
+				Docker: Docker{
+					Image: "img",
+				},
 				Script: "build.sh",
 			},
 			DockerPush{
@@ -131,18 +135,21 @@ func TestVarsParsedAsString(t *testing.T) {
 	man, errs := Parse(`
 tasks:
 - name: run
-  image: alpine
+  docker: 
+    image: alpine
   script: build.sh
   vars:
     STRING: Foo Bar
     FLOAT: 4.2
-    BOOL: true
+    BOOL: true	
 `)
 
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
-				Image:  "alpine",
+				Docker: Docker{
+					Image: "alpine",
+				},
 				Script: "build.sh",
 				Vars: Vars{
 					"STRING": "Foo Bar",

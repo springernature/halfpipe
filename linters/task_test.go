@@ -43,7 +43,9 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 	man.Tasks = []model.Task{
 		model.Run{
 			Script: "./build.sh",
-			Image:  "alpine",
+			Docker: model.Docker{
+				Image: "alpine",
+			},
 		},
 	}
 
@@ -60,7 +62,9 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	man.Tasks = []model.Task{
 		model.Run{
 			Script: "./build.sh",
-			Image:  "alpine",
+			Docker: model.Docker{
+				Image: "alpine",
+			},
 		},
 	}
 

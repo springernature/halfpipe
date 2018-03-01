@@ -29,4 +29,7 @@ tasks:
 
 - name: run
   script: ./notify.sh
-  image: busybox
+  docker:
+    image: busy
+    username: blah
+    password: blah

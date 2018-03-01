@@ -94,7 +94,7 @@ func (linter TaskLinter) lintRunTask(run model.Run) []error {
 		}
 	}
 
-	if run.Image == "" {
+	if run.Docker.Image == "" {
 		errs = append(errs, errors.NewMissingField("run.image"))
 	}
 
