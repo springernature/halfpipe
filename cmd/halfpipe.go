@@ -5,6 +5,7 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/controller"
@@ -22,13 +23,13 @@ func invokedForHelp(args []string) bool {
 
 }
 
-func printHelpAndExit() {
-	version, _ := helpers.GetVersion()
-	fmt.Println("Sup! Docs are at https://docs.halfpipe.io")
-	fmt.Printf("Current version is %s\n", version)
-	fmt.Println("Available commands are")
-	fmt.Printf("\tsync - updates the halfpipe cli to latest version `halfpipe sync`\n")
-	syscall.Exit(0)
+func printHelp() (string, error) {
+	version, err := helpers.GetVersion()
+	return fmt.Sprintf(`Sup! Docs are at https://docs.halfpipe.io")
+Current version is %s
+Available commands are
+\tsync - updates the halfpipe cli to latest version 'halfpipe sync'
+`, version), err
 }
 
 func invokedForSync(args []string) bool {
@@ -47,7 +48,7 @@ func syncBinary() (err error) {
 	return
 }
 
-func lintAndRender() (err error) {
+func lintAndRender() (output string, err error) {
 	fs := afero.Afero{Fs: afero.NewOsFs()}
 
 	currentDir, err := os.Getwd()
@@ -77,38 +78,40 @@ func lintAndRender() (err error) {
 	}
 
 	pipelineConfig, lintResults := ctrl.Process()
+
+	err = errors.New("")
 	if lintResults.HasErrors() {
-		for _, err := range lintResults {
-			fmt.Fprintln(os.Stderr, err)
+		for _, e := range lintResults {
+			err = errors.New(err.Error() + e.Error())
 		}
 		return
 	}
 
-	pipelineYaml, err := pipeline.ToString(pipelineConfig)
-	if err != nil {
-		return
-	}
-
-	fmt.Println(pipelineYaml)
+	output, err = pipeline.ToString(pipelineConfig)
 	return
 }
 
 func main() {
-	err := checkVersion()
-	if err == nil {
-		if invokedForHelp(os.Args) {
-			printHelpAndExit()
-		} else if invokedForSync(os.Args) {
-			err = syncBinary()
-		} else {
-			lintAndRender()
+	var output string
+	var err error
+
+	switch {
+	case invokedForHelp(os.Args):
+		output, err = printHelp()
+	case invokedForSync(os.Args):
+		err = syncBinary()
+	default:
+		if err = checkVersion(); err != nil {
+			break
 		}
+		output, err = lintAndRender()
 	}
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		syscall.Exit(-1)
+		syscall.Exit(1)
 	}
+	fmt.Fprintln(os.Stdout, output)
 }
 
 func checkVersion() (err error) {
