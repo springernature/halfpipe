@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,14 +48,14 @@ func TestProcessDoesNothingWhenParserFails(t *testing.T) {
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 1)
-	assert.IsType(t, parser.ParseError{}, results[0].Errors[0])
+	assert.IsType(t, manifest.ParseError{}, results[0].Errors[0])
 }
 
 type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest parser.Manifest) linters.LintResult {
+func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
 	return linters.NewLintResult("fake", []error{f.Error})
 }
 
@@ -79,7 +79,7 @@ type FakeRenderer struct {
 	Config atc.Config
 }
 
-func (f FakeRenderer) Render(manifest parser.Manifest) atc.Config {
+func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
 	return f.Config
 }
 
@@ -102,10 +102,10 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 }
 
 type fakeLinterFunc struct {
-	LintFunc func(parser.Manifest) linters.LintResult
+	LintFunc func(manifest.Manifest) linters.LintResult
 }
 
-func (f fakeLinterFunc) Lint(manifest parser.Manifest) linters.LintResult {
+func (f fakeLinterFunc) Lint(manifest manifest.Manifest) linters.LintResult {
 	return f.LintFunc(manifest)
 }
 

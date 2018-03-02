@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -32,7 +32,7 @@ func newSecretsLinter() secretsLinter {
 }
 
 func TestFindSecretsDoesNothingIfThereAreNoSecrets(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	result := newSecretsLinter().Lint(man)
 	assert.Len(t, result.Errors, 0)
 	assert.Len(t, calls, 0)
@@ -42,11 +42,11 @@ func TestErrorsForBadKeys(t *testing.T) {
 	wrong1 := "((a))"
 	wrong2 := "((b))"
 	wrong3 := "((c))"
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Team = wrong1
 	man.Repo.Uri = wrong2
-	man.Tasks = []parser.Task{
-		parser.DeployCF{
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
 			Password: wrong3,
 		},
 	}
@@ -61,11 +61,11 @@ func TestErrorsForBadKeys(t *testing.T) {
 
 func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
 	notFoundSecret := "((not.found))"
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Repo.Uri = "https://github.com/Masterminds/squirrel"
-	man.Tasks = []parser.Task{
-		parser.DeployCF{
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
 			Username: foundSecret,
 			Password: notFoundSecret,
 		},
@@ -90,33 +90,33 @@ func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
 	password := "((cloudfoundry.password))"
 	api := "((cloudfoundry.api))"
 
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Repo.Uri = "https://github.com/Masterminds/squirrel"
-	man.Tasks = []parser.Task{
-		parser.DeployCF{
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
 			Username: foundSecret,
 			Password: password,
 			Api:      api,
 		},
-		parser.DeployCF{
+		manifest.DeployCF{
 			Username: username,
 			Password: password,
 			Api:      api,
 		},
-		parser.DeployCF{
+		manifest.DeployCF{
 			Username: username,
 			Password: password,
 			Api:      api,
 		},
-		parser.Run{
+		manifest.Run{
 			Vars: map[string]string{
 				"a": foundSecret,
 				"b": password,
 				"c": api,
 			},
 		},
-		parser.DeployCF{
+		manifest.DeployCF{
 			Username: username,
 			Password: password,
 			Api:      api,

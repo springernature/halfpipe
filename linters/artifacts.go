@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type artifactsLinter struct {
@@ -14,14 +14,14 @@ func NewArtifactsLinter() artifactsLinter {
 	return artifactsLinter{}
 }
 
-func (linter artifactsLinter) Lint(man parser.Manifest) (result LintResult) {
+func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Artifacts"
 
 	var artifacts int
 	var artifact string
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
-		case parser.Run:
+		case manifest.Run:
 			if len(task.SaveArtifacts) > 0 {
 				artifacts += 1
 				artifact = task.SaveArtifacts[0]
@@ -35,7 +35,7 @@ func (linter artifactsLinter) Lint(man parser.Manifest) (result LintResult) {
 				}
 			}
 
-		case parser.DeployCF:
+		case manifest.DeployCF:
 			if task.DeployArtifact != "" && task.DeployArtifact != artifact {
 				var errorStr string
 				if artifact == "" {

@@ -1,4 +1,4 @@
-package parser
+package manifest
 
 import (
 	"encoding/json"

@@ -3,10 +3,10 @@ package defaults
 import (
 	"strings"
 
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 )
 
-type Defaulter func(parser.Manifest, Project) parser.Manifest
+type Defaulter func(manifest.Manifest, Project) manifest.Manifest
 
 type Defaults struct {
 	RepoPrivateKey string
@@ -24,7 +24,7 @@ func NewDefaulter(project Project) Defaults {
 	return d
 }
 
-func (d Defaults) Update(man parser.Manifest) parser.Manifest {
+func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 	man.Repo.Uri = d.Project.GitUri
 	man.Repo.BasePath = d.Project.BasePath
 
@@ -34,7 +34,7 @@ func (d Defaults) Update(man parser.Manifest) parser.Manifest {
 
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
-		case parser.DeployCF:
+		case manifest.DeployCF:
 			if task.Org == "" {
 				task.Org = man.Team
 			}
@@ -48,7 +48,7 @@ func (d Defaults) Update(man parser.Manifest) parser.Manifest {
 				task.Manifest = d.CfManifest
 			}
 			man.Tasks[i] = task
-		case parser.Run:
+		case manifest.Run:
 			if strings.HasPrefix(task.Docker.Image, "eu.gcr.io/halfpipe-io/") {
 				task.Docker.Username = d.DockerUsername
 				task.Docker.Password = d.DockerPassword

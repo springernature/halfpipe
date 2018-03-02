@@ -6,11 +6,11 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
 )
 
-func convertVars(vars parser.Vars) map[string]interface{} {
+func convertVars(vars manifest.Vars) map[string]interface{} {
 	out := make(map[string]interface{})
 	for k, v := range vars {
 		out[k] = v
@@ -18,7 +18,7 @@ func convertVars(vars parser.Vars) map[string]interface{} {
 	return out
 }
 
-func deployCFResourceName(task parser.DeployCF) string {
+func deployCFResourceName(task manifest.DeployCF) string {
 	return fmt.Sprintf("CF %s-%s", task.Org, task.Space)
 }
 

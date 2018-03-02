@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func testRepoLinter() repoLinter {
 }
 
 func TestRepoIsEmpty(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 
 	result := testRepoLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -23,7 +23,7 @@ func TestRepoIsEmpty(t *testing.T) {
 }
 
 func TestRepInvalidUri(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Repo.Uri = "goo"
 
 	result := testRepoLinter().Lint(man)
@@ -32,7 +32,7 @@ func TestRepInvalidUri(t *testing.T) {
 }
 
 func TestRepoUriIsValidUri(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Repo.Uri = "https://github.com/springernature/halfpipe.git"
 
 	result := testRepoLinter().Lint(man)
@@ -40,7 +40,7 @@ func TestRepoUriIsValidUri(t *testing.T) {
 }
 
 func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
-	manifest := parser.Manifest{}
+	manifest := manifest.Manifest{}
 	manifest.Repo.Uri = "git@github.com:springernature/halfpipe.git"
 
 	result := testRepoLinter().Lint(manifest)
@@ -55,7 +55,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 func TestItChecksForWatchAndIgnores(t *testing.T) {
 	watches := []string{"watches/there", "watches/no-there/**"}
 	ignores := []string{"c/*", "d"}
-	manifest := parser.Manifest{}
+	manifest := manifest.Manifest{}
 	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
 	manifest.Repo.WatchedPaths = watches
 	manifest.Repo.IgnoredPaths = ignores
@@ -69,7 +69,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 }
 
 func TestRepoHasValidGitCryptKey(t *testing.T) {
-	manifest := parser.Manifest{}
+	manifest := manifest.Manifest{}
 	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
 	manifest.Repo.GitCryptKey = "((gitcrypt.key))"
 
@@ -78,7 +78,7 @@ func TestRepoHasValidGitCryptKey(t *testing.T) {
 }
 
 func TestRepoHasInvalidGitCryptKey(t *testing.T) {
-	manifest := parser.Manifest{}
+	manifest := manifest.Manifest{}
 	manifest.Repo.Uri = "https://github.com/springernature/halfpipe.git"
 	manifest.Repo.GitCryptKey = "CLEARTEXTKEY_BADASS"
 

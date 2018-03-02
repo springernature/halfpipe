@@ -6,12 +6,12 @@ import (
 	"regexp"
 
 	con "github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToString(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Repo.Uri = "repo.git"
 
 	actual, err := ToString(testPipeline().Render(man))
@@ -22,7 +22,7 @@ func TestToString(t *testing.T) {
 }
 
 func TestToStringVersionComment(t *testing.T) {
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man.Repo.Uri = "repo.git"
 	con.Version = "0.0.1-yolo"
 
@@ -33,19 +33,19 @@ func TestToStringVersionComment(t *testing.T) {
 }
 
 func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
-	manifest := parser.Manifest{
-		Repo: parser.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
-		Tasks: []parser.Task{
-			parser.Run{Script: "asd.sh"},
-			parser.Run{Script: "asd.sh"},
-			parser.Run{Script: "asd.sh"},
-			parser.Run{Script: "fgh.sh"},
-			parser.DeployCF{Org: "ee", Space: "dev"},
-			parser.DeployCF{Org: "ee", Space: "dev"},
-			parser.DeployCF{Org: "ee", Space: "dev"},
-			parser.DockerPush{},
-			parser.DockerPush{},
-			parser.DockerPush{},
+	manifest := manifest.Manifest{
+		Repo: manifest.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
+		Tasks: []manifest.Task{
+			manifest.Run{Script: "asd.sh"},
+			manifest.Run{Script: "asd.sh"},
+			manifest.Run{Script: "asd.sh"},
+			manifest.Run{Script: "fgh.sh"},
+			manifest.DeployCF{Org: "ee", Space: "dev"},
+			manifest.DeployCF{Org: "ee", Space: "dev"},
+			manifest.DeployCF{Org: "ee", Space: "dev"},
+			manifest.DockerPush{},
+			manifest.DockerPush{},
+			manifest.DockerPush{},
 		},
 	}
 	config := testPipeline().Render(manifest)

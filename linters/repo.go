@@ -7,7 +7,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type repoLinter struct {
@@ -30,7 +30,7 @@ func (r repoLinter) checkGlob(glob string) error {
 	return nil
 }
 
-func (r repoLinter) Lint(man parser.Manifest) (result LintResult) {
+func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Repo"
 
 	if man.Repo.Uri == "" {

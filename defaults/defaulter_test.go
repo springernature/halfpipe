@@ -3,14 +3,14 @@ package defaults
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man = manifestDefaults.Update(man)
 	assert.Empty(t, man.Repo.PrivateKey)
 }
@@ -23,7 +23,7 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 		},
 	}
 
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
 
@@ -41,8 +41,8 @@ func TestCFDeployDefaults(t *testing.T) {
 		CfManifest: "manifest.yml",
 	}
 
-	task1 := parser.DeployCF{}
-	task2 := parser.DeployCF{
+	task1 := manifest.DeployCF{}
+	task2 := manifest.DeployCF{
 		Org:      "org",
 		Space:    "space",
 		Username: "user",
@@ -50,18 +50,18 @@ func TestCFDeployDefaults(t *testing.T) {
 		Manifest: "man.yml",
 	}
 
-	manifest := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, task2}}
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2}}
 
-	expectedTask1 := parser.DeployCF{
+	expectedTask1 := manifest.DeployCF{
 		Org:      "ee",
 		Username: manifestDefaults.CfUsername,
 		Password: manifestDefaults.CfPassword,
 		Manifest: manifestDefaults.CfManifest,
 	}
 
-	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{expectedTask1, task2}}
+	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask1, task2}}
 
-	actual := manifestDefaults.Update(manifest)
+	actual := manifestDefaults.Update(man)
 
 	assert.Equal(t, expected, actual)
 }
@@ -73,33 +73,33 @@ func TestRunTaskDefault(t *testing.T) {
 		DockerPassword: "((gcr.private_key))",
 	}
 
-	task1 := parser.Run{
+	task1 := manifest.Run{
 		Script: "./blah",
-		Docker: parser.Docker{
+		Docker: manifest.Docker{
 			Image: "Blah",
 		},
 	}
-	task2 := parser.Run{
+	task2 := manifest.Run{
 		Script: "./blah",
-		Docker: parser.Docker{
+		Docker: manifest.Docker{
 			Image: "eu.gcr.io/halfpipe-io/runImage",
 		},
 	}
 
-	manifest := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, task2}}
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2}}
 
-	expectedTask2 := parser.Run{
+	expectedTask2 := manifest.Run{
 		Script: "./blah",
-		Docker: parser.Docker{
+		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/runImage",
 			Username: manifestDefaults.DockerUsername,
 			Password: manifestDefaults.DockerPassword,
 		},
 	}
 
-	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, expectedTask2}}
+	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, expectedTask2}}
 
-	actual := manifestDefaults.Update(manifest)
+	actual := manifestDefaults.Update(man)
 
 	assert.Equal(t, expected, actual)
 }
@@ -109,7 +109,7 @@ func TestSetsProjectValues(t *testing.T) {
 	manifestDefaults := Defaults{
 		Project: project,
 	}
-	man := parser.Manifest{}
+	man := manifest.Manifest{}
 
 	man = manifestDefaults.Update(man)
 

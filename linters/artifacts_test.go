@@ -3,18 +3,18 @@ package linters
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
-	man := parser.Manifest{
-		Tasks: []parser.Task{
-			parser.Run{
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			parser.Run{
+			manifest.Run{
 				SaveArtifacts: []string{
 					"b",
 				},
@@ -27,10 +27,10 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 
 	// Good!
 
-	man = parser.Manifest{
-		Tasks: []parser.Task{
-			parser.Run{},
-			parser.Run{
+	man = manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{},
+			manifest.Run{
 				SaveArtifacts: []string{
 					"b",
 				},
@@ -43,9 +43,9 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 }
 
 func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
-	man := parser.Manifest{
-		Tasks: []parser.Task{
-			parser.Run{
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
 				SaveArtifacts: []string{
 					"a",
 					"b",
@@ -61,9 +61,9 @@ func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
 func TestDeployArtifact(t *testing.T) {
 
 	// No previous jobs have defined a SaveArtifact
-	man := parser.Manifest{
-		Tasks: []parser.Task{
-			parser.DeployCF{
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{
 				DeployArtifact: "b",
 			},
 		},
@@ -73,14 +73,14 @@ func TestDeployArtifact(t *testing.T) {
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Different name of the artifacts
-	man = parser.Manifest{
-		Tasks: []parser.Task{
-			parser.Run{
+	man = manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			parser.DeployCF{
+			manifest.DeployCF{
 				DeployArtifact: "b",
 			},
 		},
@@ -90,15 +90,15 @@ func TestDeployArtifact(t *testing.T) {
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Alles OK!
-	man = parser.Manifest{
-		Tasks: []parser.Task{
-			parser.Run{
+	man = manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			parser.Run{},
-			parser.DeployCF{
+			manifest.Run{},
+			manifest.DeployCF{
 				DeployArtifact: "a",
 			},
 		},

@@ -10,18 +10,18 @@ import (
 	"bytes"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/parser"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type Renderer interface {
-	Render(manifest parser.Manifest) atc.Config
+	Render(manifest manifest.Manifest) atc.Config
 }
 
 type Pipeline struct{}
 
 const artifactsFolderName = "artifacts"
 
-func (p Pipeline) gitResource(repo parser.Repo) atc.ResourceConfig {
+func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": repo.Uri,
 	}
@@ -49,7 +49,7 @@ func (p Pipeline) gitResource(repo parser.Repo) atc.ResourceConfig {
 	}
 }
 
-func (p Pipeline) deployCFResource(deployCF parser.DeployCF, resourceName string) atc.ResourceConfig {
+func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
 		"api":          deployCF.Api,
 		"organization": deployCF.Org,
@@ -65,7 +65,7 @@ func (p Pipeline) deployCFResource(deployCF parser.DeployCF, resourceName string
 	}
 }
 
-func (p Pipeline) dockerPushResource(docker parser.DockerPush, resourceName string) atc.ResourceConfig {
+func (p Pipeline) dockerPushResource(docker manifest.DockerPush, resourceName string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: resourceName,
 		Type: "docker-image",
@@ -77,7 +77,7 @@ func (p Pipeline) dockerPushResource(docker parser.DockerPush, resourceName stri
 	}
 }
 
-func (p Pipeline) imageResource(docker parser.Docker) *atc.ImageResource {
+func (p Pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	repo, tag := docker.Image, "latest"
 	if strings.Contains(docker.Image, ":") {
 		split := strings.Split(docker.Image, ":")
@@ -113,7 +113,7 @@ func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPa
 	return
 }
 
-func (p Pipeline) runJob(task parser.Run, repoName, jobName string, basePath string) atc.JobConfig {
+func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath string) atc.JobConfig {
 	script := fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
 
 	jobConfig := atc.JobConfig{
@@ -189,7 +189,7 @@ cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 	return byteBuffer.String()
 }
 
-func (p Pipeline) deployCFJob(task parser.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
+func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -207,7 +207,7 @@ func (p Pipeline) deployCFJob(task parser.DeployCF, repoName, jobName, resourceN
 	}
 }
 
-func (p Pipeline) dockerPushJob(task parser.DockerPush, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
+func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
 	return atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
@@ -222,30 +222,30 @@ func (p Pipeline) dockerPushJob(task parser.DockerPush, repoName, jobName, resou
 	}
 }
 
-func (p Pipeline) Render(manifest parser.Manifest) (config atc.Config) {
-	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
-	repoName := manifest.Repo.GetName()
+func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
+	config.Resources = append(config.Resources, p.gitResource(man.Repo))
+	repoName := man.Repo.GetName()
 
 	uniqueName := func(name string) string {
 		return getUniqueName(name, &config, 0)
 	}
 
-	for i, t := range manifest.Tasks {
+	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
-		case parser.Run:
+		case manifest.Run:
 			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, jobName, manifest.Repo.BasePath)
-		case parser.DeployCF:
+			jobConfig = p.runJob(task, repoName, jobName, man.Repo.BasePath)
+		case manifest.DeployCF:
 			resourceName := uniqueName(deployCFResourceName(task))
 			jobName := uniqueName("deploy-cf")
 			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, manifest.Repo.BasePath)
-		case parser.DockerPush:
+			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
+		case manifest.DockerPush:
 			resourceName := uniqueName("Docker Registry")
 			jobName := uniqueName("docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, manifest.Repo.BasePath)
+			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
 		}
 
 		if i > 0 {
