@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testTaskLinter() TaskLinter {
-	return TaskLinter{
+func testTaskLinter() taskLinter {
+	return taskLinter{
 		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
 	}
 }

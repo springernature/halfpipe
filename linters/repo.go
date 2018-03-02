@@ -10,11 +10,15 @@ import (
 	"github.com/springernature/halfpipe/parser"
 )
 
-type RepoLinter struct {
+type repoLinter struct {
 	Fs afero.Afero
 }
 
-func (r RepoLinter) checkGlob(glob string) error {
+func NewRepoLinter(fs afero.Afero) repoLinter {
+	return repoLinter{fs}
+}
+
+func (r repoLinter) checkGlob(glob string) error {
 	matches, err := afero.Glob(r.Fs, glob)
 	if err != nil {
 		return err
@@ -26,7 +30,7 @@ func (r RepoLinter) checkGlob(glob string) error {
 	return nil
 }
 
-func (r RepoLinter) Lint(man parser.Manifest) (result LintResult) {
+func (r repoLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Repo"
 
 	if man.Repo.Uri == "" {

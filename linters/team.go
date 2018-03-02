@@ -5,9 +5,13 @@ import (
 	"github.com/springernature/halfpipe/parser"
 )
 
-type TeamLinter struct{}
+type teamlinter struct{}
 
-func (TeamLinter) Lint(manifest parser.Manifest) (result LintResult) {
+func NewTeamLinter() teamlinter {
+	return teamlinter{}
+}
+
+func (teamlinter) Lint(manifest parser.Manifest) (result LintResult) {
 	result.Linter = "Team"
 
 	if manifest.Team == "" {

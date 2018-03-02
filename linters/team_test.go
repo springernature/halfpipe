@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testTeamLinter() TeamLinter {
-	return TeamLinter{}
+func testTeamLinter() teamlinter {
+	return teamlinter{}
 }
 
 func TestTeamIsEmpty(t *testing.T) {

@@ -22,7 +22,7 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 		},
 	}
 
-	result := ArtifactsLinter{}.Lint(man)
+	result := artifactsLinter{}.Lint(man)
 	assertInvalidFieldInErrors(t, "run.save_artifact", result.Errors)
 
 	// Good!
@@ -38,7 +38,7 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 		},
 	}
 
-	result = ArtifactsLinter{}.Lint(man)
+	result = artifactsLinter{}.Lint(man)
 	assertInvalidFieldShouldNotBeInErrors(t, "run.save_artifact", result.Errors)
 }
 
@@ -54,7 +54,7 @@ func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
 		},
 	}
 
-	result := ArtifactsLinter{}.Lint(man)
+	result := artifactsLinter{}.Lint(man)
 	assertInvalidFieldInErrors(t, "run.save_artifact", result.Errors)
 }
 
@@ -69,7 +69,7 @@ func TestDeployArtifact(t *testing.T) {
 		},
 	}
 
-	result := ArtifactsLinter{}.Lint(man)
+	result := artifactsLinter{}.Lint(man)
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Different name of the artifacts
@@ -86,7 +86,7 @@ func TestDeployArtifact(t *testing.T) {
 		},
 	}
 
-	result = ArtifactsLinter{}.Lint(man)
+	result = artifactsLinter{}.Lint(man)
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Alles OK!
@@ -104,7 +104,7 @@ func TestDeployArtifact(t *testing.T) {
 		},
 	}
 
-	result = ArtifactsLinter{}.Lint(man)
+	result = artifactsLinter{}.Lint(man)
 	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 }

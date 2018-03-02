@@ -7,10 +7,14 @@ import (
 	"github.com/springernature/halfpipe/parser"
 )
 
-type ArtifactsLinter struct {
+type artifactsLinter struct {
 }
 
-func (linter ArtifactsLinter) Lint(man parser.Manifest) (result LintResult) {
+func NewArtifactsLinter() artifactsLinter {
+	return artifactsLinter{}
+}
+
+func (linter artifactsLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Artifacts"
 
 	var artifacts int

@@ -13,11 +13,15 @@ import (
 	"github.com/springernature/halfpipe/parser"
 )
 
-type TaskLinter struct {
+type taskLinter struct {
 	Fs afero.Afero
 }
 
-func (linter TaskLinter) Lint(man parser.Manifest) (result LintResult) {
+func NewTasksLinter(fs afero.Afero) taskLinter {
+	return taskLinter{fs}
+}
+
+func (linter taskLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Tasks"
 
 	if len(man.Tasks) == 0 {
@@ -40,7 +44,7 @@ func (linter TaskLinter) Lint(man parser.Manifest) (result LintResult) {
 
 	return
 }
-func (linter TaskLinter) lintDeployCFTask(cf parser.DeployCF) (errs []error) {
+func (linter taskLinter) lintDeployCFTask(cf parser.DeployCF) (errs []error) {
 	if cf.Api == "" {
 		errs = append(errs, errors.NewMissingField("deploy-cf.api"))
 	}
@@ -59,7 +63,7 @@ func (linter TaskLinter) lintDeployCFTask(cf parser.DeployCF) (errs []error) {
 	return
 }
 
-func (linter TaskLinter) lintDockerPushTask(docker parser.DockerPush) (errs []error) {
+func (linter taskLinter) lintDockerPushTask(docker parser.DockerPush) (errs []error) {
 	if docker.Username == "" {
 		errs = append(errs, errors.NewMissingField("docker-push.username"))
 	}
@@ -84,7 +88,7 @@ func (linter TaskLinter) lintDockerPushTask(docker parser.DockerPush) (errs []er
 	return
 }
 
-func (linter TaskLinter) lintRunTask(run parser.Run) []error {
+func (linter taskLinter) lintRunTask(run parser.Run) []error {
 	var errs []error
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("run.script"))
@@ -110,7 +114,7 @@ func (linter TaskLinter) lintRunTask(run parser.Run) []error {
 	return errs
 }
 
-func (linter TaskLinter) lintEnvVars(vars map[string]string) (errs []error) {
+func (linter taskLinter) lintEnvVars(vars map[string]string) (errs []error) {
 	for key := range vars {
 		if key != strings.ToUpper(key) {
 			errs = append(errs, errors.NewInvalidField(key, "Env vars mus be uppercase only"))

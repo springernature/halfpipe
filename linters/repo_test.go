@@ -8,8 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testRepoLinter() RepoLinter {
-	return RepoLinter{
+func testRepoLinter() repoLinter {
+	return repoLinter{
 		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
 	}
 }
