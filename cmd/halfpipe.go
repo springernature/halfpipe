@@ -5,6 +5,8 @@ import (
 	"os"
 	"syscall"
 
+	"io"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -17,6 +19,29 @@ import (
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
 )
+
+func main() {
+	var output string
+	var err error
+
+	switch {
+	case invokedForHelp(os.Args):
+		output, err = printHelp()
+	case invokedForSync(os.Args):
+		err = syncBinary(os.Stdout)
+	default:
+		if err = checkVersion(); err != nil {
+			break
+		}
+		output, err = lintAndRender()
+	}
+
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		syscall.Exit(1)
+	}
+	fmt.Fprintln(os.Stdout, output)
+}
 
 func invokedForHelp(args []string) bool {
 	return len(args) > 1 && (args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
@@ -37,14 +62,14 @@ func invokedForSync(args []string) bool {
 
 }
 
-func syncBinary() (err error) {
+func syncBinary(writer io.Writer) (err error) {
 	currentVersion, err := helpers.GetVersion()
 	if err != nil {
 		return
 	}
 
 	syncer := sync.NewSyncer(currentVersion)
-	err = syncer.Update(os.Stdout)
+	err = syncer.Update(writer)
 	return
 }
 
@@ -89,29 +114,6 @@ func lintAndRender() (output string, err error) {
 
 	output, err = pipeline.ToString(pipelineConfig)
 	return
-}
-
-func main() {
-	var output string
-	var err error
-
-	switch {
-	case invokedForHelp(os.Args):
-		output, err = printHelp()
-	case invokedForSync(os.Args):
-		err = syncBinary()
-	default:
-		if err = checkVersion(); err != nil {
-			break
-		}
-		output, err = lintAndRender()
-	}
-
-	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
-		syscall.Exit(1)
-	}
-	fmt.Fprintln(os.Stdout, output)
 }
 
 func checkVersion() (err error) {
