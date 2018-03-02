@@ -78,6 +78,9 @@ func lintAndRender() (output string, err error) {
 		return
 	}
 
+	configResolver := defaults.NewConfig(fs)
+	project, err := configResolver.Parse(currentDir)
+
 	ctrl := halfpipe.Controller{
 		Fs:         fs,
 		CurrentDir: currentDir,
@@ -89,7 +92,7 @@ func lintAndRender() (output string, err error) {
 			linters.ArtifactsLinter{},
 		},
 		Renderer:  pipeline.Pipeline{},
-		Defaulter: defaults.DefaultValues.Update,
+		Defaulter: defaults.NewDefaulter(project),
 	}
 
 	pipelineConfig, lintResults := ctrl.Process()

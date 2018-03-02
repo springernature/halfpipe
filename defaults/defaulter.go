@@ -15,12 +15,18 @@ type Defaults struct {
 	CfManifest     string
 	DockerUsername string
 	DockerPassword string
+	Project        Project
 }
 
-func (d Defaults) Update(man parser.Manifest, project Project) parser.Manifest {
+func NewDefaulter(project Project) Defaults {
+	d := DefaultValues
+	d.Project = project
+	return d
+}
 
-	man.Repo.Uri = project.GitUri
-	man.Repo.BasePath = project.BasePath
+func (d Defaults) Update(man parser.Manifest) parser.Manifest {
+	man.Repo.Uri = d.Project.GitUri
+	man.Repo.BasePath = d.Project.BasePath
 
 	if man.Repo.Uri != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
 		man.Repo.PrivateKey = d.RepoPrivateKey

@@ -18,7 +18,7 @@ type Controller struct {
 	CurrentDir string
 	Linters    []linters.Linter
 	Renderer   pipeline.Renderer
-	Defaulter  defaults.Defaulter
+	Defaulter  defaults.Defaults
 }
 
 func (c Controller) getManifest() (manifest parser.Manifest, errors []error) {
@@ -45,13 +45,7 @@ func (c Controller) Process() (config atc.Config, results linters.LintResults) {
 		return
 	}
 
-	project, err := defaults.NewConfig(c.Fs).Parse(c.CurrentDir)
-	if err != nil {
-		results = append(results, linters.NewLintResult("Halfpipe", []error{err}))
-		return
-	}
-
-	manifest = c.Defaulter(manifest, project)
+	manifest = c.Defaulter.Update(manifest)
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(manifest))

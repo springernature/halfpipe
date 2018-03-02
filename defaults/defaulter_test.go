@@ -11,20 +11,25 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
 	man := parser.Manifest{}
-	man = manifestDefaults.Update(man, Project{GitUri: "https://github.com/public/repo"})
+	man = manifestDefaults.Update(man)
 	assert.Empty(t, man.Repo.PrivateKey)
 }
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
+	manifestDefaults := Defaults{
+		RepoPrivateKey: "((github.private_key))",
+		Project: Project{
+			GitUri: "ssh@github.com:private/repo",
+		},
+	}
 
 	man := parser.Manifest{}
-	man = manifestDefaults.Update(man, Project{GitUri: "ssh@github.com:private/repo"})
+	man = manifestDefaults.Update(man)
 	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
 
 	//doesn't replace existing value
 	man.Repo.PrivateKey = "foo"
-	man = manifestDefaults.Update(man, Project{})
+	man = manifestDefaults.Update(man)
 	assert.Equal(t, "foo", man.Repo.PrivateKey)
 }
 
@@ -56,7 +61,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{expectedTask1, task2}}
 
-	actual := manifestDefaults.Update(manifest, Project{})
+	actual := manifestDefaults.Update(manifest)
 
 	assert.Equal(t, expected, actual)
 }
@@ -94,15 +99,19 @@ func TestRunTaskDefault(t *testing.T) {
 
 	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, expectedTask2}}
 
-	actual := manifestDefaults.Update(manifest, Project{})
+	actual := manifestDefaults.Update(manifest)
 
 	assert.Equal(t, expected, actual)
 }
 
 func TestSetsProjectValues(t *testing.T) {
-	manifestDefaults := Defaults{}
+	project := Project{BasePath: "foo", GitUri: "bar"}
+	manifestDefaults := Defaults{
+		Project: project,
+	}
 	man := parser.Manifest{}
-	man = manifestDefaults.Update(man, Project{BasePath: "foo", GitUri: "bar"})
+
+	man = manifestDefaults.Update(man)
 
 	assert.Equal(t, "bar", man.Repo.Uri)
 	assert.Equal(t, "foo", man.Repo.BasePath)
