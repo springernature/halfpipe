@@ -31,13 +31,23 @@ func printHelpAndExit() {
 	syscall.Exit(0)
 }
 
-func main() {
-	if invokedForHelp(os.Args) {
-		printHelpAndExit()
-	}
+func invokedForSync(args []string) bool {
+	return len(args) > 1 && args[1] == "sync"
 
-	checkVersion()
+}
 
+func syncBinary() {
+	currentVersion, err := helpers.GetVersion()
+	printAndExit(err)
+
+	syncer := sync.NewSyncer(currentVersion)
+	err = syncer.Update(os.Stdout)
+	printAndExit(err)
+	syscall.Exit(0)
+
+}
+
+func lintAndRender() {
 	fs := afero.Afero{Fs: afero.NewOsFs()}
 
 	currentDir, err := os.Getwd()
@@ -74,6 +84,20 @@ func main() {
 	printAndExit(err)
 
 	fmt.Println(pipelineYaml)
+}
+
+func main() {
+	checkVersion()
+
+	if invokedForHelp(os.Args) {
+		printHelpAndExit()
+	}
+
+	if invokedForSync(os.Args) {
+		syncBinary()
+	}
+
+	lintAndRender()
 }
 
 func checkVersion() {
