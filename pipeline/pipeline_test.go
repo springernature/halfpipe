@@ -229,7 +229,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
-					Dir:  manifest.Repo.GetName() + "/" + defaults.Project.BasePath,
+					Dir:  manifest.Repo.GetName() + "/" + project.BasePath,
 					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
 				},
 				Inputs: []atc.TaskInputConfig{
@@ -311,7 +311,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
-			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName() + "/" + defaults.Project.BasePath}},
+			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName() + "/" + project.BasePath}},
 		},
 	}
 

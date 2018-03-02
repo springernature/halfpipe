@@ -2,8 +2,6 @@ package secret_resolver
 
 import (
 	"path"
-
-	"github.com/springernature/halfpipe/linters/errors"
 )
 
 type ConcourseResolver interface {
@@ -42,5 +40,5 @@ func (c concourseResolver) Exists(team string, pipeline string, concourseSecret 
 		}
 	}
 
-	return errors.NewVaultSecretNotFoundError(c.prefix, team, pipeline, concourseSecret)
+	return NewVaultSecretNotFoundError(c.prefix, team, pipeline, concourseSecret)
 }

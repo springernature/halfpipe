@@ -7,11 +7,10 @@ import (
 
 	"io"
 
-	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	. "github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secret_resolver"
@@ -84,7 +83,7 @@ func lintAndRender() (output string, err error) {
 		return
 	}
 
-	ctrl := Controller{
+	ctrl := controller.Controller{
 		Fs:      fs,
 		Project: proj,
 		Linters: []linters.Linter{

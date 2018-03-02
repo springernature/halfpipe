@@ -8,7 +8,7 @@ import (
 	"path"
 
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/linters/errors"
 )
 
 type LintResults []LintResult

@@ -1,9 +1,7 @@
-package errors
+package secret_resolver
 
 import (
 	"fmt"
-
-	"github.com/springernature/halfpipe/linters/secret_resolver"
 )
 
 type VaultSecretNotFoundError struct {
@@ -23,7 +21,7 @@ func NewVaultSecretNotFoundError(prefix string, team string, pipeline string, se
 }
 
 func (e VaultSecretNotFoundError) Error() string {
-	mapName, keyName := secret_resolver.SecretToMapAndKey(e.Secret)
+	mapName, keyName := SecretToMapAndKey(e.Secret)
 
 	path1 := fmt.Sprintf("/%s/%s/%s/%s", e.prefix, e.team, e.pipeline, mapName)
 	path2 := fmt.Sprintf("/%s/%s/%s", e.prefix, e.team, mapName)

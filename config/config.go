@@ -22,7 +22,6 @@ var DevVersion = semver.Version{
 
 const HalfpipeFile = ".halfpipe.io"
 
-
 func GetVersion() (semver.Version, error) {
 	if Version == "" {
 		return DevVersion, nil

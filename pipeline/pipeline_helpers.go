@@ -5,10 +5,9 @@ import (
 	"strings"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/parser"
 	"gopkg.in/yaml.v2"
-	"github.com/springernature/halfpipe/config"
 )
 
 func convertVars(vars parser.Vars) map[string]interface{} {

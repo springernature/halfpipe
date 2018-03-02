@@ -1,4 +1,4 @@
-package halfpipe
+package controller
 
 import (
 	"testing"
