@@ -1,6 +1,8 @@
 package halfpipe
 
 import (
+	"path/filepath"
+
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -12,15 +14,15 @@ import (
 )
 
 type Controller struct {
-	Fs        afero.Afero
-	Project   defaults.Project
-	Linters   []linters.Linter
-	Renderer  pipeline.Renderer
-	Defaulter defaults.Defaulter
+	Fs         afero.Afero
+	CurrentDir string
+	Linters    []linters.Linter
+	Renderer   pipeline.Renderer
+	Defaulter  defaults.Defaulter
 }
 
 func (c Controller) getManifest() (manifest parser.Manifest, errors []error) {
-	yaml, err := file_checker.ReadFile(c.Fs, config.HalfpipeFile)
+	yaml, err := file_checker.ReadFile(c.Fs, filepath.Join(c.CurrentDir, config.HalfpipeFile))
 	if err != nil {
 		errors = append(errors, err)
 		return
@@ -43,7 +45,13 @@ func (c Controller) Process() (config atc.Config, results linters.LintResults) {
 		return
 	}
 
-	manifest = c.Defaulter(manifest, c.Project)
+	project, err := defaults.NewConfig(c.Fs).Parse(c.CurrentDir)
+	if err != nil {
+		results = append(results, linters.NewLintResult("Halfpipe", []error{err}))
+		return
+	}
+
+	manifest = c.Defaulter(manifest, project)
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(manifest))

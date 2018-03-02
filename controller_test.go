@@ -14,9 +14,11 @@ import (
 
 func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
+	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return Controller{
-		Fs:        fs,
-		Defaulter: func(m parser.Manifest, p defaults.Project) parser.Manifest { return m },
+		Fs:         fs,
+		CurrentDir: "/pwd/foo",
+		Defaulter:  func(m parser.Manifest, p defaults.Project) parser.Manifest { return m },
 	}
 }
 
@@ -31,7 +33,7 @@ func TestProcessDoesNothingWhenFileDoesNotExist(t *testing.T) {
 
 func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile(".halfpipe.io", []byte(""), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(""), 0777)
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
@@ -41,7 +43,7 @@ func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
 
 func TestProcessDoesNothingWhenParserFails(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile(".halfpipe.io", []byte("WrYyYyYy"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("WrYyYyYy"), 0777)
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
@@ -59,7 +61,7 @@ func (f fakeLinter) Lint(manifest parser.Manifest) linters.LintResult {
 
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: asd"), 0777)
 
 	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
 	linter2 := fakeLinter{errors.NewMissingField("field")}
@@ -83,7 +85,7 @@ func (f FakeRenderer) Render(manifest parser.Manifest) atc.Config {
 
 func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile(".halfpipe.io", []byte("team: asd"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: asd"), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -109,7 +111,7 @@ func (f fakeLinterFunc) Lint(manifest parser.Manifest) linters.LintResult {
 
 func TestCallsTheDefaultsUpdater(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile(".halfpipe.io", []byte("team: before"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: before"), 0777)
 
 	c.Defaulter = func(m parser.Manifest, p defaults.Project) parser.Manifest {
 		m.Team = "after"

@@ -38,6 +38,10 @@ func (c config) Parse(workingDir string) (p Project, err error) {
 	var pathRelativeToGit func(string) (string, error)
 
 	pathRelativeToGit = func(path string) (string, error) {
+		if workingDir == "" {
+			return "", errors.New("invalid dir ''")
+		}
+
 		exists, err := c.Fs.DirExists(filepath.Join(path, ".git"))
 		if err != nil {
 			return "", err

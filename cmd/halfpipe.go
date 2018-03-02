@@ -78,14 +78,9 @@ func lintAndRender() (output string, err error) {
 		return
 	}
 
-	proj, err := defaults.NewConfig(fs).Parse(currentDir)
-	if err != nil {
-		return
-	}
-
 	ctrl := halfpipe.Controller{
-		Fs:      fs,
-		Project: proj,
+		Fs:         fs,
+		CurrentDir: currentDir,
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{Fs: fs},
