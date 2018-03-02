@@ -1,7 +1,8 @@
-package secret_resolver
+package errors
 
 import (
 	"fmt"
+	"strings"
 )
 
 type VaultSecretNotFoundError struct {
@@ -21,7 +22,9 @@ func NewVaultSecretNotFoundError(prefix string, team string, pipeline string, se
 }
 
 func (e VaultSecretNotFoundError) Error() string {
-	mapName, keyName := SecretToMapAndKey(e.Secret)
+	s := strings.Replace(strings.Replace(e.Secret, "((", "", -1), "))", "", -1)
+	parts := strings.Split(s, ".")
+	mapName, keyName := parts[0], parts[1]
 
 	path1 := fmt.Sprintf("/%s/%s/%s/%s", e.prefix, e.team, e.pipeline, mapName)
 	path2 := fmt.Sprintf("/%s/%s/%s", e.prefix, e.team, mapName)

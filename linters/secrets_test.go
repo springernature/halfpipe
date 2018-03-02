@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/linters/secret_resolver"
 	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,7 +20,7 @@ func (StubConcourseResolv) Exists(team string, pipeline string, concourseSecret 
 	if concourseSecret == foundSecret {
 		return nil
 	}
-	return secret_resolver.NewVaultSecretNotFoundError(vaultPrefix, team, pipeline, concourseSecret)
+	return errors.NewVaultSecretNotFoundError(vaultPrefix, team, pipeline, concourseSecret)
 }
 
 func newSecretsLinter() secretsLinter {
@@ -83,7 +82,7 @@ func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
 	assert.Contains(t, calls, []string{vaultPrefix, man.Team, man.Repo.GetName(), notFoundSecret})
 
 	assert.Len(t, result.Errors, 1)
-	assert.IsType(t, secret_resolver.VaultSecretNotFoundError{}, result.Errors[0])
+	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Errors[0])
 }
 
 func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
@@ -133,5 +132,5 @@ func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
 	assert.Contains(t, calls, []string{vaultPrefix, man.Team, man.Repo.GetName(), api})
 
 	assert.Len(t, result.Errors, 3)
-	assert.IsType(t, secret_resolver.VaultSecretNotFoundError{}, result.Errors[0])
+	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Errors[0])
 }
