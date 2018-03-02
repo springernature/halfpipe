@@ -2,7 +2,7 @@
 set -e
 
 echo goimports
-goimports -l -w $(go list -f {{.Dir}} ./...)
+goimports -l -w $(find . -type f -name '*.go' -not -path "./vendor/*") # ignore vendore plz..s
 
 echo go test
 go test -cover ./...

@@ -1,11 +1,12 @@
 package parser
 
 import (
-	"encoding/json"
+	"github.com/ghodss/yaml"
 
 	"fmt"
 
-	"github.com/ghodss/yaml"
+	"encoding/json"
+
 	"github.com/springernature/halfpipe/linters/errors"
 )
 

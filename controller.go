@@ -1,4 +1,4 @@
-package controller
+package halfpipe
 
 import (
 	"github.com/concourse/atc"
