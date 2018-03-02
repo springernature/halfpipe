@@ -3,18 +3,18 @@ package linters
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 )
 
 func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.Run{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			model.Run{
+			parser.Run{
 				SaveArtifacts: []string{
 					"b",
 				},
@@ -27,10 +27,10 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 
 	// Good!
 
-	man = model.Manifest{
-		Tasks: []model.Task{
-			model.Run{},
-			model.Run{
+	man = parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{},
+			parser.Run{
 				SaveArtifacts: []string{
 					"b",
 				},
@@ -43,9 +43,9 @@ func TestCanOnlyHaveOneTaskThatSavesArtifactsInPipeline(t *testing.T) {
 }
 
 func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.Run{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{
 				SaveArtifacts: []string{
 					"a",
 					"b",
@@ -61,9 +61,9 @@ func TestWeOnlySupportSavingOfOneArtifactInPipeline(t *testing.T) {
 func TestDeployArtifact(t *testing.T) {
 
 	// No previous jobs have defined a SaveArtifact
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.DeployCF{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.DeployCF{
 				DeployArtifact: "b",
 			},
 		},
@@ -73,14 +73,14 @@ func TestDeployArtifact(t *testing.T) {
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Different name of the artifacts
-	man = model.Manifest{
-		Tasks: []model.Task{
-			model.Run{
+	man = parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			model.DeployCF{
+			parser.DeployCF{
 				DeployArtifact: "b",
 			},
 		},
@@ -90,15 +90,15 @@ func TestDeployArtifact(t *testing.T) {
 	assertInvalidFieldInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 
 	// Alles OK!
-	man = model.Manifest{
-		Tasks: []model.Task{
-			model.Run{
+	man = parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{
 				SaveArtifacts: []string{
 					"a",
 				},
 			},
-			model.Run{},
-			model.DeployCF{
+			parser.Run{},
+			parser.DeployCF{
 				DeployArtifact: "a",
 			},
 		},

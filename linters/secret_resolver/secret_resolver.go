@@ -9,7 +9,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/hashicorp/vault/api"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
 )
 
 type VaultClient interface {
@@ -39,7 +38,7 @@ func NewSecretResolver(fs afero.Afero) secretResolver {
 func (secretResolver) getVaultAddr() (err error) {
 	vaultHost := os.Getenv("VAULT_ADDR")
 	if vaultHost == "" {
-		err = errors.NewVaultClientError("Environment variable 'VAULT_ADDR' must be set!")
+		err = NewVaultClientError("Environment variable 'VAULT_ADDR' must be set!")
 		return
 	}
 	return
@@ -66,13 +65,13 @@ func (s secretResolver) readVaultToken() (vaultToken string, err error) {
 	vaultTokenPath := path.Join(homeDir, ".vault-token")
 	content, err := s.Fs.ReadFile(vaultTokenPath)
 	if err != nil {
-		err = errors.NewVaultClientError(fmt.Sprintf("Could not read vault token from path '%s'", vaultTokenPath))
+		err = NewVaultClientError(fmt.Sprintf("Could not read vault token from path '%s'", vaultTokenPath))
 		return
 	}
 
 	_, err = uuid.Parse(string(content))
 	if err != nil {
-		err = errors.NewVaultClientError(fmt.Sprintf("Content of '%s' does not look like a vault token!", vaultTokenPath))
+		err = NewVaultClientError(fmt.Sprintf("Content of '%s' does not look like a vault token!", vaultTokenPath))
 		return
 	}
 

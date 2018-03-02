@@ -3,21 +3,21 @@ package linters
 import (
 	"fmt"
 
-	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type ArtifactsLinter struct {
 }
 
-func (linter ArtifactsLinter) Lint(man model.Manifest) (result model.LintResult) {
+func (linter ArtifactsLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Artifacts"
 
 	var artifacts int
 	var artifact string
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
-		case model.Run:
+		case parser.Run:
 			if len(task.SaveArtifacts) > 0 {
 				artifacts += 1
 				artifact = task.SaveArtifacts[0]
@@ -31,7 +31,7 @@ func (linter ArtifactsLinter) Lint(man model.Manifest) (result model.LintResult)
 				}
 			}
 
-		case model.DeployCF:
+		case parser.DeployCF:
 			if task.DeployArtifact != "" && task.DeployArtifact != artifact {
 				var errorStr string
 				if artifact == "" {

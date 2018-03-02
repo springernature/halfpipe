@@ -6,11 +6,12 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/helpers"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 	"gopkg.in/yaml.v2"
+	"github.com/springernature/halfpipe/config"
 )
 
-func convertVars(vars model.Vars) map[string]interface{} {
+func convertVars(vars parser.Vars) map[string]interface{} {
 	out := make(map[string]interface{})
 	for k, v := range vars {
 		out[k] = v
@@ -18,7 +19,7 @@ func convertVars(vars model.Vars) map[string]interface{} {
 	return out
 }
 
-func deployCFResourceName(task model.DeployCF) string {
+func deployCFResourceName(task parser.DeployCF) string {
 	return fmt.Sprintf("CF %s-%s", task.Org, task.Space)
 }
 
@@ -43,7 +44,7 @@ func getUniqueName(name string, config *atc.Config, counter int) string {
 
 func ToString(pipeline atc.Config) (string, error) {
 	renderedPipeline, err := yaml.Marshal(pipeline)
-	version, _ := helpers.GetVersion()
+	version, _ := config.GetVersion()
 	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", version)
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), err
 }

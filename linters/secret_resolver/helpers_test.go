@@ -1,4 +1,4 @@
-package helpers
+package secret_resolver
 
 import (
 	"testing"

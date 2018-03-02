@@ -3,14 +3,14 @@ package defaults
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
-	man := model.Manifest{Repo: model.Repo{Uri: "https://github.com/public/repo"}}
+	man := parser.Manifest{Repo: parser.Repo{Uri: "https://github.com/public/repo"}}
 	man = manifestDefaults.Update(man)
 	assert.Empty(t, man.Repo.PrivateKey)
 }
@@ -18,7 +18,7 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
-	man := model.Manifest{Repo: model.Repo{Uri: "ssh@github.com:private/repo"}}
+	man := parser.Manifest{Repo: parser.Repo{Uri: "ssh@github.com:private/repo"}}
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
 
@@ -36,8 +36,8 @@ func TestCFDeployDefaults(t *testing.T) {
 		CfManifest: "manifest.yml",
 	}
 
-	task1 := model.DeployCF{}
-	task2 := model.DeployCF{
+	task1 := parser.DeployCF{}
+	task2 := parser.DeployCF{
 		Org:      "org",
 		Space:    "space",
 		Username: "user",
@@ -45,16 +45,16 @@ func TestCFDeployDefaults(t *testing.T) {
 		Manifest: "man.yml",
 	}
 
-	manifest := model.Manifest{Team: "ee", Tasks: []model.Task{task1, task2}}
+	manifest := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, task2}}
 
-	expectedTask1 := model.DeployCF{
+	expectedTask1 := parser.DeployCF{
 		Org:      "ee",
 		Username: manifestDefaults.CfUsername,
 		Password: manifestDefaults.CfPassword,
 		Manifest: manifestDefaults.CfManifest,
 	}
 
-	expected := model.Manifest{Team: "ee", Tasks: []model.Task{expectedTask1, task2}}
+	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{expectedTask1, task2}}
 
 	actual := manifestDefaults.Update(manifest)
 
@@ -68,31 +68,31 @@ func TestRunTaskDefault(t *testing.T) {
 		DockerPassword: "((gcr.private_key))",
 	}
 
-	task1 := model.Run{
+	task1 := parser.Run{
 		Script: "./blah",
-		Docker: model.Docker{
+		Docker: parser.Docker{
 			Image: "Blah",
 		},
 	}
-	task2 := model.Run{
+	task2 := parser.Run{
 		Script: "./blah",
-		Docker: model.Docker{
+		Docker: parser.Docker{
 			Image: "eu.gcr.io/halfpipe-io/runImage",
 		},
 	}
 
-	manifest := model.Manifest{Team: "ee", Tasks: []model.Task{task1, task2}}
+	manifest := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, task2}}
 
-	expectedTask2 := model.Run{
+	expectedTask2 := parser.Run{
 		Script: "./blah",
-		Docker: model.Docker{
+		Docker: parser.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/runImage",
 			Username: manifestDefaults.DockerUsername,
 			Password: manifestDefaults.DockerPassword,
 		},
 	}
 
-	expected := model.Manifest{Team: "ee", Tasks: []model.Task{task1, expectedTask2}}
+	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, expectedTask2}}
 
 	actual := manifestDefaults.Update(manifest)
 

@@ -13,6 +13,7 @@ import (
 	"github.com/blang/semver"
 	"github.com/google/go-github/github"
 	"github.com/inconshreveable/go-update"
+	"github.com/springernature/halfpipe/config"
 	"gopkg.in/cheggaaa/pb.v1"
 )
 
@@ -61,7 +62,7 @@ func (s sync) getLatestRelease() (release *github.RepositoryRelease, err error) 
 }
 
 func (s sync) Check() (err error) {
-	if s.currentVersion.EQ(DevVersion) {
+	if s.currentVersion.EQ(config.DevVersion) {
 		return
 	}
 
@@ -99,7 +100,7 @@ func (s sync) getLatestBinaryUrl() (url string, err error) {
 }
 
 func (s sync) Update(out io.Writer) (err error) {
-	if s.currentVersion.EQ(DevVersion) {
+	if s.currentVersion.EQ(config.DevVersion) {
 		return UpdatingDevReleaseError
 	}
 

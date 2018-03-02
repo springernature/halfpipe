@@ -1,29 +1,26 @@
-package controller
+package halfpipe
 
 import (
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
-	"github.com/springernature/halfpipe/helpers/file_checker"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/file_checker"
 	"github.com/springernature/halfpipe/parser"
 	"github.com/springernature/halfpipe/pipeline"
-	"github.com/springernature/halfpipe/project"
 )
-
-const halfpipeFile = ".halfpipe.io"
 
 type Controller struct {
 	Fs        afero.Afero
-	Project   project.Project
+	Project   defaults.Project
 	Linters   []linters.Linter
 	Renderer  pipeline.Renderer
 	Defaulter defaults.Defaulter
 }
 
-func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
-	yaml, err := file_checker.ReadFile(c.Fs, halfpipeFile)
+func (c Controller) getManifest() (manifest parser.Manifest, errors []error) {
+	yaml, err := file_checker.ReadFile(c.Fs, config.HalfpipeFile)
 	if err != nil {
 		errors = append(errors, err)
 		return
@@ -38,11 +35,11 @@ func (c Controller) getManifest() (manifest model.Manifest, errors []error) {
 	return
 }
 
-func (c Controller) Process() (config atc.Config, results model.LintResults) {
+func (c Controller) Process() (config atc.Config, results linters.LintResults) {
 
 	manifest, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, model.NewLintResult("Halfpipe", errs))
+		results = append(results, linters.NewLintResult("Halfpipe", errs))
 		return
 	}
 

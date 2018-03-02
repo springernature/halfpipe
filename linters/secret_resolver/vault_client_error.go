@@ -1,4 +1,4 @@
-package errors
+package secret_resolver
 
 type VaultClientError struct {
 	message string

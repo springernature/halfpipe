@@ -1,9 +1,9 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type Linter interface {
-	Lint(manifest model.Manifest) model.LintResult
+	Lint(manifest parser.Manifest) LintResult
 }

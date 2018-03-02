@@ -3,7 +3,7 @@ package linters
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,14 +12,14 @@ func testTeamLinter() TeamLinter {
 }
 
 func TestTeamIsEmpty(t *testing.T) {
-	man := model.Manifest{}
+	man := parser.Manifest{}
 	result := testTeamLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "team", result.Errors[0])
 }
 
 func TestTeamIsValid(t *testing.T) {
-	man := model.Manifest{
+	man := parser.Manifest{
 		Team: "yolo",
 	}
 

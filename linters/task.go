@@ -8,16 +8,16 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/helpers/file_checker"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/file_checker"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type TaskLinter struct {
 	Fs afero.Afero
 }
 
-func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
+func (linter TaskLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Tasks"
 
 	if len(man.Tasks) == 0 {
@@ -27,11 +27,11 @@ func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 
 	for i, t := range man.Tasks {
 		switch task := t.(type) {
-		case model.Run:
+		case parser.Run:
 			result.AddError(linter.lintRunTask(task)...)
-		case model.DeployCF:
+		case parser.DeployCF:
 			result.AddError(linter.lintDeployCFTask(task)...)
-		case model.DockerPush:
+		case parser.DockerPush:
 			result.AddError(linter.lintDockerPushTask(task)...)
 		default:
 			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
@@ -40,7 +40,7 @@ func (linter TaskLinter) Lint(man model.Manifest) (result model.LintResult) {
 
 	return
 }
-func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
+func (linter TaskLinter) lintDeployCFTask(cf parser.DeployCF) (errs []error) {
 	if cf.Api == "" {
 		errs = append(errs, errors.NewMissingField("deploy-cf.api"))
 	}
@@ -59,7 +59,7 @@ func (linter TaskLinter) lintDeployCFTask(cf model.DeployCF) (errs []error) {
 	return
 }
 
-func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []error) {
+func (linter TaskLinter) lintDockerPushTask(docker parser.DockerPush) (errs []error) {
 	if docker.Username == "" {
 		errs = append(errs, errors.NewMissingField("docker-push.username"))
 	}
@@ -84,7 +84,7 @@ func (linter TaskLinter) lintDockerPushTask(docker model.DockerPush) (errs []err
 	return
 }
 
-func (linter TaskLinter) lintRunTask(run model.Run) []error {
+func (linter TaskLinter) lintRunTask(run parser.Run) []error {
 	var errs []error
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("run.script"))

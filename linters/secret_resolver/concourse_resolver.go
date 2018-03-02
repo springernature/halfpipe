@@ -3,8 +3,7 @@ package secret_resolver
 import (
 	"path"
 
-	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/linters/errors"
 )
 
 type ConcourseResolver interface {
@@ -25,7 +24,7 @@ func NewConcourseResolver(prefix string, secretsResolver SecretResolver) concour
 
 func (c concourseResolver) Exists(team string, pipeline string, concourseSecret string) (err error) {
 
-	mapKey, secretKey := helpers.SecretToMapAndKey(concourseSecret)
+	mapKey, secretKey := SecretToMapAndKey(concourseSecret)
 
 	paths := []string{
 		path.Join(c.prefix, team, pipeline, mapKey),

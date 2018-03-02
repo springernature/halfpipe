@@ -5,17 +5,17 @@ import (
 
 	"regexp"
 
-	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/model"
-	"github.com/springernature/halfpipe/project"
+	con "github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestToString(t *testing.T) {
-	man := model.Manifest{}
+	man := parser.Manifest{}
 	man.Repo.Uri = "repo.git"
 
-	actual, err := ToString(testPipeline().Render(project.Project{}, man))
+	actual, err := ToString(testPipeline().Render(defaults.Project{}, man))
 	expected := "uri: repo.git"
 
 	assert.Nil(t, err)
@@ -23,33 +23,33 @@ func TestToString(t *testing.T) {
 }
 
 func TestToStringVersionComment(t *testing.T) {
-	man := model.Manifest{}
+	man := parser.Manifest{}
 	man.Repo.Uri = "repo.git"
-	config.Version = "0.0.1-yolo"
+	con.Version = "0.0.1-yolo"
 
-	actual, err := ToString(testPipeline().Render(project.Project{}, man))
+	actual, err := ToString(testPipeline().Render(defaults.Project{}, man))
 
 	assert.Nil(t, err)
 	assert.Regexp(t, regexp.MustCompile(`^#.*0\.0\.1-yolo.*`), actual)
 }
 
 func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
-	manifest := model.Manifest{
-		Repo: model.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
-		Tasks: []model.Task{
-			model.Run{Script: "asd.sh"},
-			model.Run{Script: "asd.sh"},
-			model.Run{Script: "asd.sh"},
-			model.Run{Script: "fgh.sh"},
-			model.DeployCF{Org: "ee", Space: "dev"},
-			model.DeployCF{Org: "ee", Space: "dev"},
-			model.DeployCF{Org: "ee", Space: "dev"},
-			model.DockerPush{},
-			model.DockerPush{},
-			model.DockerPush{},
+	manifest := parser.Manifest{
+		Repo: parser.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
+		Tasks: []parser.Task{
+			parser.Run{Script: "asd.sh"},
+			parser.Run{Script: "asd.sh"},
+			parser.Run{Script: "asd.sh"},
+			parser.Run{Script: "fgh.sh"},
+			parser.DeployCF{Org: "ee", Space: "dev"},
+			parser.DeployCF{Org: "ee", Space: "dev"},
+			parser.DeployCF{Org: "ee", Space: "dev"},
+			parser.DockerPush{},
+			parser.DockerPush{},
+			parser.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(project.Project{}, manifest)
+	config := testPipeline().Render(defaults.Project{}, manifest)
 
 	expectedJobNames := []string{
 		"run asd.sh",

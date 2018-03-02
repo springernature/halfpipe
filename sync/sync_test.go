@@ -12,6 +12,7 @@ import (
 	"github.com/google/go-github/github"
 	"github.com/inconshreveable/go-update"
 	"github.com/onsi/gomega/gbytes"
+	"github.com/springernature/halfpipe/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -25,7 +26,7 @@ func (r ReleaseResolverDouble) GetLatestRelease(ctx context.Context, owner, repo
 
 func TestDoesNothingWhenCurrentVersionIsDevRelease(t *testing.T) {
 	release := sync{
-		currentVersion: DevVersion,
+		currentVersion: config.DevVersion,
 	}
 	err := release.Check()
 	assert.Nil(t, err)
@@ -111,7 +112,7 @@ func TestCheckReturnsErrorWhenCurrentVersionIsBehind(t *testing.T) {
 
 func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
 	release := sync{
-		currentVersion: DevVersion,
+		currentVersion: config.DevVersion,
 	}
 	err := release.Update(&bytes.Buffer{})
 	assert.Error(t, err)

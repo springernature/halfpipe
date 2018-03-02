@@ -7,16 +7,15 @@ import (
 
 	"io"
 
+	"github.com/blang/semver"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
+	. "github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/controller"
 	"github.com/springernature/halfpipe/defaults"
-	"github.com/springernature/halfpipe/helpers"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secret_resolver"
 	"github.com/springernature/halfpipe/pipeline"
-	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
 )
 
@@ -48,7 +47,7 @@ func invokedForHelp(args []string) bool {
 }
 
 func printHelp() (string, error) {
-	version, err := helpers.GetVersion()
+	version, err := config.GetVersion()
 	return fmt.Sprintf(`Sup! Docs are at https://docs.halfpipe.io")
 Current version is %s
 Available commands are
@@ -62,7 +61,7 @@ func invokedForSync(args []string) bool {
 }
 
 func syncBinary(writer io.Writer) (err error) {
-	currentVersion, err := helpers.GetVersion()
+	currentVersion, err := config.GetVersion()
 	if err != nil {
 		return
 	}
@@ -80,12 +79,12 @@ func lintAndRender() (output string, err error) {
 		return
 	}
 
-	proj, err := project.NewConfig(fs).Parse(currentDir)
+	proj, err := defaults.NewConfig(fs).Parse(currentDir)
 	if err != nil {
 		return
 	}
 
-	ctrl := controller.Controller{
+	ctrl := Controller{
 		Fs:      fs,
 		Project: proj,
 		Linters: []linters.Linter{
@@ -114,7 +113,7 @@ func lintAndRender() (output string, err error) {
 }
 
 func checkVersion() (err error) {
-	currentVersion, err := helpers.GetVersion()
+	currentVersion, err := config.GetVersion()
 	if err != nil {
 		return
 	}

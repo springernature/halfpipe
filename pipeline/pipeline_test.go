@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/model"
-	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -18,7 +18,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 	name := "yolo"
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
 
 	expected := atc.Config{
@@ -32,7 +32,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest))
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest))
 }
 
 func TestRendersSshGitResource(t *testing.T) {
@@ -40,7 +40,7 @@ func TestRendersSshGitResource(t *testing.T) {
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
 	manifest.Repo.PrivateKey = privateKey
 
@@ -56,7 +56,7 @@ func TestRendersSshGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest))
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest))
 }
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
@@ -64,7 +64,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
 	manifest.Repo.PrivateKey = privateKey
 
@@ -87,16 +87,16 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest))
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest))
 }
 
 func TestRenderRunTask(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
-	manifest.Tasks = []model.Task{
-		model.Run{
+	manifest.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./yolo.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image:    "imagename:TAG",
 				Username: "",
 				Password: "",
@@ -137,15 +137,15 @@ func TestRenderRunTask(t *testing.T) {
 			}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest).Jobs[0])
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest).Jobs[0])
 }
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
-	manifest.Tasks = []model.Task{
-		model.Run{
+	manifest.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./yolo.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image:    "imagename:TAG",
 				Username: "user",
 				Password: "pass",
@@ -188,18 +188,18 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 			}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest).Jobs[0])
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest).Jobs[0])
 }
 
 func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
-	project := project.Project{BasePath: "subapp"}
+	project := defaults.Project{BasePath: "subapp"}
 
-	manifest.Tasks = []model.Task{
-		model.Run{
+	manifest.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./yolo.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image: "imagename:TAG",
 			},
 			Vars: map[string]string{
@@ -229,7 +229,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
-					Dir:  manifest.Repo.GetName() + "/" + project.BasePath,
+					Dir:  manifest.Repo.GetName() + "/" + defaults.Project.BasePath,
 					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
 				},
 				Inputs: []atc.TaskInputConfig{
@@ -242,14 +242,14 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 }
 
 func TestRenderDockerPushTask(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
 
 	username := "halfpipe"
 	password := "secret"
 	repo := "halfpipe/halfpipe-cli"
-	manifest.Tasks = []model.Task{
-		model.DockerPush{
+	manifest.Tasks = []parser.Task{
+		parser.DockerPush{
 			Username: username,
 			Password: password,
 			Image:    repo,
@@ -276,20 +276,20 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, testPipeline().Render(project.Project{}, manifest).Resources[1])
-	assert.Equal(t, expectedJobConfig, testPipeline().Render(project.Project{}, manifest).Jobs[0])
+	assert.Equal(t, expectedResource, testPipeline().Render(defaults.Project{}, manifest).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().Render(defaults.Project{}, manifest).Jobs[0])
 }
 
 func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = "git@github.com:/springernature/foo.git"
-	project := project.Project{BasePath: "subapp"}
+	project := defaults.Project{BasePath: "subapp"}
 
 	username := "halfpipe"
 	password := "secret"
 	repo := "halfpipe/halfpipe-cli"
-	manifest.Tasks = []model.Task{
-		model.DockerPush{
+	manifest.Tasks = []parser.Task{
+		parser.DockerPush{
 			Username: username,
 			Password: password,
 			Image:    repo,
@@ -311,7 +311,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: manifest.Repo.GetName(), Trigger: true},
-			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName() + "/" + project.BasePath}},
+			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": manifest.Repo.GetName() + "/" + defaults.Project.BasePath}},
 		},
 	}
 
@@ -321,14 +321,14 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
-	manifest := model.Manifest{
-		Tasks: []model.Task{
-			model.Run{Script: "asd.sh"},
-			model.DeployCF{},
-			model.DockerPush{},
+	manifest := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{Script: "asd.sh"},
+			parser.DeployCF{},
+			parser.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(project.Project{}, manifest)
+	config := testPipeline().Render(defaults.Project{}, manifest)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], config.Jobs[0].Name)
@@ -340,7 +340,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	gitCrypt := "AABBFF66"
 
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
 	manifest.Repo.GitCryptKey = gitCrypt
 
@@ -356,23 +356,23 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(project.Project{}, manifest))
+	assert.Equal(t, expected, testPipeline().Render(defaults.Project{}, manifest))
 }
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
 	name := "yolo"
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
-	manifest.Tasks = []model.Task{
-		model.Run{
+	manifest.Tasks = []parser.Task{
+		parser.Run{
 			Script:        "./build.sh",
 			SaveArtifacts: []string{"build/lib/artifact.jar"},
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(project.Project{}, manifest)
+	renderedPipeline := testPipeline().Render(defaults.Project{}, manifest)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
 	expected := `ARTIFACTS_DIR=../artifacts
 ./build.sh
@@ -392,16 +392,16 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	// Without any save artifact there should not be a copy and a output
 	name := "yolo"
 	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
-	manifest := model.Manifest{}
+	manifest := parser.Manifest{}
 	manifest.Repo.Uri = gitUri
-	manifest.Tasks = []model.Task{
-		model.Run{
+	manifest.Tasks = []parser.Task{
+		parser.Run{
 			Script:        "./build.sh",
 			SaveArtifacts: []string{"build/lib/artifact.jar"},
 		},
 	}
 
-	project := project.Project{
+	project := defaults.Project{
 		BasePath: "apps/subapp1",
 	}
 	renderedPipeline := testPipeline().Render(project, manifest)

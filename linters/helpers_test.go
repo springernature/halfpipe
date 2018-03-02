@@ -5,7 +5,7 @@ import (
 
 	"fmt"
 
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/stretchr/testify/assert"
 )
 

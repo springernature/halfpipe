@@ -2,7 +2,7 @@ package file_checker
 
 import (
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/linters/errors"
 )
 
 func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {

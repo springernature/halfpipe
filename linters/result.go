@@ -1,4 +1,4 @@
-package model
+package linters
 
 import "fmt"
 import (

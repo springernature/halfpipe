@@ -6,8 +6,8 @@ import (
 	"regexp"
 
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type RepoLinter struct {
@@ -26,7 +26,7 @@ func (r RepoLinter) checkGlob(glob string) error {
 	return nil
 }
 
-func (r RepoLinter) Lint(man model.Manifest) (result model.LintResult) {
+func (r RepoLinter) Lint(man parser.Manifest) (result LintResult) {
 	result.Linter = "Repo"
 
 	if man.Repo.Uri == "" {

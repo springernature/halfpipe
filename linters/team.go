@@ -1,13 +1,13 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/errors"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type TeamLinter struct{}
 
-func (TeamLinter) Lint(manifest model.Manifest) (result model.LintResult) {
+func (TeamLinter) Lint(manifest parser.Manifest) (result LintResult) {
 	result.Linter = "Team"
 
 	if manifest.Team == "" {

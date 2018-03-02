@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/vault/api"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,7 +42,7 @@ func newSecretResolver() secretResolver {
 func assertVaultClientError(t *testing.T, err error) {
 	t.Helper()
 
-	_, ok := err.(errors.VaultClientError)
+	_, ok := err.(VaultClientError)
 	if !ok {
 		assert.Fail(t, "error is not a VaultClientError", err)
 	}

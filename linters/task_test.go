@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func testTaskLinter() TaskLinter {
 }
 
 func TestAtLeastOneTaskExists(t *testing.T) {
-	man := model.Manifest{}
+	man := parser.Manifest{}
 	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
@@ -24,11 +24,11 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 }
 
 func TestRunTaskWithoutScriptAndImage(t *testing.T) {
-	man := model.Manifest{}
+	man := parser.Manifest{}
 	taskLinter := testTaskLinter()
 
-	man.Tasks = []model.Task{
-		model.Run{},
+	man.Tasks = []parser.Task{
+		parser.Run{},
 	}
 
 	result := taskLinter.Lint(man)
@@ -39,11 +39,11 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 
 func TestRunTaskWithScriptAndImage(t *testing.T) {
 	taskLinter := testTaskLinter()
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.Run{
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./build.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image: "alpine",
 			},
 		},
@@ -57,11 +57,11 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.Run{
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./build.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image:    "alpine",
 				Password: "secret",
 				Username: "Michiel",
@@ -76,11 +76,11 @@ func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
 func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.Run{
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./build.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image:    "alpine",
 				Password: "secret",
 			},
@@ -94,11 +94,11 @@ func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.Run{
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./build.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image:    "alpine",
 				Username: "Michiel",
 			},
@@ -114,11 +114,11 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
 
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.Run{
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.Run{
 			Script: "./build.sh",
-			Docker: model.Docker{
+			Docker: parser.Docker{
 				Image: "alpine",
 			},
 		},
@@ -130,9 +130,9 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
-	man := model.Manifest{}
-	man.Tasks = []model.Task{
-		model.DeployCF{Manifest: "manifest.yml"},
+	man := parser.Manifest{}
+	man.Tasks = []parser.Task{
+		parser.DeployCF{Manifest: "manifest.yml"},
 	}
 
 	result := taskLinter.Lint(man)
@@ -145,9 +145,9 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.DockerPush{},
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.DockerPush{},
 		},
 	}
 
@@ -162,9 +162,9 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
 	taskLinter := testTaskLinter()
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.DockerPush{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.DockerPush{
 				Username: "asd",
 				Password: "asd",
 				Image:    "asd",
@@ -181,9 +181,9 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 	taskLinter := testTaskLinter()
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.DockerPush{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.DockerPush{
 				Username: "asd",
 				Password: "asd",
 				Image:    "asd/asd",
@@ -200,9 +200,9 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.DockerPush{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.DockerPush{
 				Username: "asd",
 				Password: "asd",
 				Image:    "asd/asd",
@@ -225,23 +225,23 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 	goodKey2 := "A"
 	goodKey3 := "AOIJASOID"
 
-	man := model.Manifest{
-		Tasks: []model.Task{
-			model.Run{
+	man := parser.Manifest{
+		Tasks: []parser.Task{
+			parser.Run{
 				Vars: map[string]string{
 					badKey1:  "a",
 					goodKey1: "sup",
 				},
 			},
 
-			model.DockerPush{
+			parser.DockerPush{
 				Vars: map[string]string{
 					goodKey2: "a",
 					badKey2:  "B",
 				},
 			},
 
-			model.DeployCF{
+			parser.DeployCF{
 				Vars: map[string]string{
 					badKey3:  "asd",
 					goodKey3: "asd",

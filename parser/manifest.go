@@ -1,11 +1,11 @@
-package model
+package parser
 
 import (
 	"encoding/json"
 	"fmt"
 	"regexp"
 
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/linters/errors"
 )
 
 type Manifest struct {

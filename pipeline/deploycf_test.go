@@ -4,27 +4,27 @@ import (
 	"testing"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/model"
-	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestRendersCfDeployResources(t *testing.T) {
-	manifest := model.Manifest{Repo: model.Repo{Uri: "git@github.com:foo/reponame"}}
-	manifest.Tasks = []model.Task{
-		model.DeployCF{
+	manifest := parser.Manifest{Repo: parser.Repo{Uri: "git@github.com:foo/reponame"}}
+	manifest.Tasks = []parser.Task{
+		parser.DeployCF{
 			Api:      "dev-api",
 			Space:    "dev",
 			Org:      "springer",
 			Username: "rob",
 			Password: "supersecret",
 			Manifest: "manifest-dev.yml",
-			Vars: model.Vars{
+			Vars: parser.Vars{
 				"VAR1": "value1",
 				"VAR2": "value2",
 			},
 		},
-		model.DeployCF{
+		parser.DeployCF{
 			Api:      "live-api",
 			Space:    "prod",
 			Org:      "springer",
@@ -93,7 +93,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(project.Project{}, manifest)
+	config := testPipeline().Render(defaults.Project{}, manifest)
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])

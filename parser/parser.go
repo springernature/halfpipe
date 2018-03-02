@@ -6,8 +6,7 @@ import (
 	"fmt"
 
 	"github.com/ghodss/yaml"
-	"github.com/springernature/halfpipe/errors"
-	. "github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/linters/errors"
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {
@@ -16,7 +15,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	}
 
 	if err := yaml.Unmarshal([]byte(manifestYaml), &man); err != nil {
-		addError(errors.NewParseError(err.Error()))
+		addError(NewParseError(err.Error()))
 		return
 	}
 
@@ -24,7 +23,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		Tasks []json.RawMessage
 	}
 	if err := yaml.Unmarshal([]byte(manifestYaml), &rawTasks); err != nil {
-		addError(errors.NewParseError(err.Error()))
+		addError(NewParseError(err.Error()))
 		return
 	}
 

@@ -5,16 +5,16 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/secret_resolver"
-	"github.com/springernature/halfpipe/model"
+	"github.com/springernature/halfpipe/parser"
 )
 
 type secretsLinter struct {
 	ConcourseResolv secret_resolver.ConcourseResolver
 }
 
-func (s secretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
+func (s secretsLinter) Lint(manifest parser.Manifest) (result LintResult) {
 	result.Linter = "Secrets"
 	if manifest.Team == "" {
 		return
@@ -38,7 +38,7 @@ func NewSecretsLinter(resolver secret_resolver.ConcourseResolver) Linter {
 	}
 }
 
-func (secretsLinter) findSecrets(man model.Manifest) (secrets []string) {
+func (secretsLinter) findSecrets(man parser.Manifest) (secrets []string) {
 	re := regexp.MustCompile(`(\(\(([^\)]+)\)\))`)
 	for _, match := range re.FindAllStringSubmatch(fmt.Sprintf("%+v", man), -1) {
 		if !secretAlreadySeen(match[1], secrets) {

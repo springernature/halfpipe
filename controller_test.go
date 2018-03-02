@@ -1,14 +1,14 @@
-package controller
+package halfpipe
 
 import (
 	"testing"
 
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/errors"
+	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/model"
-	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,7 +16,7 @@ func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	return Controller{
 		Fs:        fs,
-		Defaulter: func(m model.Manifest) model.Manifest { return m },
+		Defaulter: func(m parser.Manifest) parser.Manifest { return m },
 	}
 }
 
@@ -46,15 +46,15 @@ func TestProcessDoesNothingWhenParserFails(t *testing.T) {
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 1)
-	assert.IsType(t, errors.ParseError{}, results[0].Errors[0])
+	assert.IsType(t, parser.ParseError{}, results[0].Errors[0])
 }
 
 type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest model.Manifest) model.LintResult {
-	return model.NewLintResult("fake", []error{f.Error})
+func (f fakeLinter) Lint(manifest parser.Manifest) linters.LintResult {
+	return linters.NewLintResult("fake", []error{f.Error})
 }
 
 func TestAppliesAllLinters(t *testing.T) {
@@ -77,7 +77,7 @@ type FakeRenderer struct {
 	Config atc.Config
 }
 
-func (f FakeRenderer) Render(project project.Project, manifest model.Manifest) atc.Config {
+func (f FakeRenderer) Render(project defaults.Project, manifest parser.Manifest) atc.Config {
 	return f.Config
 }
 
@@ -100,10 +100,10 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 }
 
 type fakeLinterFunc struct {
-	LintFunc func(model.Manifest) model.LintResult
+	LintFunc func(parser.Manifest) linters.LintResult
 }
 
-func (f fakeLinterFunc) Lint(manifest model.Manifest) model.LintResult {
+func (f fakeLinterFunc) Lint(manifest parser.Manifest) linters.LintResult {
 	return f.LintFunc(manifest)
 }
 
@@ -111,14 +111,14 @@ func TestCallsTheDefaultsUpdater(t *testing.T) {
 	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte("team: before"), 0777)
 
-	c.Defaulter = func(m model.Manifest) model.Manifest {
+	c.Defaulter = func(m parser.Manifest) parser.Manifest {
 		m.Team = "after"
 		return m
 	}
 
 	//very hacky - use a linter to check the manifest has been updated
-	linter := fakeLinterFunc{func(m model.Manifest) model.LintResult {
-		return model.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
+	linter := fakeLinterFunc{func(m parser.Manifest) linters.LintResult {
+		return linters.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
 	}}
 	c.Linters = []linters.Linter{linter}
 
