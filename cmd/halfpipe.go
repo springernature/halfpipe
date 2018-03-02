@@ -45,7 +45,6 @@ func main() {
 
 func invokedForHelp(args []string) bool {
 	return len(args) > 1 && (args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
-
 }
 
 func printHelp() (string, error) {
@@ -92,9 +91,7 @@ func lintAndRender() (output string, err error) {
 		Linters: []linters.Linter{
 			linters.TeamLinter{},
 			linters.RepoLinter{Fs: fs},
-			linters.SecretsLinter{
-				ConcourseResolv: secret_resolver.NewConcourseResolver(config.VaultPrefix, secret_resolver.NewSecretResolver(fs)),
-			},
+			linters.NewSecretsLinter(secret_resolver.NewConcourseResolver(config.VaultPrefix, secret_resolver.NewSecretResolver(fs))),
 			linters.TaskLinter{Fs: fs},
 			linters.ArtifactsLinter{},
 		},

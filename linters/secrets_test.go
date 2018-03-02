@@ -23,10 +23,10 @@ func (StubConcourseResolv) Exists(team string, pipeline string, concourseSecret 
 	return errors.NewVaultSecretNotFoundError(vaultPrefix, team, pipeline, concourseSecret)
 }
 
-func newSecretsLinter() SecretsLinter {
+func newSecretsLinter() secretsLinter {
 	calls = [][]string{}
 
-	return SecretsLinter{
+	return secretsLinter{
 		ConcourseResolv: StubConcourseResolv{},
 	}
 }
@@ -71,7 +71,7 @@ func TestReturnsErrorsIfSecretNotFound(t *testing.T) {
 		},
 	}
 
-	linter := SecretsLinter{
+	linter := secretsLinter{
 		ConcourseResolv: StubConcourseResolv{},
 	}
 

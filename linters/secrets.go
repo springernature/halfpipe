@@ -10,11 +10,11 @@ import (
 	"github.com/springernature/halfpipe/model"
 )
 
-type SecretsLinter struct {
+type secretsLinter struct {
 	ConcourseResolv secret_resolver.ConcourseResolver
 }
 
-func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
+func (s secretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 	result.Linter = "Secrets"
 	if manifest.Team == "" {
 		return
@@ -32,7 +32,13 @@ func (s SecretsLinter) Lint(manifest model.Manifest) (result model.LintResult) {
 	return
 }
 
-func (SecretsLinter) findSecrets(man model.Manifest) (secrets []string) {
+func NewSecretsLinter(resolver secret_resolver.ConcourseResolver) Linter {
+	return secretsLinter{
+		ConcourseResolv: resolver,
+	}
+}
+
+func (secretsLinter) findSecrets(man model.Manifest) (secrets []string) {
 	re := regexp.MustCompile(`(\(\(([^\)]+)\)\))`)
 	for _, match := range re.FindAllStringSubmatch(fmt.Sprintf("%+v", man), -1) {
 		if !secretAlreadySeen(match[1], secrets) {
@@ -42,7 +48,7 @@ func (SecretsLinter) findSecrets(man model.Manifest) (secrets []string) {
 	return
 }
 
-func (SecretsLinter) invalidSecret(secret string) bool {
+func (secretsLinter) invalidSecret(secret string) bool {
 	return len(strings.Split(secret, ".")) != 2
 }
 
