@@ -16,6 +16,7 @@ type Manifest struct {
 
 type Repo struct {
 	Uri          string
+	BasePath     string   `json:"-"` //don't auto unmarshal
 	PrivateKey   string   `json:"private_key"`
 	WatchedPaths []string `json:"watched_paths"`
 	IgnoredPaths []string `json:"ignored_paths"`

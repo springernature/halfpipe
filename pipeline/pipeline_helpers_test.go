@@ -6,7 +6,6 @@ import (
 	"regexp"
 
 	con "github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +14,7 @@ func TestToString(t *testing.T) {
 	man := parser.Manifest{}
 	man.Repo.Uri = "repo.git"
 
-	actual, err := ToString(testPipeline().Render(defaults.Project{}, man))
+	actual, err := ToString(testPipeline().Render(man))
 	expected := "uri: repo.git"
 
 	assert.Nil(t, err)
@@ -27,7 +26,7 @@ func TestToStringVersionComment(t *testing.T) {
 	man.Repo.Uri = "repo.git"
 	con.Version = "0.0.1-yolo"
 
-	actual, err := ToString(testPipeline().Render(defaults.Project{}, man))
+	actual, err := ToString(testPipeline().Render(man))
 
 	assert.Nil(t, err)
 	assert.Regexp(t, regexp.MustCompile(`^#.*0\.0\.1-yolo.*`), actual)
@@ -49,7 +48,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 			parser.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(defaults.Project{}, manifest)
+	config := testPipeline().Render(manifest)
 
 	expectedJobNames := []string{
 		"run asd.sh",

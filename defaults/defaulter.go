@@ -6,7 +6,7 @@ import (
 	"github.com/springernature/halfpipe/parser"
 )
 
-type Defaulter func(parser.Manifest) parser.Manifest
+type Defaulter func(parser.Manifest, Project) parser.Manifest
 
 type Defaults struct {
 	RepoPrivateKey string
@@ -17,7 +17,11 @@ type Defaults struct {
 	DockerPassword string
 }
 
-func (d Defaults) Update(man parser.Manifest) parser.Manifest {
+func (d Defaults) Update(man parser.Manifest, project Project) parser.Manifest {
+
+	man.Repo.Uri = project.GitUri
+	man.Repo.BasePath = project.BasePath
+
 	if man.Repo.Uri != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
@@ -46,5 +50,6 @@ func (d Defaults) Update(man parser.Manifest) parser.Manifest {
 			man.Tasks[i] = task
 		}
 	}
+
 	return man
 }

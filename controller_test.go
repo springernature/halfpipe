@@ -16,7 +16,7 @@ func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	return Controller{
 		Fs:        fs,
-		Defaulter: func(m parser.Manifest) parser.Manifest { return m },
+		Defaulter: func(m parser.Manifest, p defaults.Project) parser.Manifest { return m },
 	}
 }
 
@@ -77,7 +77,7 @@ type FakeRenderer struct {
 	Config atc.Config
 }
 
-func (f FakeRenderer) Render(project defaults.Project, manifest parser.Manifest) atc.Config {
+func (f FakeRenderer) Render(manifest parser.Manifest) atc.Config {
 	return f.Config
 }
 
@@ -111,7 +111,7 @@ func TestCallsTheDefaultsUpdater(t *testing.T) {
 	c := testController()
 	c.Fs.WriteFile(".halfpipe.io", []byte("team: before"), 0777)
 
-	c.Defaulter = func(m parser.Manifest) parser.Manifest {
+	c.Defaulter = func(m parser.Manifest, p defaults.Project) parser.Manifest {
 		m.Team = "after"
 		return m
 	}

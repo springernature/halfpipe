@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/parser"
 	"github.com/stretchr/testify/assert"
 )
@@ -93,7 +92,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(defaults.Project{}, manifest)
+	config := testPipeline().Render(manifest)
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])

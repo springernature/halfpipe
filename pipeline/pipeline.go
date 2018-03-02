@@ -10,12 +10,11 @@ import (
 	"bytes"
 
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/parser"
 )
 
 type Renderer interface {
-	Render(project defaults.Project, manifest parser.Manifest) atc.Config
+	Render(manifest parser.Manifest) atc.Config
 }
 
 type Pipeline struct{}
@@ -223,7 +222,7 @@ func (p Pipeline) dockerPushJob(task parser.DockerPush, repoName, jobName, resou
 	}
 }
 
-func (p Pipeline) Render(project defaults.Project, manifest parser.Manifest) (config atc.Config) {
+func (p Pipeline) Render(manifest parser.Manifest) (config atc.Config) {
 	config.Resources = append(config.Resources, p.gitResource(manifest.Repo))
 	repoName := manifest.Repo.GetName()
 
@@ -236,17 +235,17 @@ func (p Pipeline) Render(project defaults.Project, manifest parser.Manifest) (co
 		switch task := t.(type) {
 		case parser.Run:
 			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, jobName, project.BasePath)
+			jobConfig = p.runJob(task, repoName, jobName, manifest.Repo.BasePath)
 		case parser.DeployCF:
 			resourceName := uniqueName(deployCFResourceName(task))
 			jobName := uniqueName("deploy-cf")
 			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, project.BasePath)
+			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, manifest.Repo.BasePath)
 		case parser.DockerPush:
 			resourceName := uniqueName("Docker Registry")
 			jobName := uniqueName("docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, project.BasePath)
+			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, manifest.Repo.BasePath)
 		}
 
 		if i > 0 {

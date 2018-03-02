@@ -10,21 +10,21 @@ import (
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
-	man := parser.Manifest{Repo: parser.Repo{Uri: "https://github.com/public/repo"}}
-	man = manifestDefaults.Update(man)
+	man := parser.Manifest{}
+	man = manifestDefaults.Update(man, Project{GitUri: "https://github.com/public/repo"})
 	assert.Empty(t, man.Repo.PrivateKey)
 }
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
 
-	man := parser.Manifest{Repo: parser.Repo{Uri: "ssh@github.com:private/repo"}}
-	man = manifestDefaults.Update(man)
+	man := parser.Manifest{}
+	man = manifestDefaults.Update(man, Project{GitUri: "ssh@github.com:private/repo"})
 	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
 
 	//doesn't replace existing value
 	man.Repo.PrivateKey = "foo"
-	man = manifestDefaults.Update(man)
+	man = manifestDefaults.Update(man, Project{})
 	assert.Equal(t, "foo", man.Repo.PrivateKey)
 }
 
@@ -56,7 +56,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{expectedTask1, task2}}
 
-	actual := manifestDefaults.Update(manifest)
+	actual := manifestDefaults.Update(manifest, Project{})
 
 	assert.Equal(t, expected, actual)
 }
@@ -94,7 +94,16 @@ func TestRunTaskDefault(t *testing.T) {
 
 	expected := parser.Manifest{Team: "ee", Tasks: []parser.Task{task1, expectedTask2}}
 
-	actual := manifestDefaults.Update(manifest)
+	actual := manifestDefaults.Update(manifest, Project{})
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestSetsProjectValues(t *testing.T) {
+	manifestDefaults := Defaults{}
+	man := parser.Manifest{}
+	man = manifestDefaults.Update(man, Project{BasePath: "foo", GitUri: "bar"})
+
+	assert.Equal(t, "bar", man.Repo.Uri)
+	assert.Equal(t, "foo", man.Repo.BasePath)
 }
