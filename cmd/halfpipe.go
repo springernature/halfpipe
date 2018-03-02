@@ -36,25 +36,29 @@ func invokedForSync(args []string) bool {
 
 }
 
-func syncBinary() {
+func syncBinary() (err error) {
 	currentVersion, err := helpers.GetVersion()
-	printAndExit(err)
+	if err != nil {
+		return
+	}
 
 	syncer := sync.NewSyncer(currentVersion)
 	err = syncer.Update(os.Stdout)
-	printAndExit(err)
-	syscall.Exit(0)
-
+	return
 }
 
-func lintAndRender() {
+func lintAndRender() (err error) {
 	fs := afero.Afero{Fs: afero.NewOsFs()}
 
 	currentDir, err := os.Getwd()
-	printAndExit(err)
+	if err != nil {
+		return
+	}
 
 	proj, err := project.NewConfig(fs).Parse(currentDir)
-	printAndExit(err)
+	if err != nil {
+		return
+	}
 
 	ctrl := controller.Controller{
 		Fs:      fs,
@@ -77,46 +81,43 @@ func lintAndRender() {
 		for _, err := range lintResults {
 			fmt.Fprintln(os.Stderr, err)
 		}
-		syscall.Exit(1)
+		return
 	}
 
 	pipelineYaml, err := pipeline.ToString(pipelineConfig)
-	printAndExit(err)
+	if err != nil {
+		return
+	}
 
 	fmt.Println(pipelineYaml)
+	return
 }
 
 func main() {
-	checkVersion()
-
-	if invokedForHelp(os.Args) {
-		printHelpAndExit()
+	err := checkVersion()
+	if err == nil {
+		if invokedForHelp(os.Args) {
+			printHelpAndExit()
+		} else if invokedForSync(os.Args) {
+			err = syncBinary()
+		} else {
+			lintAndRender()
+		}
 	}
 
-	if invokedForSync(os.Args) {
-		syncBinary()
-	}
-
-	lintAndRender()
-}
-
-func checkVersion() {
-	currentVersion, err := helpers.GetVersion()
-	printAndExit(err)
-
-	syncer := sync.NewSyncer(currentVersion)
-	if len(os.Args) == 1 {
-		printAndExit(syncer.Check())
-	} else if len(os.Args) > 1 && os.Args[1] == "sync" {
-		err := syncer.Update(os.Stdout)
-		printAndExit(err)
-		syscall.Exit(0)
-	}
-}
-
-func printAndExit(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		syscall.Exit(-1)
 	}
+}
+
+func checkVersion() (err error) {
+	currentVersion, err := helpers.GetVersion()
+	if err != nil {
+		return
+	}
+
+	syncer := sync.NewSyncer(currentVersion)
+	err = syncer.Check()
+	return
 }
