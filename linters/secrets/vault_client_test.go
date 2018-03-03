@@ -10,13 +10,18 @@ import (
 
 func createPreClientWithEnvSet() vaultClient {
 	preClient := NewVaultClient(afero.Afero{Fs: afero.NewMemMapFs()})
-	preClient.getEnv = func(s string) string { return "https://vault.io"}
+	preClient.getEnv = func(s string) string {
+		if s == "VAULT_ADDR" {
+			return "https://vault.io"
+		}
+		return ""
+	}
 	return preClient
 }
 
 func TestVaultAddrNotSet(t *testing.T) {
 	preClient := createPreClientWithEnvSet()
-	preClient.getEnv = func(s string) string { return ""}
+	preClient.getEnv = func(s string) string { return "" }
 
 	_, err := preClient.Create()
 	assert.Equal(t, errVaultAddrNotSet, err)
