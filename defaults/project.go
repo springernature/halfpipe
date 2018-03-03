@@ -5,6 +5,8 @@ import (
 
 	"os/exec"
 
+	"strings"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tcnksm/go-gitconfig"
@@ -38,8 +40,8 @@ func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 	var pathRelativeToGit func(string) (string, error)
 
 	pathRelativeToGit = func(path string) (string, error) {
-		if workingDir == "" {
-			return "", errors.New("invalid dir ''")
+		if !strings.Contains(path, string(filepath.Separator)) {
+			return "", ErrNotInRepo
 		}
 
 		exists, err := c.Fs.DirExists(filepath.Join(path, ".git"))

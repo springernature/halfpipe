@@ -74,3 +74,14 @@ func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
 	_, err := pr.Parse("/home/simon/src/repo/a/b/c")
 	assert.Equal(t, ErrNotInRepo, err)
 }
+
+func TestErrorsOutIfPassedDodgyPathValue(t *testing.T) {
+	pr := testProjectResolver()
+
+	paths := []string{"", "foo", "/..", ".."}
+
+	for _, path := range paths {
+		_, err := pr.Parse(path)
+		assert.Equal(t, ErrNotInRepo, err)
+	}
+}
