@@ -22,7 +22,7 @@ type SecretStoreFunc func() (SecretStore, error)
 
 func NewSecretStore(fs afero.Afero) SecretStoreFunc {
 	return func() (store SecretStore, err error) {
-		client, err := NewVaultClient(fs)
+		client, err := NewVaultClient(fs).Create()
 		if err == nil {
 			store = secretStore{Client: client}
 		}

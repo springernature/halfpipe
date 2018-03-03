@@ -17,13 +17,25 @@ var (
 	errVaultTokenInvalid = errors.NewVaultClientErrorf("Contents of '%s' does not look like a vault token!", vaultTokenPath)
 )
 
-func NewVaultClient(fs afero.Afero) (vaultClient *api.Logical, err error) {
-	if os.Getenv("VAULT_ADDR") == "" {
+type vaultClient struct {
+	fs     afero.Afero
+	getEnv func(string) string
+}
+
+func NewVaultClient(fs afero.Afero) vaultClient {
+	return vaultClient{
+		fs:     fs,
+		getEnv: os.Getenv,
+	}
+}
+
+func (v vaultClient) Create() (vaultClient *api.Logical, err error) {
+	if v.getEnv("VAULT_ADDR") == "" {
 		err = errVaultAddrNotSet
 		return
 	}
 	vaultTokenPath := vaultTokenPath
-	token, err := fs.ReadFile(vaultTokenPath)
+	token, err := v.fs.ReadFile(vaultTokenPath)
 	if err != nil {
 		err = errVaultTokenMissing
 		return
