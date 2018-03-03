@@ -13,7 +13,7 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/secret_resolver"
+	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 )
@@ -84,15 +84,15 @@ func lintAndRender() (output string, err error) {
 	ctrl := halfpipe.Controller{
 		Fs:         fs,
 		CurrentDir: currentDir,
+		Defaulter:  defaults.NewDefaulter(project),
 		Linters: []linters.Linter{
 			linters.NewTeamLinter(),
 			linters.NewRepoLinter(fs),
-			linters.NewSecretsLinter(secret_resolver.NewConcourseResolver(config.VaultPrefix, secret_resolver.NewSecretResolver(fs))),
+			linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
 			linters.NewTasksLinter(fs),
 			linters.NewArtifactsLinter(),
 		},
-		Renderer:  pipeline.Pipeline{},
-		Defaulter: defaults.NewDefaulter(project),
+		Renderer: pipeline.Pipeline{},
 	}
 
 	pipelineConfig, lintResults := ctrl.Process()

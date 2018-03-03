@@ -16,9 +16,9 @@ import (
 type Controller struct {
 	Fs         afero.Afero
 	CurrentDir string
+	Defaulter  defaults.Defaults
 	Linters    []linters.Linter
 	Renderer   pipeline.Renderer
-	Defaulter  defaults.Defaults
 }
 
 func (c Controller) getManifest() (man manifest.Manifest, errors []error) {

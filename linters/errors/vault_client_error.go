@@ -1,12 +1,14 @@
-package secret_resolver
+package errors
+
+import "fmt"
 
 type VaultClientError struct {
 	message string
 }
 
-func NewVaultClientError(message string) VaultClientError {
+func NewVaultClientErrorf(format string, a ...interface{}) VaultClientError {
 	return VaultClientError{
-		message: message,
+		message: fmt.Sprintf(format, a...),
 	}
 }
 

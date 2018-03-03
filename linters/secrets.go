@@ -5,13 +5,23 @@ import (
 	"regexp"
 	"strings"
 
+	"path"
+
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/linters/secret_resolver"
+	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/manifest"
 )
 
 type secretsLinter struct {
-	ConcourseResolv secret_resolver.ConcourseResolver
+	prefix          string
+	secretStoreFunc secrets.SecretStoreFunc
+}
+
+func NewSecretsLinter(secretPrefix string, storeFunc secrets.SecretStoreFunc) secretsLinter {
+	return secretsLinter{
+		prefix:          secretPrefix,
+		secretStoreFunc: storeFunc,
+	}
 }
 
 func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
@@ -20,11 +30,22 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		return
 	}
 
-	for _, secret := range s.findSecrets(manifest) {
-		if s.invalidSecret(secret) {
+	secrets := findSecrets(manifest)
+	if len(secrets) == 0 {
+		return
+	}
+
+	store, err := s.secretStoreFunc()
+	if err != nil {
+		result.Errors = append(result.Errors, err)
+		return
+	}
+
+	for _, secret := range secrets {
+		if !secretIsValidFormat(secret) {
 			result.Errors = append(result.Errors, errors.NewVaultSecretError(secret))
 		} else {
-			if err := s.ConcourseResolv.Exists(manifest.Team, manifest.Repo.GetName(), secret); err != nil {
+			if err := s.checkExists(store, manifest.Team, manifest.Repo.GetName(), secret); err != nil {
 				result.AddError(err)
 			}
 		}
@@ -32,33 +53,44 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	return
 }
 
-func NewSecretsLinter(resolver secret_resolver.ConcourseResolver) Linter {
-	return secretsLinter{
-		ConcourseResolv: resolver,
+func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipeline string, concourseSecret string) (err error) {
+	secretMap, secretKey := secretToMapAndKey(concourseSecret)
+	paths := []string{
+		path.Join(s.prefix, team, pipeline, secretMap),
+		path.Join(s.prefix, team, secretMap),
 	}
+
+	for _, p := range paths {
+		exists, e := store.Exists(p, secretKey)
+
+		if exists || e != nil {
+			err = e
+			return
+		}
+	}
+
+	return errors.NewVaultSecretNotFoundError(s.prefix, team, pipeline, concourseSecret)
 }
 
-func (secretsLinter) findSecrets(man manifest.Manifest) (secrets []string) {
+func findSecrets(man manifest.Manifest) (secrets []string) {
 	re := regexp.MustCompile(`(\(\(([^\)]+)\)\))`)
+	set := make(map[string]bool)
 	for _, match := range re.FindAllStringSubmatch(fmt.Sprintf("%+v", man), -1) {
-		if !secretAlreadySeen(match[1], secrets) {
-			secrets = append(secrets, match[1])
-		}
+		set[match[1]] = true
+	}
+	for key := range set {
+		secrets = append(secrets, key)
 	}
 	return
 }
 
-func (secretsLinter) invalidSecret(secret string) bool {
-	return len(strings.Split(secret, ".")) != 2
+func secretIsValidFormat(secret string) bool {
+	return len(strings.Split(secret, ".")) == 2
 }
 
-func secretAlreadySeen(secret string, secrets []string) bool {
-	// This is stupid. But people will not have thousands of secrets so fuck it
-
-	for _, s := range secrets {
-		if s == secret {
-			return true
-		}
-	}
-	return false
+func secretToMapAndKey(secret string) (string, string) {
+	s := strings.Replace(strings.Replace(secret, "((", "", -1), "))", "", -1)
+	parts := strings.Split(s, ".")
+	mapName, keyName := parts[0], parts[1]
+	return mapName, keyName
 }
