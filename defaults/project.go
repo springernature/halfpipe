@@ -15,14 +15,14 @@ type Project struct {
 	GitUri   string
 }
 
-type config struct {
+type projectResolver struct {
 	Fs        afero.Afero
 	LookPath  func(string) (string, error)
 	OriginURL func() (string, error)
 }
 
-func NewConfig(fs afero.Afero) config {
-	return config{
+func NewProjectResolver(fs afero.Afero) projectResolver {
+	return projectResolver{
 		Fs:        fs,
 		LookPath:  exec.LookPath,
 		OriginURL: gitconfig.OriginURL,
@@ -34,7 +34,7 @@ var (
 	ErrNotInRepo   = errors.New("looks like you are not executing halfpipe from within a git repo")
 )
 
-func (c config) Parse(workingDir string) (p Project, err error) {
+func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 	var pathRelativeToGit func(string) (string, error)
 
 	pathRelativeToGit = func(path string) (string, error) {

@@ -78,8 +78,10 @@ func lintAndRender() (output string, err error) {
 		return
 	}
 
-	configResolver := defaults.NewConfig(fs)
-	project, err := configResolver.Parse(currentDir)
+	project, err := defaults.NewProjectResolver(fs).Parse(currentDir)
+	if err != nil {
+		return
+	}
 
 	ctrl := halfpipe.Controller{
 		Fs:         fs,
