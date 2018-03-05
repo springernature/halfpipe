@@ -38,9 +38,6 @@ func TestTriggerIntervalSet(t *testing.T) {
 		},
 	}
 	config := testPipeline().Render(man)
-
-	//fmt.Println(ToString(config))
-
 	resources := config.Resources
 	plan := config.Jobs[0].Plan
 
