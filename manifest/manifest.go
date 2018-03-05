@@ -9,9 +9,10 @@ import (
 )
 
 type Manifest struct {
-	Team  string
-	Repo  Repo
-	Tasks []Task `json:"-"` //don't auto unmarshal
+	Team            string
+	TriggerInterval string `json:"trigger_interval"`
+	Repo            Repo
+	Tasks           []Task `json:"-"` //don't auto unmarshal
 }
 
 type Repo struct {

@@ -49,6 +49,14 @@ func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
+func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name:   "timer " + interval,
+		Type:   "time",
+		Source: atc.Source{"interval": interval},
+	}
+}
+
 func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
 		"api":          deployCF.Api,
@@ -120,7 +128,6 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: repoName, Trigger: true},
 			atc.PlanConfig{
 				Task: task.Script,
 				TaskConfig: &atc.TaskConfig{
@@ -138,7 +145,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 				}}}}
 
 	if len(task.SaveArtifacts) > 0 {
-		jobConfig.Plan[1].TaskConfig.Outputs = []atc.TaskOutputConfig{
+		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
 			{Name: artifactsFolderName},
 		}
 
@@ -150,7 +157,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 
 		runScriptWithCopyArtifact := scriptInput.renderRunScriptWithCopyArtifact()
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
-		jobConfig.Plan[1].TaskConfig.Run.Args = runArgs
+		jobConfig.Plan[0].TaskConfig.Run.Args = runArgs
 	}
 
 	return jobConfig
@@ -194,7 +201,6 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, jobName, resourc
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: repoName, Trigger: true},
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
@@ -212,7 +218,6 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, res
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: repoName, Trigger: true},
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
@@ -223,8 +228,16 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, res
 }
 
 func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
-	config.Resources = append(config.Resources, p.gitResource(man.Repo))
-	repoName := man.Repo.GetName()
+	repoResource := p.gitResource(man.Repo)
+	repoName := repoResource.Name
+	config.Resources = append(config.Resources, repoResource)
+	initialPlan := []atc.PlanConfig{{Get: repoName, Trigger: true}}
+
+	if man.TriggerInterval != "" {
+		timerResource := p.timerResource(man.TriggerInterval)
+		config.Resources = append(config.Resources, timerResource)
+		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
+	}
 
 	uniqueName := func(name string) string {
 		return getUniqueName(name, &config, 0)
@@ -248,8 +261,11 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
 		}
 
+		//insert the initial plan
+		jobConfig.Plan = append(initialPlan, jobConfig.Plan...)
+
 		if i > 0 {
-			// Plan[0] of a job is ALWAYS the git get.
+			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.
 			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, config.Jobs[i-1].Name)
 		}
 		config.Jobs = append(config.Jobs, jobConfig)

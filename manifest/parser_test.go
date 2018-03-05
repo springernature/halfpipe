@@ -204,3 +204,12 @@ tasks:
 	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(DeployCF).DeployArtifact)
 
 }
+
+func TestTriggerInterval(t *testing.T) {
+	manifest, errs := Parse(`
+trigger_interval: 1h
+`)
+
+	assert.Nil(t, errs)
+	assert.Equal(t, "1h", manifest.TriggerInterval)
+}
