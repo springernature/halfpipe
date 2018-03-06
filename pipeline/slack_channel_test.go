@@ -3,6 +3,7 @@ package pipeline
 import (
 	"testing"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,13 +18,15 @@ func TestRendersSlackResource(t *testing.T) {
 	assert.Len(t, pipeline.Resources, 2)
 
 	assert.Equal(t, "slack-alert", pipeline.Resources[1].Name)
+	assert.Equal(t, config.SlackWebhook, pipeline.Resources[1].Source["url"])
 	assert.Equal(t, "slack-notification", pipeline.Resources[1].Type)
 	assert.Equal(t, "docker-image", pipeline.ResourceTypes[0].Type)
 	assert.Equal(t, "cfcommunity/slack-notification-resource", pipeline.ResourceTypes[0].Source["repository"])
-	assert.Equal(t, "slack-notifcation", pipeline.ResourceTypes[0].Name)
+	assert.Equal(t, "slack-notification", pipeline.ResourceTypes[0].Name)
 
 }
 func TestRendersSlackOnFailurePlan(t *testing.T) {
+
 	slackChannel := "#ee-re"
 
 	man := manifest.Manifest{Repo: manifest.Repo{Uri: "git@github.com:foo/reponame"}}

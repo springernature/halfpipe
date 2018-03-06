@@ -10,6 +10,7 @@ import (
 	"bytes"
 
 	"github.com/concourse/atc"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -54,14 +55,14 @@ func (p Pipeline) slackResource() atc.ResourceConfig {
 		Name: "slack-alert",
 		Type: "slack-notification",
 		Source: atc.Source{
-			"url": "https://hooks.slack.com/services/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",
+			"url": config.SlackWebhook,
 		},
 	}
 }
 
 func (p Pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "slack-notifcation",
+		Name: "slack-notification",
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
@@ -297,10 +298,10 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 			jobConfig.Failure = &atc.PlanConfig{
 				Put: "slack-alert",
 				Params: atc.Params{
-					"channel": man.SlackChannel,
-					"text": `The build had a result. Check it out at:
-http://concourse.halfpipe.io/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
-or at:
+					"channel":  man.SlackChannel,
+					"username": "Halfpipe",
+					"icon_url": "https://ci.concourse.ci/public/images/favicon-failed.png",
+					"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
 http://concourse.halfpipe.io/builds/$BUILD_ID`,
 				},
 			}

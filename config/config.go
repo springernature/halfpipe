@@ -11,6 +11,8 @@ var (
 
 	DocHost     string
 	VaultPrefix string
+
+	SlackWebhook = "Set your slack webhook here"
 )
 
 var DevVersion = semver.Version{

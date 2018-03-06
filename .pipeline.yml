@@ -95,6 +95,7 @@ jobs:
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
           echo "LDFLAGS=${LDFLAGS}"
 
           # Build binaries

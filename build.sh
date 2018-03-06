@@ -18,5 +18,7 @@ if ! ds=$(dep status 2> /dev/null); then
 fi
 
 echo go build
-LD_FLAGS="-X github.com/springernature/halfpipe/config.VaultPrefix=springernature -X github.com/springernature/halfpipe/config.DocHost=docs.halfpipe.io"
-go build -ldflags "${LD_FLAGS}" cmd/halfpipe.go
+LD_VAULTPREFIX="-X github.com/springernature/halfpipe/config.VaultPrefix=springernature"
+LD_DOCHOST="-X github.com/springernature/halfpipe/config.DocHost=docs.halfpipe.io"
+LD_SLACKWEBHOOK="-X github.com/springernature/halfpipe/config.SlackWebhook=https://hooks.slack.com/services/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"
+go build -ldflags "${LD_VAULTPREFIX} ${LD_DOCHOST} ${LD_SLACKWEBHOOK}" cmd/halfpipe.go
