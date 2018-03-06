@@ -1,6 +1,7 @@
 package linters
 
 import (
+	"path/filepath"
 	"strings"
 
 	"regexp"
@@ -11,15 +12,20 @@ import (
 )
 
 type repoLinter struct {
-	Fs afero.Afero
+	Fs         afero.Afero
+	WorkingDir string
 }
 
-func NewRepoLinter(fs afero.Afero) repoLinter {
-	return repoLinter{fs}
+func NewRepoLinter(fs afero.Afero, workingDir string) repoLinter {
+	return repoLinter{fs, workingDir}
 }
 
-func (r repoLinter) checkGlob(glob string) error {
-	matches, err := afero.Glob(r.Fs, glob)
+func (r repoLinter) checkGlob(glob string, basePath string) error {
+
+	//need the path to the repo
+	repoRoot := strings.Replace(r.WorkingDir, basePath, "", -1)
+
+	matches, err := afero.Glob(r.Fs, filepath.Join(repoRoot, glob))
 	if err != nil {
 		return err
 	}
@@ -49,7 +55,7 @@ func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 	}
 
 	for _, glob := range append(man.Repo.WatchedPaths, man.Repo.IgnoredPaths...) {
-		if err := r.checkGlob(glob); err != nil {
+		if err := r.checkGlob(glob, man.Repo.BasePath); err != nil {
 			result.AddError(err)
 		}
 	}

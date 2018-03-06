@@ -89,7 +89,7 @@ func lintAndRender() (output string, err error) {
 		Defaulter:  defaults.NewDefaulter(project),
 		Linters: []linters.Linter{
 			linters.NewTeamLinter(),
-			linters.NewRepoLinter(fs),
+			linters.NewRepoLinter(fs, currentDir),
 			linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
 			linters.NewTasksLinter(fs),
 			linters.NewArtifactsLinter(),
