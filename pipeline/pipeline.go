@@ -129,7 +129,8 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Task: task.Script,
+				Task:       task.Script,
+				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform:      "linux",
 					Params:        task.Vars,
