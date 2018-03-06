@@ -49,6 +49,27 @@ func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
+func (p Pipeline) slackResource() atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name: "slack-alert",
+		Type: "slack-notification",
+		Source: atc.Source{
+			"url": "https://hooks.slack.com/services/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",
+		},
+	}
+}
+
+func (p Pipeline) slackResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name: "slack-notifcation",
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": "cfcommunity/slack-notification-resource",
+			"tag":        "latest",
+		},
+	}
+}
+
 func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:   "timer " + interval,
@@ -240,6 +261,16 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
 	}
 
+	slackChannelSet := man.SlackChannel != ""
+
+	if slackChannelSet {
+		slackResource := p.slackResource()
+		config.Resources = append(config.Resources, slackResource)
+
+		slackResourceType := p.slackResourceType()
+		config.ResourceTypes = append(config.ResourceTypes, slackResourceType)
+	}
+
 	uniqueName := func(name string) string {
 		return getUniqueName(name, &config, 0)
 	}
@@ -260,6 +291,19 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 			jobName := uniqueName("docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
 			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
+		}
+
+		if slackChannelSet {
+			jobConfig.Failure = &atc.PlanConfig{
+				Put: "slack-alert",
+				Params: atc.Params{
+					"channel": man.SlackChannel,
+					"text": `The build had a result. Check it out at:
+http://concourse.halfpipe.io/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME
+or at:
+http://concourse.halfpipe.io/builds/$BUILD_ID`,
+				},
+			}
 		}
 
 		//insert the initial plan

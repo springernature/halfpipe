@@ -71,6 +71,17 @@ func TestRepoWithPaths(t *testing.T) {
 	assert.Equal(t, expected, man)
 }
 
+func TestSlackChannel(t *testing.T) {
+	man, errs := Parse("slack_channel: \"#ee-re\"")
+
+	expected := Manifest{
+		SlackChannel: "#ee-re",
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}
+
 func TestRunTask(t *testing.T) {
 	man, errs := Parse("tasks: [{ name: run, docker: {image: alpine}, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
 	expected := Manifest{

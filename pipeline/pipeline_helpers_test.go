@@ -33,7 +33,7 @@ func TestToStringVersionComment(t *testing.T) {
 }
 
 func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
-	manifest := manifest.Manifest{
+	man := manifest.Manifest{
 		Repo: manifest.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "asd.sh"},
@@ -48,7 +48,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 			manifest.DockerPush{},
 		},
 	}
-	config := testPipeline().Render(manifest)
+	config := testPipeline().Render(man)
 
 	expectedJobNames := []string{
 		"run asd.sh",

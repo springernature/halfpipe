@@ -3,6 +3,8 @@ team: engineering-enablement
 repo:
   uri: https://github.com/robwhitby/halfpipe-example-nodejs
 
+slack-channel: "#ee-re"
+
 tasks:
 - name: run
   script: test.sh
