@@ -2,10 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"syscall"
-
 	"io"
+	"os"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -36,7 +34,7 @@ func main() {
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
-		syscall.Exit(1)
+		os.Exit(1)
 	}
 	fmt.Fprintln(os.Stdout, output)
 }
