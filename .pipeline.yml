@@ -147,7 +147,7 @@ jobs:
           export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
-          export LDFLAGS="-X ${CONF_PKG}.Version=ci-build"
+          export LDFLAGS="-X ${CONF_PKG}.Version=0.0.0-DEV"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
