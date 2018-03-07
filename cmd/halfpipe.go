@@ -36,7 +36,7 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stdout, output)
+	fmt.Fprint(os.Stdout, output)
 }
 
 func invokedForHelp(args []string) bool {
