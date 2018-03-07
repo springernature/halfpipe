@@ -1,7 +1,7 @@
 set -e
 set -o pipefail
 
-HALFPIPE_PATH=${1:-"../halfpipe_linux"}
+HALFPIPE_PATH=${1:-"../halfpipe"}
 
 ${HALFPIPE_PATH} | tee pipeline.yml
 
