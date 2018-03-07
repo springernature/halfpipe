@@ -62,13 +62,13 @@ jobs:
   - put: version
     params:
       bump: patch
-- name: Build and create github release
+- name: Create GitHub release
   disable_manual_trigger: true
   plan:
   - aggregate:
     - get: halfpipe
       passed:
-      - End2EndTest
+      - End2End Test
     - get: version
       trigger: true
   - task: Build
@@ -89,7 +89,7 @@ jobs:
           export VERSION="$(cat version/version)"
           export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
-          export CONF_PKG="github.com/springernature/halfpipe"
+          export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
@@ -121,7 +121,7 @@ jobs:
       - binaries/halfpipe_*
       name: halfpipe/name
       tag: version/version
-- name: End2EndTest
+- name: End2End Test
   serial: true
   plan:
   - get: halfpipe
@@ -144,11 +144,10 @@ jobs:
         - |
           export ROOT="$PWD"
           export GOPATH="$PWD"
-          export VERSION="$(cat version/version)"
           export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
           export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
-          export CONF_PKG="github.com/springernature/halfpipe"
-          export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
+          export CONF_PKG="github.com/springernature/halfpipe/config"
+          export LDFLAGS="-X ${CONF_PKG}.Version=ci-build"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
@@ -159,7 +158,6 @@ jobs:
           # Build binaries
           cd src/github.com/springernature/halfpipe
           CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          cp halfpipe_darwin halfpipe_linux $ROOT/binaries
 
           cd e2e_test
           ./test.sh ../halfpipe_linux

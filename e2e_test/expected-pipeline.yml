@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV
+# Generated using halfpipe cli version ci-build
 groups: []
 resources:
 - name: halfpipe-example-nodejs
