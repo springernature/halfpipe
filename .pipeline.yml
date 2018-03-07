@@ -142,9 +142,24 @@ jobs:
         args:
         - -ec
         - |
-          export GOPATH=$PWD
+          export ROOT="$PWD"
+          export GOPATH="$PWD"
+          export VERSION="$(cat version/version)"
+          export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
+          export CONF_PKG="github.com/springernature/halfpipe"
+          export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
+          echo "LDFLAGS=${LDFLAGS}"
+
+          # Build binaries
           cd src/github.com/springernature/halfpipe
-          go build -o halfpipe cmd/halfpipe.go
+          go build -o halfpipe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+
           cd e2e_test
           ./test.sh ../halfpipe
       inputs:
