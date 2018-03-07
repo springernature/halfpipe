@@ -158,7 +158,9 @@ jobs:
 
           # Build binaries
           cd src/github.com/springernature/halfpipe
-          go build -o halfpipe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          cp halfpipe_darwin halfpipe_linux $ROOT/binaries
 
           cd e2e_test
           ./test.sh ../halfpipe
