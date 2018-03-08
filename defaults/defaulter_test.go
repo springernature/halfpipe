@@ -3,6 +3,7 @@ package defaults
 import (
 	"testing"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -82,7 +83,7 @@ func TestRunTaskDefault(t *testing.T) {
 	task2 := manifest.Run{
 		Script: "./blah",
 		Docker: manifest.Docker{
-			Image: "eu.gcr.io/halfpipe-io/runImage",
+			Image: config.DockerRegistry + "runImage",
 		},
 	}
 
@@ -91,7 +92,7 @@ func TestRunTaskDefault(t *testing.T) {
 	expectedTask2 := manifest.Run{
 		Script: "./blah",
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/runImage",
+			Image:    config.DockerRegistry + "runImage",
 			Username: manifestDefaults.DockerUsername,
 			Password: manifestDefaults.DockerPassword,
 		},
@@ -102,6 +103,36 @@ func TestRunTaskDefault(t *testing.T) {
 	actual := manifestDefaults.Update(man)
 
 	assert.Equal(t, expected, actual)
+}
+
+func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
+	manifestDefaults := Defaults{
+		DockerUsername: "_json_key",
+		DockerPassword: "((gcr.private_key))",
+	}
+
+	imageInHalfpipeRegistry := config.DockerRegistry + "push-me"
+	imageInAnotherRegistry := "some-other-registry/repo"
+
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{
+		manifest.DockerPush{Image: imageInHalfpipeRegistry},
+		manifest.DockerPush{Image: imageInAnotherRegistry},
+	}}
+
+	actual := manifestDefaults.Update(man)
+
+	expectedTasks := []manifest.Task{
+		manifest.DockerPush{
+			Username: manifestDefaults.DockerUsername,
+			Password: manifestDefaults.DockerPassword,
+			Image:    imageInHalfpipeRegistry,
+		},
+		manifest.DockerPush{
+			Image: imageInAnotherRegistry,
+		},
+	}
+
+	assert.Equal(t, expectedTasks, actual.Tasks)
 }
 
 func TestSetsProjectValues(t *testing.T) {

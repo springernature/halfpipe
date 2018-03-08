@@ -3,8 +3,8 @@ package config
 import "github.com/blang/semver"
 
 var (
-	// These field will be populated in Concourse
-	// go build -ldflags "-X main.version=..."
+	// These fields will be populated in build
+	// go build -ldflags "-X config.version=..."
 	Version    string
 	CompiledAt string
 	GitCommit  string
@@ -13,6 +13,8 @@ var (
 	VaultPrefix string
 
 	SlackWebhook = "Set your slack webhook here"
+
+	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 )
 
 var DevVersion = semver.Version{

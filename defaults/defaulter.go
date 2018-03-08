@@ -3,6 +3,7 @@ package defaults
 import (
 	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -50,13 +51,22 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				task.Manifest = d.CfManifest
 			}
 			man.Tasks[i] = task
+
 		case manifest.Run:
-			if strings.HasPrefix(task.Docker.Image, "eu.gcr.io/halfpipe-io/") {
+			if strings.HasPrefix(task.Docker.Image, config.DockerRegistry) {
 				task.Docker.Username = d.DockerUsername
 				task.Docker.Password = d.DockerPassword
 			}
 			man.Tasks[i] = task
+
+		case manifest.DockerPush:
+			if strings.HasPrefix(task.Image, config.DockerRegistry) {
+				task.Username = d.DockerUsername
+				task.Password = d.DockerPassword
+			}
+			man.Tasks[i] = task
 		}
+
 	}
 
 	return man
