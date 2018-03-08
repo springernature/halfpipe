@@ -9,32 +9,32 @@ import (
 )
 
 func TestRendersCfDeployResources(t *testing.T) {
-	man := manifest.Manifest{Repo: manifest.Repo{Uri: "git@github.com:foo/reponame"}}
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			Api:      "dev-api",
-			Space:    "dev",
-			Org:      "springer",
-			Username: "rob",
-			Password: "supersecret",
-			Manifest: "manifest-dev.yml",
-			Vars: manifest.Vars{
-				"VAR1": "value1",
-				"VAR2": "value2",
-			},
-		},
-		manifest.DeployCF{
-			Api:      "live-api",
-			Space:    "prod",
-			Org:      "springer",
-			Username: "rob",
-			Password: "supersecret",
-			Manifest: "manifest-live.yml",
+	taskDeployDev := manifest.DeployCF{
+		Api:      "dev-api",
+		Space:    "dev",
+		Org:      "springer",
+		Username: "rob",
+		Password: "supersecret",
+		Manifest: "manifest-dev.yml",
+		Vars: manifest.Vars{
+			"VAR1": "value1",
+			"VAR2": "value2",
 		},
 	}
+	taskDeployLive := manifest.DeployCF{
+		Api:      "live-api",
+		Space:    "prod",
+		Org:      "springer",
+		Username: "rob",
+		Password: "supersecret",
+		Manifest: "manifest-live.yml",
+	}
+
+	man := manifest.Manifest{Repo: manifest.Repo{Uri: "git@github.com:foo/reponame"}}
+	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
 	expectedDevResource := atc.ResourceConfig{
-		Name: "CF springer-dev",
+		Name: deployCFResourceName(taskDeployDev),
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "dev-api",
@@ -65,7 +65,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	expectedLiveResource := atc.ResourceConfig{
-		Name: "CF springer-prod",
+		Name: deployCFResourceName(taskDeployLive),
 		Type: "cf",
 		Source: atc.Source{
 			"api":          "live-api",

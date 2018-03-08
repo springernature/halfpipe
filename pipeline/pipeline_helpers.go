@@ -19,11 +19,18 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 }
 
 func deployCFResourceName(task manifest.DeployCF) string {
-	return fmt.Sprintf("CF %s-%s", task.Org, task.Space)
+	// if url remove the scheme
+	api := strings.Replace(task.Api, "https://", "", -1)
+	api = strings.Replace(api, "http://", "", -1)
+
+	// if secret, tidy up
+	api = strings.Replace(api, "((cloudfoundry.", "", -1)
+	api = strings.Replace(api, "))", "", -1)
+	return fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
 }
 
 func getUniqueName(name string, config *atc.Config, counter int) string {
-	candidate := strings.Replace(name, "/", "__", -1) //avoid bug in atc web interface
+	candidate := strings.Replace(name, "/", "_", -1) //avoid bug in atc web interface
 	if counter > 0 {
 		candidate = fmt.Sprintf("%s (%v)", name, counter)
 	}
