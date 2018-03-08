@@ -9,7 +9,7 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
-- name: CF engineering-enablement-dev
+- name: CF dev-api engineering-enablement dev
   type: cf
   source:
     api: dev-api
@@ -17,7 +17,7 @@ resources:
     password: very-secret
     space: dev
     username: michiel
-- name: CF pe-staging
+- name: CF live-api pe staging
   type: cf
   source:
     api: live-api
@@ -77,7 +77,7 @@ jobs:
     passed:
     - run test.sh
     trigger: true
-  - put: CF engineering-enablement-dev
+  - put: CF dev-api engineering-enablement dev
     params:
       environment_variables: {}
       manifest: halfpipe-example-nodejs/manifest.yml
@@ -98,7 +98,7 @@ jobs:
     passed:
     - deploy-cf
     trigger: true
-  - put: CF pe-staging
+  - put: CF live-api pe staging
     params:
       environment_variables: {}
       manifest: halfpipe-example-nodejs/manifest.yml
