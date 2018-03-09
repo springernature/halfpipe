@@ -23,6 +23,8 @@ func main() {
 	switch {
 	case invokedForHelp(os.Args):
 		output, err = printHelp()
+	case invokedForVersion(os.Args):
+		output, err = printVersion()
 	case invokedForSync(os.Args):
 		err = syncBinary(os.Stdout)
 	default:
@@ -36,20 +38,32 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
-	fmt.Fprint(os.Stdout, output)
+	fmt.Fprintln(os.Stdout, output)
 }
 
 func invokedForHelp(args []string) bool {
-	return len(args) > 1 && (args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
+	return len(args) > 1 && (args[1] == "help" || args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
+}
+
+func invokedForVersion(args []string) bool {
+	return len(args) > 1 && (args[1] == "version" || args[1] == "-v" || args[1] == "-version" || args[1] == "--version")
 }
 
 func printHelp() (string, error) {
 	version, err := config.GetVersion()
 	return fmt.Sprintf(`Sup! Docs are at https://docs.halfpipe.io")
 Current version is %s
+
 Available commands are
-\tsync - updates the halfpipe cli to latest version 'halfpipe sync'
+  sync - updates the halfpipe cli to latest version 'halfpipe sync'
+  help - this info
+  version - version info
 `, version), err
+}
+
+func printVersion() (string, error) {
+	version, err := config.GetVersion()
+	return version.String(), err
 }
 
 func invokedForSync(args []string) bool {
