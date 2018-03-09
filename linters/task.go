@@ -9,7 +9,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/linters/file_checker"
+	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -54,7 +54,7 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF) (errs []error) {
 	if cf.Org == "" {
 		errs = append(errs, errors.NewMissingField("deploy-cf.org"))
 	}
-	if err := file_checker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
+	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -79,7 +79,7 @@ func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush) (errs []
 		}
 	}
 
-	if err := file_checker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
+	if err := filechecker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
 		errs = append(errs, err)
 	}
 
@@ -93,7 +93,7 @@ func (linter taskLinter) lintRunTask(run manifest.Run) []error {
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("run.script"))
 	} else {
-		if err := file_checker.CheckFile(linter.Fs, run.Script, true); err != nil {
+		if err := filechecker.CheckFile(linter.Fs, run.Script, true); err != nil {
 			errs = append(errs, err)
 		}
 	}

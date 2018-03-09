@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/file_checker"
+	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 )
@@ -22,7 +22,7 @@ type Controller struct {
 }
 
 func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
-	yaml, err := file_checker.ReadFile(c.Fs, filepath.Join(c.CurrentDir, config.HalfpipeFile))
+	yaml, err := filechecker.ReadFile(c.Fs, filepath.Join(c.CurrentDir, config.HalfpipeFile))
 	if err != nil {
 		errors = append(errors, err)
 		return

@@ -1,4 +1,4 @@
-package file_checker
+package filechecker
 
 import (
 	"testing"
