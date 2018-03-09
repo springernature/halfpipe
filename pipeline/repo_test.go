@@ -11,10 +11,10 @@ import (
 
 func TestRendersHttpGitResource(t *testing.T) {
 	name := "yolo"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -22,7 +22,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri": gitUri,
+					"uri": gitURI,
 				},
 			},
 		},
@@ -32,11 +32,11 @@ func TestRendersHttpGitResource(t *testing.T) {
 
 func TestRendersSshGitResource(t *testing.T) {
 	name := "asdf"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 	man.Repo.PrivateKey = privateKey
 
 	expected := atc.Config{
@@ -45,7 +45,7 @@ func TestRendersSshGitResource(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri":         gitUri,
+					"uri":         gitURI,
 					"private_key": privateKey,
 				},
 			},
@@ -56,11 +56,11 @@ func TestRendersSshGitResource(t *testing.T) {
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 	name := "asdf"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 	man.Repo.PrivateKey = privateKey
 
 	watches := []string{"watch1", "watch2"}
@@ -74,7 +74,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri":          gitUri,
+					"uri":          gitURI,
 					"private_key":  privateKey,
 					"paths":        watches,
 					"ignore_paths": ignores,
@@ -87,11 +87,11 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 
 func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	name := "yolo"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	gitCrypt := "AABBFF66"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 	man.Repo.GitCryptKey = gitCrypt
 
 	expected := atc.Config{
@@ -100,7 +100,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri":           gitUri,
+					"uri":           gitURI,
 					"git_crypt_key": gitCrypt,
 				},
 			},

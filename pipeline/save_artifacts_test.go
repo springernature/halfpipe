@@ -11,9 +11,9 @@ import (
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
 	name := "yolo"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script:        "./build.sh",
@@ -40,9 +40,9 @@ cp build/lib/artifact.jar $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
 	name := "yolo"
-	gitUri := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitUri
+	man.Repo.Uri = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
