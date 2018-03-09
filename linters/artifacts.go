@@ -23,7 +23,7 @@ func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 		switch task := t.(type) {
 		case manifest.Run:
 			if len(task.SaveArtifacts) > 0 {
-				artifacts += 1
+				artifacts++
 				artifact = task.SaveArtifacts[0]
 				if artifacts > 1 {
 					result.AddError(errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving artifacts from on task"))

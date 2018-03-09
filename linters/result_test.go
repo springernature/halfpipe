@@ -37,7 +37,7 @@ func TestError(t *testing.T) {
 
 	assert.Contains(t, hasErrors.Error(), e1.Error())
 	assert.Contains(t, hasErrors.Error(), e2.Error())
-	assert.Contains(t, hasErrors.Error(), documentedError.DocId())
+	assert.Contains(t, hasErrors.Error(), documentedError.DocID())
 }
 
 func TestDeduplicatesErrors(t *testing.T) {

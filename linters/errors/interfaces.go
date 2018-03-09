@@ -1,5 +1,5 @@
 package errors
 
 type Documented interface {
-	DocId() string
+	DocID() string
 }

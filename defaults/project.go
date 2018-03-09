@@ -14,7 +14,7 @@ import (
 
 type Project struct {
 	BasePath string
-	GitUri   string
+	GitURI   string
 }
 
 type projectResolver struct {
@@ -77,7 +77,7 @@ func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 		return
 	}
 
-	p.GitUri = origin
+	p.GitURI = origin
 	p.BasePath = basePath
 	return
 }

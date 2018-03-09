@@ -27,7 +27,7 @@ func NewDefaulter(project Project) Defaults {
 
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 	if man.Repo.URI == "" {
-		man.Repo.URI = d.Project.GitUri
+		man.Repo.URI = d.Project.GitURI
 		man.Repo.BasePath = d.Project.BasePath
 	}
 

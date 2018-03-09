@@ -20,7 +20,7 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{
 		RepoPrivateKey: "((github.private_key))",
 		Project: Project{
-			GitUri: "ssh@github.com:private/repo",
+			GitURI: "ssh@github.com:private/repo",
 		},
 	}
 
@@ -136,7 +136,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 }
 
 func TestSetsProjectValues(t *testing.T) {
-	project := Project{BasePath: "foo", GitUri: "bar"}
+	project := Project{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
 		Project: project,
 	}
@@ -149,7 +149,7 @@ func TestSetsProjectValues(t *testing.T) {
 }
 
 func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
-	project := Project{BasePath: "foo", GitUri: "bar"}
+	project := Project{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
 		Project: project,
 	}

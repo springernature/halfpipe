@@ -14,6 +14,6 @@ func (e MissingFieldError) Error() string {
 	return fmt.Sprintf("Missing field: %s", e.Name)
 }
 
-func (e MissingFieldError) DocId() string {
+func (e MissingFieldError) DocID() string {
 	return "missing-field-" + e.Name
 }

@@ -39,7 +39,7 @@ func TestGetsGitOrigin(t *testing.T) {
 	project, err := pr.Parse("/project/root")
 
 	assert.Nil(t, err)
-	assert.Equal(t, "git@origin", project.GitUri)
+	assert.Equal(t, "git@origin", project.GitURI)
 }
 
 func TestErrorsOutIfStartPathCannotBeRead(t *testing.T) {

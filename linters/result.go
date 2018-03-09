@@ -39,7 +39,7 @@ func (lr LintResult) Error() (out string) {
 		for _, err := range deduplicateErrors(lr.Errors) {
 			out += fmt.Sprintf("\t* %s\n", err)
 			if doc, ok := err.(errors.Documented); ok {
-				out += fmt.Sprintf("\t  [see: %s ]", renderDocLink(doc.DocId()))
+				out += fmt.Sprintf("\t  [see: %s ]", renderDocLink(doc.DocID()))
 			}
 			out += fmt.Sprintf("\n\n")
 		}
@@ -75,21 +75,21 @@ func errorInErrors(err error, errs []error) bool {
 	return false
 }
 
-func renderDocLink(docId string) string {
+func renderDocLink(docID string) string {
 	u, _ := url.Parse(config.DocHost)
 
-	return path.Join(u.Path, "/docs/linter-errors", renderDocAnchor(docId))
+	return path.Join(u.Path, "/docs/linter-errors", renderDocAnchor(docID))
 }
 
-func renderDocAnchor(docId string) string {
-	if docId != "" {
-		return fmt.Sprintf("#%s", normalize(docId))
+func renderDocAnchor(docID string) string {
+	if docID != "" {
+		return fmt.Sprintf("#%s", normalize(docID))
 	}
 	return ""
 }
 
 func normalize(value string) string {
-	remove_white_space := strings.Replace(strings.ToLower(value), " ", "-", -1)
-	return strings.Replace(remove_white_space, ".", "", -1)
+	withoutWhiteSpace := strings.Replace(strings.ToLower(value), " ", "-", -1)
+	return strings.Replace(withoutWhiteSpace, ".", "", -1)
 
 }

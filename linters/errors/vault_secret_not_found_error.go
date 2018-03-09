@@ -32,6 +32,6 @@ func (e VaultSecretNotFoundError) Error() string {
 	return fmt.Sprintf("Could not find '%s' in '%s' or '%s'", keyName, path1, path2)
 }
 
-func (e VaultSecretNotFoundError) DocId() string {
+func (e VaultSecretNotFoundError) DocID() string {
 	return "vault-secret-not-found"
 }

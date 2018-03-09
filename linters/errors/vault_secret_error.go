@@ -14,6 +14,6 @@ func (e VaultSecretError) Error() string {
 	return fmt.Sprintf("'%s' is not a valid key", e.Secret)
 }
 
-func (e VaultSecretError) DocId() string {
+func (e VaultSecretError) DocID() string {
 	return "vault-secret-error"
 }
