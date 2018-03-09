@@ -18,11 +18,11 @@ import (
 )
 
 var (
-	NoBinaryForArchError = func(os string) error {
-		return errors.New(fmt.Sprintf("Could not find a binary for your arch, '%s'", os))
+	ErrNoBinaryForArch = func(os string) error {
+		return fmt.Errorf("could not find a binary for your arch, '%s'", os)
 	}
-	UpdatingDevReleaseError = errors.New("cannot update a dev release")
-	OutOfDateBinaryError    = func(currentVersion semver.Version, latestVersion semver.Version) error {
+	ErrUpdatingDevRelease = errors.New("cannot update a dev release")
+	ErrOutOfDateBinary    = func(currentVersion semver.Version, latestVersion semver.Version) error {
 		errorMessage := fmt.Sprintf("Current version %s is behind latest version %s. Please run 'halfpipe sync'", currentVersion, latestVersion)
 		return errors.New(errorMessage)
 	}
@@ -77,13 +77,13 @@ func (s sync) Check() (err error) {
 	}
 
 	if s.currentVersion.LT(latestVersion) {
-		err = OutOfDateBinaryError(s.currentVersion, latestVersion)
+		err = ErrOutOfDateBinary(s.currentVersion, latestVersion)
 	}
 
 	return
 }
 
-func (s sync) getLatestBinaryUrl() (url string, err error) {
+func (s sync) getLatestBinaryURL() (url string, err error) {
 	release, err := s.getLatestRelease()
 	if err != nil {
 		return
@@ -95,22 +95,22 @@ func (s sync) getLatestBinaryUrl() (url string, err error) {
 			return
 		}
 	}
-	err = NoBinaryForArchError(s.os)
+	err = ErrNoBinaryForArch(s.os)
 	return
 }
 
 func (s sync) Update(out io.Writer) (err error) {
 	if s.currentVersion.EQ(config.DevVersion) {
-		return UpdatingDevReleaseError
+		return ErrUpdatingDevRelease
 	}
 
-	binaryUrl, err := s.getLatestBinaryUrl()
+	binaryURL, err := s.getLatestBinaryURL()
 	if err != nil {
 		return
 	}
 
-	out.Write([]byte("downloading latest version from " + binaryUrl + "\n"))
-	resp, err := s.httpGetter(binaryUrl)
+	out.Write([]byte("downloading latest version from " + binaryURL + "\n"))
+	resp, err := s.httpGetter(binaryURL)
 	if err != nil {
 		return
 	}

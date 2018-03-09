@@ -107,7 +107,7 @@ func TestCheckReturnsErrorWhenCurrentVersionIsBehind(t *testing.T) {
 
 	err := release.Check()
 	assert.Error(t, err)
-	assert.Equal(t, err, OutOfDateBinaryError(currentVersion, latestVersion))
+	assert.Equal(t, err, ErrOutOfDateBinary(currentVersion, latestVersion))
 }
 
 func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
@@ -116,7 +116,7 @@ func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
 	}
 	err := release.Update(&bytes.Buffer{})
 	assert.Error(t, err)
-	assert.Equal(t, err, UpdatingDevReleaseError)
+	assert.Equal(t, err, ErrUpdatingDevRelease)
 }
 
 func TestUpdateErrorsOutIfWeCannotGetLatestRelease(t *testing.T) {
@@ -138,12 +138,12 @@ func TestUpdateErrorsOutIfWeCannotFindDownloadUrlForOurArch(t *testing.T) {
 		os: "windows",
 		releaseResolver: ReleaseResolverDouble{
 			func(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error) {
-				downloadUrlOsx := "https:///blablabla/binary-osx"
-				downloadUrlLinux := "https:///blablabla/binary-linux"
+				downloadURLOsx := "https:///blablabla/binary-osx"
+				downloadURLLinux := "https:///blablabla/binary-linux"
 				release := github.RepositoryRelease{
 					Assets: []github.ReleaseAsset{
-						{BrowserDownloadURL: &downloadUrlLinux},
-						{BrowserDownloadURL: &downloadUrlOsx},
+						{BrowserDownloadURL: &downloadURLLinux},
+						{BrowserDownloadURL: &downloadURLOsx},
 					},
 				}
 				return &release, nil, nil
@@ -153,7 +153,7 @@ func TestUpdateErrorsOutIfWeCannotFindDownloadUrlForOurArch(t *testing.T) {
 
 	err := release.Update(&bytes.Buffer{})
 	assert.Error(t, err)
-	assert.Equal(t, err, NoBinaryForArchError(release.os))
+	assert.Equal(t, err, ErrNoBinaryForArch(release.os))
 
 }
 
@@ -163,10 +163,10 @@ func TestUpdateErrorsOutIfWeFailToDownload(t *testing.T) {
 		os: "osx",
 		releaseResolver: ReleaseResolverDouble{
 			func(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error) {
-				downloadUrlOsx := "https:///blablabla/binary-osx"
+				downloadURLOsx := "https:///blablabla/binary-osx"
 				release := github.RepositoryRelease{
 					Assets: []github.ReleaseAsset{
-						{BrowserDownloadURL: &downloadUrlOsx},
+						{BrowserDownloadURL: &downloadURLOsx},
 					},
 				}
 				return &release, nil, nil
@@ -185,7 +185,7 @@ func TestUpdateErrorsOutIfWeFailToDownload(t *testing.T) {
 }
 
 func TestUpdateReturnsUpdateErrorFromUpdater(t *testing.T) {
-	downloadUrlOsx := "https:///blablabla/binary-osx"
+	downloadURLOsx := "https:///blablabla/binary-osx"
 	updateError := errors.New("Buuh")
 
 	release := sync{
@@ -194,7 +194,7 @@ func TestUpdateReturnsUpdateErrorFromUpdater(t *testing.T) {
 			func(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error) {
 				release := github.RepositoryRelease{
 					Assets: []github.ReleaseAsset{
-						{BrowserDownloadURL: &downloadUrlOsx},
+						{BrowserDownloadURL: &downloadURLOsx},
 					},
 				}
 				return &release, nil, nil
@@ -214,9 +214,9 @@ func TestUpdateReturnsUpdateErrorFromUpdater(t *testing.T) {
 }
 
 func TestUpdateDoesWhatItShouldDo(t *testing.T) {
-	downloadUrlOsx := "https:///blablabla/binary-osx"
+	downloadURLOsx := "https:///blablabla/binary-osx"
 
-	var calledOutToHttpGetter bool
+	var calledOutToHTTPGetter bool
 	var calledOutToUpdater bool
 	release := sync{
 		os: "osx",
@@ -225,14 +225,14 @@ func TestUpdateDoesWhatItShouldDo(t *testing.T) {
 
 				release := github.RepositoryRelease{
 					Assets: []github.ReleaseAsset{
-						{BrowserDownloadURL: &downloadUrlOsx},
+						{BrowserDownloadURL: &downloadURLOsx},
 					},
 				}
 				return &release, nil, nil
 			},
 		},
 		httpGetter: func(url string) (resp *http.Response, err error) {
-			calledOutToHttpGetter = true
+			calledOutToHTTPGetter = true
 
 			resp = &http.Response{
 				Body: gbytes.NewBuffer(),
@@ -247,6 +247,6 @@ func TestUpdateDoesWhatItShouldDo(t *testing.T) {
 
 	err := release.Update(&bytes.Buffer{})
 	assert.Nil(t, err)
-	assert.True(t, calledOutToHttpGetter)
+	assert.True(t, calledOutToHTTPGetter)
 	assert.True(t, calledOutToUpdater)
 }
