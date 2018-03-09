@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
@@ -77,7 +78,7 @@ func syncBinary(writer io.Writer) (err error) {
 		return
 	}
 
-	syncer := sync.NewSyncer(currentVersion)
+	syncer := sync.NewSyncer(currentVersion, github.NewClient(nil).Repositories)
 	err = syncer.Update(writer)
 	return
 }
@@ -129,7 +130,7 @@ func checkVersion() (err error) {
 		return
 	}
 
-	syncer := sync.NewSyncer(currentVersion)
+	syncer := sync.NewSyncer(currentVersion, github.NewClient(nil).Repositories)
 	err = syncer.Check()
 	return
 }

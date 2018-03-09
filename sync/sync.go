@@ -46,10 +46,10 @@ type sync struct {
 	updater    func(update io.Reader, opts update.Options) error
 }
 
-func NewSyncer(currentRelease semver.Version) sync {
+func NewSyncer(currentRelease semver.Version, releaseResolver LatestReleaseResolver) sync {
 	return sync{
 		currentVersion:  currentRelease,
-		releaseResolver: github.NewClient(nil).Repositories,
+		releaseResolver: releaseResolver,
 		os:              runtime.GOOS,
 		httpGetter:      http.Get,
 		updater:         update.Apply,
