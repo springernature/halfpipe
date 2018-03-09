@@ -34,3 +34,8 @@ LD_DOCHOST="-X github.com/springernature/halfpipe/config.DocHost=docs.halfpipe.i
 LD_SLACKWEBHOOK="-X github.com/springernature/halfpipe/config.SlackWebhook=https://hooks.slack.com/services/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"
 go build -ldflags "${LD_VAULTPREFIX} ${LD_DOCHOST} ${LD_SLACKWEBHOOK}" cmd/halfpipe.go
 
+echo e2e test
+if ! e2e=$(cd e2e_test; ./test.sh 2> /dev/null); then
+    echo "${e2e}"
+    exit 1
+fi
