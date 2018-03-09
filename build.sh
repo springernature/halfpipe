@@ -18,14 +18,14 @@ if ! ds=$(dep status 2> /dev/null); then
 fi
 
 #lint but ignore some of the more contentious warnings ;)
-echo golint
-if command -v golint > /dev/null; then
-    golint `go list ./... | grep -v /vendor/` |
+echo gometalinter
+if command -v gometalinter > /dev/null; then
+    gometalinter --vendor ./... |
         grep -v 'should have comment' |
         grep -v 'comment on exported' |
         grep -v 'returns unexported type' || true
 else
-    echo "skipping. to install: go get -u golang.org/x/lint/golint"
+    echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
 fi
 
 echo go build
