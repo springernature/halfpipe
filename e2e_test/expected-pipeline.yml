@@ -167,3 +167,4 @@ jobs:
         $BUILD_PIPELINE_NAME failed. Check it out at:
         http://concourse.halfpipe.io/builds/$BUILD_ID
       username: Halfpipe
+
