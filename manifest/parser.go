@@ -37,17 +37,18 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	}
 
 	for i, rawTask := range rawTasks.Tasks {
-
-		taskName := struct {
-			Name string
+		// first unmarshall into struct with just 'Type' field
+		taskType := struct {
+			Type string
 		}{}
 
-		if err := json.Unmarshal(rawTask, &taskName); err != nil {
+		if err := json.Unmarshal(rawTask, &taskType); err != nil {
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", i+1, err.Error())))
 			return
 		}
 
-		switch taskName.Name {
+		// then use the value of 'Type' to unmarshall into the correct Task
+		switch taskType.Type {
 		case "run":
 			t := Run{}
 			if err := parseTask(rawTask, &t, i); err == nil {
@@ -64,9 +65,9 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "":
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing name field", i+1)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing type field", i+1)))
 		default:
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown name '%s'. Must be one of 'run', 'deploy-cf', 'docker-push'", i+1, taskName.Name)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'deploy-cf', 'docker-push'", i+1, taskType.Type)))
 		}
 	}
 	return

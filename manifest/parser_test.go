@@ -83,7 +83,7 @@ func TestSlackChannel(t *testing.T) {
 }
 
 func TestRunTask(t *testing.T) {
-	man, errs := Parse("tasks: [{ name: run, docker: {image: alpine}, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
+	man, errs := Parse("tasks: [{ type: run, docker: {image: alpine}, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
@@ -104,7 +104,7 @@ func TestRunTask(t *testing.T) {
 }
 
 func TestMultipleTasks(t *testing.T) {
-	man, errs := Parse("tasks: [{ name: run, docker: {image: img}, script: build.sh }, { name: docker-push, username: bob }, { name: run }, { name: deploy-cf, org: foo }]")
+	man, errs := Parse("tasks: [{ type: run, docker: {image: img}, script: build.sh }, { type: docker-push, username: bob }, { type: run }, { type: deploy-cf, org: foo }]")
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
@@ -128,13 +128,13 @@ func TestMultipleTasks(t *testing.T) {
 }
 
 func TestInvalidTask(t *testing.T) {
-	_, errs := Parse("tasks: [{ name: unknown, foo: bar }]")
+	_, errs := Parse("tasks: [{ type: unknown, foo: bar }]")
 
 	assert.Equal(t, len(errs), 1)
 }
 
 func TestReportMultipleInvalidTasks(t *testing.T) {
-	_, errs := Parse("tasks: [{ name: unknown, foo: bar }, { name: run, image: alpine, script: build.sh }, { notname: foo }]")
+	_, errs := Parse("tasks: [{ type: unknown, foo: bar }, { type: run, image: alpine, script: build.sh }, { notname: foo }]")
 
 	assert.Equal(t, len(errs), 2)
 	assert.IsType(t, errs[0], errors.NewInvalidField("", ""))
@@ -144,7 +144,7 @@ func TestReportMultipleInvalidTasks(t *testing.T) {
 func TestVarsParsedAsString(t *testing.T) {
 	man, errs := Parse(`
 tasks:
-- name: run
+- type: run
   docker: 
     image: alpine
   script: build.sh
@@ -177,7 +177,7 @@ tasks:
 func TestInvalidVars(t *testing.T) {
 	_, errs := Parse(`
 tasks:
-- name: run
+- type: run
   image: alpine
   script: build.sh
   vars:
@@ -190,7 +190,7 @@ tasks:
 func TestSaveArtifact(t *testing.T) {
 	manifest, errs := Parse(`
 tasks:
-- name: run
+- type: run
   image: alpine
   script: build.sh
   save_artifacts:
@@ -205,7 +205,7 @@ tasks:
 func TestDeployArtifact(t *testing.T) {
 	manifest, errs := Parse(`
 tasks:
-- name: deploy-cf
+- type: deploy-cf
   image: alpine
   script: build.sh
   deploy_artifact: path/to/artifact.jar

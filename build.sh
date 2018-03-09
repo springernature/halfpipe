@@ -23,7 +23,7 @@ if command -v golint > /dev/null; then
     golint `go list ./... | grep -v /vendor/` |
         grep -v 'should have comment' |
         grep -v 'comment on exported' |
-        grep -v 'returns unexported type'
+        grep -v 'returns unexported type' || true
 else
     echo "skipping. to install: go get -u golang.org/x/lint/golint"
 fi
@@ -35,7 +35,7 @@ LD_SLACKWEBHOOK="-X github.com/springernature/halfpipe/config.SlackWebhook=https
 go build -ldflags "${LD_VAULTPREFIX} ${LD_DOCHOST} ${LD_SLACKWEBHOOK}" cmd/halfpipe.go
 
 echo e2e test
-if ! e2e=$(cd e2e_test; ./test.sh 2> /dev/null); then
+if ! e2e=$(cd e2e_test; ./test.sh 2>&1); then
     echo "${e2e}"
     exit 1
 fi
