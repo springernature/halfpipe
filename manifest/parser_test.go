@@ -83,18 +83,103 @@ func TestSlackChannel(t *testing.T) {
 }
 
 func TestRunTask(t *testing.T) {
-	man, errs := Parse("tasks: [{ type: run, docker: {image: alpine}, script: build.sh, vars: { FOO: Foo, BAR: Bar } }]")
+	man, errs := Parse(`
+tasks:
+- type: run
+  name: rUn
+  docker:
+    image: alpine
+    username: user
+    password: pass
+  script: build.sh
+  vars:
+    FOO: Foo
+    BAR: Bar
+`)
 	expected := Manifest{
 		Tasks: []Task{
 			Run{
+				Name: "rUn",
 				Docker: Docker{
-					Image: "alpine",
+					Image:    "alpine",
+					Username: "user",
+					Password: "pass",
 				},
 				Script: "build.sh",
 				Vars: Vars{
 					"FOO": "Foo",
 					"BAR": "Bar",
 				},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}
+
+func TestDockerPushTask(t *testing.T) {
+	man, errs := Parse(`
+tasks:
+- type: docker-push
+  name: dOcker pUsh
+  image: alpine
+  username: user
+  password: pass
+  vars:
+    FOO: Foo
+    BAR: Bar
+`)
+	expected := Manifest{
+		Tasks: []Task{
+			DockerPush{
+				Name:     "dOcker pUsh",
+				Username: "user",
+				Password: "pass",
+				Image:    "alpine",
+				Vars: Vars{
+					"FOO": "Foo",
+					"BAR": "Bar",
+				},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}
+
+func TestDeployCFTask(t *testing.T) {
+	man, errs := Parse(`
+tasks:
+- type: deploy-cf
+  name: dEploy cF
+  api: cfapi
+  space: cfspace
+  org: cforg
+  username: cfuser
+  password: cfpass
+  manifest: cfmanifest.yml
+  vars:
+    FOO: Foo
+    BAR: Bar
+  deploy_artifact: artifact.zip
+`)
+	expected := Manifest{
+		Tasks: []Task{
+			DeployCF{
+				Name:     "dEploy cF",
+				API:      "cfapi",
+				Space:    "cfspace",
+				Org:      "cforg",
+				Username: "cfuser",
+				Password: "cfpass",
+				Manifest: "cfmanifest.yml",
+				Vars: Vars{
+					"FOO": "Foo",
+					"BAR": "Bar",
+				},
+				DeployArtifact: "artifact.zip",
 			},
 		},
 	}

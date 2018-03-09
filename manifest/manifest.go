@@ -38,22 +38,24 @@ func (repo Repo) IsPublic() bool {
 	return len(repo.URI) > 4 && repo.URI[:4] == "http"
 }
 
-type Task interface{}
-
-type Run struct {
-	Script        string
-	Docker        Docker
-	Vars          Vars
-	SaveArtifacts []string `json:"save_artifacts"`
-}
-
 type Docker struct {
 	Image    string
 	Username string
 	Password string
 }
 
+type Task interface{}
+
+type Run struct {
+	Name          string
+	Script        string
+	Docker        Docker
+	Vars          Vars
+	SaveArtifacts []string `json:"save_artifacts"`
+}
+
 type DockerPush struct {
+	Name     string
 	Username string
 	Password string
 	Image    string
@@ -61,6 +63,7 @@ type DockerPush struct {
 }
 
 type DeployCF struct {
+	Name           string
 	API            string
 	Space          string
 	Org            string
