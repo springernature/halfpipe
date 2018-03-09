@@ -91,7 +91,7 @@ jobs:
         $BUILD_PIPELINE_NAME failed. Check it out at:
         http://concourse.halfpipe.io/builds/$BUILD_ID
       username: Halfpipe
-- name: deploy-cf (1)
+- name: deploy to staging
   serial: true
   plan:
   - get: halfpipe-example-nodejs
@@ -112,12 +112,12 @@ jobs:
         $BUILD_PIPELINE_NAME failed. Check it out at:
         http://concourse.halfpipe.io/builds/$BUILD_ID
       username: Halfpipe
-- name: docker-push
+- name: push to docker registry
   serial: true
   plan:
   - get: halfpipe-example-nodejs
     passed:
-    - deploy-cf (1)
+    - deploy to staging
     trigger: true
   - put: Docker Registry
     params:
@@ -136,7 +136,7 @@ jobs:
   plan:
   - get: halfpipe-example-nodejs
     passed:
-    - docker-push
+    - push to docker registry
     trigger: true
   - task: ./notify.sh
     privileged: true

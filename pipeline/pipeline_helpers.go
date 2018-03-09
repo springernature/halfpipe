@@ -19,10 +19,6 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 }
 
 func deployCFResourceName(task manifest.DeployCF) string {
-	//if task.Name != "" {
-	//	return task.Name
-	//}
-
 	// if url remove the scheme
 	api := strings.Replace(task.API, "https://", "", -1)
 	api = strings.Replace(api, "http://", "", -1)

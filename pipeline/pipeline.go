@@ -272,7 +272,10 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 		config.ResourceTypes = append(config.ResourceTypes, slackResourceType)
 	}
 
-	uniqueName := func(name string) string {
+	uniqueName := func(name string, defaultName string) string {
+		if name == "" {
+			name = defaultName
+		}
 		return getUniqueName(name, &config, 0)
 	}
 
@@ -280,16 +283,16 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
-			jobName := uniqueName(fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
+			jobName := uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.runJob(task, repoName, jobName, man.Repo.BasePath)
 		case manifest.DeployCF:
-			resourceName := uniqueName(deployCFResourceName(task))
-			jobName := uniqueName("deploy-cf")
+			resourceName := uniqueName(deployCFResourceName(task), "")
+			jobName := uniqueName(task.Name, "deploy-cf")
 			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
 			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
 		case manifest.DockerPush:
-			resourceName := uniqueName("Docker Registry")
-			jobName := uniqueName("docker-push")
+			resourceName := uniqueName("Docker Registry", "")
+			jobName := uniqueName(task.Name, "docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
 			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
 		}

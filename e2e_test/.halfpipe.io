@@ -19,6 +19,7 @@ tasks:
   password: very-secret
 
 - type: deploy-cf
+  name: deploy to staging
   api: live-api
   org: pe
   space: staging
@@ -26,6 +27,7 @@ tasks:
   password: very-secret
 
 - type: docker-push
+  name: push to docker registry
   username: rob
   password: verysecret
   image: springerplatformengineering/halfpipe-fly

@@ -38,14 +38,18 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "asd.sh"},
 			manifest.Run{Script: "asd.sh"},
-			manifest.Run{Script: "asd.sh"},
-			manifest.Run{Script: "fgh.sh"},
+			manifest.Run{Name: "test", Script: "asd.sh"},
+			manifest.Run{Name: "test", Script: "fgh.sh"},
 			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
 			manifest.DeployCF{API: "https://api.foo.bar", Org: "ee", Space: "dev"},
 			manifest.DeployCF{API: "((cloudfoundry.api-dev))", Org: "ee", Space: "dev"},
 			manifest.DockerPush{},
 			manifest.DockerPush{},
 			manifest.DockerPush{},
+			manifest.DeployCF{Name: "deploy to dev"},
+			manifest.DeployCF{Name: "deploy to dev"},
+			manifest.DockerPush{Name: "push to docker hub"},
+			manifest.DockerPush{Name: "push to docker hub"},
 		},
 	}
 	config := testPipeline().Render(man)
@@ -53,14 +57,18 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 	expectedJobNames := []string{
 		"run asd.sh",
 		"run asd.sh (1)",
-		"run asd.sh (2)",
-		"run fgh.sh",
+		"test",
+		"test (1)",
 		"deploy-cf",
 		"deploy-cf (1)",
 		"deploy-cf (2)",
 		"docker-push",
 		"docker-push (1)",
 		"docker-push (2)",
+		"deploy to dev",
+		"deploy to dev (1)",
+		"push to docker hub",
+		"push to docker hub (1)",
 	}
 
 	expectedResourceNames := []string{
@@ -71,6 +79,10 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 		"Docker Registry",
 		"Docker Registry (1)",
 		"Docker Registry (2)",
+		"CF   ",
+		"CF    (1)",
+		"Docker Registry (3)",
+		"Docker Registry (4)",
 	}
 
 	assert.Len(t, config.Jobs, len(expectedJobNames))
