@@ -6,31 +6,31 @@ repo:
 slack_channel: "#ee-re"
 
 tasks:
-- name: run
+- type: run
   script: test.sh
   docker:
     image: node:9.5.0-alpine
 
-- name: deploy-cf
+- type: deploy-cf
   api: dev-api
   space: dev
   manifest: manifest.yml
   username: michiel
   password: very-secret
 
-- name: deploy-cf
+- type: deploy-cf
   api: live-api
   org: pe
   space: staging
   username: michiel
   password: very-secret
 
-- name: docker-push
+- type: docker-push
   username: rob
   password: verysecret
   image: springerplatformengineering/halfpipe-fly
 
-- name: run
+- type: run
   script: ./notify.sh
   docker:
     image: busy
