@@ -24,7 +24,7 @@ func TestRepoIsEmpty(t *testing.T) {
 
 func TestRepInvalidUri(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "goo"
+	man.Repo.URI = "goo"
 
 	result := testRepoLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -33,7 +33,7 @@ func TestRepInvalidUri(t *testing.T) {
 
 func TestRepoUriIsValidUri(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 
 	result := testRepoLinter().Lint(man)
 	assert.Empty(t, result.Errors)
@@ -41,7 +41,7 @@ func TestRepoUriIsValidUri(t *testing.T) {
 
 func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com:springernature/halfpipe.git"
+	man.Repo.URI = "git@github.com:springernature/halfpipe.git"
 
 	result := testRepoLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -55,7 +55,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 func TestItChecksForWatchAndIgnores(t *testing.T) {
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
-			Uri:          "https://github.com/springernature/halfpipe.git",
+			URI:          "https://github.com/springernature/halfpipe.git",
 			BasePath:     "",
 			WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 			IgnoredPaths: []string{"c/*", "d"},
@@ -74,7 +74,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
-			Uri:          "https://github.com/springernature/halfpipe.git",
+			URI:          "https://github.com/springernature/halfpipe.git",
 			BasePath:     "sub/dir",
 			WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 			IgnoredPaths: []string{"c/*", "d"},
@@ -92,7 +92,7 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 
 func TestRepoHasValidGitCryptKey(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.GitCryptKey = "((gitcrypt.key))"
 
 	result := testRepoLinter().Lint(man)
@@ -101,7 +101,7 @@ func TestRepoHasValidGitCryptKey(t *testing.T) {
 
 func TestRepoHasInvalidGitCryptKey(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "https://github.com/springernature/halfpipe.git"
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.GitCryptKey = "CLEARTEXTKEY_BADASS"
 
 	result := testRepoLinter().Lint(man)

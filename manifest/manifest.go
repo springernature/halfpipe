@@ -17,7 +17,7 @@ type Manifest struct {
 }
 
 type Repo struct {
-	Uri          string
+	URI          string
 	BasePath     string   `json:"-"` //don't auto unmarshal
 	PrivateKey   string   `json:"private_key"`
 	WatchedPaths []string `json:"watched_paths"`
@@ -27,15 +27,15 @@ type Repo struct {
 
 func (repo Repo) GetName() string {
 	re := regexp.MustCompile(`^(?:.+\/)([^.]+)(?:\.git\/?)?$`)
-	matches := re.FindStringSubmatch(repo.Uri)
+	matches := re.FindStringSubmatch(repo.URI)
 	if len(matches) != 2 {
-		return repo.Uri
+		return repo.URI
 	}
 	return matches[1]
 }
 
 func (repo Repo) IsPublic() bool {
-	return len(repo.Uri) > 4 && repo.Uri[:4] == "http"
+	return len(repo.URI) > 4 && repo.URI[:4] == "http"
 }
 
 type Task interface{}
@@ -61,7 +61,7 @@ type DockerPush struct {
 }
 
 type DeployCF struct {
-	Api            string
+	API            string
 	Space          string
 	Org            string
 	Username       string

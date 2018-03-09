@@ -13,7 +13,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script:        "./build.sh",
@@ -42,7 +42,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
 		manifest.Run{

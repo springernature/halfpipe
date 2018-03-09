@@ -10,7 +10,7 @@ import (
 
 func TestRenderDockerPushTask(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com:/springernature/foo.git"
+	man.Repo.URI = "git@github.com:/springernature/foo.git"
 
 	username := "halfpipe"
 	password := "secret"
@@ -49,7 +49,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 
 func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com:/springernature/foo.git"
+	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	basePath := "subapp/sub2"
 	man.Repo.BasePath = basePath
 

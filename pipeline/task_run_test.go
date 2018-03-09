@@ -11,7 +11,7 @@ import (
 
 func TestRenderRunTask(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com:/springernature/foo.git"
+	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script: "./yolo.sh",
@@ -60,7 +60,7 @@ func TestRenderRunTask(t *testing.T) {
 }
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com:/springernature/foo.git"
+	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script: "./yolo.sh",
@@ -113,7 +113,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 	man := manifest.Manifest{}
 	basePath := "subapp"
-	man.Repo.Uri = "git@github.com:/springernature/foo.git"
+	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Repo.BasePath = basePath
 
 	man.Tasks = []manifest.Task{

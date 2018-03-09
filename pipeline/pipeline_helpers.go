@@ -20,7 +20,7 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 
 func deployCFResourceName(task manifest.DeployCF) string {
 	// if url remove the scheme
-	api := strings.Replace(task.Api, "https://", "", -1)
+	api := strings.Replace(task.API, "https://", "", -1)
 	api = strings.Replace(api, "http://", "", -1)
 
 	// if secret, tidy up

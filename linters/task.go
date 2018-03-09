@@ -45,7 +45,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	return
 }
 func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF) (errs []error) {
-	if cf.Api == "" {
+	if cf.API == "" {
 		errs = append(errs, errors.NewMissingField("deploy-cf.api"))
 	}
 	if cf.Space == "" {

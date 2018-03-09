@@ -26,12 +26,12 @@ func NewDefaulter(project Project) Defaults {
 }
 
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
-	if man.Repo.Uri == "" {
-		man.Repo.Uri = d.Project.GitUri
+	if man.Repo.URI == "" {
+		man.Repo.URI = d.Project.GitUri
 		man.Repo.BasePath = d.Project.BasePath
 	}
 
-	if man.Repo.Uri != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
+	if man.Repo.URI != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
 

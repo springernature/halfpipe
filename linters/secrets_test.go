@@ -58,7 +58,7 @@ func TestBadKeys(t *testing.T) {
 	wrong3 := "((c))"
 	man := manifest.Manifest{}
 	man.Team = wrong1
-	man.Repo.Uri = wrong2
+	man.Repo.URI = wrong2
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
 			Password: wrong3,
@@ -76,7 +76,7 @@ func TestSecretNotFound(t *testing.T) {
 	notFoundSecret := "((not.found))"
 	man := manifest.Manifest{}
 	man.Team = "team"
-	man.Repo.Uri = "https://github.com/Masterminds/squirrel"
+	man.Repo.URI = "https://github.com/Masterminds/squirrel"
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
 			Username: "user",
@@ -94,7 +94,7 @@ func TestSecretNotFound(t *testing.T) {
 func TestSecretFound(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "team"
-	man.Repo.Uri = "https://github.com/Masterminds/squirrel"
+	man.Repo.URI = "https://github.com/Masterminds/squirrel"
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
 			Username: "user",

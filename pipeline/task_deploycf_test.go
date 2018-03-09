@@ -10,7 +10,7 @@ import (
 
 func TestRendersCfDeployResources(t *testing.T) {
 	taskDeployDev := manifest.DeployCF{
-		Api:      "dev-api",
+		API:      "dev-api",
 		Space:    "dev",
 		Org:      "springer",
 		Username: "rob",
@@ -22,7 +22,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 	taskDeployLive := manifest.DeployCF{
-		Api:      "live-api",
+		API:      "live-api",
 		Space:    "prod",
 		Org:      "springer",
 		Username: "rob",
@@ -30,7 +30,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Manifest: "manifest-live.yml",
 	}
 
-	man := manifest.Manifest{Repo: manifest.Repo{Uri: "git@github.com:foo/reponame"}}
+	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
 	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
 	expectedDevResource := atc.ResourceConfig{

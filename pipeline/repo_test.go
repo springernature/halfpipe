@@ -14,7 +14,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -36,7 +36,7 @@ func TestRendersSshGitResource(t *testing.T) {
 	privateKey := "blurgh"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 	man.Repo.PrivateKey = privateKey
 
 	expected := atc.Config{
@@ -60,7 +60,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 	privateKey := "blurgh"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 	man.Repo.PrivateKey = privateKey
 
 	watches := []string{"watch1", "watch2"}
@@ -91,7 +91,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	gitCrypt := "AABBFF66"
 
 	man := manifest.Manifest{}
-	man.Repo.Uri = gitURI
+	man.Repo.URI = gitURI
 	man.Repo.GitCryptKey = gitCrypt
 
 	expected := atc.Config{

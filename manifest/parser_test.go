@@ -25,7 +25,7 @@ func TestRepo(t *testing.T) {
 	man, errs := Parse("repo: { uri: myuri, private_key: mypk }")
 	expected := Manifest{
 		Repo: Repo{
-			Uri:        "myuri",
+			URI:        "myuri",
 			PrivateKey: "mypk",
 		},
 	}

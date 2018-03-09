@@ -39,18 +39,18 @@ func (r repoLinter) checkGlob(glob string, basePath string) error {
 func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Repo"
 
-	if man.Repo.Uri == "" {
+	if man.Repo.URI == "" {
 		result.AddError(errors.NewMissingField("repo.uri"))
 		return
 	}
 
-	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, man.Repo.Uri)
+	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, man.Repo.URI)
 	if !match {
 		result.AddError(errors.NewInvalidField("repo.uri", "must be a valid git uri"))
 		return
 	}
 
-	if strings.HasPrefix(man.Repo.Uri, "git@") && man.Repo.PrivateKey == "" {
+	if strings.HasPrefix(man.Repo.URI, "git@") && man.Repo.PrivateKey == "" {
 		result.AddError(errors.NewMissingField("repo.private_key"))
 	}
 

@@ -24,7 +24,7 @@ const artifactsFolderName = "artifacts"
 
 func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	sources := atc.Source{
-		"uri": repo.Uri,
+		"uri": repo.URI,
 	}
 
 	if repo.PrivateKey != "" {
@@ -81,7 +81,7 @@ func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
-		"api":          deployCF.Api,
+		"api":          deployCF.API,
 		"organization": deployCF.Org,
 		"space":        deployCF.Space,
 		"username":     deployCF.Username,

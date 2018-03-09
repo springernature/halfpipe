@@ -12,7 +12,7 @@ import (
 
 func TestToString(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "repo.git"
+	man.Repo.URI = "repo.git"
 
 	actual, err := ToString(testPipeline().Render(man))
 	expected := "uri: repo.git"
@@ -23,7 +23,7 @@ func TestToString(t *testing.T) {
 
 func TestToStringVersionComment(t *testing.T) {
 	man := manifest.Manifest{}
-	man.Repo.Uri = "repo.git"
+	man.Repo.URI = "repo.git"
 	con.Version = "0.0.1-yolo"
 
 	actual, err := ToString(testPipeline().Render(man))
@@ -34,15 +34,15 @@ func TestToStringVersionComment(t *testing.T) {
 
 func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 	man := manifest.Manifest{
-		Repo: manifest.Repo{Uri: "https://github.com/springernature/halfpipe.git"},
+		Repo: manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "asd.sh"},
 			manifest.Run{Script: "asd.sh"},
 			manifest.Run{Script: "asd.sh"},
 			manifest.Run{Script: "fgh.sh"},
-			manifest.DeployCF{Api: "api.foo.bar", Org: "ee", Space: "dev"},
-			manifest.DeployCF{Api: "https://api.foo.bar", Org: "ee", Space: "dev"},
-			manifest.DeployCF{Api: "((cloudfoundry.api-dev))", Org: "ee", Space: "dev"},
+			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
+			manifest.DeployCF{API: "https://api.foo.bar", Org: "ee", Space: "dev"},
+			manifest.DeployCF{API: "((cloudfoundry.api-dev))", Org: "ee", Space: "dev"},
 			manifest.DockerPush{},
 			manifest.DockerPush{},
 			manifest.DockerPush{},

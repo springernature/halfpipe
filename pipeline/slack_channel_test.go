@@ -29,7 +29,7 @@ func TestRendersSlackOnFailurePlan(t *testing.T) {
 
 	slackChannel := "#ee-re"
 
-	man := manifest.Manifest{Repo: manifest.Repo{Uri: "git@github.com:foo/reponame"}}
+	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
 	man.SlackChannel = slackChannel
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{},

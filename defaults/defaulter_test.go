@@ -144,7 +144,7 @@ func TestSetsProjectValues(t *testing.T) {
 
 	man = manifestDefaults.Update(man)
 
-	assert.Equal(t, "bar", man.Repo.Uri)
+	assert.Equal(t, "bar", man.Repo.URI)
 	assert.Equal(t, "foo", man.Repo.BasePath)
 }
 
@@ -154,10 +154,10 @@ func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
 		Project: project,
 	}
 	man := manifest.Manifest{}
-	man.Repo.Uri = "git@github.com/foo/bar"
+	man.Repo.URI = "git@github.com/foo/bar"
 
 	man = manifestDefaults.Update(man)
 
-	assert.Equal(t, "git@github.com/foo/bar", man.Repo.Uri)
+	assert.Equal(t, "git@github.com/foo/bar", man.Repo.URI)
 	assert.Equal(t, "", man.Repo.BasePath)
 }

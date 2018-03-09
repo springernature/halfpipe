@@ -9,7 +9,7 @@ import (
 
 func TestTriggerIntervalNotSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo: manifest.Repo{Uri: "gitUri"},
+		Repo: manifest.Repo{URI: "gitUri"},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
 		},
@@ -31,7 +31,7 @@ func TestTriggerIntervalNotSet(t *testing.T) {
 
 func TestTriggerIntervalSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:            manifest.Repo{Uri: "gitUri"},
+		Repo:            manifest.Repo{URI: "gitUri"},
 		TriggerInterval: "1h",
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
