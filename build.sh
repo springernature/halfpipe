@@ -20,7 +20,7 @@ fi
 #lint but ignore some of the more contentious warnings ;)
 echo gometalinter
 if command -v gometalinter > /dev/null; then
-    gometalinter \
+    gometalinter $1 \
         --vendor \
         --disable=gocyclo \
         --exclude='should have comment' \
