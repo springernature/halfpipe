@@ -17,7 +17,7 @@ func TestRendersSlackResource(t *testing.T) {
 	pipeline := testPipeline().Render(man)
 	assert.Len(t, pipeline.Resources, 2)
 
-	assert.Equal(t, "slack-alert", pipeline.Resources[1].Name)
+	assert.Equal(t, "slack", pipeline.Resources[1].Name)
 	assert.Equal(t, config.SlackWebhook, pipeline.Resources[1].Source["url"])
 	assert.Equal(t, "slack-notification", pipeline.Resources[1].Type)
 	assert.Equal(t, "docker-image", pipeline.ResourceTypes[0].Type)

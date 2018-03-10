@@ -52,7 +52,7 @@ func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 
 func (p Pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: "slack-alert",
+		Name: "slack",
 		Type: "slack-notification",
 		Source: atc.Source{
 			"url": config.SlackWebhook,
@@ -263,6 +263,7 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 	}
 
 	slackChannelSet := man.SlackChannel != ""
+	var slackPlanConfig *atc.PlanConfig
 
 	if slackChannelSet {
 		slackResource := p.slackResource()
@@ -270,6 +271,17 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 
 		slackResourceType := p.slackResourceType()
 		config.ResourceTypes = append(config.ResourceTypes, slackResourceType)
+
+		slackPlanConfig = &atc.PlanConfig{
+			Put: slackResource.Name,
+			Params: atc.Params{
+				"channel":  man.SlackChannel,
+				"username": "Halfpipe",
+				"icon_url": "https://ci.concourse.ci/public/images/favicon-failed.png",
+				"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
+http://concourse.halfpipe.io/builds/$BUILD_ID`,
+			},
+		}
 	}
 
 	uniqueName := func(name string, defaultName string) string {
@@ -298,16 +310,7 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 		}
 
 		if slackChannelSet {
-			jobConfig.Failure = &atc.PlanConfig{
-				Put: "slack-alert",
-				Params: atc.Params{
-					"channel":  man.SlackChannel,
-					"username": "Halfpipe",
-					"icon_url": "https://ci.concourse.ci/public/images/favicon-failed.png",
-					"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
-http://concourse.halfpipe.io/builds/$BUILD_ID`,
-				},
-			}
+			jobConfig.Failure = slackPlanConfig
 		}
 
 		//insert the initial plan

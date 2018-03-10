@@ -5,7 +5,7 @@ resources:
   type: git
   source:
     uri: https://github.com/robwhitby/halfpipe-example-nodejs
-- name: slack-alert
+- name: slack
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
@@ -62,7 +62,7 @@ jobs:
       - name: halfpipe-example-nodejs
         path: ""
   on_failure:
-    put: slack-alert
+    put: slack
     params:
       channel: '#ee-re'
       icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
@@ -83,7 +83,7 @@ jobs:
       manifest: halfpipe-example-nodejs/manifest.yml
       path: halfpipe-example-nodejs
   on_failure:
-    put: slack-alert
+    put: slack
     params:
       channel: '#ee-re'
       icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
@@ -104,7 +104,7 @@ jobs:
       manifest: halfpipe-example-nodejs/manifest.yml
       path: halfpipe-example-nodejs
   on_failure:
-    put: slack-alert
+    put: slack
     params:
       channel: '#ee-re'
       icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
@@ -123,7 +123,7 @@ jobs:
     params:
       build: halfpipe-example-nodejs
   on_failure:
-    put: slack-alert
+    put: slack
     params:
       channel: '#ee-re'
       icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
@@ -159,7 +159,7 @@ jobs:
       - name: halfpipe-example-nodejs
         path: ""
   on_failure:
-    put: slack-alert
+    put: slack
     params:
       channel: '#ee-re'
       icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
