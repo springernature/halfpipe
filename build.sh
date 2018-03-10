@@ -29,10 +29,13 @@ else
 fi
 
 echo go build
-LD_VAULTPREFIX="-X github.com/springernature/halfpipe/config.VaultPrefix=springernature"
-LD_DOCHOST="-X github.com/springernature/halfpipe/config.DocHost=docs.halfpipe.io"
-LD_SLACKWEBHOOK="-X github.com/springernature/halfpipe/config.SlackWebhook=https://hooks.slack.com/services/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"
-go build -ldflags "${LD_VAULTPREFIX} ${LD_DOCHOST} ${LD_SLACKWEBHOOK}" cmd/halfpipe.go
+
+CONF_PKG="github.com/springernature/halfpipe/config"
+LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
+LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
+LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
+
+go build -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
 echo e2e test
 if ! e2e=$(cd e2e_test; ./test.sh 2>&1); then

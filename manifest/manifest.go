@@ -80,8 +80,7 @@ type Vars map[string]string
 func (r *Vars) UnmarshalJSON(b []byte) error {
 	rawVars := make(map[string]interface{})
 	if err := json.Unmarshal(b, &rawVars); err != nil {
-		errors.NewInvalidField("var", err.Error())
-		return err
+		return errors.NewInvalidField("var", err.Error())
 	}
 	stringVars := make(Vars)
 

@@ -4,7 +4,6 @@ import "fmt"
 import (
 	"strings"
 
-	"net/url"
 	"path"
 
 	"github.com/springernature/halfpipe/config"
@@ -76,9 +75,7 @@ func errorInErrors(err error, errs []error) bool {
 }
 
 func renderDocLink(docID string) string {
-	u, _ := url.Parse(config.DocHost)
-
-	return path.Join(u.Path, "/docs/linter-errors", renderDocAnchor(docID))
+	return path.Join(config.DocHost, "/docs/cli-errors", renderDocAnchor(docID))
 }
 
 func renderDocAnchor(docID string) string {

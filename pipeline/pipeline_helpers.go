@@ -50,7 +50,10 @@ func getUniqueName(name string, config *atc.Config, counter int) string {
 
 func ToString(pipeline atc.Config) (string, error) {
 	renderedPipeline, err := yaml.Marshal(pipeline)
-	version, _ := config.GetVersion()
-	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", version)
-	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), err
+	if err != nil {
+		return "", err
+	}
+
+	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
+	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }

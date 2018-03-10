@@ -18,8 +18,6 @@ import (
 )
 
 type releaseResolverDouble struct {
-	getLatestRelease func(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error)
-
 	tagName         string
 	err             error
 	releaseAssetURL []string

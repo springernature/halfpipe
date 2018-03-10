@@ -109,19 +109,27 @@ func (s sync) Update(out io.Writer) (err error) {
 		return
 	}
 
-	out.Write([]byte("downloading latest version from " + binaryURL + "\n"))
+	_, err = out.Write([]byte("downloading latest version from " + binaryURL + "\n"))
+	if err != nil {
+		return
+	}
+
 	resp, err := s.httpGetter(binaryURL)
 	if err != nil {
 		return
 	}
 
-	filesSize, _ := strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
-	progressBar := pb.New64(filesSize).SetUnits(pb.U_BYTES)
+	var fileSize int64
+	fileSize, err = strconv.ParseInt(resp.Header.Get("Content-Length"), 10, 64)
+	if err != nil {
+		fileSize = 15000000 // just guess for the progress bar
+	}
+
+	progressBar := pb.New64(fileSize).SetUnits(pb.U_BYTES)
 	progressBar.Output = out
 	progressBar.Start()
 	defer progressBar.FinishPrint(fmt.Sprintf("successfully updated"))
 
 	err = s.updater(progressBar.NewProxyReader(resp.Body), update.Options{})
-
 	return
 }

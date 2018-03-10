@@ -78,11 +78,11 @@ func TestRealClient(t *testing.T) {
 	os.Setenv("VAULT_ADDR", "https://vault.io")
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	store, err := NewSecretStore(fs)()
+	_, err := NewSecretStore(fs)()
 	assert.IsType(t, errVaultTokenMissing, err)
 
 	fs.WriteFile(vaultTokenPath, []byte("00000000-0000-0000-0000-000000000000"), 0777)
-	store, err = NewSecretStore(fs)()
+	store, err := NewSecretStore(fs)()
 	assert.Nil(t, err)
 	assert.IsType(t, secretStore{}, store)
 }

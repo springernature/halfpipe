@@ -44,9 +44,9 @@ func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 			return "", ErrNotInRepo
 		}
 
-		exists, err := c.Fs.DirExists(filepath.Join(path, ".git"))
-		if err != nil {
-			return "", err
+		exists, e := c.Fs.DirExists(filepath.Join(path, ".git"))
+		if e != nil {
+			return "", e
 		}
 
 		switch {

@@ -6,7 +6,7 @@ import (
 )
 
 func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
-	if exists, _ := fs.Exists(path); !exists {
+	if exists, err := fs.Exists(path); !exists || err != nil {
 		return errors.NewFileError(path, "does not exist")
 	}
 

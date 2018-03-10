@@ -100,32 +100,3 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
 }
-
-type fakeLinterFunc struct {
-	LintFunc func(manifest.Manifest) linters.LintResult
-}
-
-func (f fakeLinterFunc) Lint(manifest manifest.Manifest) linters.LintResult {
-	return f.LintFunc(manifest)
-}
-
-// Todo figure this out.
-//func TestCallsTheDefaultsUpdater(t *testing.T) {
-//	c := testController()
-//	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: before"), 0777)
-//
-//	c.Defaulter = func(m parser.Manifest, p defaults.Project) parser.Manifest {
-//		m.Team = "after"
-//		return m
-//	}
-//
-//	//very hacky - use a linter to check the manifest has been updated
-//	linter := fakeLinterFunc{func(m parser.Manifest) linters.LintResult {
-//		return linters.NewLintResult("fake", []error{errors.NewInvalidField("team", m.Team)})
-//	}}
-//	c.Linters = []linters.Linter{linter}
-//
-//	_, results := c.Process()
-//
-//	assert.Equal(t, "after", results[0].Errors[0].(errors.InvalidFieldError).Reason)
-//}

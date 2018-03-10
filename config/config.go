@@ -5,7 +5,7 @@ import "github.com/blang/semver"
 var (
 	// These fields will be populated in build
 	// go build -ldflags "-X config.version=..."
-	Version    string
+	Version    = "0.0.0-DEV"
 	CompiledAt string
 	GitCommit  string
 
