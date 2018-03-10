@@ -26,11 +26,11 @@ func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 				artifacts++
 				artifact = task.SaveArtifacts[0]
 				if artifacts > 1 {
-					result.AddError(errors.NewInvalidField("run.save_artifact", "Found multiple 'save_artifact', currently halfpipe only supports saving artifacts from on task"))
+					result.AddError(errors.NewInvalidField("run.save_artifact", "found multiple 'save_artifact', currently halfpipe only supports saving artifacts from on task"))
 					return
 				}
 				if len(task.SaveArtifacts) > 1 {
-					result.AddError(errors.NewInvalidField("run.save_artifact", "Found multiple artifacts in 'save_artifact', currently halfpipe only supports saving one artifacts"))
+					result.AddError(errors.NewInvalidField("run.save_artifact", "found multiple artifacts in 'save_artifact', currently halfpipe only supports saving one artifacts"))
 					return
 				}
 			}

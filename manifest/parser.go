@@ -65,7 +65,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "":
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing type field", i+1)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing field 'type'", i+1)))
 		default:
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'deploy-cf', 'docker-push'", i+1, taskType.Type)))
 		}

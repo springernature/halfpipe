@@ -38,9 +38,9 @@ func (lr LintResult) Error() (out string) {
 		for _, err := range deduplicateErrors(lr.Errors) {
 			out += fmt.Sprintf("\t* %s\n", err)
 			if doc, ok := err.(errors.Documented); ok {
-				out += fmt.Sprintf("\t  [see: %s ]", renderDocLink(doc.DocID()))
+				out += fmt.Sprintf("\t  see: %s\n", renderDocLink(doc.DocID()))
 			}
-			out += fmt.Sprintf("\n\n")
+			out += fmt.Sprintf("\n")
 		}
 	} else {
 		out += fmt.Sprintf("\t%s\n\n", `No errors \o/`)

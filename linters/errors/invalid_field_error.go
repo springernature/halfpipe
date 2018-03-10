@@ -12,5 +12,5 @@ func NewInvalidField(name string, reason string) InvalidFieldError {
 }
 
 func (e InvalidFieldError) Error() string {
-	return fmt.Sprintf("Invalid value for '%s': %s", e.Name, e.Reason)
+	return fmt.Sprintf("Invalid field '%s': %s", e.Name, e.Reason)
 }

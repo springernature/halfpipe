@@ -117,7 +117,7 @@ func (linter taskLinter) lintRunTask(run manifest.Run) []error {
 func (linter taskLinter) lintEnvVars(vars map[string]string) (errs []error) {
 	for key := range vars {
 		if key != strings.ToUpper(key) {
-			errs = append(errs, errors.NewInvalidField(key, "Env vars must be uppercase"))
+			errs = append(errs, errors.NewInvalidField(key, "vars must be uppercase"))
 		}
 	}
 	return
