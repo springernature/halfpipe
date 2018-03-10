@@ -20,10 +20,13 @@ fi
 #lint but ignore some of the more contentious warnings ;)
 echo gometalinter
 if command -v gometalinter > /dev/null; then
-    gometalinter --vendor ./... |
-        grep -v 'should have comment' |
-        grep -v 'comment on exported' |
-        grep -v 'returns unexported type' || true
+    gometalinter \
+        --vendor \
+        --disable=gocyclo \
+        --exclude='should have comment' \
+        --exclude='comment on exported' \
+        --exclude='returns unexported type' \
+        ./... || true
 else
     echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
 fi
