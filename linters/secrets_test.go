@@ -55,7 +55,7 @@ func TestBadKeys(t *testing.T) {
 	linter, _ := secretsLinterWithFakeStore(false, nil)
 	wrong1 := "((a))"
 	wrong2 := "((b))"
-	wrong3 := "((c))"
+	wrong3 := "((c.d.e))"
 	man := manifest.Manifest{}
 	man.Team = wrong1
 	man.Repo.URI = wrong2

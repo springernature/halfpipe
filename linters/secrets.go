@@ -30,8 +30,8 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		return
 	}
 
-	secrets := findSecrets(manifest)
-	if len(secrets) == 0 {
+	allSecrets := findSecrets(manifest)
+	if len(allSecrets) == 0 {
 		return
 	}
 
@@ -41,19 +41,28 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		return
 	}
 
-	for _, secret := range secrets {
-		if !secretIsValidFormat(secret) {
-			result.Errors = append(result.Errors, errors.NewVaultSecretError(secret))
-		} else {
-			if err := s.checkExists(store, manifest.Team, manifest.Repo.GetName(), secret); err != nil {
-				result.AddError(err)
-			}
+	chSecretErrs := make(chan error)
+
+	for _, sec := range allSecrets {
+		go func(str string) {
+			chSecretErrs <- s.checkExists(store, manifest.Team, manifest.Repo.GetName(), str)
+		}(sec)
+	}
+	for range allSecrets {
+		err := <-chSecretErrs
+		if err != nil {
+			result.AddError(err)
 		}
 	}
+
 	return
 }
 
-func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipeline string, concourseSecret string) (err error) {
+func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipeline string, concourseSecret string) error {
+	if !secretIsValidFormat(concourseSecret) {
+		return errors.NewVaultSecretError(concourseSecret)
+	}
+
 	secretMap, secretKey := secretToMapAndKey(concourseSecret)
 	paths := []string{
 		path.Join(s.prefix, team, pipeline, secretMap),
@@ -61,11 +70,9 @@ func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipel
 	}
 
 	for _, p := range paths {
-		exists, e := store.Exists(p, secretKey)
-
-		if exists || e != nil {
-			err = e
-			return
+		exists, err := store.Exists(p, secretKey)
+		if exists || err != nil {
+			return err
 		}
 	}
 
