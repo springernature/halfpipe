@@ -36,10 +36,10 @@ func main() {
 	}
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, err) // #nosec
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stdout, output)
+	fmt.Fprintln(os.Stdout, output) // #nosec
 }
 
 func invokedForHelp(args []string) bool {
