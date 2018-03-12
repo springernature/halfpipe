@@ -44,7 +44,6 @@ jobs:
   - get: halfpipe-example-nodejs
     trigger: true
   - task: test.sh
-    privileged: true
     config:
       platform: linux
       image_resource:
@@ -143,7 +142,6 @@ jobs:
     - push to docker registry
     trigger: true
   - task: ./notify.sh
-    privileged: true
     config:
       platform: linux
       image_resource:
