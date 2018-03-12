@@ -16,13 +16,7 @@ var (
 
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 
-	DockerComposeImage = struct {
-		Repository string
-		Tag        string
-	}{
-		"amidos/dcind",
-		"latest",
-	}
+	DockerComposeImage = "amidos/dcind:latest"
 )
 
 var DevVersion = semver.Version{

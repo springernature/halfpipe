@@ -143,15 +143,13 @@ func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPa
 	return
 }
 
-func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath string) atc.JobConfig {
-	script := fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
-
+func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobConfig {
 	jobConfig := atc.JobConfig{
-		Name:   jobName,
+		Name:   task.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Task: task.Script,
+				Task: "run",
 				TaskConfig: &atc.TaskConfig{
 					Platform:      "linux",
 					Params:        task.Vars,
@@ -159,7 +157,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(repoName, basePath),
-						Args: []string{"-ec", script},
+						Args: []string{"-ec", task.Script},
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: repoName},
@@ -173,7 +171,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, jobName string, basePath s
 
 		scriptInput := runScriptInput{
 			PathToArtifact:   p.pathToArtifactsDir(repoName, basePath),
-			Script:           script,
+			Script:           task.Script,
 			SaveArtifactTask: task.SaveArtifacts[0],
 		}
 
@@ -218,9 +216,9 @@ cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 	return byteBuffer.String()
 }
 
-func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
+func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName string, basePath string) atc.JobConfig {
 	job := atc.JobConfig{
-		Name:   jobName,
+		Name:   task.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
@@ -238,9 +236,9 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, jobName, resourc
 	return job
 }
 
-func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
+func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName string, basePath string) atc.JobConfig {
 	job := atc.JobConfig{
-		Name:   jobName,
+		Name:   task.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
@@ -258,55 +256,37 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, res
 
 // docker-compose task
 
-func (p Pipeline) dockerComposeScript() []string {
-	return []string{
-		"-ec",
-		`source /docker-lib.sh
+func (p Pipeline) dockerComposeScript() string {
+	return `source /docker-lib.sh
 start_docker
-docker-compose up --force-recreate --exit-code-from app`,
+docker-compose up --force-recreate --exit-code-from app`
+}
+
+func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath string) atc.JobConfig {
+	// it is really just a special run job, so let's reuse that
+	runTask := manifest.Run{
+		Name:   task.Name,
+		Script: p.dockerComposeScript(),
+		Docker: manifest.Docker{
+			Image: config.DockerComposeImage,
+		},
+		Vars:          task.Vars,
+		SaveArtifacts: task.SaveArtifacts,
 	}
+	job := p.runJob(runTask, repoName, basePath)
+	job.Plan[0].Privileged = true
+	return job
 }
 
-func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, jobName, basePath string) atc.JobConfig {
-	jobConfig := atc.JobConfig{
-		Name:   jobName,
-		Serial: true,
-		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Task:       "run docker-compose",
-				Privileged: true,
-				TaskConfig: &atc.TaskConfig{
-					Platform: "linux",
-					Params:   task.Vars,
-					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
-						Source: atc.Source{
-							"repository": config.DockerComposeImage.Repository,
-							"tag":        config.DockerComposeImage.Tag,
-						},
-					},
-					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
-						Dir:  path.Join(repoName, basePath),
-						Args: p.dockerComposeScript(),
-					},
-					Inputs: []atc.TaskInputConfig{
-						{Name: repoName},
-					},
-				}},
-		}}
-	return jobConfig
-}
-
-func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
+func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	repoResource := p.gitResource(man.Repo)
 	repoName := repoResource.Name
-	config.Resources = append(config.Resources, repoResource)
+	cfg.Resources = append(cfg.Resources, repoResource)
 	initialPlan := []atc.PlanConfig{{Get: repoName, Trigger: true}}
 
 	if man.TriggerInterval != "" {
 		timerResource := p.timerResource(man.TriggerInterval)
-		config.Resources = append(config.Resources, timerResource)
+		cfg.Resources = append(cfg.Resources, timerResource)
 		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
 	}
 
@@ -315,10 +295,10 @@ func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 
 	if slackChannelSet {
 		slackResource := p.slackResource()
-		config.Resources = append(config.Resources, slackResource)
+		cfg.Resources = append(cfg.Resources, slackResource)
 
 		slackResourceType := p.slackResourceType()
-		config.ResourceTypes = append(config.ResourceTypes, slackResourceType)
+		cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
 
 		slackPlanConfig = &atc.PlanConfig{
 			Put: slackResource.Name,
@@ -336,28 +316,29 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		if name == "" {
 			name = defaultName
 		}
-		return getUniqueName(name, &config, 0)
+		return getUniqueName(name, &cfg, 0)
 	}
 
 	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
-			jobName := uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, jobName, man.Repo.BasePath)
+			task.Script = fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
+			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
+			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
 		case manifest.DeployCF:
 			resourceName := uniqueName(deployCFResourceName(task), "")
-			jobName := uniqueName(task.Name, "deploy-cf")
-			config.Resources = append(config.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
+			task.Name = uniqueName(task.Name, "deploy-cf")
+			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
+			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath)
 		case manifest.DockerPush:
 			resourceName := uniqueName("Docker Registry", "")
-			jobName := uniqueName(task.Name, "docker-push")
-			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
+			task.Name = uniqueName(task.Name, "docker-push")
+			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
+			jobConfig = p.dockerPushJob(task, repoName, resourceName, man.Repo.BasePath)
 		case manifest.DockerCompose:
-			jobName := uniqueName(task.Name, "docker-compose")
-			jobConfig = p.dockerComposeJob(task, repoName, jobName, man.Repo.BasePath)
+			task.Name = uniqueName(task.Name, "docker-compose")
+			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
 		}
 
 		if slackChannelSet {
@@ -369,9 +350,9 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 
 		if i > 0 {
 			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.
-			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, config.Jobs[i-1].Name)
+			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
 		}
-		config.Jobs = append(config.Jobs, jobConfig)
+		cfg.Jobs = append(cfg.Jobs, jobConfig)
 	}
 	return
 }

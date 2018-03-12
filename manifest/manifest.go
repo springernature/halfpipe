@@ -75,8 +75,9 @@ type DeployCF struct {
 }
 
 type DockerCompose struct {
-	Name string
-	Vars Vars
+	Name          string
+	Vars          Vars
+	SaveArtifacts []string `json:"save_artifacts"`
 }
 
 type Vars map[string]string

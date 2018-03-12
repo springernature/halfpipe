@@ -43,7 +43,7 @@ jobs:
   plan:
   - get: halfpipe-example-nodejs
     trigger: true
-  - task: test.sh
+  - task: run
     config:
       platform: linux
       image_resource:
@@ -141,7 +141,7 @@ jobs:
     passed:
     - push to docker registry
     trigger: true
-  - task: ./notify.sh
+  - task: run
     config:
       platform: linux
       image_resource:

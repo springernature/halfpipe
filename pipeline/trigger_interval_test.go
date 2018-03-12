@@ -26,7 +26,7 @@ func TestTriggerIntervalNotSet(t *testing.T) {
 	assert.Len(t, plan, 2)
 	assert.Equal(t, "gitUri", plan[0].Get)
 	assert.True(t, plan[0].Trigger)
-	assert.Equal(t, "run.sh", plan[1].Task)
+	assert.Equal(t, "run", plan[1].Task)
 }
 
 func TestTriggerIntervalSet(t *testing.T) {
@@ -55,5 +55,5 @@ func TestTriggerIntervalSet(t *testing.T) {
 
 	assert.Equal(t, "timer 1h", plan[1].Get)
 	assert.True(t, plan[1].Trigger)
-	assert.Equal(t, "run.sh", plan[2].Task)
+	assert.Equal(t, "run", plan[2].Task)
 }

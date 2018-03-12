@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/concourse/atc"
@@ -34,7 +35,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
 			atc.PlanConfig{
-				Task:       "run docker-compose",
+				Task:       "run",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
@@ -45,14 +46,17 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					ImageResource: &atc.ImageResource{
 						Type: "docker-image",
 						Source: atc.Source{
-							"repository": config.DockerComposeImage.Repository,
-							"tag":        config.DockerComposeImage.Tag,
+							"repository": strings.Split(config.DockerComposeImage, ":")[0],
+							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
 						},
 					},
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  man.Repo.GetName() + "/base.path",
-						Args: p.dockerComposeScript(),
+						Args: []string{
+							"-ec",
+							p.dockerComposeScript(),
+						},
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: man.Repo.GetName()},
