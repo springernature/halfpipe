@@ -220,24 +220,27 @@ cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 }
 
 func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
-	return atc.JobConfig{
+	job := atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"manifest":              path.Join(repoName, basePath, task.Manifest),
-					"environment_variables": convertVars(task.Vars),
-					"path":                  path.Join(repoName, basePath),
+					"manifest": path.Join(repoName, basePath, task.Manifest),
+					"path":     path.Join(repoName, basePath),
 				},
 			},
 		},
 	}
+	if len(task.Vars) > 0 {
+		job.Plan[0].Params["environment_variables"] = convertVars(task.Vars)
+	}
+	return job
 }
 
 func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, resourceName string, basePath string) atc.JobConfig {
-	return atc.JobConfig{
+	job := atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
@@ -248,6 +251,10 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, res
 				}},
 		},
 	}
+	if len(task.Vars) > 0 {
+		job.Plan[0].Params["build_args"] = convertVars(task.Vars)
+	}
+	return job
 }
 
 func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {

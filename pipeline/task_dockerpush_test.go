@@ -20,6 +20,10 @@ func TestRenderDockerPushTask(t *testing.T) {
 			Username: username,
 			Password: password,
 			Image:    repo,
+			Vars: manifest.Vars{
+				"A": "a",
+				"B": "b",
+			},
 		},
 	}
 
@@ -38,7 +42,16 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
-			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": man.Repo.GetName()}},
+			atc.PlanConfig{
+				Put: "Docker Registry",
+				Params: atc.Params{
+					"build": man.Repo.GetName(),
+					"build_args": map[string]interface{}{
+						"A": "a",
+						"B": "b",
+					},
+				},
+			},
 		},
 	}
 
@@ -79,7 +92,9 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
-			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{"build": man.Repo.GetName() + "/" + basePath}},
+			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{
+				"build": man.Repo.GetName() + "/" + basePath,
+			}},
 		},
 	}
 

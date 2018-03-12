@@ -206,6 +206,10 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 				Username: "asd",
 				Password: "asd",
 				Image:    "asd/asd",
+				Vars: map[string]string{
+					"A": "a",
+					"B": "b",
+				},
 			},
 		},
 	}

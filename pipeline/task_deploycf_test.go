@@ -84,9 +84,8 @@ func TestRendersCfDeployResources(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
-					"manifest":              "reponame/manifest-live.yml",
-					"environment_variables": map[string]interface{}{},
-					"path":                  "reponame",
+					"manifest": "reponame/manifest-live.yml",
+					"path":     "reponame",
 				},
 			},
 		},

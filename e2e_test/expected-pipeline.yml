@@ -79,7 +79,6 @@ jobs:
     trigger: true
   - put: CF dev-api engineering-enablement dev
     params:
-      environment_variables: {}
       manifest: halfpipe-example-nodejs/manifest.yml
       path: halfpipe-example-nodejs
   on_failure:
@@ -100,7 +99,6 @@ jobs:
     trigger: true
   - put: CF live-api pe staging
     params:
-      environment_variables: {}
       manifest: halfpipe-example-nodejs/manifest.yml
       path: halfpipe-example-nodejs
   on_failure:
