@@ -257,6 +257,48 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, jobName, res
 	return job
 }
 
+// docker-compose task
+
+func (p Pipeline) dockerComposeScript() []string {
+	return []string{
+		"-ec",
+		`source /docker-lib.sh
+start_docker
+docker-compose up --force-recreate --exit-code-from app`,
+	}
+}
+
+func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, jobName, basePath string) atc.JobConfig {
+	jobConfig := atc.JobConfig{
+		Name:   jobName,
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{
+				Task:       "run docker-compose",
+				Privileged: true,
+				TaskConfig: &atc.TaskConfig{
+					Platform: "linux",
+					Params:   task.Vars,
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": config.DockerComposeImage.Repository,
+							"tag":        config.DockerComposeImage.Tag,
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Dir:  path.Join(repoName, basePath),
+						Args: p.dockerComposeScript(),
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: repoName},
+					},
+				}},
+		}}
+	return jobConfig
+}
+
 func (p Pipeline) Render(man manifest.Manifest) (config atc.Config) {
 	repoResource := p.gitResource(man.Repo)
 	repoName := repoResource.Name
@@ -314,6 +356,9 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 			jobName := uniqueName(task.Name, "docker-push")
 			config.Resources = append(config.Resources, p.dockerPushResource(task, resourceName))
 			jobConfig = p.dockerPushJob(task, repoName, jobName, resourceName, man.Repo.BasePath)
+		case manifest.DockerCompose:
+			jobName := uniqueName(task.Name, "docker-compose")
+			jobConfig = p.dockerComposeJob(task, repoName, jobName, man.Repo.BasePath)
 		}
 
 		if slackChannelSet {

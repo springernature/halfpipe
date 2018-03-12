@@ -20,7 +20,7 @@ func TestRenderRunTask(t *testing.T) {
 				Username: "",
 				Password: "",
 			},
-			Vars: map[string]string{
+			Vars: manifest.Vars{
 				"VAR1": "Value1",
 				"VAR2": "Value2",
 			},
