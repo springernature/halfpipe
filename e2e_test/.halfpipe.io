@@ -25,12 +25,18 @@ tasks:
   space: staging
   username: michiel
   password: very-secret
+  vars:
+      A: 0.1
+      B: false
 
 - type: docker-push
   name: push to docker registry
   username: rob
   password: verysecret
   image: springerplatformengineering/halfpipe-fly
+  vars:
+    A: a
+    B: b
 
 - type: run
   script: ./notify.sh
@@ -38,3 +44,6 @@ tasks:
     image: busy
     username: michiel
     password: blah
+  vars:
+    A: a
+    B: b

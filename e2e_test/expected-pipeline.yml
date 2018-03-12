@@ -99,6 +99,9 @@ jobs:
     trigger: true
   - put: CF live-api pe staging
     params:
+      environment_variables:
+        A: "0.1"
+        B: "false"
       manifest: halfpipe-example-nodejs/manifest.yml
       path: halfpipe-example-nodejs
   on_failure:
@@ -120,6 +123,9 @@ jobs:
   - put: Docker Registry
     params:
       build: halfpipe-example-nodejs
+      build_args:
+        A: a
+        B: b
   on_failure:
     put: slack
     params:
@@ -147,6 +153,9 @@ jobs:
           repository: busy
           tag: latest
           username: michiel
+      params:
+        A: a
+        B: b
       run:
         path: /bin/sh
         args:
