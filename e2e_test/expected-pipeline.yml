@@ -172,4 +172,41 @@ jobs:
         $BUILD_PIPELINE_NAME failed. Check it out at:
         http://concourse.halfpipe.io/builds/$BUILD_ID
       username: Halfpipe
+  - name: docker-compose
+    serial: true
+    plan:
+    - get: halfpipe-example-nodejs
+      passed:
+      - run notify.sh
+      trigger: true
+    - task: run
+      privileged: true
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: amidos/dcind
+            tag: latest
+        run:
+          path: /bin/sh
+          args:
+          - -ec
+          - |-
+            source /docker-lib.sh
+            start_docker
+            docker-compose up --force-recreate --exit-code-from app
+          dir: halfpipe-example-nodejs
+        inputs:
+        - name: halfpipe-example-nodejs
+          path: ""
+    on_failure:
+      put: slack
+      params:
+        channel: '#ee-re'
+        icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
+        text: |-
+          $BUILD_PIPELINE_NAME failed. Check it out at:
+          http://concourse.halfpipe.io/builds/$BUILD_ID
+        username: Halfpipe
 

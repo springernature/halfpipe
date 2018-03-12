@@ -47,3 +47,6 @@ tasks:
   vars:
     A: a
     B: b
+
+- type: docker-compose
+
