@@ -263,3 +263,54 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 	assertInvalidFieldShouldNotBeInErrors(t, goodKey2, result.Errors)
 	assertInvalidFieldShouldNotBeInErrors(t, goodKey3, result.Errors)
 }
+
+func TestDockerCompose_Happy(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte("something"), 0777)
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{}, // empty is ok, everything is optional
+			manifest.DockerCompose{
+				Name: "run docker compose",
+				Vars: manifest.Vars{
+					"A": "a",
+					"B": "b",
+				},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+}
+
+func TestDockerCompose_MissingFile(t *testing.T) {
+	taskLinter := testTaskLinter()
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{manifest.DockerCompose{}},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertFileError(t, "docker-compose.yml", result.Errors[0])
+}
+
+func TestDockerCompose_InvalidVar(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte("something"), 0777)
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{
+				Name: "run docker compose",
+				Vars: manifest.Vars{
+					"a": "a",
+					"B": "b",
+				},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidFieldInErrors(t, "a", result.Errors)
+}

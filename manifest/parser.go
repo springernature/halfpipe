@@ -64,10 +64,15 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 			if err := parseTask(rawTask, &t, i); err == nil {
 				man.Tasks = append(man.Tasks, t)
 			}
+		case "docker-compose":
+			t := DockerCompose{}
+			if err := parseTask(rawTask, &t, i); err == nil {
+				man.Tasks = append(man.Tasks, t)
+			}
 		case "":
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing field 'type'", i+1)))
 		default:
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'deploy-cf', 'docker-push'", i+1, taskType.Type)))
+			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push'", i+1, taskType.Type)))
 		}
 	}
 	return

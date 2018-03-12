@@ -37,6 +37,8 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 			result.AddError(linter.lintDeployCFTask(task)...)
 		case manifest.DockerPush:
 			result.AddError(linter.lintDockerPushTask(task)...)
+		case manifest.DockerCompose:
+			result.AddError(linter.lintDockerComposeTask(task)...)
 		default:
 			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
 		}
@@ -111,6 +113,17 @@ func (linter taskLinter) lintRunTask(run manifest.Run) []error {
 
 	errs = append(errs, linter.lintEnvVars(run.Vars)...)
 
+	return errs
+}
+
+func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose) []error {
+	var errs []error
+
+	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
+		errs = append(errs, err)
+	}
+
+	errs = append(errs, linter.lintEnvVars(dc.Vars)...)
 	return errs
 }
 

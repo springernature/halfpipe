@@ -309,3 +309,28 @@ trigger_interval: 1h
 	assert.Nil(t, errs)
 	assert.Equal(t, "1h", manifest.TriggerInterval)
 }
+
+func TestDockerComposeTask(t *testing.T) {
+	man, errs := Parse(`
+tasks:
+- type: docker-compose
+  name: dOcker cOmpose
+  vars:
+    FOO: Foo
+    BAR: Bar
+`)
+	expected := Manifest{
+		Tasks: []Task{
+			DockerCompose{
+				Name: "dOcker cOmpose",
+				Vars: Vars{
+					"FOO": "Foo",
+					"BAR": "Bar",
+				},
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}

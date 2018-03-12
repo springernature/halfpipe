@@ -74,6 +74,11 @@ type DeployCF struct {
 	DeployArtifact string `json:"deploy_artifact"`
 }
 
+type DockerCompose struct {
+	Name string
+	Vars Vars
+}
+
 type Vars map[string]string
 
 // convert bools and floats into strings, anything else is invalid
