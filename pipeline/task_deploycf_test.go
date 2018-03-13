@@ -33,15 +33,23 @@ func TestRendersCfDeployResources(t *testing.T) {
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
 	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
+	expectedResourceConfig := atc.ResourceType{
+		Name: "halfpipe-cf",
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": "platformengineering/halfpipe-cf-resource",
+		},
+	}
+
 	expectedDevResource := atc.ResourceConfig{
 		Name: deployCFResourceName(taskDeployDev),
-		Type: "cf",
+		Type: "halfpipe-cf",
 		Source: atc.Source{
-			"api":          "dev-api",
-			"space":        "dev",
-			"organization": "springer",
-			"password":     "supersecret",
-			"username":     "rob",
+			"api":      "dev-api",
+			"space":    "dev",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
 		},
 	}
 
@@ -53,12 +61,12 @@ func TestRendersCfDeployResources(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
-					"manifest": "reponame/manifest-dev.yml",
-					"environment_variables": map[string]interface{}{
+					"manifestPath": "reponame/manifest-dev.yml",
+					"vars": map[string]interface{}{
 						"VAR1": "value1",
 						"VAR2": "value2",
 					},
-					"path": "reponame",
+					"appPath": "reponame",
 				},
 			},
 		},
@@ -66,13 +74,13 @@ func TestRendersCfDeployResources(t *testing.T) {
 
 	expectedLiveResource := atc.ResourceConfig{
 		Name: deployCFResourceName(taskDeployLive),
-		Type: "cf",
+		Type: "halfpipe-cf",
 		Source: atc.Source{
-			"api":          "live-api",
-			"space":        "prod",
-			"organization": "springer",
-			"password":     "supersecret",
-			"username":     "rob",
+			"api":      "live-api",
+			"space":    "prod",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
 		},
 	}
 
@@ -84,14 +92,17 @@ func TestRendersCfDeployResources(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
-					"manifest": "reponame/manifest-live.yml",
-					"path":     "reponame",
+					"manifestPath": "reponame/manifest-live.yml",
+					"appPath":      "reponame",
 				},
 			},
 		},
 	}
 
 	config := testPipeline().Render(man)
+
+	assert.Len(t, config.ResourceTypes, 1)
+	assert.Equal(t, expectedResourceConfig, config.ResourceTypes[0])
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])

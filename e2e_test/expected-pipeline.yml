@@ -10,18 +10,18 @@ resources:
   source:
     url: https://hooks.slack.com/services/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
 - name: CF dev-api engineering-enablement dev
-  type: cf
+  type: halfpipe-cf
   source:
     api: dev-api
-    organization: engineering-enablement
+    org: engineering-enablement
     password: very-secret
     space: dev
     username: michiel
 - name: CF live-api pe staging
-  type: cf
+  type: halfpipe-cf
   source:
     api: live-api
-    organization: pe
+    org: pe
     password: very-secret
     space: staging
     username: michiel
@@ -37,6 +37,10 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
+- name: halfpipe-cf
+  type: docker-image
+  source:
+    repository: platformengineering/halfpipe-cf-resource
 jobs:
 - name: run test.sh
   serial: true
@@ -78,8 +82,8 @@ jobs:
     trigger: true
   - put: CF dev-api engineering-enablement dev
     params:
-      manifest: halfpipe-example-nodejs/manifest.yml
-      path: halfpipe-example-nodejs
+      appPath: halfpipe-example-nodejs
+      manifestPath: halfpipe-example-nodejs/manifest.yml
   on_failure:
     put: slack
     params:
@@ -98,11 +102,11 @@ jobs:
     trigger: true
   - put: CF live-api pe staging
     params:
-      environment_variables:
+      appPath: halfpipe-example-nodejs
+      manifestPath: halfpipe-example-nodejs/manifest.yml
+      vars:
         A: "0.1"
         B: "false"
-      manifest: halfpipe-example-nodejs/manifest.yml
-      path: halfpipe-example-nodejs
   on_failure:
     put: slack
     params:
@@ -172,41 +176,41 @@ jobs:
         $BUILD_PIPELINE_NAME failed. Check it out at:
         http://concourse.halfpipe.io/builds/$BUILD_ID
       username: Halfpipe
-  - name: docker-compose
-    serial: true
-    plan:
-    - get: halfpipe-example-nodejs
-      passed:
-      - run notify.sh
-      trigger: true
-    - task: run
-      privileged: true
-      config:
-        platform: linux
-        image_resource:
-          type: docker-image
-          source:
-            repository: amidos/dcind
-            tag: latest
-        run:
-          path: /bin/sh
-          args:
-          - -ec
-          - |-
-            source /docker-lib.sh
-            start_docker
-            docker-compose up --force-recreate --exit-code-from app
-          dir: halfpipe-example-nodejs
-        inputs:
-        - name: halfpipe-example-nodejs
-          path: ""
-    on_failure:
-      put: slack
-      params:
-        channel: '#ee-re'
-        icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
-        text: |-
-          $BUILD_PIPELINE_NAME failed. Check it out at:
-          http://concourse.halfpipe.io/builds/$BUILD_ID
-        username: Halfpipe
+- name: docker-compose
+  serial: true
+  plan:
+  - get: halfpipe-example-nodejs
+    passed:
+    - run notify.sh
+    trigger: true
+  - task: run
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: amidos/dcind
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -ec
+        - |-
+          source /docker-lib.sh
+          start_docker
+          docker-compose up --force-recreate --exit-code-from app
+        dir: halfpipe-example-nodejs
+      inputs:
+      - name: halfpipe-example-nodejs
+        path: ""
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://ci.concourse.ci/public/images/favicon-failed.png
+      text: |-
+        $BUILD_PIPELINE_NAME failed. Check it out at:
+        http://concourse.halfpipe.io/builds/$BUILD_ID
+      username: Halfpipe
 

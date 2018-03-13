@@ -81,16 +81,16 @@ func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
-		"api":          deployCF.API,
-		"organization": deployCF.Org,
-		"space":        deployCF.Space,
-		"username":     deployCF.Username,
-		"password":     deployCF.Password,
+		"api":      deployCF.API,
+		"org":      deployCF.Org,
+		"space":    deployCF.Space,
+		"username": deployCF.Username,
+		"password": deployCF.Password,
 	}
 
 	return atc.ResourceConfig{
 		Name:   resourceName,
-		Type:   "cf",
+		Type:   "halfpipe-cf",
 		Source: sources,
 	}
 }
@@ -224,14 +224,14 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"manifest": path.Join(repoName, basePath, task.Manifest),
-					"path":     path.Join(repoName, basePath),
+					"manifestPath": path.Join(repoName, basePath, task.Manifest),
+					"appPath":      path.Join(repoName, basePath),
 				},
 			},
 		},
 	}
 	if len(task.Vars) > 0 {
-		job.Plan[0].Params["environment_variables"] = convertVars(task.Vars)
+		job.Plan[0].Params["vars"] = convertVars(task.Vars)
 	}
 	return job
 }
@@ -278,6 +278,16 @@ func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePa
 	return job
 }
 
+func halfpipeCfDeployResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name: "halfpipe-cf",
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": "platformengineering/halfpipe-cf-resource",
+		},
+	}
+}
+
 func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	repoResource := p.gitResource(man.Repo)
 	repoName := repoResource.Name
@@ -319,6 +329,7 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		return getUniqueName(name, &cfg, 0)
 	}
 
+	var haveCfResourceConfig bool
 	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
@@ -327,6 +338,10 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
 		case manifest.DeployCF:
+			if !haveCfResourceConfig {
+				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
+				haveCfResourceConfig = true
+			}
 			resourceName := uniqueName(deployCFResourceName(task), "")
 			task.Name = uniqueName(task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
