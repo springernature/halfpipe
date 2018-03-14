@@ -70,16 +70,14 @@ jobs:
         args:
         - -ec
         - |
-          ARTIFACTS_DIR=../artifacts
           ./test.sh
-          if [ ! -e build ]; then
-              echo "Artifact that should be at path 'build' not found! Bailing out"
+          if [ ! -d build ]; then
+              echo "Artifact dir 'build' not found! Bailing out"
               exit -1
           fi
 
-          ARTIFACT_DIR_NAME=$(dirname build)
-          mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
-          cp build $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+          mkdir -p ../artifacts/build
+          cp -r build/* ../artifacts/build/
         dir: halfpipe-example-nodejs
       inputs:
       - name: halfpipe-example-nodejs
@@ -107,14 +105,14 @@ jobs:
     passed:
     - run test.sh
     trigger: true
-  - put: CF dev-api engineering-enablement dev
-    params:
-      appPath: artifact-storage/build
-      manifestPath: halfpipe-example-nodejs/manifest.yml
   - get: artifact-storage
     params:
       folder: artifacts
       version_file: halfpipe-example-nodejs/.git/ref
+  - put: CF dev-api engineering-enablement dev
+    params:
+      appPath: artifact-storage/build
+      manifestPath: halfpipe-example-nodejs/manifest.yml
   on_failure:
     put: slack
     params:
