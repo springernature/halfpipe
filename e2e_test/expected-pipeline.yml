@@ -9,6 +9,11 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
+- name: artifact-storage
+  type: gcp-resource
+  source:
+    bucket: halfpipe-artifacts
+    json_key: ((gcr.private_key))
 - name: CF dev-api engineering-enablement dev
   type: halfpipe-cf
   source:
@@ -37,6 +42,11 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
     tag: latest
+- name: gcp-resource
+  type: docker-image
+  source:
+    repository: platformengineering/gcp-resource
+    tag: latest
 - name: halfpipe-cf
   type: docker-image
   source:
@@ -59,11 +69,28 @@ jobs:
         path: /bin/sh
         args:
         - -ec
-        - ./test.sh
+        - |
+          ARTIFACTS_DIR=../artifacts
+          ./test.sh
+          if [ ! -e build ]; then
+              echo "Artifact that should be at path 'build' not found! Bailing out"
+              exit -1
+          fi
+
+          ARTIFACT_DIR_NAME=$(dirname build)
+          mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+          cp build $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
         dir: halfpipe-example-nodejs
       inputs:
       - name: halfpipe-example-nodejs
         path: ""
+      outputs:
+      - name: artifacts
+        path: ""
+  - put: artifact-storage
+    params:
+      folder: artifacts
+      version_file: halfpipe-example-nodejs/.git/ref
   on_failure:
     put: slack
     params:
@@ -82,8 +109,12 @@ jobs:
     trigger: true
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: halfpipe-example-nodejs
+      appPath: artifact-storage/build
       manifestPath: halfpipe-example-nodejs/manifest.yml
+  - get: artifact-storage
+    params:
+      folder: artifacts
+      version_file: halfpipe-example-nodejs/.git/ref
   on_failure:
     put: slack
     params:

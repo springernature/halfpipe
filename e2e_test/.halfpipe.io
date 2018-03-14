@@ -8,6 +8,8 @@ slack_channel: "#ee-re"
 tasks:
 - type: run
   script: test.sh
+  save_artifacts:
+  - build
   docker:
     image: node:9.5.0-alpine
 
@@ -17,6 +19,7 @@ tasks:
   manifest: manifest.yml
   username: michiel
   password: very-secret
+  deploy_artifact: build
 
 - type: deploy-cf
   name: deploy to staging

@@ -66,3 +66,65 @@ cp build/lib/artifact.jar $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
 `
 	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }
+
+func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
+	// Without any save artifact there should not be a copy and a output
+	name := "yolo"
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+	man.Repo.BasePath = "apps/subapp1"
+	man.Tasks = []manifest.Task{
+		manifest.Run{
+			Script:        "./build.sh",
+			SaveArtifacts: []string{"build/lib/artifact.jar"},
+		},
+	}
+
+	renderedPipeline := testPipeline().Render(man)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
+	assert.Equal(t, "artifact-storage", renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, "artifacts", renderedPipeline.Jobs[0].Plan[2].Params["folder"])
+	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
+
+	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
+	assert.NotNil(t, resourceType)
+	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
+	assert.Equal(t, "latest", resourceType.Source["tag"])
+
+	resource, _ := renderedPipeline.Resources.Lookup("artifact-storage")
+	assert.NotNil(t, resource)
+	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
+	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
+}
+
+func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
+	// Without any save artifact there should not be a copy and a output
+	name := "yolo"
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+	man.Repo.BasePath = "apps/subapp1"
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			DeployArtifact: "build/lib/artifact.jar",
+		},
+	}
+
+	renderedPipeline := testPipeline().Render(man)
+	assert.Len(t, renderedPipeline.Jobs, 1)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
+
+	assert.Equal(t, "artifact-storage", renderedPipeline.Jobs[0].Plan[2].Get)
+	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
+
+	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
+	assert.NotNil(t, resourceType)
+	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
+	assert.Equal(t, "latest", resourceType.Source["tag"])
+
+	resource, _ := renderedPipeline.Resources.Lookup("artifact-storage")
+	assert.NotNil(t, resource)
+	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
+	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
+}

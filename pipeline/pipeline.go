@@ -9,6 +9,8 @@ import (
 
 	"bytes"
 
+	"path/filepath"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -60,12 +62,34 @@ func (p Pipeline) slackResource() atc.ResourceConfig {
 	}
 }
 
+func (p Pipeline) gcpResource() atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name: "artifact-storage",
+		Type: "gcp-resource",
+		Source: atc.Source{
+			"bucket":   "halfpipe-artifacts",
+			"json_key": "((gcr.private_key))",
+		},
+	}
+}
+
 func (p Pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: "slack-notification",
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
+			"tag":        "latest",
+		},
+	}
+}
+
+func (p Pipeline) gcpResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name: "gcp-resource",
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": "platformengineering/gcp-resource",
 			"tag":        "latest",
 		},
 	}
@@ -178,6 +202,15 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 		runScriptWithCopyArtifact := scriptInput.renderRunScriptWithCopyArtifact()
 		runArgs := []string{"-ec", runScriptWithCopyArtifact}
 		jobConfig.Plan[0].TaskConfig.Run.Args = runArgs
+
+		artifactPut := atc.PlanConfig{
+			Put: "artifact-storage",
+			Params: atc.Params{
+				"folder":       artifactsFolderName,
+				"version_file": path.Join(repoName, ".git", "ref"),
+			},
+		}
+		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
 	}
 
 	return jobConfig
@@ -232,6 +265,18 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 	}
 	if len(task.Vars) > 0 {
 		job.Plan[0].Params["vars"] = convertVars(task.Vars)
+	}
+	if len(task.DeployArtifact) > 0 {
+		job.Plan[0].Params["appPath"] = filepath.Join("artifact-storage", task.DeployArtifact)
+
+		artifactGet := atc.PlanConfig{
+			Get: "artifact-storage",
+			Params: atc.Params{
+				"folder":       artifactsFolderName,
+				"version_file": path.Join(repoName, ".git", "ref"),
+			},
+		}
+		job.Plan = append(job.Plan, artifactGet)
 	}
 	return job
 }
@@ -322,6 +367,11 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		}
 	}
 
+	if artifactsStorageUsed(man) {
+		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
+		cfg.Resources = append(cfg.Resources, p.gcpResource())
+	}
+
 	uniqueName := func(name string, defaultName string) string {
 		if name == "" {
 			name = defaultName
@@ -370,4 +420,21 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		cfg.Jobs = append(cfg.Jobs, jobConfig)
 	}
 	return
+}
+
+func artifactsStorageUsed(man manifest.Manifest) bool {
+	for _, t := range man.Tasks {
+		switch task := t.(type) {
+		case manifest.Run:
+			if len(task.SaveArtifacts) > 0 {
+				return true
+			}
+		case manifest.DeployCF:
+			if len(task.DeployArtifact) > 0 {
+				return true
+			}
+		}
+	}
+
+	return false
 }
