@@ -360,7 +360,7 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			Params: atc.Params{
 				"channel":  man.SlackChannel,
 				"username": "Halfpipe",
-				"icon_url": "https://ci.concourse.ci/public/images/favicon-failed.png",
+				"icon_url": "https://ci.concourse-ci.org/public/images/favicon-failed.png",
 				"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
 http://concourse.halfpipe.io/builds/$BUILD_ID`,
 			},
