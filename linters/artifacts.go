@@ -36,13 +36,9 @@ func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 			}
 
 		case manifest.DeployCF:
-			if task.DeployArtifact != "" && task.DeployArtifact != artifact {
+			if task.DeployArtifact != "" && artifact == "" {
 				var errorStr string
-				if artifact == "" {
-					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s'", task.DeployArtifact)
-				} else {
-					errorStr = fmt.Sprintf("No previous tasks have saved the artifact '%s', but I found a previous job that saves the artifact '%s'.", task.DeployArtifact, artifact)
-				}
+				errorStr = fmt.Sprintf("No previous tasks have saved a artifact")
 				result.AddError(errors.NewInvalidField("deploy-cf.deploy_artifact", errorStr))
 			}
 		}

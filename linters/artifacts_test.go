@@ -77,7 +77,7 @@ func TestDeployArtifact(t *testing.T) {
 		Tasks: []manifest.Task{
 			manifest.Run{
 				SaveArtifacts: []string{
-					"a",
+					"",
 				},
 			},
 			manifest.DeployCF{

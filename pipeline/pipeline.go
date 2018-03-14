@@ -11,6 +11,8 @@ import (
 
 	"path/filepath"
 
+	"sort"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -223,16 +225,14 @@ type runScriptInput struct {
 }
 
 func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
-	tmpl, err := template.New("runScript").Parse(`ARTIFACTS_DIR={{.PathToArtifact}}
-{{.Script}}
-if [ ! -e {{.SaveArtifactTask}} ]; then
-    echo "Artifact that should be at path '{{.SaveArtifactTask}}' not found! Bailing out"
+	tmpl, err := template.New("runScript").Parse(`{{.Script}}
+if [ ! -d {{.SaveArtifactTask}} ]; then
+    echo "Artifact dir '{{.SaveArtifactTask}}' not found! Bailing out"
     exit -1
 fi
 
-ARTIFACT_DIR_NAME=$(dirname {{.SaveArtifactTask}})
-mkdir -p $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
-cp {{.SaveArtifactTask}} $ARTIFACTS_DIR/$ARTIFACT_DIR_NAME
+mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
+cp -r {{.SaveArtifactTask}}/* {{.PathToArtifact}}/{{.SaveArtifactTask}}/
 `)
 
 	if err != nil {
@@ -419,7 +419,21 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		}
 		cfg.Jobs = append(cfg.Jobs, jobConfig)
 	}
+
+	sortGetJobsFirst(&cfg.Jobs)
+
 	return
+}
+
+func sortGetJobsFirst(jobs *atc.JobConfigs) {
+	for _, job := range *jobs {
+		sort.SliceStable(job.Plan, func(i, j int) bool {
+			if job.Plan[i].Get != "" && job.Plan[j].Put != "" {
+				return true
+			}
+			return false
+		})
+	}
 }
 
 func artifactsStorageUsed(man manifest.Manifest) bool {
