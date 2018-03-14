@@ -24,148 +24,102 @@ type Renderer interface {
 
 type Pipeline struct{}
 
+type runScriptInput struct {
+	PathToArtifact   string
+	Script           string
+	SaveArtifactTask string
+}
+
 const artifactsFolderName = "artifacts"
 
-func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
-	sources := atc.Source{
-		"uri": repo.URI,
+func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+	repoResource := p.gitResource(man.Repo)
+	repoName := repoResource.Name
+	cfg.Resources = append(cfg.Resources, repoResource)
+	initialPlan := []atc.PlanConfig{{Get: repoName, Trigger: true}}
+
+	if man.TriggerInterval != "" {
+		timerResource := p.timerResource(man.TriggerInterval)
+		cfg.Resources = append(cfg.Resources, timerResource)
+		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
 	}
 
-	if repo.PrivateKey != "" {
-		sources["private_key"] = repo.PrivateKey
+	slackChannelSet := man.SlackChannel != ""
+	var slackPlanConfig *atc.PlanConfig
+
+	if slackChannelSet {
+		slackResource := p.slackResource()
+		cfg.Resources = append(cfg.Resources, slackResource)
+
+		slackResourceType := p.slackResourceType()
+		cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
+
+		slackPlanConfig = &atc.PlanConfig{
+			Put: slackResource.Name,
+			Params: atc.Params{
+				"channel":  man.SlackChannel,
+				"username": "Halfpipe",
+				"icon_url": "https://ci.concourse-ci.org/public/images/favicon-failed.png",
+				"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
+http://concourse.halfpipe.io/builds/$BUILD_ID`,
+			},
+		}
 	}
 
-	if len(repo.WatchedPaths) > 0 {
-		sources["paths"] = repo.WatchedPaths
+	if p.artifactsUsed(man) {
+		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
+		cfg.Resources = append(cfg.Resources, p.gcpResource())
 	}
 
-	if len(repo.IgnoredPaths) > 0 {
-		sources["ignore_paths"] = repo.IgnoredPaths
+	uniqueName := func(name string, defaultName string) string {
+		if name == "" {
+			name = defaultName
+		}
+		return getUniqueName(name, &cfg, 0)
 	}
 
-	if repo.GitCryptKey != "" {
-		sources["git_crypt_key"] = repo.GitCryptKey
+	var haveCfResourceConfig bool
+	for i, t := range man.Tasks {
+		var jobConfig atc.JobConfig
+		switch task := t.(type) {
+		case manifest.Run:
+			task.Script = fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
+			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
+			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
+		case manifest.DeployCF:
+			if !haveCfResourceConfig {
+				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
+				haveCfResourceConfig = true
+			}
+			resourceName := uniqueName(deployCFResourceName(task), "")
+			task.Name = uniqueName(task.Name, "deploy-cf")
+			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
+			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath)
+		case manifest.DockerPush:
+			resourceName := uniqueName("Docker Registry", "")
+			task.Name = uniqueName(task.Name, "docker-push")
+			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
+			jobConfig = p.dockerPushJob(task, repoName, resourceName, man.Repo.BasePath)
+		case manifest.DockerCompose:
+			task.Name = uniqueName(task.Name, "docker-compose")
+			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
+		}
+
+		if slackChannelSet {
+			jobConfig.Failure = slackPlanConfig
+		}
+
+		//insert the initial plan
+		jobConfig.Plan = append(initialPlan, jobConfig.Plan...)
+
+		if i > 0 {
+			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.
+			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
+		}
+		cfg.Jobs = append(cfg.Jobs, jobConfig)
+		p.sortGetJobsFirst(&jobConfig)
 	}
 
-	return atc.ResourceConfig{
-		Name:   repo.GetName(),
-		Type:   "git",
-		Source: sources,
-	}
-}
-
-func (p Pipeline) slackResource() atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name: "slack",
-		Type: "slack-notification",
-		Source: atc.Source{
-			"url": config.SlackWebhook,
-		},
-	}
-}
-
-func (p Pipeline) gcpResource() atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name: "artifact-storage",
-		Type: "gcp-resource",
-		Source: atc.Source{
-			"bucket":   "halfpipe-artifacts",
-			"json_key": "((gcr.private_key))",
-		},
-	}
-}
-
-func (p Pipeline) slackResourceType() atc.ResourceType {
-	return atc.ResourceType{
-		Name: "slack-notification",
-		Type: "docker-image",
-		Source: atc.Source{
-			"repository": "cfcommunity/slack-notification-resource",
-			"tag":        "latest",
-		},
-	}
-}
-
-func (p Pipeline) gcpResourceType() atc.ResourceType {
-	return atc.ResourceType{
-		Name: "gcp-resource",
-		Type: "docker-image",
-		Source: atc.Source{
-			"repository": "platformengineering/gcp-resource",
-			"tag":        "latest",
-		},
-	}
-}
-
-func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name:   "timer " + interval,
-		Type:   "time",
-		Source: atc.Source{"interval": interval},
-	}
-}
-
-func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
-	sources := atc.Source{
-		"api":      deployCF.API,
-		"org":      deployCF.Org,
-		"space":    deployCF.Space,
-		"username": deployCF.Username,
-		"password": deployCF.Password,
-	}
-
-	return atc.ResourceConfig{
-		Name:   resourceName,
-		Type:   "halfpipe-cf",
-		Source: sources,
-	}
-}
-
-func (p Pipeline) dockerPushResource(docker manifest.DockerPush, resourceName string) atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name: resourceName,
-		Type: "docker-image",
-		Source: atc.Source{
-			"username":   docker.Username,
-			"password":   docker.Password,
-			"repository": docker.Image,
-		},
-	}
-}
-
-func (p Pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
-	repo, tag := docker.Image, "latest"
-	if strings.Contains(docker.Image, ":") {
-		split := strings.Split(docker.Image, ":")
-		repo = split[0]
-		tag = split[1]
-	}
-
-	source := atc.Source{
-		"repository": repo,
-		"tag":        tag,
-	}
-
-	if docker.Username != "" && docker.Password != "" {
-		source["username"] = docker.Username
-		source["password"] = docker.Password
-	}
-
-	return &atc.ImageResource{
-		Type:   "docker-image",
-		Source: source,
-	}
-}
-
-func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
-	fullPath := path.Join(repoName, basePath)
-	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
-
-	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
-		artifactPath += "../"
-	}
-
-	artifactPath += artifactsFolderName
 	return
 }
 
@@ -218,37 +172,6 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 	return jobConfig
 }
 
-type runScriptInput struct {
-	PathToArtifact   string
-	Script           string
-	SaveArtifactTask string
-}
-
-func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
-	tmpl, err := template.New("runScript").Parse(`{{.Script}}
-if [ ! -d {{.SaveArtifactTask}} ]; then
-    echo "Artifact dir '{{.SaveArtifactTask}}' not found! Bailing out"
-    exit -1
-fi
-
-mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
-cp -r {{.SaveArtifactTask}}/* {{.PathToArtifact}}/{{.SaveArtifactTask}}/
-`)
-
-	if err != nil {
-		panic(err)
-	}
-
-	byteBuffer := new(bytes.Buffer)
-	err = tmpl.Execute(byteBuffer, input)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return byteBuffer.String()
-}
-
 func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName string, basePath string) atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
@@ -281,6 +204,22 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 	return job
 }
 
+func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath string) atc.JobConfig {
+	// it is really just a special run job, so let's reuse that
+	runTask := manifest.Run{
+		Name:   task.Name,
+		Script: p.dockerComposeScript(),
+		Docker: manifest.Docker{
+			Image: config.DockerComposeImage,
+		},
+		Vars:          task.Vars,
+		SaveArtifacts: task.SaveArtifacts,
+	}
+	job := p.runJob(runTask, repoName, basePath)
+	job.Plan[0].Privileged = true
+	return job
+}
+
 func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName string, basePath string) atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
@@ -299,144 +238,31 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName
 	return job
 }
 
-// docker-compose task
+func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
+	fullPath := path.Join(repoName, basePath)
+	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
-func (p Pipeline) dockerComposeScript() string {
+	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
+		artifactPath += "../"
+	}
+
+	artifactPath += artifactsFolderName
+	return
+}
+
+func (Pipeline) dockerComposeScript() string {
 	return `source /docker-lib.sh
 start_docker
 docker-compose up --force-recreate --exit-code-from app`
 }
 
-func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath string) atc.JobConfig {
-	// it is really just a special run job, so let's reuse that
-	runTask := manifest.Run{
-		Name:   task.Name,
-		Script: p.dockerComposeScript(),
-		Docker: manifest.Docker{
-			Image: config.DockerComposeImage,
-		},
-		Vars:          task.Vars,
-		SaveArtifacts: task.SaveArtifacts,
-	}
-	job := p.runJob(runTask, repoName, basePath)
-	job.Plan[0].Privileged = true
-	return job
+func (Pipeline) sortGetJobsFirst(job *atc.JobConfig) {
+	sort.SliceStable(job.Plan, func(i, j int) bool {
+		return job.Plan[i].Get != "" && job.Plan[j].Put != ""
+	})
 }
 
-func halfpipeCfDeployResourceType() atc.ResourceType {
-	return atc.ResourceType{
-		Name: "halfpipe-cf",
-		Type: "docker-image",
-		Source: atc.Source{
-			"repository": "platformengineering/halfpipe-cf-resource",
-		},
-	}
-}
-
-func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
-	repoResource := p.gitResource(man.Repo)
-	repoName := repoResource.Name
-	cfg.Resources = append(cfg.Resources, repoResource)
-	initialPlan := []atc.PlanConfig{{Get: repoName, Trigger: true}}
-
-	if man.TriggerInterval != "" {
-		timerResource := p.timerResource(man.TriggerInterval)
-		cfg.Resources = append(cfg.Resources, timerResource)
-		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
-	}
-
-	slackChannelSet := man.SlackChannel != ""
-	var slackPlanConfig *atc.PlanConfig
-
-	if slackChannelSet {
-		slackResource := p.slackResource()
-		cfg.Resources = append(cfg.Resources, slackResource)
-
-		slackResourceType := p.slackResourceType()
-		cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
-
-		slackPlanConfig = &atc.PlanConfig{
-			Put: slackResource.Name,
-			Params: atc.Params{
-				"channel":  man.SlackChannel,
-				"username": "Halfpipe",
-				"icon_url": "https://ci.concourse-ci.org/public/images/favicon-failed.png",
-				"text": `$BUILD_PIPELINE_NAME failed. Check it out at:
-http://concourse.halfpipe.io/builds/$BUILD_ID`,
-			},
-		}
-	}
-
-	if artifactsStorageUsed(man) {
-		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource())
-	}
-
-	uniqueName := func(name string, defaultName string) string {
-		if name == "" {
-			name = defaultName
-		}
-		return getUniqueName(name, &cfg, 0)
-	}
-
-	var haveCfResourceConfig bool
-	for i, t := range man.Tasks {
-		var jobConfig atc.JobConfig
-		switch task := t.(type) {
-		case manifest.Run:
-			task.Script = fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
-			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
-		case manifest.DeployCF:
-			if !haveCfResourceConfig {
-				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
-				haveCfResourceConfig = true
-			}
-			resourceName := uniqueName(deployCFResourceName(task), "")
-			task.Name = uniqueName(task.Name, "deploy-cf")
-			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath)
-		case manifest.DockerPush:
-			resourceName := uniqueName("Docker Registry", "")
-			task.Name = uniqueName(task.Name, "docker-push")
-			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, repoName, resourceName, man.Repo.BasePath)
-		case manifest.DockerCompose:
-			task.Name = uniqueName(task.Name, "docker-compose")
-			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
-		}
-
-		if slackChannelSet {
-			jobConfig.Failure = slackPlanConfig
-		}
-
-		//insert the initial plan
-		jobConfig.Plan = append(initialPlan, jobConfig.Plan...)
-
-		if i > 0 {
-			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.
-			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
-		}
-		cfg.Jobs = append(cfg.Jobs, jobConfig)
-	}
-
-	sortGetJobsFirst(&cfg.Jobs)
-
-	return
-}
-
-func sortGetJobsFirst(jobs *atc.JobConfigs) {
-	for _, job := range *jobs {
-		sort.SliceStable(job.Plan, func(i, j int) bool {
-			if job.Plan[i].Get != "" && job.Plan[j].Put != "" {
-				return true
-			}
-			return false
-		})
-	}
-}
-
-func artifactsStorageUsed(man manifest.Manifest) bool {
+func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
 		case manifest.Run:
@@ -451,4 +277,29 @@ func artifactsStorageUsed(man manifest.Manifest) bool {
 	}
 
 	return false
+}
+
+func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
+	tmpl, err := template.New("runScript").Parse(`{{.Script}}
+if [ ! -d {{.SaveArtifactTask}} ]; then
+    echo "Artifact dir '{{.SaveArtifactTask}}' not found! Bailing out"
+    exit -1
+fi
+
+mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
+cp -r {{.SaveArtifactTask}}/* {{.PathToArtifact}}/{{.SaveArtifactTask}}/
+`)
+
+	if err != nil {
+		panic(err)
+	}
+
+	byteBuffer := new(bytes.Buffer)
+	err = tmpl.Execute(byteBuffer, input)
+
+	if err != nil {
+		panic(err)
+	}
+
+	return byteBuffer.String()
 }
