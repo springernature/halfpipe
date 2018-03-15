@@ -1,10 +1,11 @@
 package pipeline
 
 import (
-	"github.com/springernature/halfpipe/manifest"
-	"github.com/concourse/atc"
 	"strings"
+
+	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
