@@ -105,6 +105,7 @@ func lintAndRender() (output string, err error) {
 			linters.NewRepoLinter(fs, currentDir),
 			linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
 			linters.NewTasksLinter(fs),
+			linters.NewCfManifestLinter(fs),
 			linters.NewArtifactsLinter(),
 		},
 		Renderer: pipeline.Pipeline{},

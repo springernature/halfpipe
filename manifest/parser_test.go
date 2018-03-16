@@ -1,7 +1,6 @@
 package manifest
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/springernature/halfpipe/linters/errors"
@@ -352,7 +351,6 @@ repo:
 		_, errs := Parse(test)
 
 		if assert.Len(t, errs, 1) {
-			fmt.Println(errs[0])
 			assert.Contains(t, errs[0].Error(), "unknown_field")
 		}
 	}

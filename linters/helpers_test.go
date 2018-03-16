@@ -68,3 +68,14 @@ func assertFileError(t *testing.T, path string, err error) {
 		assert.Equal(t, path, mf.Path)
 	}
 }
+
+func assertTooManyAppsError(t *testing.T, name string, err error) {
+	t.Helper()
+
+	mf, ok := err.(errors.TooManyAppsError)
+	if !ok {
+		assert.Fail(t, "error is not an TooManyAppsError", err)
+	} else {
+		assert.Equal(t, name, mf.Path)
+	}
+}

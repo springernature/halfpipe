@@ -2,6 +2,21 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "code.cloudfoundry.org/bytefmt"
+  packages = ["."]
+  revision = "b31f603f5e1e047fdb38584e1a922dcc5c4de5c8"
+
+[[projects]]
+  name = "code.cloudfoundry.org/cli"
+  packages = [
+    "types",
+    "util/manifest"
+  ]
+  revision = "bbdf81482f6cfa6281b1937f23cea3162b976351"
+  version = "v6.34.1"
+
+[[projects]]
   name = "github.com/blang/semver"
   packages = ["."]
   revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
@@ -252,6 +267,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "eba6133cd14a1dcdabe94b1fdc53840ce0ff516b844247baefc6c575147b1ca7"
+  inputs-digest = "a83fa978157f8497ea470f343c7c8d090bbe3729e8a69c8b412b23552626af17"
   solver-name = "gps-cdcl"
   solver-version = 1
