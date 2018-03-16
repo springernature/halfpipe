@@ -1,6 +1,7 @@
 package manifest
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/springernature/halfpipe/linters/errors"
@@ -219,7 +220,7 @@ func TestInvalidTask(t *testing.T) {
 }
 
 func TestReportMultipleInvalidTasks(t *testing.T) {
-	_, errs := Parse("tasks: [{ type: unknown, foo: bar }, { type: run, image: alpine, script: build.sh }, { notname: foo }]")
+	_, errs := Parse("tasks: [{ type: unknown }, { type: run, script: build.sh }, { notname: foo }]")
 
 	assert.Equal(t, len(errs), 2)
 	assert.IsType(t, errs[0], errors.NewInvalidField("", ""))
@@ -263,7 +264,6 @@ func TestInvalidVars(t *testing.T) {
 	_, errs := Parse(`
 tasks:
 - type: run
-  image: alpine
   script: build.sh
   vars:
     EMPTY:
@@ -276,7 +276,6 @@ func TestSaveArtifact(t *testing.T) {
 	manifest, errs := Parse(`
 tasks:
 - type: run
-  image: alpine
   script: build.sh
   save_artifacts:
     - path/to/artifact.jar
@@ -291,14 +290,11 @@ func TestDeployArtifact(t *testing.T) {
 	manifest, errs := Parse(`
 tasks:
 - type: deploy-cf
-  image: alpine
-  script: build.sh
   deploy_artifact: path/to/artifact.jar
 `)
 
 	assert.Nil(t, errs)
 	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(DeployCF).DeployArtifact)
-
 }
 
 func TestTriggerInterval(t *testing.T) {
@@ -333,4 +329,31 @@ tasks:
 
 	assert.Nil(t, errs)
 	assert.Equal(t, expected, man)
+}
+
+func TestFailsWithUnknownFields(t *testing.T) {
+	tests := []string{
+		`
+unknown_field: wibble`,
+		`
+team: foo
+tasks:
+- type: run
+  unknown_field: wibble`,
+		`
+team: foo
+repo:
+  uri: git
+  unknown_field: wobble
+`,
+	}
+
+	for _, test := range tests {
+		_, errs := Parse(test)
+
+		if assert.Len(t, errs, 1) {
+			fmt.Println(errs[0])
+			assert.Contains(t, errs[0].Error(), "unknown_field")
+		}
+	}
 }

@@ -1,6 +1,9 @@
 package manifest
 
 import (
+	"bytes"
+	"strings"
+
 	"github.com/ghodss/yaml"
 
 	"fmt"
@@ -15,10 +18,13 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		errs = append(errs, e)
 	}
 
-	if err := yaml.Unmarshal([]byte(manifestYaml), &man); err != nil {
+	if err := unmarshalStrict([]byte(manifestYaml), &man); err != nil {
 		addError(NewParseError(err.Error()))
 		return
 	}
+
+	//delete the tasks, they are just map[string]interface{}, we can do better
+	man.Tasks = nil
 
 	var rawTasks struct {
 		Tasks []json.RawMessage
@@ -29,7 +35,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	}
 
 	parseTask := func(rawTask json.RawMessage, t Task, index int) error {
-		if err := json.Unmarshal(rawTask, t); err != nil {
+		if err := unmarshalStrict(rawTask, t); err != nil {
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, err.Error())))
 			return err
 		}
@@ -52,21 +58,25 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		case "run":
 			t := Run{}
 			if err := parseTask(rawTask, &t, i); err == nil {
+				t.Type = "" // delete the type it's just for parsing
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "deploy-cf":
 			t := DeployCF{}
 			if err := parseTask(rawTask, &t, i); err == nil {
+				t.Type = "" // delete the type it's just for parsing
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "docker-push":
 			t := DockerPush{}
 			if err := parseTask(rawTask, &t, i); err == nil {
+				t.Type = "" // delete the type it's just for parsing
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "docker-compose":
 			t := DockerCompose{}
 			if err := parseTask(rawTask, &t, i); err == nil {
+				t.Type = "" // delete the type it's just for parsing
 				man.Tasks = append(man.Tasks, t)
 			}
 		case "":
@@ -76,4 +86,22 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		}
 	}
 	return
+}
+
+func unmarshalStrict(y []byte, o interface{}) error {
+	js, err := yaml.YAMLToJSON(y)
+	if err != nil {
+		return fmt.Errorf("error parsing YAML: %v", err)
+	}
+
+	jsonReader := bytes.NewReader(js)
+	decoder := json.NewDecoder(jsonReader)
+	decoder.DisallowUnknownFields()
+
+	if err := decoder.Decode(&o); err != nil {
+		msg := strings.Replace(err.Error(), "json: ", "", -1)
+		return fmt.Errorf("error parsing YAML: %v", msg)
+	}
+
+	return nil
 }

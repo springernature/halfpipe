@@ -13,7 +13,7 @@ type Manifest struct {
 	TriggerInterval string `json:"trigger_interval"`
 	Repo            Repo
 	SlackChannel    string `json:"slack_channel"`
-	Tasks           []Task `json:"-"` //don't auto unmarshal
+	Tasks           []Task
 }
 
 type Repo struct {
@@ -39,6 +39,7 @@ func (repo Repo) IsPublic() bool {
 }
 
 type Docker struct {
+	Type     string
 	Image    string
 	Username string
 	Password string
@@ -47,6 +48,7 @@ type Docker struct {
 type Task interface{}
 
 type Run struct {
+	Type          string
 	Name          string
 	Script        string
 	Docker        Docker
@@ -55,6 +57,7 @@ type Run struct {
 }
 
 type DockerPush struct {
+	Type     string
 	Name     string
 	Username string
 	Password string
@@ -63,6 +66,7 @@ type DockerPush struct {
 }
 
 type DeployCF struct {
+	Type           string
 	Name           string
 	API            string
 	Space          string
@@ -75,6 +79,7 @@ type DeployCF struct {
 }
 
 type DockerCompose struct {
+	Type          string
 	Name          string
 	Vars          Vars
 	SaveArtifacts []string `json:"save_artifacts"`
