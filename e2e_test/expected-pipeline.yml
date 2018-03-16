@@ -71,13 +71,35 @@ jobs:
         - -ec
         - |
           ./test.sh
-          if [ ! -d build ]; then
-              echo "Artifact dir 'build' not found! Bailing out"
-              exit -1
+
+          if [ -d target/distribution ]
+          then
+            mkdir -p ../artifacts/target/distribution
+            cp -r target/distribution/. ../artifacts/target/distribution/
+          elif [ -f target/distribution ]
+          then
+            artifactDir=$(dirname target/distribution)
+            mkdir -p ../artifacts/$artifactDir
+            cp target/distribution ../artifacts/$artifactDir
+          else
+            echo "ERROR: Artifact 'target/distribution' not found. Try fly hijack to check the filesystem."
+            exit 1
           fi
 
-          mkdir -p ../artifacts/build
-          cp -r build/* ../artifacts/build/
+
+          if [ -d README.md ]
+          then
+            mkdir -p ../artifacts/README.md
+            cp -r README.md/. ../artifacts/README.md/
+          elif [ -f README.md ]
+          then
+            artifactDir=$(dirname README.md)
+            mkdir -p ../artifacts/$artifactDir
+            cp README.md ../artifacts/$artifactDir
+          else
+            echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
+            exit 1
+          fi
         dir: halfpipe-example-nodejs
       inputs:
       - name: halfpipe-example-nodejs
@@ -111,7 +133,7 @@ jobs:
       version_file: halfpipe-example-nodejs/.git/ref
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: artifact-storage/build
+      appPath: artifact-storage/target/distribution/artifact.zip
       manifestPath: halfpipe-example-nodejs/manifest.yml
   on_failure:
     put: slack

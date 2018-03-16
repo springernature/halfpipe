@@ -23,16 +23,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expected := `./build.sh
-if [ ! -d build/lib ]; then
-    echo "Artifact dir 'build/lib' not found! Bailing out"
-    exit -1
-fi
-
-mkdir -p ../artifacts/build/lib
-cp -r build/lib/* ../artifacts/build/lib/
-`
-	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
+	expectedRunScript := runScriptWithCopyArtifacts("../artifacts", "./build.sh", []string{"build/lib"})
+	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
@@ -51,16 +43,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expected := `./build.sh
-if [ ! -d build/lib ]; then
-    echo "Artifact dir 'build/lib' not found! Bailing out"
-    exit -1
-fi
-
-mkdir -p ../../../artifacts/build/lib
-cp -r build/lib/* ../../../artifacts/build/lib/
-`
-	assert.Equal(t, expected, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
+	expectedRunScript := runScriptWithCopyArtifacts("../../../artifacts", "./build.sh", []string{"build/lib"})
+	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
 }
 
 func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
@@ -148,4 +132,25 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, "artifact-storage", renderedPipeline.Jobs[1].Plan[1].Get)
 	assert.Equal(t, "CF   ", renderedPipeline.Jobs[1].Plan[2].Put)
 	assert.Equal(t, "artifact-storage/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+}
+
+func TestCopyArtifactScript(t *testing.T) {
+	actual := copyArtifactScript("../../artifacts", "target/dist/artifact.jar")
+
+	expected := `
+if [ -d target/dist/artifact.jar ]
+then
+  mkdir -p ../../artifacts/target/dist/artifact.jar
+  cp -r target/dist/artifact.jar/. ../../artifacts/target/dist/artifact.jar/
+elif [ -f target/dist/artifact.jar ]
+then
+  artifactDir=$(dirname target/dist/artifact.jar)
+  mkdir -p ../../artifacts/$artifactDir
+  cp target/dist/artifact.jar ../../artifacts/$artifactDir
+else
+  echo "ERROR: Artifact 'target/dist/artifact.jar' not found. Try fly hijack to check the filesystem."
+  exit 1
+fi
+`
+	assert.Equal(t, expected, actual)
 }

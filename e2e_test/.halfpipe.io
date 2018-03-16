@@ -9,7 +9,8 @@ tasks:
 - type: run
   script: test.sh
   save_artifacts:
-  - build
+  - target/distribution
+  - README.md
   docker:
     image: node:9.5.0-alpine
 
@@ -19,7 +20,7 @@ tasks:
   manifest: manifest.yml
   username: michiel
   password: very-secret
-  deploy_artifact: build
+  deploy_artifact: target/distribution/artifact.zip
 
 - type: deploy-cf
   name: deploy to staging

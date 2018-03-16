@@ -24,12 +24,6 @@ type Renderer interface {
 
 type Pipeline struct{}
 
-type runScriptInput struct {
-	PathToArtifact   string
-	Script           string
-	SaveArtifactTask string
-}
-
 const artifactsFolderName = "artifacts"
 
 func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
@@ -149,14 +143,9 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 			{Name: artifactsFolderName},
 		}
 
-		scriptInput := runScriptInput{
-			PathToArtifact:   p.pathToArtifactsDir(repoName, basePath),
-			Script:           task.Script,
-			SaveArtifactTask: task.SaveArtifacts[0],
-		}
-
-		runScriptWithCopyArtifact := scriptInput.renderRunScriptWithCopyArtifact()
-		runArgs := []string{"-ec", runScriptWithCopyArtifact}
+		artifactsPath := p.pathToArtifactsDir(repoName, basePath)
+		runScriptWithCopyArtifacts := runScriptWithCopyArtifacts(artifactsPath, task.Script, task.SaveArtifacts)
+		runArgs := []string{"-ec", runScriptWithCopyArtifacts}
 		jobConfig.Plan[0].TaskConfig.Run.Args = runArgs
 
 		artifactPut := atc.PlanConfig{
@@ -279,15 +268,29 @@ func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
 	return false
 }
 
-func (input runScriptInput) renderRunScriptWithCopyArtifact() string {
-	tmpl, err := template.New("runScript").Parse(`{{.Script}}
-if [ ! -d {{.SaveArtifactTask}} ]; then
-    echo "Artifact dir '{{.SaveArtifactTask}}' not found! Bailing out"
-    exit -1
-fi
+func runScriptWithCopyArtifacts(artifactsPath string, script string, saveArtifacts []string) string {
+	out := []string{script}
+	for _, artifact := range saveArtifacts {
+		out = append(out, copyArtifactScript(artifactsPath, artifact))
+	}
+	return strings.Join(out, "\n")
+}
 
-mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
-cp -r {{.SaveArtifactTask}}/* {{.PathToArtifact}}/{{.SaveArtifactTask}}/
+func copyArtifactScript(artifactsPath string, saveArtifact string) string {
+	tmpl, err := template.New("runScript").Parse(`
+if [ -d {{.SaveArtifactTask}} ]
+then
+  mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
+  cp -r {{.SaveArtifactTask}}/. {{.PathToArtifact}}/{{.SaveArtifactTask}}/
+elif [ -f {{.SaveArtifactTask}} ]
+then
+  artifactDir=$(dirname {{.SaveArtifactTask}})
+  mkdir -p {{.PathToArtifact}}/$artifactDir
+  cp {{.SaveArtifactTask}} {{.PathToArtifact}}/$artifactDir
+else
+  echo "ERROR: Artifact '{{.SaveArtifactTask}}' not found. Try fly hijack to check the filesystem."
+  exit 1
+fi
 `)
 
 	if err != nil {
@@ -295,7 +298,13 @@ cp -r {{.SaveArtifactTask}}/* {{.PathToArtifact}}/{{.SaveArtifactTask}}/
 	}
 
 	byteBuffer := new(bytes.Buffer)
-	err = tmpl.Execute(byteBuffer, input)
+	err = tmpl.Execute(byteBuffer, struct {
+		PathToArtifact   string
+		SaveArtifactTask string
+	}{
+		artifactsPath,
+		saveArtifact,
+	})
 
 	if err != nil {
 		panic(err)
