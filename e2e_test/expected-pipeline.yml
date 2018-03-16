@@ -9,11 +9,12 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
-- name: artifact-storage
+- name: artifacts-halfpipe-example-nodejs
   type: gcp-resource
   source:
     bucket: halfpipe-artifacts
     json_key: ((gcr.private_key))
+    somethingUnique: artifacts-halfpipe-example-nodejs
 - name: CF dev-api engineering-enablement dev
   type: halfpipe-cf
   source:
@@ -107,7 +108,7 @@ jobs:
       outputs:
       - name: artifacts
         path: ""
-  - put: artifact-storage
+  - put: artifacts-halfpipe-example-nodejs
     params:
       folder: artifacts
       version_file: halfpipe-example-nodejs/.git/ref
@@ -127,13 +128,13 @@ jobs:
     passed:
     - run test.sh
     trigger: true
-  - get: artifact-storage
+  - get: artifacts-halfpipe-example-nodejs
     params:
       folder: artifacts
       version_file: halfpipe-example-nodejs/.git/ref
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: artifact-storage/target/distribution/artifact.zip
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       manifestPath: halfpipe-example-nodejs/manifest.yml
   on_failure:
     put: slack

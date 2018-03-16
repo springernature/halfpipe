@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"path"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -56,4 +58,9 @@ func ToString(pipeline atc.Config) (string, error) {
 
 	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
+}
+
+func GenerateArtifactsFolderName(repoName string, basePath string) string {
+	postfix := strings.Replace(path.Join(repoName, basePath), "/", "-", -1)
+	return fmt.Sprintf("artifacts-%s", postfix)
 }

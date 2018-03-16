@@ -62,7 +62,7 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 
 	if p.artifactsUsed(man) {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource())
+		cfg.Resources = append(cfg.Resources, p.gcpResource(repoName, man.Repo.BasePath))
 	}
 
 	uniqueName := func(name string, defaultName string) string {
@@ -149,7 +149,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 		jobConfig.Plan[0].TaskConfig.Run.Args = runArgs
 
 		artifactPut := atc.PlanConfig{
-			Put: "artifact-storage",
+			Put: GenerateArtifactsFolderName(repoName, basePath),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
 				"version_file": path.Join(repoName, ".git", "ref"),
@@ -179,10 +179,10 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 		job.Plan[0].Params["vars"] = convertVars(task.Vars)
 	}
 	if len(task.DeployArtifact) > 0 {
-		job.Plan[0].Params["appPath"] = filepath.Join("artifact-storage", task.DeployArtifact)
+		job.Plan[0].Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
 
 		artifactGet := atc.PlanConfig{
-			Get: "artifact-storage",
+			Get: GenerateArtifactsFolderName(repoName, basePath),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
 				"version_file": path.Join(repoName, ".git", "ref"),
