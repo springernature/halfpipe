@@ -128,6 +128,26 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
+func TestRunTaskScriptAcceptsArguments(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
+
+	for _, script := range []string{"./build.sh", "build.sh", "./build.sh --arg 1", "build.sh some args"} {
+		man := manifest.Manifest{}
+		man.Tasks = []manifest.Task{
+			manifest.Run{
+				Script: script,
+				Docker: manifest.Docker{
+					Image: "alpine",
+				},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+		assert.Len(t, result.Errors, 0)
+	}
+}
+
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
 	man := manifest.Manifest{}

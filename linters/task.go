@@ -95,7 +95,10 @@ func (linter taskLinter) lintRunTask(run manifest.Run) []error {
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("run.script"))
 	} else {
-		if err := filechecker.CheckFile(linter.Fs, run.Script, true); err != nil {
+		// Possible for script to have args,
+		fields := strings.Fields(strings.TrimSpace(run.Script))
+		command := fields[0]
+		if err := filechecker.CheckFile(linter.Fs, command, true); err != nil {
 			errs = append(errs, err)
 		}
 	}
