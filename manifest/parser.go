@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/xeipuuv/gojsonschema"
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {
@@ -35,7 +36,7 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	}
 
 	parseTask := func(rawTask json.RawMessage, t Task, index int) error {
-		if err := unmarshalStrict(rawTask, t); err != nil {
+		if err := json.Unmarshal(rawTask, t); err != nil {
 			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, err.Error())))
 			return err
 		}
@@ -88,20 +89,41 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 	return
 }
 
-func unmarshalStrict(y []byte, o interface{}) error {
-	js, err := yaml.YAMLToJSON(y)
+// convert YAML to JSON because JSON parser gives more control that we need to unmarshal into tasks
+// and bonus feature - we can validate against a JSON schema
+func unmarshalStrict(yml []byte, out *Manifest) error {
+	js, err := yaml.YAMLToJSON(yml)
 	if err != nil {
 		return fmt.Errorf("error parsing YAML: %v", err)
 	}
 
 	jsonReader := bytes.NewReader(js)
 	decoder := json.NewDecoder(jsonReader)
-	decoder.DisallowUnknownFields()
 
-	if err := decoder.Decode(&o); err != nil {
+	if err := validate(js); err != nil {
+		return err
+	}
+	if err := decoder.Decode(out); err != nil {
 		msg := strings.Replace(err.Error(), "json: ", "", -1)
 		return fmt.Errorf("error parsing YAML: %v", msg)
 	}
+	return nil
+}
 
+func validate(jsonManifest []byte) error {
+	schemaLoader := gojsonschema.NewStringLoader(jsonSchema)
+	documentLoader := gojsonschema.NewBytesLoader(jsonManifest)
+
+	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
+	if err != nil {
+		return err
+	}
+	if !result.Valid() {
+		msg := ""
+		for _, desc := range result.Errors() {
+			msg += fmt.Sprintf("schema error - %s\n", desc)
+		}
+		return fmt.Errorf(msg)
+	}
 	return nil
 }

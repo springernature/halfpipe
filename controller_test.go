@@ -12,6 +12,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var validHalfpipeYaml = `
+team: asd
+tasks:
+- type: docker-compose
+`
+
 func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
@@ -61,7 +67,7 @@ func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
 
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: asd"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
 	linter2 := fakeLinter{errors.NewMissingField("field")}
@@ -85,7 +91,7 @@ func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
 
 func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("team: asd"), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{

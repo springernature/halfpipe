@@ -3,13 +3,183 @@ package manifest
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/linters/errors"
+	"fmt"
+
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidYaml(t *testing.T) {
-	man, errs := Parse("team: my team")
-	expected := Manifest{Team: "my team"}
+func TestValidYaml_RequiredFields(t *testing.T) {
+	man, errs := Parse(`
+team: my team
+tasks:
+- type: run
+  script: run.sh
+  docker:
+    image: golang:latest
+- type: docker-compose
+- type: docker-push
+  image: golang:latest
+- type: deploy-cf
+  api: ((cf.api))
+  space: live
+`)
+
+	expected := Manifest{
+		Team: "my team",
+		Tasks: []Task{
+			Run{
+				Script: "run.sh",
+				Docker: Docker{
+					Image: "golang:latest",
+				},
+			},
+			DockerCompose{},
+			DockerPush{
+				Image: "golang:latest",
+			},
+			DeployCF{
+				API:   "((cf.api))",
+				Space: "live",
+			},
+		},
+	}
+
+	assert.Nil(t, errs)
+	assert.Equal(t, expected, man)
+}
+
+func TestValidYaml_Everything(t *testing.T) {
+	man, errs := Parse(`
+team: my team
+repo:
+  uri: git@github.com:..
+  private_key: private-key
+  watched_paths:
+  - watched/dir1
+  - watched/dir2
+  ignored_paths:
+  - ignored/dir1/**
+  - README.md
+  git_crypt_key: git-crypt-key
+slack_channel: "#ee-activity"
+trigger_interval: 4h
+tasks:
+- type: run
+  name: run task
+  script: script.sh --param
+  docker:
+    image: golang:latest
+    username: user
+    password: pass
+  vars:
+    FOO: fOo
+    BAR: "1"
+  save_artifacts:
+  - target/dist/artifact.zip
+  - README.md 
+- type: docker-compose
+  name: docker compose task
+  vars:
+    FOO: fOo
+    BAR: "1"
+  save_artifacts:
+  - target/dist/artifact.zip
+  - README.md   
+- type: docker-push
+  name: docker push task
+  username: user
+  password: pass
+  image: golang:latest
+  vars:
+    FOO: fOo
+    BAR: "1"
+- type: deploy-cf
+  name: deploy cf task
+  api: cf.api
+  space: cf.space
+  org: cf.org
+  username: cf.user
+  password: cf.pass
+  manifest: manifest.yml
+  space: cf.space
+  vars:
+    FOO: fOo
+    BAR: "1"
+  deploy_artifact: target/dist/artifact.zip
+`)
+
+	expected := Manifest{
+		Team: "my team",
+		Repo: Repo{
+			URI:        "git@github.com:..",
+			PrivateKey: "private-key",
+			WatchedPaths: []string{
+				"watched/dir1",
+				"watched/dir2",
+			},
+			IgnoredPaths: []string{
+				"ignored/dir1/**",
+				"README.md",
+			},
+			GitCryptKey: "git-crypt-key",
+		},
+		SlackChannel:    "#ee-activity",
+		TriggerInterval: "4h",
+		Tasks: []Task{
+			Run{
+				Name:   "run task",
+				Script: "script.sh --param",
+				Docker: Docker{
+					Image:    "golang:latest",
+					Username: "user",
+					Password: "pass",
+				},
+				Vars: Vars{
+					"FOO": "fOo",
+					"BAR": "1",
+				},
+				SaveArtifacts: []string{
+					"target/dist/artifact.zip",
+					"README.md",
+				},
+			},
+			DockerCompose{
+				Name: "docker compose task",
+				Vars: Vars{
+					"FOO": "fOo",
+					"BAR": "1",
+				},
+				SaveArtifacts: []string{
+					"target/dist/artifact.zip",
+					"README.md",
+				},
+			},
+			DockerPush{
+				Name:     "docker push task",
+				Username: "user",
+				Password: "pass",
+				Image:    "golang:latest",
+				Vars: Vars{
+					"FOO": "fOo",
+					"BAR": "1",
+				},
+			},
+			DeployCF{
+				Name:     "deploy cf task",
+				API:      "cf.api",
+				Space:    "cf.space",
+				Org:      "cf.org",
+				Username: "cf.user",
+				Password: "cf.pass",
+				Manifest: "manifest.yml",
+				Vars: Vars{
+					"FOO": "fOo",
+					"BAR": "1",
+				},
+				DeployArtifact: "target/dist/artifact.zip",
+			},
+		},
+	}
 
 	assert.Nil(t, errs)
 	assert.Equal(t, expected, man)
@@ -19,315 +189,6 @@ func TestInvalidYaml(t *testing.T) {
 	_, errs := Parse("team : { foo")
 
 	assert.Equal(t, len(errs), 1)
-}
-
-func TestRepo(t *testing.T) {
-	man, errs := Parse("repo: { uri: myuri, private_key: mypk }")
-	expected := Manifest{
-		Repo: Repo{
-			URI:        "myuri",
-			PrivateKey: "mypk",
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestRepoWithPaths(t *testing.T) {
-	man, errs := Parse(`repo: { watched_paths: ["a", "b"] }`)
-	expected := Manifest{
-		Repo: Repo{
-			WatchedPaths: []string{"a", "b"},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-
-	///
-
-	man, errs = Parse(`repo: { ignored_paths: ["a", "b"] }`)
-	expected = Manifest{
-		Repo: Repo{
-			IgnoredPaths: []string{"a", "b"},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-
-	///
-
-	man, errs = Parse(`repo: { watched_paths: ["a", "b"], ignored_paths: ["c", "d"] }`)
-	expected = Manifest{
-		Repo: Repo{
-			WatchedPaths: []string{"a", "b"},
-			IgnoredPaths: []string{"c", "d"},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestSlackChannel(t *testing.T) {
-	man, errs := Parse("slack_channel: \"#ee-re\"")
-
-	expected := Manifest{
-		SlackChannel: "#ee-re",
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestRunTask(t *testing.T) {
-	man, errs := Parse(`
-tasks:
-- type: run
-  name: rUn
-  docker:
-    image: alpine
-    username: user
-    password: pass
-  script: build.sh
-  vars:
-    FOO: Foo
-    BAR: Bar
-`)
-	expected := Manifest{
-		Tasks: []Task{
-			Run{
-				Name: "rUn",
-				Docker: Docker{
-					Image:    "alpine",
-					Username: "user",
-					Password: "pass",
-				},
-				Script: "build.sh",
-				Vars: Vars{
-					"FOO": "Foo",
-					"BAR": "Bar",
-				},
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestDockerPushTask(t *testing.T) {
-	man, errs := Parse(`
-tasks:
-- type: docker-push
-  name: dOcker pUsh
-  image: alpine
-  username: user
-  password: pass
-  vars:
-    FOO: Foo
-    BAR: Bar
-`)
-	expected := Manifest{
-		Tasks: []Task{
-			DockerPush{
-				Name:     "dOcker pUsh",
-				Username: "user",
-				Password: "pass",
-				Image:    "alpine",
-				Vars: Vars{
-					"FOO": "Foo",
-					"BAR": "Bar",
-				},
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestDeployCFTask(t *testing.T) {
-	man, errs := Parse(`
-tasks:
-- type: deploy-cf
-  name: dEploy cF
-  api: cfapi
-  space: cfspace
-  org: cforg
-  username: cfuser
-  password: cfpass
-  manifest: cfmanifest.yml
-  vars:
-    FOO: Foo
-    BAR: Bar
-  deploy_artifact: artifact.zip
-`)
-	expected := Manifest{
-		Tasks: []Task{
-			DeployCF{
-				Name:     "dEploy cF",
-				API:      "cfapi",
-				Space:    "cfspace",
-				Org:      "cforg",
-				Username: "cfuser",
-				Password: "cfpass",
-				Manifest: "cfmanifest.yml",
-				Vars: Vars{
-					"FOO": "Foo",
-					"BAR": "Bar",
-				},
-				DeployArtifact: "artifact.zip",
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestMultipleTasks(t *testing.T) {
-	man, errs := Parse("tasks: [{ type: run, docker: {image: img}, script: build.sh }, { type: docker-push, username: bob }, { type: run }, { type: deploy-cf, org: foo }]")
-	expected := Manifest{
-		Tasks: []Task{
-			Run{
-				Docker: Docker{
-					Image: "img",
-				},
-				Script: "build.sh",
-			},
-			DockerPush{
-				Username: "bob",
-			},
-			Run{},
-			DeployCF{
-				Org: "foo",
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestInvalidTask(t *testing.T) {
-	_, errs := Parse("tasks: [{ type: unknown, foo: bar }]")
-
-	assert.Equal(t, len(errs), 1)
-}
-
-func TestReportMultipleInvalidTasks(t *testing.T) {
-	_, errs := Parse("tasks: [{ type: unknown }, { type: run, script: build.sh }, { notname: foo }]")
-
-	assert.Equal(t, len(errs), 2)
-	assert.IsType(t, errs[0], errors.NewInvalidField("", ""))
-	assert.IsType(t, errs[1], errors.NewInvalidField("", ""))
-}
-
-func TestVarsParsedAsString(t *testing.T) {
-	man, errs := Parse(`
-tasks:
-- type: run
-  docker: 
-    image: alpine
-  script: build.sh
-  vars:
-    STRING: Foo Bar
-    FLOAT: 4.2
-    BOOL: true	
-`)
-
-	expected := Manifest{
-		Tasks: []Task{
-			Run{
-				Docker: Docker{
-					Image: "alpine",
-				},
-				Script: "build.sh",
-				Vars: Vars{
-					"STRING": "Foo Bar",
-					"FLOAT":  "4.2",
-					"BOOL":   "true",
-				},
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
-func TestInvalidVars(t *testing.T) {
-	_, errs := Parse(`
-tasks:
-- type: run
-  script: build.sh
-  vars:
-    EMPTY:
-`)
-	expected := errors.NewInvalidField("task", "")
-	assert.IsType(t, expected, errs[0])
-}
-
-func TestSaveArtifact(t *testing.T) {
-	manifest, errs := Parse(`
-tasks:
-- type: run
-  script: build.sh
-  save_artifacts:
-    - path/to/artifact.jar
-`)
-
-	assert.Nil(t, errs)
-	assert.Equal(t, []string{"path/to/artifact.jar"}, manifest.Tasks[0].(Run).SaveArtifacts)
-
-}
-
-func TestDeployArtifact(t *testing.T) {
-	manifest, errs := Parse(`
-tasks:
-- type: deploy-cf
-  deploy_artifact: path/to/artifact.jar
-`)
-
-	assert.Nil(t, errs)
-	assert.Equal(t, "path/to/artifact.jar", manifest.Tasks[0].(DeployCF).DeployArtifact)
-}
-
-func TestTriggerInterval(t *testing.T) {
-	manifest, errs := Parse(`
-trigger_interval: 1h
-`)
-
-	assert.Nil(t, errs)
-	assert.Equal(t, "1h", manifest.TriggerInterval)
-}
-
-func TestDockerComposeTask(t *testing.T) {
-	man, errs := Parse(`
-tasks:
-- type: docker-compose
-  name: dOcker cOmpose
-  vars:
-    FOO: Foo
-    BAR: Bar
-`)
-	expected := Manifest{
-		Tasks: []Task{
-			DockerCompose{
-				Name: "dOcker cOmpose",
-				Vars: Vars{
-					"FOO": "Foo",
-					"BAR": "Bar",
-				},
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
 }
 
 func TestFailsWithUnknownFields(t *testing.T) {
@@ -347,10 +208,9 @@ repo:
 `,
 	}
 
-	for _, test := range tests {
+	for i, test := range tests {
 		_, errs := Parse(test)
-
-		if assert.Len(t, errs, 1) {
+		if assert.Len(t, errs, 1, fmt.Sprintf("i = %v", i)) {
 			assert.Contains(t, errs[0].Error(), "unknown_field")
 		}
 	}

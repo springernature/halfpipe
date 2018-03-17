@@ -216,6 +216,24 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/xeipuuv/gojsonpointer"
+  packages = ["."]
+  revision = "4e3ac2762d5f479393488629ee9370b50873b3a6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonreference"
+  packages = ["."]
+  revision = "bd5ef7bd5415a7ac448318e64f11a24cd21e594b"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/xeipuuv/gojsonschema"
+  packages = ["."]
+  revision = "8bcffc811467a5f691810420385be6e66b35a317"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "http2",
@@ -267,6 +285,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a83fa978157f8497ea470f343c7c8d090bbe3729e8a69c8b412b23552626af17"
+  inputs-digest = "06306b01e3b175362ef3029d0d77ee9a00369acecd9ca87fb5f3c05409b0dd74"
   solver-name = "gps-cdcl"
   solver-version = 1
