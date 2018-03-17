@@ -109,7 +109,7 @@ var jsonSchema = `
           "$ref": "#/definitions/Tasks"
         },
         "team": { "type": "string" },
-        "trigger_interval": { "type": "string" }
+        "trigger_interval": { "type": "string", "pattern": "\\d+h" }
       },
       "additionalProperties": false,
       "type": "object"
