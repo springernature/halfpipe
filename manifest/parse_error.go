@@ -1,7 +1,5 @@
 package manifest
 
-import "fmt"
-
 type ParseError struct {
 	Message string
 }
@@ -11,5 +9,5 @@ func NewParseError(message string) ParseError {
 }
 
 func (e ParseError) Error() string {
-	return fmt.Sprintf("Error parsing manifest: %s", e.Message)
+	return e.Message
 }

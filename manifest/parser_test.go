@@ -194,24 +194,29 @@ func TestInvalidYaml(t *testing.T) {
 func TestFailsWithUnknownFields(t *testing.T) {
 	tests := []string{
 		`
-unknown_field: wibble`,
+team: foo
+tasks:
+- type: docker-compose
+  unknown_field: wibble`,
 		`
 team: foo
 tasks:
-- type: run
+- type: docker-compose
   unknown_field: wibble`,
 		`
 team: foo
 repo:
   uri: git
   unknown_field: wobble
-`,
+
+tasks:
+- type: docker-compose`,
 	}
 
-	for i, test := range tests {
+	for _, test := range tests {
 		_, errs := Parse(test)
-		if assert.Len(t, errs, 1, fmt.Sprintf("i = %v", i)) {
-			assert.Contains(t, errs[0].Error(), "unknown_field")
+		if assert.NotEmpty(t, errs) {
+			assert.Contains(t, fmt.Sprintf("%v", errs), "unknown_field")
 		}
 	}
 }

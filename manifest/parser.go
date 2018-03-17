@@ -19,8 +19,10 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		errs = append(errs, e)
 	}
 
-	if err := unmarshalStrict([]byte(manifestYaml), &man); err != nil {
-		addError(NewParseError(err.Error()))
+	if es := unmarshalAsJSON([]byte(manifestYaml), &man); len(es) > 0 {
+		for _, err := range es {
+			addError(NewParseError(err.Error()))
+		}
 		return
 	}
 
@@ -91,39 +93,45 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 
 // convert YAML to JSON because JSON parser gives more control that we need to unmarshal into tasks
 // and bonus feature - we can validate against a JSON schema
-func unmarshalStrict(yml []byte, out *Manifest) error {
+func unmarshalAsJSON(yml []byte, out *Manifest) []error {
 	js, err := yaml.YAMLToJSON(yml)
 	if err != nil {
-		return fmt.Errorf("error parsing YAML: %v", err)
+		return []error{err}
 	}
 
 	jsonReader := bytes.NewReader(js)
 	decoder := json.NewDecoder(jsonReader)
 
-	if err := validate(js); err != nil {
-		return err
+	if errs := validate(js); len(errs) > 0 {
+		return errs
 	}
 	if err := decoder.Decode(out); err != nil {
 		msg := strings.Replace(err.Error(), "json: ", "", -1)
-		return fmt.Errorf("error parsing YAML: %v", msg)
+		return []error{fmt.Errorf("error parsing YAML: %v", msg)}
 	}
 	return nil
 }
 
-func validate(jsonManifest []byte) error {
+func validate(jsonManifest []byte) []error {
 	schemaLoader := gojsonschema.NewStringLoader(jsonSchema)
 	documentLoader := gojsonschema.NewBytesLoader(jsonManifest)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return err
+		return []error{err}
 	}
 	if !result.Valid() {
-		msg := ""
-		for _, desc := range result.Errors() {
-			msg += fmt.Sprintf("schema error - %s\n", desc)
+		var errs []error
+		for _, err := range result.Errors() {
+
+			//tidy up the errors a bit
+			msg := strings.Replace(err.String(), "Must validate at least one schema (anyOf)", "Invalid task", -1)
+			ignore := strings.Contains(msg, ".type: Does not match pattern")
+			if !ignore {
+				errs = append(errs, fmt.Errorf(msg))
+			}
 		}
-		return fmt.Errorf(msg)
+		return errs
 	}
 	return nil
 }

@@ -30,8 +30,8 @@ tasks:
   username: michiel
   password: very-secret
   vars:
-      A: 0.1
-      B: false
+      A: "0.1"
+      B: "false"
 
 - type: docker-push
   name: push to docker registry
