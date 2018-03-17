@@ -39,7 +39,6 @@ func (repo Repo) IsPublic() bool {
 }
 
 type Docker struct {
-	Type     string
 	Image    string
 	Username string
 	Password string
