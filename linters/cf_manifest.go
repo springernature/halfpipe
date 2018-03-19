@@ -34,7 +34,15 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 		}
 
 		if len(apps) != 1 {
-			result.AddError(errors.NewTooManyAppsError(manifestPath, "Manifest must have 1 application defined"))
+			result.AddError(errors.NewTooManyAppsError(manifestPath, "cf manifest must have 1 application defined"))
+		}
+
+		if apps[0].Name == "" {
+			result.AddError(errors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
+		}
+
+		if len(apps[0].Routes) == 0 {
+			result.AddError(errors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined"))
 		}
 	}
 	return
