@@ -1,3 +1,4 @@
+---
 applications:
 - name: halfpipe-example-kotlin-dev
   instances: 1

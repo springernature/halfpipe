@@ -1,21 +1,17 @@
 package linters
 
 import (
-	"fmt"
-
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-	"github.com/ghodss/yaml"
-	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
 )
 
 type cfManifestLinter struct {
-	Fs afero.Afero
+	rManifest func(string) ([]cfManifest.Application, error)
 }
 
-func NewCfManifestLinter(fs afero.Afero) cfManifestLinter {
-	return cfManifestLinter{fs}
+func NewCfManifestLinter(readManifest func(string) ([]cfManifest.Application, error)) cfManifestLinter {
+	return cfManifestLinter{readManifest}
 }
 
 func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
@@ -30,7 +26,7 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 	}
 
 	for _, manifestPath := range manifestPaths {
-		apps, err := linter.readManifest(manifestPath)
+		apps, err := linter.rManifest(manifestPath)
 
 		if err != nil {
 			result.AddError(err)
@@ -42,21 +38,4 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 		}
 	}
 	return
-}
-
-//partly stolen from code.cloudfoundry.org/cli/util/manifest
-func (linter cfManifestLinter) readManifest(pathToManifest string) ([]cfManifest.Application, error) {
-	raw, err := linter.Fs.ReadFile(pathToManifest)
-	if err != nil {
-		return nil, err
-	}
-
-	var man cfManifest.Manifest
-	err = yaml.Unmarshal(raw, &man)
-	if err != nil {
-		errInvalidManifest := fmt.Errorf("error parsing Cf Manifest, manifest %q is invalid", pathToManifest)
-		return nil, errInvalidManifest
-	}
-
-	return man.Applications, err
 }

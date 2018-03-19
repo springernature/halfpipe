@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 
+	"code.cloudfoundry.org/cli/util/manifest"
 	"github.com/google/go-github/github"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
@@ -105,7 +106,7 @@ func lintAndRender() (output string, err error) {
 			linters.NewRepoLinter(fs, currentDir),
 			linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
 			linters.NewTasksLinter(fs),
-			linters.NewCfManifestLinter(fs),
+			linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),
 			linters.NewArtifactsLinter(),
 		},
 		Renderer: pipeline.Pipeline{},

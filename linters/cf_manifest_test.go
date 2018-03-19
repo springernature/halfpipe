@@ -3,42 +3,32 @@ package linters
 import (
 	"testing"
 
-	"os"
-
-	"fmt"
-
-	"github.com/spf13/afero"
+	manifest2 "code.cloudfoundry.org/cli/util/manifest"
+	"github.com/pkg/errors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
-func testCfManifestLinter() cfManifestLinter {
-	return cfManifestLinter{
-		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
-	}
-}
-
 func TestNoCfDeployTasks(t *testing.T) {
 	man := manifest.Manifest{}
 
-	result := testCfManifestLinter().Lint(man)
+	linter := cfManifestLinter{
+		rManifest: func(s string) ([]manifest2.Application, error) {
+			return nil, errors.New("blah")
+		},
+	}
+
+	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
 
 func TestOneCfDeployTask(t *testing.T) {
-	data := []byte(`
----
-applications:
-- name: halfpipe-example-kotlin-dev
-  instances: 1
-`)
-
-	testLinter := testCfManifestLinter()
-	e := testLinter.Fs.WriteFile("manifest.yml", data, os.FileMode(0777))
-
-	if e != nil {
-		fmt.Print(e)
+	readerGivesOneApp := func(name string) ([]manifest2.Application, error) {
+		return []manifest2.Application{
+			{Name: name},
+		}, nil
 	}
+	linter := cfManifestLinter{rManifest: readerGivesOneApp}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -48,17 +38,15 @@ applications:
 		},
 	}
 
-	result := testLinter.Lint(man)
+	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
 
 func TestOneCfDeployTaskWithInvalidManifest(t *testing.T) {
-	data := []byte(`
-randomString
-`)
-
-	testLinter := testCfManifestLinter()
-	testLinter.Fs.WriteFile("manifest.yml", data, os.FileMode(0777))
+	readerGivesError := func(s string) ([]manifest2.Application, error) {
+		return nil, errors.New("invalid manifest error")
+	}
+	linter := cfManifestLinter{rManifest: readerGivesError}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -68,43 +56,19 @@ randomString
 		},
 	}
 
-	result := testLinter.Lint(man)
+	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 1)
-	assert.Contains(t, result.Errors[0].Error(), "manifest.yml")
-}
-
-func TestOneCfDeployTaskWithNonExistingManifest(t *testing.T) {
-	data := []byte(`
-randomString
-`)
-
-	testLinter := testCfManifestLinter()
-	testLinter.Fs.WriteFile("wrongManifest.yml", data, os.FileMode(0777))
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DeployCF{
-				Manifest: "manifest.yml",
-			},
-		},
-	}
-
-	result := testLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
+	assert.Contains(t, result.Errors[0].Error(), "invalid manifest error")
 }
 
 func TestOneCfDeployTaskWithTwoApps(t *testing.T) {
-	data := []byte(`
----
-applications:
-- name: halfpipe-example-kotlin-dev
-  instances: 1
-- name: halfpipe-example2
-  instances: 2
-`)
-	testLinter := testCfManifestLinter()
-	testLinter.Fs.WriteFile("manifest.yml", data, os.FileMode(755))
-
+	readerGivesTwoApps := func(s string) ([]manifest2.Application, error) {
+		return []manifest2.Application{
+			{Name: s},
+			{Name: s + "1"},
+		}, nil
+	}
+	linter := cfManifestLinter{rManifest: readerGivesTwoApps}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -113,22 +77,19 @@ applications:
 		},
 	}
 
-	result := testLinter.Lint(man)
+	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertTooManyAppsError(t, "manifest.yml", result.Errors[0])
 }
 
 func TestTwoCfDeployTasksWithOneApp(t *testing.T) {
-	data := []byte(`
----
-applications:
-- name: halfpipe-example-kotlin-dev
-  instances: 1
-- name: halfpipe-example-kotlin-dev
-  instances: 1
-`)
-	testLinter := testCfManifestLinter()
-	testLinter.Fs.WriteFile("manifest.yml", data, os.FileMode(755))
+	readerGivesOneApp := func(s string) ([]manifest2.Application, error) {
+		return []manifest2.Application{
+			{Name: s},
+		}, nil
+	}
+
+	linter := cfManifestLinter{rManifest: readerGivesOneApp}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -141,7 +102,6 @@ applications:
 		},
 	}
 
-	result := testLinter.Lint(man)
-	assert.Len(t, result.Errors, 2)
-	assertTooManyAppsError(t, "manifest.yml", result.Errors[0])
+	result := linter.Lint(man)
+	assert.Len(t, result.Errors, 0)
 }
