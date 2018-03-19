@@ -23,8 +23,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptWithCopyArtifacts("../artifacts", "./build.sh", []string{"build/lib"})
-	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
+	expectedRunScript := runScriptArgs("./build.sh", "../artifacts", []string{"build/lib"})
+	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
@@ -43,8 +43,8 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptWithCopyArtifacts("../../../artifacts", "./build.sh", []string{"build/lib"})
-	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1])
+	expectedRunScript := runScriptArgs("./build.sh", "../../../artifacts", []string{"build/lib"})
+	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
 func TestRendersPipelineWithSaveArtifacts(t *testing.T) {

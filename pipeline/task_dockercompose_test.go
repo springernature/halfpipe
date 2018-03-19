@@ -53,10 +53,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  man.Repo.GetName() + "/base.path",
-						Args: []string{
-							"-ec",
-							p.dockerComposeScript(),
-						},
+						Args: runScriptArgs(dockerComposeScript(), "", nil),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: man.Repo.GetName()},

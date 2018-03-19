@@ -111,7 +111,7 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
 		}
 		cfg.Jobs = append(cfg.Jobs, jobConfig)
-		p.sortGetJobsFirst(&jobConfig)
+		sortGetJobsFirst(&jobConfig)
 	}
 
 	return
@@ -131,7 +131,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(repoName, basePath),
-						Args: []string{"-ec", task.Script},
+						Args: runScriptArgs(task.Script, pathToArtifactsDir(repoName, basePath), task.SaveArtifacts),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: repoName},
@@ -142,11 +142,6 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
 			{Name: artifactsFolderName},
 		}
-
-		artifactsPath := p.pathToArtifactsDir(repoName, basePath)
-		runScriptWithCopyArtifacts := runScriptWithCopyArtifacts(artifactsPath, task.Script, task.SaveArtifacts)
-		runArgs := []string{"-ec", runScriptWithCopyArtifacts}
-		jobConfig.Plan[0].TaskConfig.Run.Args = runArgs
 
 		artifactPut := atc.PlanConfig{
 			Put: GenerateArtifactsFolderName(repoName, basePath),
@@ -197,7 +192,7 @@ func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePa
 	// it is really just a special run job, so let's reuse that
 	runTask := manifest.Run{
 		Name:   task.Name,
-		Script: p.dockerComposeScript(),
+		Script: dockerComposeScript(),
 		Docker: manifest.Docker{
 			Image: config.DockerComposeImage,
 		},
@@ -227,7 +222,7 @@ func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName
 	return job
 }
 
-func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
+func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
 	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
@@ -239,13 +234,13 @@ func (Pipeline) pathToArtifactsDir(repoName string, basePath string) (artifactPa
 	return
 }
 
-func (Pipeline) dockerComposeScript() string {
+func dockerComposeScript() string {
 	return `source /docker-lib.sh
 start_docker
 docker-compose up --force-recreate --exit-code-from app`
 }
 
-func (Pipeline) sortGetJobsFirst(job *atc.JobConfig) {
+func sortGetJobsFirst(job *atc.JobConfig) {
 	sort.SliceStable(job.Plan, func(i, j int) bool {
 		return job.Plan[i].Get != "" && job.Plan[j].Put != ""
 	})
@@ -268,12 +263,15 @@ func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
 	return false
 }
 
-func runScriptWithCopyArtifacts(artifactsPath string, script string, saveArtifacts []string) string {
-	out := []string{script}
+func runScriptArgs(script string, artifactsPath string, saveArtifacts []string) []string {
+	out := []string{
+		"export GIT_REVISION=`cat .git/ref`",
+		script,
+	}
 	for _, artifact := range saveArtifacts {
 		out = append(out, copyArtifactScript(artifactsPath, artifact))
 	}
-	return strings.Join(out, "\n")
+	return []string{"-ec", strings.Join(out, "\n")}
 }
 
 func copyArtifactScript(artifactsPath string, saveArtifact string) string {

@@ -1,7 +1,6 @@
 package pipeline
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/concourse/atc"
@@ -48,7 +47,7 @@ func TestRenderRunTask(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
+					Args: runScriptArgs("./yolo.sh", "", nil),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -99,7 +98,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
+					Args: runScriptArgs("./yolo.sh", "", nil),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -150,7 +149,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName() + "/" + basePath,
-					Args: []string{"-ec", fmt.Sprintf("./yolo.sh")},
+					Args: runScriptArgs("./yolo.sh", "", nil),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -159,4 +158,10 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		}}
 
 	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
+}
+
+func TestRunScriptArgs(t *testing.T) {
+	withNoArtifacts := runScriptArgs("./build.sh", "", nil)
+	expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	assert.Equal(t, expected, withNoArtifacts)
 }
