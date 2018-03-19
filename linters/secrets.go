@@ -37,7 +37,7 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 
 	store, err := s.secretStoreFunc()
 	if err != nil {
-		result.Errors = append(result.Errors, err)
+		result.AddWarning(err)
 		return
 	}
 
@@ -51,7 +51,7 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	for range allSecrets {
 		err := <-chSecretErrs
 		if err != nil {
-			result.AddError(err)
+			result.AddWarning(err)
 		}
 	}
 

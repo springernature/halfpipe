@@ -49,6 +49,7 @@ func TestNoSecrets(t *testing.T) {
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Errors, 0)
+	assert.Len(t, result.Warnings, 0)
 }
 
 func TestBadKeys(t *testing.T) {
@@ -66,10 +67,11 @@ func TestBadKeys(t *testing.T) {
 	}
 
 	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 3)
-	assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong1))
-	assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong2))
-	assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong3))
+	if assert.Len(t, result.Warnings, 3) {
+		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong1))
+		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong2))
+		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong3))
+	}
 }
 
 func TestSecretNotFound(t *testing.T) {
@@ -87,8 +89,8 @@ func TestSecretNotFound(t *testing.T) {
 	linter, _ := secretsLinterWithFakeStore(false, nil)
 	result := linter.Lint(man)
 
-	assert.Len(t, result.Errors, 1)
-	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Errors[0])
+	assert.Len(t, result.Warnings, 1)
+	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Warnings[0])
 }
 
 func TestSecretFound(t *testing.T) {
@@ -106,7 +108,7 @@ func TestSecretFound(t *testing.T) {
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Errors, 0)
-
+	assert.Len(t, result.Warnings, 0)
 }
 
 func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
@@ -167,7 +169,7 @@ func TestCallsOutTwiceAndReturnsNilIfFoundInSecondCall(t *testing.T) {
 
 }
 
-func TestRaisesErrorFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
+func TestRaisesWarningFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
 	myError := errors.NewVaultSecretError("whatever")
 	store := &fakeSecretStore{
 		ExistsFunc: func(path, secretKey string) (bool, error) {
@@ -182,8 +184,8 @@ func TestRaisesErrorFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
 	assert.False(t, withoutSecretsResult.HasErrors())
 
 	withSecretsResult := linter.Lint(manifest.Manifest{Team: concourseSecret})
-	assert.Len(t, withSecretsResult.Errors, 1)
-	assert.Equal(t, myError, withSecretsResult.Errors[0])
+	assert.Len(t, withSecretsResult.Warnings, 1)
+	assert.Equal(t, myError, withSecretsResult.Warnings[0])
 }
 
 func TestRaisesErrorFromStore(t *testing.T) {
