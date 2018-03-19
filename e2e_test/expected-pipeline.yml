@@ -71,7 +71,7 @@ jobs:
         args:
         - -ec
         - |
-          ./script-that-does-not-exist.sh
+          ./test.sh
 
           if [ -d target/distribution ]
           then

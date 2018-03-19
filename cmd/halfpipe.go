@@ -86,17 +86,17 @@ func syncBinary(writer io.Writer) (err error) {
 	return
 }
 
-func lintAndRender() (output string, err error) {
+func lintAndRender() (string, error) {
 	fs := afero.Afero{Fs: afero.NewOsFs()}
 
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return
+		return "", err
 	}
 
 	project, err := defaults.NewProjectResolver(fs).Parse(currentDir)
 	if err != nil {
-		return
+		return "", err
 	}
 
 	ctrl := halfpipe.Controller{
@@ -116,21 +116,22 @@ func lintAndRender() (output string, err error) {
 
 	pipelineConfig, lintResults := ctrl.Process()
 
-	err = errors.New("")
-	for _, result := range lintResults {
-		err = errors.New(err.Error() + result.Error())
-	}
+	if lintResults.HasErrorsOrWarnings() {
+		err = errors.New("")
+		for _, result := range lintResults {
+			err = errors.New(err.Error() + result.Error())
+		}
 
-	if lintResults.HasErrors() {
-		return
+		if lintResults.HasErrors() {
+			return "", err
+		}
 	}
-
 	output, renderError := pipeline.ToString(pipelineConfig)
 	if renderError != nil {
 		err = fmt.Errorf("%s\n%s", err, renderError)
 	}
 
-	return
+	return output, err
 }
 
 func checkVersion() (err error) {

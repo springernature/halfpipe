@@ -25,6 +25,15 @@ func NewLintResult(linter string, errs []error, warns []error) LintResult {
 	}
 }
 
+func (lr LintResults) HasErrorsOrWarnings() bool {
+	for _, lintResult := range lr {
+		if lintResult.HasErrors() || lintResult.HasWarnings() {
+			return true
+		}
+	}
+	return false
+}
+
 func (lr LintResults) HasErrors() bool {
 	for _, lintResult := range lr {
 		if lintResult.HasErrors() {

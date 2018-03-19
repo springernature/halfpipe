@@ -8,7 +8,7 @@ slack_channel: "#ee-re"
 tasks:
 - type: run
   name: Test
-  script: script-that-does-not-exist.sh
+  script: test.sh
   save_artifacts:
   - target/distribution
   - README.md
