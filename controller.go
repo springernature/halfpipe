@@ -41,7 +41,7 @@ func (c Controller) Process() (config atc.Config, results linters.LintResults) {
 
 	man, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, linters.NewLintResult("Halfpipe", errs))
+		results = append(results, linters.NewLintResult("Halfpipe", errs, nil))
 		return
 	}
 

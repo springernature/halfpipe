@@ -12,14 +12,16 @@ import (
 
 type LintResults []LintResult
 type LintResult struct {
-	Linter string
-	Errors []error
+	Linter   string
+	Errors   []error
+	Warnings []error
 }
 
-func NewLintResult(linter string, errs []error) LintResult {
+func NewLintResult(linter string, errs []error, warns []error) LintResult {
 	return LintResult{
-		Linter: linter,
-		Errors: errs,
+		Linter:   linter,
+		Errors:   errs,
+		Warnings: warns,
 	}
 }
 
@@ -34,8 +36,8 @@ func (lr LintResults) HasErrors() bool {
 
 func (lr LintResult) Error() (out string) {
 	out += fmt.Sprintf("%s\n", lr.Linter)
-	if lr.HasErrors() {
-		for _, err := range deduplicateErrors(lr.Errors) {
+	if lr.HasErrors() || lr.HasWarnings() {
+		for _, err := range deduplicate(append(lr.Errors, lr.Warnings...)) {
 			out += fmt.Sprintf("\t* %s\n", err)
 			if doc, ok := err.(errors.Documented); ok {
 				out += fmt.Sprintf("\t  see: %s\n", renderDocLink(doc.DocID()))
@@ -52,11 +54,19 @@ func (lr LintResult) HasErrors() bool {
 	return len(lr.Errors) != 0
 }
 
+func (lr LintResult) HasWarnings() bool {
+	return len(lr.Warnings) != 0
+}
+
 func (lr *LintResult) AddError(err ...error) {
 	lr.Errors = append(lr.Errors, err...)
 }
 
-func deduplicateErrors(errs []error) (errors []error) {
+func (lr *LintResult) AddWarning(err ...error) {
+	lr.Warnings = append(lr.Warnings, err...)
+}
+
+func deduplicate(errs []error) (errors []error) {
 	for _, err := range errs {
 		if !errorInErrors(err, errors) {
 			errors = append(errors, err)

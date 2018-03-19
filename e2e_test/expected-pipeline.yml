@@ -53,7 +53,7 @@ resource_types:
   source:
     repository: platformengineering/halfpipe-cf-resource
 jobs:
-- name: run test.sh
+- name: Test
   serial: true
   plan:
   - get: halfpipe-example-nodejs
@@ -71,7 +71,7 @@ jobs:
         args:
         - -ec
         - |
-          ./test.sh
+          ./script-that-does-not-exist.sh
 
           if [ -d target/distribution ]
           then
@@ -126,7 +126,7 @@ jobs:
   plan:
   - get: halfpipe-example-nodejs
     passed:
-    - run test.sh
+    - Test
     trigger: true
   - get: artifacts-halfpipe-example-nodejs
     params:

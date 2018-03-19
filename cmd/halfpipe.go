@@ -36,11 +36,13 @@ func main() {
 		output, err = lintAndRender()
 	}
 
+	fmt.Fprintln(os.Stdout, output) // #nosec
+
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err) // #nosec
 		os.Exit(1)
 	}
-	fmt.Fprintln(os.Stdout, output) // #nosec
+
 }
 
 func invokedForHelp(args []string) bool {
@@ -115,14 +117,19 @@ func lintAndRender() (output string, err error) {
 	pipelineConfig, lintResults := ctrl.Process()
 
 	err = errors.New("")
+	for _, result := range lintResults {
+		err = errors.New(err.Error() + result.Error())
+	}
+
 	if lintResults.HasErrors() {
-		for _, e := range lintResults {
-			err = errors.New(err.Error() + e.Error())
-		}
 		return
 	}
 
-	output, err = pipeline.ToString(pipelineConfig)
+	output, renderError := pipeline.ToString(pipelineConfig)
+	if renderError != nil {
+		err = fmt.Errorf("%s\n%s", err, renderError)
+	}
+
 	return
 }
 

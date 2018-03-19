@@ -50,8 +50,9 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertFileError(t, "./build.sh", result.Errors[0])
+	if assert.Len(t, result.Warnings, 1) {
+		assertFileError(t, "./build.sh", result.Warnings[0])
+	}
 }
 
 func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
