@@ -166,6 +166,23 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
+					"command":      "halfpipe-push",
+					"manifestPath": path.Join(repoName, basePath, task.Manifest),
+					"appPath":      path.Join(repoName, basePath),
+				},
+			},
+			atc.PlanConfig{
+				Put: resourceName,
+				Params: atc.Params{
+					"command":      "halfpipe-promote",
+					"manifestPath": path.Join(repoName, basePath, task.Manifest),
+					"appPath":      path.Join(repoName, basePath),
+				},
+			},
+			atc.PlanConfig{
+				Put: resourceName,
+				Params: atc.Params{
+					"command":      "halfpipe-delete",
 					"manifestPath": path.Join(repoName, basePath, task.Manifest),
 					"appPath":      path.Join(repoName, basePath),
 				},
@@ -173,10 +190,14 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 		},
 	}
 	if len(task.Vars) > 0 {
-		job.Plan[0].Params["vars"] = convertVars(task.Vars)
+		for _, pl := range job.Plan {
+			pl.Params["vars"] = convertVars(task.Vars)
+		}
 	}
 	if len(task.DeployArtifact) > 0 {
-		job.Plan[0].Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
+		for _, pl := range job.Plan {
+			pl.Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
+		}
 
 		artifactGet := atc.PlanConfig{
 			Get: GenerateArtifactsFolderName(repoName, basePath),

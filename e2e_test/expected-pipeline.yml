@@ -16,7 +16,7 @@ resources:
     json_key: ((gcr.private_key))
     somethingUnique: artifacts-halfpipe-example-nodejs
 - name: CF dev-api engineering-enablement dev
-  type: halfpipe-cf
+  type: cf-resource
   source:
     api: dev-api
     org: engineering-enablement
@@ -24,7 +24,7 @@ resources:
     space: dev
     username: michiel
 - name: CF live-api pe staging
-  type: halfpipe-cf
+  type: cf-resource
   source:
     api: live-api
     org: pe
@@ -48,10 +48,11 @@ resource_types:
   source:
     repository: platformengineering/gcp-resource
     tag: latest
-- name: halfpipe-cf
+- name: cf-resource
   type: docker-image
   source:
-    repository: platformengineering/halfpipe-cf-resource
+    repository: platformengineering/cf-resource
+    tag: stable
 jobs:
 - name: Test
   serial: true
@@ -136,6 +137,17 @@ jobs:
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
+      command: halfpipe-push
+      manifestPath: halfpipe-example-nodejs/manifest.yml
+  - put: CF dev-api engineering-enablement dev
+    params:
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
+      command: halfpipe-promote
+      manifestPath: halfpipe-example-nodejs/manifest.yml
+  - put: CF dev-api engineering-enablement dev
+    params:
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
+      command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
   on_failure:
     put: slack
@@ -156,6 +168,23 @@ jobs:
   - put: CF live-api pe staging
     params:
       appPath: halfpipe-example-nodejs
+      command: halfpipe-push
+      manifestPath: halfpipe-example-nodejs/manifest.yml
+      vars:
+        A: "0.1"
+        B: "false"
+  - put: CF live-api pe staging
+    params:
+      appPath: halfpipe-example-nodejs
+      command: halfpipe-promote
+      manifestPath: halfpipe-example-nodejs/manifest.yml
+      vars:
+        A: "0.1"
+        B: "false"
+  - put: CF live-api pe staging
+    params:
+      appPath: halfpipe-example-nodejs
+      command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
       vars:
         A: "0.1"

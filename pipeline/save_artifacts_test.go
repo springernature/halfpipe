@@ -91,7 +91,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs, 1)
-	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 5)
 
 	assert.Equal(t, "artifacts-yolo-apps-subapp1", renderedPipeline.Jobs[0].Plan[1].Get)
 	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[1].Params["version_file"])
@@ -126,7 +126,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order if the plans is important
 	assert.Equal(t, "artifacts-yolo-apps-subapp1", renderedPipeline.Jobs[1].Plan[1].Get)
@@ -152,7 +152,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order if the plans is important
 	assert.Equal(t, "artifacts-yolo", renderedPipeline.Jobs[1].Plan[1].Get)

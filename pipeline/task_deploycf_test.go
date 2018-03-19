@@ -34,16 +34,17 @@ func TestRendersCfDeployResources(t *testing.T) {
 	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
 	expectedResourceConfig := atc.ResourceType{
-		Name: "halfpipe-cf",
+		Name: "cf-resource",
 		Type: "docker-image",
 		Source: atc.Source{
-			"repository": "platformengineering/halfpipe-cf-resource",
+			"repository": "platformengineering/cf-resource",
+			"tag":        "stable",
 		},
 	}
 
 	expectedDevResource := atc.ResourceConfig{
 		Name: deployCFResourceName(taskDeployDev),
-		Type: "halfpipe-cf",
+		Type: "cf-resource",
 		Source: atc.Source{
 			"api":      "dev-api",
 			"space":    "dev",
@@ -61,6 +62,31 @@ func TestRendersCfDeployResources(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
+					"command":      "halfpipe-push",
+					"manifestPath": "reponame/manifest-dev.yml",
+					"vars": map[string]interface{}{
+						"VAR1": "value1",
+						"VAR2": "value2",
+					},
+					"appPath": "reponame",
+				},
+			},
+			atc.PlanConfig{
+				Put: expectedDevResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-promote",
+					"manifestPath": "reponame/manifest-dev.yml",
+					"vars": map[string]interface{}{
+						"VAR1": "value1",
+						"VAR2": "value2",
+					},
+					"appPath": "reponame",
+				},
+			},
+			atc.PlanConfig{
+				Put: expectedDevResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-delete",
 					"manifestPath": "reponame/manifest-dev.yml",
 					"vars": map[string]interface{}{
 						"VAR1": "value1",
@@ -74,7 +100,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 
 	expectedLiveResource := atc.ResourceConfig{
 		Name: deployCFResourceName(taskDeployLive),
-		Type: "halfpipe-cf",
+		Type: "cf-resource",
 		Source: atc.Source{
 			"api":      "live-api",
 			"space":    "prod",
@@ -92,6 +118,23 @@ func TestRendersCfDeployResources(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
+					"command":      "halfpipe-push",
+					"manifestPath": "reponame/manifest-live.yml",
+					"appPath":      "reponame",
+				},
+			},
+			atc.PlanConfig{
+				Put: expectedLiveResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-promote",
+					"manifestPath": "reponame/manifest-live.yml",
+					"appPath":      "reponame",
+				},
+			},
+			atc.PlanConfig{
+				Put: expectedLiveResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-delete",
 					"manifestPath": "reponame/manifest-live.yml",
 					"appPath":      "reponame",
 				},

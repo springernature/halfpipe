@@ -90,10 +90,11 @@ func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func halfpipeCfDeployResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "halfpipe-cf",
+		Name: "cf-resource",
 		Type: "docker-image",
 		Source: atc.Source{
-			"repository": "platformengineering/halfpipe-cf-resource",
+			"repository": "platformengineering/cf-resource",
+			"tag":        "stable",
 		},
 	}
 }
@@ -109,7 +110,7 @@ func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 
 	return atc.ResourceConfig{
 		Name:   resourceName,
-		Type:   "halfpipe-cf",
+		Type:   "cf-resource",
 		Source: sources,
 	}
 }
