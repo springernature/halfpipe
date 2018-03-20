@@ -7,7 +7,6 @@ import (
 
 	"code.cloudfoundry.org/cli/util/manifest"
 	"github.com/google/go-github/github"
-	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
@@ -36,13 +35,17 @@ func main() {
 		output, err = lintAndRender()
 	}
 
-	fmt.Fprintln(os.Stdout, output) // #nosec
+	if output != "" {
+		fmt.Fprintln(os.Stdout, output) // #nosec
+	}
 
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err) // #nosec
-		os.Exit(1)
 	}
 
+	if output == "" {
+		os.Exit(1)
+	}
 }
 
 func invokedForHelp(args []string) bool {
@@ -86,17 +89,17 @@ func syncBinary(writer io.Writer) (err error) {
 	return
 }
 
-func lintAndRender() (string, error) {
+func lintAndRender() (output string, err error) {
 	fs := afero.Afero{Fs: afero.NewOsFs()}
 
 	currentDir, err := os.Getwd()
 	if err != nil {
-		return "", err
+		return
 	}
 
 	project, err := defaults.NewProjectResolver(fs).Parse(currentDir)
 	if err != nil {
-		return "", err
+		return
 	}
 
 	ctrl := halfpipe.Controller{
@@ -116,22 +119,19 @@ func lintAndRender() (string, error) {
 
 	pipelineConfig, lintResults := ctrl.Process()
 
-	if lintResults.HasErrorsOrWarnings() {
-		err = errors.New("")
-		for _, result := range lintResults {
-			err = errors.New(err.Error() + result.Error())
-		}
-
-		if lintResults.HasErrors() {
-			return "", err
-		}
+	if lintResults.HasErrors() || lintResults.HasWarnings() {
+		err = lintResults
 	}
+	if lintResults.HasErrors() {
+		return
+	}
+
 	output, renderError := pipeline.ToString(pipelineConfig)
 	if renderError != nil {
 		err = fmt.Errorf("%s\n%s", err, renderError)
 	}
 
-	return output, err
+	return
 }
 
 func checkVersion() (err error) {
