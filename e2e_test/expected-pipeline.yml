@@ -139,16 +139,19 @@ jobs:
       appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-push
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-promote
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
   on_failure:
     put: slack
     params:
@@ -170,6 +173,7 @@ jobs:
       appPath: halfpipe-example-nodejs
       command: halfpipe-push
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
       vars:
         A: "0.1"
         B: "false"
@@ -178,6 +182,7 @@ jobs:
       appPath: halfpipe-example-nodejs
       command: halfpipe-promote
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
       vars:
         A: "0.1"
         B: "false"
@@ -186,6 +191,7 @@ jobs:
       appPath: halfpipe-example-nodejs
       command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
+      testDomain: ""
       vars:
         A: "0.1"
         B: "false"

@@ -159,6 +159,10 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 }
 
 func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName string, basePath string) atc.JobConfig {
+	manifestPath := path.Join(repoName, basePath, task.Manifest)
+	appPath := path.Join(repoName, basePath)
+	testDomain := resolveDefaultDomain(task.API)
+
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -167,24 +171,27 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 				Put: resourceName,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
-					"manifestPath": path.Join(repoName, basePath, task.Manifest),
-					"appPath":      path.Join(repoName, basePath),
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"appPath":      appPath,
 				},
 			},
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
-					"manifestPath": path.Join(repoName, basePath, task.Manifest),
-					"appPath":      path.Join(repoName, basePath),
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"appPath":      appPath,
 				},
 			},
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
 					"command":      "halfpipe-delete",
-					"manifestPath": path.Join(repoName, basePath, task.Manifest),
-					"appPath":      path.Join(repoName, basePath),
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"appPath":      appPath,
 				},
 			},
 		},
@@ -209,6 +216,17 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 		job.Plan = append(job.Plan, artifactGet)
 	}
 	return job
+}
+func resolveDefaultDomain(targetAPI string) string {
+	if strings.Contains(targetAPI, "api.dev.cf.springer-sbm.com") {
+		return "dev.cf.private.springer.com"
+	} else if strings.Contains(targetAPI, "api.live.cf.springer-sbm.com") {
+		return "live.cf.private.springer.com"
+	} else if strings.Contains(targetAPI, "api.europe-west1.cf.gcp.springernature.io") {
+		return "apps.gcp.springernature.io"
+	}
+
+	return ""
 }
 
 func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath string) atc.JobConfig {

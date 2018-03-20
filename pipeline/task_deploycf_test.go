@@ -10,7 +10,7 @@ import (
 
 func TestRendersCfDeployResources(t *testing.T) {
 	taskDeployDev := manifest.DeployCF{
-		API:      "dev-api",
+		API:      "http://api.dev.cf.springer-sbm.com",
 		Space:    "dev",
 		Org:      "springer",
 		Username: "rob",
@@ -22,7 +22,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 	taskDeployLive := manifest.DeployCF{
-		API:      "live-api",
+		API:      "http://api.live.cf.springer-sbm.com",
 		Space:    "prod",
 		Org:      "springer",
 		Username: "rob",
@@ -46,7 +46,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Name: deployCFResourceName(taskDeployDev),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":      "dev-api",
+			"api":      "http://api.dev.cf.springer-sbm.com",
 			"space":    "dev",
 			"org":      "springer",
 			"password": "supersecret",
@@ -54,45 +54,46 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
+	manifestPath := "reponame/manifest-dev.yml"
+	testDomain := "dev.cf.private.springer.com"
+	envVars := map[string]interface{}{
+		"VAR1": "value1",
+		"VAR2": "value2",
+	}
+	repoName := "reponame"
 	expectedDevJob := atc.JobConfig{
 		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: "reponame", Trigger: true},
+			atc.PlanConfig{Get: repoName, Trigger: true},
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
-					"manifestPath": "reponame/manifest-dev.yml",
-					"vars": map[string]interface{}{
-						"VAR1": "value1",
-						"VAR2": "value2",
-					},
-					"appPath": "reponame",
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"vars":         envVars,
+					"appPath":      repoName,
 				},
 			},
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
-					"manifestPath": "reponame/manifest-dev.yml",
-					"vars": map[string]interface{}{
-						"VAR1": "value1",
-						"VAR2": "value2",
-					},
-					"appPath": "reponame",
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"vars":         envVars,
+					"appPath":      repoName,
 				},
 			},
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-delete",
-					"manifestPath": "reponame/manifest-dev.yml",
-					"vars": map[string]interface{}{
-						"VAR1": "value1",
-						"VAR2": "value2",
-					},
-					"appPath": "reponame",
+					"testDomain":   testDomain,
+					"manifestPath": manifestPath,
+					"vars":         envVars,
+					"appPath":      repoName,
 				},
 			},
 		},
@@ -102,7 +103,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 		Name: deployCFResourceName(taskDeployLive),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":      "live-api",
+			"api":      "http://api.live.cf.springer-sbm.com",
 			"space":    "prod",
 			"org":      "springer",
 			"password": "supersecret",
@@ -110,33 +111,38 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
+	liveTestDomain := "live.cf.private.springer.com"
+	liveManifest := "reponame/manifest-live.yml"
 	expectedLiveJob := atc.JobConfig{
 		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: "reponame", Trigger: true, Passed: []string{"deploy-cf"}},
+			atc.PlanConfig{Get: repoName, Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
-					"manifestPath": "reponame/manifest-live.yml",
-					"appPath":      "reponame",
+					"testDomain":   liveTestDomain,
+					"manifestPath": liveManifest,
+					"appPath":      repoName,
 				},
 			},
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
-					"manifestPath": "reponame/manifest-live.yml",
-					"appPath":      "reponame",
+					"testDomain":   liveTestDomain,
+					"manifestPath": liveManifest,
+					"appPath":      repoName,
 				},
 			},
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-delete",
-					"manifestPath": "reponame/manifest-live.yml",
-					"appPath":      "reponame",
+					"testDomain":   liveTestDomain,
+					"manifestPath": liveManifest,
+					"appPath":      repoName,
 				},
 			},
 		},
