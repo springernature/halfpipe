@@ -165,3 +165,20 @@ func TestRunScriptArgs(t *testing.T) {
 	expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n./build.sh"}
 	assert.Equal(t, expected, withNoArtifacts)
 }
+
+func TestRunScriptPath(t *testing.T) {
+	tests := map[string]string{
+		"./build.sh":          "./build.sh",
+		"/build.sh":           "/build.sh",
+		"build.sh":            "./build.sh",
+		"../build.sh":         "./../build.sh",
+		"./build.sh -v --p=1": "./build.sh -v --p=1",
+		`\source foo.sh`:      `\source foo.sh`,
+	}
+
+	for initial, updated := range tests {
+		args := runScriptArgs(initial, "", nil)
+		expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n" + updated}
+		assert.Equal(t, expected, args, initial)
+	}
+}

@@ -77,9 +77,13 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
-			task.Script = fmt.Sprintf("./%s", strings.Replace(task.Script, "./", "", 1))
 			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
+
+		case manifest.DockerCompose:
+			task.Name = uniqueName(task.Name, "docker-compose")
+			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
+
 		case manifest.DeployCF:
 			if !haveCfResourceConfig {
 				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
@@ -89,14 +93,12 @@ http://concourse.halfpipe.io/builds/$BUILD_ID`,
 			task.Name = uniqueName(task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath)
+
 		case manifest.DockerPush:
 			resourceName := uniqueName("Docker Registry", "")
 			task.Name = uniqueName(task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			jobConfig = p.dockerPushJob(task, repoName, resourceName, man.Repo.BasePath)
-		case manifest.DockerCompose:
-			task.Name = uniqueName(task.Name, "docker-compose")
-			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
 		}
 
 		if slackChannelSet {
@@ -235,7 +237,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 }
 
 func dockerComposeScript() string {
-	return `source /docker-lib.sh
+	return `\source /docker-lib.sh
 start_docker
 docker-compose up --force-recreate --exit-code-from app`
 }
@@ -264,6 +266,10 @@ func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
 }
 
 func runScriptArgs(script string, artifactsPath string, saveArtifacts []string) []string {
+	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
+		script = "./" + script
+	}
+
 	out := []string{
 		"export GIT_REVISION=`cat .git/ref`",
 		script,

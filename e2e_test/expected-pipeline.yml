@@ -253,7 +253,7 @@ jobs:
         - -ec
         - |-
           export GIT_REVISION=`cat .git/ref`
-          source /docker-lib.sh
+          \source /docker-lib.sh
           start_docker
           docker-compose up --force-recreate --exit-code-from app
         dir: halfpipe-example-nodejs
