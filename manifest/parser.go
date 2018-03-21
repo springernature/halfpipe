@@ -37,56 +37,79 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 		return
 	}
 
+	for i, rawTask := range rawTasks.Tasks {
+		if err := unmarshalTask(rawTask, i, &man.Tasks); err != nil {
+			addError(NewParseError(err.Error()))
+			return
+		}
+	}
+	return
+}
+
+func unmarshalTask(rawTask json.RawMessage, taskIndex int, taskArray *[]Task) (err error) {
+
 	parseTask := func(rawTask json.RawMessage, t Task, index int) error {
-		if err := json.Unmarshal(rawTask, t); err != nil {
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, err.Error())))
-			return err
+		if jsonErr := json.Unmarshal(rawTask, t); jsonErr != nil {
+			return errors.NewInvalidField("task", fmt.Sprintf("task %v %s", index+1, jsonErr.Error()))
 		}
 		return nil
 	}
 
-	for i, rawTask := range rawTasks.Tasks {
-		// first unmarshall into struct with just 'Type' field
-		taskType := struct {
-			Type string
-		}{}
+	// first unmarshall into struct with just 'Type' field
+	taskType := struct {
+		Type string
+	}{}
 
-		if err := json.Unmarshal(rawTask, &taskType); err != nil {
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v %s", i+1, err.Error())))
-			return
-		}
+	if unmarshalErr := json.Unmarshal(rawTask, &taskType); unmarshalErr != nil {
+		err = errors.NewInvalidField("task", fmt.Sprintf("task %v %s", taskIndex+1, unmarshalErr.Error()))
+		return
+	}
 
-		// then use the value of 'Type' to unmarshall into the correct Task
-		switch taskType.Type {
-		case "run":
-			t := Run{}
-			if err := parseTask(rawTask, &t, i); err == nil {
-				t.Type = "" // delete the type it's just for parsing
-				man.Tasks = append(man.Tasks, t)
-			}
-		case "deploy-cf":
-			t := DeployCF{}
-			if err := parseTask(rawTask, &t, i); err == nil {
-				t.Type = "" // delete the type it's just for parsing
-				man.Tasks = append(man.Tasks, t)
-			}
-		case "docker-push":
-			t := DockerPush{}
-			if err := parseTask(rawTask, &t, i); err == nil {
-				t.Type = "" // delete the type it's just for parsing
-				man.Tasks = append(man.Tasks, t)
-			}
-		case "docker-compose":
-			t := DockerCompose{}
-			if err := parseTask(rawTask, &t, i); err == nil {
-				t.Type = "" // delete the type it's just for parsing
-				man.Tasks = append(man.Tasks, t)
-			}
-		case "":
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v is missing field 'type'", i+1)))
-		default:
-			addError(errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push'", i+1, taskType.Type)))
+	// then use the value of 'Type' to unmarshall into the correct Task
+	switch taskType.Type {
+	case "run":
+		t := Run{}
+		if parseErr := parseTask(rawTask, &t, taskIndex); parseErr == nil {
+			t.Type = "" // delete the type it's just for parsing
+			*taskArray = append(*taskArray, t)
 		}
+	case "deploy-cf":
+		t := DeployCF{}
+		if parseErr := parseTask(rawTask, &t, taskIndex); parseErr == nil {
+			t.Type = "" // delete the type it's just for parsing
+			if len(t.PrePromote) > 0 {
+				t.PrePromote = nil
+				var rawTasks struct {
+					PrePromote []json.RawMessage `json:"pre_promote"`
+				}
+				if unmarshalErr := yaml.Unmarshal([]byte(rawTask), &rawTasks); unmarshalErr != nil {
+					return NewParseError(unmarshalErr.Error())
+				}
+
+				for i, rawTask := range rawTasks.PrePromote {
+					if unmarshalErr := unmarshalTask(rawTask, i, &t.PrePromote); unmarshalErr != nil {
+						return NewParseError(unmarshalErr.Error())
+					}
+				}
+			}
+			*taskArray = append(*taskArray, t)
+		}
+	case "docker-push":
+		t := DockerPush{}
+		if parseErr := parseTask(rawTask, &t, taskIndex); parseErr == nil {
+			t.Type = "" // delete the type it's just for parsing
+			*taskArray = append(*taskArray, t)
+		}
+	case "docker-compose":
+		t := DockerCompose{}
+		if parseErr := parseTask(rawTask, &t, taskIndex); parseErr == nil {
+			t.Type = "" // delete the type it's just for parsing
+			*taskArray = append(*taskArray, t)
+		}
+	case "":
+		err = errors.NewInvalidField("task", fmt.Sprintf("task %v is missing field 'type'", taskIndex+1))
+	default:
+		err = errors.NewInvalidField("task", fmt.Sprintf("task %v has unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push'", taskIndex+1, taskType.Type))
 	}
 	return
 }

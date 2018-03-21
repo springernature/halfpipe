@@ -18,6 +18,21 @@ var jsonSchema = `
         "name": { "type": "string" },
         "org": { "type": "string" },
         "password": { "type": "string" },
+        "pre_promote": {
+          "type": "array",
+          "minItems": 0,
+          "maxItems": 1,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Run"
+              },
+              {
+                "$ref": "#/definitions/DockerCompose"
+              }
+            ]
+          }
+        },
         "space": { "type": "string" },
         "type": { "type": "string", "pattern": "deploy-cf" },
         "username": { "type": "string" },

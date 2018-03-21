@@ -6,6 +6,7 @@ repo:
 slack_channel: "#ee-re"
 
 tasks:
+
 - type: run
   name: Test
   script: test.sh
@@ -33,6 +34,11 @@ tasks:
   vars:
       A: "0.1"
       B: "false"
+  pre_promote:
+  - type: run
+    script: test.sh
+    docker:
+      image: node:9.5.0-alpine
 
 - type: docker-push
   name: push to docker registry

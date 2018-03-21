@@ -71,6 +71,7 @@ type DeployCF struct {
 	Manifest       string
 	Vars           Vars
 	DeployArtifact string `json:"deploy_artifact"`
+	PrePromote     []Task `json:"pre_promote"`
 }
 
 type DockerCompose struct {

@@ -106,6 +106,11 @@ tasks:
     FOO: fOo
     BAR: "1"
   deploy_artifact: target/dist/artifact.zip
+  pre_promote:
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: golang
 `)
 
 	expected := Manifest{
@@ -177,6 +182,12 @@ tasks:
 					"BAR": "1",
 				},
 				DeployArtifact: "target/dist/artifact.zip",
+				PrePromote: []Task{Run{
+					Script: "smoke-test.sh",
+					Docker: Docker{
+						Image: "golang",
+					},
+				}},
 			},
 		},
 	}
