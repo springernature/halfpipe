@@ -275,7 +275,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
-	gitRefPath, _ = filepath.Rel(path.Join(basePath, repoName), path.Join(basePath, ".git", "ref"))
+	gitRefPath, _ = filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
 	return
 }
 

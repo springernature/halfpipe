@@ -47,7 +47,7 @@ func TestRenderRunTask(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
+					Args: runScriptArgs("./yolo.sh", "", nil, ".git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -98,7 +98,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
+					Args: runScriptArgs("./yolo.sh", "", nil, ".git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
