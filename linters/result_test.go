@@ -28,7 +28,7 @@ func TestHasErrors(t *testing.T) {
 func TestError(t *testing.T) {
 	noErrors := NewLintResult("blah", []error{}, nil)
 
-	assert.Contains(t, noErrors.Error(), `No errors \o/`)
+	assert.Contains(t, noErrors.Error(), `No issues \o/`)
 
 	e1 := errors.New("error1")
 	e2 := errors.New("error2")
@@ -74,9 +74,15 @@ func TestDifferenceBetweenErrorsAndWarnings(t *testing.T) {
 }
 
 func TestDeduplicateErrorsAndWarnings(t *testing.T) {
-	err := errors.New("some error")
-	lintResult := NewLintResult("linter", []error{err}, []error{err})
-	numTimesErrInLintResultStr := strings.Count(lintResult.Error(), err.Error())
-	assert.Equal(t, 1, numTimesErrInLintResultStr)
+	err1 := errors.New("some error1")
+	err2 := errors.New("some error2")
+	warn1 := errors.New("some warning1")
+	warn2 := errors.New("some warning2")
+	lintResult := NewLintResult("linter", []error{err1, err2, err1}, []error{warn1, warn2, warn1})
+
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), err1.Error()))
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), err2.Error()))
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), warn1.Error()))
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), warn2.Error()))
 
 }

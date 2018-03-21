@@ -46,22 +46,35 @@ func (lrs LintResults) HasErrors() bool {
 func (lrs LintResults) Error() (out string) {
 	for _, result := range lrs {
 		out += result.Error()
+		out += "\n"
 	}
 	return
 }
 
 func (lr LintResult) Error() (out string) {
 	out += fmt.Sprintf("%s\n", lr.Linter)
-	if lr.HasErrors() || lr.HasWarnings() {
-		for _, err := range deduplicate(append(lr.Errors, lr.Warnings...)) {
-			out += fmt.Sprintf("\t* %s\n", err)
-			if doc, ok := err.(errors.Documented); ok {
-				out += fmt.Sprintf("\t  see: %s\n", renderDocLink(doc.DocID()))
-			}
-			out += fmt.Sprintf("\n")
+
+	if lr.HasErrors() {
+		out += formatErrors("Errors", lr.Errors)
+	}
+	if lr.HasWarnings() {
+		out += formatErrors("Warnings", lr.Warnings)
+	}
+
+	if !lr.HasErrors() && !lr.HasWarnings() {
+		out += fmt.Sprintf("\t%s\n\n", `No issues \o/`)
+	}
+
+	return
+}
+
+func formatErrors(typeOfError string, errs []error) (out string) {
+	out += fmt.Sprintf("\t%s:\n", typeOfError)
+	for _, err := range deduplicate(errs) {
+		out += fmt.Sprintf("\t\t* %s\n", err)
+		if doc, ok := err.(errors.Documented); ok {
+			out += fmt.Sprintf("\t  see: %s\n", renderDocLink(doc.DocID()))
 		}
-	} else {
-		out += fmt.Sprintf("\t%s\n\n", `No errors \o/`)
 	}
 	return
 }
