@@ -218,11 +218,11 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 	return job
 }
 func resolveDefaultDomain(targetAPI string) string {
-	if strings.Contains(targetAPI, "api.dev.cf.springer-sbm.com") {
+	if strings.Contains(targetAPI, "api.dev.cf.springer-sbm.com") || strings.Contains(targetAPI, "((cloudfoundry.api-dev))") {
 		return "dev.cf.private.springer.com"
-	} else if strings.Contains(targetAPI, "api.live.cf.springer-sbm.com") {
+	} else if strings.Contains(targetAPI, "api.live.cf.springer-sbm.com") || strings.Contains(targetAPI, "((cloudfoundry.api-live))") {
 		return "live.cf.private.springer.com"
-	} else if strings.Contains(targetAPI, "api.europe-west1.cf.gcp.springernature.io") {
+	} else if strings.Contains(targetAPI, "api.europe-west1.cf.gcp.springernature.io") || strings.Contains(targetAPI, "((cloudfoundry.api-gcp))") {
 		return "apps.gcp.springernature.io"
 	}
 
