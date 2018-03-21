@@ -132,7 +132,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(repoName, basePath),
-						Args: runScriptArgs(task.Script, pathToArtifactsDir(repoName, basePath), task.SaveArtifacts),
+						Args: runScriptArgs(task.Script, pathToArtifactsDir(repoName, basePath), task.SaveArtifacts, pathToGitRef(repoName, basePath)),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: repoName},
@@ -274,6 +274,11 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 	return
 }
 
+func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
+	gitRefPath, _ = filepath.Rel(path.Join(basePath, repoName), path.Join(basePath, ".git", "ref"))
+	return
+}
+
 func dockerComposeScript() string {
 	return `\source /docker-lib.sh
 start_docker
@@ -303,13 +308,13 @@ func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
 	return false
 }
 
-func runScriptArgs(script string, artifactsPath string, saveArtifacts []string) []string {
+func runScriptArgs(script string, artifactsPath string, saveArtifacts []string, pathToGitRef string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
 
 	out := []string{
-		"export GIT_REVISION=`cat .git/ref`",
+		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
 		script,
 	}
 	for _, artifact := range saveArtifacts {

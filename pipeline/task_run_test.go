@@ -47,7 +47,7 @@ func TestRenderRunTask(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: runScriptArgs("./yolo.sh", "", nil),
+					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -98,7 +98,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName(),
-					Args: runScriptArgs("./yolo.sh", "", nil),
+					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -149,7 +149,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
 					Dir:  man.Repo.GetName() + "/" + basePath,
-					Args: runScriptArgs("./yolo.sh", "", nil),
+					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: man.Repo.GetName()},
@@ -161,7 +161,13 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 }
 
 func TestRunScriptArgs(t *testing.T) {
-	withNoArtifacts := runScriptArgs("./build.sh", "", nil)
+	withNoArtifacts := runScriptArgs("./build.sh", "", nil, ".git/ref")
+	expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	assert.Equal(t, expected, withNoArtifacts)
+}
+
+func TestRunScriptArgsWhenInMonoRepo(t *testing.T) {
+	withNoArtifacts := runScriptArgs("./build.sh", "", nil, ".git/ref")
 	expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n./build.sh"}
 	assert.Equal(t, expected, withNoArtifacts)
 }
@@ -177,7 +183,7 @@ func TestRunScriptPath(t *testing.T) {
 	}
 
 	for initial, updated := range tests {
-		args := runScriptArgs(initial, "", nil)
+		args := runScriptArgs(initial, "", nil, ".git/ref")
 		expected := []string{"-ec", "export GIT_REVISION=`cat .git/ref`\n" + updated}
 		assert.Equal(t, expected, args, initial)
 	}
