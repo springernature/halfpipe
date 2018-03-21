@@ -90,12 +90,35 @@ func assertNoRoutesError(t *testing.T, name string, err error) {
 		assert.Equal(t, name, mf.Path)
 	}
 }
+
 func assertNoNameError(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.NoNameError)
 	if !ok {
 		assert.Fail(t, "error is not an TooManyAppsError", err)
+	} else {
+		assert.Equal(t, name, mf.Path)
+	}
+}
+
+func assertWrongHealthCheck(t *testing.T, name string, err error) {
+	t.Helper()
+
+	mf, ok := err.(errors.WrongHealthCheck)
+	if !ok {
+		assert.Fail(t, "error is not an TooManyAppsError", err)
+	} else {
+		assert.Equal(t, name, mf.Path)
+	}
+}
+
+func assertBadRoutes(t *testing.T, name string, err error) {
+	t.Helper()
+
+	mf, ok := err.(errors.BadRoutesError)
+	if !ok {
+		assert.Fail(t, "error is not an BadRoutesError", err)
 	} else {
 		assert.Equal(t, name, mf.Path)
 	}
