@@ -13,6 +13,7 @@ func NewTeamLinter() teamlinter {
 
 func (teamlinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Team"
+	result.DocsURL = "https://docs.halfpipe.io/docs/manifest/#team"
 
 	if manifest.Team == "" {
 		result.AddError(errors.NewMissingField("team"))

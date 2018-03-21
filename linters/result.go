@@ -7,19 +7,20 @@ import (
 	"path"
 
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/linters/errors"
 )
 
 type LintResults []LintResult
 type LintResult struct {
 	Linter   string
+	DocsURL  string
 	Errors   []error
 	Warnings []error
 }
 
-func NewLintResult(linter string, errs []error, warns []error) LintResult {
+func NewLintResult(linter string, docsURL string, errs []error, warns []error) LintResult {
 	return LintResult{
 		Linter:   linter,
+		DocsURL:  docsURL,
 		Errors:   errs,
 		Warnings: warns,
 	}
@@ -52,7 +53,11 @@ func (lrs LintResults) Error() (out string) {
 }
 
 func (lr LintResult) Error() (out string) {
-	out += fmt.Sprintf("%s\n", lr.Linter)
+	if lr.DocsURL != "" {
+		out += fmt.Sprintf("%s (%s)\n", lr.Linter, lr.DocsURL)
+	} else {
+		out += fmt.Sprintf("%s\n", lr.Linter)
+	}
 
 	if lr.HasErrors() {
 		out += formatErrors("Errors", lr.Errors)
@@ -72,9 +77,6 @@ func formatErrors(typeOfError string, errs []error) (out string) {
 	out += fmt.Sprintf("\t%s:\n", typeOfError)
 	for _, err := range deduplicate(errs) {
 		out += fmt.Sprintf("\t\t* %s\n", err)
-		if doc, ok := err.(errors.Documented); ok {
-			out += fmt.Sprintf("\t  see: %s\n", renderDocLink(doc.DocID()))
-		}
 	}
 	return
 }

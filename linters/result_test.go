@@ -11,7 +11,7 @@ import (
 
 func TestHasErrors(t *testing.T) {
 
-	lintResult := NewLintResult("blah", []error{}, nil)
+	lintResult := NewLintResult("blah", "url", []error{}, nil)
 	lintResults := LintResults{
 		lintResult,
 	}
@@ -26,24 +26,24 @@ func TestHasErrors(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	noErrors := NewLintResult("blah", []error{}, nil)
+	noErrors := NewLintResult("blah", "url", []error{}, nil)
 
 	assert.Contains(t, noErrors.Error(), `No issues \o/`)
 
 	e1 := errors.New("error1")
 	e2 := errors.New("error2")
 	documentedError := ourErrors.NewMissingField("blurgh")
-	hasErrors := NewLintResult("blah", []error{e1, e2, documentedError}, nil)
+	hasErrors := NewLintResult("blah", "url", []error{e1, e2, documentedError}, nil)
 
 	assert.Contains(t, hasErrors.Error(), e1.Error())
 	assert.Contains(t, hasErrors.Error(), e2.Error())
-	assert.Contains(t, hasErrors.Error(), documentedError.DocID())
 }
 
 func TestDeduplicatesErrors(t *testing.T) {
 	err := errors.New("This should only appear once in the output")
 	lintResult := NewLintResult(
 		"linter",
+		"url",
 		[]error{
 			err,
 			err,
@@ -60,7 +60,7 @@ func TestDifferenceBetweenErrorsAndWarnings(t *testing.T) {
 	err := errors.New("some error")
 	warn := errors.New("some warning")
 
-	lintResult := NewLintResult("linter", nil, nil)
+	lintResult := NewLintResult("linter", "url", nil, nil)
 	assert.False(t, lintResult.HasErrors())
 	assert.False(t, lintResult.HasWarnings())
 
@@ -78,7 +78,7 @@ func TestDeduplicateErrorsAndWarnings(t *testing.T) {
 	err2 := errors.New("some error2")
 	warn1 := errors.New("some warning1")
 	warn2 := errors.New("some warning2")
-	lintResult := NewLintResult("linter", []error{err1, err2, err1}, []error{warn1, warn2, warn1})
+	lintResult := NewLintResult("linter", "url", []error{err1, err2, err1}, []error{warn1, warn2, warn1})
 
 	assert.Equal(t, 1, strings.Count(lintResult.Error(), err1.Error()))
 	assert.Equal(t, 1, strings.Count(lintResult.Error(), err2.Error()))

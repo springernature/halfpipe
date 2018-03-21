@@ -15,7 +15,3 @@ func NewVaultClientErrorf(format string, a ...interface{}) VaultClientError {
 func (e VaultClientError) Error() string {
 	return e.message
 }
-
-func (e VaultClientError) DocID() string {
-	return "vault-client-error"
-}

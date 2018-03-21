@@ -16,6 +16,7 @@ func NewArtifactsLinter() artifactsLinter {
 
 func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Artifacts"
+	result.DocsURL = "https://docs.halfpipe.io/docs/artifacts/"
 
 	var thereIsAtLeastOneArtifact bool
 	for _, t := range man.Tasks {

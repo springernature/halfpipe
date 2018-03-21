@@ -11,9 +11,5 @@ func NewVaultSecretError(secret string) VaultSecretError {
 }
 
 func (e VaultSecretError) Error() string {
-	return fmt.Sprintf("'%s' is not a valid key", e.Secret)
-}
-
-func (e VaultSecretError) DocID() string {
-	return "vault-secret-error"
+	return fmt.Sprintf("'%s' is not a valid key, must be in format of ((mapName.keyName)) ", e.Secret)
 }

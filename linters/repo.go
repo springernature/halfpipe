@@ -38,6 +38,7 @@ func (r repoLinter) checkGlob(glob string, basePath string) error {
 
 func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Repo"
+	result.DocsURL = "https://docs.halfpipe.io/docs/manifest/#repo"
 
 	if man.Repo.URI == "" {
 		result.AddError(errors.NewMissingField("repo.uri"))
