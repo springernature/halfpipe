@@ -7,9 +7,7 @@ var jsonSchema = `
   "definitions": {
     "DeployCF": {
       "required": [
-        "type",
-        "api",
-        "space"
+        "type"
       ],
       "properties": {
         "api": { "type": "string" },
@@ -44,6 +42,9 @@ var jsonSchema = `
           },
           "type": "object"
         }
+      },
+      "dependencies": {
+		"type": {"required": ["api", "space"]}
       },
       "additionalProperties": false,
       "type": "object"
@@ -87,8 +88,7 @@ var jsonSchema = `
     },
     "DockerPush": {
       "required": [
-        "type",
-        "image"
+        "type"
       ],
       "properties": {
         "image": { "type": "string" },
@@ -104,6 +104,9 @@ var jsonSchema = `
           },
           "type": "object"
         }
+      },
+	  "dependencies": {
+		"type": {"required": ["image"]}
       },
       "additionalProperties": false,
       "type": "object"
@@ -152,9 +155,7 @@ var jsonSchema = `
     },
     "Run": {
       "required": [
-        "type",
-        "script",
-        "docker"
+        "type"
       ],
       "properties": {
         "docker": {
@@ -169,7 +170,7 @@ var jsonSchema = `
           "type": "array"
         },
         "script": { "type": "string" },
-        "type": { "type": "string", "pattern": "run" },
+        "type": { "enum": ["run"]},
         "vars": {
           "patternProperties": {
             ".*": {
@@ -178,6 +179,9 @@ var jsonSchema = `
           },
           "type": "object"
         }
+      },
+      "dependencies": {
+		"type": {"required": ["script", "docker"]}
       },
       "additionalProperties": false,
       "type": "object"
