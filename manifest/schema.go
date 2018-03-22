@@ -32,7 +32,7 @@ var jsonSchema = `
           }
         },
         "space": { "type": "string" },
-        "type": { "type": "string", "pattern": "deploy-cf" },
+        "type": { "enum": ["deploy-cf"]},
         "username": { "type": "string" },
         "vars": {
           "patternProperties": {
