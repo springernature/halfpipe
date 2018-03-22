@@ -14,7 +14,6 @@ import (
 
 var validHalfpipeYaml = `
 team: asd
-pipeline: my-pipeline
 tasks:
 - type: docker-compose
 `

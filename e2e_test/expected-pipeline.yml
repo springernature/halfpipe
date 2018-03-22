@@ -9,13 +9,12 @@ resources:
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
-- name: artifacts-engineering-enablement-e2e-test
+- name: artifacts-halfpipe-example-nodejs
   type: gcp-resource
   source:
     bucket: halfpipe-artifacts
     json_key: ((gcr.private_key))
-    pipeline: e2e-test
-    team: engineering-enablement
+    somethingUnique: artifacts-halfpipe-example-nodejs
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
@@ -111,7 +110,7 @@ jobs:
       outputs:
       - name: artifacts
         path: ""
-  - put: artifacts-engineering-enablement-e2e-test
+  - put: artifacts-halfpipe-example-nodejs
     params:
       folder: artifacts
       version_file: halfpipe-example-nodejs/.git/ref
@@ -129,25 +128,25 @@ jobs:
     passed:
     - Test
     trigger: true
-  - get: artifacts-engineering-enablement-e2e-test
+  - get: artifacts-halfpipe-example-nodejs
     params:
       folder: artifacts
       version_file: halfpipe-example-nodejs/.git/ref
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-push
       manifestPath: halfpipe-example-nodejs/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-promote
       manifestPath: halfpipe-example-nodejs/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
+      appPath: artifacts-halfpipe-example-nodejs/target/distribution/artifact.zip
       command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
       testDomain: ""

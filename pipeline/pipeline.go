@@ -61,7 +61,7 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	if p.artifactsUsed(man) {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline))
+		cfg.Resources = append(cfg.Resources, p.gcpResource(repoName, man.Repo.BasePath))
 	}
 
 	uniqueName := func(name string, defaultName string) string {
@@ -77,11 +77,11 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, repoName, man.Repo.BasePath, man.Team, man.Pipeline)
+			jobConfig = p.runJob(task, repoName, man.Repo.BasePath)
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(task.Name, "docker-compose")
-			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath, man.Team, man.Pipeline)
+			jobConfig = p.dockerComposeJob(task, repoName, man.Repo.BasePath)
 
 		case manifest.DeployCF:
 			if !haveCfResourceConfig {
@@ -91,7 +91,7 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			resourceName := uniqueName(deployCFResourceName(task), "")
 			task.Name = uniqueName(task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath, man.Team, man.Pipeline)
+			jobConfig = p.deployCFJob(task, repoName, resourceName, man.Repo.BasePath)
 
 		case manifest.DockerPush:
 			resourceName := uniqueName("Docker Registry", "")
@@ -118,7 +118,7 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return
 }
 
-func (p Pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline string) atc.JobConfig {
+func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -145,7 +145,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline s
 		}
 
 		artifactPut := atc.PlanConfig{
-			Put: GenerateArtifactsFolderName(team, pipeline),
+			Put: GenerateArtifactsFolderName(repoName, basePath),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
 				"version_file": path.Join(repoName, ".git", "ref"),
@@ -157,7 +157,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline s
 	return jobConfig
 }
 
-func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, basePath, team, pipeline string) atc.JobConfig {
+func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName string, basePath string) atc.JobConfig {
 	manifestPath := path.Join(repoName, basePath, task.Manifest)
 	appPath := path.Join(repoName, basePath)
 	testDomain := resolveDefaultDomain(task.API)
@@ -202,11 +202,11 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, ba
 	}
 	if len(task.DeployArtifact) > 0 {
 		for _, pl := range job.Plan {
-			pl.Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(team, pipeline), task.DeployArtifact)
+			pl.Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
 		}
 
 		artifactGet := atc.PlanConfig{
-			Get: GenerateArtifactsFolderName(team, pipeline),
+			Get: GenerateArtifactsFolderName(repoName, basePath),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
 				"version_file": path.Join(repoName, ".git", "ref"),
@@ -228,7 +228,7 @@ func resolveDefaultDomain(targetAPI string) string {
 	return ""
 }
 
-func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath, team, pipeline string) atc.JobConfig {
+func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath string) atc.JobConfig {
 	// it is really just a special run job, so let's reuse that
 	runTask := manifest.Run{
 		Name:   task.Name,
@@ -239,7 +239,7 @@ func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePa
 		Vars:          task.Vars,
 		SaveArtifacts: task.SaveArtifacts,
 	}
-	job := p.runJob(runTask, repoName, basePath, team, pipeline)
+	job := p.runJob(runTask, repoName, basePath)
 	job.Plan[0].Privileged = true
 	return job
 }

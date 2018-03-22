@@ -114,7 +114,6 @@ var jsonSchema = `
     "Manifest": {
       "required": [
         "team",
-		"pipeline",
         "tasks"
       ],
       "properties": {
@@ -128,7 +127,6 @@ var jsonSchema = `
           "$ref": "#/definitions/Tasks"
         },
         "team": { "type": "string" },
-        "pipeline": { "type": "string" },
         "trigger_interval": { "type": "string", "pattern": "\\d+h" }
       },
       "additionalProperties": false,

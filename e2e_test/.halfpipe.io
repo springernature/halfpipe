@@ -1,5 +1,4 @@
 team: engineering-enablement
-pipeline: e2e-test
 
 repo:
   uri: https://github.com/robwhitby/halfpipe-example-nodejs

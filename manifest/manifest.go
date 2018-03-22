@@ -6,7 +6,6 @@ import (
 
 type Manifest struct {
 	Team            string
-	Pipeline        string
 	TriggerInterval string `json:"trigger_interval"`
 	Repo            Repo
 	SlackChannel    string `json:"slack_channel"`
