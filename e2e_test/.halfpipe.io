@@ -36,7 +36,7 @@ tasks:
       B: "false"
   pre_promote:
   - type: run
-    script: test.sh
+    script: smoke-test.sh
     docker:
       image: node:9.5.0-alpine
 

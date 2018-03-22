@@ -159,3 +159,43 @@ func TestRendersCfDeployResources(t *testing.T) {
 	assert.Equal(t, expectedLiveResource, config.Resources[2])
 	assert.Equal(t, expectedLiveJob, config.Jobs[1])
 }
+
+func TestRenderPrePromoteTask(t *testing.T) {
+	prePromoteTask := manifest.Run{
+		Script: "run-script",
+		Docker: manifest.Docker{
+			Image: "docker-img",
+		},
+	}
+
+	deployCfTask := manifest.DeployCF{
+		API:   "cf-api",
+		Space: "cf-space",
+		Org:   "cf-org",
+		Vars: manifest.Vars{
+			"A": "a",
+		},
+		DeployArtifact: "artifact.jar",
+		PrePromote:     []manifest.Task{prePromoteTask},
+	}
+
+	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Tasks = []manifest.Task{deployCfTask}
+
+	config := testPipeline().Render(man)
+	plan := config.Jobs[0].Plan
+
+	if assert.Len(t, plan, 6) {
+		assert.Equal(t, "repo-name", plan[0].Get)
+		assert.Equal(t, "artifacts-repo-name", plan[1].Get)
+
+		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
+
+		assert.Equal(t, "run", plan[3].Task)
+		assert.NotNil(t, plan[3].TaskConfig)
+
+		assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
+		assert.Equal(t, "halfpipe-delete", plan[5].Params["command"])
+
+	}
+}

@@ -173,6 +173,25 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
+  - task: run
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: node
+          tag: 9.5.0-alpine
+      run:
+        path: /bin/sh
+        args:
+        - -ec
+        - |-
+          export GIT_REVISION=`cat .git/ref`
+          ./smoke-test.sh
+      dir: halfpipe-example-nodejs
+      inputs:
+      - name: halfpipe-example-nodejs
+        path: ""
   - put: CF live-api pe staging
     params:
       appPath: halfpipe-example-nodejs

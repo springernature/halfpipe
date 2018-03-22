@@ -11,8 +11,6 @@ import (
 
 	"path/filepath"
 
-	"sort"
-
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -112,7 +110,6 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
 		}
 		cfg.Jobs = append(cfg.Jobs, jobConfig)
-		sortGetJobsFirst(&jobConfig)
 	}
 
 	return
@@ -159,52 +156,37 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath string) atc.JobCo
 
 func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName string, basePath string) atc.JobConfig {
 	manifestPath := path.Join(repoName, basePath, task.Manifest)
-	appPath := path.Join(repoName, basePath)
+
 	testDomain := resolveDefaultDomain(task.API)
+	vars := convertVars(task.Vars)
+
+	appPath := path.Join(repoName, basePath)
+	if len(task.DeployArtifact) > 0 {
+		appPath = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
+	}
+
+	cfCommand := func(commandName string) atc.PlanConfig {
+		cfg := atc.PlanConfig{
+			Put: resourceName,
+			Params: atc.Params{
+				"command":      commandName,
+				"testDomain":   testDomain,
+				"manifestPath": manifestPath,
+				"appPath":      appPath,
+			},
+		}
+		if len(vars) > 0 {
+			cfg.Params["vars"] = vars
+		}
+		return cfg
+	}
 
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
-		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Put: resourceName,
-				Params: atc.Params{
-					"command":      "halfpipe-push",
-					"testDomain":   testDomain,
-					"manifestPath": manifestPath,
-					"appPath":      appPath,
-				},
-			},
-			atc.PlanConfig{
-				Put: resourceName,
-				Params: atc.Params{
-					"command":      "halfpipe-promote",
-					"testDomain":   testDomain,
-					"manifestPath": manifestPath,
-					"appPath":      appPath,
-				},
-			},
-			atc.PlanConfig{
-				Put: resourceName,
-				Params: atc.Params{
-					"command":      "halfpipe-delete",
-					"testDomain":   testDomain,
-					"manifestPath": manifestPath,
-					"appPath":      appPath,
-				},
-			},
-		},
 	}
-	if len(task.Vars) > 0 {
-		for _, pl := range job.Plan {
-			pl.Params["vars"] = convertVars(task.Vars)
-		}
-	}
-	if len(task.DeployArtifact) > 0 {
-		for _, pl := range job.Plan {
-			pl.Params["appPath"] = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
-		}
 
+	if len(task.DeployArtifact) > 0 {
 		artifactGet := atc.PlanConfig{
 			Get: GenerateArtifactsFolderName(repoName, basePath),
 			Params: atc.Params{
@@ -214,6 +196,21 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName str
 		}
 		job.Plan = append(job.Plan, artifactGet)
 	}
+
+	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
+
+	for _, t := range task.PrePromote {
+		switch ppTask := t.(type) {
+		case manifest.Run:
+			job.Plan = append(job.Plan, p.runJob(ppTask, repoName, basePath).Plan[0])
+		case manifest.DockerCompose:
+			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, repoName, basePath).Plan[0])
+		}
+	}
+
+	job.Plan = append(job.Plan, cfCommand("halfpipe-promote"))
+	job.Plan = append(job.Plan, cfCommand("halfpipe-delete"))
+
 	return job
 }
 func resolveDefaultDomain(targetAPI string) string {
@@ -283,12 +280,6 @@ func dockerComposeScript() string {
 	return `\source /docker-lib.sh
 start_docker
 docker-compose up --force-recreate --exit-code-from app`
-}
-
-func sortGetJobsFirst(job *atc.JobConfig) {
-	sort.SliceStable(job.Plan, func(i, j int) bool {
-		return job.Plan[i].Get != "" && job.Plan[j].Put != ""
-	})
 }
 
 func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
