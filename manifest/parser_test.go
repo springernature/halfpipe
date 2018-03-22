@@ -197,9 +197,16 @@ tasks:
 }
 
 func TestInvalidYaml(t *testing.T) {
-	_, errs := Parse("team : { foo")
+	yamls := []string{
+		"team : { foo",
+		" ",
+		"\t team: foo",
+	}
 
-	assert.Equal(t, len(errs), 1)
+	for _, yaml := range yamls {
+		_, errs := Parse(yaml)
+		assert.Equal(t, len(errs), 1)
+	}
 }
 
 func TestFailsWithUnknownFields(t *testing.T) {
