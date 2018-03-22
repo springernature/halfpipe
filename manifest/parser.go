@@ -146,9 +146,9 @@ func validate(jsonManifest []byte) []error {
 	if !result.Valid() {
 		var errs []error
 		for _, err := range result.Errors() {
-
 			//tidy up the errors a bit
 			msg := strings.Replace(err.String(), "Must validate at least one schema (anyOf)", "Task does not have required fields:", -1)
+			msg = strings.Replace(msg, "Invalid type. Expected: object, given: null", "Not a valid YAML file", -1)
 			msg = strings.Replace(msg, "must be one of the following: \"run\"", "must be one of the following: 'run', 'docker-compose', 'docker-push' or 'cf-deploy'", -1)
 			ignore := strings.Contains(msg, ".type: Does not match pattern")
 			if !ignore {
