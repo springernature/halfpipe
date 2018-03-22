@@ -51,6 +51,8 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
+	man.Team = "team"
+	man.Pipeline = "pipeline"
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
@@ -62,7 +64,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Equal(t, "artifacts-yolo-apps-subapp1", renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[2].Put)
 	assert.Equal(t, "artifacts", renderedPipeline.Jobs[0].Plan[2].Params["folder"])
 	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
 
@@ -71,7 +73,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.Equal(t, "latest", resourceType.Source["tag"])
 
-	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(name, man.Repo.BasePath))
+	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
@@ -81,6 +83,8 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
+	man.Team = "team"
+	man.Pipeline = "pipeline"
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
@@ -93,7 +97,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs, 1)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 5)
 
-	assert.Equal(t, "artifacts-yolo-apps-subapp1", renderedPipeline.Jobs[0].Plan[1].Get)
+	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[1].Get)
 	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[1].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
@@ -101,7 +105,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.Equal(t, "latest", resourceType.Source["tag"])
 
-	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(name, man.Repo.BasePath))
+	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
@@ -111,6 +115,8 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
+	man.Team = "team"
+	man.Pipeline = "pipeline"
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
@@ -129,15 +135,17 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order if the plans is important
-	assert.Equal(t, "artifacts-yolo-apps-subapp1", renderedPipeline.Jobs[1].Plan[1].Get)
+	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[1].Plan[1].Get)
 	assert.Equal(t, "CF   ", renderedPipeline.Jobs[1].Plan[2].Put)
-	assert.Equal(t, "artifacts-yolo-apps-subapp1/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	name := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
+	man.Team = "team"
+	man.Pipeline = "pipeline"
 	man.Repo.URI = gitURI
 	man.Tasks = []manifest.Task{
 		manifest.Run{
@@ -155,9 +163,9 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order if the plans is important
-	assert.Equal(t, "artifacts-yolo", renderedPipeline.Jobs[1].Plan[1].Get)
+	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[1].Plan[1].Get)
 	assert.Equal(t, "CF   ", renderedPipeline.Jobs[1].Plan[2].Put)
-	assert.Equal(t, "artifacts-yolo/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestCopyArtifactScript(t *testing.T) {

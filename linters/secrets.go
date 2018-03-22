@@ -17,7 +17,7 @@ type secretsLinter struct {
 	secretStoreFunc secrets.SecretStoreFunc
 }
 
-func NewSecretsLinter(secretPrefix string, storeFunc secrets.SecretStoreFunc) secretsLinter {
+func NewSecretsLinter(secretPrefix string, storeFunc secrets.SecretStoreFunc) Linter {
 	return secretsLinter{
 		prefix:          secretPrefix,
 		secretStoreFunc: storeFunc,
@@ -47,7 +47,7 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 
 	for _, sec := range allSecrets {
 		go func(str string) {
-			chSecretErrs <- s.checkExists(store, manifest.Team, manifest.Repo.GetName(), str)
+			chSecretErrs <- s.checkExists(store, manifest.Team, manifest.Pipeline, str)
 		}(sec)
 	}
 	for range allSecrets {

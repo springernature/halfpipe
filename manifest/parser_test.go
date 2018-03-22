@@ -11,6 +11,7 @@ import (
 func TestValidYaml_RequiredFields(t *testing.T) {
 	man, errs := Parse(`
 team: my team
+pipeline: my pipeline
 tasks:
 - type: run
   script: run.sh
@@ -25,7 +26,8 @@ tasks:
 `)
 
 	expected := Manifest{
-		Team: "my team",
+		Team:     "my team",
+		Pipeline: "my pipeline",
 		Tasks: []Task{
 			Run{
 				Script: "run.sh",
@@ -51,6 +53,7 @@ tasks:
 func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
+pipeline: my pipeline
 repo:
   uri: git@github.com:..
   private_key: private-key
@@ -114,7 +117,8 @@ tasks:
 `)
 
 	expected := Manifest{
-		Team: "my team",
+		Team:     "my team",
+		Pipeline: "my pipeline",
 		Repo: Repo{
 			URI:        "git@github.com:..",
 			PrivateKey: "private-key",

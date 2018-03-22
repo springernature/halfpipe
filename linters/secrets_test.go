@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"path"
+	"strings"
 
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/secrets"
@@ -12,38 +13,27 @@ import (
 )
 
 const (
-	vaultPrefix     = "prefix"
-	foundSecret     = "((found.secret))"
-	prefix          = "prefix"
-	team            = "team"
-	pipeline        = "pipeline"
-	mapKey          = "mapKey"
-	secretKey       = "secretKey"
-	concourseSecret = "((" + mapKey + "." + secretKey + "))"
+	prefix   = "prefix"
+	team     = "team"
+	pipeline = "pipeline"
 )
 
 type fakeSecretStore struct {
-	Calls      [][]string
 	ExistsFunc func(path, secretKey string) (bool, error)
 }
 
-func (s *fakeSecretStore) Exists(path string, secretKey string) (exists bool, err error) {
-	s.Calls = append(s.Calls, []string{path, secretKey})
+func NewFakeSecretStore(existsFunc func(path, secretKey string) (bool, error)) secrets.SecretStore {
+	return fakeSecretStore{
+		ExistsFunc: existsFunc,
+	}
+}
+
+func (s fakeSecretStore) Exists(path string, secretKey string) (exists bool, err error) {
 	return s.ExistsFunc(path, secretKey)
 }
 
-func secretsLinterWithFakeStore(exists bool, err error) (secretsLinter, *fakeSecretStore) {
-	store := &fakeSecretStore{
-		ExistsFunc: func(path, secretKey string) (bool, error) {
-			return exists, err
-		},
-	}
-	storeFunc := func() (secrets.SecretStore, error) { return store, nil }
-	return NewSecretsLinter(vaultPrefix, storeFunc), store
-}
-
 func TestNoSecrets(t *testing.T) {
-	linter, _ := secretsLinterWithFakeStore(false, nil)
+	linter := NewSecretsLinter(prefix, func() (ss secrets.SecretStore, err error) { return })
 	man := manifest.Manifest{}
 
 	result := linter.Lint(man)
@@ -53,7 +43,8 @@ func TestNoSecrets(t *testing.T) {
 }
 
 func TestBadKeys(t *testing.T) {
-	linter, _ := secretsLinterWithFakeStore(false, nil)
+	linter := NewSecretsLinter(prefix, func() (ss secrets.SecretStore, err error) { return })
+
 	wrong1 := "((a))"
 	wrong2 := "((b))"
 	wrong3 := "((c.d.e))"
@@ -77,8 +68,8 @@ func TestBadKeys(t *testing.T) {
 func TestSecretNotFound(t *testing.T) {
 	notFoundSecret := "((not.found))"
 	man := manifest.Manifest{}
-	man.Team = "team"
-	man.Repo.URI = "https://github.com/Masterminds/squirrel"
+	man.Team = team
+	man.Pipeline = pipeline
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
 			Username: "user",
@@ -86,29 +77,81 @@ func TestSecretNotFound(t *testing.T) {
 		},
 	}
 
-	linter, _ := secretsLinterWithFakeStore(false, nil)
+	var paths []string
+	var secretKey string
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			paths = append(paths, path)
+			secretKey = sK
+			return false, nil
+		}), nil
+	})
+
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Warnings, 1)
 	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Warnings[0])
+	assert.Equal(t, path.Join(prefix, team, pipeline, "not"), paths[0])
+	assert.Equal(t, path.Join(prefix, team, "not"), paths[1])
+	assert.Equal(t, "found", secretKey)
 }
 
-func TestSecretFound(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Team = "team"
-	man.Repo.URI = "https://github.com/Masterminds/squirrel"
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			Username: "user",
-			Password: foundSecret,
+func TestCallsOnlyOutOnceIfFoundInFirstPath(t *testing.T) {
+	man := manifest.Manifest{
+		Team:     team,
+		Pipeline: pipeline,
+		Tasks: []manifest.Task{
+			manifest.DeployCF{
+				Username: "user",
+				Password: "((my.secret))",
+			},
 		},
 	}
 
-	linter, _ := secretsLinterWithFakeStore(true, nil)
+	var paths []string
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			paths = append(paths, path)
+			return true, nil
+		}), nil
+	})
+
 	result := linter.Lint(man)
 
 	assert.Len(t, result.Errors, 0)
 	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, paths, 1)
+	assert.Equal(t, path.Join(prefix, team, pipeline, "my"), paths[0])
+}
+
+func TestCallsOnlyTwiceToFindSecret(t *testing.T) {
+	man := manifest.Manifest{
+		Team:     team,
+		Pipeline: pipeline,
+		Tasks: []manifest.Task{
+			manifest.DeployCF{
+				Username: "user",
+				Password: "((my.secret))",
+			},
+		},
+	}
+
+	var paths []string
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			paths = append(paths, path)
+			if strings.Contains(path, pipeline) {
+				return false, nil
+			}
+			return true, nil
+		}), nil
+	})
+
+	result := linter.Lint(man)
+
+	assert.Len(t, result.Errors, 0)
+	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, paths, 2)
 }
 
 func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
@@ -127,72 +170,42 @@ func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
 		},
 	}
 
-	secrets := findSecrets(man)
-	assert.Len(t, secrets, 2)
-}
+	var numCalls int
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			numCalls++
+			return true, nil
+		}), nil
+	})
 
-func TestCallsOutToTwoDifferentPathsAndReturnsErrorIfNotFound(t *testing.T) {
-	linter, store := secretsLinterWithFakeStore(false, nil)
-
-	err := linter.checkExists(store, team, pipeline, concourseSecret)
-
-	assert.Len(t, store.Calls, 2)
-	assert.Contains(t, store.Calls, []string{path.Join(prefix, team, pipeline, mapKey), secretKey})
-	assert.Contains(t, store.Calls, []string{path.Join(prefix, team, mapKey), secretKey})
-
-	assert.NotNil(t, err)
-}
-
-func TestCallsOutOnlyOnceIfWeFindTheSecretInTheFirstPath(t *testing.T) {
-	linter, store := secretsLinterWithFakeStore(true, nil)
-
-	err := linter.checkExists(store, team, pipeline, concourseSecret)
-
-	assert.Len(t, store.Calls, 1)
-	assert.Contains(t, store.Calls, []string{path.Join(prefix, team, pipeline, mapKey), secretKey})
-	assert.Nil(t, err)
-}
-
-func TestCallsOutTwiceAndReturnsNilIfFoundInSecondCall(t *testing.T) {
-	linter, store := secretsLinterWithFakeStore(true, nil)
-
-	store.ExistsFunc = func(path string, secretKey string) (bool, error) {
-		return len(store.Calls) == 2, nil
-	}
-
-	err := linter.checkExists(store, team, pipeline, concourseSecret)
-
-	assert.Len(t, store.Calls, 2)
-	assert.Contains(t, store.Calls, []string{path.Join(prefix, team, pipeline, mapKey), secretKey})
-	assert.Contains(t, store.Calls, []string{path.Join(prefix, team, mapKey), secretKey})
-	assert.Nil(t, err)
-
+	linter.Lint(man)
+	assert.Equal(t, numCalls, 2)
 }
 
 func TestRaisesWarningFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
 	myError := errors.NewVaultSecretError("whatever")
-	store := &fakeSecretStore{
-		ExistsFunc: func(path, secretKey string) (bool, error) {
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
 			return false, myError
-		},
-	}
-	storeFunc := func() (secrets.SecretStore, error) { return store, nil }
-
-	linter := NewSecretsLinter(vaultPrefix, storeFunc)
+		}), nil
+	})
 
 	withoutSecretsResult := linter.Lint(manifest.Manifest{})
 	assert.False(t, withoutSecretsResult.HasErrors())
 
-	withSecretsResult := linter.Lint(manifest.Manifest{Team: concourseSecret})
+	withSecretsResult := linter.Lint(manifest.Manifest{Team: "((teams.team))"})
 	assert.Len(t, withSecretsResult.Warnings, 1)
 	assert.Equal(t, myError, withSecretsResult.Warnings[0])
 }
 
 func TestRaisesErrorFromStore(t *testing.T) {
 	myError := errors.NewVaultSecretError("whatever")
-	linter, store := secretsLinterWithFakeStore(false, myError)
+	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			return false, nil
+		}), myError
+	})
 
-	err := linter.checkExists(store, team, pipeline, concourseSecret)
-	assert.Len(t, store.Calls, 1)
-	assert.Equal(t, myError, err)
+	result := linter.Lint(manifest.Manifest{Team: "MyTeam", Repo: manifest.Repo{URI: "((a.secret))"}})
+	assert.Equal(t, myError, result.Warnings[0])
 }
