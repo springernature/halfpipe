@@ -69,7 +69,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
-	assert.Equal(t, "latest", resourceType.Source["tag"])
+	assert.Equal(t, "stable", resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(name, man.Repo.BasePath))
 	assert.NotNil(t, resource)
@@ -99,7 +99,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
-	assert.Equal(t, "latest", resourceType.Source["tag"])
+	assert.Equal(t, "stable", resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(name, man.Repo.BasePath))
 	assert.NotNil(t, resource)
