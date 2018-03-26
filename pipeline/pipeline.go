@@ -208,7 +208,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, ba
 	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
 
 	for _, t := range task.PrePromote {
-		applications, e := p.rManifest(manifestPath)
+		applications, e := p.rManifest(task.Manifest)
 		if e != nil {
 			panic(e)
 		}

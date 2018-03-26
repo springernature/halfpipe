@@ -207,7 +207,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 
 		assert.Equal(t, "run", plan[3].Task)
 		expectedVars := map[string]string{
-			"TEST_ROUTE": "repo-name/manifest-CANDIDATE.dev.cf.private.springer.com",
+			"TEST_ROUTE": "manifest-CANDIDATE.dev.cf.private.springer.com",
 		}
 		assert.Equal(t, expectedVars, plan[3].TaskConfig.Params)
 		assert.NotNil(t, plan[3].TaskConfig)

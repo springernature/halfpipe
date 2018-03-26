@@ -32,7 +32,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	var lintTasks func(string, []manifest.Task)
 	lintTasks = func(listName string, tasks []manifest.Task) {
 		for i, t := range tasks {
-			taskID := fmt.Sprintf("%s[%v]", listName, i+1)
+			taskID := fmt.Sprintf("%s.%v", listName, i+1)
 			switch task := t.(type) {
 			case manifest.Run:
 				linter.lintRunTask(task, &result)
