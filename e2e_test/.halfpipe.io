@@ -27,7 +27,7 @@ tasks:
 
 - type: deploy-cf
   name: deploy to staging
-  api: live-api
+  api: ((cloudfoundry.api-live))
   org: pe
   space: staging
   username: michiel
@@ -40,6 +40,8 @@ tasks:
     script: smoke-test.sh
     docker:
       image: node:9.5.0-alpine
+    vars:
+      A: "blah"
 
 - type: docker-push
   name: push to docker registry

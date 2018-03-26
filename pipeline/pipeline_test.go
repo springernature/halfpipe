@@ -7,8 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testPipeline() Pipeline {
-	return Pipeline{}
+func testPipeline() pipeline {
+	return pipeline{}
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {

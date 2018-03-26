@@ -114,7 +114,7 @@ func lintAndRender() (output string, err error) {
 			linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),
 			linters.NewArtifactsLinter(),
 		},
-		Renderer: pipeline.Pipeline{},
+		Renderer: pipeline.NewPipeline(manifest.ReadAndMergeManifests),
 	}
 
 	pipelineConfig, lintResults := ctrl.Process()

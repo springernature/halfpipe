@@ -3,6 +3,7 @@ package pipeline
 import (
 	"testing"
 
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
@@ -169,9 +170,10 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	}
 
 	deployCfTask := manifest.DeployCF{
-		API:   "cf-api",
-		Space: "cf-space",
-		Org:   "cf-org",
+		API:      "api.dev.cf.springer-sbm.com",
+		Space:    "cf-space",
+		Org:      "cf-org",
+		Manifest: "manifest",
 		Vars: manifest.Vars{
 			"A": "a",
 		},
@@ -183,7 +185,18 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{deployCfTask}
 
-	config := testPipeline().Render(man)
+	readerGivesOneApp := func(name string) ([]cfManifest.Application, error) {
+		return []cfManifest.Application{
+			{
+				Name:   name,
+				Routes: []string{"route"},
+			},
+		}, nil
+	}
+
+	pipeline := NewPipeline(readerGivesOneApp)
+
+	config := pipeline.Render(man)
 	plan := config.Jobs[0].Plan
 
 	if assert.Len(t, plan, 6) {
@@ -193,10 +206,13 @@ func TestRenderPrePromoteTask(t *testing.T) {
 		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 		assert.Equal(t, "run", plan[3].Task)
+		expectedVars := map[string]string{
+			"TEST_ROUTE": "repo-name/manifest-CANDIDATE.dev.cf.private.springer.com",
+		}
+		assert.Equal(t, expectedVars, plan[3].TaskConfig.Params)
 		assert.NotNil(t, plan[3].TaskConfig)
 
 		assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
 		assert.Equal(t, "halfpipe-delete", plan[5].Params["command"])
-
 	}
 }

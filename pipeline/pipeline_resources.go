@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
+func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": repo.URI,
 	}
@@ -36,7 +36,7 @@ func (p Pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
-func (p Pipeline) slackResourceType() atc.ResourceType {
+func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: "slack-notification",
 		Type: "docker-image",
@@ -47,7 +47,7 @@ func (p Pipeline) slackResourceType() atc.ResourceType {
 	}
 }
 
-func (p Pipeline) slackResource() atc.ResourceConfig {
+func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: "slack",
 		Type: "slack-notification",
@@ -57,7 +57,7 @@ func (p Pipeline) slackResource() atc.ResourceConfig {
 	}
 }
 
-func (p Pipeline) gcpResourceType() atc.ResourceType {
+func (p pipeline) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: "gcp-resource",
 		Type: "docker-image",
@@ -68,7 +68,7 @@ func (p Pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p Pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
+func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: GenerateArtifactsFolderName(team, pipeline),
 		Type: "gcp-resource",
@@ -81,7 +81,7 @@ func (p Pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 	}
 }
 
-func (p Pipeline) timerResource(interval string) atc.ResourceConfig {
+func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:   "timer " + interval,
 		Type:   "time",
@@ -100,7 +100,7 @@ func halfpipeCfDeployResourceType() atc.ResourceType {
 	}
 }
 
-func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
+func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
 		"api":      deployCF.API,
 		"org":      deployCF.Org,
@@ -116,7 +116,7 @@ func (p Pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 	}
 }
 
-func (p Pipeline) dockerPushResource(docker manifest.DockerPush, resourceName string) atc.ResourceConfig {
+func (p pipeline) dockerPushResource(docker manifest.DockerPush, resourceName string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: resourceName,
 		Type: "docker-image",
@@ -128,7 +128,7 @@ func (p Pipeline) dockerPushResource(docker manifest.DockerPush, resourceName st
 	}
 }
 
-func (p Pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
+func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	repo, tag := docker.Image, "latest"
 	if strings.Contains(docker.Image, ":") {
 		split := strings.Split(docker.Image, ":")

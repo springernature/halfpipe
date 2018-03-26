@@ -11,6 +11,8 @@ import (
 
 	"path/filepath"
 
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -20,11 +22,17 @@ type Renderer interface {
 	Render(manifest manifest.Manifest) atc.Config
 }
 
-type Pipeline struct{}
+type pipeline struct {
+	rManifest func(string) ([]cfManifest.Application, error)
+}
+
+func NewPipeline(rManifest func(string) ([]cfManifest.Application, error)) pipeline {
+	return pipeline{rManifest: rManifest}
+}
 
 const artifactsFolderName = "artifacts"
 
-func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	repoResource := p.gitResource(man.Repo)
 	repoName := repoResource.Name
 	cfg.Resources = append(cfg.Resources, repoResource)
@@ -115,7 +123,7 @@ func (p Pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return
 }
 
-func (p Pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline string) atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline string) atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -154,7 +162,7 @@ func (p Pipeline) runJob(task manifest.Run, repoName, basePath, team, pipeline s
 	return jobConfig
 }
 
-func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, basePath, team, pipeline string) atc.JobConfig {
+func (p pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, basePath, team, pipeline string) atc.JobConfig {
 	manifestPath := path.Join(repoName, basePath, task.Manifest)
 
 	testDomain := resolveDefaultDomain(task.API)
@@ -200,8 +208,17 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, ba
 	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
 
 	for _, t := range task.PrePromote {
+		applications, e := p.rManifest(manifestPath)
+		if e != nil {
+			panic(e)
+		}
+		appName := applications[0].Name
 		switch ppTask := t.(type) {
 		case manifest.Run:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = map[string]string{}
+			}
+			ppTask.Vars["TEST_ROUTE"] = appName + "-CANDIDATE." + testDomain
 			job.Plan = append(job.Plan, p.runJob(ppTask, repoName, basePath, team, pipeline).Plan[0])
 		case manifest.DockerCompose:
 			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, repoName, basePath, team, pipeline).Plan[0])
@@ -225,7 +242,7 @@ func resolveDefaultDomain(targetAPI string) string {
 	return ""
 }
 
-func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath, team, pipeline string) atc.JobConfig {
+func (p pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePath, team, pipeline string) atc.JobConfig {
 	// it is really just a special run job, so let's reuse that
 	runTask := manifest.Run{
 		Name:   task.Name,
@@ -241,7 +258,7 @@ func (p Pipeline) dockerComposeJob(task manifest.DockerCompose, repoName, basePa
 	return job
 }
 
-func (p Pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName string, basePath string) atc.JobConfig {
+func (p pipeline) dockerPushJob(task manifest.DockerPush, repoName, resourceName string, basePath string) atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -282,7 +299,7 @@ start_docker
 docker-compose up --force-recreate --exit-code-from app`
 }
 
-func (Pipeline) artifactsUsed(man manifest.Manifest) bool {
+func (pipeline) artifactsUsed(man manifest.Manifest) bool {
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
 		case manifest.Run:

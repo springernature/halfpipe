@@ -24,10 +24,10 @@ resources:
     password: very-secret
     space: dev
     username: michiel
-- name: CF live-api pe staging
+- name: CF api-live pe staging
   type: cf-resource
   source:
-    api: live-api
+    api: ((cloudfoundry.api-live))
     org: pe
     password: very-secret
     space: staging
@@ -165,12 +165,12 @@ jobs:
     passed:
     - deploy-cf
     trigger: true
-  - put: CF live-api pe staging
+  - put: CF api-live pe staging
     params:
       appPath: halfpipe-example-nodejs
       command: halfpipe-push
       manifestPath: halfpipe-example-nodejs/manifest.yml
-      testDomain: ""
+      testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
         B: "false"
@@ -182,6 +182,9 @@ jobs:
         source:
           repository: node
           tag: 9.5.0-alpine
+        params:
+          A: blah
+          TEST_ROUTE: halfpipe-example-kotlin-dev-CANDIDATE.live.cf.private.springer.com
       run:
         path: /bin/sh
         args:
@@ -193,21 +196,21 @@ jobs:
       inputs:
       - name: halfpipe-example-nodejs
         path: ""
-  - put: CF live-api pe staging
+  - put: CF api-live pe staging
     params:
       appPath: halfpipe-example-nodejs
       command: halfpipe-promote
       manifestPath: halfpipe-example-nodejs/manifest.yml
-      testDomain: ""
+      testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
         B: "false"
-  - put: CF live-api pe staging
+  - put: CF api-live pe staging
     params:
       appPath: halfpipe-example-nodejs
       command: halfpipe-delete
       manifestPath: halfpipe-example-nodejs/manifest.yml
-      testDomain: ""
+      testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
         B: "false"
