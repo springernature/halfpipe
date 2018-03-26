@@ -335,3 +335,27 @@ func TestDockerCompose_InvalidVar(t *testing.T) {
 	assert.Len(t, result.Errors, 1)
 	assertInvalidFieldInErrors(t, "a", result.Errors)
 }
+
+func TestLintsSubTasksInDeployCF(t *testing.T) {
+
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API:   "api",
+			Org:   "org",
+			Space: "space",
+			PrePromote: []manifest.Task{
+				manifest.Run{},
+				manifest.DockerCompose{},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 3)
+	assertMissingField(t, "run.script", result.Errors[0])
+	assertMissingField(t, "run.docker.image", result.Errors[1])
+	assertFileError(t, "docker-compose.yml", result.Errors[2])
+}

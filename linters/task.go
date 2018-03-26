@@ -2,7 +2,6 @@ package linters
 
 import (
 	"fmt"
-
 	"regexp"
 
 	"strings"
@@ -29,22 +28,30 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 		result.AddError(errors.NewMissingField("tasks"))
 		return
 	}
-	for i, t := range man.Tasks {
-		switch task := t.(type) {
-		case manifest.Run:
-			linter.lintRunTask(task, &result)
-		case manifest.DeployCF:
-			linter.lintDeployCFTask(task, &result)
-		case manifest.DockerPush:
-			linter.lintDockerPushTask(task, &result)
-		case manifest.DockerCompose:
-			linter.lintDockerComposeTask(task, &result)
-		default:
-			result.AddError(errors.NewInvalidField("task", fmt.Sprintf("task %v is not a known task", i+1)))
+
+	var lintTasks func(string, []manifest.Task)
+	lintTasks = func(listName string, tasks []manifest.Task) {
+		for i, t := range tasks {
+			taskID := fmt.Sprintf("%s[%v]", listName, i+1)
+			switch task := t.(type) {
+			case manifest.Run:
+				linter.lintRunTask(task, &result)
+			case manifest.DeployCF:
+				linter.lintDeployCFTask(task, &result)
+				lintTasks(fmt.Sprintf("%s.PrePromote", taskID), task.PrePromote)
+			case manifest.DockerPush:
+				linter.lintDockerPushTask(task, &result)
+			case manifest.DockerCompose:
+				linter.lintDockerComposeTask(task, &result)
+			default:
+				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
+			}
 		}
 	}
+	lintTasks("tasks", man.Tasks)
 	return
 }
+
 func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, result *LintResult) {
 	if cf.API == "" {
 		result.AddError(errors.NewMissingField("deploy-cf.api"))
