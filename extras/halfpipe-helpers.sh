@@ -10,10 +10,7 @@ target=${FLY_TARGET:-hp}
 # Update pipeline.yml and push to Concourse
 # $1 pipeline-name (optional - defaults to value of 'pipeline' in .halfpipe.io)
 hp() {
-  echo Updating pipeline.yml
-  halfpipe > pipeline.yml &&
-    echo Uploading to Concourse &&
-      hp-set $1
+  halfpipe > pipeline.yml && hp-set $1
 }
 
 # Login to Concourse
