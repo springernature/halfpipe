@@ -162,7 +162,7 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, ba
 
 	appPath := path.Join(repoName, basePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = filepath.Join(GenerateArtifactsFolderName(repoName, basePath), task.DeployArtifact)
+		appPath = filepath.Join(GenerateArtifactsFolderName(team, pipeline), task.DeployArtifact)
 	}
 
 	cfCommand := func(commandName string) atc.PlanConfig {
@@ -204,7 +204,7 @@ func (p Pipeline) deployCFJob(task manifest.DeployCF, repoName, resourceName, ba
 		case manifest.Run:
 			job.Plan = append(job.Plan, p.runJob(ppTask, repoName, basePath, team, pipeline).Plan[0])
 		case manifest.DockerCompose:
-			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, repoName, basePath, team , pipeline).Plan[0])
+			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, repoName, basePath, team, pipeline).Plan[0])
 		}
 	}
 

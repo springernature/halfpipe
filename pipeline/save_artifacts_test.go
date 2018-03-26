@@ -112,20 +112,22 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 }
 
 func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
-	name := "yolo"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	repoName := "yolo"
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", repoName)
 	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Pipeline = "pipeline"
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
+
+	deployArtifactPath := "build/lib/artifact.jar"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script:        "./build.sh",
 			SaveArtifacts: []string{"build/lib"},
 		},
 		manifest.DeployCF{
-			DeployArtifact: "build/lib/artifact.jar",
+			DeployArtifact: deployArtifactPath,
 		},
 	}
 
@@ -134,10 +136,12 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
-	// order if the plans is important
+	// order of the plans is important
 	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[1].Plan[1].Get)
 	assert.Equal(t, "CF   ", renderedPipeline.Jobs[1].Plan[2].Put)
-	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+
+	expectedAppPath := fmt.Sprintf("artifacts-%s-%s/%s", man.Team, man.Pipeline, deployArtifactPath)
+	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {

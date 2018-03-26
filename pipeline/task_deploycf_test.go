@@ -180,6 +180,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{deployCfTask}
 
 	config := testPipeline().Render(man)
@@ -187,7 +188,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 
 	if assert.Len(t, plan, 6) {
 		assert.Equal(t, "repo-name", plan[0].Get)
-		assert.Equal(t, "artifacts-repo-name", plan[1].Get)
+		assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
 
 		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
