@@ -26,3 +26,21 @@ func TestTeamIsValid(t *testing.T) {
 	result := testTeamLinter().Lint(man)
 	assert.False(t, result.HasErrors())
 }
+
+func TestPipelineIsValid(t *testing.T) {
+	man := manifest.Manifest{
+		Team:     "yolo",
+		Pipeline: "Something with spaces",
+	}
+
+	result := testTeamLinter().Lint(man)
+	assert.True(t, result.HasErrors())
+
+	man = manifest.Manifest{
+		Team:     "yolo",
+		Pipeline: "alles-gut",
+	}
+
+	result = testTeamLinter().Lint(man)
+	assert.False(t, result.HasErrors())
+}

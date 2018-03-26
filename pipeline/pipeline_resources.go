@@ -68,14 +68,15 @@ func (p Pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p Pipeline) gcpResource(repoName string, basePath string) atc.ResourceConfig {
+func (p Pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: GenerateArtifactsFolderName(repoName, basePath),
+		Name: GenerateArtifactsFolderName(team, pipeline),
 		Type: "gcp-resource",
 		Source: atc.Source{
-			"bucket":          "halfpipe-artifacts",
-			"json_key":        "((gcr.private_key))",
-			"somethingUnique": GenerateArtifactsFolderName(repoName, basePath),
+			"json_key": "((gcr.private_key))",
+			"bucket":   "halfpipe-artifacts",
+			"team":     team,
+			"pipeline": pipeline,
 		},
 	}
 }
