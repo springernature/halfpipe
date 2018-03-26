@@ -8,7 +8,7 @@ target=${FLY_TARGET:-hp}
 
 
 # Update pipeline.yml and push to Concourse
-# $1 pipeline-name (optional - defaults to current directory name)
+# $1 pipeline-name (optional - defaults to value of 'pipeline' in .halfpipe.io)
 hp() {
   echo Updating pipeline.yml
   halfpipe > pipeline.yml &&
@@ -17,7 +17,7 @@ hp() {
 }
 
 # Login to Concourse
-# $1 team-name (optional - defaults to engineering-enablement)
+# $1 team-name (optional - defaults to value of 'team' in .halfpipe.io)
 hp-login() {
   team=${1:-"$(grep 'team:' .halfpipe.io | cut -d: -f2)"}
   login="fly -t ${target} login -n ${team}"
@@ -26,7 +26,7 @@ hp-login() {
 }
 
 # Get a pipeline
-# $1 pipeline-name (optional - defaults to current directory name)
+# $1 pipeline-name (optional - defaults to value of 'pipeline' in .halfpipe.io)
 hp-get() {
   pipeline=${1:-"$(grep 'pipeline:' .halfpipe.io | cut -d: -f2)"}
   getPipeline="fly -t $target get-pipeline -p $pipeline"
@@ -35,7 +35,7 @@ hp-get() {
 }
 
 # Set a pipeline
-# $1 pipeline-name (optional - defaults to current directory name)
+# $1 pipeline-name (optional - defaults to value of 'pipeline' in .halfpipe.io)
 # $2 config-yaml   (optional - defaults to pipeline.yml)
 hp-set() {
   pipeline=${1:-"$(grep 'pipeline:' .halfpipe.io | cut -d: -f2)"}
