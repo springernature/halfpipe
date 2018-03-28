@@ -6,10 +6,7 @@ var (
 	// These fields will be populated in build
 	// go build -ldflags "-X config.version=..."
 	Version    = "0.0.0-DEV"
-	CompiledAt string
-	GitCommit  string
 
-	DocHost     string
 	VaultPrefix string
 
 	SlackWebhook = "Set your slack webhook here"

@@ -1,13 +1,6 @@
 package linters
 
 import "fmt"
-import (
-	"strings"
-
-	"path"
-
-	"github.com/springernature/halfpipe/config"
-)
 
 type LintResults []LintResult
 type LintResult struct {
@@ -113,21 +106,4 @@ func errorInErrors(err error, errs []error) bool {
 		}
 	}
 	return false
-}
-
-func renderDocLink(docID string) string {
-	return path.Join(config.DocHost, "/docs/cli-errors", renderDocAnchor(docID))
-}
-
-func renderDocAnchor(docID string) string {
-	if docID != "" {
-		return fmt.Sprintf("#%s", normalize(docID))
-	}
-	return ""
-}
-
-func normalize(value string) string {
-	withoutWhiteSpace := strings.Replace(strings.ToLower(value), " ", "-", -1)
-	return strings.Replace(withoutWhiteSpace, ".", "", -1)
-
 }
