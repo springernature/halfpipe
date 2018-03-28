@@ -87,14 +87,9 @@ jobs:
           export ROOT="$PWD"
           export GOPATH="$PWD"
           export VERSION="$(cat version/version)"
-          export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-          export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
           echo "LDFLAGS=${LDFLAGS}"
 
@@ -107,10 +102,8 @@ jobs:
       - name: halfpipe
         path: src/github.com/springernature/halfpipe
       - name: version
-        path: ""
       outputs:
       - name: binaries
-        path: ""
   - put: halfpipe
     params:
       repository: halfpipe
@@ -134,9 +127,9 @@ jobs:
       image_resource:
         type: docker-image
         source:
+          password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-fly
           username: _json_key
-          password: ((gcr.private_key))
       run:
         path: /bin/sh
         args:
@@ -144,14 +137,9 @@ jobs:
         - |
           export ROOT="$PWD"
           export GOPATH="$PWD"
-          export DATE_TIME="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
-          export GIT_COMMIT="$(cat src/github.com/springernature/halfpipe/.git/ref)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=0.0.0-DEV"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.CompiledAt=${DATE_TIME}"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.GitCommit=${GIT_COMMIT}"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
           echo "LDFLAGS=${LDFLAGS}"
 
