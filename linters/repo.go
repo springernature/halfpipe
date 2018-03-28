@@ -55,6 +55,10 @@ func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 		result.AddError(errors.NewMissingField("repo.private_key"))
 	}
 
+	if strings.HasPrefix(man.Repo.URI, "http") && man.Repo.PrivateKey != "" {
+		result.AddError(errors.NewInvalidField("repo.uri", "should be a ssh git url when private_key is set"))
+	}
+
 	for _, glob := range append(man.Repo.WatchedPaths, man.Repo.IgnoredPaths...) {
 		if err := r.checkGlob(glob, man.Repo.BasePath); err != nil {
 			result.AddError(err)
