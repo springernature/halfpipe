@@ -53,7 +53,12 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	for range allSecrets {
 		err := <-chSecretErrs
 		if err != nil {
-			result.AddWarning(err)
+			switch err.(type) {
+			case errors.VaultSecretError:
+				result.AddError(err)
+			default:
+				result.AddWarning(err)
+			}
 		}
 	}
 
@@ -61,7 +66,7 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 }
 
 func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipeline string, concourseSecret string) error {
-	if !secretIsValidFormat(concourseSecret) {
+	if !secretIsValidFormat(concourseSecret) || !secretHasOnlyValidChars(concourseSecret) {
 		return errors.NewVaultSecretError(concourseSecret)
 	}
 
@@ -95,6 +100,10 @@ func findSecrets(man manifest.Manifest) (secrets []string) {
 
 func secretIsValidFormat(secret string) bool {
 	return len(strings.Split(secret, ".")) == 2
+}
+
+func secretHasOnlyValidChars(secret string) bool {
+	return regexp.MustCompile(`^\(\([a-zA-Z\-_\.]+\)\)$`).MatchString(secret)
 }
 
 func secretToMapAndKey(secret string) (string, string) {

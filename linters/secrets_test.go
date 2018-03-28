@@ -58,10 +58,10 @@ func TestBadKeys(t *testing.T) {
 	}
 
 	result := linter.Lint(man)
-	if assert.Len(t, result.Warnings, 3) {
-		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong1))
-		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong2))
-		assert.Contains(t, result.Warnings, errors.NewVaultSecretError(wrong3))
+	if assert.Len(t, result.Errors, 3) {
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong1))
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong2))
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong3))
 	}
 }
 
@@ -183,7 +183,7 @@ func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
 }
 
 func TestRaisesWarningFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
-	myError := errors.NewVaultSecretError("whatever")
+	myError := errors.NewVaultClientErrorf("client error")
 	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
 		return NewFakeSecretStore(func(path, sK string) (bool, error) {
 			return false, myError
@@ -199,7 +199,7 @@ func TestRaisesWarningFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
 }
 
 func TestRaisesErrorFromStore(t *testing.T) {
-	myError := errors.NewVaultSecretError("whatever")
+	myError := errors.NewVaultClientErrorf("client error")
 	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
 		return NewFakeSecretStore(func(path, sK string) (bool, error) {
 			return false, nil
@@ -208,4 +208,31 @@ func TestRaisesErrorFromStore(t *testing.T) {
 
 	result := linter.Lint(manifest.Manifest{Team: "MyTeam", Repo: manifest.Repo{URI: "((a.secret))"}})
 	assert.Equal(t, myError, result.Warnings[0])
+}
+
+func TestBadCharacters(t *testing.T) {
+	linter := NewSecretsLinter(prefix, func() (ss secrets.SecretStore, err error) {
+		return NewFakeSecretStore(func(path, sK string) (bool, error) {
+			return false, nil
+		}), nil
+	})
+
+	wrong1 := "((this_is_a_invalid$secret.@with_special_chars))"
+	wrong2 := "((this_is_a_invalid%secret.*with_special_chars))"
+	wrong3 := "((this_is_a_invalid#secret.+with_special_chars))"
+	man := manifest.Manifest{}
+	man.Team = wrong1
+	man.Repo.URI = wrong2
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			Password: wrong3,
+		},
+	}
+
+	result := linter.Lint(man)
+	if assert.Len(t, result.Errors, 3) {
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong1))
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong2))
+		assert.Contains(t, result.Errors, errors.NewVaultSecretError(wrong3))
+	}
 }

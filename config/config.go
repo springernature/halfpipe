@@ -5,7 +5,7 @@ import "github.com/blang/semver"
 var (
 	// These fields will be populated in build
 	// go build -ldflags "-X config.version=..."
-	Version    = "0.0.0-DEV"
+	Version = "0.0.0-DEV"
 
 	VaultPrefix string
 
