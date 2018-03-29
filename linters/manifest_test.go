@@ -11,36 +11,44 @@ func testTeamLinter() teamlinter {
 	return teamlinter{}
 }
 
-func TestTeamIsEmpty(t *testing.T) {
+func TestAllMissing(t *testing.T) {
 	man := manifest.Manifest{}
+	result := testTeamLinter().Lint(man)
+	assert.Len(t, result.Errors, 2)
+}
+
+func TestTeamIsMissing(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Pipeline = "yolo"
+
 	result := testTeamLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "team", result.Errors[0])
 }
 
-func TestTeamIsValid(t *testing.T) {
-	man := manifest.Manifest{
-		Team: "yolo",
-	}
+func TestPipelineIsMissing(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Team = "yolo"
 
 	result := testTeamLinter().Lint(man)
-	assert.False(t, result.HasErrors())
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "pipeline", result.Errors[0])
 }
 
 func TestPipelineIsValid(t *testing.T) {
-	man := manifest.Manifest{
-		Team:     "yolo",
-		Pipeline: "Something with spaces",
-	}
+	man := manifest.Manifest{}
+	man.Team = "yolo"
+	man.Pipeline = "Something with spaces"
 
 	result := testTeamLinter().Lint(man)
 	assert.True(t, result.HasErrors())
+}
 
-	man = manifest.Manifest{
-		Team:     "yolo",
-		Pipeline: "alles-gut",
-	}
+func TestHappyPath(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Team = "yolo"
+	man.Pipeline = "alles-gut"
 
-	result = testTeamLinter().Lint(man)
+	result := testTeamLinter().Lint(man)
 	assert.False(t, result.HasErrors())
 }

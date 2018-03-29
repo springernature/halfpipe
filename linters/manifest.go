@@ -21,6 +21,10 @@ func (teamlinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		result.AddError(errors.NewMissingField("team"))
 	}
 
+	if manifest.Pipeline == "" {
+		result.AddError(errors.NewMissingField("pipeline"))
+	}
+
 	if strings.Contains(manifest.Pipeline, " ") {
 		result.AddError(errors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
 	}
