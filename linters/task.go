@@ -32,17 +32,17 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	var lintTasks func(string, []manifest.Task)
 	lintTasks = func(listName string, tasks []manifest.Task) {
 		for i, t := range tasks {
-			taskID := fmt.Sprintf("%s.%v", listName, i+1)
+			taskID := fmt.Sprintf("%s[%v]", listName, i)
 			switch task := t.(type) {
 			case manifest.Run:
-				linter.lintRunTask(task, &result)
+				linter.lintRunTask(task, taskID, &result)
 			case manifest.DeployCF:
-				linter.lintDeployCFTask(task, &result)
-				lintTasks(fmt.Sprintf("%s.PrePromote", taskID), task.PrePromote)
+				linter.lintDeployCFTask(task, taskID, &result)
+				lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote)
 			case manifest.DockerPush:
-				linter.lintDockerPushTask(task, &result)
+				linter.lintDockerPushTask(task, taskID, &result)
 			case manifest.DockerCompose:
-				linter.lintDockerComposeTask(task, &result)
+				linter.lintDockerComposeTask(task, taskID, &result)
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 			}
@@ -52,37 +52,37 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	return
 }
 
-func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, result *LintResult) {
+func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, result *LintResult) {
 	if cf.API == "" {
-		result.AddError(errors.NewMissingField("deploy-cf.api"))
+		result.AddError(errors.NewMissingField(taskID + " deploy-cf.api"))
 	}
 	if cf.Space == "" {
-		result.AddError(errors.NewMissingField("deploy-cf.space"))
+		result.AddError(errors.NewMissingField(taskID + " deploy-cf.space"))
 	}
 	if cf.Org == "" {
-		result.AddError(errors.NewMissingField("deploy-cf.org"))
+		result.AddError(errors.NewMissingField(taskID + " deploy-cf.org"))
 	}
 	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}
 
-	linter.lintEnvVars(cf.Vars, result)
+	linter.lintEnvVars(cf.Vars, taskID, result)
 	return
 }
 
-func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, result *LintResult) {
+func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, taskID string, result *LintResult) {
 	if docker.Username == "" {
-		result.AddError(errors.NewMissingField("docker-push.username"))
+		result.AddError(errors.NewMissingField(taskID + " docker-push.username"))
 	}
 	if docker.Password == "" {
-		result.AddError(errors.NewMissingField("docker-push.password"))
+		result.AddError(errors.NewMissingField(taskID + " docker-push.password"))
 	}
 	if docker.Image == "" {
-		result.AddError(errors.NewMissingField("docker-push.image"))
+		result.AddError(errors.NewMissingField(taskID + " docker-push.image"))
 	} else {
 		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
 		if !matched {
-			result.AddError(errors.NewInvalidField("docker-push.image", "must be specified as 'user/image' or 'registry/user/image'"))
+			result.AddError(errors.NewInvalidField(taskID+" docker-push.image", "must be specified as 'user/image' or 'registry/user/image'"))
 		}
 	}
 
@@ -90,13 +90,13 @@ func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, result *
 		result.AddError(err)
 	}
 
-	linter.lintEnvVars(docker.Vars, result)
+	linter.lintEnvVars(docker.Vars, taskID, result)
 	return
 }
 
-func (linter taskLinter) lintRunTask(run manifest.Run, result *LintResult) {
+func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *LintResult) {
 	if run.Script == "" {
-		result.AddError(errors.NewMissingField("run.script"))
+		result.AddError(errors.NewMissingField(taskID + " run.script"))
 	} else {
 		// Possible for script to have args,
 		fields := strings.Fields(strings.TrimSpace(run.Script))
@@ -107,32 +107,32 @@ func (linter taskLinter) lintRunTask(run manifest.Run, result *LintResult) {
 	}
 
 	if run.Docker.Image == "" {
-		result.AddError(errors.NewMissingField("run.docker.image"))
+		result.AddError(errors.NewMissingField(taskID + " run.docker.image"))
 	}
 
 	if run.Docker.Username != "" && run.Docker.Password == "" {
-		result.AddError(errors.NewMissingField("run.docker.password"))
+		result.AddError(errors.NewMissingField(taskID + " run.docker.password"))
 	}
 	if run.Docker.Password != "" && run.Docker.Username == "" {
-		result.AddError(errors.NewMissingField("run.docker.username"))
+		result.AddError(errors.NewMissingField(taskID + " run.docker.username"))
 	}
 
-	linter.lintEnvVars(run.Vars, result)
+	linter.lintEnvVars(run.Vars, taskID, result)
 	return
 }
 
-func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, result *LintResult) {
+func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID string, result *LintResult) {
 	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
 		result.AddError(err)
 	}
-	linter.lintEnvVars(dc.Vars, result)
+	linter.lintEnvVars(dc.Vars, taskID, result)
 	return
 }
 
-func (linter taskLinter) lintEnvVars(vars map[string]string, result *LintResult) {
+func (linter taskLinter) lintEnvVars(vars map[string]string, taskID string, result *LintResult) {
 	for key := range vars {
 		if key != strings.ToUpper(key) {
-			result.AddError(errors.NewInvalidField(key, "vars must be uppercase"))
+			result.AddError(errors.NewInvalidField(taskID+" "+key, "vars must be uppercase"))
 		}
 	}
 	return

@@ -38,7 +38,7 @@ func unmarshalAsJSON(yml []byte, out *Manifest) []error {
 
 	if err := decoder.Decode(out); err != nil {
 		msg := strings.Replace(err.Error(), "json: ", "", -1)
-		return []error{fmt.Errorf("error parsing YAML: %v", msg)}
+		return []error{fmt.Errorf(msg)}
 	}
 	return nil
 }

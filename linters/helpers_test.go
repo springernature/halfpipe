@@ -1,6 +1,7 @@
 package linters
 
 import (
+	"strings"
 	"testing"
 
 	"fmt"
@@ -37,7 +38,7 @@ func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	for _, err := range errs {
 		mf, ok := err.(errors.InvalidFieldError)
 		if ok {
-			if mf.Name == name {
+			if strings.Contains(mf.Name, name) {
 				return
 			}
 		}
