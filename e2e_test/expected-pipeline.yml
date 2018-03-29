@@ -13,9 +13,8 @@ resources:
   type: gcp-resource
   source:
     bucket: halfpipe-artifacts
+    folder: engineering-enablement/e2e-test
     json_key: ((gcr.private_key))
-    pipeline: e2e-test
-    team: engineering-enablement
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
@@ -48,7 +47,7 @@ resource_types:
   type: docker-image
   source:
     repository: platformengineering/gcp-resource
-    tag: stable
+    tag: 0.14.0
 - name: cf-resource
   type: docker-image
   source:

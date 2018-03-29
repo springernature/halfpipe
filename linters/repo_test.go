@@ -109,7 +109,7 @@ func TestRepoHasInvalidGitCryptKey(t *testing.T) {
 	assertInvalidField(t, "repo.git_crypt_key", result.Errors[0])
 }
 
-func TestRepoWithPublicUrlAndPrivateKey(t *testing.T){
+func TestRepoWithPublicUrlAndPrivateKey(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.PrivateKey = "my_private_key"

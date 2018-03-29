@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"testing"
 
+	"path/filepath"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -71,7 +73,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
-	assert.Equal(t, "stable", resourceType.Source["tag"])
+	assert.NotEmpty(t, resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
@@ -103,11 +105,12 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
-	assert.Equal(t, "stable", resourceType.Source["tag"])
+	assert.NotEmpty(t, resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
+	assert.Equal(t, filepath.Join(man.Team, man.Pipeline), resource.Source["folder"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
 }
 

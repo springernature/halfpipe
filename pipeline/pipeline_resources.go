@@ -3,6 +3,9 @@ package pipeline
 import (
 	"strings"
 
+	"path/filepath"
+	"regexp"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -63,20 +66,24 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "platformengineering/gcp-resource",
-			"tag":        "stable",
+			"tag":        "0.14.0",
 		},
 	}
 }
 
 func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
+	filter := func(str string) string {
+		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
+		return reg.ReplaceAllString(strings.ToLower(str), "")
+	}
+
 	return atc.ResourceConfig{
 		Name: GenerateArtifactsFolderName(team, pipeline),
 		Type: "gcp-resource",
 		Source: atc.Source{
 			"json_key": "((gcr.private_key))",
+			"folder":   filepath.Join(filter(team), filter(pipeline)),
 			"bucket":   "halfpipe-artifacts",
-			"team":     team,
-			"pipeline": pipeline,
 		},
 	}
 }
