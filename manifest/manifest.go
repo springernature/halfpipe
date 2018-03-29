@@ -4,13 +4,15 @@ import (
 	"regexp"
 )
 
+type TaskList []Task
+
 type Manifest struct {
 	Team            string
 	Pipeline        string
 	TriggerInterval string `json:"trigger_interval"`
 	Repo            Repo
 	SlackChannel    string `json:"slack_channel"`
-	Tasks           []Task
+	Tasks           TaskList
 }
 
 type Repo struct {
@@ -71,8 +73,8 @@ type DeployCF struct {
 	Password       string
 	Manifest       string
 	Vars           Vars
-	DeployArtifact string `json:"deploy_artifact"`
-	PrePromote     []Task `json:"pre_promote"`
+	DeployArtifact string   `json:"deploy_artifact"`
+	PrePromote     TaskList `json:"pre_promote"`
 }
 
 type DockerCompose struct {

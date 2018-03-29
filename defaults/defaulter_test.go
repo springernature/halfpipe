@@ -121,7 +121,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 
 	actual := manifestDefaults.Update(man)
 
-	expectedTasks := []manifest.Task{
+	expectedTasks := manifest.TaskList{
 		manifest.DockerPush{
 			Username: manifestDefaults.DockerUsername,
 			Password: manifestDefaults.DockerPassword,

@@ -79,7 +79,7 @@ tasks:
     BAR: "1"
   save_artifacts:
   - target/dist/artifact.zip
-  - README.md 
+  - README.md
 - type: docker-compose
   name: docker compose task
   vars:
@@ -87,7 +87,7 @@ tasks:
     BAR: "1"
   save_artifacts:
   - target/dist/artifact.zip
-  - README.md   
+  - README.md
 - type: docker-push
   name: docker push task
   username: user
@@ -203,13 +203,12 @@ tasks:
 func TestInvalidYaml(t *testing.T) {
 	yamls := []string{
 		"team : { foo",
-		" ",
 		"\t team: foo",
 	}
 
 	for _, yaml := range yamls {
 		_, errs := Parse(yaml)
-		assert.Equal(t, len(errs), 1)
+		assert.Equal(t, len(errs), 1, fmt.Sprintf("%q", yaml))
 	}
 }
 
@@ -218,6 +217,10 @@ func TestFailsWithUnknownFields(t *testing.T) {
 		`
 team: foo
 tasks:
+- type: run
+  script: foo.sh
+  docker: 
+    image: bash:latest
 - type: docker-compose
   unknown_field: wibble`,
 		`
@@ -235,9 +238,9 @@ tasks:
 - type: docker-compose`,
 	}
 
-	for _, test := range tests {
-		_, errs := Parse(test)
-		if assert.NotEmpty(t, errs) {
+	for i, yaml := range tests {
+		_, errs := Parse(yaml)
+		if assert.NotEmpty(t, errs, fmt.Sprintf("%v. %q", i, yaml)) {
 			assert.Contains(t, fmt.Sprintf("%v", errs), "unknown_field")
 		}
 	}
