@@ -119,7 +119,7 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: deploy-cf
   serial: true
@@ -155,7 +155,7 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: deploy to staging
   serial: true
@@ -181,9 +181,9 @@ jobs:
         source:
           repository: node
           tag: 9.5.0-alpine
-        params:
-          A: blah
-          TEST_ROUTE: halfpipe-example-kotlin-dev-CANDIDATE.live.cf.private.springer.com
+      params:
+        A: blah
+        TEST_ROUTE: halfpipe-example-kotlin-dev-CANDIDATE.live.cf.private.springer.com
       run:
         path: /bin/sh
         args:
@@ -191,7 +191,7 @@ jobs:
         - |-
           export GIT_REVISION=`cat .git/ref`
           ./smoke-test.sh
-      dir: source
+        dir: source
       inputs:
       - name: source
         path: ""
@@ -218,7 +218,7 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: push to docker registry
   serial: true
@@ -238,7 +238,7 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: run notify.sh
   serial: true
@@ -276,7 +276,7 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: docker-compose
   serial: true
@@ -312,6 +312,6 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 

@@ -61,7 +61,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 				"channel":  man.SlackChannel,
 				"username": "Halfpipe",
 				"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
-				"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. http://concourse.halfpipe.io/builds/$BUILD_ID",
+				"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
 			},
 		}
 	}
