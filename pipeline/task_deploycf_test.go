@@ -3,6 +3,8 @@ package pipeline
 import (
 	"testing"
 
+	"path/filepath"
+
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
@@ -55,18 +57,17 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	manifestPath := "source/manifest-dev.yml"
+	manifestPath := filepath.Join(gitDir, "manifest-dev.yml")
 	testDomain := "dev.cf.private.springer.com"
 	envVars := map[string]interface{}{
 		"VAR1": "value1",
 		"VAR2": "value2",
 	}
-	repoName := "source"
 	expectedDevJob := atc.JobConfig{
 		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: repoName, Trigger: true},
+			atc.PlanConfig{Get: gitDir, Trigger: true},
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
@@ -74,7 +75,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 					"testDomain":   testDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 			atc.PlanConfig{
@@ -84,7 +85,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 					"testDomain":   testDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 			atc.PlanConfig{
@@ -94,7 +95,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 					"testDomain":   testDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 		},
@@ -113,19 +114,19 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	liveTestDomain := "live.cf.private.springer.com"
-	liveManifest := "source/manifest-live.yml"
+	liveManifest := filepath.Join(gitDir, "manifest-live.yml")
 	expectedLiveJob := atc.JobConfig{
 		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: repoName, Trigger: true, Passed: []string{"deploy-cf"}},
+			atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 			atc.PlanConfig{
@@ -134,7 +135,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 			atc.PlanConfig{
@@ -143,7 +144,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 					"command":      "halfpipe-delete",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
-					"appPath":      repoName,
+					"appPath":      gitDir,
 				},
 			},
 		},
@@ -200,7 +201,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	plan := config.Jobs[0].Plan
 
 	if assert.Len(t, plan, 6) {
-		assert.Equal(t, gitSource, plan[0].Get)
+		assert.Equal(t, gitDir, plan[0].Get)
 		assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
 
 		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])

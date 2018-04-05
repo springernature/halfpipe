@@ -50,8 +50,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 }
 
 func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
-	name := "source"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := "git@github.com:springernature/myRepo.git"
 	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Pipeline = "pipeline"
@@ -68,7 +67,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[2].Put)
 	assert.Equal(t, "artifacts", renderedPipeline.Jobs[0].Plan[2].Params["folder"])
-	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
+	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
@@ -82,8 +81,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 }
 
 func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
-	name := "source"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	gitURI := "git@github.com:springernature/myRepo.git"
 	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Pipeline = "pipeline"
@@ -100,7 +98,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 5)
 
 	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[1].Get)
-	assert.Equal(t, name+"/.git/ref", renderedPipeline.Jobs[0].Plan[1].Params["version_file"])
+	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[1].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)

@@ -33,7 +33,7 @@ func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 
 	return atc.ResourceConfig{
-		Name:   gitSource,
+		Name:   gitDir,
 		Type:   "git",
 		Source: sources,
 	}

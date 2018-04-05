@@ -1,7 +1,7 @@
 # Generated using halfpipe cli version 0.0.0-DEV
 groups: []
 resources:
-- name: source
+- name: git
   type: git
   source:
     uri: https://github.com/robwhitby/halfpipe-example-nodejs
@@ -57,7 +57,7 @@ jobs:
 - name: Test
   serial: true
   plan:
-  - get: source
+  - get: git
     trigger: true
   - task: run
     config:
@@ -103,9 +103,9 @@ jobs:
             echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
             exit 1
           fi
-        dir: source
+        dir: git
       inputs:
-      - name: source
+      - name: git
         path: ""
       outputs:
       - name: artifacts
@@ -113,7 +113,7 @@ jobs:
   - put: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
-      version_file: source/.git/ref
+      version_file: git/.git/ref
   on_failure:
     put: slack
     params:
@@ -124,31 +124,31 @@ jobs:
 - name: deploy-cf
   serial: true
   plan:
-  - get: source
+  - get: git
     passed:
     - Test
     trigger: true
   - get: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
-      version_file: source/.git/ref
+      version_file: git/.git/ref
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-push
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-delete
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: ""
   on_failure:
     put: slack
@@ -160,15 +160,15 @@ jobs:
 - name: deploy to staging
   serial: true
   plan:
-  - get: source
+  - get: git
     passed:
     - deploy-cf
     trigger: true
   - put: CF api-live pe staging
     params:
-      appPath: source
+      appPath: git
       command: halfpipe-push
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -191,24 +191,24 @@ jobs:
         - |-
           export GIT_REVISION=`cat .git/ref`
           ./smoke-test.sh
-        dir: source
+        dir: git
       inputs:
-      - name: source
+      - name: git
         path: ""
   - put: CF api-live pe staging
     params:
-      appPath: source
+      appPath: git
       command: halfpipe-promote
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
         B: "false"
   - put: CF api-live pe staging
     params:
-      appPath: source
+      appPath: git
       command: halfpipe-delete
-      manifestPath: source/manifest.yml
+      manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -223,13 +223,13 @@ jobs:
 - name: push to docker registry
   serial: true
   plan:
-  - get: source
+  - get: git
     passed:
     - deploy to staging
     trigger: true
   - put: Docker Registry
     params:
-      build: source
+      build: git
       build_args:
         A: a
         B: b
@@ -243,7 +243,7 @@ jobs:
 - name: run notify.sh
   serial: true
   plan:
-  - get: source
+  - get: git
     passed:
     - push to docker registry
     trigger: true
@@ -267,9 +267,9 @@ jobs:
         - |-
           export GIT_REVISION=`cat .git/ref`
           ./notify.sh
-        dir: source
+        dir: git
       inputs:
-      - name: source
+      - name: git
         path: ""
   on_failure:
     put: slack
@@ -281,7 +281,7 @@ jobs:
 - name: docker-compose
   serial: true
   plan:
-  - get: source
+  - get: git
     passed:
     - run notify.sh
     trigger: true
@@ -303,9 +303,9 @@ jobs:
           \source /docker-lib.sh
           start_docker
           docker-compose up --force-recreate --exit-code-from app
-        dir: source
+        dir: git
       inputs:
-      - name: source
+      - name: git
         path: ""
   on_failure:
     put: slack

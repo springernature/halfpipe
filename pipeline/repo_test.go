@@ -10,7 +10,7 @@ import (
 )
 
 func TestRendersHttpGitResource(t *testing.T) {
-	name := gitSource
+	name := gitDir
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 
 	man := manifest.Manifest{}
@@ -31,7 +31,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 }
 
 func TestRendersSshGitResource(t *testing.T) {
-	name := gitSource
+	name := gitDir
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
@@ -55,7 +55,7 @@ func TestRendersSshGitResource(t *testing.T) {
 }
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
-	name := gitSource
+	name := gitDir
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git/", name)
 	privateKey := "blurgh"
 
@@ -86,7 +86,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 }
 
 func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
-	name := gitSource
+	name := gitDir
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	gitCrypt := "AABBFF66"
 
