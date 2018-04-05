@@ -96,9 +96,9 @@ func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 	}
 }
 
-func halfpipeCfDeployResourceType() atc.ResourceType {
+func halfpipeCfDeployResourceType(name string) atc.ResourceType {
 	return atc.ResourceType{
-		Name: "cf-resource",
+		Name: name,
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "platformengineering/cf-resource",

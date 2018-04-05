@@ -75,6 +75,13 @@ func uniqueName(cfg atc.Config, name string, defaultName string) string {
 	return getUniqueName(name, &cfg, 0)
 }
 
+func (p pipeline) addCfResourceType(cfg *atc.Config) {
+	resTypeName := "cf-resource"
+	if _, exists := cfg.ResourceTypes.Lookup(resTypeName); !exists {
+		cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType(resTypeName))
+	}
+}
+
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
@@ -82,7 +89,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	failurePlan := p.addSlackResource(&cfg, man)
 	p.addArtifactResource(&cfg, man)
 
-	var haveCfResourceConfig bool
 	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
@@ -95,10 +101,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			jobConfig = p.dockerComposeJob(task, man)
 
 		case manifest.DeployCF:
-			if !haveCfResourceConfig {
-				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
-				haveCfResourceConfig = true
-			}
+			p.addCfResourceType(&cfg)
 			resourceName := uniqueName(cfg, deployCFResourceName(task), "")
 			task.Name = uniqueName(cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
