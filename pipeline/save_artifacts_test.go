@@ -50,7 +50,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 }
 
 func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
-	name := "yolo"
+	name := "source"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
 	man.Team = "team"
@@ -82,7 +82,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 }
 
 func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
-	name := "yolo"
+	name := "source"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
 	man.Team = "team"

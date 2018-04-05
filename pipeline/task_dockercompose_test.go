@@ -33,7 +33,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{
 				Task:       "run",
 				Privileged: true,
@@ -52,11 +52,11 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					},
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
-						Dir:  man.Repo.GetName() + "/base.path",
+						Dir:  gitSource + "/base.path",
 						Args: runScriptArgs(dockerComposeScript(), "", nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: man.Repo.GetName()},
+						{Name: gitSource},
 					},
 				}},
 		}}

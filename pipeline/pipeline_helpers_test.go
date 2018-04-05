@@ -72,7 +72,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 	}
 
 	expectedResourceNames := []string{
-		"halfpipe",
+		"source",
 		"CF api.foo.bar ee dev",
 		"CF api.foo.bar ee dev (1)",
 		"CF api-dev ee dev",

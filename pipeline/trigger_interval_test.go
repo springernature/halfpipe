@@ -9,7 +9,7 @@ import (
 
 func TestTriggerIntervalNotSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo: manifest.Repo{URI: "gitUri"},
+		Repo: manifest.Repo{URI: gitSource},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
 		},
@@ -24,14 +24,14 @@ func TestTriggerIntervalNotSet(t *testing.T) {
 
 	//should be 2 items in the plan: get git + task
 	assert.Len(t, plan, 2)
-	assert.Equal(t, "gitUri", plan[0].Get)
+	assert.Equal(t, gitSource, plan[0].Get)
 	assert.True(t, plan[0].Trigger)
 	assert.Equal(t, "run", plan[1].Task)
 }
 
 func TestTriggerIntervalSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:            manifest.Repo{URI: "gitUri"},
+		Repo:            manifest.Repo{URI: gitSource},
 		TriggerInterval: "1h",
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
@@ -50,7 +50,7 @@ func TestTriggerIntervalSet(t *testing.T) {
 
 	//should be 3 things in the plan get git + get timer + task
 	assert.Len(t, plan, 3)
-	assert.Equal(t, "gitUri", plan[0].Get)
+	assert.Equal(t, gitSource, plan[0].Get)
 	assert.True(t, plan[0].Trigger)
 
 	assert.Equal(t, "timer 1h", plan[1].Get)

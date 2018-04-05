@@ -1,9 +1,5 @@
 package manifest
 
-import (
-	"regexp"
-)
-
 type TaskList []Task
 
 type Manifest struct {
@@ -22,15 +18,6 @@ type Repo struct {
 	WatchedPaths []string `json:"watched_paths"`
 	IgnoredPaths []string `json:"ignored_paths"`
 	GitCryptKey  string   `json:"git_crypt_key"`
-}
-
-func (repo Repo) GetName() string {
-	re := regexp.MustCompile(`^(?:.+\/)([^.]+)(?:\.git\/?)?$`)
-	matches := re.FindStringSubmatch(repo.URI)
-	if len(matches) != 2 {
-		return repo.URI
-	}
-	return matches[1]
 }
 
 func (repo Repo) IsPublic() bool {

@@ -30,7 +30,7 @@ func TestRenderRunTask(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{Task: "run", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{
@@ -46,11 +46,11 @@ func TestRenderRunTask(t *testing.T) {
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
-					Dir:  man.Repo.GetName(),
+					Dir:  gitSource,
 					Args: runScriptArgs("./yolo.sh", "", nil, ".git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
-					{Name: man.Repo.GetName()},
+					{Name: gitSource},
 				},
 			}},
 		}}
@@ -79,7 +79,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{Task: "run", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{
@@ -97,11 +97,11 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
-					Dir:  man.Repo.GetName(),
+					Dir:  gitSource,
 					Args: runScriptArgs("./yolo.sh", "", nil, ".git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
-					{Name: man.Repo.GetName()},
+					{Name: gitSource},
 				},
 			}},
 		}}
@@ -132,7 +132,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{Task: "run", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{
@@ -148,11 +148,11 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
-					Dir:  man.Repo.GetName() + "/" + basePath,
+					Dir:  gitSource + "/" + basePath,
 					Args: runScriptArgs("./yolo.sh", "", nil, "../.git/ref"),
 				},
 				Inputs: []atc.TaskInputConfig{
-					{Name: man.Repo.GetName()},
+					{Name: gitSource},
 				},
 			}},
 		}}

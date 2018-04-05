@@ -41,11 +41,11 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{
 				Put: "Docker Registry",
 				Params: atc.Params{
-					"build": man.Repo.GetName(),
+					"build": gitSource,
 					"build_args": map[string]interface{}{
 						"A": "a",
 						"B": "b",
@@ -91,9 +91,9 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: man.Repo.GetName(), Trigger: true},
+			atc.PlanConfig{Get: gitSource, Trigger: true},
 			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{
-				"build": man.Repo.GetName() + "/" + basePath,
+				"build": gitSource + "/" + basePath,
 			}},
 		},
 	}

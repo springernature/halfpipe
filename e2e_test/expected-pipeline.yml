@@ -1,7 +1,7 @@
 # Generated using halfpipe cli version 0.0.0-DEV
 groups: []
 resources:
-- name: halfpipe-example-nodejs
+- name: source
   type: git
   source:
     uri: https://github.com/robwhitby/halfpipe-example-nodejs
@@ -57,7 +57,7 @@ jobs:
 - name: Test
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     trigger: true
   - task: run
     config:
@@ -103,9 +103,9 @@ jobs:
             echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
             exit 1
           fi
-        dir: halfpipe-example-nodejs
+        dir: source
       inputs:
-      - name: halfpipe-example-nodejs
+      - name: source
         path: ""
       outputs:
       - name: artifacts
@@ -113,7 +113,7 @@ jobs:
   - put: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
-      version_file: halfpipe-example-nodejs/.git/ref
+      version_file: source/.git/ref
   on_failure:
     put: slack
     params:
@@ -124,31 +124,31 @@ jobs:
 - name: deploy-cf
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     passed:
     - Test
     trigger: true
   - get: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
-      version_file: halfpipe-example-nodejs/.git/ref
+      version_file: source/.git/ref
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-push
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-delete
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: ""
   on_failure:
     put: slack
@@ -160,15 +160,15 @@ jobs:
 - name: deploy to staging
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     passed:
     - deploy-cf
     trigger: true
   - put: CF api-live pe staging
     params:
-      appPath: halfpipe-example-nodejs
+      appPath: source
       command: halfpipe-push
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -191,24 +191,24 @@ jobs:
         - |-
           export GIT_REVISION=`cat .git/ref`
           ./smoke-test.sh
-      dir: halfpipe-example-nodejs
+      dir: source
       inputs:
-      - name: halfpipe-example-nodejs
+      - name: source
         path: ""
   - put: CF api-live pe staging
     params:
-      appPath: halfpipe-example-nodejs
+      appPath: source
       command: halfpipe-promote
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
         B: "false"
   - put: CF api-live pe staging
     params:
-      appPath: halfpipe-example-nodejs
+      appPath: source
       command: halfpipe-delete
-      manifestPath: halfpipe-example-nodejs/manifest.yml
+      manifestPath: source/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -223,13 +223,13 @@ jobs:
 - name: push to docker registry
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     passed:
     - deploy to staging
     trigger: true
   - put: Docker Registry
     params:
-      build: halfpipe-example-nodejs
+      build: source
       build_args:
         A: a
         B: b
@@ -243,7 +243,7 @@ jobs:
 - name: run notify.sh
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     passed:
     - push to docker registry
     trigger: true
@@ -267,9 +267,9 @@ jobs:
         - |-
           export GIT_REVISION=`cat .git/ref`
           ./notify.sh
-        dir: halfpipe-example-nodejs
+        dir: source
       inputs:
-      - name: halfpipe-example-nodejs
+      - name: source
         path: ""
   on_failure:
     put: slack
@@ -281,7 +281,7 @@ jobs:
 - name: docker-compose
   serial: true
   plan:
-  - get: halfpipe-example-nodejs
+  - get: source
     passed:
     - run notify.sh
     trigger: true
@@ -303,9 +303,9 @@ jobs:
           \source /docker-lib.sh
           start_docker
           docker-compose up --force-recreate --exit-code-from app
-        dir: halfpipe-example-nodejs
+        dir: source
       inputs:
-      - name: halfpipe-example-nodejs
+      - name: source
         path: ""
   on_failure:
     put: slack

@@ -55,13 +55,13 @@ func TestRendersCfDeployResources(t *testing.T) {
 		},
 	}
 
-	manifestPath := "reponame/manifest-dev.yml"
+	manifestPath := "source/manifest-dev.yml"
 	testDomain := "dev.cf.private.springer.com"
 	envVars := map[string]interface{}{
 		"VAR1": "value1",
 		"VAR2": "value2",
 	}
-	repoName := "reponame"
+	repoName := "source"
 	expectedDevJob := atc.JobConfig{
 		Name:   "deploy-cf",
 		Serial: true,
@@ -113,7 +113,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	}
 
 	liveTestDomain := "live.cf.private.springer.com"
-	liveManifest := "reponame/manifest-live.yml"
+	liveManifest := "source/manifest-live.yml"
 	expectedLiveJob := atc.JobConfig{
 		Name:   "deploy-cf (1)",
 		Serial: true,
@@ -200,7 +200,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	plan := config.Jobs[0].Plan
 
 	if assert.Len(t, plan, 6) {
-		assert.Equal(t, "repo-name", plan[0].Get)
+		assert.Equal(t, gitSource, plan[0].Get)
 		assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
 
 		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
