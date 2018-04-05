@@ -33,19 +33,9 @@ func NewPipeline(rManifest func(string) ([]cfManifest.Application, error)) pipel
 const artifactsFolderName = "artifacts"
 const gitDir = "git"
 
-func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
-	repoResource := p.gitResource(man.Repo)
-	cfg.Resources = append(cfg.Resources, repoResource)
-	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
-
-	if man.TriggerInterval != "" {
-		timerResource := p.timerResource(man.TriggerInterval)
-		cfg.Resources = append(cfg.Resources, timerResource)
-		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
-	}
+func (p pipeline) addSlackResource(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
 
 	slackChannelSet := man.SlackChannel != ""
-	var slackPlanConfig *atc.PlanConfig
 
 	if slackChannelSet {
 		slackResource := p.slackResource()
@@ -54,7 +44,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		slackResourceType := p.slackResourceType()
 		cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
 
-		slackPlanConfig = &atc.PlanConfig{
+		return &atc.PlanConfig{
 			Put: slackResource.Name,
 			Params: atc.Params{
 				"channel":  man.SlackChannel,
@@ -64,29 +54,44 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			},
 		}
 	}
+	return nil
+}
 
-	if p.artifactsUsed(man) {
-		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline))
-	}
+func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.PlanConfig {
+	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
 
-	uniqueName := func(name string, defaultName string) string {
-		if name == "" {
-			name = defaultName
-		}
-		return getUniqueName(name, &cfg, 0)
+	if man.TriggerInterval != "" {
+		timerResource := p.timerResource(man.TriggerInterval)
+		cfg.Resources = append(cfg.Resources, timerResource)
+		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
 	}
+	return initialPlan
+}
+
+func uniqueName(cfg atc.Config, name string, defaultName string) string {
+	if name == "" {
+		name = defaultName
+	}
+	return getUniqueName(name, &cfg, 0)
+}
+
+func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
+
+	initialPlan := p.initialPlan(&cfg, man)
+	failurePlan := p.addSlackResource(&cfg, man)
+	p.addArtifactResource(&cfg, man)
 
 	var haveCfResourceConfig bool
 	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
-			task.Name = uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
+			task.Name = uniqueName(cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.runJob(task, man)
 
 		case manifest.DockerCompose:
-			task.Name = uniqueName(task.Name, "docker-compose")
+			task.Name = uniqueName(cfg, task.Name, "docker-compose")
 			jobConfig = p.dockerComposeJob(task, man)
 
 		case manifest.DeployCF:
@@ -94,20 +99,20 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 				cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType())
 				haveCfResourceConfig = true
 			}
-			resourceName := uniqueName(deployCFResourceName(task), "")
-			task.Name = uniqueName(task.Name, "deploy-cf")
+			resourceName := uniqueName(cfg, deployCFResourceName(task), "")
+			task.Name = uniqueName(cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			jobConfig = p.deployCFJob(task, resourceName, man)
 
 		case manifest.DockerPush:
-			resourceName := uniqueName("Docker Registry", "")
-			task.Name = uniqueName(task.Name, "docker-push")
+			resourceName := uniqueName(cfg, "Docker Registry", "")
+			task.Name = uniqueName(cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			jobConfig = p.dockerPushJob(task, resourceName, man)
 		}
 
-		if slackChannelSet {
-			jobConfig.Failure = slackPlanConfig
+		if failurePlan != nil {
+			jobConfig.Failure = failurePlan
 		}
 
 		//insert the initial plan
@@ -299,21 +304,25 @@ start_docker
 docker-compose up --force-recreate --exit-code-from app`
 }
 
-func (pipeline) artifactsUsed(man manifest.Manifest) bool {
+func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
+	hasArtifacts := false
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
 		case manifest.Run:
 			if len(task.SaveArtifacts) > 0 {
-				return true
+				hasArtifacts = true
 			}
 		case manifest.DeployCF:
 			if len(task.DeployArtifact) > 0 {
-				return true
+				hasArtifacts = true
 			}
 		}
 	}
 
-	return false
+	if hasArtifacts {
+		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
+		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline))
+	}
 }
 
 func runScriptArgs(script string, artifactsPath string, saveArtifacts []string, pathToGitRef string) []string {
