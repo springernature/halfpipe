@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 
+	"os"
+
 	"github.com/blang/semver"
 	"github.com/google/go-github/github"
 	"github.com/inconshreveable/go-update"
@@ -68,6 +70,10 @@ func (s sync) Check() (err error) {
 
 	latestRelease, err := s.getLatestRelease()
 	if err != nil {
+		if strings.Contains(err.Error(), "GET https://api.github.com/repos/springernature/halfpipe/releases/latest: 403 API rate limit exceeded for") {
+			fmt.Fprint(os.Stderr, "Could not resolve current version from github...\n")
+			err = nil
+		}
 		return
 	}
 
