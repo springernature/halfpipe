@@ -5,9 +5,9 @@ type TaskList []Task
 type Manifest struct {
 	Team            string
 	Pipeline        string
-	TriggerInterval string `json:"trigger_interval"`
-	Repo            Repo
-	SlackChannel    string `json:"slack_channel"`
+	SlackChannel    string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
+	Repo            Repo   `yaml:"repo,omitempty"`
 	Tasks           TaskList
 }
 
@@ -26,8 +26,8 @@ func (repo Repo) IsPublic() bool {
 
 type Docker struct {
 	Image    string
-	Username string
-	Password string
+	Username string `yaml:"username,omitempty"`
+	Password string `yaml:"password,omitempty"`
 }
 
 type Task interface{}
@@ -37,8 +37,8 @@ type Run struct {
 	Name          string
 	Script        string
 	Docker        Docker
-	Vars          Vars
-	SaveArtifacts []string `json:"save_artifacts"`
+	Vars          Vars     `yaml:"vars,omitempty"`
+	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 }
 
 type DockerPush struct {

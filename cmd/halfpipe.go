@@ -13,6 +13,7 @@ import (
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secrets"
+	halfpipeManifest "github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
 )
@@ -24,6 +25,8 @@ func main() {
 	switch {
 	case invokedForHelp(os.Args):
 		output, err = printHelp()
+	case invokedForInit(os.Args):
+		output, err = generateSampleHalfpipeFile()
 	case invokedForVersion(os.Args):
 		output, err = printVersion()
 	case invokedForSync(os.Args):
@@ -52,6 +55,10 @@ func invokedForHelp(args []string) bool {
 	return len(args) > 1 && (args[1] == "help" || args[1] == "-h" || args[1] == "-help" || args[1] == "--help")
 }
 
+func invokedForInit(args []string) bool {
+	return len(args) > 1 && (args[1] == "init")
+}
+
 func invokedForVersion(args []string) bool {
 	return len(args) > 1 && (args[1] == "version" || args[1] == "-v" || args[1] == "-version" || args[1] == "--version")
 }
@@ -62,10 +69,26 @@ func printHelp() (string, error) {
 Current version is %s
 
 Available commands are
+  init - creates a sample .halfpipe.io file in the current directory
   sync - updates the halfpipe cli to latest version 'halfpipe sync'
   help - this info
   version - version info
 `, version), err
+}
+
+func generateSampleHalfpipeFile() (output string, err error) {
+	currentDir, err := os.Getwd()
+	if err != nil {
+		return
+	}
+
+	err = halfpipeManifest.NewSampleGenerator(afero.Afero{Fs: afero.NewOsFs()}).Generate()
+	if err != nil {
+		return
+	}
+	output = fmt.Sprintf("Generated sample configuration at %s/.halfpipe.io", currentDir)
+
+	return
 }
 
 func printVersion() (string, error) {
