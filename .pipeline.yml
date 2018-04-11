@@ -32,6 +32,15 @@ resources:
     regex: "halfpipe_darwin_(?<version>.*)"
     username: ((artifactory-halfpipe.username))
     password: ((artifactory-halfpipe.token))
+- name: artifactory-linux
+  type: artifactory
+  source:
+    endpoint: https://springernature.jfrog.io/springernature
+    repository: "/halfpipe"
+    regex: "halfpipe_linux_(?<version>.*)"
+    username: ((artifactory-halfpipe.username))
+    password: ((artifactory-halfpipe.token))
+
 jobs:
 - name: Test
   serial: true
@@ -166,3 +175,6 @@ jobs:
   - put: artifactory-darwin
     params:
       file: binaries/halfpipe_darwin_*
+  - put: artifactory-linux
+    params:
+      file: binaries/halfpipe_linux_*
