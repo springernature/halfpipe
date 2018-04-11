@@ -47,6 +47,44 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
+- name: End2End Test
+  serial: true
+  plan:
+  - get: halfpipe
+    passed:
+    - Test
+    trigger: true
+  - task: Test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+          username: _json_key
+      run:
+        path: /bin/sh
+        args:
+        - -ec
+        - |
+          export ROOT="$PWD"
+          export GOPATH="$PWD"
+          export CONF_PKG="github.com/springernature/halfpipe/config"
+          export LDFLAGS="-X ${CONF_PKG}.Version=0.0.0-DEV"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
+          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
+          echo "LDFLAGS=${LDFLAGS}"
+
+          # Build binaries
+          cd src/github.com/springernature/halfpipe
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "${LDFLAGS}" cmd/halfpipe.go
+
+          cd e2e_test
+          ./test.sh ../halfpipe_linux
+      inputs:
+      - name: halfpipe
+        path: /src/github.com/springernature/halfpipe
 - name: Bump Major
   plan:
   - put: version
@@ -114,41 +152,3 @@ jobs:
       - binaries/halfpipe_*
       name: halfpipe/name
       tag: version/version
-- name: End2End Test
-  serial: true
-  plan:
-  - get: halfpipe
-    passed:
-    - Test
-    trigger: true
-  - task: Test
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          password: ((gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
-          username: _json_key
-      run:
-        path: /bin/sh
-        args:
-        - -ec
-        - |
-          export ROOT="$PWD"
-          export GOPATH="$PWD"
-          export CONF_PKG="github.com/springernature/halfpipe/config"
-          export LDFLAGS="-X ${CONF_PKG}.Version=0.0.0-DEV"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
-          echo "LDFLAGS=${LDFLAGS}"
-
-          # Build binaries
-          cd src/github.com/springernature/halfpipe
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "${LDFLAGS}" cmd/halfpipe.go
-
-          cd e2e_test
-          ./test.sh ../halfpipe_linux
-      inputs:
-      - name: halfpipe
-        path: /src/github.com/springernature/halfpipe
