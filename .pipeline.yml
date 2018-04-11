@@ -1,4 +1,8 @@
-groups: []
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
 resources:
 - name: release
   type: github-release
@@ -20,7 +24,14 @@ resources:
     file: version
     private_key: ((github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-resource_types: []
+- name: artifactory-darwin
+  type: artifactory
+  source:
+    endpoint: https://springernature.jfrog.io/springernature
+    repository: "/halfpipe"
+    regex: "halfpipe_darwin_(?<version>.*)"
+    username: ((artifactory-halfpipe.username))
+    password: ((artifactory-halfpipe.token))
 jobs:
 - name: Test
   serial: true
@@ -152,3 +163,6 @@ jobs:
       - binaries/halfpipe_*
       name: halfpipe/name
       tag: version/version
+  - put: artifactory-darwin
+    params:
+      file: binaries/halfpipe_darwin_*
