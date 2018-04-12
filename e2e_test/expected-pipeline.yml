@@ -300,12 +300,18 @@ jobs:
         path: /bin/sh
         args:
         - -ec
-        - |-
+        - |
           export GIT_REVISION=`cat .git/ref`
           \source /docker-lib.sh
           start_docker
           docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose up --force-recreate --exit-code-from app
+
+          docker-compose run -e GIT_REVISION=${GIT_REVISION} app
+          rc=$?
+
+          docker-compose down
+
+          exit $rc
         dir: git
       inputs:
       - name: git

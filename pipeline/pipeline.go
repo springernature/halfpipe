@@ -260,7 +260,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
 		Name:   task.Name,
-		Script: dockerComposeScript(),
+		Script: dockerComposeScript(vars),
 		Docker: manifest.Docker{
 			Image: config.DockerComposeImage,
 		},
@@ -307,11 +307,26 @@ func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	return
 }
 
-func dockerComposeScript() string {
-	return `\source /docker-lib.sh
+func dockerComposeScript(vars map[string]string) string {
+	envStrings := []string{"-e GIT_REVISION=${GIT_REVISION}"}
+	for key := range vars {
+		if key == "GCR_PRIVATE_KEY" {
+			continue
+		}
+		envStrings = append(envStrings, fmt.Sprintf("-e %s=${%s}", key, key))
+	}
+
+	return fmt.Sprintf(`\source /docker-lib.sh
 start_docker
 docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-docker-compose up --force-recreate --exit-code-from app`
+
+docker-compose run %s app
+rc=$?
+
+docker-compose down
+
+exit $rc
+`, strings.Join(envStrings, " "))
 }
 
 func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {

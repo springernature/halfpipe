@@ -29,6 +29,12 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		},
 	}
 
+	expectedVars := map[string]string{
+		"VAR1":            "Value1",
+		"VAR2":            "Value2",
+		"GCR_PRIVATE_KEY": "((gcr.private_key))",
+	}
+
 	expectedJob := atc.JobConfig{
 		Name:   "docker-compose",
 		Serial: true,
@@ -39,11 +45,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
-					Params: map[string]string{
-						"VAR1":            "Value1",
-						"VAR2":            "Value2",
-						"GCR_PRIVATE_KEY": "((gcr.private_key))",
-					},
+					Params:   expectedVars,
 					ImageResource: &atc.ImageResource{
 						Type: "docker-image",
 						Source: atc.Source{
@@ -54,7 +56,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeScript(), "", nil, "../.git/ref"),
+						Args: runScriptArgs(dockerComposeScript(expectedVars), "", nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
