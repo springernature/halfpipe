@@ -25,6 +25,10 @@ func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 			if len(task.SaveArtifacts) > 0 {
 				thereIsAtLeastOneArtifact = true
 			}
+		case manifest.DockerCompose:
+			if len(task.SaveArtifacts) > 0 {
+				thereIsAtLeastOneArtifact = true
+			}
 		case manifest.DeployCF:
 			if task.DeployArtifact != "" && !thereIsAtLeastOneArtifact {
 				msg := fmt.Sprintf("No previous tasks have saved a artifact")

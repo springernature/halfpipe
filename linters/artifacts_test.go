@@ -38,3 +38,22 @@ func TestDeployArtifactRequiresASavedArtifact(t *testing.T) {
 	result = artifactsLinter{}.Lint(man)
 	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
 }
+
+func TestItWorksWithDockerCompose(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{
+				SaveArtifacts: []string{
+					"a",
+				},
+			},
+			manifest.Run{},
+			manifest.DeployCF{
+				DeployArtifact: "a",
+			},
+		},
+	}
+
+	result := artifactsLinter{}.Lint(man)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.deploy_artifact", result.Errors)
+}
