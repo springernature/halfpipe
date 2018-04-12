@@ -1,28 +1,20 @@
 package sync
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"runtime"
 	"strconv"
-	"strings"
-
-	"os"
-
 	"github.com/blang/semver"
-	"github.com/google/go-github/github"
 	"github.com/inconshreveable/go-update"
 	"github.com/springernature/halfpipe/config"
 	"gopkg.in/cheggaaa/pb.v1"
+	"os"
 )
 
 var (
-	ErrNoBinaryForArch = func(os string) error {
-		return fmt.Errorf("could not find a binary for your arch, '%s'", os)
-	}
 	ErrUpdatingDevRelease = errors.New("cannot update a dev release")
 	ErrOutOfDateBinary    = func(currentVersion semver.Version, latestVersion semver.Version) error {
 		errorMessage := fmt.Sprintf("Current version %s is behind latest version %s. Please run 'halfpipe sync'", currentVersion, latestVersion)
@@ -35,15 +27,14 @@ type Sync interface {
 	Update(out io.Writer) error
 }
 
-type LatestReleaseResolver interface {
-	GetLatestRelease(ctx context.Context, owner, repo string) (*github.RepositoryRelease, *github.Response, error)
-}
+type LatestReleaseResolver func(os string, httpGetter HttpGetter) (release Release, err error)
 
 type sync struct {
 	currentVersion  semver.Version
 	releaseResolver LatestReleaseResolver
 	os              string
 
+	shouldSkip bool
 	httpGetter func(url string) (resp *http.Response, err error)
 	updater    func(update io.Reader, opts update.Options) error
 }
@@ -53,37 +44,28 @@ func NewSyncer(currentRelease semver.Version, releaseResolver LatestReleaseResol
 		currentVersion:  currentRelease,
 		releaseResolver: releaseResolver,
 		os:              runtime.GOOS,
+		shouldSkip:      os.Getenv("SKIP_VERSION_CHECK") != "",
 		httpGetter:      http.Get,
 		updater:         update.Apply,
 	}
 }
 
-func (s sync) getLatestRelease() (release *github.RepositoryRelease, err error) {
-	release, _, err = s.releaseResolver.GetLatestRelease(context.Background(), "springernature", "halfpipe")
-	return
+func (s sync) getLatestRelease() (release Release, err error) {
+	return s.releaseResolver(s.os, s.httpGetter)
 }
 
 func (s sync) Check() (err error) {
-	if s.currentVersion.EQ(config.DevVersion) {
+	if s.currentVersion.EQ(config.DevVersion) || s.shouldSkip {
 		return
 	}
 
 	latestRelease, err := s.getLatestRelease()
 	if err != nil {
-		if strings.Contains(err.Error(), "GET https://api.github.com/repos/springernature/halfpipe/releases/latest: 403 API rate limit exceeded for") {
-			fmt.Fprint(os.Stderr, "Could not resolve current version from github...\n")
-			err = nil
-		}
 		return
 	}
 
-	latestVersion, err := semver.Parse(*latestRelease.TagName)
-	if err != nil {
-		return
-	}
-
-	if s.currentVersion.LT(latestVersion) {
-		err = ErrOutOfDateBinary(s.currentVersion, latestVersion)
+	if s.currentVersion.LT(latestRelease.Version) {
+		err = ErrOutOfDateBinary(s.currentVersion, latestRelease.Version)
 	}
 
 	return
@@ -95,13 +77,7 @@ func (s sync) getLatestBinaryURL() (url string, err error) {
 		return
 	}
 
-	for _, asset := range release.Assets {
-		if strings.Contains(*asset.BrowserDownloadURL, s.os) {
-			url = *asset.BrowserDownloadURL
-			return
-		}
-	}
-	err = ErrNoBinaryForArch(s.os)
+	url = release.DownloadURL
 	return
 }
 

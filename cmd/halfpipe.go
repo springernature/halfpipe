@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"code.cloudfoundry.org/cli/util/manifest"
-	"github.com/google/go-github/github"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
@@ -107,7 +106,7 @@ func syncBinary(writer io.Writer) (err error) {
 		return
 	}
 
-	syncer := sync.NewSyncer(currentVersion, github.NewClient(nil).Repositories)
+	syncer := sync.NewSyncer(currentVersion, sync.ResolveLatestVersionFromArtifactory)
 	err = syncer.Update(writer)
 	return
 }
@@ -163,7 +162,7 @@ func checkVersion() (err error) {
 		return
 	}
 
-	syncer := sync.NewSyncer(currentVersion, github.NewClient(nil).Repositories)
+	syncer := sync.NewSyncer(currentVersion, sync.ResolveLatestVersionFromArtifactory)
 	err = syncer.Check()
 	return
 }
