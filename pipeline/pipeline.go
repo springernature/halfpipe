@@ -325,7 +325,7 @@ rc=$?
 
 docker-compose down
 
-exit $rc
+[ $rc -eq 0 ] || exit $rc
 `, strings.Join(envStrings, " "))
 }
 
