@@ -11,35 +11,35 @@ import (
 )
 
 func TestReleaseResolverCallsOutToTheCorrectUrl(t *testing.T) {
-	var actualUrl string
-	fakeHttpGetter := func(url string) (resp *http.Response, err error) {
-		actualUrl = url
+	var actualURL string
+	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
+		actualURL = url
 		resp = &http.Response{
 			Body: gbytes.BufferWithBytes([]byte("")),
 		}
 		return
 	}
 
-	ResolveLatestVersionFromArtifactory("darwin", fakeHttpGetter)
+	ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
 
 	expected := "https://springernature.jfrog.io/springernature/api/search/artifact?name=halfpipe_darwin"
-	assert.Equal(t, expected, actualUrl)
+	assert.Equal(t, expected, actualURL)
 }
 
 func TestReleaseResolverReturnsTheErrorFromHttpGetter(t *testing.T) {
 	exptectedError := errors.New("Blurgh")
-	fakeHttpGetter := func(url string) (resp *http.Response, err error) {
+	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
 		err = exptectedError
 		return
 	}
 
-	_, err := ResolveLatestVersionFromArtifactory("darwin", fakeHttpGetter)
+	_, err := ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
 
 	assert.Equal(t, exptectedError, err)
 }
 
 func TestGivesTheCorrectRelease(t *testing.T) {
-	returnFromHttpCall := `
+	returnFromHTTPCall := `
 {
  "results" : [
 	{"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/somethingRandom"},
@@ -51,14 +51,14 @@ func TestGivesTheCorrectRelease(t *testing.T) {
 }
 `
 
-	fakeHttpGetter := func(url string) (resp *http.Response, err error) {
+	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
 		resp = &http.Response{
-			Body: gbytes.BufferWithBytes([]byte(returnFromHttpCall)),
+			Body: gbytes.BufferWithBytes([]byte(returnFromHTTPCall)),
 		}
 		return
 	}
 
-	release, err := ResolveLatestVersionFromArtifactory("darwin", fakeHttpGetter)
+	release, err := ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
 
 	expectedResults := Release{
 		Version:     semver.Version{Major: 1, Minor: 21, Patch: 7},

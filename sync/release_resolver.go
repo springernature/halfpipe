@@ -29,7 +29,7 @@ func (r results) GetLatest() (result Release) {
 			highestVersion = currVersion
 			result = Release{
 				Version:     currVersion,
-				DownloadURL: res.getDownloadUrl(),
+				DownloadURL: res.getDownloadURL(),
 			}
 		}
 	}
@@ -38,16 +38,16 @@ func (r results) GetLatest() (result Release) {
 }
 
 type result struct {
-	Uri string `json:"uri"`
+	URI string `json:"uri"`
 }
 
-func (r result) getDownloadUrl() string {
-	return strings.Replace(r.Uri, "api/storage/", "", -1)
+func (r result) getDownloadURL() string {
+	return strings.Replace(r.URI, "api/storage/", "", -1)
 }
 
 func (r result) getVersion() (version semver.Version, err error) {
 	rx := regexp.MustCompile(`[1-9]+.[1-9]+.[1-9]+$`)
-	version, err = semver.Parse(string(rx.Find([]byte(r.Uri))))
+	version, err = semver.Parse(string(rx.Find([]byte(r.URI))))
 	return
 }
 
@@ -56,9 +56,9 @@ type Release struct {
 	DownloadURL string
 }
 
-type HttpGetter func(url string) (resp *http.Response, err error)
+type HTTPGetter func(url string) (resp *http.Response, err error)
 
-var ResolveLatestVersionFromArtifactory = func(os string, httpGetter HttpGetter) (release Release, err error) {
+var ResolveLatestVersionFromArtifactory = func(os string, httpGetter HTTPGetter) (release Release, err error) {
 	url := fmt.Sprintf("https://springernature.jfrog.io/springernature/api/search/artifact?name=halfpipe_%s", os)
 	resp, err := httpGetter(url)
 	if err != nil {
@@ -72,7 +72,10 @@ var ResolveLatestVersionFromArtifactory = func(os string, httpGetter HttpGetter)
 	}
 
 	var r results
-	json.Unmarshal(body, &r)
+	err = json.Unmarshal(body, &r)
+	if err != nil {
+		return
+	}
 
 	release = r.GetLatest()
 	return

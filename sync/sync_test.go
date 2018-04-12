@@ -16,7 +16,7 @@ import (
 )
 
 func releaseResolverDouble(r Release, e error) LatestReleaseResolver {
-	return func(os string, httpGetter HttpGetter) (release Release, err error) {
+	return func(os string, httpGetter HTTPGetter) (release Release, err error) {
 		return r, e
 	}
 }

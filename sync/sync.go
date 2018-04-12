@@ -28,7 +28,7 @@ type Sync interface {
 	Update(out io.Writer) error
 }
 
-type LatestReleaseResolver func(os string, httpGetter HttpGetter) (release Release, err error)
+type LatestReleaseResolver func(os string, httpGetter HTTPGetter) (release Release, err error)
 
 type sync struct {
 	currentVersion  semver.Version
