@@ -40,8 +40,9 @@ func TestRenderDockerComposeTask(t *testing.T) {
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
 					Params: map[string]string{
-						"VAR1": "Value1",
-						"VAR2": "Value2",
+						"VAR1":            "Value1",
+						"VAR2":            "Value2",
+						"GCR_PRIVATE_KEY": "((gcr.private_key))",
 					},
 					ImageResource: &atc.ImageResource{
 						Type: "docker-image",

@@ -251,14 +251,20 @@ func resolveDefaultDomain(targetAPI string) string {
 }
 
 func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) atc.JobConfig {
+	vars := task.Vars
+	if vars == nil {
+		vars = make(map[string]string)
+	}
+
 	// it is really just a special run job, so let's reuse that
+	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
 		Name:   task.Name,
 		Script: dockerComposeScript(),
 		Docker: manifest.Docker{
 			Image: config.DockerComposeImage,
 		},
-		Vars:          task.Vars,
+		Vars:          vars,
 		SaveArtifacts: task.SaveArtifacts,
 	}
 	job := p.runJob(runTask, man)
@@ -304,6 +310,7 @@ func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 func dockerComposeScript() string {
 	return `\source /docker-lib.sh
 start_docker
+docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 docker-compose up --force-recreate --exit-code-from app`
 }
 

@@ -3,15 +3,16 @@ package sync
 import (
 	"testing"
 
+	"bytes"
+	"errors"
+	"io"
+	"net/http"
+
+	"github.com/blang/semver"
+	"github.com/inconshreveable/go-update"
+	"github.com/onsi/gomega/gbytes"
 	"github.com/springernature/halfpipe/config"
 	"github.com/stretchr/testify/assert"
-	"github.com/blang/semver"
-	"errors"
-	"bytes"
-	"net/http"
-	"github.com/onsi/gomega/gbytes"
-	"io"
-	"github.com/inconshreveable/go-update"
 )
 
 func releaseResolverDouble(r Release, e error) LatestReleaseResolver {
@@ -31,7 +32,7 @@ func TestDoesNothingWhenCurrentVersionIsDevRelease(t *testing.T) {
 func TestDoesNothingWhenCheckShouldBeSkipped(t *testing.T) {
 	release := sync{
 		currentVersion: semver.Version{Major: 1},
-		shouldSkip: true,
+		shouldSkip:     true,
 	}
 
 	err := release.Check()

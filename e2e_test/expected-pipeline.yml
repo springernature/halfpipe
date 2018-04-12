@@ -294,6 +294,8 @@ jobs:
         source:
           repository: amidos/dcind
           tag: latest
+      params:
+        GCR_PRIVATE_KEY: ((gcr.private_key))
       run:
         path: /bin/sh
         args:
@@ -302,6 +304,7 @@ jobs:
           export GIT_REVISION=`cat .git/ref`
           \source /docker-lib.sh
           start_docker
+          docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose up --force-recreate --exit-code-from app
         dir: git
       inputs:

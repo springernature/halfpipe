@@ -1,13 +1,14 @@
 package sync
 
 import (
-	"net/http"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"encoding/json"
-	"github.com/blang/semver"
+	"net/http"
 	"regexp"
 	"strings"
+
+	"github.com/blang/semver"
 )
 
 type results struct {
@@ -27,7 +28,7 @@ func (r results) GetLatest() (result Release) {
 		if currVersion.GT(highestVersion) {
 			highestVersion = currVersion
 			result = Release{
-				Version: currVersion,
+				Version:     currVersion,
 				DownloadURL: res.getDownloadUrl(),
 			}
 		}

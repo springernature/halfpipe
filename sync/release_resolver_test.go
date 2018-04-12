@@ -1,12 +1,13 @@
 package sync
 
 import (
-	"testing"
-	"net/http"
-	"github.com/stretchr/testify/assert"
-	"github.com/onsi/gomega/gbytes"
 	"errors"
+	"net/http"
+	"testing"
+
 	"github.com/blang/semver"
+	"github.com/onsi/gomega/gbytes"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestReleaseResolverCallsOutToTheCorrectUrl(t *testing.T) {

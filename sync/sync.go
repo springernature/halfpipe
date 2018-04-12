@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 	"runtime"
 	"strconv"
+
 	"github.com/blang/semver"
 	"github.com/inconshreveable/go-update"
 	"github.com/springernature/halfpipe/config"
 	"gopkg.in/cheggaaa/pb.v1"
-	"os"
 )
 
 var (
