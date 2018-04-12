@@ -44,7 +44,7 @@ func TestGivesTheCorrectRelease(t *testing.T) {
  "results" : [
 	{"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/somethingRandom"},
     {"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_darwin"},
-	{"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_darwin_1.21.7"},
+	{"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_darwin_1.22.0"},
     {"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe"},
     {"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_darwin_1.21.6"}
  ]
@@ -61,8 +61,8 @@ func TestGivesTheCorrectRelease(t *testing.T) {
 	release, err := ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
 
 	expectedResults := Release{
-		Version:     semver.Version{Major: 1, Minor: 21, Patch: 7},
-		DownloadURL: "https://springernature.jfrog.io/springernature/halfpipe/halfpipe_darwin_1.21.7",
+		Version:     semver.Version{Major: 1, Minor: 22, Patch: 0},
+		DownloadURL: "https://springernature.jfrog.io/springernature/halfpipe/halfpipe_darwin_1.22.0",
 	}
 
 	assert.Nil(t, err)
