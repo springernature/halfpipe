@@ -311,7 +311,7 @@ jobs:
 
           docker-compose down
 
-          exit $rc
+          [ $rc -eq 0 ] || exit $rc
         dir: git
       inputs:
       - name: git
