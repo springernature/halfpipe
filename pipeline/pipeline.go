@@ -13,6 +13,8 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
+	"sort"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -315,6 +317,7 @@ func dockerComposeScript(vars map[string]string) string {
 		}
 		envStrings = append(envStrings, fmt.Sprintf("-e %s=${%s}", key, key))
 	}
+	sort.Strings(envStrings)
 
 	return fmt.Sprintf(`\source /docker-lib.sh
 start_docker
