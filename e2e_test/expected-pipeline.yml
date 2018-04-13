@@ -183,7 +183,7 @@ jobs:
           tag: 9.5.0-alpine
       params:
         A: blah
-        TEST_ROUTE: halfpipe-example-kotlin-dev-CANDIDATE.live.cf.private.springer.com
+        TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
       run:
         path: /bin/sh
         args:
