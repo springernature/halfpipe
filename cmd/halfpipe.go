@@ -5,6 +5,9 @@ import (
 	"io"
 	"os"
 
+	"os/exec"
+	"os/user"
+
 	"code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
@@ -15,6 +18,7 @@ import (
 	halfpipeManifest "github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
+	"github.com/springernature/halfpipe/upload"
 )
 
 func main() {
@@ -30,6 +34,11 @@ func main() {
 		output, err = printVersion()
 	case invokedForSync(os.Args):
 		err = syncBinary(os.Stdout)
+	case invokedForUpload(os.Args):
+		err = uploadPipeline()
+		if err == nil {
+			output = "Pipeline uploaded!"
+		}
 	default:
 		if err = checkVersion(); err != nil {
 			break
@@ -58,6 +67,10 @@ func invokedForInit(args []string) bool {
 	return len(args) > 1 && (args[1] == "init")
 }
 
+func invokedForUpload(args []string) bool {
+	return len(args) > 1 && (args[1] == "upload")
+}
+
 func invokedForVersion(args []string) bool {
 	return len(args) > 1 && (args[1] == "version" || args[1] == "-v" || args[1] == "-version" || args[1] == "--version")
 }
@@ -71,8 +84,26 @@ Available commands are
   init - creates a sample .halfpipe.io file in the current directory
   sync - updates the halfpipe cli to latest version 'halfpipe sync'
   help - this info
+  upload - lints, renders and uploads the pipeline
   version - version info
 `, version), err
+}
+
+func uploadPipeline() (err error) {
+	user, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, user.HomeDir, os.Stdout, os.Stderr, os.Stdin)
+
+	plan, err := planner.Plan()
+	if err != nil {
+		return
+	}
+
+	err = plan.Execute(os.Stdout, os.Stdin)
+	return
 }
 
 func generateSampleHalfpipeFile() (output string, err error) {
