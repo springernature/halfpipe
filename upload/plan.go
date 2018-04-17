@@ -20,6 +20,7 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader) (err error) {
 	fmt.Fscan(stdin, &input) // #nosec
 	if input != "y" {
 		err = errors.New("aborted")
+		return
 	}
 
 	for _, cmd := range p {
