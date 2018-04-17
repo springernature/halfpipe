@@ -3,6 +3,8 @@ package halfpipe
 import (
 	"testing"
 
+	errs "errors"
+
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
@@ -12,50 +14,27 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var validHalfpipeYaml = `
-team: asd
-pipeline: my-pipeline
-tasks:
-- type: docker-compose
-`
-
 func testController() Controller {
-	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
-	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return Controller{
-		Fs:         fs,
 		CurrentDir: "/pwd/foo",
 		Defaulter:  defaults.DefaultValues,
 	}
 }
 
-func TestProcessDoesNothingWhenFileDoesNotExist(t *testing.T) {
+func TestReturnsErrorFromManifestReader(t *testing.T) {
+	expectedError := errs.New("Meehp")
 	c := testController()
+	c.ManifestReader = func(dir string, fs afero.Afero) (man manifest.Manifest, err error) {
+		err = expectedError
+		return
+	}
+
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 1)
-	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
-}
-
-func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
-	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(""), 0777)
-	pipeline, results := c.Process()
-
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 1)
-	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
-}
-
-func TestProcessDoesNothingWhenParserFails(t *testing.T) {
-	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("WrYyYyYy"), 0777)
-	pipeline, results := c.Process()
-
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 1)
-	assert.IsType(t, manifest.ParseError{}, results[0].Errors[0])
+	assert.Len(t, results[0].Errors, 1)
+	assert.Equal(t, expectedError, results[0].Errors[0])
 }
 
 type fakeLinter struct {
@@ -68,7 +47,9 @@ func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
 
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
+	c.ManifestReader = func(dir string, fs afero.Afero) (man manifest.Manifest, err error) {
+		return manifest.Manifest{}, nil
+	}
 
 	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
 	linter2 := fakeLinter{errors.NewMissingField("field")}
@@ -92,7 +73,9 @@ func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
 
 func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
+	c.ManifestReader = func(dir string, fs afero.Afero) (man manifest.Manifest, err error) {
+		return manifest.Manifest{}, nil
+	}
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -104,6 +87,7 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	c.Renderer = FakeRenderer{Config: config}
 
 	pipeline, results := c.Process()
+
 	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
 }

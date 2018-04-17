@@ -1,5 +1,13 @@
 package manifest
 
+import (
+	"path/filepath"
+
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/linters/filechecker"
+)
+
 type TaskList []Task
 
 type Manifest struct {
@@ -72,3 +80,19 @@ type DockerCompose struct {
 }
 
 type Vars map[string]string
+
+type ManifestReader func(dir string, fs afero.Afero) (man Manifest, err error)
+
+func ReadManifest(dir string, fs afero.Afero) (man Manifest, err error) {
+	yaml, err := filechecker.ReadFile(fs, filepath.Join(dir, config.HalfpipeFile))
+	if err != nil {
+		return
+	}
+
+	man, errs := Parse(yaml)
+	if len(errs) != 0 {
+		err = errs[0]
+	}
+
+	return
+}
