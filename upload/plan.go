@@ -22,9 +22,9 @@ type Plan []Command
 func (p Plan) Execute(stdout io.Writer, stdin io.Reader) (err error) {
 	fmt.Fprintln(stdout, "Planned execution") // #nosec
 	for _, cmd := range p {
-		fmt.Fprintf(stdout, "\t* %s\n", strings.Join(cmd.Cmd.Args, " ")) // #nosec
+		fmt.Fprintf(stdout, "\t* %s\n", cmd) // #nosec
 	}
-	fmt.Fprint(stdout, "Are you sure? [y/N]: ") // #nosec
+	fmt.Fprint(stdout, "\nAre you sure? [y/N]: ") // #nosec
 	var input string
 	fmt.Fscan(stdin, &input) // #nosec
 	if input != "y" {
@@ -32,6 +32,7 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader) (err error) {
 	}
 
 	for _, cmd := range p {
+		fmt.Fprintf(stdout, "\n=== %s ===\n", cmd) // #nosec
 		runErr := cmd.Cmd.Run()
 		if runErr != nil {
 			err = runErr
@@ -43,14 +44,23 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader) (err error) {
 }
 
 type Command struct {
-	Cmd exec.Cmd
+	Cmd       exec.Cmd
+	Printable string
+}
+
+func (c Command) String() string {
+	if c.Printable != "" {
+		return c.Printable
+	}
+	return strings.Join(c.Cmd.Args, " ")
+
 }
 
 type Planner interface {
 	Plan() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile) Planner {
 	return planner{
 		fs:           fs,
 		pathResolver: pathResolver,
@@ -58,11 +68,12 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdou
 		stdout:       stdout,
 		stderr:       stderr,
 		stdin:        stdin,
+		pipelineFile: pipelineFile,
 	}
 }
 
 type PathResolver func(string) (string, error)
-
+type PipelineFile func(fs afero.Afero) (afero.File, error)
 type planner struct {
 	fs           afero.Afero
 	pathResolver PathResolver
@@ -70,6 +81,7 @@ type planner struct {
 	stdout       io.Writer
 	stderr       io.Writer
 	stdin        io.Reader
+	pipelineFile PipelineFile
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -127,6 +139,28 @@ func (p planner) loginCommand(team string) (cmd Command, err error) {
 	return
 }
 
+func (p planner) lintAndRender() (cmd Command, err error) {
+	file, err := p.pipelineFile(p.fs)
+	if err != nil {
+		return
+	}
+
+	path, err := p.pathResolver("halfpipe")
+	if err != nil {
+		return
+	}
+
+	cmd.Cmd = exec.Cmd{
+		Path:   path,
+		Args:   []string{path},
+		Stderr: p.stderr,
+		Stdout: file,
+	}
+	cmd.Printable = fmt.Sprintf("%s > %s", path, file.Name())
+
+	return
+}
+
 func (p planner) Plan() (plan Plan, err error) {
 	man, err := p.getHalfpipeManifest()
 	if err != nil {
@@ -147,6 +181,12 @@ func (p planner) Plan() (plan Plan, err error) {
 
 		plan = append(plan, cmd)
 	}
+
+	cmd, err := p.lintAndRender()
+	if err != nil {
+		return
+	}
+	plan = append(plan, cmd)
 
 	return
 }
