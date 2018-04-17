@@ -17,12 +17,6 @@
   version = "v6.34.1"
 
 [[projects]]
-  name = "code.cloudfoundry.org/lager"
-  packages = ["."]
-  revision = "0bfa98e49e7a976af91e918d47978f07c00b081f"
-  version = "v1.0.0"
-
-[[projects]]
   name = "github.com/blang/semver"
   packages = ["."]
   revision = "2ee87856327ba09384cabd113bc6b5d174e9ec0f"
@@ -36,55 +30,14 @@
 
 [[projects]]
   name = "github.com/concourse/atc"
-  packages = [
-    ".",
-    "event"
-  ]
+  packages = ["."]
   revision = "f233e595b00f4308a63baececc96d52af4d8a92e"
-
-[[projects]]
-  name = "github.com/concourse/fly"
-  packages = [
-    "rc",
-    "ui",
-    "version"
-  ]
-  revision = "8a11d81a7ba8f2b9bc32e7113115ff24df281bee"
-  version = "v3.11.1-rc.3"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/concourse/go-concourse"
-  packages = [
-    "concourse",
-    "concourse/eventstream",
-    "concourse/internal"
-  ]
-  revision = "4fa4795b4e68a6be04e72f2b4a6c81baa34bbc50"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/concourse/skymarshal"
-  packages = ["provider"]
-  revision = "a78b36792ca53f09ca1eae799b7f8c3faea7697c"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/cppforlife/go-semi-semantic"
-  packages = ["version"]
-  revision = "576b6af77ae4f3ccef356902fb3b9a9ae22e0b11"
 
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
-
-[[projects]]
-  name = "github.com/fatih/color"
-  packages = ["."]
-  revision = "507f6050b8568533fb3f5504de8e5205fa62a114"
-  version = "v1.6.0"
 
 [[projects]]
   name = "github.com/fatih/structs"
@@ -99,22 +52,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/golang/protobuf"
-  packages = ["proto"]
-  revision = "925541529c1fa6821df4e44ce2723319eb2be768"
-  version = "v1.0.0"
-
-[[projects]]
   branch = "master"
   name = "github.com/golang/snappy"
   packages = ["."]
   revision = "553a641470496b2327abcac10b36396bd98e45c9"
-
-[[projects]]
-  name = "github.com/google/jsonapi"
-  packages = ["."]
-  revision = "46d3ced0434461be12e555852e2f1a9ed382e139"
-  version = "1.0.0"
 
 [[projects]]
   name = "github.com/google/uuid"
@@ -190,18 +131,6 @@
   version = "v1.3.0"
 
 [[projects]]
-  name = "github.com/mattn/go-colorable"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
-
-[[projects]]
-  name = "github.com/mattn/go-isatty"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
-
-[[projects]]
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
   revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
@@ -227,12 +156,6 @@
   ]
   revision = "003f63b7f4cff3fc95357005358af2de0f5fe152"
   version = "v1.3.0"
-
-[[projects]]
-  name = "github.com/peterhellberg/link"
-  packages = ["."]
-  revision = "d1cebc7ea14a5fc0de7cb4a45acae773161642c6"
-  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/pkg/errors"
@@ -281,31 +204,14 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/vito/go-sse"
-  packages = ["sse"]
-  revision = "fd69d275caac5d78d793e77ddbe9bd2001d9b88d"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = [
-    "context",
-    "context/ctxhttp",
     "http2",
     "http2/hpack",
     "idna",
     "lex/httplex"
   ]
   revision = "2e7f24ace30034db6c258ddb329e5236a68c27fa"
-
-[[projects]]
-  branch = "master"
-  name = "golang.org/x/oauth2"
-  packages = [
-    ".",
-    "internal"
-  ]
-  revision = "6881fee410a5daf86371371f9ad451b95e168b71"
 
 [[projects]]
   branch = "master"
@@ -335,20 +241,6 @@
   revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
 [[projects]]
-  name = "google.golang.org/appengine"
-  packages = [
-    "internal",
-    "internal/base",
-    "internal/datastore",
-    "internal/log",
-    "internal/remote_api",
-    "internal/urlfetch",
-    "urlfetch"
-  ]
-  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
-  version = "v1.0.0"
-
-[[projects]]
   name = "gopkg.in/cheggaaa/pb.v1"
   packages = ["."]
   revision = "5119518d88fbf604cab04dafd667dc7022e3b5ac"
@@ -363,6 +255,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "077623e47559e79518d80b731a3ca7f59931c817a432f738c55324eff150a2dd"
+  inputs-digest = "9012355b91205bab079ae39458ddf9097fc66a0a60e9d2dfbf6cc01734437f0c"
   solver-name = "gps-cdcl"
   solver-version = 1
