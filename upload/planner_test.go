@@ -85,6 +85,15 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 			},
 			Printable: "halfpipe > pipeline.yml",
 		},
+		{
+			Cmd: exec.Cmd{
+				Path:   "fly",
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+				Stdout: stdout,
+				Stderr: stderr,
+				Stdin:  stdin,
+			},
+		},
 	}
 
 	assert.Nil(t, err)
@@ -112,6 +121,15 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
+		},
+		{
+			Cmd: exec.Cmd{
+				Path:   "fly",
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+				Stdout: stdout,
+				Stderr: stderr,
+				Stdin:  stdin,
+			},
 		},
 	}
 

@@ -106,8 +106,7 @@ func uploadPipeline() (err error) {
 		return
 	}
 
-	err = plan.Execute(os.Stdout, os.Stdin)
-	return
+	return plan.Execute(os.Stdout, os.Stdin)
 }
 
 func generateSampleHalfpipeFile() (output string, err error) {
