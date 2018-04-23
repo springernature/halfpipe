@@ -220,11 +220,14 @@ func TestRenderPrePromoteTask(t *testing.T) {
 }
 
 func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
-	prePromoteTask := manifest.Run{
-		Script: "run-script",
-		Docker: manifest.Docker{
-			Image: "docker-img",
+	prePromoteTasks := []manifest.Task{
+		manifest.Run{
+			Script: "run-script",
+			Docker: manifest.Docker{
+				Image: "docker-img",
+			},
 		},
+		manifest.DockerCompose{Name: "dock-comp"},
 	}
 
 	deployCfTask := manifest.DeployCF{
@@ -236,7 +239,7 @@ func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 			"A": "a",
 		},
 		DeployArtifact: "artifact.jar",
-		PrePromote:     []manifest.Task{prePromoteTask},
+		PrePromote:     prePromoteTasks,
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
@@ -266,11 +269,12 @@ func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	//pre promote
 	planPrePromote := config.Jobs[1].Plan
 	assert.Equal(t, "run", planPrePromote[0].Task)
-	expectedVars := map[string]string{
-		"TEST_ROUTE": "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com",
-	}
-	assert.Equal(t, expectedVars, planPrePromote[0].TaskConfig.Params)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", planPrePromote[0].TaskConfig.Params)
 	assert.NotNil(t, planPrePromote[0].TaskConfig)
+
+	assert.Equal(t, "run", planPrePromote[1].Task)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", planPrePromote[1].TaskConfig.Params)
+	assert.NotNil(t, planPrePromote[1].TaskConfig)
 
 	//promote
 	planPromote := config.Jobs[2].Plan
