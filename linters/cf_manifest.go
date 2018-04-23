@@ -1,6 +1,9 @@
 package linters
 
 import (
+	goErrors "errors"
+	"fmt"
+
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
@@ -31,7 +34,7 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 		apps, err := linter.rManifest(manifestPath)
 
 		if err != nil {
-			result.AddError(err)
+			result.AddError(goErrors.New(fmt.Sprintf("cf-manifest error in %s, %s", manifestPath, err.Error())))
 			return
 		}
 
