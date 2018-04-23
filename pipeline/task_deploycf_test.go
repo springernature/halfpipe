@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRendersCfDeployResources(t *testing.T) {
+func TestRendersCfDeploy(t *testing.T) {
 	taskDeployDev := manifest.DeployCF{
 		API:      "http://api.dev.cf.springer-sbm.com",
 		Space:    "dev",
@@ -36,7 +36,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
 	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
-	expectedResourceConfig := atc.ResourceType{
+	expectedResourceType := atc.ResourceType{
 		Name: "cf-resource",
 		Type: "docker-image",
 		Source: atc.Source{
@@ -153,7 +153,7 @@ func TestRendersCfDeployResources(t *testing.T) {
 	config := testPipeline().Render(man)
 
 	assert.Len(t, config.ResourceTypes, 1)
-	assert.Equal(t, expectedResourceConfig, config.ResourceTypes[0])
+	assert.Equal(t, expectedResourceType, config.ResourceTypes[0])
 
 	assert.Equal(t, expectedDevResource, config.Resources[1])
 	assert.Equal(t, expectedDevJob, config.Jobs[0])
@@ -216,4 +216,64 @@ func TestRenderPrePromoteTask(t *testing.T) {
 		assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
 		assert.Equal(t, "halfpipe-delete", plan[5].Params["command"])
 	}
+}
+
+func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
+	prePromoteTask := manifest.Run{
+		Script: "run-script",
+		Docker: manifest.Docker{
+			Image: "docker-img",
+		},
+	}
+
+	deployCfTask := manifest.DeployCF{
+		API:      "api.dev.cf.springer-sbm.com",
+		Space:    "cf-space",
+		Org:      "cf-org",
+		Manifest: "manifest",
+		Vars: manifest.Vars{
+			"A": "a",
+		},
+		DeployArtifact: "artifact.jar",
+		PrePromote:     []manifest.Task{prePromoteTask},
+	}
+
+	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Pipeline = "mypipeline"
+	man.Tasks = []manifest.Task{deployCfTask}
+
+	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
+		return []cfManifest.Application{
+			{
+				Name:   name,
+				Routes: []string{"route"},
+			},
+		}, nil
+	}
+
+	pipeline := NewPipeline(cfManifestReader)
+	config := pipeline.Render(man)
+
+	//assert.Len(t, config.Jobs, 3, "should be split into 3 jobs")
+
+	//push
+	planPush := config.Jobs[0].Plan
+	assert.Equal(t, gitDir, planPush[0].Get)
+	assert.Equal(t, "artifacts-"+man.Pipeline, planPush[1].Get)
+	assert.Equal(t, "halfpipe-push", planPush[2].Params["command"])
+
+	//pre promote
+	planPrePromote := config.Jobs[1].Plan
+	assert.Equal(t, "run", planPrePromote[0].Task)
+	expectedVars := map[string]string{
+		"TEST_ROUTE": "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com",
+	}
+	assert.Equal(t, expectedVars, planPrePromote[0].TaskConfig.Params)
+	assert.NotNil(t, planPrePromote[0].TaskConfig)
+
+	//promote
+	planPromote := config.Jobs[2].Plan
+	assert.Equal(t, "halfpipe-promote", planPromote[0].Params["command"])
+	assert.Equal(t, "halfpipe-delete", planPromote[1].Params["command"])
+
 }
