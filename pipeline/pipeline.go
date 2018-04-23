@@ -226,15 +226,15 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		switch ppTask := t.(type) {
 		case manifest.Run:
 			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = map[string]string{}
+				ppTask.Vars = make(map[string]string)
 			}
-			ppTask.Vars["TEST_ROUTE"] = strings.Join([]string{appName, task.Space, "CANDIDATE"}, "-") + "." + testDomain
+			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
 			job.Plan = append(job.Plan, p.runJob(ppTask, man).Plan[0])
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = map[string]string{}
+				ppTask.Vars = make(map[string]string)
 			}
-			ppTask.Vars["TEST_ROUTE"] = strings.Join([]string{appName, task.Space, "CANDIDATE"}, "-") + "." + testDomain
+			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
 			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, man).Plan[0])
 		}
 	}
@@ -244,6 +244,11 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	return job
 }
+
+func testRoute(appName, space, testDomain string) string {
+	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
+}
+
 func resolveDefaultDomain(targetAPI string) string {
 	if strings.Contains(targetAPI, "api.dev.cf.springer-sbm.com") || strings.Contains(targetAPI, "((cloudfoundry.api-dev))") {
 		return "dev.cf.private.springer.com"
