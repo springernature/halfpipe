@@ -231,6 +231,10 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			ppTask.Vars["TEST_ROUTE"] = strings.Join([]string{appName, task.Space, "CANDIDATE"}, "-") + "." + testDomain
 			job.Plan = append(job.Plan, p.runJob(ppTask, man).Plan[0])
 		case manifest.DockerCompose:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = map[string]string{}
+			}
+			ppTask.Vars["TEST_ROUTE"] = strings.Join([]string{appName, task.Space, "CANDIDATE"}, "-") + "." + testDomain
 			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, man).Plan[0])
 		}
 	}

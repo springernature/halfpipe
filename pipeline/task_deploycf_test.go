@@ -163,12 +163,14 @@ func TestRendersCfDeploy(t *testing.T) {
 }
 
 func TestRenderPrePromoteTask(t *testing.T) {
-	prePromoteTask := manifest.Run{
+	prePromoteRun := manifest.Run{
 		Script: "run-script",
 		Docker: manifest.Docker{
 			Image: "docker-img",
 		},
 	}
+
+	prePromoteDockerCompose := manifest.DockerCompose{Name: "dock-comp"}
 
 	deployCfTask := manifest.DeployCF{
 		API:      "api.dev.cf.springer-sbm.com",
@@ -179,42 +181,41 @@ func TestRenderPrePromoteTask(t *testing.T) {
 			"A": "a",
 		},
 		DeployArtifact: "artifact.jar",
-		PrePromote:     []manifest.Task{prePromoteTask},
+		PrePromote:     []manifest.Task{prePromoteRun, prePromoteDockerCompose},
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{deployCfTask}
 
-	readerGivesOneApp := func(name string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:   name,
-				Routes: []string{"route"},
-			},
-		}, nil
+	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
+		return []cfManifest.Application{{
+			Name:   name,
+			Routes: []string{"route"},
+		}}, nil
 	}
 
-	pipeline := NewPipeline(readerGivesOneApp)
+	pipeline := NewPipeline(cfManifestReader)
 
 	config := pipeline.Render(man)
 	plan := config.Jobs[0].Plan
 
-	if assert.Len(t, plan, 6) {
+	if assert.Len(t, plan, 7) {
 		assert.Equal(t, gitDir, plan[0].Get)
 		assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
 
 		assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 		assert.Equal(t, "run", plan[3].Task)
-		expectedVars := map[string]string{
-			"TEST_ROUTE": "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com",
-		}
-		assert.Equal(t, expectedVars, plan[3].TaskConfig.Params)
+		assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", plan[3].TaskConfig.Params["TEST_ROUTE"])
 		assert.NotNil(t, plan[3].TaskConfig)
 
-		assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
-		assert.Equal(t, "halfpipe-delete", plan[5].Params["command"])
+		assert.Equal(t, "run", plan[4].Task)
+		assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", plan[4].TaskConfig.Params["TEST_ROUTE"])
+		assert.NotNil(t, plan[4].TaskConfig)
+
+		assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
+		assert.Equal(t, "halfpipe-delete", plan[6].Params["command"])
 	}
 }
 
