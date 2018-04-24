@@ -30,8 +30,8 @@ resources:
     endpoint: https://springernature.jfrog.io/springernature
     repository: "/halfpipe"
     regex: "halfpipe_darwin_(?<version>.*)"
-    username: ((artifactory-halfpipe.username))
-    password: ((artifactory-halfpipe.token))
+    username: ((artifactory.username))
+    password: ((artifactory.password))
 - name: artifactory-linux
   type: artifactory
   source:
