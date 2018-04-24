@@ -77,7 +77,7 @@ func invokedForVersion(args []string) bool {
 
 func printHelp() (string, error) {
 	version, err := config.GetVersion()
-	return fmt.Sprintf(`Sup! Docs are at https://docs.halfpipe.io")
+	return fmt.Sprintf(`Sup! Docs are at https://docs.halfpipe.io
 Current version is %s
 
 Available commands are
