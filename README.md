@@ -1,5 +1,15 @@
 # Hello!
 
-This is the friendly halfpipe cli. Try it out :)
+This is the friendly Halfpipe CLI. Try it out :)
 
-[![build status](https://concourse.halfpipe.io/api/v1/teams/engineering-enablement/pipelines/halfpipe-cli/badge)](https://concourse.halfpipe.io/teams/engineering-enablement/pipelines/halfpipe-cli)
+# Friendly Halfpipe CLI huh?
+
+Yeah, it takes a small YAML schema and renders a complete Concourse pipeline for you
+
+# How does it work? This README is kinda slim...
+
+[All documentation and further information can be found here](https://docs.halfpipe.io)
+
+# Ah! Thats cool, can I use it in my company?
+
+In theory yes, but there is some Springer Nature specific stuff in here. With that said nothing is stopping us from extracting those bits, submit a issue! :)
