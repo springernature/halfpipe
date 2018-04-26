@@ -91,7 +91,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
-					"command":      "halfpipe-delete",
+					"command":      "halfpipe-cleanup",
 					"testDomain":   testDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
@@ -141,7 +141,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			atc.PlanConfig{
 				Put: expectedLiveResource.Name,
 				Params: atc.Params{
-					"command":      "halfpipe-delete",
+					"command":      "halfpipe-cleanup",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
@@ -215,7 +215,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 		assert.NotNil(t, plan[4].TaskConfig)
 
 		assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
-		assert.Equal(t, "halfpipe-delete", plan[6].Params["command"])
+		assert.Equal(t, "halfpipe-cleanup", plan[6].Params["command"])
 	}
 }
 
@@ -279,6 +279,6 @@ func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	//promote
 	planPromote := config.Jobs[2].Plan
 	assert.Equal(t, "halfpipe-promote", planPromote[0].Params["command"])
-	assert.Equal(t, "halfpipe-delete", planPromote[1].Params["command"])
+	assert.Equal(t, "halfpipe-cleanup", planPromote[1].Params["command"])
 
 }

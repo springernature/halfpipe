@@ -147,7 +147,7 @@ jobs:
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
-      command: halfpipe-delete
+      command: halfpipe-cleanup
       manifestPath: git/manifest.yml
       testDomain: ""
   on_failure:
@@ -207,7 +207,7 @@ jobs:
   - put: CF api-live pe staging
     params:
       appPath: git
-      command: halfpipe-delete
+      command: halfpipe-cleanup
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
