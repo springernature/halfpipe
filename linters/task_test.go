@@ -347,15 +347,22 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 			Org:   "org",
 			Space: "space",
 			PrePromote: []manifest.Task{
-				manifest.Run{},
+				manifest.Run{
+					ManualTrigger: true,
+				},
 				manifest.DockerCompose{},
+				manifest.DeployCF{},
+				manifest.DockerPush{},
 			},
 		},
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 3)
-	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[0])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[1])
-	assertFileError(t, "docker-compose.yml", result.Errors[2])
+	assert.Len(t, result.Errors, 13)
+	assertInvalidField(t, "manual_trigger", result.Errors[0])
+	assertInvalidField(t, "type", result.Errors[1])
+	assertInvalidField(t, "type", result.Errors[2])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[3])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
+	assertFileError(t, "docker-compose.yml", result.Errors[5])
 }

@@ -35,6 +35,7 @@ pipeline: CHANGE-ME
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+  manual_trigger: false
   script: ./gradlew CHANGE-ME
   docker:
     image: CHANGE-ME:tag

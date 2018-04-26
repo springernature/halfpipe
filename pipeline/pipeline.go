@@ -93,16 +93,20 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	for i, t := range man.Tasks {
 		var jobConfig atc.JobConfig
+		var manualTrigger bool
 		switch task := t.(type) {
 		case manifest.Run:
+			manualTrigger = task.ManualTrigger
 			task.Name = uniqueName(cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			jobConfig = p.runJob(task, man)
 
 		case manifest.DockerCompose:
+			manualTrigger = task.ManualTrigger
 			task.Name = uniqueName(cfg, task.Name, "docker-compose")
 			jobConfig = p.dockerComposeJob(task, man)
 
 		case manifest.DeployCF:
+			manualTrigger = task.ManualTrigger
 			p.addCfResourceType(&cfg)
 			resourceName := uniqueName(cfg, deployCFResourceName(task), "")
 			task.Name = uniqueName(cfg, task.Name, "deploy-cf")
@@ -110,6 +114,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			jobConfig = p.deployCFJob(task, resourceName, man)
 
 		case manifest.DockerPush:
+			manualTrigger = task.ManualTrigger
 			resourceName := uniqueName(cfg, "Docker Registry", "")
 			task.Name = uniqueName(cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
@@ -122,6 +127,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		//insert the initial plan
 		jobConfig.Plan = append(initialPlan, jobConfig.Plan...)
+		jobConfig.Plan[0].Trigger = !manualTrigger
 
 		if i > 0 {
 			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.

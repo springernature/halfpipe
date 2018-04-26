@@ -35,6 +35,7 @@ type Task interface{}
 type Run struct {
 	Type          string
 	Name          string
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Script        string
 	Docker        Docker
 	Vars          Vars     `yaml:"vars,omitempty"`
@@ -42,17 +43,19 @@ type Run struct {
 }
 
 type DockerPush struct {
-	Type     string
-	Name     string
-	Username string
-	Password string
-	Image    string
-	Vars     Vars
+	Type          string
+	Name          string
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Username      string
+	Password      string
+	Image         string
+	Vars          Vars
 }
 
 type DeployCF struct {
 	Type           string
 	Name           string
+	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
 	API            string
 	Space          string
 	Org            string
@@ -67,6 +70,7 @@ type DeployCF struct {
 type DockerCompose struct {
 	Type          string
 	Name          string
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars          Vars
 	SaveArtifacts []string `json:"save_artifacts"`
 }

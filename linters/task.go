@@ -65,6 +65,21 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}
+	for _, prePromote := range cf.PrePromote {
+		switch task := prePromote.(type) {
+		case manifest.Run:
+			if task.ManualTrigger == true {
+				result.AddError(errors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+			}
+		case manifest.DockerCompose:
+			if task.ManualTrigger == true {
+				result.AddError(errors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+			}
+		case manifest.DockerPush, manifest.DeployCF:
+			result.AddError(errors.NewInvalidField("type", "You are not allowed to have a 'deploy-cf' or 'docker-push' task as a pre promote"))
+		}
+
+	}
 
 	linter.lintEnvVars(cf.Vars, taskID, result)
 	return
