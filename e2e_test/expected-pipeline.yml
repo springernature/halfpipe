@@ -144,12 +144,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/manifest.yml
       testDomain: ""
-  - put: CF dev-api engineering-enablement dev
-    params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
-      command: halfpipe-cleanup
-      manifestPath: git/manifest.yml
-      testDomain: ""
   on_failure:
     put: slack
     params:
@@ -157,6 +151,13 @@ jobs:
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
+  ensure:
+    put: CF dev-api engineering-enablement dev
+    params:
+      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
+      command: halfpipe-cleanup
+      manifestPath: git/manifest.yml
+      testDomain: ""
 - name: deploy to staging
   serial: true
   plan:
@@ -204,7 +205,15 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-  - put: CF api-live pe staging
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+  ensure:
+    put: CF api-live pe staging
     params:
       appPath: git
       command: halfpipe-cleanup
@@ -213,13 +222,6 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-  on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
 - name: push to docker registry
   serial: true
   plan:

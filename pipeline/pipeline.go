@@ -240,7 +240,9 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	}
 
 	job.Plan = append(job.Plan, cfCommand("halfpipe-promote"))
-	job.Plan = append(job.Plan, cfCommand("halfpipe-cleanup"))
+
+	cleanup := cfCommand("halfpipe-cleanup")
+	job.Ensure = &cleanup
 
 	return job
 }

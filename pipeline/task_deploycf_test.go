@@ -88,15 +88,15 @@ func TestRendersCfDeploy(t *testing.T) {
 					"appPath":      gitDir,
 				},
 			},
-			atc.PlanConfig{
-				Put: expectedDevResource.Name,
-				Params: atc.Params{
-					"command":      "halfpipe-cleanup",
-					"testDomain":   testDomain,
-					"manifestPath": manifestPath,
-					"vars":         envVars,
-					"appPath":      gitDir,
-				},
+		},
+		Ensure: &atc.PlanConfig{
+			Put: expectedDevResource.Name,
+			Params: atc.Params{
+				"command":      "halfpipe-cleanup",
+				"testDomain":   testDomain,
+				"manifestPath": manifestPath,
+				"vars":         envVars,
+				"appPath":      gitDir,
 			},
 		},
 	}
@@ -138,14 +138,14 @@ func TestRendersCfDeploy(t *testing.T) {
 					"appPath":      gitDir,
 				},
 			},
-			atc.PlanConfig{
-				Put: expectedLiveResource.Name,
-				Params: atc.Params{
-					"command":      "halfpipe-cleanup",
-					"testDomain":   liveTestDomain,
-					"manifestPath": liveManifest,
-					"appPath":      gitDir,
-				},
+		},
+		Ensure: &atc.PlanConfig{
+			Put: expectedLiveResource.Name,
+			Params: atc.Params{
+				"command":      "halfpipe-cleanup",
+				"testDomain":   liveTestDomain,
+				"manifestPath": liveManifest,
+				"appPath":      gitDir,
 			},
 		},
 	}
@@ -200,7 +200,7 @@ func TestRenderPrePromoteTask(t *testing.T) {
 	config := pipeline.Render(man)
 	plan := config.Jobs[0].Plan
 
-	if assert.Len(t, plan, 7) {
+	if assert.Len(t, plan, 6) {
 		assert.Equal(t, gitDir, plan[0].Get)
 		assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
 
@@ -215,8 +215,9 @@ func TestRenderPrePromoteTask(t *testing.T) {
 		assert.NotNil(t, plan[4].TaskConfig)
 
 		assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
-		assert.Equal(t, "halfpipe-cleanup", plan[6].Params["command"])
 	}
+	assert.Equal(t, "halfpipe-cleanup", config.Jobs[0].Ensure.Params["command"])
+
 }
 
 func IGNORETestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
