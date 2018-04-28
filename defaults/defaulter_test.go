@@ -123,7 +123,10 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 				Script: "./blah",
 				Docker: manifest.Docker{
 					Image: config.DockerRegistry + "runImage",
-				}}},
+				}},
+			manifest.DockerPush{
+				Image: config.DockerRegistry + "runImage",
+			}},
 	}
 
 	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task}}
@@ -139,7 +142,12 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 				Image:    config.DockerRegistry + "runImage",
 				Username: manifestDefaults.DockerUsername,
 				Password: manifestDefaults.DockerPassword,
-			}}},
+			}},
+			manifest.DockerPush{
+				Image:    config.DockerRegistry + "runImage",
+				Username: manifestDefaults.DockerUsername,
+				Password: manifestDefaults.DockerPassword,
+			}},
 	}
 
 	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask}}
