@@ -105,6 +105,50 @@ func TestRunTaskDefault(t *testing.T) {
 	assert.Equal(t, expected, actual)
 }
 
+func TestDeployCfTaskWithPrePromote(t *testing.T) {
+
+	manifestDefaults := Defaults{
+		DockerUsername: "_json_key",
+		DockerPassword: "((gcr.private_key))",
+	}
+
+	task := manifest.DeployCF{
+		Org:      "org",
+		Space:    "space",
+		Username: "user",
+		Password: "pass",
+		Manifest: "man.yml",
+		PrePromote: []manifest.Task{
+			manifest.Run{
+				Script: "./blah",
+				Docker: manifest.Docker{
+					Image: config.DockerRegistry + "runImage",
+				}}},
+	}
+
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task}}
+	expectedTask := manifest.DeployCF{
+		Org:      "org",
+		Space:    "space",
+		Username: "user",
+		Password: "pass",
+		Manifest: "man.yml",
+		PrePromote: []manifest.Task{manifest.Run{
+			Script: "./blah",
+			Docker: manifest.Docker{
+				Image:    config.DockerRegistry + "runImage",
+				Username: manifestDefaults.DockerUsername,
+				Password: manifestDefaults.DockerPassword,
+			}}},
+	}
+
+	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask}}
+
+	actual := manifestDefaults.Update(man)
+
+	assert.Equal(t, expected, actual)
+}
+
 func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 	manifestDefaults := Defaults{
 		DockerUsername: "_json_key",

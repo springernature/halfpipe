@@ -35,39 +35,53 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
 
-	for i, t := range man.Tasks {
-		switch task := t.(type) {
-		case manifest.DeployCF:
-			if task.Org == "" {
-				task.Org = man.Team
-			}
-			if task.Username == "" {
-				task.Username = d.CfUsername
-			}
-			if task.Password == "" {
-				task.Password = d.CfPassword
-			}
-			if task.Manifest == "" {
-				task.Manifest = d.CfManifest
-			}
-			man.Tasks[i] = task
+	var taskSwitcher func(task manifest.TaskList) manifest.TaskList
 
-		case manifest.Run:
-			if strings.HasPrefix(task.Docker.Image, config.DockerRegistry) {
-				task.Docker.Username = d.DockerUsername
-				task.Docker.Password = d.DockerPassword
-			}
-			man.Tasks[i] = task
+	taskSwitcher = func(task manifest.TaskList) (tl manifest.TaskList) {
+		tl = make(manifest.TaskList, len(task))
+		for i, t := range task {
+			switch task := t.(type) {
+			case manifest.DeployCF:
+				if task.Org == "" {
+					task.Org = man.Team
+				}
+				if task.Username == "" {
+					task.Username = d.CfUsername
+				}
+				if task.Password == "" {
+					task.Password = d.CfPassword
+				}
+				if task.Manifest == "" {
+					task.Manifest = d.CfManifest
+				}
+				if task.PrePromote != nil {
+					task.PrePromote = taskSwitcher(task.PrePromote)
+				}
+				tl[i] = task
 
-		case manifest.DockerPush:
-			if strings.HasPrefix(task.Image, config.DockerRegistry) {
-				task.Username = d.DockerUsername
-				task.Password = d.DockerPassword
+			case manifest.Run:
+				if strings.HasPrefix(task.Docker.Image, config.DockerRegistry) {
+					task.Docker.Username = d.DockerUsername
+					task.Docker.Password = d.DockerPassword
+				}
+				tl[i] = task
+
+			case manifest.DockerPush:
+				if strings.HasPrefix(task.Image, config.DockerRegistry) {
+					task.Username = d.DockerUsername
+					task.Password = d.DockerPassword
+				}
+				tl[i] = task
+
+			case manifest.DockerCompose:
+				tl[i] = task
 			}
-			man.Tasks[i] = task
 		}
-
+		return
 	}
 
+	taskList := taskSwitcher(man.Tasks)
+	man.Tasks = taskList
 	return man
+
 }

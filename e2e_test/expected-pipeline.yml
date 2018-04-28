@@ -180,8 +180,10 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: node
-          tag: 9.5.0-alpine
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+          tag: latest
+          username: _json_key
       params:
         A: blah
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com

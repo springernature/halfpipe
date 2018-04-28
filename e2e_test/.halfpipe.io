@@ -39,7 +39,7 @@ tasks:
   - type: run
     script: smoke-test.sh
     docker:
-      image: node:9.5.0-alpine
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
     vars:
       A: "blah"
 
