@@ -92,18 +92,18 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	p.addArtifactResource(&cfg, man)
 
 	for i, t := range man.Tasks {
-		var jobConfig atc.JobConfig
+		var jobs []*atc.JobConfig
 		var manualTrigger bool
 		switch task := t.(type) {
 		case manifest.Run:
 			manualTrigger = task.ManualTrigger
 			task.Name = uniqueName(cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobConfig = p.runJob(task, man)
+			jobs = []*atc.JobConfig{p.runJob(task, man)}
 
 		case manifest.DockerCompose:
 			manualTrigger = task.ManualTrigger
 			task.Name = uniqueName(cfg, task.Name, "docker-compose")
-			jobConfig = p.dockerComposeJob(task, man)
+			jobs = []*atc.JobConfig{p.dockerComposeJob(task, man)}
 
 		case manifest.DeployCF:
 			manualTrigger = task.ManualTrigger
@@ -111,35 +111,34 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			resourceName := uniqueName(cfg, deployCFResourceName(task), "")
 			task.Name = uniqueName(cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			jobConfig = p.deployCFJob(task, resourceName, man)
+			jobs = p.deployCFJob(task, resourceName, man)
 
 		case manifest.DockerPush:
 			manualTrigger = task.ManualTrigger
 			resourceName := uniqueName(cfg, "Docker Registry", "")
 			task.Name = uniqueName(cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
-			jobConfig = p.dockerPushJob(task, resourceName, man)
+			jobs = []*atc.JobConfig{p.dockerPushJob(task, resourceName, man)}
 		}
 
-		if failurePlan != nil {
-			jobConfig.Failure = failurePlan
+		for _, job := range jobs {
+			job.Failure = failurePlan
+			job.Plan = append(initialPlan, job.Plan...)
+			cfg.Jobs = append(cfg.Jobs, *job)
 		}
-
-		//insert the initial plan
-		jobConfig.Plan = append(initialPlan, jobConfig.Plan...)
-		jobConfig.Plan[0].Trigger = !manualTrigger
 
 		if i > 0 {
-			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get.
-			jobConfig.Plan[0].Passed = append(jobConfig.Plan[0].Passed, cfg.Jobs[i-1].Name)
+			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get (as set by initialPlan).
+			jobs[0].Plan[0].Passed = append(jobs[0].Plan[0].Passed, cfg.Jobs[i-1].Name)
 		}
-		cfg.Jobs = append(cfg.Jobs, jobConfig)
+
+		jobs[0].Plan[0].Trigger = !manualTrigger
 	}
 
 	return
 }
 
-func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -175,10 +174,10 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) atc.JobConfig
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
 	}
 
-	return jobConfig
+	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest) atc.JobConfig {
+func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest) []*atc.JobConfig {
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
 	testDomain := resolveDefaultDomain(task.API)
@@ -251,7 +250,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	cleanup := cfCommand("halfpipe-cleanup")
 	job.Ensure = &cleanup
 
-	return job
+	return []*atc.JobConfig{&job}
 }
 
 func testRoute(appName, space, testDomain string) string {
@@ -270,7 +269,7 @@ func resolveDefaultDomain(targetAPI string) string {
 	return ""
 }
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) atc.JobConfig {
+func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
 	vars := task.Vars
 	if vars == nil {
 		vars = make(map[string]string)
@@ -292,7 +291,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	return job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, man manifest.Manifest) atc.JobConfig {
+func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -307,7 +306,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 	if len(task.Vars) > 0 {
 		job.Plan[0].Params["build_args"] = convertVars(task.Vars)
 	}
-	return job
+	return &job
 }
 
 func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
