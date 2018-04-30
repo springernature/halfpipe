@@ -70,11 +70,11 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.Plan
 	return initialPlan
 }
 
-func uniqueName(cfg atc.Config, name string, defaultName string) string {
+func uniqueName(cfg *atc.Config, name string, defaultName string) string {
 	if name == "" {
 		name = defaultName
 	}
-	return getUniqueName(name, &cfg, 0)
+	return getUniqueName(name, cfg, 0)
 }
 
 func (p pipeline) addCfResourceType(cfg *atc.Config) {
@@ -92,49 +92,58 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	p.addArtifactResource(&cfg, man)
 
 	for i, t := range man.Tasks {
-		var jobs []*atc.JobConfig
-		var manualTrigger bool
 		switch task := t.(type) {
 		case manifest.Run:
-			manualTrigger = task.ManualTrigger
-			task.Name = uniqueName(cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			jobs = []*atc.JobConfig{p.runJob(task, man)}
-
-		case manifest.DockerCompose:
-			manualTrigger = task.ManualTrigger
-			task.Name = uniqueName(cfg, task.Name, "docker-compose")
-			jobs = []*atc.JobConfig{p.dockerComposeJob(task, man)}
-
-		case manifest.DeployCF:
-			manualTrigger = task.ManualTrigger
-			p.addCfResourceType(&cfg)
-			resourceName := uniqueName(cfg, deployCFResourceName(task), "")
-			task.Name = uniqueName(cfg, task.Name, "deploy-cf")
-			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			jobs = p.deployCFJob(task, resourceName, man)
-
-		case manifest.DockerPush:
-			manualTrigger = task.ManualTrigger
-			resourceName := uniqueName(cfg, "Docker Registry", "")
-			task.Name = uniqueName(cfg, task.Name, "docker-push")
-			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
-			jobs = []*atc.JobConfig{p.dockerPushJob(task, resourceName, man)}
-		}
-
-		for _, job := range jobs {
+			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
+			job := p.runJob(task, man)
 			job.Failure = failurePlan
 			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Trigger = !task.ManualTrigger
+			if i > 0 {
+				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[i-1].Name)
+			}
 			cfg.Jobs = append(cfg.Jobs, *job)
-		}
 
-		if i > 0 {
-			// Previous job must have passed. Plan[0] of a job is ALWAYS the git get (as set by initialPlan).
-			jobs[0].Plan[0].Passed = append(jobs[0].Plan[0].Passed, cfg.Jobs[i-1].Name)
-		}
+		case manifest.DockerCompose:
+			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
+			job := p.dockerComposeJob(task, man)
+			job.Failure = failurePlan
+			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Trigger = !task.ManualTrigger
+			if i > 0 {
+				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[i-1].Name)
+			}
+			cfg.Jobs = append(cfg.Jobs, *job)
 
-		jobs[0].Plan[0].Trigger = !manualTrigger
+		case manifest.DeployCF:
+			p.addCfResourceType(&cfg)
+			resourceName := uniqueName(&cfg, deployCFResourceName(task), "")
+			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
+			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
+			jobs := p.deployCFJobs(task, resourceName, man, &cfg, initialPlan, failurePlan)
+			jobs[0].Plan[0].Trigger = !task.ManualTrigger
+			if i > 0 {
+				jobs[0].Plan[0].Passed = append(jobs[0].Plan[0].Passed, cfg.Jobs[i-1].Name)
+			}
+			for _, job := range jobs {
+				cfg.Jobs = append(cfg.Jobs, *job)
+			}
+
+		case manifest.DockerPush:
+			resourceName := uniqueName(&cfg, "Docker Registry", "")
+			task.Name = uniqueName(&cfg, task.Name, "docker-push")
+			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
+			job := p.dockerPushJob(task, resourceName, man)
+			job.Failure = failurePlan
+			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Trigger = !task.ManualTrigger
+			if i > 0 {
+				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[i-1].Name)
+			}
+			cfg.Jobs = append(cfg.Jobs, *job)
+
+		}
 	}
-
 	return
 }
 
@@ -177,7 +186,9 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest) []*atc.JobConfig {
+func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) []*atc.JobConfig {
+	var jobs []*atc.JobConfig
+
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
 	testDomain := resolveDefaultDomain(task.API)
@@ -205,10 +216,12 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		return cfg
 	}
 
-	job := atc.JobConfig{
-		Name:   task.Name,
-		Serial: true,
-	}
+	jobs = []*atc.JobConfig{{
+		Name:    task.Name,
+		Serial:  true,
+		Plan:    initialPlan,
+		Failure: failurePlan,
+	}}
 
 	if len(task.DeployArtifact) > 0 {
 		artifactGet := atc.PlanConfig{
@@ -218,10 +231,10 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
-		job.Plan = append(job.Plan, artifactGet)
+		jobs[0].Plan = append(jobs[0].Plan, artifactGet)
 	}
 
-	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
+	jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-push"))
 
 	for _, t := range task.PrePromote {
 		applications, e := p.rManifest(task.Manifest)
@@ -235,22 +248,46 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
-			job.Plan = append(job.Plan, p.runJob(ppTask, man).Plan[0])
+			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
+			job := p.runJob(ppTask, man)
+			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Passed = []string{jobs[0].Name}
+			job.Failure = failurePlan
+			jobs = append(jobs, job)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
-			job.Plan = append(job.Plan, p.dockerComposeJob(ppTask, man).Plan[0])
+			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
+			job := p.dockerComposeJob(ppTask, man)
+			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Passed = []string{jobs[0].Name}
+			job.Failure = failurePlan
+			jobs = append(jobs, job)
 		}
 	}
 
-	job.Plan = append(job.Plan, cfCommand("halfpipe-promote"))
+	if len(task.PrePromote) == 0 {
+		jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-promote"))
+	} else {
+		job := &atc.JobConfig{
+			Name:    task.Name + " - promote",
+			Serial:  true,
+			Plan:    append(initialPlan, cfCommand("halfpipe-promote")),
+			Failure: failurePlan,
+		}
+		for _, j := range jobs[1:] {
+			job.Plan[0].Passed = append(job.Plan[0].Passed, j.Name)
+		}
+		jobs = append(jobs, job)
+	}
 
 	cleanup := cfCommand("halfpipe-cleanup")
-	job.Ensure = &cleanup
 
-	return []*atc.JobConfig{&job}
+	jobs[len(jobs)-1].Ensure = &cleanup //where to run this?
+
+	return jobs
 }
 
 func testRoute(appName, space, testDomain string) string {
