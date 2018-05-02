@@ -22,5 +22,6 @@ go get golang.org/x/tools/cmd/goimports
 go get -u github.com/alecthomas/gometalinter && gometalinter --install
 brew install dep
 
+cd $GOPATH/src/github.com/springernature/halfpipe
 ./build.sh
 ```
