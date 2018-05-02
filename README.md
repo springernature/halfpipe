@@ -13,3 +13,14 @@ Yeah, it takes a small YAML schema and renders a complete Concourse pipeline for
 # Ah! Thats cool, can I use it in my company?
 
 In theory yes, but there is some Springer Nature specific stuff in here. With that said nothing is stopping us from extracting those bits, submit a issue! :)
+
+# How to I test and build?
+
+```
+go get github.com/springernature/halfpipe
+go get golang.org/x/tools/cmd/goimports
+go get -u github.com/alecthomas/gometalinter && gometalinter --install
+brew install dep
+
+./build.sh
+```
