@@ -70,6 +70,7 @@ type DeployCF struct {
 type DockerCompose struct {
 	Type          string
 	Name          string
+	Command       string
 	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars          Vars
 	Service       string
