@@ -114,6 +114,9 @@ tasks:
     script: smoke-test.sh
     docker:
       image: golang
+- type: docker-compose
+  name: docker compose task 2
+  service: asdf
 `)
 
 	expected := Manifest{
@@ -192,6 +195,10 @@ tasks:
 						Image: "golang",
 					},
 				}},
+			},
+			DockerCompose{
+				Name:    "docker compose task 2",
+				Service: "asdf",
 			},
 		},
 	}

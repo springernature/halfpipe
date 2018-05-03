@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var validDockerCompose = `
+version: 3
+services:
+  app:
+    image: appropriate/curl`
+
 func testTaskLinter() taskLinter {
 	return taskLinter{
 		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
@@ -287,12 +293,14 @@ func TestEnvVarsMustBeUpperCase(t *testing.T) {
 
 func TestDockerCompose_Happy(t *testing.T) {
 	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte("something"), 0777)
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.DockerCompose{}, // empty is ok, everything is optional
+			manifest.DockerCompose{Service: "app"}, // empty is ok, everything is optional
 			manifest.DockerCompose{
-				Name: "run docker compose",
+				Name:    "run docker compose",
+				Service: "app",
 				Vars: manifest.Vars{
 					"A": "a",
 					"B": "b",
@@ -318,11 +326,13 @@ func TestDockerCompose_MissingFile(t *testing.T) {
 
 func TestDockerCompose_InvalidVar(t *testing.T) {
 	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte("something"), 0777)
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
-				Name: "run docker compose",
+				Name:    "run docker compose",
+				Service: "app",
 				Vars: manifest.Vars{
 					"a": "a",
 					"B": "b",
@@ -334,6 +344,23 @@ func TestDockerCompose_InvalidVar(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertInvalidFieldInErrors(t, "tasks[0] a", result.Errors)
+}
+
+func TestDockerCompose_UnknownService(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{
+				Service: "asdf",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidFieldInErrors(t, "service", result.Errors)
 }
 
 func TestLintsSubTasksInDeployCF(t *testing.T) {

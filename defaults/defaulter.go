@@ -10,13 +10,14 @@ import (
 type Defaulter func(manifest.Manifest, Project) manifest.Manifest
 
 type Defaults struct {
-	RepoPrivateKey string
-	CfUsername     string
-	CfPassword     string
-	CfManifest     string
-	DockerUsername string
-	DockerPassword string
-	Project        Project
+	RepoPrivateKey       string
+	CfUsername           string
+	CfPassword           string
+	CfManifest           string
+	DockerUsername       string
+	DockerPassword       string
+	Project              Project
+	DockerComposeService string
 }
 
 func NewDefaulter(project Project) Defaults {
@@ -74,6 +75,9 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				tl[i] = task
 
 			case manifest.DockerCompose:
+				if task.Service == "" {
+					task.Service = d.DockerComposeService
+				}
 				tl[i] = task
 			}
 		}

@@ -10,6 +10,7 @@ import (
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
+	"gopkg.in/yaml.v2"
 )
 
 type taskLinter struct {
@@ -139,8 +140,11 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID string, result *LintResult) {
 	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
 		result.AddError(err)
+		return
 	}
+
 	linter.lintEnvVars(dc.Vars, taskID, result)
+	linter.lintDockerComposeService(dc.Service, result)
 	return
 }
 
@@ -149,6 +153,30 @@ func (linter taskLinter) lintEnvVars(vars map[string]string, taskID string, resu
 		if key != strings.ToUpper(key) {
 			result.AddError(errors.NewInvalidField(taskID+" "+key, "vars must be uppercase"))
 		}
+	}
+	return
+}
+
+type dockerCompose struct {
+	Services map[string]interface{} `yaml:"services"`
+}
+
+func (linter taskLinter) lintDockerComposeService(service string, result *LintResult) {
+	content, err := linter.Fs.ReadFile("docker-compose.yml")
+	if err != nil {
+		result.AddError(err)
+		return
+	}
+
+	var compose dockerCompose
+	err = yaml.Unmarshal(content, &compose)
+	if err != nil {
+		result.AddError(err)
+		return
+	}
+
+	if _, ok := compose.Services[service]; !ok {
+		result.AddError(errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
 	}
 	return
 }

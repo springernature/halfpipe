@@ -72,6 +72,7 @@ type DockerCompose struct {
 	Name          string
 	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars          Vars
+	Service       string
 	SaveArtifacts []string `json:"save_artifacts"`
 }
 

@@ -13,6 +13,7 @@ import (
 func TestRenderDockerComposeTask(t *testing.T) {
 	p := testPipeline()
 
+	service := "asdf"
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
 			URI:      "git@git:user/repo",
@@ -20,7 +21,8 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
-				Name: "",
+				Name:    "",
+				Service: service,
 				Vars: manifest.Vars{
 					"VAR1": "Value1",
 					"VAR2": "Value2",
@@ -56,7 +58,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeScript(expectedVars), "", nil, "../.git/ref"),
+						Args: runScriptArgs(dockerComposeScript(service, expectedVars), "", nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
