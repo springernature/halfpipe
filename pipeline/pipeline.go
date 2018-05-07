@@ -197,6 +197,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 				"testDomain":   testDomain,
 				"manifestPath": manifestPath,
 				"appPath":      appPath,
+				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		}
 		if len(vars) > 0 {

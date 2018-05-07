@@ -136,12 +136,14 @@ jobs:
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-push
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: ""
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: ""
   on_failure:
@@ -156,6 +158,7 @@ jobs:
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-cleanup
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: ""
 - name: deploy to staging
@@ -169,6 +172,7 @@ jobs:
     params:
       appPath: git
       command: halfpipe-push
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
@@ -202,6 +206,7 @@ jobs:
     params:
       appPath: git
       command: halfpipe-promote
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
@@ -219,6 +224,7 @@ jobs:
     params:
       appPath: git
       command: halfpipe-cleanup
+      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
