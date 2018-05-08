@@ -382,13 +382,24 @@ func runScriptArgs(script string, artifactsPath string, saveArtifacts []string, 
 	}
 
 	out := []string{
+		`which bash > /dev/null
+if [ $? != 0 ]; then
+  echo "Bash is not present in the docker image"
+  echo "If you script, or any of the script your script is calling depends on bash you will get a strange error message like:"
+  echo "sh: yourscript.sh: command not found"
+  echo "To fix, make sure your docker image contains bash!"
+  echo ""
+  echo ""
+fi`,
+		"set -e",
+
 		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
 		script,
 	}
 	for _, artifact := range saveArtifacts {
 		out = append(out, copyArtifactScript(artifactsPath, artifact))
 	}
-	return []string{"-ec", strings.Join(out, "\n")}
+	return []string{"-c", strings.Join(out, "\n")}
 }
 
 func copyArtifactScript(artifactsPath string, saveArtifact string) string {
