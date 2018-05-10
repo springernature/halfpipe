@@ -171,7 +171,8 @@ func TestRendersCfDeploy(t *testing.T) {
 }
 
 func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
-	dockerComposeTask := manifest.DockerCompose{Name: "dc"}
+	dockerComposeTaskBefore := manifest.DockerCompose{Name: "dc-before"}
+	dockerComposeTaskAfter := manifest.DockerCompose{Name: "dc-after"}
 
 	deployCfTask := manifest.DeployCF{
 		Name:     "deploy to dev",
@@ -197,7 +198,7 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
 	man.Pipeline = "mypipeline"
-	man.Tasks = []manifest.Task{dockerComposeTask, deployCfTask}
+	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
 
 	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
 		return []cfManifest.Application{
@@ -211,10 +212,10 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	pipeline := NewPipeline(cfManifestReader)
 	config := pipeline.Render(man)
 
-	assert.Len(t, config.Jobs, 5, "should be 5 jobs")
+	assert.Len(t, config.Jobs, 6, "should be 6 jobs")
 
-	//docker-compose
-	assert.Equal(t, "dc", config.Jobs[0].Name)
+	//docker-compose before
+	assert.Equal(t, dockerComposeTaskBefore.Name, config.Jobs[0].Name)
 
 	//push
 	push := config.Jobs[1]
@@ -251,4 +252,8 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 
 	assert.Equal(t, "halfpipe-cleanup", promote.Ensure.Params["command"])
 
+	//docker-compose after
+	dockerComposeAfter := config.Jobs[5]
+	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
+	assert.Equal(t, []string{promote.Name}, dockerComposeAfter.Plan[0].Passed)
 }

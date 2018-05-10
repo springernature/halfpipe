@@ -96,7 +96,7 @@ func uploadPipeline() (err error) {
 	}
 
 	pipelineFile := func(fs afero.Afero) (afero.File, error) {
-		return fs.OpenFile("pipeline.yml", os.O_RDWR|os.O_CREATE, 0666 )
+		return fs.OpenFile("pipeline.yml", os.O_RDWR|os.O_CREATE, 0666)
 	}
 
 	planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, user.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile)

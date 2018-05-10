@@ -283,7 +283,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy to staging
+    - deploy to staging - promote
     trigger: true
   - put: Docker Registry
     params:
@@ -303,7 +303,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - run smoke-test.sh
+    - push to docker registry
     trigger: true
   - task: run
     config:
@@ -351,7 +351,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy to staging - promote
+    - run notify.sh
     trigger: true
   - task: run
     privileged: true
