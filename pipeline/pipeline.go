@@ -91,8 +91,14 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	failurePlan := p.addSlackResource(&cfg, man)
 	p.addArtifactResource(&cfg, man)
 
-	for _, t := range man.Tasks {
+	setPassed := func(job *atc.JobConfig) {
 		numberOfJobs := len(cfg.Jobs)
+		if numberOfJobs > 0 {
+			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
+		}
+	}
+
+	for _, t := range man.Tasks {
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
@@ -100,9 +106,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job.Failure = failurePlan
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Trigger = !task.ManualTrigger
-			if numberOfJobs > 0 {
-				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
-			}
+			setPassed(job)
 			cfg.Jobs = append(cfg.Jobs, *job)
 
 		case manifest.DockerCompose:
@@ -111,9 +115,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job.Failure = failurePlan
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Trigger = !task.ManualTrigger
-			if numberOfJobs > 0 {
-				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
-			}
+			setPassed(job)
 			cfg.Jobs = append(cfg.Jobs, *job)
 
 		case manifest.DeployCF:
@@ -123,9 +125,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			jobs := p.deployCFJobs(task, resourceName, man, &cfg, initialPlan, failurePlan)
 			jobs[0].Plan[0].Trigger = !task.ManualTrigger
-			if numberOfJobs > 0 {
-				jobs[0].Plan[0].Passed = append(jobs[0].Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
-			}
+			setPassed(jobs[0])
 			for _, job := range jobs {
 				cfg.Jobs = append(cfg.Jobs, *job)
 			}
@@ -138,9 +138,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job.Failure = failurePlan
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Trigger = !task.ManualTrigger
-			if numberOfJobs > 0 {
-				job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
-			}
+			setPassed(job)
 			cfg.Jobs = append(cfg.Jobs, *job)
 
 		}
