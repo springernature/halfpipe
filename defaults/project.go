@@ -32,8 +32,9 @@ func NewProjectResolver(fs afero.Afero) projectResolver {
 }
 
 var (
-	ErrGitNotFound = errors.New("looks like you don't have git installed")
-	ErrNotInRepo   = errors.New("looks like you are not executing halfpipe from within a git repo")
+	ErrGitNotFound        = errors.New("looks like you don't have git installed")
+	ErrNoOriginConfigured = errors.New("looks like you don't have a remote origin configured")
+	ErrNotInRepo          = errors.New("looks like you are not executing halfpipe from within a git repo")
 )
 
 func (c projectResolver) Parse(workingDir string) (p Project, err error) {
@@ -68,7 +69,7 @@ func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 
 	origin, e := c.OriginURL()
 	if e != nil {
-		err = ErrNotInRepo
+		err = ErrNoOriginConfigured
 		return
 	}
 

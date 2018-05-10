@@ -29,7 +29,7 @@ func TestErrorsIfNotInGitRepo(t *testing.T) {
 	pr.OriginURL = func() (string, error) { return "", errors.New("dummy") }
 
 	_, err := pr.Parse("/project/root")
-	assert.Equal(t, ErrNotInRepo, err)
+	assert.Equal(t, ErrNoOriginConfigured, err)
 }
 
 func TestGetsGitOrigin(t *testing.T) {
