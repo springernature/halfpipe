@@ -45,7 +45,11 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 			case manifest.DockerCompose:
 				linter.lintDockerComposeTask(task, taskID, &result)
 			case manifest.ConsumerIntegrationTest:
-				linter.lintConsumerIntegrationTestTask(task, taskID, &result)
+				if listName == "tasks" {
+					result.AddError(errors.NewInvalidField("type", "'consumer-integration-test' task can only be used in 'pre_promote' stage of 'deploy-cf' task"))
+				} else {
+					linter.lintConsumerIntegrationTestTask(task, taskID, &result)
+				}
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 			}

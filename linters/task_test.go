@@ -399,13 +399,36 @@ func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
 	taskLinter := testTaskLinter()
 
 	man.Tasks = []manifest.Task{
-		manifest.ConsumerIntegrationTest{},
+		manifest.DeployCF{
+			API:   "cf-api",
+			Org:   "cf-org",
+			Space: "cf-space",
+			PrePromote: manifest.TaskList{
+				manifest.ConsumerIntegrationTest{},
+			},
+		},
 	}
 
 	result := taskLinter.Lint(man)
 	if assert.Len(t, result.Errors, 3) {
-		assertMissingField(t, "tasks[0] consumer-integration-test.consumer", result.Errors[0])
-		assertMissingField(t, "tasks[0] consumer-integration-test.host", result.Errors[1])
-		assertMissingField(t, "tasks[0] consumer-integration-test.script", result.Errors[2])
+		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.consumer", result.Errors[0])
+		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.host", result.Errors[1])
+		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.script", result.Errors[2])
 	}
+}
+
+func TestConsumerIntegrationTestTaskNotAllowedInMainTaskList(t *testing.T) {
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = manifest.TaskList{
+		manifest.ConsumerIntegrationTest{},
+	}
+
+	result := taskLinter.Lint(man)
+
+	if assert.Len(t, result.Errors, 1) {
+		assertInvalidField(t, "type", result.Errors[0])
+	}
+
 }
