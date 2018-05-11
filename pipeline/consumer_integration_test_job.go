@@ -24,7 +24,9 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 		Name:   task.Name,
 		Script: consumerIntegrationTestScript,
 		Docker: manifest.Docker{
-			Image: config.ConsumerIntegrationTestImage,
+			Image:    config.ConsumerIntegrationTestImage,
+			Username: "_json_key",
+			Password: "((gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":  consumerGitURI,

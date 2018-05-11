@@ -68,6 +68,8 @@ func TestRenderConsumerIntegrationTestTask(t *testing.T) {
 						Source: atc.Source{
 							"repository": strings.Split(config.ConsumerIntegrationTestImage, ":")[0],
 							"tag":        strings.Split(config.ConsumerIntegrationTestImage, ":")[1],
+							"username":   "_json_key",
+							"password":   "((gcr.private_key))",
 						},
 					},
 					Run: atc.TaskRunConfig{
