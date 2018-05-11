@@ -42,6 +42,11 @@ tasks:
       image: eu.gcr.io/halfpipe-io/halfpipe-fly
     vars:
       A: "blah"
+  - type: consumer-integration-test
+    name: cdc-name
+    consumer: cdc-consumer
+    host: cdc-host
+    script: cdc-script
 
 - type: docker-push
   name: push to docker registry

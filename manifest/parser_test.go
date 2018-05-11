@@ -114,9 +114,19 @@ tasks:
     script: smoke-test.sh
     docker:
       image: golang
+  - type: consumer-integration-test
+    name: cdc-name
+    consumer: cdc-consumer
+    host: cdc-host
+    script: cdc-script
 - type: docker-compose
   name: docker compose task 2
   service: asdf
+- type: consumer-integration-test
+  name: cdc-name
+  consumer: cdc-consumer
+  host: cdc-host
+  script: cdc-script
 `)
 
 	expected := Manifest{
@@ -189,16 +199,29 @@ tasks:
 					"BAR": "1",
 				},
 				DeployArtifact: "target/dist/artifact.zip",
-				PrePromote: []Task{Run{
-					Script: "smoke-test.sh",
-					Docker: Docker{
-						Image: "golang",
+				PrePromote: []Task{
+					Run{
+						Script: "smoke-test.sh",
+						Docker: Docker{
+							Image: "golang",
+						},
 					},
-				}},
+					ConsumerIntegrationTest{
+						Name:     "cdc-name",
+						Consumer: "cdc-consumer",
+						Host:     "cdc-host",
+						Script:   "cdc-script",
+					}},
 			},
 			DockerCompose{
 				Name:    "docker compose task 2",
 				Service: "asdf",
+			},
+			ConsumerIntegrationTest{
+				Name:     "cdc-name",
+				Consumer: "cdc-consumer",
+				Host:     "cdc-host",
+				Script:   "cdc-script",
 			},
 		},
 	}

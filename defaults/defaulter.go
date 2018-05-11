@@ -79,6 +79,9 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Service = d.DockerComposeService
 				}
 				tl[i] = task
+
+			default:
+				tl[i] = task
 			}
 		}
 		return

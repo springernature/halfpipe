@@ -77,4 +77,12 @@ type DockerCompose struct {
 	SaveArtifacts []string `json:"save_artifacts"`
 }
 
+type ConsumerIntegrationTest struct {
+	Type     string
+	Name     string
+	Consumer string
+	Host     string
+	Script   string
+}
+
 type Vars map[string]string

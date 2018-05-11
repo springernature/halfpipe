@@ -44,6 +44,8 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 				linter.lintDockerPushTask(task, taskID, &result)
 			case manifest.DockerCompose:
 				linter.lintDockerComposeTask(task, taskID, &result)
+			case manifest.ConsumerIntegrationTest:
+				linter.lintConsumerIntegrationTestTask(task, taskID, &result)
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 			}
@@ -178,5 +180,9 @@ func (linter taskLinter) lintDockerComposeService(service string, result *LintRe
 	if _, ok := compose.Services[service]; !ok {
 		result.AddError(errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
 	}
+	return
+}
+
+func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, result *LintResult) {
 	return
 }
