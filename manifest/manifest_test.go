@@ -9,10 +9,9 @@ import (
 func TestRepo_UriFormats(t *testing.T) {
 
 	type data struct {
-		URI         string
-		Name        string
-		Public      bool
-		GitCryptKey string
+		URI    string
+		Name   string
+		Public bool
 	}
 
 	var testData = []data{
