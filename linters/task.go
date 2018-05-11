@@ -184,5 +184,14 @@ func (linter taskLinter) lintDockerComposeService(service string, result *LintRe
 }
 
 func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, result *LintResult) {
+	if cit.Consumer == "" {
+		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer"))
+	}
+	if cit.Host == "" {
+		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.host"))
+	}
+	if cit.Script == "" {
+		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
+	}
 	return
 }

@@ -393,3 +393,19 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
 	assertFileError(t, "docker-compose.yml", result.Errors[5])
 }
+
+func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = []manifest.Task{
+		manifest.ConsumerIntegrationTest{},
+	}
+
+	result := taskLinter.Lint(man)
+	if assert.Len(t, result.Errors, 3) {
+		assertMissingField(t, "tasks[0] consumer-integration-test.consumer", result.Errors[0])
+		assertMissingField(t, "tasks[0] consumer-integration-test.host", result.Errors[1])
+		assertMissingField(t, "tasks[0] consumer-integration-test.script", result.Errors[2])
+	}
+}
