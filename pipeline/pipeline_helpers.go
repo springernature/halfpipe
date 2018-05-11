@@ -6,6 +6,8 @@ import (
 
 	"path"
 
+	"regexp"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -31,6 +33,13 @@ func deployCFResourceName(task manifest.DeployCF) string {
 	return fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
 }
 
+func uniqueName(cfg *atc.Config, name string, defaultName string) string {
+	if name == "" {
+		name = defaultName
+	}
+	return getUniqueName(name, cfg, 0)
+}
+
 func getUniqueName(name string, config *atc.Config, counter int) string {
 	candidate := strings.Replace(name, "/", "_", -1) //avoid bug in atc web interface
 	if counter > 0 {
@@ -48,6 +57,11 @@ func getUniqueName(name string, config *atc.Config, counter int) string {
 		}
 	}
 	return candidate
+}
+
+// convert string to uppercase and replace non A-Z 0-9 with underscores
+func toEnvironmentKey(s string) string {
+	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")
 }
 
 func ToString(pipeline atc.Config) (string, error) {

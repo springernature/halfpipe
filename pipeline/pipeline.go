@@ -70,13 +70,6 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.Plan
 	return initialPlan
 }
 
-func uniqueName(cfg *atc.Config, name string, defaultName string) string {
-	if name == "" {
-		name = defaultName
-	}
-	return getUniqueName(name, cfg, 0)
-}
-
 func (p pipeline) addCfResourceType(cfg *atc.Config) {
 	resTypeName := "cf-resource"
 	if _, exists := cfg.ResourceTypes.Lookup(resTypeName); !exists {
@@ -240,13 +233,13 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 		if e != nil {
 			panic(e)
 		}
-		appName := applications[0].Name
+		testRoute := buildTestRoute(applications[0].Name, task.Space, testDomain)
 		switch ppTask := t.(type) {
 		case manifest.Run:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
-			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
+			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
 			job := p.runJob(ppTask, man)
 			job.Plan = append(initialPlan, job.Plan...)
@@ -257,9 +250,16 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
-			ppTask.Vars["TEST_ROUTE"] = testRoute(appName, task.Space, testDomain)
+			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
 			job := p.dockerComposeJob(ppTask, man)
+			job.Plan = append(initialPlan, job.Plan...)
+			job.Plan[0].Passed = []string{jobs[0].Name}
+			job.Failure = failurePlan
+			jobs = append(jobs, job)
+		case manifest.ConsumerIntegrationTest:
+			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
+			job := p.consumerIntegrationTestJob(ppTask, man, testRoute)
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Passed = []string{jobs[0].Name}
 			job.Failure = failurePlan
@@ -289,7 +289,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 	return jobs
 }
 
-func testRoute(appName, space, testDomain string) string {
+func buildTestRoute(appName, space, testDomain string) string {
 	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
 }
 

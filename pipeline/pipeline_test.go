@@ -3,12 +3,23 @@ package pipeline
 import (
 	"testing"
 
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 func testPipeline() pipeline {
-	return pipeline{}
+	return pipeline{
+		rManifest: func(s string) ([]cfManifest.Application, error) {
+			return []cfManifest.Application{
+				{
+					Name:   "test-name",
+					Routes: []string{"test-route"},
+				},
+			}, nil
+		},
+	}
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {

@@ -43,10 +43,10 @@ tasks:
     vars:
       A: "blah"
   - type: consumer-integration-test
-    name: cdc-name
-    consumer: cdc-consumer
-    host: cdc-host
-    script: cdc-script
+    name: c-name
+    consumer: c-consumer
+    host: c-host
+    script: c-script
 
 - type: docker-push
   name: push to docker registry

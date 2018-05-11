@@ -14,6 +14,8 @@ var (
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 
 	DockerComposeImage = "amidos/dcind:latest"
+
+	ConsumerIntegrationTestImage = "eu.gcr.io/halfpipe-io/halfpipe-cdc-runner:latest"
 )
 
 var DevVersion = semver.Version{
