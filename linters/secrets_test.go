@@ -5,11 +5,12 @@ import (
 
 	"strings"
 
+	"path/filepath"
+
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"path/filepath"
 )
 
 const (

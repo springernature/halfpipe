@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
+	"path/filepath"
+
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
-	"path/filepath"
 )
 
 type PathResolver func(string) (string, error)

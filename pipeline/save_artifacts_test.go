@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"testing"
 
+	"path"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"path"
 )
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {

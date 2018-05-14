@@ -14,10 +14,11 @@ import (
 
 	"sort"
 
+	"path"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
 )
 
 type Renderer interface {

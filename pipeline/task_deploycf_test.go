@@ -3,12 +3,12 @@ package pipeline
 import (
 	"testing"
 
+	"path"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"path"
 )
 
 func TestRendersCfDeploy(t *testing.T) {

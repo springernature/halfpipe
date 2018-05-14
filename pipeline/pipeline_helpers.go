@@ -6,11 +6,12 @@ import (
 
 	"regexp"
 
+	"path"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
-	"path"
 )
 
 func convertVars(vars manifest.Vars) map[string]interface{} {

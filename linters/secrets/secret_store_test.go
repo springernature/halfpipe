@@ -5,7 +5,10 @@ import (
 
 	"os"
 
+	"path/filepath"
+
 	"github.com/hashicorp/vault/api"
+	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -79,9 +82,10 @@ func TestRealClient(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	_, err := NewSecretStore(fs)()
-	assert.IsType(t, errVaultTokenMissing, err)
+	assert.IsType(t, errVaultTokenMissing(""), err)
 
-	fs.WriteFile(vaultTokenPath, []byte("00000000-0000-0000-0000-000000000000"), 0777)
+	homeDir, _ := homedir.Dir()
+	fs.WriteFile(filepath.Join(homeDir, ".vault-token"), []byte("00000000-0000-0000-0000-000000000000"), 0777)
 	store, err := NewSecretStore(fs)()
 	assert.Nil(t, err)
 	assert.IsType(t, secretStore{}, store)

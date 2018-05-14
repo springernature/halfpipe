@@ -5,10 +5,11 @@ import (
 
 	"regexp"
 
+	"path"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
 )
 
 func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
