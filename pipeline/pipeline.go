@@ -12,8 +12,6 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
-	"sort"
-
 	"path"
 
 	"github.com/concourse/atc"
@@ -316,7 +314,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
 		Name:   task.Name,
-		Script: dockerComposeScript(task.Service, vars, task.Command),
+		Script: dockerComposeScript(task.Service, task.Command),
 		Docker: manifest.Docker{
 			Image: config.DockerComposeImage,
 		},
@@ -363,17 +361,8 @@ func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	return
 }
 
-func dockerComposeScript(service string, vars map[string]string, containerCommand string) string {
-	envStrings := []string{"-e GIT_REVISION=${GIT_REVISION}"}
-	for key := range vars {
-		if key == "GCR_PRIVATE_KEY" {
-			continue
-		}
-		envStrings = append(envStrings, fmt.Sprintf("-e %s=${%s}", key, key))
-	}
-	sort.Strings(envStrings)
-
-	composeCommand := fmt.Sprintf("docker-compose run %s %s", strings.Join(envStrings, " "), service)
+func dockerComposeScript(service string, containerCommand string) string {
+	composeCommand := fmt.Sprintf("docker-compose run %s", service)
 	if containerCommand != "" {
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, containerCommand)
 	}
@@ -381,6 +370,11 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 	return fmt.Sprintf(`\source /docker-lib.sh
 start_docker
 docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+
+# Put all environment variables in .env file
+# This is a magic file that docker-compose uses to populate the environment for the container
+# Also make sure to remove env variables that are availible in the docker-in-docker image that should not be carried over.
+env | egrep -v "PATH=|HOSTNAME=|TERM=|DOCKER_VERSION=|DOCKER_COMPOSE_VERSION=|ENTRYKIT_VERSION=|HOME=|USER=|SHLVL=|OLDPWD=|PWD=" > .env
 
 %s
 rc=$?
