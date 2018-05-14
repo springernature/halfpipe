@@ -46,7 +46,7 @@ func (r result) getDownloadURL() string {
 }
 
 func (r result) getVersion() (version semver.Version, err error) {
-	rx := regexp.MustCompile(`[0-9]+.[0-9]+.[0-9]+$`)
+	rx := regexp.MustCompile(`[0-9]+.[0-9]+.[0-9]+`)
 	version, err = semver.Parse(string(rx.Find([]byte(r.URI))))
 	return
 }

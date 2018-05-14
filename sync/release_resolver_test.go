@@ -68,3 +68,31 @@ func TestGivesTheCorrectRelease(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expectedResults, release)
 }
+
+func TestGivesTheCorrectReleaseForWindows(t *testing.T) {
+	returnFromHTTPCall := `
+{
+ "results" : [
+	{"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_windows_1.22.0.exe"},
+    {"uri" : "https://springernature.jfrog.io/springernature/api/storage/halfpipe/halfpipe_windows_1.21.6.exe"}
+ ]
+}
+`
+
+	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
+		resp = &http.Response{
+			Body: gbytes.BufferWithBytes([]byte(returnFromHTTPCall)),
+		}
+		return
+	}
+
+	release, err := ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
+
+	expectedResults := Release{
+		Version:     semver.Version{Major: 1, Minor: 22, Patch: 0},
+		DownloadURL: "https://springernature.jfrog.io/springernature/halfpipe/halfpipe_windows_1.22.0.exe",
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedResults, release)
+}
