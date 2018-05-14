@@ -3,12 +3,12 @@ package pipeline
 import (
 	"testing"
 
-	"path/filepath"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"path"
 )
 
 func TestRendersCfDeploy(t *testing.T) {
@@ -57,7 +57,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 	}
 
-	manifestPath := filepath.Join(gitDir, "manifest-dev.yml")
+	manifestPath := path.Join(gitDir, "manifest-dev.yml")
 	testDomain := "dev.cf.private.springer.com"
 	envVars := map[string]interface{}{
 		"VAR1": "value1",
@@ -76,7 +76,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
-					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 			atc.PlanConfig{
@@ -87,7 +87,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
-					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -99,7 +99,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"manifestPath": manifestPath,
 				"vars":         envVars,
 				"appPath":      gitDir,
-				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}
@@ -117,7 +117,7 @@ func TestRendersCfDeploy(t *testing.T) {
 	}
 
 	liveTestDomain := "live.cf.private.springer.com"
-	liveManifest := filepath.Join(gitDir, "manifest-live.yml")
+	liveManifest := path.Join(gitDir, "manifest-live.yml")
 	expectedLiveJob := atc.JobConfig{
 		Name:   "deploy-cf (1)",
 		Serial: true,
@@ -130,7 +130,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
-					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 			atc.PlanConfig{
@@ -140,7 +140,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
-					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -151,7 +151,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"testDomain":   liveTestDomain,
 				"manifestPath": liveManifest,
 				"appPath":      gitDir,
-				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}

@@ -17,6 +17,7 @@ import (
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"path"
 )
 
 type Renderer interface {
@@ -151,7 +152,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 					ImageResource: p.imageResource(task.Docker),
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
-						Dir:  filepath.Join(gitDir, man.Repo.BasePath),
+						Dir:  path.Join(gitDir, man.Repo.BasePath),
 						Args: runScriptArgs(task.Script, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -168,7 +169,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 			Put: GenerateArtifactsFolderName(man.Team, man.Pipeline),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
-				"version_file": filepath.Join(gitDir, ".git", "ref"),
+				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
@@ -180,14 +181,14 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) []*atc.JobConfig {
 	var jobs []*atc.JobConfig
 
-	manifestPath := filepath.Join(gitDir, man.Repo.BasePath, task.Manifest)
+	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
 	testDomain := resolveDefaultDomain(task.API)
 	vars := convertVars(task.Vars)
 
-	appPath := filepath.Join(gitDir, man.Repo.BasePath)
+	appPath := path.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = filepath.Join(GenerateArtifactsFolderName(man.Team, man.Pipeline), task.DeployArtifact)
+		appPath = path.Join(GenerateArtifactsFolderName(man.Team, man.Pipeline), task.DeployArtifact)
 	}
 
 	cfCommand := func(commandName string) atc.PlanConfig {
@@ -198,7 +199,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 				"testDomain":   testDomain,
 				"manifestPath": manifestPath,
 				"appPath":      appPath,
-				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		}
 		if len(vars) > 0 {
@@ -219,7 +220,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
-				"version_file": filepath.Join(gitDir, ".git", "ref"),
+				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
 		jobs[0].Plan = append(jobs[0].Plan, artifactGet)
@@ -334,7 +335,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"build": filepath.Join(gitDir, man.Repo.BasePath),
+					"build": path.Join(gitDir, man.Repo.BasePath),
 				}},
 		},
 	}
@@ -345,7 +346,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 }
 
 func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
-	fullPath := filepath.Join(repoName, basePath)
+	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
 	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
@@ -357,7 +358,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
-	gitRefPath, _ = filepath.Rel(filepath.Join(repoName, basePath), filepath.Join(repoName, ".git", "ref"))
+	gitRefPath, _ = filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
 	return
 }
 

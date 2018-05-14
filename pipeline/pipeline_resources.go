@@ -3,12 +3,12 @@ package pipeline
 import (
 	"strings"
 
-	"path/filepath"
 	"regexp"
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"path"
 )
 
 func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
@@ -82,7 +82,7 @@ func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 		Type: "gcp-resource",
 		Source: atc.Source{
 			"json_key": "((gcr.private_key))",
-			"folder":   filepath.Join(filter(team), filter(pipeline)),
+			"folder":   path.Join(filter(team), filter(pipeline)),
 			"bucket":   "halfpipe-artifacts",
 		},
 	}
