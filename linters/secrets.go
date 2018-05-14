@@ -5,11 +5,10 @@ import (
 	"regexp"
 	"strings"
 
-	"path"
-
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/manifest"
+	"path/filepath"
 )
 
 type secretsLinter struct {
@@ -72,8 +71,8 @@ func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipel
 
 	secretMap, secretKey := secretToMapAndKey(concourseSecret)
 	paths := []string{
-		path.Join(s.prefix, team, pipeline, secretMap),
-		path.Join(s.prefix, team, secretMap),
+		filepath.Join(s.prefix, team, pipeline, secretMap),
+		filepath.Join(s.prefix, team, secretMap),
 	}
 
 	for _, p := range paths {

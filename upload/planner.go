@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os/exec"
-	"path"
-
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
+	"path/filepath"
 )
 
 type PathResolver func(string) (string, error)
@@ -64,7 +63,7 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 }
 
 func (p planner) getTargets() (targets Targets, err error) {
-	path := path.Join(p.homedir, ".flyrc")
+	path := filepath.Join(p.homedir, ".flyrc")
 	exists, err := p.fs.Exists(path)
 	if err != nil {
 		return

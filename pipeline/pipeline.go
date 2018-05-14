@@ -2,7 +2,6 @@ package pipeline
 
 import (
 	"fmt"
-	"path"
 	"strings"
 
 	"text/template"
@@ -152,7 +151,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 					ImageResource: p.imageResource(task.Docker),
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
-						Dir:  path.Join(gitDir, man.Repo.BasePath),
+						Dir:  filepath.Join(gitDir, man.Repo.BasePath),
 						Args: runScriptArgs(task.Script, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -169,7 +168,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 			Put: GenerateArtifactsFolderName(man.Team, man.Pipeline),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
-				"version_file": path.Join(gitDir, ".git", "ref"),
+				"version_file": filepath.Join(gitDir, ".git", "ref"),
 			},
 		}
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
@@ -181,12 +180,12 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) []*atc.JobConfig {
 	var jobs []*atc.JobConfig
 
-	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
+	manifestPath := filepath.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
 	testDomain := resolveDefaultDomain(task.API)
 	vars := convertVars(task.Vars)
 
-	appPath := path.Join(gitDir, man.Repo.BasePath)
+	appPath := filepath.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
 		appPath = filepath.Join(GenerateArtifactsFolderName(man.Team, man.Pipeline), task.DeployArtifact)
 	}
@@ -199,7 +198,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 				"testDomain":   testDomain,
 				"manifestPath": manifestPath,
 				"appPath":      appPath,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 			},
 		}
 		if len(vars) > 0 {
@@ -220,7 +219,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),
 			Params: atc.Params{
 				"folder":       artifactsFolderName,
-				"version_file": path.Join(gitDir, ".git", "ref"),
+				"version_file": filepath.Join(gitDir, ".git", "ref"),
 			},
 		}
 		jobs[0].Plan = append(jobs[0].Plan, artifactGet)
@@ -335,7 +334,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 			atc.PlanConfig{
 				Put: resourceName,
 				Params: atc.Params{
-					"build": path.Join(gitDir, man.Repo.BasePath),
+					"build": filepath.Join(gitDir, man.Repo.BasePath),
 				}},
 		},
 	}
@@ -346,7 +345,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 }
 
 func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
-	fullPath := path.Join(repoName, basePath)
+	fullPath := filepath.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
 	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
@@ -358,7 +357,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
-	gitRefPath, _ = filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
+	gitRefPath, _ = filepath.Rel(filepath.Join(repoName, basePath), filepath.Join(repoName, ".git", "ref"))
 	return
 }
 

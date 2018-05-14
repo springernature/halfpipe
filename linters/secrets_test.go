@@ -3,13 +3,13 @@ package linters
 import (
 	"testing"
 
-	"path"
 	"strings"
 
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"path/filepath"
 )
 
 const (
@@ -91,8 +91,8 @@ func TestSecretNotFound(t *testing.T) {
 
 	assert.Len(t, result.Warnings, 1)
 	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Warnings[0])
-	assert.Equal(t, path.Join(prefix, team, pipeline, "not"), paths[0])
-	assert.Equal(t, path.Join(prefix, team, "not"), paths[1])
+	assert.Equal(t, filepath.Join(prefix, team, pipeline, "not"), paths[0])
+	assert.Equal(t, filepath.Join(prefix, team, "not"), paths[1])
 	assert.Equal(t, "found", secretKey)
 }
 
@@ -121,7 +121,7 @@ func TestCallsOnlyOutOnceIfFoundInFirstPath(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 	assert.Len(t, result.Warnings, 0)
 	assert.Len(t, paths, 1)
-	assert.Equal(t, path.Join(prefix, team, pipeline, "my"), paths[0])
+	assert.Equal(t, filepath.Join(prefix, team, pipeline, "my"), paths[0])
 }
 
 func TestCallsOnlyTwiceToFindSecret(t *testing.T) {

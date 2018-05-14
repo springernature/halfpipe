@@ -5,8 +5,6 @@ import (
 
 	"path/filepath"
 
-	"path"
-
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
@@ -78,7 +76,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 				},
 			},
 			atc.PlanConfig{
@@ -89,7 +87,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -101,7 +99,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"manifestPath": manifestPath,
 				"vars":         envVars,
 				"appPath":      gitDir,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}
@@ -132,7 +130,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 				},
 			},
 			atc.PlanConfig{
@@ -142,7 +140,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -153,7 +151,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"testDomain":   liveTestDomain,
 				"manifestPath": liveManifest,
 				"appPath":      gitDir,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+				"gitRefPath":   filepath.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}

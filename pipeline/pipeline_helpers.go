@@ -4,14 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"path"
-
 	"regexp"
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"path/filepath"
 )
 
 func convertVars(vars manifest.Vars) map[string]interface{} {
@@ -75,6 +74,6 @@ func ToString(pipeline atc.Config) (string, error) {
 }
 
 func GenerateArtifactsFolderName(team string, pipeline string) string {
-	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
+	postfix := strings.Replace(filepath.Join(team, pipeline), "/", "-", -1)
 	return fmt.Sprintf("artifacts-%s", postfix)
 }
