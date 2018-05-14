@@ -41,6 +41,15 @@ resources:
     username: ((artifactory-halfpipe.username))
     password: ((artifactory-halfpipe.token))
 
+- name: artifactory-windows
+  type: artifactory
+  source:
+    endpoint: https://springernature.jfrog.io/springernature
+    repository: "/halfpipe"
+    regex: "halfpipe_windows_(?<version>.*).exe"
+    username: ((artifactory-halfpipe.username))
+    password: ((artifactory-halfpipe.token))
+
 jobs:
 - name: Test
   serial: true
@@ -155,7 +164,9 @@ jobs:
           cd src/github.com/springernature/halfpipe
           CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION $ROOT/binaries
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+
+          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
       inputs:
       - name: halfpipe
         path: src/github.com/springernature/halfpipe
@@ -178,3 +189,6 @@ jobs:
   - put: artifactory-linux
     params:
       file: binaries/halfpipe_linux_*
+  - put: artifactory-windows
+    params:
+      file: binaries/halfpipe_windows_*
