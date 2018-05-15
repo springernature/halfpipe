@@ -94,7 +94,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			job := p.runJob(task, man)
+			job := p.runJob(task, true, man)
 			job.Failure = failurePlan
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Trigger = !task.ManualTrigger
@@ -138,7 +138,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return
 }
 
-func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Manifest) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -152,7 +152,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest) *atc.JobConfi
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  path.Join(gitDir, man.Repo.BasePath),
-						Args: runScriptArgs(task.Script, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
+						Args: runScriptArgs(task.Script, checkForBash, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -240,7 +240,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			job := p.runJob(ppTask, man)
+			job := p.runJob(ppTask, true, man)
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Passed = []string{jobs[0].Name}
 			job.Failure = failurePlan
@@ -321,7 +321,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		Vars:          vars,
 		SaveArtifacts: task.SaveArtifacts,
 	}
-	job := p.runJob(runTask, man)
+	job := p.runJob(runTask, false, man)
 	job.Plan[0].Privileged = true
 	return job
 }
@@ -406,13 +406,15 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, artifactsPath string, saveArtifacts []string, pathToGitRef string) []string {
+func runScriptArgs(script string, checkForBash bool, artifactsPath string, saveArtifacts []string, pathToGitRef string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
 
-	out := []string{
-		`which bash > /dev/null
+	var out []string
+
+	if checkForBash {
+		out = append(out, `which bash > /dev/null
 if [ $? != 0 ]; then
   echo "Bash is not present in the docker image"
   echo "If you script, or any of the script your script is calling depends on bash you will get a strange error message like:"
@@ -420,12 +422,15 @@ if [ $? != 0 ]; then
   echo "To fix, make sure your docker image contains bash!"
   echo ""
   echo ""
-fi`,
-		"set -e",
+fi`)
+	}
 
+	out = append(out,
+		"set -e",
 		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
 		script,
-	}
+	)
+
 	for _, artifact := range saveArtifacts {
 		out = append(out, copyArtifactScript(artifactsPath, artifact))
 	}

@@ -454,15 +454,6 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
-            echo "Bash is not present in the docker image"
-            echo "If you script, or any of the script your script is calling depends on bash you will get a strange error message like:"
-            echo "sh: yourscript.sh: command not found"
-            echo "To fix, make sure your docker image contains bash!"
-            echo ""
-            echo ""
-          fi
           set -e
           export GIT_REVISION=`cat .git/ref`
           \source /docker-lib.sh

@@ -75,7 +75,7 @@ func TestRenderConsumerIntegrationTestTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestScript, "", nil, "../.git/ref"),
+						Args: runScriptArgs(consumerIntegrationTestScript, true, "", nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},

@@ -39,7 +39,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"PROVIDER_HOST":     testRoute,
 		},
 	}
-	job := p.runJob(runTask, man)
+	job := p.runJob(runTask, true, man)
 	job.Plan[0].Privileged = true
 	return job
 }
