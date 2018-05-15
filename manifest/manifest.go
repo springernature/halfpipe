@@ -33,13 +33,14 @@ type Docker struct {
 type Task interface{}
 
 type Run struct {
-	Type          string
-	Name          string
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Script        string
-	Docker        Docker
-	Vars          Vars     `yaml:"vars,omitempty"`
-	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	Type             string
+	Name             string
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	Script           string
+	Docker           Docker
+	Vars             Vars     `yaml:"vars,omitempty"`
+	SaveArtifacts    []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
 }
 
 type DockerPush struct {
@@ -50,12 +51,13 @@ type DockerPush struct {
 	Password      string
 	Image         string
 	Vars          Vars
+	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
 }
 
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	API            string
 	Space          string
 	Org            string
@@ -71,10 +73,11 @@ type DockerCompose struct {
 	Type          string
 	Name          string
 	Command       string
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars          Vars
 	Service       string
 	SaveArtifacts []string `json:"save_artifacts"`
+	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
 }
 
 type ConsumerIntegrationTest struct {
