@@ -313,6 +313,36 @@ func TestDockerCompose_Happy(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
+func TestDockerCompose_HappyWithoutServicesKey(t *testing.T) {
+	var compose = `
+app1:
+  image: appropriate/curl
+
+app2:
+  image: appropriate/curl
+`
+
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(compose), 0777)
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{Service: "app2"},
+			manifest.DockerCompose{
+				Name:    "run docker compose",
+				Service: "app1",
+				Vars: manifest.Vars{
+					"A": "a",
+					"B": "b",
+				},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+}
+
 func TestDockerCompose_MissingFile(t *testing.T) {
 	taskLinter := testTaskLinter()
 	man := manifest.Manifest{
@@ -349,6 +379,30 @@ func TestDockerCompose_InvalidVar(t *testing.T) {
 func TestDockerCompose_UnknownService(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{
+				Service: "asdf",
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidFieldInErrors(t, "service", result.Errors)
+}
+
+func TestDockerCompose_UnknownServiceWithoutServicesKey(t *testing.T) {
+
+	var compose = `
+app1:
+  image: appropriate/curl
+app2:
+  image: appropriate/curl
+`
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(compose), 0777)
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{

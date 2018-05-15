@@ -163,10 +163,6 @@ func (linter taskLinter) lintEnvVars(vars map[string]string, taskID string, resu
 	return
 }
 
-type dockerCompose struct {
-	Services map[string]interface{} `yaml:"services"`
-}
-
 func (linter taskLinter) lintDockerComposeService(service string, result *LintResult) {
 	content, err := linter.Fs.ReadFile("docker-compose.yml")
 	if err != nil {
@@ -174,16 +170,31 @@ func (linter taskLinter) lintDockerComposeService(service string, result *LintRe
 		return
 	}
 
-	var compose dockerCompose
+	var compose struct {
+		Services map[string]interface{} `yaml:"services"`
+	}
 	err = yaml.Unmarshal(content, &compose)
 	if err != nil {
 		result.AddError(err)
 		return
 	}
 
-	if _, ok := compose.Services[service]; !ok {
-		result.AddError(errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
+	if _, ok := compose.Services[service]; ok {
+		return
 	}
+
+	var composeWithoutServices map[string]interface{}
+	err = yaml.Unmarshal(content, &composeWithoutServices)
+	if err != nil {
+		result.AddError(err)
+		return
+	}
+
+	if _, ok := composeWithoutServices[service]; ok {
+		return
+	}
+
+	result.AddError(errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
 	return
 }
 
