@@ -34,6 +34,9 @@ func NewPipeline(rManifest func(string) ([]cfManifest.Application, error)) pipel
 const artifactsFolderName = "artifacts"
 const gitDir = "git"
 
+const dockerPushResourceName = "Docker Registry"
+const dockerBuildTmpDir = "docker_build"
+
 func (p pipeline) addSlackResource(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
 
 	slackChannelSet := man.SlackChannel != ""
@@ -123,7 +126,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			}
 
 		case manifest.DockerPush:
-			resourceName := uniqueName(&cfg, "Docker Registry", "")
+			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job := p.dockerPushJob(task, resourceName, man)
@@ -341,7 +344,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	return job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -357,6 +360,58 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 		job.Plan[0].Params["build_args"] = convertVars(task.Vars)
 	}
 	return &job
+}
+
+func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+	job := atc.JobConfig{
+		Name:   task.Name,
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{Get: GenerateArtifactsFolderName(man.Team, man.Pipeline)},
+			atc.PlanConfig{
+				Task: "Copying git repo and artifacts to a temporary build dir",
+				TaskConfig: &atc.TaskConfig{
+					Platform: "linux",
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": "alpine",
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Args: []string{"-c", strings.Join([]string{
+							fmt.Sprintf("cp -r %s/* %s", gitDir, dockerBuildTmpDir),
+							fmt.Sprintf("cp -r %s/* %s", artifactsFolderName, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+						}, "\n")},
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: gitDir},
+						{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName},
+					},
+					Outputs: []atc.TaskOutputConfig{
+						{Name: dockerBuildTmpDir},
+					},
+				}},
+
+			atc.PlanConfig{
+				Put: resourceName,
+				Params: atc.Params{
+					"build": path.Join(dockerBuildTmpDir, man.Repo.BasePath),
+				}},
+		},
+	}
+	if len(task.Vars) > 0 {
+		job.Plan[2].Params["build_args"] = convertVars(task.Vars)
+	}
+	return &job
+}
+
+func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+	if task.RestoreArtifacts {
+		return dockerPushJobWithRestoreArtifacts(task, resourceName, man)
+	}
+	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man)
 }
 
 func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
