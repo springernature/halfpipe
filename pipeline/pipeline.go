@@ -383,8 +383,8 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Args: []string{"-c", strings.Join([]string{
-							fmt.Sprintf("cp -r %s/* %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/* %s", artifactsFolderName, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
+							fmt.Sprintf("cp -r %s/. %s", artifactsFolderName, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -502,7 +502,7 @@ fi`)
 	}
 
 	if restoreArtifacts {
-		out = append(out, fmt.Sprintf("cp -r %s/* .", artifactsPath))
+		out = append(out, fmt.Sprintf("cp -r %s/. .", artifactsPath))
 	}
 
 	out = append(out,
