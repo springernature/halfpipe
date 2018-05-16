@@ -460,12 +460,7 @@ jobs:
           start_docker
           docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
-          # Put all environment variables in .env file
-          # This is a magic file that docker-compose uses to populate the environment for the container
-          # Also make sure to remove env variables that are availible in the docker-in-docker image that should not be carried over.
-          env | egrep -v "PATH=|HOSTNAME=|TERM=|DOCKER_VERSION=|DOCKER_COMPOSE_VERSION=|ENTRYKIT_VERSION=|HOME=|USER=|SHLVL=|OLDPWD=|PWD=" > .env
-
-          docker-compose run app
+          docker-compose run -e GIT_REVISION=${GIT_REVISION} app
           rc=$?
 
           docker-compose down
