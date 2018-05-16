@@ -22,7 +22,10 @@ type Controller struct {
 }
 
 func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
-	yaml, err := filechecker.ReadFile(c.Fs, filepath.Join(c.CurrentDir, config.HalfpipeFile))
+	yaml, err := filechecker.ReadHalfpipeFiles(c.Fs, []string{
+		filepath.Join(c.CurrentDir, config.HalfpipeFile),
+		filepath.Join(c.CurrentDir, config.HalfpipeFileWithYML),
+		filepath.Join(c.CurrentDir, config.HalfpipeFileWithYAML)})
 	if err != nil {
 		errors = append(errors, err)
 		return
@@ -38,7 +41,6 @@ func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
 }
 
 func (c Controller) Process() (config atc.Config, results linters.LintResults) {
-
 	man, errs := c.getManifest()
 	if errs != nil {
 		results = append(results, linters.NewLintResult("Halfpipe", "https://docs.halfpipe.io/docs/manifest/#Manifest", errs, nil))

@@ -29,13 +29,49 @@ func testController() Controller {
 	}
 }
 
-func TestProcessDoesNothingWhenFileDoesNotExist(t *testing.T) {
+func TestProcessDoesNothingWhenFilesDoNotExist(t *testing.T) {
 	c := testController()
 	pipeline, results := c.Process()
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 1)
-	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
+	assert.IsType(t, errors.HalfpipeFileError{}, results[0].Errors[0])
+}
+
+func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
+	c := testController()
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io.yml", []byte(validHalfpipeYaml), 0777)
+
+	config := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: "Yolo",
+			},
+		},
+	}
+	c.Renderer = FakeRenderer{Config: config}
+
+	_, results := c.Process()
+
+	assert.Len(t, results.Error(), 0)
+}
+
+func TestWorksForHalfpipeFile(t *testing.T) {
+	c := testController()
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
+
+	config := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: "Yolo",
+			},
+		},
+	}
+	c.Renderer = FakeRenderer{Config: config}
+
+	_, results := c.Process()
+
+	assert.Len(t, results.Error(), 0)
 }
 
 func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {

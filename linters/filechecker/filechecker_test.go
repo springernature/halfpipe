@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/stretchr/testify/assert"
 )
@@ -71,4 +72,29 @@ func TestReadDoesCheck(t *testing.T) {
 	_, err := ReadFile(fs, ".halfpipe.io")
 
 	assert.Equal(t, errors.NewFileError(".halfpipe.io", "is empty"), err)
+}
+
+func TestReadHalfpipeFilesErrorsTwoFileOptionsExist(t *testing.T) {
+	fs := testFs()
+	fs.WriteFile(".halfpipe.io", []byte{}, 0700)
+	fs.WriteFile(".halfpipe.io.yml", []byte{}, 0700)
+
+	_, err := ReadHalfpipeFiles(fs, []string{config.HalfpipeFile, config.HalfpipeFileWithYML})
+
+	assert.Equal(t, errors.NewHalfpipeFileError("found [.halfpipe.io .halfpipe.io.yml] files. Please use only 1 of those"), err)
+}
+
+func TestReadHalfpipeFilesErrorsWhenBothOptionsAreNotThere(t *testing.T) {
+	fs := testFs()
+
+	_, err := ReadHalfpipeFiles(fs, []string{config.HalfpipeFile, config.HalfpipeFileWithYML, config.HalfpipeFileWithYAML})
+
+	assert.Equal(t, errors.NewHalfpipeFileError("couldn't find any of the allowed [.halfpipe.io .halfpipe.io.yml .halfpipe.io.yaml] files"), err)
+}
+
+func TestReadHalfpipeFilesIsHappyWithOneOfTheOptions(t *testing.T) {
+	fs := testFs()
+	fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
+	_, err := ReadHalfpipeFiles(fs, []string{config.HalfpipeFile, config.HalfpipeFileWithYML, config.HalfpipeFileWithYAML})
+	assert.Nil(t, err)
 }
