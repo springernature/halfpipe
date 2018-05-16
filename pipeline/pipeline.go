@@ -142,22 +142,36 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
-		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Task: "run",
-				TaskConfig: &atc.TaskConfig{
-					Platform:      "linux",
-					Params:        task.Vars,
-					ImageResource: p.imageResource(task.Docker),
-					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
-						Dir:  path.Join(gitDir, man.Repo.BasePath),
-						Args: runScriptArgs(task.Script, checkForBash, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
-					},
-					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
-					},
-				}}}}
+		Plan:   atc.PlanSequence{},
+	}
+
+	if task.RestoreArtifacts {
+		jobConfig.Plan = append(jobConfig.Plan, atc.PlanConfig{
+			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),
+		})
+	}
+
+	runPlan := atc.PlanConfig{
+		Task: "run",
+		TaskConfig: &atc.TaskConfig{
+			Platform:      "linux",
+			Params:        task.Vars,
+			ImageResource: p.imageResource(task.Docker),
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Dir:  path.Join(gitDir, man.Repo.BasePath),
+				Args: runScriptArgs(task.Script, checkForBash, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+			},
+		}}
+
+	if task.RestoreArtifacts {
+		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+	}
+
+	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
 	if len(task.SaveArtifacts) > 0 {
 		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
@@ -318,8 +332,9 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		Docker: manifest.Docker{
 			Image: config.DockerComposeImage,
 		},
-		Vars:          vars,
-		SaveArtifacts: task.SaveArtifacts,
+		Vars:             vars,
+		SaveArtifacts:    task.SaveArtifacts,
+		RestoreArtifacts: task.RestoreArtifacts,
 	}
 	job := p.runJob(runTask, false, man)
 	job.Plan[0].Privileged = true
@@ -406,7 +421,7 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsPath string, saveArtifacts []string, pathToGitRef string) []string {
+func runScriptArgs(script string, checkForBash bool, artifactsPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
@@ -423,6 +438,10 @@ if [ $? != 0 ]; then
   echo ""
   echo ""
 fi`)
+	}
+
+	if restoreArtifacts {
+		out = append(out, fmt.Sprintf("cp -r %s/* .", artifactsPath))
 	}
 
 	out = append(out,
