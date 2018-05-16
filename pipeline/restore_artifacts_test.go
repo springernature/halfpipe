@@ -128,7 +128,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 	renderedPipeline := testPipeline().Render(man)
 
 	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
-	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/* .")
+	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
 
 	// Monorepo
 	man = manifest.Manifest{
@@ -149,7 +149,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 	renderedPipeline = testPipeline().Render(man)
 
 	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
-	assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/* .")
+	assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/. .")
 }
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompose(t *testing.T) {
@@ -171,5 +171,5 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompos
 	renderedPipeline := testPipeline().Render(man)
 
 	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
-	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/* .")
+	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
 }
