@@ -12,25 +12,33 @@ import (
 )
 
 func TestRendersCfDeploy(t *testing.T) {
+	liveAPI := "api.live.com"
+	liveTestDomain := "test.live.com"
+
+	devAPI := "api.dev.com"
+	devTestDomain := "test.dev.com"
+
 	taskDeployDev := manifest.DeployCF{
-		API:      "http://api.dev.cf.springer-sbm.com",
-		Space:    "dev",
-		Org:      "springer",
-		Username: "rob",
-		Password: "supersecret",
-		Manifest: "manifest-dev.yml",
+		API:        devAPI,
+		Space:      "dev",
+		Org:        "springer",
+		Username:   "rob",
+		Password:   "supersecret",
+		TestDomain: devTestDomain,
+		Manifest:   "manifest-dev.yml",
 		Vars: manifest.Vars{
 			"VAR1": "value1",
 			"VAR2": "value2",
 		},
 	}
 	taskDeployLive := manifest.DeployCF{
-		API:      "http://api.live.cf.springer-sbm.com",
-		Space:    "prod",
-		Org:      "springer",
-		Username: "rob",
-		Password: "supersecret",
-		Manifest: "manifest-live.yml",
+		API:        liveAPI,
+		Space:      "prod",
+		Org:        "springer",
+		TestDomain: liveTestDomain,
+		Username:   "rob",
+		Password:   "supersecret",
+		Manifest:   "manifest-live.yml",
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
@@ -49,7 +57,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: deployCFResourceName(taskDeployDev),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":      "http://api.dev.cf.springer-sbm.com",
+			"api":      devAPI,
 			"space":    "dev",
 			"org":      "springer",
 			"password": "supersecret",
@@ -58,7 +66,7 @@ func TestRendersCfDeploy(t *testing.T) {
 	}
 
 	manifestPath := path.Join(gitDir, "manifest-dev.yml")
-	testDomain := "dev.cf.private.springer.com"
+
 	envVars := map[string]interface{}{
 		"VAR1": "value1",
 		"VAR2": "value2",
@@ -72,7 +80,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
-					"testDomain":   testDomain,
+					"testDomain":   devTestDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
@@ -83,7 +91,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Put: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
-					"testDomain":   testDomain,
+					"testDomain":   devTestDomain,
 					"manifestPath": manifestPath,
 					"vars":         envVars,
 					"appPath":      gitDir,
@@ -95,7 +103,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			Put: expectedDevResource.Name,
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
-				"testDomain":   testDomain,
+				"testDomain":   devTestDomain,
 				"manifestPath": manifestPath,
 				"vars":         envVars,
 				"appPath":      gitDir,
@@ -108,7 +116,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: deployCFResourceName(taskDeployLive),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":      "http://api.live.cf.springer-sbm.com",
+			"api":      liveAPI,
 			"space":    "prod",
 			"org":      "springer",
 			"password": "supersecret",
@@ -116,7 +124,6 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 	}
 
-	liveTestDomain := "live.cf.private.springer.com"
 	liveManifest := path.Join(gitDir, "manifest-live.yml")
 	expectedLiveJob := atc.JobConfig{
 		Name:   "deploy-cf (1)",
@@ -171,13 +178,15 @@ func TestRendersCfDeploy(t *testing.T) {
 func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	dockerComposeTaskBefore := manifest.DockerCompose{Name: "dc-before"}
 	dockerComposeTaskAfter := manifest.DockerCompose{Name: "dc-after"}
+	testDomain := "test.domain.com"
 
 	deployCfTask := manifest.DeployCF{
-		Name:     "deploy to dev",
-		API:      "api.dev.cf.springer-sbm.com",
-		Space:    "cf-space",
-		Org:      "cf-org",
-		Manifest: "manifest",
+		Name:       "deploy to dev",
+		API:        "api.dev.cf.springer-sbm.com",
+		Space:      "cf-space",
+		Org:        "cf-org",
+		TestDomain: testDomain,
+		Manifest:   "manifest",
 		Vars: manifest.Vars{
 			"A": "a",
 		},
@@ -229,7 +238,7 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, gitDir, pp1.Plan[0].Get)
 	assert.Equal(t, push.Name, pp1.Plan[0].Passed[0])
 	assert.Equal(t, "run", pp1.Plan[1].Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", pp1.Plan[1].TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.Plan[1].TaskConfig.Params["TEST_ROUTE"])
 	assert.NotNil(t, pp1.Plan[1].TaskConfig)
 
 	//pre promote 2
@@ -238,7 +247,7 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, gitDir, pp2.Plan[0].Get)
 	assert.Equal(t, push.Name, pp2.Plan[0].Passed[0])
 	assert.Equal(t, "run", pp2.Plan[1].Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.dev.cf.private.springer.com", pp2.Plan[1].TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.Plan[1].TaskConfig.Params["TEST_ROUTE"])
 	assert.NotNil(t, pp2.Plan[1].TaskConfig)
 
 	//promote

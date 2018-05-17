@@ -201,7 +201,6 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
-	testDomain := resolveDefaultDomain(task.API)
 	vars := convertVars(task.Vars)
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
@@ -214,7 +213,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			Put: resourceName,
 			Params: atc.Params{
 				"command":      commandName,
-				"testDomain":   testDomain,
+				"testDomain":   task.TestDomain,
 				"manifestPath": manifestPath,
 				"appPath":      appPath,
 				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
@@ -251,7 +250,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 		if e != nil {
 			panic(e)
 		}
-		testRoute := buildTestRoute(applications[0].Name, task.Space, testDomain)
+		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
 		switch ppTask := t.(type) {
 		case manifest.Run:
 			if len(ppTask.Vars) == 0 {
@@ -309,18 +308,6 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 
 func buildTestRoute(appName, space, testDomain string) string {
 	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
-}
-
-func resolveDefaultDomain(targetAPI string) string {
-	if strings.Contains(targetAPI, "api.dev.cf.springer-sbm.com") || strings.Contains(targetAPI, "((cloudfoundry.api-dev))") {
-		return "dev.cf.private.springer.com"
-	} else if strings.Contains(targetAPI, "api.live.cf.springer-sbm.com") || strings.Contains(targetAPI, "((cloudfoundry.api-live))") {
-		return "live.cf.private.springer.com"
-	} else if strings.Contains(targetAPI, "api.europe-west1.cf.gcp.springernature.io") || strings.Contains(targetAPI, "((cloudfoundry.api-gcp))") {
-		return "apps.gcp.springernature.io"
-	}
-
-	return ""
 }
 
 func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {

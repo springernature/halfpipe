@@ -163,11 +163,12 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 4)
+	assert.Len(t, result.Errors, 5)
 	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
 	assertMissingField(t, "tasks[0] deploy-cf.space", result.Errors[1])
 	assertMissingField(t, "tasks[0] deploy-cf.org", result.Errors[2])
-	assertFileError(t, "manifest.yml", result.Errors[3])
+	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[3])
+	assertFileError(t, "manifest.yml", result.Errors[4])
 }
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
@@ -439,13 +440,15 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 13)
-	assertInvalidField(t, "manual_trigger", result.Errors[0])
-	assertInvalidField(t, "type", result.Errors[1])
+	assert.Len(t, result.Errors, 15)
+
+	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
+	assertInvalidField(t, "manual_trigger", result.Errors[1])
 	assertInvalidField(t, "type", result.Errors[2])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[3])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
-	assertFileError(t, "docker-compose.yml", result.Errors[5])
+	assertInvalidField(t, "type", result.Errors[3])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[4])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[5])
+	assertFileError(t, "docker-compose.yml", result.Errors[6])
 }
 
 func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
@@ -460,6 +463,7 @@ func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
 			PrePromote: manifest.TaskList{
 				manifest.ConsumerIntegrationTest{},
 			},
+			TestDomain: "some.domain.io",
 		},
 	}
 

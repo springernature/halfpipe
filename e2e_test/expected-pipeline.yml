@@ -148,14 +148,14 @@ jobs:
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
-      testDomain: ""
+      testDomain: some.random.domain.com
   - put: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
-      testDomain: ""
+      testDomain: some.random.domain.com
   on_failure:
     put: slack
     params:
@@ -170,7 +170,7 @@ jobs:
       command: halfpipe-cleanup
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
-      testDomain: ""
+      testDomain: some.random.domain.com
 - name: deploy to staging
   serial: true
   plan:

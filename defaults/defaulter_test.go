@@ -237,3 +237,35 @@ func TestSetsDefaultDockerComposeService(t *testing.T) {
 	assert.Equal(t, composeDefaultService, man.Tasks[0].(manifest.DockerCompose).Service)
 	assert.Equal(t, overrideService, man.Tasks[1].(manifest.DockerCompose).Service)
 }
+
+func TestSetsDefaultTestDomainForDeployTask(t *testing.T) {
+	api := "https://api.cf"
+	testDomain := "some.domain.io"
+	customTestDomain := "some.other.domain.io"
+
+	manifestDefaults := Defaults{
+		CfTestDomains: map[string]string{
+			api: testDomain,
+		},
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{ // Well known
+				API: api,
+			},
+			manifest.DeployCF{ // Well known but with defined testDomain
+				API:        api,
+				TestDomain: customTestDomain,
+			},
+			manifest.DeployCF{ // Unknown api
+				API: "https://some.random.domain.io",
+			},
+		},
+	}
+	man = manifestDefaults.Update(man)
+
+	assert.Equal(t, testDomain, man.Tasks[0].(manifest.DeployCF).TestDomain)
+	assert.Equal(t, customTestDomain, man.Tasks[1].(manifest.DeployCF).TestDomain)
+	assert.Equal(t, "", man.Tasks[2].(manifest.DeployCF).TestDomain)
+}

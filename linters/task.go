@@ -69,6 +69,9 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 	if cf.Org == "" {
 		result.AddError(errors.NewMissingField(taskID + " deploy-cf.org"))
 	}
+	if cf.TestDomain == "" {
+		result.AddError(errors.NewMissingField(taskID + " deploy-cf.testDomain"))
+	}
 	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}

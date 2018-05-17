@@ -64,6 +64,7 @@ type DeployCF struct {
 	Username       string
 	Password       string
 	Manifest       string
+	TestDomain     string
 	Vars           Vars
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`

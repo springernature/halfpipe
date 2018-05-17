@@ -14,6 +14,7 @@ type Defaults struct {
 	CfUsername           string
 	CfPassword           string
 	CfManifest           string
+	CfTestDomains        map[string]string
 	DockerUsername       string
 	DockerPassword       string
 	Project              Project
@@ -58,6 +59,12 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				if task.PrePromote != nil {
 					task.PrePromote = taskSwitcher(task.PrePromote)
 				}
+				if task.TestDomain == "" {
+					if domain, ok := d.CfTestDomains[task.API]; ok {
+						task.TestDomain = domain
+					}
+				}
+
 				tl[i] = task
 
 			case manifest.Run:
