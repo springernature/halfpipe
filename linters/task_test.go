@@ -451,7 +451,7 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	assertFileError(t, "docker-compose.yml", result.Errors[6])
 }
 
-func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
+func TestConsumerIntegrationTestTaskHasRequiredFieldsInPrePromote(t *testing.T) {
 	man := manifest.Manifest{}
 	taskLinter := testTaskLinter()
 
@@ -470,23 +470,24 @@ func TestConsumerIntegrationTestTaskHasRequiredFields(t *testing.T) {
 	result := taskLinter.Lint(man)
 	if assert.Len(t, result.Errors, 3) {
 		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.consumer", result.Errors[0])
-		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.host", result.Errors[1])
+		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.consumer_host", result.Errors[1])
 		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.script", result.Errors[2])
 	}
 }
 
-func TestConsumerIntegrationTestTaskNotAllowedInMainTaskList(t *testing.T) {
+func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testing.T) {
 	man := manifest.Manifest{}
 	taskLinter := testTaskLinter()
 
-	man.Tasks = manifest.TaskList{
+	man.Tasks = []manifest.Task{
 		manifest.ConsumerIntegrationTest{},
 	}
 
 	result := taskLinter.Lint(man)
-
-	if assert.Len(t, result.Errors, 1) {
-		assertInvalidField(t, "type", result.Errors[0])
+	if assert.Len(t, result.Errors, 4) {
+		assertMissingField(t, "tasks[0] consumer-integration-test.consumer", result.Errors[0])
+		assertMissingField(t, "tasks[0] consumer-integration-test.consumer_host", result.Errors[1])
+		assertMissingField(t, "tasks[0] consumer-integration-test.provider_host", result.Errors[2])
+		assertMissingField(t, "tasks[0] consumer-integration-test.script", result.Errors[3])
 	}
-
 }

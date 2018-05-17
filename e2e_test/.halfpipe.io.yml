@@ -69,3 +69,11 @@ tasks:
     B: b
 
 - type: docker-compose
+
+- type: consumer-integration-test
+  name: another-c-name
+  consumer: c-consumer
+  consumer_host: c-host
+  provider_host: p-host
+  script: c-script
+  docker_compose_service: potato

@@ -138,6 +138,13 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			setPassed(job)
 			cfg.Jobs = append(cfg.Jobs, *job)
 
+		case manifest.ConsumerIntegrationTest:
+			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
+			job := p.consumerIntegrationTestJob(task, man)
+			job.Failure = failurePlan
+			job.Plan = append(initialPlan, job.Plan...)
+			setPassed(job)
+			cfg.Jobs = append(cfg.Jobs, *job)
 		}
 	}
 	return

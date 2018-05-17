@@ -46,9 +46,9 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 				linter.lintDockerComposeTask(task, taskID, &result)
 			case manifest.ConsumerIntegrationTest:
 				if listName == "tasks" {
-					result.AddError(errors.NewInvalidField("type", "'consumer-integration-test' task can only be used in 'pre_promote' stage of 'deploy-cf' task"))
+					linter.lintConsumerIntegrationTestTask(task, taskID, true, &result)
 				} else {
-					linter.lintConsumerIntegrationTestTask(task, taskID, &result)
+					linter.lintConsumerIntegrationTestTask(task, taskID, false, &result)
 				}
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
@@ -201,12 +201,17 @@ func (linter taskLinter) lintDockerComposeService(service string, result *LintRe
 	return
 }
 
-func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, result *LintResult) {
+func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, providerHostRequired bool, result *LintResult) {
 	if cit.Consumer == "" {
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer"))
 	}
 	if cit.ConsumerHost == "" {
-		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.host"))
+		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer_host"))
+	}
+	if providerHostRequired {
+		if cit.ProviderHost == "" {
+			result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.provider_host"))
+		}
 	}
 	if cit.Script == "" {
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
