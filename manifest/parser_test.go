@@ -105,6 +105,7 @@ tasks:
   password: cf.pass
   manifest: manifest.yml
   space: cf.space
+  test_domain: asdf.com
   vars:
     FOO: fOo
     BAR: "1"
@@ -187,13 +188,14 @@ tasks:
 				},
 			},
 			DeployCF{
-				Name:     "deploy cf task",
-				API:      "cf.api",
-				Space:    "cf.space",
-				Org:      "cf.org",
-				Username: "cf.user",
-				Password: "cf.pass",
-				Manifest: "manifest.yml",
+				Name:       "deploy cf task",
+				API:        "cf.api",
+				Space:      "cf.space",
+				Org:        "cf.org",
+				Username:   "cf.user",
+				Password:   "cf.pass",
+				TestDomain: "asdf.com",
+				Manifest:   "manifest.yml",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

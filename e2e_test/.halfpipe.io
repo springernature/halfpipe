@@ -23,7 +23,7 @@ tasks:
   manifest: manifest.yml
   username: michiel
   password: very-secret
-  testDomain: some.random.domain.com
+  test_domain: some.random.domain.com
   deploy_artifact: target/distribution/artifact.zip
 
 - type: deploy-cf
