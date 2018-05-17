@@ -205,7 +205,7 @@ func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIn
 	if cit.Consumer == "" {
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer"))
 	}
-	if cit.Host == "" {
+	if cit.ConsumerHost == "" {
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.host"))
 	}
 	if cit.Script == "" {

@@ -33,7 +33,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"CONSUMER_PATH":          consumerGitPath,
 			"CONSUMER_SCRIPT":        task.Script,
 			"CONSUMER_GIT_KEY":       "((github.private_key))",
-			"CONSUMER_HOST":          task.Host,
+			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          testRoute,

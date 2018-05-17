@@ -118,7 +118,7 @@ tasks:
   - type: consumer-integration-test
     name: cdc-name
     consumer: cdc-consumer
-    host: cdc-host
+    consumer_host: cdc-host
     script: cdc-script
 - type: docker-compose
   name: docker compose task 2
@@ -126,7 +126,7 @@ tasks:
 - type: consumer-integration-test
   name: cdc-name
   consumer: cdc-consumer
-  host: cdc-host
+  consumer_host: cdc-host
   script: cdc-script
 `)
 
@@ -209,10 +209,10 @@ tasks:
 						},
 					},
 					ConsumerIntegrationTest{
-						Name:     "cdc-name",
-						Consumer: "cdc-consumer",
-						Host:     "cdc-host",
-						Script:   "cdc-script",
+						Name:         "cdc-name",
+						Consumer:     "cdc-consumer",
+						ConsumerHost: "cdc-host",
+						Script:       "cdc-script",
 					}},
 			},
 			DockerCompose{
@@ -220,10 +220,10 @@ tasks:
 				Service: "asdf",
 			},
 			ConsumerIntegrationTest{
-				Name:     "cdc-name",
-				Consumer: "cdc-consumer",
-				Host:     "cdc-host",
-				Script:   "cdc-script",
+				Name:         "cdc-name",
+				Consumer:     "cdc-consumer",
+				ConsumerHost: "cdc-host",
+				Script:       "cdc-script",
 			},
 		},
 	}

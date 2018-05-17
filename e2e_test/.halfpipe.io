@@ -46,7 +46,7 @@ tasks:
   - type: consumer-integration-test
     name: c-name
     consumer: c-consumer
-    host: c-host
+    consumer_host: c-host
     script: c-script
 
 - type: docker-push

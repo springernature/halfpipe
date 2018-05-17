@@ -27,10 +27,10 @@ func TestRenderConsumerIntegrationTestTask(t *testing.T) {
 				Org:   "cf-org",
 				PrePromote: []manifest.Task{
 					manifest.ConsumerIntegrationTest{
-						Name:     "c-name",
-						Consumer: "c-consumer/c-path",
-						Host:     "c-host",
-						Script:   "c-script",
+						Name:         "c-name",
+						Consumer:     "c-consumer/c-path",
+						ConsumerHost: "c-host",
+						Script:       "c-script",
 					},
 				},
 			},
@@ -111,7 +111,7 @@ func TestRenderConsumerIntegrationTestTaskWithDockerComposeServiceSet(t *testing
 					manifest.ConsumerIntegrationTest{
 						Name:                 "c-name",
 						Consumer:             "c-consumer/c-path",
-						Host:                 "c-host",
+						ConsumerHost:         "c-host",
 						Script:               "c-script",
 						DockerComposeService: dockerComposeService,
 					},
