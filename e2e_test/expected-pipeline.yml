@@ -267,6 +267,7 @@ jobs:
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
         CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_SERVICE: ""
         PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
         PROVIDER_NAME: e2e-test
@@ -310,7 +311,7 @@ jobs:
           docker-compose run --no-deps \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-            code \
+            ${DOCKER_COMPOSE_SERVICE:-code} \
             /home/dev/code/${CONSUMER_SCRIPT}
 
           rc=$?

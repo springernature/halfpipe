@@ -29,14 +29,15 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			Password: "((gcr.private_key))",
 		},
 		Vars: manifest.Vars{
-			"CONSUMER_GIT_URI":  consumerGitURI,
-			"CONSUMER_PATH":     consumerGitPath,
-			"CONSUMER_SCRIPT":   task.Script,
-			"CONSUMER_GIT_KEY":  "((github.private_key))",
-			"CONSUMER_HOST":     task.Host,
-			"PROVIDER_NAME":     man.Pipeline,
-			"PROVIDER_HOST_KEY": providerHostKey,
-			"PROVIDER_HOST":     testRoute,
+			"CONSUMER_GIT_URI":       consumerGitURI,
+			"CONSUMER_PATH":          consumerGitPath,
+			"CONSUMER_SCRIPT":        task.Script,
+			"CONSUMER_GIT_KEY":       "((github.private_key))",
+			"CONSUMER_HOST":          task.Host,
+			"PROVIDER_NAME":          man.Pipeline,
+			"PROVIDER_HOST_KEY":      providerHostKey,
+			"PROVIDER_HOST":          testRoute,
+			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 		},
 	}
 	job := p.runJob(runTask, true, man)
@@ -68,7 +69,7 @@ git checkout ${REVISION}
 docker-compose run --no-deps \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-  code \
+  ${DOCKER_COMPOSE_SERVICE:-code} \
   /home/dev/code/${CONSUMER_SCRIPT}
 
 rc=$?

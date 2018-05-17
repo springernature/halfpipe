@@ -82,11 +82,12 @@ type DockerCompose struct {
 }
 
 type ConsumerIntegrationTest struct {
-	Type     string
-	Name     string
-	Consumer string
-	Host     string
-	Script   string
+	Type                 string
+	Name                 string
+	Consumer             string
+	Host                 string
+	Script               string
+	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 }
 
 type Vars map[string]string
