@@ -69,4 +69,3 @@ tasks:
     B: b
 
 - type: docker-compose
-

@@ -86,6 +86,7 @@ type ConsumerIntegrationTest struct {
 	Name                 string
 	Consumer             string
 	ConsumerHost         string `json:"consumer_host" yaml:"consumer_host"`
+	ProviderHost         string `json:"provider_host" yaml:"provider_host"`
 	Script               string
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 }

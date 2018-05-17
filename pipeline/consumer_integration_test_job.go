@@ -9,7 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest, testRoute string) *atc.JobConfig {
+func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) *atc.JobConfig {
 
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
@@ -36,7 +36,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
 			"PROVIDER_HOST_KEY":      providerHostKey,
-			"PROVIDER_HOST":          testRoute,
+			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 		},
 	}

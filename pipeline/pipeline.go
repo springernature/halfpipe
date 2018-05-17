@@ -276,7 +276,10 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			jobs = append(jobs, job)
 		case manifest.ConsumerIntegrationTest:
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
-			job := p.consumerIntegrationTestJob(ppTask, man, testRoute)
+			if ppTask.ProviderHost == "" {
+				ppTask.ProviderHost = testRoute
+			}
+			job := p.consumerIntegrationTestJob(ppTask, man)
 			job.Plan = append(initialPlan, job.Plan...)
 			job.Plan[0].Passed = []string{jobs[0].Name}
 			job.Failure = failurePlan
