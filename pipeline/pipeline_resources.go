@@ -84,7 +84,7 @@ func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 		Source: atc.Source{
 			"json_key": "((gcr.private_key))",
 			"folder":   path.Join(filter(team), filter(pipeline)),
-			"bucket":   "halfpipe-artifacts",
+			"bucket":   "halfpipe-io-artifacts",
 		},
 	}
 }
