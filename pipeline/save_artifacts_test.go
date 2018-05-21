@@ -76,7 +76,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
-	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
+	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
 }
 
@@ -107,7 +107,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
-	assert.Equal(t, "halfpipe-artifacts", resource.Source["bucket"])
+	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
 	assert.Equal(t, path.Join(man.Team, man.Pipeline), resource.Source["folder"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
 }

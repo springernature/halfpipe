@@ -12,7 +12,7 @@ resources:
 - name: artifacts-engineering-enablement-e2e-test
   type: gcp-resource
   source:
-    bucket: halfpipe-artifacts
+    bucket: halfpipe-io-artifacts
     folder: engineering-enablement/e2e-test
     json_key: ((gcr.private_key))
 - name: CF dev-api engineering-enablement dev
