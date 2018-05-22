@@ -10,6 +10,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/linters/filechecker"
 )
 
 type PathResolver func(string) (string, error)
@@ -46,12 +48,15 @@ type planner struct {
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
-	bytes, err := p.fs.ReadFile(".halfpipe.io")
+	yamlString, err := filechecker.ReadHalfpipeFiles(p.fs, []string{
+		config.HalfpipeFile,
+		config.HalfpipeFileWithYML,
+		config.HalfpipeFileWithYAML})
 	if err != nil {
 		return
 	}
 
-	err = yaml.Unmarshal(bytes, &man)
+	err = yaml.Unmarshal([]byte(yamlString), &man)
 	if err != nil {
 		return
 	}
