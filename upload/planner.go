@@ -96,7 +96,7 @@ func (p planner) loginCommand(team string) (cmd Command, err error) {
 
 	cmd.Cmd = exec.Cmd{
 		Path:   path,
-		Args:   []string{path, "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
+		Args:   []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
 		Stdout: p.stdout,
 		Stderr: p.stderr,
 		Stdin:  p.stdin,
@@ -122,7 +122,7 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 		Stderr: p.stderr,
 		Stdout: file,
 	}
-	cmd.Printable = fmt.Sprintf("%s > %s", path, file.Name())
+	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
 
 	return
 }
