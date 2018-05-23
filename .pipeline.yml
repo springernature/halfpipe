@@ -1,15 +1,13 @@
-resource_types:
-- name: artifactory
-  type: docker-image
-  source:
-    repository: pivotalservices/artifactory-resource
+groups: []
 resources:
-- name: release
-  type: github-release
+- name: artifactory-linux
+  type: artifactory
   source:
-    access_token: ((api-keys.halfpipe-cli))
-    owner: springernature
-    repository: halfpipe
+    endpoint: https://springernature.jfrog.io/springernature
+    password: ((artifactory.password))
+    regex: halfpipe_linux_(?<version>.*)
+    repository: /halfpipe
+    username: ((artifactory.username))
 - name: halfpipe
   type: git
   source:
@@ -28,28 +26,29 @@ resources:
   type: artifactory
   source:
     endpoint: https://springernature.jfrog.io/springernature
-    repository: "/halfpipe"
-    regex: "halfpipe_darwin_(?<version>.*)"
-    username: ((artifactory.username))
     password: ((artifactory.password))
-- name: artifactory-linux
-  type: artifactory
-  source:
-    endpoint: https://springernature.jfrog.io/springernature
-    repository: "/halfpipe"
-    regex: "halfpipe_linux_(?<version>.*)"
-    username: ((artifactory-halfpipe.username))
-    password: ((artifactory-halfpipe.token))
-
+    regex: halfpipe_darwin_(?<version>.*)
+    repository: /halfpipe
+    username: ((artifactory.username))
 - name: artifactory-windows
   type: artifactory
   source:
     endpoint: https://springernature.jfrog.io/springernature
-    repository: "/halfpipe"
-    regex: "halfpipe_windows_(?<version>.*).exe"
-    username: ((artifactory-halfpipe.username))
-    password: ((artifactory-halfpipe.token))
-
+    password: ((artifactory.password))
+    regex: halfpipe_windows_(?<version>.*).exe
+    repository: /halfpipe
+    username: ((artifactory.username))
+- name: release
+  type: github-release
+  source:
+    access_token: ((api-keys.halfpipe-cli))
+    owner: springernature
+    repository: halfpipe
+resource_types:
+- name: artifactory
+  type: docker-image
+  source:
+    repository: pivotalservices/artifactory-resource
 jobs:
 - name: Test
   serial: true
@@ -76,6 +75,21 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
+- name: Bump Major
+  plan:
+  - put: version
+    params:
+      bump: major
+- name: Bump Minor
+  plan:
+  - put: version
+    params:
+      bump: minor
+- name: Bump Patch
+  plan:
+  - put: version
+    params:
+      bump: patch
 - name: End2End Test
   serial: true
   plan:
@@ -114,21 +128,6 @@ jobs:
       inputs:
       - name: halfpipe
         path: /src/github.com/springernature/halfpipe
-- name: Bump Major
-  plan:
-  - put: version
-    params:
-      bump: major
-- name: Bump Minor
-  plan:
-  - put: version
-    params:
-      bump: minor
-- name: Bump Patch
-  plan:
-  - put: version
-    params:
-      bump: patch
 - name: Release
   disable_manual_trigger: true
   plan:
