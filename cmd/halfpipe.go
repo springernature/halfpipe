@@ -90,7 +90,7 @@ Available commands are
 }
 
 func uploadPipeline() (err error) {
-	user, err := user.Current()
+	currentUser, err := user.Current()
 	if err != nil {
 		return err
 	}
@@ -99,7 +99,7 @@ func uploadPipeline() (err error) {
 		return fs.OpenFile("pipeline.yml", os.O_RDWR|os.O_CREATE, 0666)
 	}
 
-	planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, user.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile)
+	planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile)
 
 	plan, err := planner.Plan()
 	if err != nil {
