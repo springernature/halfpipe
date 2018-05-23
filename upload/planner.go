@@ -9,9 +9,9 @@ import (
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/filechecker"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type PathResolver func(string) (string, error)

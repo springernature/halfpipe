@@ -466,6 +466,10 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 			if len(task.SaveArtifacts) > 0 {
 				hasArtifacts = true
 			}
+		case manifest.DockerCompose:
+			if len(task.SaveArtifacts) > 0 {
+				hasArtifacts = true
+			}
 		case manifest.DeployCF:
 			if len(task.DeployArtifact) > 0 {
 				hasArtifacts = true
