@@ -266,7 +266,7 @@ jobs:
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
-        CONSUMER_SCRIPT: c-script
+        CONSUMER_SCRIPT: /var/c-script
         DOCKER_COMPOSE_SERVICE: ""
         PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
@@ -312,7 +312,7 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
             ${DOCKER_COMPOSE_SERVICE:-code} \
-            /home/dev/code/${CONSUMER_SCRIPT}
+            ${CONSUMER_SCRIPT}
 
           rc=$?
           docker-compose down
@@ -501,7 +501,7 @@ jobs:
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
-        CONSUMER_SCRIPT: c-script
+        CONSUMER_SCRIPT: /home/dev/code/c-script
         DOCKER_COMPOSE_SERVICE: potato
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
@@ -547,7 +547,7 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
             ${DOCKER_COMPOSE_SERVICE:-code} \
-            /home/dev/code/${CONSUMER_SCRIPT}
+            ${CONSUMER_SCRIPT}
 
           rc=$?
           docker-compose down

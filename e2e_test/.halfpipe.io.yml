@@ -47,7 +47,7 @@ tasks:
     name: c-name
     consumer: c-consumer
     consumer_host: c-host
-    script: c-script
+    script: /var/c-script
 
 - type: docker-push
   name: push to docker registry

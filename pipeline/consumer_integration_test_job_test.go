@@ -42,7 +42,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	expectedVars := map[string]string{
 		"CONSUMER_GIT_URI":       "git@github.com:springernature/c-consumer",
 		"CONSUMER_PATH":          "c-path",
-		"CONSUMER_SCRIPT":        "c-script",
+		"CONSUMER_SCRIPT":        consumerIntegrationTestScriptPath("c-script"),
 		"CONSUMER_GIT_KEY":       "((github.private_key))",
 		"CONSUMER_HOST":          "c-host",
 		"PROVIDER_NAME":          "p-name",
@@ -150,7 +150,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 	expectedVars := map[string]string{
 		"CONSUMER_GIT_URI":       "git@github.com:springernature/c-consumer",
 		"CONSUMER_PATH":          "c-path",
-		"CONSUMER_SCRIPT":        "c-script",
+		"CONSUMER_SCRIPT":        consumerIntegrationTestScriptPath("c-script"),
 		"CONSUMER_GIT_KEY":       "((github.private_key))",
 		"CONSUMER_HOST":          "c-host",
 		"PROVIDER_NAME":          "p-name",

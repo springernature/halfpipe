@@ -31,7 +31,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,
-			"CONSUMER_SCRIPT":        task.Script,
+			"CONSUMER_SCRIPT":        consumerIntegrationTestScriptPath(task.Script),
 			"CONSUMER_GIT_KEY":       "((github.private_key))",
 			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
@@ -70,9 +70,16 @@ docker-compose run --no-deps \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
   ${DOCKER_COMPOSE_SERVICE:-code} \
-  /home/dev/code/${CONSUMER_SCRIPT}
+  ${CONSUMER_SCRIPT}
 
 rc=$?
 docker-compose down
 [ $rc -eq 0 ] || exit $rc
 `
+
+func consumerIntegrationTestScriptPath(script string) string {
+	if strings.HasPrefix(script, "/") {
+		return script
+	}
+	return "/home/dev/code/" + script
+}
