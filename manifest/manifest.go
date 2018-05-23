@@ -35,7 +35,7 @@ type Task interface{}
 type Run struct {
 	Type             string
 	Name             string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script           string
 	Docker           Docker
 	Vars             Vars     `yaml:"vars,omitempty"`
