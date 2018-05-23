@@ -36,9 +36,6 @@ func main() {
 		err = syncBinary(os.Stdout)
 	case invokedForUpload(os.Args):
 		err = uploadPipeline()
-		if err == nil {
-			output = "Pipeline uploaded!"
-		}
 	default:
 		if err = checkVersion(); err != nil {
 			break
