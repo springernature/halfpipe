@@ -111,7 +111,6 @@ func (s sync) Update(out io.Writer) (err error) {
 	progressBar := pb.New64(fileSize).SetUnits(pb.U_BYTES)
 	progressBar.Output = out
 	progressBar.Start()
-	defer progressBar.FinishPrint(fmt.Sprintf("successfully updated"))
 
 	err = s.updater(progressBar.NewProxyReader(resp.Body), update.Options{})
 	return

@@ -34,6 +34,9 @@ func main() {
 		output, err = printVersion()
 	case invokedForSync(os.Args):
 		err = syncBinary(os.Stdout)
+		if err == nil {
+			output = "halfpipe updated, yay!"
+		}
 	case invokedForUpload(os.Args):
 		err = uploadPipeline()
 	default:
