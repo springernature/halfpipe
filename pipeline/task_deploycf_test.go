@@ -72,8 +72,8 @@ func TestRendersCfDeploy(t *testing.T) {
 		"VAR2": "value2",
 	}
 	expectedDevJob := atc.JobConfig{
-		Name:         "deploy-cf",
-		SerialGroups: []string{"deploy-cf"},
+		Name:   "deploy-cf",
+		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: gitDir, Trigger: true},
 			atc.PlanConfig{
@@ -126,8 +126,8 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	liveManifest := path.Join(gitDir, "manifest-live.yml")
 	expectedLiveJob := atc.JobConfig{
-		Name:         "deploy-cf (1)",
-		SerialGroups: []string{"deploy-cf__1_"},
+		Name:   "deploy-cf (1)",
+		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}},
 			atc.PlanConfig{
@@ -231,7 +231,6 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, config.Jobs[0].Name, push.Plan[0].Passed[0])
 	assert.Equal(t, "artifacts-"+man.Pipeline, push.Plan[1].Get)
 	assert.Equal(t, "halfpipe-push", push.Plan[2].Params["command"])
-	assert.Equal(t, []string{"deploy_to_dev", "deploy_to_dev-pp0", "deploy_to_dev-pp1"}, push.SerialGroups)
 
 	//pre promote 1
 	pp1 := config.Jobs[2]
@@ -241,7 +240,6 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, "run", pp1.Plan[1].Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.Plan[1].TaskConfig.Params["TEST_ROUTE"])
 	assert.NotNil(t, pp1.Plan[1].TaskConfig)
-	assert.Equal(t, []string{"deploy_to_dev-pp0"}, pp1.SerialGroups)
 
 	//pre promote 2
 	pp2 := config.Jobs[3]
@@ -251,7 +249,6 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, "run", pp2.Plan[1].Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.Plan[1].TaskConfig.Params["TEST_ROUTE"])
 	assert.NotNil(t, pp2.Plan[1].TaskConfig)
-	assert.Equal(t, []string{"deploy_to_dev-pp1"}, pp2.SerialGroups)
 
 	//promote
 	promote := config.Jobs[4]
@@ -259,8 +256,8 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	assert.Equal(t, []string{pp1.Name, pp2.Name}, promote.Plan[0].Passed)
 	assert.Equal(t, "deploy to dev - promote", promote.Name)
 	assert.Equal(t, "halfpipe-promote", promote.Plan[1].Params["command"])
+
 	assert.Equal(t, "halfpipe-cleanup", promote.Ensure.Params["command"])
-	assert.Equal(t, []string{"deploy_to_dev", "deploy_to_dev-pp0", "deploy_to_dev-pp1"}, promote.SerialGroups)
 
 	//docker-compose after
 	dockerComposeAfter := config.Jobs[5]

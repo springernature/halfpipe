@@ -52,8 +52,8 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	}
 
 	expectedJob := atc.JobConfig{
-		Name:         "c-name",
-		SerialGroups: []string{"cf-deploy-pp0"},
+		Name:   "c-name",
+		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Get:     gitDir,

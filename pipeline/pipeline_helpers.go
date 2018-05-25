@@ -78,8 +78,3 @@ func GenerateArtifactsFolderName(team string, pipeline string) string {
 	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
 	return fmt.Sprintf("artifacts-%s", postfix)
 }
-
-// convert string to be suitable for use as SerialGroup key
-func toSerialGroupKey(s string) string {
-	return regexp.MustCompile(`[^a-zA-Z0-9\-]`).ReplaceAllString(s, "_")
-}
