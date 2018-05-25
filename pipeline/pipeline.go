@@ -232,11 +232,13 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 		return cfg
 	}
 
+	serialGroupKey := toSerialGroupKey(task.Name)
+
 	jobs = []*atc.JobConfig{{
-		Name:    task.Name,
-		Serial:  true,
-		Plan:    initialPlan,
-		Failure: failurePlan,
+		Name:         task.Name,
+		SerialGroups: []string{serialGroupKey},
+		Plan:         initialPlan,
+		Failure:      failurePlan,
 	}}
 
 	if len(task.PrePromote) > 0 {
@@ -256,12 +258,13 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 
 	jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-push"))
 
-	for _, t := range task.PrePromote {
+	for i, t := range task.PrePromote {
 		applications, e := p.rManifest(task.Manifest)
 		if e != nil {
 			panic(e)
 		}
 		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
+		var job *atc.JobConfig
 		switch ppTask := t.(type) {
 		case manifest.Run:
 			if len(ppTask.Vars) == 0 {
@@ -269,43 +272,40 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			job := p.runJob(ppTask, true, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			job = p.runJob(ppTask, true, man)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
-			job := p.dockerComposeJob(ppTask, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			job = p.dockerComposeJob(ppTask, man)
 		case manifest.ConsumerIntegrationTest:
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			job := p.consumerIntegrationTestJob(ppTask, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			job = p.consumerIntegrationTestJob(ppTask, man)
 		}
+
+		job.Plan = append(initialPlan, job.Plan...)
+		job.Plan[0].Passed = []string{jobs[0].Name}
+		job.Failure = failurePlan
+		jobSerialGroupKey := fmt.Sprintf("%s-pp%v", serialGroupKey, i)
+		job.Serial = false
+		job.SerialGroups = []string{jobSerialGroupKey}
+		jobs[0].SerialGroups = append(jobs[0].SerialGroups, jobSerialGroupKey)
+		jobs = append(jobs, job)
 	}
 
 	if len(task.PrePromote) == 0 {
 		jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-promote"))
 	} else {
 		job := &atc.JobConfig{
-			Name:    task.Name + " - promote",
-			Serial:  true,
-			Plan:    append(initialPlan, cfCommand("halfpipe-promote")),
-			Failure: failurePlan,
+			Name:         task.Name + " - promote",
+			SerialGroups: jobs[0].SerialGroups,
+			Plan:         append(initialPlan, cfCommand("halfpipe-promote")),
+			Failure:      failurePlan,
 		}
 		for _, j := range jobs[1:] {
 			job.Plan[0].Passed = append(job.Plan[0].Passed, j.Name)

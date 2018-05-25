@@ -132,7 +132,8 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: deploy-cf
-  serial: true
+  serial_groups:
+  - deploy-cf
   plan:
   - get: git
     passed:
@@ -172,7 +173,10 @@ jobs:
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
 - name: deploy to staging - candidate
-  serial: true
+  serial_groups:
+  - deploy_to_staging
+  - deploy_to_staging-pp0
+  - deploy_to_staging-pp1
   plan:
   - get: git
     passed:
@@ -196,7 +200,8 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: run smoke-test.sh
-  serial: true
+  serial_groups:
+  - deploy_to_staging-pp0
   plan:
   - get: git
     passed:
@@ -244,7 +249,8 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: c-name
-  serial: true
+  serial_groups:
+  - deploy_to_staging-pp1
   plan:
   - get: git
     passed:
@@ -329,7 +335,10 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
 - name: deploy to staging - promote
-  serial: true
+  serial_groups:
+  - deploy_to_staging
+  - deploy_to_staging-pp0
+  - deploy_to_staging-pp1
   plan:
   - get: git
     passed:
