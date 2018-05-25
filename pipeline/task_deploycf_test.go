@@ -226,7 +226,7 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 
 	//push
 	push := config.Jobs[1]
-	assert.Equal(t, "deploy to dev", push.Name)
+	assert.Equal(t, "deploy to dev - candidate", push.Name)
 	assert.Equal(t, gitDir, push.Plan[0].Get)
 	assert.Equal(t, config.Jobs[0].Name, push.Plan[0].Passed[0])
 	assert.Equal(t, "artifacts-"+man.Pipeline, push.Plan[1].Get)

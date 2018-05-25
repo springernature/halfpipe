@@ -239,6 +239,10 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 		Failure: failurePlan,
 	}}
 
+	if len(task.PrePromote) > 0 {
+		jobs[0].Name += " - candidate"
+	}
+
 	if len(task.DeployArtifact) > 0 {
 		artifactGet := atc.PlanConfig{
 			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),

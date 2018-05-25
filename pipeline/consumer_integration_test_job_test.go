@@ -58,7 +58,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			atc.PlanConfig{
 				Get:     gitDir,
 				Trigger: true,
-				Passed:  []string{"cf-deploy"},
+				Passed:  []string{"cf-deploy - candidate"},
 			},
 			atc.PlanConfig{
 				Task:       "run",

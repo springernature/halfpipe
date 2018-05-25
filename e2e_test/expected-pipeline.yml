@@ -171,7 +171,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
-- name: deploy to staging
+- name: deploy to staging - candidate
   serial: true
   plan:
   - get: git
@@ -200,7 +200,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy to staging
+    - deploy to staging - candidate
     trigger: true
   - task: run
     config:
@@ -248,7 +248,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy to staging
+    - deploy to staging - candidate
     trigger: true
   - task: run
     privileged: true
