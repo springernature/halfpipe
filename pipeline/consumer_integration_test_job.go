@@ -38,6 +38,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
+			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
 		},
 	}
 	job := p.runJob(runTask, true, man)
@@ -47,6 +48,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 
 const consumerIntegrationTestScript = `\source /docker-lib.sh
 start_docker
+docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
 # get current revision of consumer
 REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
