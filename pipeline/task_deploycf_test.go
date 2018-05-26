@@ -175,7 +175,7 @@ func TestRendersCfDeploy(t *testing.T) {
 	assert.Equal(t, expectedLiveJob, config.Jobs[1])
 }
 
-func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
+func TestRenderWithPrePromoteTasks(t *testing.T) {
 	dockerComposeTaskBefore := manifest.DockerCompose{Name: "dc-before"}
 	dockerComposeTaskAfter := manifest.DockerCompose{Name: "dc-after"}
 	testDomain := "test.domain.com"
@@ -198,6 +198,9 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 				Docker: manifest.Docker{
 					Image: "docker-img",
 				},
+				Vars: manifest.Vars{
+					"PP1": "pp1",
+				},
 			},
 			manifest.DockerCompose{Name: "pp2"},
 		},
@@ -219,48 +222,42 @@ func TestRenderAsSeparateJobsWhenThereIsAPrePromoteTask(t *testing.T) {
 	pipeline := NewPipeline(cfManifestReader)
 	config := pipeline.Render(man)
 
-	assert.Len(t, config.Jobs, 6, "should be 6 jobs")
+	assert.Len(t, config.Jobs, 3, "should be 3 jobs")
 
 	//docker-compose before
 	assert.Equal(t, dockerComposeTaskBefore.Name, config.Jobs[0].Name)
 
-	//push
-	push := config.Jobs[1]
-	assert.Equal(t, "deploy to dev - candidate", push.Name)
-	assert.Equal(t, gitDir, push.Plan[0].Get)
-	assert.Equal(t, config.Jobs[0].Name, push.Plan[0].Passed[0])
-	assert.Equal(t, "artifacts-"+man.Pipeline, push.Plan[1].Get)
-	assert.Equal(t, "halfpipe-push", push.Plan[2].Params["command"])
+	//deploy-cf
+	deployJob := config.Jobs[1]
+	assert.Equal(t, "deploy to dev", deployJob.Name)
+
+	plan := deployJob.Plan
+
+	//halfpipe-push
+	assert.Equal(t, gitDir, plan[0].Get)
+	assert.Equal(t, config.Jobs[0].Name, plan[0].Passed[0])
+	assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
+	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 	//pre promote 1
-	pp1 := config.Jobs[2]
-	assert.Equal(t, "pp1", pp1.Name)
-	assert.Equal(t, gitDir, pp1.Plan[0].Get)
-	assert.Equal(t, push.Name, pp1.Plan[0].Passed[0])
-	assert.Equal(t, "run", pp1.Plan[1].Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.Plan[1].TaskConfig.Params["TEST_ROUTE"])
-	assert.NotNil(t, pp1.Plan[1].TaskConfig)
+	pp1 := plan[3]
+	assert.Equal(t, "run", pp1.Task)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := config.Jobs[3]
-	assert.Equal(t, "pp2", pp2.Name)
-	assert.Equal(t, gitDir, pp2.Plan[0].Get)
-	assert.Equal(t, push.Name, pp2.Plan[0].Passed[0])
-	assert.Equal(t, "run", pp2.Plan[1].Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.Plan[1].TaskConfig.Params["TEST_ROUTE"])
-	assert.NotNil(t, pp2.Plan[1].TaskConfig)
+	pp2 := plan[4]
+	assert.Equal(t, "run", pp2.Task)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
-	//promote
-	promote := config.Jobs[4]
-	assert.Equal(t, gitDir, promote.Plan[0].Get)
-	assert.Equal(t, []string{pp1.Name, pp2.Name}, promote.Plan[0].Passed)
-	assert.Equal(t, "deploy to dev - promote", promote.Name)
-	assert.Equal(t, "halfpipe-promote", promote.Plan[1].Params["command"])
+	//halfpipe-promote
+	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
 
-	assert.Equal(t, "halfpipe-cleanup", promote.Ensure.Params["command"])
+	//halfpipe-cleanup (ensure)
+	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
 
 	//docker-compose after
-	dockerComposeAfter := config.Jobs[5]
+	dockerComposeAfter := config.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
-	assert.Equal(t, []string{promote.Name}, dockerComposeAfter.Plan[0].Passed)
+	assert.Equal(t, []string{deployJob.Name}, dockerComposeAfter.Plan[0].Passed)
 }

@@ -52,46 +52,33 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 		"GCR_PRIVATE_KEY":        "((gcr.private_key))",
 	}
 
-	expectedJob := atc.JobConfig{
-		Name:   "c-name",
-		Serial: true,
-		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Get:     gitDir,
-				Trigger: true,
-				Passed:  []string{"cf-deploy - candidate"},
+	expectedPlan := atc.PlanConfig{
+		Task:       "run",
+		Privileged: true,
+		TaskConfig: &atc.TaskConfig{
+			Platform: "linux",
+			Params:   expectedVars,
+			ImageResource: &atc.ImageResource{
+				Type: "docker-image",
+				Source: atc.Source{
+					"repository": strings.Split(config.ConsumerIntegrationTestImage, ":")[0],
+					"tag":        strings.Split(config.ConsumerIntegrationTestImage, ":")[1],
+					"username":   "_json_key",
+					"password":   "((gcr.private_key))",
+				},
 			},
-			atc.PlanConfig{
-				Task:       "run",
-				Privileged: true,
-				TaskConfig: &atc.TaskConfig{
-					Platform: "linux",
-					Params:   expectedVars,
-					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
-						Source: atc.Source{
-							"repository": strings.Split(config.ConsumerIntegrationTestImage, ":")[0],
-							"tag":        strings.Split(config.ConsumerIntegrationTestImage, ":")[1],
-							"username":   "_json_key",
-							"password":   "((gcr.private_key))",
-						},
-					},
-					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
-						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
-					},
-					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
-					},
-				}},
-		},
-	}
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Dir:  gitDir + "/base.path",
+				Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+			},
+		}}
 
-	jobs := p.Render(man).Jobs
-	if assert.Len(t, jobs, 3) {
-		assert.Equal(t, expectedJob, jobs[1])
-	}
+	job := p.Render(man).Jobs[0]
+	assert.Equal(t, expectedPlan, job.Plan[2])
 }
 
 func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
@@ -122,10 +109,8 @@ func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
 		},
 	}
 
-	jobs := p.Render(man).Jobs
-	if assert.Len(t, jobs, 3) {
-		assert.Equal(t, "p-host", jobs[1].Plan[1].TaskConfig.Params["PROVIDER_HOST"])
-	}
+	job := p.Render(man).Jobs[0]
+	assert.Equal(t, "p-host", job.Plan[2].TaskConfig.Params["PROVIDER_HOST"])
 }
 
 func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {

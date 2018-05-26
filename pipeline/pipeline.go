@@ -120,12 +120,10 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			resourceName := uniqueName(&cfg, deployCFResourceName(task), "")
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			jobs := p.deployCFJobs(task, resourceName, man, &cfg, initialPlan, failurePlan)
-			jobs[0].Plan[0].Trigger = !task.ManualTrigger
-			setPassed(jobs[0])
-			for _, job := range jobs {
-				cfg.Jobs = append(cfg.Jobs, *job)
-			}
+			job := p.deployCFJob(task, resourceName, man, &cfg, initialPlan, failurePlan)
+			job.Plan[0].Trigger = !task.ManualTrigger
+			setPassed(job)
+			cfg.Jobs = append(cfg.Jobs, *job)
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
@@ -203,11 +201,8 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) []*atc.JobConfig {
-	var jobs []*atc.JobConfig
-
+func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) *atc.JobConfig {
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
-
 	vars := convertVars(task.Vars)
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
@@ -232,15 +227,11 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 		return cfg
 	}
 
-	jobs = []*atc.JobConfig{{
+	job := atc.JobConfig{
 		Name:    task.Name,
 		Serial:  true,
 		Plan:    initialPlan,
 		Failure: failurePlan,
-	}}
-
-	if len(task.PrePromote) > 0 {
-		jobs[0].Name += " - candidate"
 	}
 
 	if len(task.DeployArtifact) > 0 {
@@ -251,10 +242,10 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
-		jobs[0].Plan = append(jobs[0].Plan, artifactGet)
+		job.Plan = append(job.Plan, artifactGet)
 	}
 
-	jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-push"))
+	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
 
 	for _, t := range task.PrePromote {
 		applications, e := p.rManifest(task.Manifest)
@@ -262,6 +253,7 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			panic(e)
 		}
 		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
+		var ppJob *atc.JobConfig
 		switch ppTask := t.(type) {
 		case manifest.Run:
 			if len(ppTask.Vars) == 0 {
@@ -269,55 +261,31 @@ func (p pipeline) deployCFJobs(task manifest.DeployCF, resourceName string, man 
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			job := p.runJob(ppTask, true, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			ppJob = p.runJob(ppTask, true, man)
+
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
-			job := p.dockerComposeJob(ppTask, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			ppJob = p.dockerComposeJob(ppTask, man)
+
 		case manifest.ConsumerIntegrationTest:
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			job := p.consumerIntegrationTestJob(ppTask, man)
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Passed = []string{jobs[0].Name}
-			job.Failure = failurePlan
-			jobs = append(jobs, job)
+			ppJob = p.consumerIntegrationTestJob(ppTask, man)
 		}
+
+		job.Plan = append(job.Plan, ppJob.Plan...)
 	}
 
-	if len(task.PrePromote) == 0 {
-		jobs[0].Plan = append(jobs[0].Plan, cfCommand("halfpipe-promote"))
-	} else {
-		job := &atc.JobConfig{
-			Name:    task.Name + " - promote",
-			Serial:  true,
-			Plan:    append(initialPlan, cfCommand("halfpipe-promote")),
-			Failure: failurePlan,
-		}
-		for _, j := range jobs[1:] {
-			job.Plan[0].Passed = append(job.Plan[0].Passed, j.Name)
-		}
-		jobs = append(jobs, job)
-	}
-
+	job.Plan = append(job.Plan, cfCommand("halfpipe-promote"))
 	cleanup := cfCommand("halfpipe-cleanup")
-
-	jobs[len(jobs)-1].Ensure = &cleanup //where to run this?
-
-	return jobs
+	job.Ensure = &cleanup
+	return &job
 }
 
 func buildTestRoute(appName, space, testDomain string) string {

@@ -171,7 +171,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
-- name: deploy to staging - candidate
+- name: deploy to staging
   serial: true
   plan:
   - get: git
@@ -188,20 +188,6 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-  on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
-- name: run smoke-test.sh
-  serial: true
-  plan:
-  - get: git
-    passed:
-    - deploy to staging - candidate
-    trigger: true
   - task: run
     config:
       platform: linux
@@ -236,20 +222,6 @@ jobs:
       inputs:
       - name: git
         path: ""
-  on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
-- name: c-name
-  serial: true
-  plan:
-  - get: git
-    passed:
-    - deploy to staging - candidate
-    trigger: true
   - task: run
     privileged: true
     config:
@@ -314,21 +286,6 @@ jobs:
       inputs:
       - name: git
         path: ""
-  on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
-- name: deploy to staging - promote
-  serial: true
-  plan:
-  - get: git
-    passed:
-    - run smoke-test.sh
-    - c-name
-    trigger: true
   - put: CF api-live pe staging
     params:
       appPath: git
@@ -362,7 +319,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy to staging - promote
+    - deploy to staging
     trigger: true
   - put: Docker Registry
     params:
