@@ -88,62 +88,46 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	failurePlan := p.addSlackResource(&cfg, man)
 	p.addArtifactResource(&cfg, man)
 
-	setPassed := func(job *atc.JobConfig) {
-		numberOfJobs := len(cfg.Jobs)
-		if numberOfJobs > 0 {
-			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[numberOfJobs-1].Name)
-		}
-	}
-
-	for _, t := range man.Tasks {
+	for i, t := range man.Tasks {
+		var job *atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			job := p.runJob(task, true, man)
-			job.Failure = failurePlan
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Trigger = !task.ManualTrigger
-			setPassed(job)
-			cfg.Jobs = append(cfg.Jobs, *job)
+			job = p.runJob(task, true, man)
+			initialPlan[0].Trigger = !task.ManualTrigger
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
-			job := p.dockerComposeJob(task, man)
-			job.Failure = failurePlan
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Trigger = !task.ManualTrigger
-			setPassed(job)
-			cfg.Jobs = append(cfg.Jobs, *job)
+			job = p.dockerComposeJob(task, man)
+			initialPlan[0].Trigger = !task.ManualTrigger
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
 			resourceName := uniqueName(&cfg, deployCFResourceName(task), "")
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			job := p.deployCFJob(task, resourceName, man, &cfg, initialPlan, failurePlan)
-			job.Plan[0].Trigger = !task.ManualTrigger
-			setPassed(job)
-			cfg.Jobs = append(cfg.Jobs, *job)
+			job = p.deployCFJob(task, resourceName, man, &cfg)
+			initialPlan[0].Trigger = !task.ManualTrigger
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
-			job := p.dockerPushJob(task, resourceName, man)
-			job.Failure = failurePlan
-			job.Plan = append(initialPlan, job.Plan...)
-			job.Plan[0].Trigger = !task.ManualTrigger
-			setPassed(job)
-			cfg.Jobs = append(cfg.Jobs, *job)
+			job = p.dockerPushJob(task, resourceName, man)
+			initialPlan[0].Trigger = !task.ManualTrigger
 
 		case manifest.ConsumerIntegrationTest:
 			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
-			job := p.consumerIntegrationTestJob(task, man)
-			job.Failure = failurePlan
-			job.Plan = append(initialPlan, job.Plan...)
-			setPassed(job)
-			cfg.Jobs = append(cfg.Jobs, *job)
+			job = p.consumerIntegrationTestJob(task, man)
+
 		}
+
+		job.Failure = failurePlan
+		job.Plan = append(initialPlan, job.Plan...)
+		if i > 0 {
+			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[i-1].Name)
+		}
+		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 	return
 }
@@ -201,7 +185,7 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config, initialPlan atc.PlanSequence, failurePlan *atc.PlanConfig) *atc.JobConfig {
+func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config) *atc.JobConfig {
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 	vars := convertVars(task.Vars)
 
@@ -228,10 +212,8 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	}
 
 	job := atc.JobConfig{
-		Name:    task.Name,
-		Serial:  true,
-		Plan:    initialPlan,
-		Failure: failurePlan,
+		Name:   task.Name,
+		Serial: true,
 	}
 
 	if len(task.DeployArtifact) > 0 {
