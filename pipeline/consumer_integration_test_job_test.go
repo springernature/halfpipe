@@ -53,7 +53,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	}
 
 	expectedPlan := atc.PlanConfig{
-		Task:       "run",
+		Task:       "c-name",
 		Privileged: true,
 		TaskConfig: &atc.TaskConfig{
 			Platform: "linux",
@@ -155,7 +155,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 				Trigger: true,
 			},
 			atc.PlanConfig{
-				Task:       "run",
+				Task:       "c-name",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",

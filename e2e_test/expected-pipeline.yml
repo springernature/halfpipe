@@ -59,7 +59,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - task: run
+  - task: Test
     config:
       platform: linux
       image_resource:
@@ -188,7 +188,7 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-  - task: run
+  - task: run smoke-test.sh
     config:
       platform: linux
       image_resource:
@@ -222,7 +222,7 @@ jobs:
       inputs:
       - name: git
         path: ""
-  - task: run
+  - task: c-name
     privileged: true
     config:
       platform: linux
@@ -341,7 +341,7 @@ jobs:
     passed:
     - push to docker registry
     trigger: true
-  - task: run
+  - task: run notify.sh
     config:
       platform: linux
       image_resource:
@@ -389,7 +389,7 @@ jobs:
     passed:
     - run notify.sh
     trigger: true
-  - task: run
+  - task: docker-compose
     privileged: true
     config:
       platform: linux
@@ -435,7 +435,7 @@ jobs:
     passed:
     - docker-compose
     trigger: true
-  - task: run
+  - task: another-c-name
     privileged: true
     config:
       platform: linux

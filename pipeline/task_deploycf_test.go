@@ -241,13 +241,13 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 
 	//pre promote 1
 	pp1 := plan[3]
-	assert.Equal(t, "run", pp1.Task)
+	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
 	pp2 := plan[4]
-	assert.Equal(t, "run", pp2.Task)
+	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
 	//halfpipe-promote

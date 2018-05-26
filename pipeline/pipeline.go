@@ -146,7 +146,7 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 	}
 
 	runPlan := atc.PlanConfig{
-		Task: "run",
+		Task: task.Name,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        task.Vars,
