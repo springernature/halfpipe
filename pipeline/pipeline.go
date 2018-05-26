@@ -196,7 +196,8 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	cfCommand := func(commandName string) atc.PlanConfig {
 		cfg := atc.PlanConfig{
-			Put: resourceName,
+			Put:      "cf " + commandName,
+			Resource: resourceName,
 			Params: atc.Params{
 				"command":      commandName,
 				"testDomain":   task.TestDomain,

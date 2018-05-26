@@ -142,14 +142,16 @@ jobs:
     params:
       folder: artifacts
       version_file: git/.git/ref
-  - put: CF dev-api engineering-enablement dev
+  - put: cf halfpipe-push
+    resource: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
-  - put: CF dev-api engineering-enablement dev
+  - put: cf halfpipe-promote
+    resource: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
@@ -164,7 +166,8 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
   ensure:
-    put: CF dev-api engineering-enablement dev
+    put: cf halfpipe-cleanup
+    resource: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-cleanup
@@ -178,7 +181,8 @@ jobs:
     passed:
     - deploy-cf
     trigger: true
-  - put: CF api-live pe staging
+  - put: cf halfpipe-push
+    resource: CF api-live pe staging
     params:
       appPath: git
       command: halfpipe-push
@@ -286,7 +290,8 @@ jobs:
       inputs:
       - name: git
         path: ""
-  - put: CF api-live pe staging
+  - put: cf halfpipe-promote
+    resource: CF api-live pe staging
     params:
       appPath: git
       command: halfpipe-promote
@@ -304,7 +309,8 @@ jobs:
       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
   ensure:
-    put: CF api-live pe staging
+    put: cf halfpipe-cleanup
+    resource: CF api-live pe staging
     params:
       appPath: git
       command: halfpipe-cleanup
