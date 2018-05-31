@@ -103,7 +103,7 @@ func secretIsValidFormat(secret string) bool {
 }
 
 func secretHasOnlyValidChars(secret string) bool {
-	return regexp.MustCompile(`^\(\([a-zA-Z\-_\.]+\)\)$`).MatchString(secret)
+	return regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret)
 }
 
 func secretToMapAndKey(secret string) (string, string) {
