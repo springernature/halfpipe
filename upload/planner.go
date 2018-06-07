@@ -25,26 +25,28 @@ type Planner interface {
 	Plan() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool) Planner {
 	return planner{
-		fs:           fs,
-		pathResolver: pathResolver,
-		homedir:      homedir,
-		stdout:       stdout,
-		stderr:       stderr,
-		stdin:        stdin,
-		pipelineFile: pipelineFile,
+		fs:             fs,
+		pathResolver:   pathResolver,
+		homedir:        homedir,
+		stdout:         stdout,
+		stderr:         stderr,
+		stdin:          stdin,
+		pipelineFile:   pipelineFile,
+		nonInteractive: nonInteractive,
 	}
 }
 
 type planner struct {
-	fs           afero.Afero
-	pathResolver PathResolver
-	homedir      string
-	stdout       io.Writer
-	stderr       io.Writer
-	stdin        io.Reader
-	pipelineFile PipelineFile
+	fs             afero.Afero
+	pathResolver   PathResolver
+	homedir        string
+	stdout         io.Writer
+	stderr         io.Writer
+	stdin          io.Reader
+	pipelineFile   PipelineFile
+	nonInteractive bool
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -139,6 +141,10 @@ func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 		Stdout: p.stdout,
 		Stderr: p.stderr,
 		Stdin:  p.stdin,
+	}
+
+	if p.nonInteractive {
+		cmd.Cmd.Args = append(cmd.Cmd.Args, "--non-interactive")
 	}
 
 	return
