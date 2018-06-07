@@ -39,6 +39,9 @@ func main() {
 		}
 	case invokedForUpload(os.Args):
 		err = uploadPipeline()
+		if err == nil {
+			output = " " // Nasty hack, we check output a few lines down and exit non zero if its empty.
+		}
 	default:
 		if err = checkVersion(); err != nil {
 			break
