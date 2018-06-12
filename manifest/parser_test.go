@@ -65,6 +65,12 @@ repo:
   - README.md
   git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
+on_failure:
+- type: run
+  name: run on failure task
+  script: blah.sh
+  docker:
+    image: node:9.5.0-alpine
 trigger_interval: 4h
 tasks:
 - type: run
@@ -146,7 +152,15 @@ tasks:
 			},
 			GitCryptKey: "git-crypt-key",
 		},
-		SlackChannel:    "#ee-activity",
+		SlackChannel: "#ee-activity",
+		OnFailure: TaskList{Run{
+			Name:          "run on failure task",
+			ManualTrigger: false,
+			Script:        "blah.sh",
+			Docker: Docker{
+				Image: "node:9.5.0-alpine",
+			},
+		}},
 		TriggerInterval: "4h",
 		Tasks: []Task{
 			Run{

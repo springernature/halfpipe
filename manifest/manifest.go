@@ -9,6 +9,7 @@ type Manifest struct {
 	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
 	Repo            Repo   `yaml:"repo,omitempty"`
 	Tasks           TaskList
+	OnFailure       TaskList `json:"on_failure" yaml:"on_failure,omitempty"`
 }
 
 type Repo struct {
