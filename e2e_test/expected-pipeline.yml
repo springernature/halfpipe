@@ -138,7 +138,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:
@@ -201,7 +202,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:
@@ -373,7 +375,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:
@@ -434,7 +437,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:
@@ -511,7 +515,8 @@ jobs:
          image_resource:
            type: docker-image
            source:
-             repository: node:9.5.0-alpine
+             repository: node
+             tag: 9.5.0-alpine
          run:
            path: /bin/sh
            args:
@@ -586,7 +591,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:
@@ -693,7 +699,8 @@ jobs:
           image_resource:
             type: docker-image
             source:
-              repository: node:9.5.0-alpine
+              repository: node
+              tag: 9.5.0-alpine
           run:
             path: /bin/sh
             args:

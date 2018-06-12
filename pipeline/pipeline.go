@@ -39,9 +39,53 @@ const gitDir = "git"
 const dockerPushResourceName = "Docker Registry"
 const dockerBuildTmpDir = "docker_build"
 
-func (p pipeline) addSlackResource(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
+func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
 
 	slackChannelSet := man.SlackChannel != ""
+	onFailurePlanSet := man.OnFailure != nil
+
+	if slackChannelSet && onFailurePlanSet {
+		var planSequence atc.PlanSequence
+		slackResource := p.slackResource()
+		cfg.Resources = append(cfg.Resources, slackResource)
+
+		slackResourceType := p.slackResourceType()
+		cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
+		slackPlanConfig := atc.PlanConfig{
+			Put: slackResource.Name,
+			Params: atc.Params{
+				"channel":  man.SlackChannel,
+				"username": "Halfpipe",
+				"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
+				"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
+			},
+		}
+
+		planSequence = append(planSequence, slackPlanConfig)
+
+		for _, t := range man.OnFailure {
+			var onFailureJob *atc.JobConfig
+			switch ppTask := t.(type) {
+			case manifest.Run:
+				if len(ppTask.Vars) == 0 {
+					ppTask.Vars = make(map[string]string)
+				}
+				ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
+				onFailureJob = p.runJob(ppTask, true, man)
+			case manifest.DockerCompose:
+				if len(ppTask.Vars) == 0 {
+					ppTask.Vars = make(map[string]string)
+				}
+				ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
+				onFailureJob = p.dockerComposeJob(ppTask, man)
+			}
+			planSequence = append(planSequence, onFailureJob.Plan...)
+		}
+
+		return &atc.PlanConfig{
+			Do: &planSequence,
+		}
+	}
 
 	if slackChannelSet {
 		slackResource := p.slackResource()
@@ -60,6 +104,32 @@ func (p pipeline) addSlackResource(cfg *atc.Config, man manifest.Manifest) *atc.
 			},
 		}
 	}
+
+	if onFailurePlanSet {
+		var planSequence atc.PlanSequence
+		for _, t := range man.OnFailure {
+			var onFailureJob *atc.JobConfig
+			switch ppTask := t.(type) {
+			case manifest.Run:
+				if len(ppTask.Vars) == 0 {
+					ppTask.Vars = make(map[string]string)
+				}
+				ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
+				onFailureJob = p.runJob(ppTask, true, man)
+			case manifest.DockerCompose:
+				if len(ppTask.Vars) == 0 {
+					ppTask.Vars = make(map[string]string)
+				}
+				ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
+				onFailureJob = p.dockerComposeJob(ppTask, man)
+			}
+			planSequence = append(planSequence, onFailureJob.Plan...)
+		}
+		return &atc.PlanConfig{
+			Do: &planSequence,
+		}
+	}
+
 	return nil
 }
 
@@ -85,7 +155,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
 	initialPlan := p.initialPlan(&cfg, man)
-	failurePlan := p.addSlackResource(&cfg, man)
+	failurePlan := p.addOnFailurePlan(&cfg, man)
 	p.addArtifactResource(&cfg, man)
 
 	for i, t := range man.Tasks {
