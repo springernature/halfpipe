@@ -14,6 +14,9 @@ var DefaultValues = Defaults{
 
 		"https://api.europe-west1.cf.gcp.springernature.io": "apps.gcp.springernature.io",
 		"((cloudfoundry.api-gcp))":                          "apps.gcp.springernature.io",
+
+		"https://api.snpaas.eu":       "springernature.app",
+		"((cloudfoundry.api-snpaas))": "springernature.app",
 	},
 	DockerUsername:       "_json_key",
 	DockerPassword:       "((gcr.private_key))",
