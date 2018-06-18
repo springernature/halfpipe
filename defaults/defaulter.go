@@ -96,6 +96,11 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 
 	taskList := taskSwitcher(man.Tasks)
 	man.Tasks = taskList
+
+	if len(man.OnFailure) != 0 {
+		onFailureTaskList := taskSwitcher(man.OnFailure)
+		man.OnFailure = onFailureTaskList
+	}
 	return man
 
 }

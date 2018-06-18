@@ -55,6 +55,8 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 			}
 		}
 	}
+
+	lintTasks("onFailureTasks", man.OnFailure)
 	lintTasks("tasks", man.Tasks)
 	return
 }

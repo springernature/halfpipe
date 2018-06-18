@@ -135,6 +135,25 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
+func TestOnFailureRunTaskScriptFileExists(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+	man := manifest.Manifest{}
+	man.OnFailure = []manifest.Task{
+		manifest.Run{
+			Docker: manifest.Docker{
+				Image: "alpine",
+			},
+		},
+	}
+	man.Tasks = []manifest.Task{
+		manifest.DockerCompose{Service: "app"},
+	}
+
+	result := taskLinter.Lint(man)
+	assertMissingField(t, "onFailureTasks[0] run.script", result.Errors[0])
+}
+
 func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
