@@ -125,9 +125,10 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	initialPlan := p.initialPlan(&cfg, man)
 	failurePlan := p.addOnFailurePlan(&cfg, man)
+	p.addUpdatePipelineJob(&cfg, man, failurePlan)
 	p.addArtifactResource(&cfg, man)
 
-	for i, t := range man.Tasks {
+	for _, t := range man.Tasks {
 		var job *atc.JobConfig
 		switch task := t.(type) {
 		case manifest.Run:
@@ -163,8 +164,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		job.Failure = failurePlan
 		job.Plan = append(initialPlan, job.Plan...)
-		if i > 0 {
-			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[i-1].Name)
+		if len(cfg.Jobs) > 0 {
+			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[len(cfg.Jobs)-1].Name)
 		}
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
