@@ -3,8 +3,6 @@ package pipeline
 import (
 	"testing"
 
-	"fmt"
-
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
@@ -44,8 +42,6 @@ func TestRendersOnFailureTaskWithoutSlack(t *testing.T) {
 	man.OnFailure = onFailureTask
 
 	pipeline := testPipeline().Render(man)
-
-	fmt.Println(ToString(pipeline))
 
 	taskName := (*pipeline.Jobs[0].Failure.Do)[0].Task
 	taskName2 := (*pipeline.Jobs[0].Failure.Do)[0].TaskConfig.ImageResource.Source["repository"]
@@ -123,7 +119,6 @@ func TestRendersSlackAndFailurePlanTogether(t *testing.T) {
 	man.OnFailure = onFailureTask
 
 	pipeline := testPipeline().Render(man)
-	fmt.Println(ToString(pipeline))
 
 	channel := (*pipeline.Jobs[0].Failure.Do)[0].Params["channel"]
 	channel1 := (*pipeline.Jobs[1].Failure.Do)[0].Params["channel"]
