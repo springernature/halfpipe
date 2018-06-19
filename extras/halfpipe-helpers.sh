@@ -11,7 +11,7 @@ fly-login() {
     if [[ "${team}" == "engineering-enablement" ]]; then
       target=ee
     fi
-    fly -t ${team} login \
+    fly -t ${target} login \
       -c https://concourse.halfpipe.io \
       -n ${team} \
       -u "$(vault read -field=username springernature/${team}/concourse)" \
