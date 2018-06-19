@@ -54,6 +54,7 @@ func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
 pipeline: my pipeline
+auto_update: true
 repo:
   uri: git@github.com:..
   private_key: private-key
@@ -137,8 +138,9 @@ tasks:
 `)
 
 	expected := Manifest{
-		Team:     "my team",
-		Pipeline: "my pipeline",
+		Team:       "my team",
+		Pipeline:   "my pipeline",
+		AutoUpdate: true,
 		Repo: Repo{
 			URI:        "git@github.com:..",
 			PrivateKey: "private-key",
