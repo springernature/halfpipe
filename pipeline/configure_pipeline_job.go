@@ -36,13 +36,13 @@ func updatePipelineJobConfig(basePath string) atc.JobConfig {
 						Type: "docker-image",
 						Source: atc.Source{
 							"password":   "((gcr.private_key))",
-							"repository": "eu.gcr.io/halfpipe-io/halfpipe-hacky-incept",
+							"repository": "eu.gcr.io/halfpipe-io/halfpipe-auto-update",
 							"tag":        "latest",
 							"username":   "_json_key",
 						},
 					},
 					Run: atc.TaskRunConfig{
-						Path: "/bin/incept",
+						Path: "/bin/update-pipeline",
 						Dir:  path.Join(gitDir, basePath),
 					},
 					Inputs: []atc.TaskInputConfig{
