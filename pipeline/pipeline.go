@@ -72,7 +72,7 @@ func (p pipeline) addOnFailureJob(cfg *atc.Config, man manifest.Manifest) (planS
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			onFailureJob = p.runJob(ppTask, true, man)
+			onFailureJob = p.runJob(ppTask, true, man, false)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
@@ -133,7 +133,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			job = p.runJob(task, true, man)
+			job = p.runJob(task, true, man, false)
 			initialPlan[0].Trigger = !task.ManualTrigger
 
 		case manifest.DockerCompose:
@@ -172,7 +172,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return
 }
 
-func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Manifest, privileged bool) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -186,7 +186,8 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 	}
 
 	runPlan := atc.PlanConfig{
-		Task: task.Name,
+		Task:       task.Name,
+		Privileged: privileged,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        task.Vars,
@@ -284,7 +285,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			ppJob = p.runJob(ppTask, true, man)
+			ppJob = p.runJob(ppTask, true, man, false)
 
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
@@ -333,8 +334,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		SaveArtifacts:    task.SaveArtifacts,
 		RestoreArtifacts: task.RestoreArtifacts,
 	}
-	job := p.runJob(runTask, false, man)
-	job.Plan[0].Privileged = true
+	job := p.runJob(runTask, false, man, true)
 	return job
 }
 

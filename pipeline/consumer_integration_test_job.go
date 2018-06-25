@@ -41,8 +41,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
 		},
 	}
-	job := p.runJob(runTask, false, man)
-	job.Plan[0].Privileged = true
+	job := p.runJob(runTask, false, man, true)
 	return job
 }
 

@@ -127,3 +127,25 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 
 	assert.Equal(t, expectedJob, p.Render(man).Jobs[0])
 }
+
+func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
+	p := testPipeline()
+
+	man := manifest.Manifest{
+		Repo: manifest.Repo{
+			URI:      "git@git:user/repo",
+			BasePath: "base.path",
+		},
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{
+				Name:             "",
+				RestoreArtifacts: true,
+			},
+		},
+	}
+
+	step := p.Render(man).Jobs[0].Plan[2]
+	assert.Equal(t, "docker-compose", step.Task)
+	assert.True(t, step.Privileged)
+
+}
