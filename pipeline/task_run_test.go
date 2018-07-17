@@ -52,6 +52,12 @@ func TestRenderRunTask(t *testing.T) {
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
 				},
+				Caches: []atc.CacheConfig{
+					{Path: "../../../root/.gradle/"},
+					{Path: "../../../root/.m2/"},
+					{Path: "../../../root/.ivy2/"},
+					{Path: "../../../root/.sbt/"},
+				},
 			}},
 		}}
 
@@ -103,6 +109,12 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
 				},
+				Caches: []atc.CacheConfig{
+					{Path: "../../../root/.gradle/"},
+					{Path: "../../../root/.m2/"},
+					{Path: "../../../root/.ivy2/"},
+					{Path: "../../../root/.sbt/"},
+				},
 			}},
 		}}
 
@@ -153,6 +165,12 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				},
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
+				},
+				Caches: []atc.CacheConfig{
+					{Path: "../../../root/.gradle/"},
+					{Path: "../../../root/.m2/"},
+					{Path: "../../../root/.ivy2/"},
+					{Path: "../../../root/.sbt/"},
 				},
 			}},
 		}}

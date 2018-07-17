@@ -120,6 +120,11 @@ jobs:
       outputs:
       - name: artifacts
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   - put: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
@@ -161,6 +166,11 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
 - name: deploy-cf
   serial: true
   plan:
@@ -225,6 +235,11 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
@@ -286,6 +301,11 @@ jobs:
       inputs:
       - name: git
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   - task: c-name
     privileged: true
     config:
@@ -350,6 +370,11 @@ jobs:
       inputs:
       - name: git
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   - put: cf halfpipe-promote
     resource: CF api-live pe staging
     params:
@@ -398,6 +423,11 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
   ensure:
     put: cf halfpipe-cleanup
     resource: CF api-live pe staging
@@ -460,6 +490,11 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
 - name: run notify.sh
   serial: true
   plan:
@@ -501,6 +536,11 @@ jobs:
       inputs:
       - name: git
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   on_failure:
    do:
    - put: slack
@@ -538,6 +578,11 @@ jobs:
          inputs:
          - name: git
            path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
 - name: docker-compose
   serial: true
   plan:
@@ -577,6 +622,11 @@ jobs:
       inputs:
       - name: git
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   on_failure:
     do:
     - put: slack
@@ -614,6 +664,11 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
 - name: another-c-name
   serial: true
   plan:
@@ -685,6 +740,11 @@ jobs:
       inputs:
       - name: git
         path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
   on_failure:
     do:
     - put: slack
@@ -722,4 +782,9 @@ jobs:
           inputs:
           - name: git
             path: ""
+          caches:
+          - path: ../../../root/.gradle/
+          - path: ../../../root/.m2/
+          - path: ../../../root/.ivy2/
+          - path: ../../../root/.sbt/
 
