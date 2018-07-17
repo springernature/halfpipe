@@ -339,14 +339,14 @@ jobs:
           start_docker
           docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
-          # get current revision of consumer
-          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
-
           # write git key to file
           echo "${CONSUMER_GIT_KEY}" > .gitkey
           chmod 600 .gitkey
 
           set -x
+
+          # get current revision of consumer
+          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
           # clone consumer into "consumer-repo" dir
           GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
@@ -355,14 +355,13 @@ jobs:
           # checkout revision
           git checkout ${REVISION}
 
-          # run the tests in code container
+          # run the tests with docker-compose
           # note: old system reads CF manifest env vars and sets them all here
           docker-compose run --no-deps \
+            --entrypoint "${CONSUMER_SCRIPT}" \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-            ${DOCKER_COMPOSE_SERVICE:-code} \
-            ${CONSUMER_SCRIPT}
-
+            ${DOCKER_COMPOSE_SERVICE:-code}
           rc=$?
           docker-compose down
           [ $rc -eq 0 ] || exit $rc
@@ -692,7 +691,7 @@ jobs:
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
-        CONSUMER_SCRIPT: /home/dev/code/c-script
+        CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((gcr.private_key))
         PROVIDER_HOST: p-host
@@ -709,14 +708,14 @@ jobs:
           start_docker
           docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
-          # get current revision of consumer
-          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
-
           # write git key to file
           echo "${CONSUMER_GIT_KEY}" > .gitkey
           chmod 600 .gitkey
 
           set -x
+
+          # get current revision of consumer
+          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
           # clone consumer into "consumer-repo" dir
           GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
@@ -725,14 +724,13 @@ jobs:
           # checkout revision
           git checkout ${REVISION}
 
-          # run the tests in code container
+          # run the tests with docker-compose
           # note: old system reads CF manifest env vars and sets them all here
           docker-compose run --no-deps \
+            --entrypoint "${CONSUMER_SCRIPT}" \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-            ${DOCKER_COMPOSE_SERVICE:-code} \
-            ${CONSUMER_SCRIPT}
-
+            ${DOCKER_COMPOSE_SERVICE:-code}
           rc=$?
           docker-compose down
           [ $rc -eq 0 ] || exit $rc

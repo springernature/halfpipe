@@ -31,7 +31,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,
-			"CONSUMER_SCRIPT":        consumerIntegrationTestScriptPath(task.Script),
+			"CONSUMER_SCRIPT":        task.Script,
 			"CONSUMER_GIT_KEY":       "((github.private_key))",
 			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
@@ -49,14 +49,14 @@ const consumerIntegrationTestScript = `\source /docker-lib.sh
 start_docker
 docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
-# get current revision of consumer
-REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
-
 # write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
 chmod 600 .gitkey
 
 set -x
+
+# get current revision of consumer
+REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
 # clone consumer into "consumer-repo" dir
 GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
@@ -65,22 +65,14 @@ cd consumer-repo/${CONSUMER_PATH}
 # checkout revision
 git checkout ${REVISION}
 
-# run the tests in code container
+# run the tests with docker-compose
 # note: old system reads CF manifest env vars and sets them all here
 docker-compose run --no-deps \
+  --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-  ${DOCKER_COMPOSE_SERVICE:-code} \
-  ${CONSUMER_SCRIPT}
-
+  ${DOCKER_COMPOSE_SERVICE:-code}
 rc=$?
 docker-compose down
 [ $rc -eq 0 ] || exit $rc
 `
-
-func consumerIntegrationTestScriptPath(script string) string {
-	if strings.HasPrefix(script, "/") {
-		return script
-	}
-	return "/home/dev/code/" + script
-}
