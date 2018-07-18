@@ -254,7 +254,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - deploy-cf
+    - Test
     trigger: true
   - put: cf halfpipe-push
     resource: CF api-live pe staging
