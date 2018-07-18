@@ -56,8 +56,50 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 		}
 	}
 
-	lintTasks("onFailureTasks", man.OnFailure)
 	lintTasks("tasks", man.Tasks)
+
+	for i, t := range man.OnFailure {
+		taskID := fmt.Sprintf("on_failure[%v] ", i)
+		passedError := func(taskName string) errors.InvalidFieldError {
+			return errors.NewInvalidField(taskID+taskName+".passed", "You are not allowed to set 'passed' inside an on_failure task")
+		}
+		manualTriggerError := func(taskName string) errors.InvalidFieldError {
+			return errors.NewInvalidField(taskID+taskName+".manual_trigger", "You are not allowed to have a manual trigger inside an on_failure task")
+		}
+		switch task := t.(type) {
+		case manifest.Run:
+			if task.Passed != "" {
+				result.AddError(passedError("run"))
+			}
+			if task.ManualTrigger == true {
+				result.AddError(manualTriggerError("run"))
+			}
+		case manifest.DockerCompose:
+			if task.Passed != "" {
+				result.AddError(passedError("docker-compose"))
+			}
+			if task.ManualTrigger == true {
+				result.AddError(manualTriggerError("docker-compose"))
+			}
+		case manifest.DockerPush:
+			if task.Passed != "" {
+				result.AddError(passedError("docker-push"))
+			}
+			if task.ManualTrigger == true {
+				result.AddError(manualTriggerError("docker-push"))
+			}
+		case manifest.DeployCF:
+			if task.Passed != "" {
+				result.AddError(passedError("deploy-cf"))
+			}
+			if task.ManualTrigger == true {
+				result.AddError(manualTriggerError("deploy-cf"))
+			}
+		}
+	}
+
+	lintTasks("onFailureTasks", man.OnFailure)
+
 	return
 }
 

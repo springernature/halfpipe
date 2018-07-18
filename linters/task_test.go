@@ -536,3 +536,24 @@ func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
 		assertInvalidField(t, "tasks[0].pre_promote[1] docker-compose.passed", result.Errors[1])
 	}
 }
+
+func TestRestrictionsOfOnFailureTasks(t *testing.T) {
+
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
+	man.OnFailure = []manifest.Task{
+		manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Passed: "foo"},
+		manifest.DockerCompose{Service: "app", Passed: "foo"},
+	}
+	man.Tasks = []manifest.Task{
+		manifest.DockerCompose{Service: "app"},
+	}
+
+	result := taskLinter.Lint(man)
+	if assert.Len(t, result.Errors, 2) {
+		assertInvalidField(t, "on_failure[0] run.passed", result.Errors[0])
+		assertInvalidField(t, "on_failure[1] docker-compose.passed", result.Errors[1])
+	}
+}
