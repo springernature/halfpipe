@@ -77,18 +77,26 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}
-	for _, prePromote := range cf.PrePromote {
+
+	for i, prePromote := range cf.PrePromote {
+		ppTaskID := fmt.Sprintf("%s.pre_promote[%v]", taskID, i)
 		switch task := prePromote.(type) {
 		case manifest.Run:
 			if task.ManualTrigger == true {
-				result.AddError(errors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+				result.AddError(errors.NewInvalidField(ppTaskID+" run.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+			}
+			if task.Passed != "" {
+				result.AddError(errors.NewInvalidField(ppTaskID+" run.passed", "You are not allowed to set 'passed' inside a pre promote task"))
 			}
 		case manifest.DockerCompose:
 			if task.ManualTrigger == true {
-				result.AddError(errors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
+			}
+			if task.Passed != "" {
+				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.passed", "You are not allowed to set 'passed' inside a pre promote task"))
 			}
 		case manifest.DockerPush, manifest.DeployCF:
-			result.AddError(errors.NewInvalidField("type", "You are not allowed to have a 'deploy-cf' or 'docker-push' task as a pre promote"))
+			result.AddError(errors.NewInvalidField(ppTaskID+" run.type", "You are not allowed to have a 'deploy-cf' or 'docker-push' task as a pre promote"))
 		}
 
 	}

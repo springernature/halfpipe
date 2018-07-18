@@ -462,9 +462,9 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	assert.Len(t, result.Errors, 15)
 
 	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
-	assertInvalidField(t, "manual_trigger", result.Errors[1])
-	assertInvalidField(t, "type", result.Errors[2])
-	assertInvalidField(t, "type", result.Errors[3])
+	assertInvalidField(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors[1])
+	assertInvalidField(t, "tasks[0].pre_promote[2] run.type", result.Errors[2])
+	assertInvalidField(t, "tasks[0].pre_promote[3] run.type", result.Errors[3])
 	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[4])
 	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[5])
 	assertFileError(t, "docker-compose.yml", result.Errors[6])
@@ -508,5 +508,31 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testin
 		assertMissingField(t, "tasks[0] consumer-integration-test.consumer_host", result.Errors[1])
 		assertMissingField(t, "tasks[0] consumer-integration-test.provider_host", result.Errors[2])
 		assertMissingField(t, "tasks[0] consumer-integration-test.script", result.Errors[3])
+	}
+}
+
+func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
+
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
+
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API:        "api",
+			Org:        "org",
+			Space:      "space",
+			TestDomain: "foo.com",
+			PrePromote: []manifest.Task{
+				manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Passed: "foo"},
+				manifest.DockerCompose{Service: "app", Passed: "foo"},
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	if assert.Len(t, result.Errors, 2) {
+		assertInvalidField(t, "tasks[0].pre_promote[0] run.passed", result.Errors[0])
+		assertInvalidField(t, "tasks[0].pre_promote[1] docker-compose.passed", result.Errors[1])
 	}
 }
