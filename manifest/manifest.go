@@ -43,6 +43,7 @@ type Run struct {
 	Vars             Vars     `yaml:"vars,omitempty"`
 	SaveArtifacts    []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	Passed           string
 }
 
 type DockerPush struct {
@@ -54,6 +55,7 @@ type DockerPush struct {
 	Image            string
 	Vars             Vars
 	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Passed           string
 }
 
 type DeployCF struct {
@@ -70,6 +72,7 @@ type DeployCF struct {
 	Vars           Vars
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
+	Passed         string
 }
 
 type DockerCompose struct {
@@ -81,6 +84,7 @@ type DockerCompose struct {
 	Service          string
 	SaveArtifacts    []string `json:"save_artifacts"`
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Passed           string
 }
 
 type ConsumerIntegrationTest struct {
@@ -91,6 +95,7 @@ type ConsumerIntegrationTest struct {
 	ProviderHost         string `json:"provider_host" yaml:"provider_host"`
 	Script               string
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
+	Passed               string
 }
 
 type Vars map[string]string

@@ -135,6 +135,7 @@ tasks:
   consumer: cdc-consumer
   consumer_host: cdc-host
   script: cdc-script
+  passed: task-name
 `)
 
 	expected := Manifest{
@@ -239,6 +240,7 @@ tasks:
 				Name:         "cdc-name",
 				Consumer:     "cdc-consumer",
 				ConsumerHost: "cdc-host",
+				Passed:       "task-name",
 				Script:       "cdc-script",
 			},
 		},
