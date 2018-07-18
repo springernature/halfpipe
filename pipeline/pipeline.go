@@ -130,16 +130,19 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	for _, t := range man.Tasks {
 		var job *atc.JobConfig
+		var passed string
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			job = p.runJob(task, true, man, false)
 			initialPlan[0].Trigger = !task.ManualTrigger
+			passed = task.Passed
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
 			job = p.dockerComposeJob(task, man)
 			initialPlan[0].Trigger = !task.ManualTrigger
+			passed = task.Passed
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
@@ -148,6 +151,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			job = p.deployCFJob(task, resourceName, man, &cfg)
 			initialPlan[0].Trigger = !task.ManualTrigger
+			passed = task.Passed
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
@@ -155,17 +159,22 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)
 			initialPlan[0].Trigger = !task.ManualTrigger
+			passed = task.Passed
 
 		case manifest.ConsumerIntegrationTest:
 			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
 			job = p.consumerIntegrationTestJob(task, man)
+			passed = task.Passed
 
 		}
 
 		job.Failure = failurePlan
 		job.Plan = append(initialPlan, job.Plan...)
 		if len(cfg.Jobs) > 0 {
-			job.Plan[0].Passed = append(job.Plan[0].Passed, cfg.Jobs[len(cfg.Jobs)-1].Name)
+			if passed == "" {
+				passed = cfg.Jobs[len(cfg.Jobs)-1].Name
+			}
+			job.Plan[0].Passed = append(job.Plan[0].Passed, passed)
 		}
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}

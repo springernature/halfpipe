@@ -67,3 +67,23 @@ func TestPassedOnPreviousTaskWithAutoUpdate(t *testing.T) {
 	assert.Equal(t, config.Jobs[3].Plan[0].Passed[0], config.Jobs[2].Name)
 	assert.Equal(t, config.Jobs[3].Plan[0].Trigger, true)
 }
+
+func TestRenderWithPassedOverridden(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{Script: "asd.sh"},
+			manifest.DeployCF{ManualTrigger: true, Passed: "foo bar"},
+			manifest.DockerPush{Passed: "foo bar"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	assert.Equal(t, config.Jobs[0].Plan[0].Trigger, true)
+
+	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], "foo bar")
+	assert.Equal(t, config.Jobs[1].Plan[0].Trigger, false)
+
+	assert.Equal(t, config.Jobs[2].Plan[0].Passed[0], "foo bar")
+	assert.Equal(t, config.Jobs[2].Plan[0].Trigger, true)
+}
