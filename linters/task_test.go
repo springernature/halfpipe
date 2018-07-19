@@ -524,8 +524,8 @@ func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
 			Space:      "space",
 			TestDomain: "foo.com",
 			PrePromote: []manifest.Task{
-				manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Passed: "foo"},
-				manifest.DockerCompose{Service: "app", Passed: "foo"},
+				manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Parallel: true},
+				manifest.DockerCompose{Service: "app", Parallel: true},
 			},
 		},
 	}
@@ -544,8 +544,8 @@ func TestRestrictionsOfOnFailureTasks(t *testing.T) {
 	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
 	man.OnFailure = []manifest.Task{
-		manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Passed: "foo"},
-		manifest.DockerCompose{Service: "app", Passed: "foo"},
+		manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Parallel: true},
+		manifest.DockerCompose{Service: "app", Parallel: true},
 	}
 	man.Tasks = []manifest.Task{
 		manifest.DockerCompose{Service: "app"},

@@ -68,22 +68,71 @@ func TestPassedOnPreviousTaskWithAutoUpdate(t *testing.T) {
 	assert.Equal(t, config.Jobs[3].Plan[0].Trigger, true)
 }
 
-func TestRenderWithPassedOverridden(t *testing.T) {
+func TestRenderWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.Run{Script: "asd.sh"},
-			manifest.DeployCF{ManualTrigger: true, Passed: "foo bar"},
-			manifest.DockerPush{Passed: "foo bar"},
+			manifest.Run{Name: "Build", Script: "asd.sh"},
+
+			manifest.DeployCF{Name: "Deploy", Parallel: true},
+			manifest.DockerPush{Name: "Push", Parallel: true},
+
+			manifest.Run{Name: "Smoke Test", Script: "asd.sh"},
+
+			manifest.DeployCF{Name: "Deploy 2", Parallel: true},
+			manifest.DockerPush{Name: "Push 2", Parallel: true},
+
+			manifest.Run{Name: "Smoke Test 2", Script: "asd.sh"},
 		},
 	}
 	config := testPipeline().Render(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
-	assert.Equal(t, config.Jobs[0].Plan[0].Trigger, true)
 
-	assert.Equal(t, config.Jobs[1].Plan[0].Passed[0], "foo bar")
-	assert.Equal(t, config.Jobs[1].Plan[0].Trigger, false)
+	assert.Equal(t, "Build", config.Jobs[1].Plan[0].Passed[0])
+	assert.Equal(t, "Build", config.Jobs[2].Plan[0].Passed[0])
 
-	assert.Equal(t, config.Jobs[2].Plan[0].Passed[0], "foo bar")
-	assert.Equal(t, config.Jobs[2].Plan[0].Trigger, true)
+	assert.Equal(t, []string{"Deploy", "Push"}, config.Jobs[3].Plan[0].Passed)
+
+	assert.Equal(t, "Smoke Test", config.Jobs[4].Plan[0].Passed[0])
+	assert.Equal(t, "Smoke Test", config.Jobs[5].Plan[0].Passed[0])
+
+	assert.Equal(t, []string{"Deploy 2", "Push 2"}, config.Jobs[6].Plan[0].Passed)
+
+}
+
+func TestRenderWithParallelOnFirstTasks(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
+			manifest.DeployCF{Name: "Deploy", Parallel: true},
+
+			manifest.DockerPush{Name: "Push"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	assert.Nil(t, config.Jobs[1].Plan[0].Passed)
+
+	assert.Equal(t, []string{"Build", "Deploy"}, config.Jobs[2].Plan[0].Passed)
+
+}
+
+func TestRenderWithParallelOnFirstTasksWithAutoUpdate(t *testing.T) {
+	man := manifest.Manifest{
+		AutoUpdate: true,
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
+			manifest.DeployCF{Name: "Deploy", Parallel: true},
+
+			manifest.DockerPush{Name: "Push"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Equal(t, "Update Pipeline", config.Jobs[1].Plan[0].Passed[0])
+	assert.Equal(t, "Update Pipeline", config.Jobs[2].Plan[0].Passed[0])
+
+	assert.Equal(t, []string{"Build", "Deploy"}, config.Jobs[3].Plan[0].Passed)
+
 }

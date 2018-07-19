@@ -24,6 +24,7 @@ tasks:
     image: node:9.5.0-alpine
 
 - type: deploy-cf
+  name: deploy to cf
   api: dev-api
   space: dev
   manifest: manifest.yml
@@ -34,7 +35,7 @@ tasks:
 
 - type: deploy-cf
   name: deploy to staging
-  passed: Test
+  parallel: true
   api: ((cloudfoundry.api-live))
   org: pe
   space: staging

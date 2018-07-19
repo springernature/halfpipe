@@ -171,7 +171,7 @@ jobs:
           - path: ../../../root/.m2/
           - path: ../../../root/.ivy2/
           - path: ../../../root/.sbt/
-- name: deploy-cf
+- name: deploy to cf
   serial: true
   plan:
   - get: git
@@ -254,7 +254,7 @@ jobs:
   plan:
   - get: git
     passed:
-    - Test
+    - deploy to cf
     trigger: true
   - put: cf halfpipe-push
     resource: CF api-live pe staging

@@ -68,28 +68,28 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 		}
 		switch task := t.(type) {
 		case manifest.Run:
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(passedError("run"))
 			}
 			if task.ManualTrigger == true {
 				result.AddError(manualTriggerError("run"))
 			}
 		case manifest.DockerCompose:
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(passedError("docker-compose"))
 			}
 			if task.ManualTrigger == true {
 				result.AddError(manualTriggerError("docker-compose"))
 			}
 		case manifest.DockerPush:
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(passedError("docker-push"))
 			}
 			if task.ManualTrigger == true {
 				result.AddError(manualTriggerError("docker-push"))
 			}
 		case manifest.DeployCF:
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(passedError("deploy-cf"))
 			}
 			if task.ManualTrigger == true {
@@ -127,14 +127,14 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 			if task.ManualTrigger == true {
 				result.AddError(errors.NewInvalidField(ppTaskID+" run.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 			}
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(errors.NewInvalidField(ppTaskID+" run.passed", "You are not allowed to set 'passed' inside a pre promote task"))
 			}
 		case manifest.DockerCompose:
 			if task.ManualTrigger == true {
 				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 			}
-			if task.Passed != "" {
+			if task.Parallel {
 				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.passed", "You are not allowed to set 'passed' inside a pre promote task"))
 			}
 		case manifest.DockerPush, manifest.DeployCF:

@@ -128,21 +128,27 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	p.addUpdatePipelineJob(&cfg, man, failurePlan)
 	p.addArtifactResource(&cfg, man)
 
+	var parallelTasks []string
+	var taskBeforeParallelTasks string
+	if len(cfg.Jobs) > 0 {
+		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
+	}
+
 	for _, t := range man.Tasks {
 		var job *atc.JobConfig
-		var passed string
+		var parallel bool
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			job = p.runJob(task, true, man, false)
 			initialPlan[0].Trigger = !task.ManualTrigger
-			passed = task.Passed
+			parallel = task.Parallel
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
 			job = p.dockerComposeJob(task, man)
 			initialPlan[0].Trigger = !task.ManualTrigger
-			passed = task.Passed
+			parallel = task.Parallel
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
@@ -151,7 +157,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			job = p.deployCFJob(task, resourceName, man, &cfg)
 			initialPlan[0].Trigger = !task.ManualTrigger
-			passed = task.Passed
+			parallel = task.Parallel
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
@@ -159,23 +165,35 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)
 			initialPlan[0].Trigger = !task.ManualTrigger
-			passed = task.Passed
+			parallel = task.Parallel
 
 		case manifest.ConsumerIntegrationTest:
 			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
 			job = p.consumerIntegrationTestJob(task, man)
-			passed = task.Passed
+			parallel = task.Parallel
 
 		}
 
 		job.Failure = failurePlan
 		job.Plan = append(initialPlan, job.Plan...)
-		if len(cfg.Jobs) > 0 {
-			if passed == "" {
-				passed = cfg.Jobs[len(cfg.Jobs)-1].Name
+
+		if parallel {
+			parallelTasks = append(parallelTasks, job.Name)
+			if taskBeforeParallelTasks != "" {
+				job.Plan[0].Passed = append(job.Plan[0].Passed, taskBeforeParallelTasks)
 			}
-			job.Plan[0].Passed = append(job.Plan[0].Passed, passed)
+		} else {
+			taskBeforeParallelTasks = job.Name
+			if len(parallelTasks) > 0 {
+				job.Plan[0].Passed = parallelTasks
+				parallelTasks = []string{}
+			} else {
+				if len(cfg.Jobs) > 0 {
+					job.Plan[0].Passed = []string{cfg.Jobs[len(cfg.Jobs)-1].Name}
+				}
+			}
 		}
+
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 	return
