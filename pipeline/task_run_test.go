@@ -30,7 +30,7 @@ func TestRenderRunTask(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{
@@ -85,7 +85,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{
@@ -144,7 +144,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
 				Platform: "linux",
 				Params: map[string]string{

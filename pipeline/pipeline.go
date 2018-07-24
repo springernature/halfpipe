@@ -182,16 +182,16 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		if parallel {
 			parallelTasks = append(parallelTasks, job.Name)
 			if taskBeforeParallelTasks != "" {
-				job.Plan[0].Passed = append(job.Plan[0].Passed, taskBeforeParallelTasks)
+				(*job.Plan[0].Aggregate)[0].Passed = append(job.Plan[0].Passed, taskBeforeParallelTasks)
 			}
 		} else {
 			taskBeforeParallelTasks = job.Name
 			if len(parallelTasks) > 0 {
-				job.Plan[0].Passed = parallelTasks
+				(*job.Plan[0].Aggregate)[0].Passed = parallelTasks
 				parallelTasks = []string{}
 			} else {
 				if len(cfg.Jobs) > 0 {
-					job.Plan[0].Passed = []string{cfg.Jobs[len(cfg.Jobs)-1].Name}
+					(*job.Plan[0].Aggregate)[0].Passed = []string{cfg.Jobs[len(cfg.Jobs)-1].Name}
 				}
 			}
 		}
@@ -202,19 +202,18 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 }
 
 func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
-	var newPlan atc.PlanSequence
-	for _, plan := range job.Plan {
-		if plan.Get != "" {
-			newPlan = append(newPlan, plan)
-		} else {
+	var numberOfGets int
+	for i, plan := range job.Plan {
+		if plan.Get == "" {
+			numberOfGets = i
 			break
 		}
 	}
-	numberOfGets := len(newPlan)
-	if numberOfGets > 1 {
-		aggregatePlan := atc.PlanSequence{atc.PlanConfig{Aggregate: &newPlan}}
-		job.Plan = append(aggregatePlan, job.Plan[numberOfGets:]...)
-	}
+
+	sequence := job.Plan[:numberOfGets]
+	aggregatePlan := atc.PlanSequence{atc.PlanConfig{Aggregate: &sequence}}
+	job.Plan = append(aggregatePlan, job.Plan[numberOfGets:]...)
+
 	return job.Plan
 }
 

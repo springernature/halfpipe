@@ -41,7 +41,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
 				Task:       "docker-compose",
 				Privileged: true,
@@ -106,7 +106,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
 				Task:       "docker-compose",
 				Privileged: true,

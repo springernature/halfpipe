@@ -156,10 +156,11 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		Name:   "c-name",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Get:     gitDir,
-				Trigger: true,
-			},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{
+				atc.PlanConfig{
+					Get:     gitDir,
+					Trigger: true,
+				}}},
 			atc.PlanConfig{
 				Task:       "c-name",
 				Privileged: true,

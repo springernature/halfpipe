@@ -24,8 +24,8 @@ func TestTriggerIntervalNotSet(t *testing.T) {
 
 	//should be 2 items in the plan: get git + task
 	assert.Len(t, plan, 2)
-	assert.Equal(t, gitDir, plan[0].Get)
-	assert.True(t, plan[0].Trigger)
+	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
+	assert.True(t, (*plan[0].Aggregate)[0].Trigger)
 	assert.Equal(t, "run run.sh", plan[1].Task)
 }
 

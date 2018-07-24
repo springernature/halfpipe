@@ -75,7 +75,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
 				Resource: expectedDevResource.Name,
@@ -132,7 +132,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
 				Resource: expectedLiveResource.Name,
@@ -241,7 +241,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 
 	//halfpipe-push
 	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
-	assert.Equal(t, config.Jobs[0].Name, plan[0].Passed[0])
+	assert.Equal(t, config.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
 	assert.Equal(t, "artifacts-"+man.Pipeline, (*plan[0].Aggregate)[1].Get)
 	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
 
@@ -265,5 +265,5 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	//docker-compose after
 	dockerComposeAfter := config.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
-	assert.Equal(t, []string{deployJob.Name}, dockerComposeAfter.Plan[0].Passed)
+	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
 }
