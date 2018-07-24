@@ -94,11 +94,12 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	assert.Len(t, renderedPipeline.Jobs, 1)
-	assert.Len(t, renderedPipeline.Jobs[0].Plan, 4)
 
-	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[1].Get)
-	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[1].Params["version_file"])
+	assert.Len(t, renderedPipeline.Jobs, 1)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
+
+	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, gitDir+"/.git/ref", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
 	assert.NotNil(t, resourceType)
@@ -135,11 +136,11 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
 
 	// order of the plans is important
-	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[1].Plan[1].Get)
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
+	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
 
 	expectedAppPath := fmt.Sprintf("artifacts-%s-%s/%s", man.Team, man.Pipeline, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
@@ -165,12 +166,12 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
 
 	// order if the plans is important
-	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[1].Plan[1].Get)
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
-	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
+	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
 func TestCopyArtifactScript(t *testing.T) {

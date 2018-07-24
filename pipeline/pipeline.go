@@ -177,6 +177,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		job.Failure = failurePlan
 		job.Plan = append(initialPlan, job.Plan...)
 
+		job.Plan = aggregateGets(job)
+
 		if parallel {
 			parallelTasks = append(parallelTasks, job.Name)
 			if taskBeforeParallelTasks != "" {
@@ -197,6 +199,23 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 	return
+}
+
+func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
+	var newPlan atc.PlanSequence
+	for _, plan := range job.Plan {
+		if plan.Get != "" {
+			newPlan = append(newPlan, plan)
+		} else {
+			break
+		}
+	}
+	numberOfGets := len(newPlan)
+	if numberOfGets > 1 {
+		aggregatePlan := atc.PlanSequence{atc.PlanConfig{Aggregate: &newPlan}}
+		job.Plan = append(aggregatePlan, job.Plan[numberOfGets:]...)
+	}
+	return job.Plan
 }
 
 func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Manifest, privileged bool) *atc.JobConfig {

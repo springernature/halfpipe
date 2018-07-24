@@ -240,24 +240,24 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	plan := deployJob.Plan
 
 	//halfpipe-push
-	assert.Equal(t, gitDir, plan[0].Get)
+	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
 	assert.Equal(t, config.Jobs[0].Name, plan[0].Passed[0])
-	assert.Equal(t, "artifacts-"+man.Pipeline, plan[1].Get)
-	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
+	assert.Equal(t, "artifacts-"+man.Pipeline, (*plan[0].Aggregate)[1].Get)
+	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
 
 	//pre promote 1
-	pp1 := plan[3]
+	pp1 := plan[2]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := plan[4]
+	pp2 := plan[3]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
 	//halfpipe-promote
-	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
+	assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
 
 	//halfpipe-cleanup (ensure)
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])

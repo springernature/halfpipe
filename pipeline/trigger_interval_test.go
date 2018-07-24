@@ -49,11 +49,11 @@ func TestTriggerIntervalSet(t *testing.T) {
 	assert.Equal(t, "1h", resources[1].Source["interval"])
 
 	//should be 3 things in the plan get git + get timer + task
-	assert.Len(t, plan, 3)
-	assert.Equal(t, gitDir, plan[0].Get)
-	assert.True(t, plan[0].Trigger)
+	assert.Len(t, plan, 2)
+	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
+	assert.True(t, (*plan[0].Aggregate)[1].Trigger)
 
-	assert.Equal(t, "timer 1h", plan[1].Get)
-	assert.True(t, plan[1].Trigger)
-	assert.Equal(t, "run run.sh", plan[2].Task)
+	assert.Equal(t, "timer 1h", (*plan[0].Aggregate)[1].Get)
+	assert.True(t, (*plan[0].Aggregate)[1].Trigger)
+	assert.Equal(t, "run run.sh", plan[1].Task)
 }

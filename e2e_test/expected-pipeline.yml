@@ -174,14 +174,15 @@ jobs:
 - name: deploy to cf
   serial: true
   plan:
-  - get: git
-    passed:
-    - Test
-    trigger: true
-  - get: artifacts-engineering-enablement-e2e-test
-    params:
-      folder: artifacts
-      version_file: git/.git/ref
+  - aggregate:
+    - get: git
+      trigger: true
+    - get: artifacts-engineering-enablement-e2e-test
+      params:
+        folder: artifacts
+        version_file: git/.git/ref
+     passed:
+      - Test
   - put: cf halfpipe-push
     resource: CF dev-api engineering-enablement dev
     params:

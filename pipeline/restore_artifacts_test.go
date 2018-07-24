@@ -29,8 +29,8 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 
 	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, renderedPipeline.Jobs[0].Plan[1].Get)
-	assert.Contains(t, renderedPipeline.Jobs[0].Plan[2].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
 }
 
 func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
@@ -50,8 +50,8 @@ func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
 
 	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, renderedPipeline.Jobs[0].Plan[1].Get)
-	assert.Contains(t, renderedPipeline.Jobs[0].Plan[2].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
 }
 
 func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
@@ -72,14 +72,14 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 
 	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, renderedPipeline.Jobs[0].Plan[1].Get)
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
 
-	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+	runtTaskArgs := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
 	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build")
 
-	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[3].Put)
-	assert.Equal(t, dockerBuildTmpDir, renderedPipeline.Jobs[0].Plan[3].Params["build"])
+	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, dockerBuildTmpDir, renderedPipeline.Jobs[0].Plan[2].Params["build"])
 
 	// Mono repo
 	man = manifest.Manifest{
@@ -98,14 +98,14 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 
 	artifactResourceName = GenerateArtifactsFolderName(man.Team, man.Pipeline)
 	renderedPipeline = testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, renderedPipeline.Jobs[0].Plan[1].Get)
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
 
-	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+	runtTaskArgs = renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
 	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build/some/random/path")
 
-	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[3].Put)
-	assert.Equal(t, path.Join(dockerBuildTmpDir, man.Repo.BasePath), renderedPipeline.Jobs[0].Plan[3].Params["build"])
+	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, path.Join(dockerBuildTmpDir, man.Repo.BasePath), renderedPipeline.Jobs[0].Plan[2].Params["build"])
 }
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *testing.T) {
@@ -127,7 +127,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 
 	renderedPipeline := testPipeline().Render(man)
 
-	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+	runtTaskArgs := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
 
 	// Monorepo
@@ -148,7 +148,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 
 	renderedPipeline = testPipeline().Render(man)
 
-	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+	runtTaskArgs = renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/. .")
 }
 
@@ -170,6 +170,6 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompos
 
 	renderedPipeline := testPipeline().Render(man)
 
-	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+	runtTaskArgs := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
 }

@@ -136,3 +136,22 @@ func TestRenderWithParallelOnFirstTasksWithAutoUpdate(t *testing.T) {
 	assert.Equal(t, []string{"Build", "Deploy"}, config.Jobs[3].Plan[0].Passed)
 
 }
+
+func TestRenderTwoGetJobsAsAggregate(t *testing.T) {
+	man := manifest.Manifest{
+		AutoUpdate: true,
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
+			manifest.DeployCF{Name: "Deploy", Parallel: true},
+
+			manifest.DockerPush{Name: "Push"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Equal(t, "Update Pipeline", config.Jobs[1].Plan[0].Passed[0])
+	assert.Equal(t, "Update Pipeline", config.Jobs[2].Plan[0].Passed[0])
+
+	assert.Equal(t, []string{"Build", "Deploy"}, config.Jobs[3].Plan[0].Passed)
+
+}
