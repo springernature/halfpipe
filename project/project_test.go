@@ -85,7 +85,6 @@ func assertRootName(t *testing.T, pr projectResolver, workingDir string, expecte
 	assert.Equal(t, expectedRootName, project.RootName)
 }
 
-
 func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/home/simon/src/repo/a/b/c", 0777)

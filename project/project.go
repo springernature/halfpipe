@@ -12,14 +12,14 @@ import (
 	"github.com/tcnksm/go-gitconfig"
 )
 
-type Project struct {
+type Data struct {
 	BasePath string
 	RootName string
 	GitURI   string
 }
 
-type ProjectResolver interface {
-	Parse(workingDir string) (p Project, err error)
+type Project interface {
+	Parse(workingDir string) (p Data, err error)
 }
 
 type projectResolver struct {
@@ -42,7 +42,7 @@ var (
 	ErrNotInRepo          = errors.New("looks like you are not executing halfpipe from within a git repo")
 )
 
-func (c projectResolver) Parse(workingDir string) (p Project, err error) {
+func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 	var pathRelativeToGit func(string) (basePath string, rootName string, err error)
 
 	pathRelativeToGit = func(path string) (basePath string, rootName string, err error) {

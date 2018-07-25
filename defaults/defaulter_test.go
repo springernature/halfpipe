@@ -5,8 +5,8 @@ import (
 
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/stretchr/testify/assert"
 	"github.com/springernature/halfpipe/project"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
@@ -20,7 +20,7 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{
 		RepoPrivateKey: "((github.private_key))",
-		Project: project.Project{
+		Project: project.Data{
 			GitURI: "ssh@github.com:private/repo",
 		},
 	}
@@ -218,7 +218,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 }
 
 func TestSetsProjectValues(t *testing.T) {
-	project := project.Project{BasePath: "foo", GitURI: "bar"}
+	project := project.Data{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
 		Project: project,
 	}
@@ -231,7 +231,7 @@ func TestSetsProjectValues(t *testing.T) {
 }
 
 func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
-	project := project.Project{BasePath: "foo", GitURI: "bar"}
+	project := project.Data{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
 		Project: project,
 	}

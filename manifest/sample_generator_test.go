@@ -3,18 +3,18 @@ package manifest
 import (
 	"testing"
 
-	"github.com/spf13/afero"
-	"github.com/stretchr/testify/assert"
-	"github.com/springernature/halfpipe/project"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/project"
+	"github.com/stretchr/testify/assert"
 )
 
 type FakeProjectResolver struct {
-	p   project.Project
+	p   project.Data
 	err error
 }
 
-func (pr FakeProjectResolver) Parse(workingDir string) (p project.Project, err error) {
+func (pr FakeProjectResolver) Parse(workingDir string) (p project.Data, err error) {
 	return pr.p, pr.err
 }
 
@@ -44,7 +44,7 @@ func TestFailsIfProjectResolverErrorsOut(t *testing.T) {
 func TestWritesSample(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Project{RootName: "myApp"}}, "/home/user/src/myApp")
+	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{RootName: "myApp"}}, "/home/user/src/myApp")
 
 	err := sampleGenerator.Generate()
 
@@ -68,7 +68,7 @@ tasks:
 func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Project{
+	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{
 		BasePath: "subApp",
 		RootName: "myApp",
 		GitURI:   "",
@@ -99,7 +99,7 @@ tasks:
 func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Project{
+	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{
 		BasePath: "subFolder/subApp",
 		RootName: "myApp",
 		GitURI:   "",

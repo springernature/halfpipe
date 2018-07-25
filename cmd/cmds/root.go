@@ -13,8 +13,8 @@ import (
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/pipeline"
-	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/sync"
 )
 
 var checkVersion = func() (err error) {

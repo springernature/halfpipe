@@ -3,11 +3,12 @@ package manifest
 import (
 	"errors"
 
-	"github.com/spf13/afero"
-	"gopkg.in/yaml.v2"
-	"github.com/springernature/halfpipe/project"
 	"fmt"
 	"strings"
+
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/project"
+	"gopkg.in/yaml.v2"
 )
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")
@@ -18,11 +19,11 @@ type SampleGenerator interface {
 
 type sampleGenerator struct {
 	fs              afero.Afero
-	projectResolver project.ProjectResolver
+	projectResolver project.Project
 	currentDir      string
 }
 
-func NewSampleGenerator(fs afero.Afero, projectResolver project.ProjectResolver, currentDir string) SampleGenerator {
+func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, currentDir string) SampleGenerator {
 	return sampleGenerator{
 		fs:              fs,
 		projectResolver: projectResolver,
@@ -42,7 +43,7 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 
 	manifest := Manifest{
-		Team:     "CHANGE-ME",
+		Team: "CHANGE-ME",
 
 		Tasks: []Task{
 			Run{
@@ -75,7 +76,7 @@ func (s sampleGenerator) Generate() (err error) {
 	return
 }
 
-func createPipelineName(project project.Project) string {
+func createPipelineName(project project.Data) string {
 	if project.BasePath == "" {
 		return project.RootName
 	}

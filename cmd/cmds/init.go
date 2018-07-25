@@ -28,6 +28,7 @@ var initCmd = &cobra.Command{
 		projectResolver := project.NewProjectResolver(fs)
 
 		err = manifest.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
+
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
