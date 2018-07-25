@@ -14,6 +14,7 @@ import (
 
 type Project struct {
 	BasePath string
+	RootName string
 	GitURI   string
 }
 
@@ -42,25 +43,27 @@ var (
 )
 
 func (c projectResolver) Parse(workingDir string) (p Project, err error) {
-	var pathRelativeToGit func(string) (string, error)
+	var pathRelativeToGit func(string) (basePath string, rootName string, err error)
 
-	pathRelativeToGit = func(path string) (string, error) {
+	pathRelativeToGit = func(path string) (basePath string, rootName string, err error) {
 		if !strings.Contains(path, string(filepath.Separator)) {
-			return "", ErrNotInRepo
+			return "", "", ErrNotInRepo
 		}
 
 		exists, e := c.Fs.DirExists(filepath.Join(path, ".git"))
 		if e != nil {
-			return "", e
+			return "", "", e
 		}
 
 		switch {
 		case exists && path == workingDir:
-			return "", nil
+			return "", filepath.Base(path), nil
 		case exists:
-			return filepath.Rel(path, workingDir)
+			basePath, err := filepath.Rel(path, workingDir)
+			rootName := filepath.Base(path)
+			return basePath, rootName, err
 		case path == "/":
-			return "", ErrNotInRepo
+			return "", "", ErrNotInRepo
 		default:
 			return pathRelativeToGit(filepath.Join(path, ".."))
 		}
@@ -77,12 +80,13 @@ func (c projectResolver) Parse(workingDir string) (p Project, err error) {
 		return
 	}
 
-	basePath, err := pathRelativeToGit(workingDir)
+	basePath, rootName, err := pathRelativeToGit(workingDir)
 	if err != nil {
 		return
 	}
 
 	p.GitURI = origin
 	p.BasePath = basePath
+	p.RootName = rootName
 	return
 }

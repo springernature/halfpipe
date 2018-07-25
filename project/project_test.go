@@ -67,6 +67,25 @@ func assertBasePath(t *testing.T, pr projectResolver, workingDir string, expecte
 	assert.Equal(t, expectedBasePath, project.BasePath)
 }
 
+func TestRootNameWhenInGitRepo(t *testing.T) {
+	pr := testProjectResolver()
+	pr.Fs.MkdirAll("/home/simon/src/repo/.git", 0777)
+	pr.Fs.MkdirAll("/home/simon/src/repo/sub1/sub2/sub3", 0777)
+
+	assertRootName(t, pr, "/home/simon/src/repo", "repo")
+	assertRootName(t, pr, "/home/simon/src/repo/sub1", "repo")
+	assertRootName(t, pr, "/home/simon/src/repo/sub1/sub2", "repo")
+	assertRootName(t, pr, "/home/simon/src/repo/sub1/sub2/sub3", "repo")
+}
+
+func assertRootName(t *testing.T, pr projectResolver, workingDir string, expectedRootName string) {
+	t.Helper()
+	project, err := pr.Parse(workingDir)
+	assert.Nil(t, err)
+	assert.Equal(t, expectedRootName, project.RootName)
+}
+
+
 func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/home/simon/src/repo/a/b/c", 0777)

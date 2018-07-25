@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v2"
 	"github.com/springernature/halfpipe/project"
+	"fmt"
+	"strings"
 )
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")
@@ -41,7 +43,6 @@ func (s sampleGenerator) Generate() (err error) {
 
 	manifest := Manifest{
 		Team:     "CHANGE-ME",
-		Pipeline: "CHANGE-ME",
 
 		Tasks: []Task{
 			Run{
@@ -56,13 +57,14 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 
 	project, err := s.projectResolver.Parse(s.currentDir)
-	if project.BasePath != "" {
-		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, project.BasePath)
-	}
-
 	if err != nil {
 		return
 	}
+
+	if project.BasePath != "" {
+		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, project.BasePath)
+	}
+	manifest.Pipeline = createPipelineName(project)
 
 	out, err := yaml.Marshal(manifest)
 	if err != nil {
@@ -71,4 +73,11 @@ func (s sampleGenerator) Generate() (err error) {
 
 	err = s.fs.WriteFile(".halfpipe.io", out, 0777)
 	return
+}
+
+func createPipelineName(project project.Project) string {
+	if project.BasePath == "" {
+		return project.RootName
+	}
+	return strings.Replace(fmt.Sprintf("%s-%s", project.RootName, project.BasePath), "/", "-", -1)
 }
