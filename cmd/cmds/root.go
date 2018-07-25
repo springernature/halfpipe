@@ -14,6 +14,7 @@ import (
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/sync"
+	"github.com/springernature/halfpipe/project"
 )
 
 var checkVersion = func() (err error) {
@@ -45,7 +46,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		project, err := defaults.NewProjectResolver(fs).Parse(currentDir)
+		project, err := project.NewProjectResolver(fs).Parse(currentDir)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

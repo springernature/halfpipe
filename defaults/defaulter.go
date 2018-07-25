@@ -5,9 +5,10 @@ import (
 
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 )
 
-type Defaulter func(manifest.Manifest, Project) manifest.Manifest
+type Defaulter func(manifest.Manifest, project.Project) manifest.Manifest
 
 type Defaults struct {
 	RepoPrivateKey       string
@@ -17,11 +18,11 @@ type Defaults struct {
 	CfTestDomains        map[string]string
 	DockerUsername       string
 	DockerPassword       string
-	Project              Project
+	Project              project.Project
 	DockerComposeService string
 }
 
-func NewDefaulter(project Project) Defaults {
+func NewDefaulter(project project.Project) Defaults {
 	d := DefaultValues
 	d.Project = project
 	return d

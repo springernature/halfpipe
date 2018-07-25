@@ -1,4 +1,4 @@
-package defaults
+package project
 
 import (
 	"path/filepath"
@@ -15,6 +15,10 @@ import (
 type Project struct {
 	BasePath string
 	GitURI   string
+}
+
+type ProejctResolver interface {
+	Parse(workingDir string) (p Project, err error)
 }
 
 type projectResolver struct {
