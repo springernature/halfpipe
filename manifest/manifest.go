@@ -5,21 +5,21 @@ type TaskList []Task
 type Manifest struct {
 	Team            string
 	Pipeline        string
-	SlackChannel    string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
-	Repo            Repo   `yaml:"repo,omitempty"`
+	SlackChannel    string   `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	TriggerInterval string   `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
+	Repo            Repo     `yaml:"repo,omitempty"`
 	Tasks           TaskList
 	OnFailure       TaskList `json:"on_failure" yaml:"on_failure,omitempty"`
 	AutoUpdate      bool     `json:"auto_update" yaml:"auto_update,omitempty"`
 }
 
 type Repo struct {
-	URI          string
-	BasePath     string   `json:"-"` //don't auto unmarshal
-	PrivateKey   string   `json:"private_key"`
-	WatchedPaths []string `json:"watched_paths"`
-	IgnoredPaths []string `json:"ignored_paths"`
-	GitCryptKey  string   `json:"git_crypt_key"`
+	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
+	BasePath     string   `json:"-" yaml:"-"` //don't auto unmarshal
+	PrivateKey   string   `json:"private_key,omitempty" yaml:"private_key,omitempty"`
+	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
+	IgnoredPaths []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`
+	GitCryptKey  string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty"`
 }
 
 func (repo Repo) IsPublic() bool {
@@ -37,7 +37,7 @@ type Task interface{}
 type Run struct {
 	Type             string
 	Name             string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script           string
 	Docker           Docker
 	Vars             Vars     `yaml:"vars,omitempty"`
@@ -61,14 +61,14 @@ type DockerPush struct {
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	API            string
 	Space          string
 	Org            string
 	Username       string
 	Password       string
 	Manifest       string
-	TestDomain     string `json:"test_domain" yaml:"test_domain"`
+	TestDomain     string   `json:"test_domain" yaml:"test_domain"`
 	Vars           Vars
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
@@ -79,7 +79,7 @@ type DockerCompose struct {
 	Type             string
 	Name             string
 	Command          string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars             Vars
 	Service          string
 	SaveArtifacts    []string `json:"save_artifacts"`

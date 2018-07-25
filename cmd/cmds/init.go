@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 )
 
 func init() {
@@ -23,7 +24,10 @@ var initCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		err = manifest.NewSampleGenerator(afero.Afero{Fs: afero.NewOsFs()}).Generate()
+		fs := afero.Afero{Fs: afero.NewOsFs()}
+		projectResolver := project.NewProjectResolver(fs)
+
+		err = manifest.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

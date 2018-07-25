@@ -17,7 +17,7 @@ type Project struct {
 	GitURI   string
 }
 
-type ProejctResolver interface {
+type ProjectResolver interface {
 	Parse(workingDir string) (p Project, err error)
 }
 

@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/afero"
 	"gopkg.in/yaml.v2"
+	"github.com/springernature/halfpipe/project"
 )
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")
@@ -14,12 +15,16 @@ type SampleGenerator interface {
 }
 
 type sampleGenerator struct {
-	fs afero.Afero
+	fs              afero.Afero
+	projectResolver project.ProjectResolver
+	currentDir      string
 }
 
-func NewSampleGenerator(fs afero.Afero) SampleGenerator {
+func NewSampleGenerator(fs afero.Afero, projectResolver project.ProjectResolver, currentDir string) SampleGenerator {
 	return sampleGenerator{
-		fs: fs,
+		fs:              fs,
+		projectResolver: projectResolver,
+		currentDir:      currentDir,
 	}
 }
 
@@ -48,6 +53,15 @@ func (s sampleGenerator) Generate() (err error) {
 				},
 			},
 		},
+	}
+
+	project, err := s.projectResolver.Parse(s.currentDir)
+	if project.BasePath != "" {
+		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, project.BasePath)
+	}
+
+	if err != nil {
+		return
 	}
 
 	out, err := yaml.Marshal(manifest)
