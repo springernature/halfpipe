@@ -72,32 +72,30 @@ func (s sync) Check() (err error) {
 	return
 }
 
-func (s sync) getLatestBinaryURL() (url string, err error) {
-	release, err := s.getLatestRelease()
-	if err != nil {
-		return
-	}
-
-	url = release.DownloadURL
-	return
-}
-
 func (s sync) Update(out io.Writer) (err error) {
 	if s.currentVersion.EQ(config.DevVersion) {
 		return ErrUpdatingDevRelease
 	}
 
-	binaryURL, err := s.getLatestBinaryURL()
+	latestRelease, err := s.getLatestRelease()
+	if err != nil {
+		return err
+	}
+
+	if s.currentVersion.EQ(latestRelease.Version) {
+		_, writeErr := out.Write([]byte("Already on latest version!"))
+		if writeErr != nil {
+			err = writeErr
+		}
+		return
+	}
+
+	_, err = out.Write([]byte("downloading latest version from " + latestRelease.DownloadURL + "\n"))
 	if err != nil {
 		return
 	}
 
-	_, err = out.Write([]byte("downloading latest version from " + binaryURL + "\n"))
-	if err != nil {
-		return
-	}
-
-	resp, err := s.httpGetter(binaryURL)
+	resp, err := s.httpGetter(latestRelease.DownloadURL)
 	if err != nil {
 		return
 	}

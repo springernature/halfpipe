@@ -121,3 +121,31 @@ func TestUpdateDoesWhatItShouldDo(t *testing.T) {
 	assert.True(t, calledOutToHTTPGetter)
 	assert.True(t, calledOutToUpdater)
 }
+
+func TestUpdateDoesNothingWhenBinaryIsUpToDate(t *testing.T) {
+	version := semver.Version{Major: 2, Minor: 3}
+	syncer := NewSyncer(version, releaseResolverDouble(Release{Version: version}, nil))
+
+	var calledOutToHTTPGetter bool
+	syncer.httpGetter = func(url string) (resp *http.Response, err error) {
+		calledOutToHTTPGetter = true
+
+		resp = &http.Response{
+			Body: gbytes.NewBuffer(),
+		}
+		return
+	}
+
+	var calledOutToUpdater bool
+	syncer.updater = func(update io.Reader, opts update.Options) error {
+		calledOutToUpdater = true
+		return nil
+	}
+
+	buffer := bytes.Buffer{}
+	err := syncer.Update(&buffer)
+	assert.Nil(t, err)
+	assert.Equal(t, buffer.String(), "Already on latest version!")
+	assert.False(t, calledOutToHTTPGetter)
+	assert.False(t, calledOutToUpdater)
+}
