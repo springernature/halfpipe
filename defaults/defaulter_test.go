@@ -218,9 +218,9 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 }
 
 func TestSetsProjectValues(t *testing.T) {
-	project := project.Data{BasePath: "foo", GitURI: "bar"}
+	pro := project.Data{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
-		Project: project,
+		Project: pro,
 	}
 	man := manifest.Manifest{}
 
@@ -231,9 +231,9 @@ func TestSetsProjectValues(t *testing.T) {
 }
 
 func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
-	project := project.Data{BasePath: "foo", GitURI: "bar"}
+	pro := project.Data{BasePath: "foo", GitURI: "bar"}
 	manifestDefaults := Defaults{
-		Project: project,
+		Project: pro,
 	}
 	man := manifest.Manifest{}
 	man.Repo.URI = "git@github.com/foo/bar"

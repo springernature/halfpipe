@@ -57,15 +57,15 @@ func (s sampleGenerator) Generate() (err error) {
 		},
 	}
 
-	project, err := s.projectResolver.Parse(s.currentDir)
+	proj, err := s.projectResolver.Parse(s.currentDir)
 	if err != nil {
 		return
 	}
 
-	if project.BasePath != "" {
-		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, project.BasePath)
+	if proj.BasePath != "" {
+		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, proj.BasePath)
 	}
-	manifest.Pipeline = createPipelineName(project)
+	manifest.Pipeline = createPipelineName(proj)
 
 	out, err := yaml.Marshal(manifest)
 	if err != nil {
