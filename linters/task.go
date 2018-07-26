@@ -11,6 +11,7 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"github.com/springernature/halfpipe/defaults"
 )
 
 type taskLinter struct {
@@ -114,8 +115,12 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 		result.AddError(errors.NewMissingField(taskID + " deploy-cf.org"))
 	}
 	if cf.TestDomain == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-cf.testDomain"))
+		_, found := defaults.DefaultValues.CfTestDomains[cf.API]
+		if cf.API != "" && !found {
+			result.AddError(errors.NewMissingField(taskID + " deploy-cf.testDomain"))
+		}
 	}
+
 	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}

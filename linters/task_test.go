@@ -182,13 +182,56 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 5)
+	assert.Len(t, result.Errors, 4)
 	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
 	assertMissingField(t, "tasks[0] deploy-cf.space", result.Errors[1])
 	assertMissingField(t, "tasks[0] deploy-cf.org", result.Errors[2])
-	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[3])
-	assertFileError(t, "manifest.yml", result.Errors[4])
+	assertFileError(t, "manifest.yml", result.Errors[3])
 }
+
+func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
+	taskLinter := testTaskLinter()
+	taskLinter.Fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+	allesOk := manifest.Manifest{}
+	allesOk.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API: "((cloudfoundry.api-dev))",
+			Org: "Something",
+			Space: "Something",
+			Manifest: "manifest.yml"},
+	}
+
+	result := taskLinter.Lint(allesOk)
+	assert.Len(t, result.Errors, 0)
+
+	noApiDefined := manifest.Manifest{}
+	noApiDefined.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API: "",
+			Org: "Something",
+			Space: "Something",
+			Manifest: "manifest.yml"},
+	}
+
+	result = taskLinter.Lint(noApiDefined)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
+
+	randomApiDefinedWithoutTestDomain := manifest.Manifest{}
+	randomApiDefinedWithoutTestDomain.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API: "someRandomApi",
+			Org: "Something",
+			Space: "Something",
+			Manifest: "manifest.yml"},
+	}
+
+	result = taskLinter.Lint(randomApiDefinedWithoutTestDomain)
+	assert.Len(t, result.Errors, 1)
+	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
+
+}
+
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
@@ -444,7 +487,7 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
-			API:   "api",
+			API:   "((cloudfoundry.api-dev))",
 			Org:   "org",
 			Space: "space",
 			PrePromote: []manifest.Task{
@@ -459,15 +502,14 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 15)
+	assert.Len(t, result.Errors, 13)
 
-	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
-	assertInvalidField(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors[1])
-	assertInvalidField(t, "tasks[0].pre_promote[2] run.type", result.Errors[2])
-	assertInvalidField(t, "tasks[0].pre_promote[3] run.type", result.Errors[3])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[4])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[5])
-	assertFileError(t, "docker-compose.yml", result.Errors[6])
+	assertInvalidField(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors[0])
+	assertInvalidField(t, "tasks[0].pre_promote[2] run.type", result.Errors[1])
+	assertInvalidField(t, "tasks[0].pre_promote[3] run.type", result.Errors[2])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[3])
+	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
+	assertFileError(t, "docker-compose.yml", result.Errors[5])
 }
 
 func TestConsumerIntegrationTestTaskHasRequiredFieldsInPrePromote(t *testing.T) {
