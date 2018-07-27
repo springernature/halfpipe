@@ -143,7 +143,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
 
 	expectedAppPath := fmt.Sprintf("artifacts-%s-%s/%s", man.Team, man.Pipeline, deployArtifactPath)
-	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
+	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
 func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {

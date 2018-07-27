@@ -95,9 +95,6 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   devTestDomain,
 					"manifestPath": manifestPath,
-					"vars":         envVars,
-					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -106,11 +103,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			Resource: expectedDevResource.Name,
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
-				"testDomain":   devTestDomain,
 				"manifestPath": manifestPath,
-				"vars":         envVars,
-				"appPath":      gitDir,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}
@@ -151,8 +144,6 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
-					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 				},
 			},
 		},
@@ -161,10 +152,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			Resource: expectedLiveResource.Name,
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
-				"testDomain":   liveTestDomain,
 				"manifestPath": liveManifest,
-				"appPath":      gitDir,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			},
 		},
 	}

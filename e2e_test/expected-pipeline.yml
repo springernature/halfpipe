@@ -195,9 +195,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-promote
-      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
   on_failure:
@@ -246,11 +244,8 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
       command: halfpipe-cleanup
-      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
-      testDomain: some.random.domain.com
 - name: deploy to staging
   serial: true
   plan:
@@ -380,14 +375,9 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF api-live pe staging
     params:
-      appPath: git
       command: halfpipe-promote
-      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
-      vars:
-        A: "0.1"
-        B: "false"
   on_failure:
     do:
     - put: slack
@@ -434,14 +424,8 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF api-live pe staging
     params:
-      appPath: git
       command: halfpipe-cleanup
-      gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
-      testDomain: live.cf.private.springer.com
-      vars:
-        A: "0.1"
-        B: "false"
 - name: push to docker registry
   serial: true
   plan:

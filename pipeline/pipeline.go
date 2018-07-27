@@ -286,24 +286,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		appPath = path.Join(GenerateArtifactsFolderName(man.Team, man.Pipeline), task.DeployArtifact)
 	}
 
-	cfCommand := func(commandName string) atc.PlanConfig {
-		cfg := atc.PlanConfig{
-			Put:      "cf " + commandName,
-			Resource: resourceName,
-			Params: atc.Params{
-				"command":      commandName,
-				"testDomain":   task.TestDomain,
-				"manifestPath": manifestPath,
-				"appPath":      appPath,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-			},
-		}
-		if len(vars) > 0 {
-			cfg.Params["vars"] = vars
-		}
-		return cfg
-	}
-
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -320,7 +302,21 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		job.Plan = append(job.Plan, artifactGet)
 	}
 
-	job.Plan = append(job.Plan, cfCommand("halfpipe-push"))
+	push := atc.PlanConfig{
+		Put:      "cf halfpipe-push",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-push",
+			"testDomain":   task.TestDomain,
+			"manifestPath": manifestPath,
+			"appPath":      appPath,
+			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+		},
+	}
+	if len(vars) > 0 {
+		push.Params["vars"] = vars
+	}
+	job.Plan = append(job.Plan, push)
 
 	for _, t := range task.PrePromote {
 		applications, e := p.rManifest(task.Manifest)
@@ -357,8 +353,25 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		job.Plan = append(job.Plan, ppJob.Plan...)
 	}
 
-	job.Plan = append(job.Plan, cfCommand("halfpipe-promote"))
-	cleanup := cfCommand("halfpipe-cleanup")
+	promote := atc.PlanConfig{
+		Put:      "cf halfpipe-promote",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-promote",
+			"testDomain":   task.TestDomain,
+			"manifestPath": manifestPath,
+		},
+	}
+	job.Plan = append(job.Plan, promote)
+
+	cleanup := atc.PlanConfig{
+		Put:      "cf halfpipe-cleanup",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-cleanup",
+			"manifestPath": manifestPath,
+		},
+	}
 	job.Ensure = &cleanup
 	return &job
 }
