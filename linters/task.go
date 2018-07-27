@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
-	"github.com/springernature/halfpipe/defaults"
 )
 
 type taskLinter struct {

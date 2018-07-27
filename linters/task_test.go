@@ -195,43 +195,42 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	allesOk := manifest.Manifest{}
 	allesOk.Tasks = []manifest.Task{
 		manifest.DeployCF{
-			API: "((cloudfoundry.api-dev))",
-			Org: "Something",
-			Space: "Something",
+			API:      "((cloudfoundry.api-dev))",
+			Org:      "Something",
+			Space:    "Something",
 			Manifest: "manifest.yml"},
 	}
 
 	result := taskLinter.Lint(allesOk)
 	assert.Len(t, result.Errors, 0)
 
-	noApiDefined := manifest.Manifest{}
-	noApiDefined.Tasks = []manifest.Task{
+	noAPIDefined := manifest.Manifest{}
+	noAPIDefined.Tasks = []manifest.Task{
 		manifest.DeployCF{
-			API: "",
-			Org: "Something",
-			Space: "Something",
+			API:      "",
+			Org:      "Something",
+			Space:    "Something",
 			Manifest: "manifest.yml"},
 	}
 
-	result = taskLinter.Lint(noApiDefined)
+	result = taskLinter.Lint(noAPIDefined)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
 
-	randomApiDefinedWithoutTestDomain := manifest.Manifest{}
-	randomApiDefinedWithoutTestDomain.Tasks = []manifest.Task{
+	randomAPIDefinedWithoutTestDomain := manifest.Manifest{}
+	randomAPIDefinedWithoutTestDomain.Tasks = []manifest.Task{
 		manifest.DeployCF{
-			API: "someRandomApi",
-			Org: "Something",
-			Space: "Something",
+			API:      "someRandomApi",
+			Org:      "Something",
+			Space:    "Something",
 			Manifest: "manifest.yml"},
 	}
 
-	result = taskLinter.Lint(randomApiDefinedWithoutTestDomain)
+	result = taskLinter.Lint(randomAPIDefinedWithoutTestDomain)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
 
 }
-
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	taskLinter := testTaskLinter()
