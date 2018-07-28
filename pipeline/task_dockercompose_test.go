@@ -10,6 +10,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var dockerComposeImageResource = atc.ImageResource{
+	Type: "docker-image",
+	Source: atc.Source{
+		"repository": strings.Split(config.DockerComposeImage, ":")[0],
+		"tag":        strings.Split(config.DockerComposeImage, ":")[1],
+		"username":   "_json_key",
+		"password":   "((gcr.private_key))",
+	},
+}
+
 func TestRenderDockerComposeTask(t *testing.T) {
 	p := testPipeline()
 
@@ -46,17 +56,9 @@ func TestRenderDockerComposeTask(t *testing.T) {
 				Task:       "docker-compose",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
-					Platform: "linux",
-					Params:   expectedVars,
-					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
-						Source: atc.Source{
-							"repository": strings.Split(config.DockerComposeImage, ":")[0],
-							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
-							"username":   "_json_key",
-							"password":   "((gcr.private_key))",
-						},
-					},
+					Platform:      "linux",
+					Params:        expectedVars,
+					ImageResource: &dockerComposeImageResource,
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
@@ -108,17 +110,9 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 				Task:       "docker-compose",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
-					Platform: "linux",
-					Params:   expectedVars,
-					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
-						Source: atc.Source{
-							"repository": strings.Split(config.DockerComposeImage, ":")[0],
-							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
-							"username":   "_json_key",
-							"password":   "((gcr.private_key))",
-						},
-					},
+					Platform:      "linux",
+					Params:        expectedVars,
+					ImageResource: &dockerComposeImageResource,
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
