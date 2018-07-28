@@ -89,16 +89,16 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 				Service: "app",
 				Command: "/usr/bin/a-command",
 				Vars: manifest.Vars{
-					"VAR1": "Value1",
-					"VAR2": "Value2",
+					"VAR1": "Value 1",
+					"VAR2": "Value 2",
 				},
 			},
 		},
 	}
 
 	expectedVars := map[string]string{
-		"VAR1":            "Value1",
-		"VAR2":            "Value2",
+		"VAR1":            "Value 1",
+		"VAR2":            "Value 2",
 		"GCR_PRIVATE_KEY": "((gcr.private_key))",
 	}
 

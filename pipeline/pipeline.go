@@ -490,12 +490,12 @@ func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 }
 
 func dockerComposeScript(service string, vars map[string]string, containerCommand string) string {
-	envStrings := []string{"-e GIT_REVISION=${GIT_REVISION}"}
+	envStrings := []string{"-e GIT_REVISION"}
 	for key := range vars {
 		if key == "GCR_PRIVATE_KEY" {
 			continue
 		}
-		envStrings = append(envStrings, fmt.Sprintf("-e %s=${%s}", key, key))
+		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
 	}
 	sort.Strings(envStrings)
 

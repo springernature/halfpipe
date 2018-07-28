@@ -77,6 +77,8 @@ tasks:
     B: b
 
 - type: docker-compose
+  vars:
+    A: a
 
 - type: consumer-integration-test
   name: another-c-name

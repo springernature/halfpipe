@@ -589,6 +589,7 @@ jobs:
           repository: amidos/dcind
           tag: latest
       params:
+        A: a
         GCR_PRIVATE_KEY: ((gcr.private_key))
       run:
         path: /bin/sh
@@ -601,7 +602,7 @@ jobs:
           start_docker
           docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
-          docker-compose run -e GIT_REVISION=${GIT_REVISION} app
+          docker-compose run -e A -e GIT_REVISION app
           rc=$?
 
           docker-compose down
