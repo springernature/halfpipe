@@ -1,6 +1,9 @@
 package config
 
-import "github.com/blang/semver"
+import (
+	"github.com/blang/semver"
+	"github.com/concourse/atc"
+)
 
 var (
 	// These fields will be populated in build
@@ -14,6 +17,13 @@ var (
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 
 	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:latest"
+
+	CacheDirs = []atc.CacheConfig{
+		{Path: "../../../root/.gradle/"},
+		{Path: "../../../root/.m2/"},
+		{Path: "../../../root/.ivy2/"},
+		{Path: "../../../root/.sbt/"},
+	}
 )
 
 var DevVersion = semver.Version{

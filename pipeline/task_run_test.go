@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/concourse/atc"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -52,12 +53,7 @@ func TestRenderRunTask(t *testing.T) {
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
 				},
-				Caches: []atc.CacheConfig{
-					{Path: "../../../root/.gradle/"},
-					{Path: "../../../root/.m2/"},
-					{Path: "../../../root/.ivy2/"},
-					{Path: "../../../root/.sbt/"},
-				},
+				Caches: config.CacheDirs,
 			}},
 		}}
 
@@ -109,12 +105,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
 				},
-				Caches: []atc.CacheConfig{
-					{Path: "../../../root/.gradle/"},
-					{Path: "../../../root/.m2/"},
-					{Path: "../../../root/.ivy2/"},
-					{Path: "../../../root/.sbt/"},
-				},
+				Caches: config.CacheDirs,
 			}},
 		}}
 
@@ -166,12 +157,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				Inputs: []atc.TaskInputConfig{
 					{Name: gitDir},
 				},
-				Caches: []atc.CacheConfig{
-					{Path: "../../../root/.gradle/"},
-					{Path: "../../../root/.m2/"},
-					{Path: "../../../root/.ivy2/"},
-					{Path: "../../../root/.sbt/"},
-				},
+				Caches: config.CacheDirs,
 			}},
 		}}
 

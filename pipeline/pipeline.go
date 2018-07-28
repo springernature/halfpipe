@@ -250,12 +250,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
 			},
-			Caches: []atc.CacheConfig{
-				{Path: "../../../root/.gradle/"},
-				{Path: "../../../root/.m2/"},
-				{Path: "../../../root/.ivy2/"},
-				{Path: "../../../root/.sbt/"},
-			},
+			Caches: config.CacheDirs,
 		}}
 
 	if task.RestoreArtifacts {
