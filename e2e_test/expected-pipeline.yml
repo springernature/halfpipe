@@ -312,7 +312,7 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-cdc-runner
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
           username: _json_key
       params:
@@ -327,15 +327,13 @@ jobs:
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
         PROVIDER_NAME: e2e-test
       run:
-        path: /bin/sh
+        path: docker.sh
         args:
         - -c
         - |
           set -e
           export GIT_REVISION=`cat .git/ref`
-          \source /docker-lib.sh
-          start_docker
-          docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
           # write git key to file
           echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -360,9 +358,6 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
             ${DOCKER_COMPOSE_SERVICE:-code}
-          rc=$?
-          docker-compose down
-          [ $rc -eq 0 ] || exit $rc
         dir: git
       inputs:
       - name: git
@@ -586,28 +581,22 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: amidos/dcind
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
+          username: _json_key
       params:
         A: a
         GCR_PRIVATE_KEY: ((gcr.private_key))
       run:
-        path: /bin/sh
+        path: docker.sh
         args:
         - -c
         - |
           set -e
           export GIT_REVISION=`cat .git/ref`
-          \source /docker-lib.sh
-          start_docker
-          docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose run -e A -e GIT_REVISION app
-          rc=$?
-
-          docker-compose down
-
-          [ $rc -eq 0 ] || exit $rc
         dir: git
       inputs:
       - name: git
@@ -675,7 +664,7 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-cdc-runner
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
           username: _json_key
       params:
@@ -690,15 +679,13 @@ jobs:
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
         PROVIDER_NAME: e2e-test
       run:
-        path: /bin/sh
+        path: docker.sh
         args:
         - -c
         - |
           set -e
           export GIT_REVISION=`cat .git/ref`
-          \source /docker-lib.sh
-          start_docker
-          docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
           # write git key to file
           echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -723,9 +710,6 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
             ${DOCKER_COMPOSE_SERVICE:-code}
-          rc=$?
-          docker-compose down
-          [ $rc -eq 0 ] || exit $rc
         dir: git
       inputs:
       - name: git

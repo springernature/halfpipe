@@ -61,14 +61,14 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			ImageResource: &atc.ImageResource{
 				Type: "docker-image",
 				Source: atc.Source{
-					"repository": strings.Split(config.ConsumerIntegrationTestImage, ":")[0],
-					"tag":        strings.Split(config.ConsumerIntegrationTestImage, ":")[1],
+					"repository": strings.Split(config.DockerComposeImage, ":")[0],
+					"tag":        strings.Split(config.DockerComposeImage, ":")[1],
 					"username":   "_json_key",
 					"password":   "((gcr.private_key))",
 				},
 			},
 			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
+				Path: "docker.sh",
 				Dir:  gitDir + "/base.path",
 				Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
 			},
@@ -170,14 +170,14 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					ImageResource: &atc.ImageResource{
 						Type: "docker-image",
 						Source: atc.Source{
-							"repository": strings.Split(config.ConsumerIntegrationTestImage, ":")[0],
-							"tag":        strings.Split(config.ConsumerIntegrationTestImage, ":")[1],
+							"repository": strings.Split(config.DockerComposeImage, ":")[0],
+							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
 							"username":   "_json_key",
 							"password":   "((gcr.private_key))",
 						},
 					},
 					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
+						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
 						Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
 					},

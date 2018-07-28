@@ -72,7 +72,7 @@ func (p pipeline) addOnFailureJob(cfg *atc.Config, man manifest.Manifest) (planS
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			onFailureJob = p.runJob(ppTask, true, man, false)
+			onFailureJob = p.runJob(ppTask, man, false)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
@@ -140,7 +140,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			job = p.runJob(task, true, man, false)
+			job = p.runJob(task, man, false)
 			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
@@ -217,7 +217,7 @@ func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
 	return job.Plan
 }
 
-func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Manifest, privileged bool) *atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -230,17 +230,22 @@ func (p pipeline) runJob(task manifest.Run, checkForBash bool, man manifest.Mani
 		})
 	}
 
+	taskPath := "/bin/sh"
+	if isDockerCompose {
+		taskPath = "docker.sh"
+	}
+
 	runPlan := atc.PlanConfig{
 		Task:       task.Name,
-		Privileged: privileged,
+		Privileged: isDockerCompose,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        task.Vars,
 			ImageResource: p.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
+				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, checkForBash, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -332,7 +337,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			ppJob = p.runJob(ppTask, true, man, false)
+			ppJob = p.runJob(ppTask, man, false)
 
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
@@ -392,13 +397,15 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		Name:   task.Name,
 		Script: dockerComposeScript(task.Service, vars, task.Command),
 		Docker: manifest.Docker{
-			Image: config.DockerComposeImage,
+			Image:    config.DockerComposeImage,
+			Username: "_json_key",
+			Password: "((gcr.private_key))",
 		},
 		Vars:             vars,
 		SaveArtifacts:    task.SaveArtifacts,
 		RestoreArtifacts: task.RestoreArtifacts,
 	}
-	job := p.runJob(runTask, false, man, true)
+	job := p.runJob(runTask, man, true)
 	return job
 }
 
@@ -504,16 +511,8 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, containerCommand)
 	}
 
-	return fmt.Sprintf(`\source /docker-lib.sh
-start_docker
-docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-
+	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 %s
-rc=$?
-
-docker-compose down
-
-[ $rc -eq 0 ] || exit $rc
 `, composeCommand)
 }
 

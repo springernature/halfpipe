@@ -24,7 +24,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 		Name:   task.Name,
 		Script: consumerIntegrationTestScript,
 		Docker: manifest.Docker{
-			Image:    config.ConsumerIntegrationTestImage,
+			Image:    config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((gcr.private_key))",
 		},
@@ -41,13 +41,11 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
 		},
 	}
-	job := p.runJob(runTask, false, man, true)
+	job := p.runJob(runTask, man, true)
 	return job
 }
 
-const consumerIntegrationTestScript = `\source /docker-lib.sh
-start_docker
-docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+const consumerIntegrationTestScript = `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
 # write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -72,7 +70,4 @@ docker-compose run --no-deps \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
   -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
   ${DOCKER_COMPOSE_SERVICE:-code}
-rc=$?
-docker-compose down
-[ $rc -eq 0 ] || exit $rc
 `

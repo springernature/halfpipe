@@ -53,10 +53,12 @@ func TestRenderDockerComposeTask(t *testing.T) {
 						Source: atc.Source{
 							"repository": strings.Split(config.DockerComposeImage, ":")[0],
 							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
+							"username":   "_json_key",
+							"password":   "((gcr.private_key))",
 						},
 					},
 					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
+						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
 						Args: runScriptArgs(dockerComposeScript(service, expectedVars, ""), false, "", false, nil, "../.git/ref"),
 					},
@@ -118,10 +120,12 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 						Source: atc.Source{
 							"repository": strings.Split(config.DockerComposeImage, ":")[0],
 							"tag":        strings.Split(config.DockerComposeImage, ":")[1],
+							"username":   "_json_key",
+							"password":   "((gcr.private_key))",
 						},
 					},
 					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
+						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
 						Args: runScriptArgs(dockerComposeScript("app", expectedVars, "/usr/bin/a-command"), false, "", false, nil, "../.git/ref"),
 					},
