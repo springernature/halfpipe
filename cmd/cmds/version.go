@@ -18,7 +18,7 @@ var versionCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		version, err := config.GetVersion()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 		fmt.Println(version.String())

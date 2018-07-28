@@ -34,7 +34,7 @@ var rootCmd = &cobra.Command{
 Invoke without any arguments to lint your .halfpipe.io file and render a pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := checkVersion(); err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 
@@ -42,13 +42,13 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 
 		currentDir, err := os.Getwd()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 
 		project, err := project.NewProjectResolver(fs).Parse(currentDir)
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 
@@ -70,7 +70,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		pipelineConfig, lintResults := ctrl.Process()
 
 		if lintResults.HasErrors() || lintResults.HasWarnings() {
-			fmt.Fprintln(os.Stderr, lintResults.Error())
+			printErr(fmt.Errorf(lintResults.Error()))
 			if lintResults.HasErrors() {
 				os.Exit(1)
 			}
@@ -78,8 +78,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 
 		pipelineString, renderError := pipeline.ToString(pipelineConfig)
 		if renderError != nil {
-			err = fmt.Errorf("%s\n%s", err, renderError)
-			fmt.Fprintln(os.Stderr, err)
+			printErr(fmt.Errorf("%s\n%s", err, renderError))
 			os.Exit(1)
 		}
 
@@ -89,7 +88,11 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		printErr(err)
 		os.Exit(1)
 	}
+}
+
+func printErr(err error) {
+	fmt.Fprintln(os.Stderr, err) // nolint: gas
 }

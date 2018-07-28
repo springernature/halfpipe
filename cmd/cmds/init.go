@@ -20,7 +20,7 @@ var initCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		currentDir, err := os.Getwd()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 
@@ -30,7 +30,7 @@ var initCmd = &cobra.Command{
 		err = manifest.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
 
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
+			printErr(err)
 			os.Exit(1)
 		}
 		fmt.Println(fmt.Sprintf("Generated sample configuration at %s/.halfpipe.io", currentDir))

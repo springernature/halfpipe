@@ -1,7 +1,6 @@
 package cmds
 
 import (
-	"fmt"
 	"os"
 	"os/exec"
 	"os/user"
@@ -20,7 +19,7 @@ func init() {
 		Run: func(cmd *cobra.Command, args []string) {
 			currentUser, err := user.Current()
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				printErr(err)
 				os.Exit(1)
 			}
 
@@ -32,12 +31,12 @@ func init() {
 
 			plan, err := planner.Plan()
 			if err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				printErr(err)
 				os.Exit(1)
 			}
 
 			if err := plan.Execute(os.Stdout, os.Stdin, nonInteractive); err != nil {
-				fmt.Fprintln(os.Stderr, err)
+				printErr(err)
 				os.Exit(1)
 			}
 
