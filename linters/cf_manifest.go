@@ -7,14 +7,15 @@ import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/pipeline"
 )
 
 type cfManifestLinter struct {
-	rManifest func(string) ([]cfManifest.Application, error)
+	readCfManifest pipeline.CfManifestReader
 }
 
-func NewCfManifestLinter(readManifest func(string) ([]cfManifest.Application, error)) cfManifestLinter {
-	return cfManifestLinter{readManifest}
+func NewCfManifestLinter(cfManifestReader pipeline.CfManifestReader) cfManifestLinter {
+	return cfManifestLinter{cfManifestReader}
 }
 
 func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
@@ -31,7 +32,7 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 	}
 
 	for _, manifestPath := range manifestPaths {
-		apps, err := linter.rManifest(manifestPath)
+		apps, err := linter.readCfManifest(manifestPath)
 
 		if err != nil {
 			result.AddError(goErrors.New(fmt.Sprintf("cf-manifest error in %s, %s", manifestPath, err.Error())))

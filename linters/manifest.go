@@ -7,13 +7,13 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-type teamlinter struct{}
+type teamLinter struct{}
 
-func NewTeamLinter() teamlinter {
-	return teamlinter{}
+func NewTeamLinter() teamLinter {
+	return teamLinter{}
 }
 
-func (teamlinter) Lint(manifest manifest.Manifest) (result LintResult) {
+func (teamLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Manifest"
 	result.DocsURL = "https://docs.halfpipe.io/docs/manifest/"
 

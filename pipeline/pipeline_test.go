@@ -11,7 +11,7 @@ import (
 
 func testPipeline() pipeline {
 	return pipeline{
-		rManifest: func(s string) ([]cfManifest.Application, error) {
+		readCfManifest: func(s string) ([]cfManifest.Application, error) {
 			return []cfManifest.Application{
 				{
 					Name:   "test-name",

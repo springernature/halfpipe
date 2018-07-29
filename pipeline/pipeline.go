@@ -25,12 +25,14 @@ type Renderer interface {
 	Render(manifest manifest.Manifest) atc.Config
 }
 
+type CfManifestReader func(string) ([]cfManifest.Application, error)
+
 type pipeline struct {
-	rManifest func(string) ([]cfManifest.Application, error)
+	readCfManifest CfManifestReader
 }
 
-func NewPipeline(rManifest func(string) ([]cfManifest.Application, error)) pipeline {
-	return pipeline{rManifest: rManifest}
+func NewPipeline(cfManifestReader CfManifestReader) pipeline {
+	return pipeline{readCfManifest: cfManifestReader}
 }
 
 const artifactsFolderName = "artifacts"
@@ -320,7 +322,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	job.Plan = append(job.Plan, push)
 
 	for _, t := range task.PrePromote {
-		applications, e := p.rManifest(task.Manifest)
+		applications, e := p.readCfManifest(task.Manifest)
 		if e != nil {
 			panic(e)
 		}

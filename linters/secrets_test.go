@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	prefix   = "prefix"
-	team     = "team"
-	pipeline = "pipeline"
+	prefix       = "prefix"
+	teamName     = "team"
+	pipelineName = "pipeline"
 )
 
 type fakeSecretStore struct {
@@ -69,8 +69,8 @@ func TestBadKeys(t *testing.T) {
 func TestSecretNotFound(t *testing.T) {
 	notFoundSecret := "((not.found))"
 	man := manifest.Manifest{}
-	man.Team = team
-	man.Pipeline = pipeline
+	man.Team = teamName
+	man.Pipeline = pipelineName
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{
 			Username: "user",
@@ -92,15 +92,15 @@ func TestSecretNotFound(t *testing.T) {
 
 	assert.Len(t, result.Warnings, 1)
 	assert.IsType(t, errors.VaultSecretNotFoundError{}, result.Warnings[0])
-	assert.Equal(t, filepath.Join(prefix, team, pipeline, "not"), paths[0])
-	assert.Equal(t, filepath.Join(prefix, team, "not"), paths[1])
+	assert.Equal(t, filepath.Join(prefix, teamName, pipelineName, "not"), paths[0])
+	assert.Equal(t, filepath.Join(prefix, teamName, "not"), paths[1])
 	assert.Equal(t, "found", secretKey)
 }
 
 func TestCallsOnlyOutOnceIfFoundInFirstPath(t *testing.T) {
 	man := manifest.Manifest{
-		Team:     team,
-		Pipeline: pipeline,
+		Team:     teamName,
+		Pipeline: pipelineName,
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
 				Username: "user",
@@ -122,13 +122,13 @@ func TestCallsOnlyOutOnceIfFoundInFirstPath(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 	assert.Len(t, result.Warnings, 0)
 	assert.Len(t, paths, 1)
-	assert.Equal(t, filepath.Join(prefix, team, pipeline, "my"), paths[0])
+	assert.Equal(t, filepath.Join(prefix, teamName, pipelineName, "my"), paths[0])
 }
 
 func TestCallsOnlyTwiceToFindSecret(t *testing.T) {
 	man := manifest.Manifest{
-		Team:     team,
-		Pipeline: pipeline,
+		Team:     teamName,
+		Pipeline: pipelineName,
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
 				Username: "user",
@@ -141,7 +141,7 @@ func TestCallsOnlyTwiceToFindSecret(t *testing.T) {
 	linter := NewSecretsLinter(prefix, func() (secrets.SecretStore, error) {
 		return NewFakeSecretStore(func(path, sK string) (bool, error) {
 			paths = append(paths, path)
-			if strings.Contains(path, pipeline) {
+			if strings.Contains(path, pipelineName) {
 				return false, nil
 			}
 			return true, nil
@@ -160,7 +160,7 @@ func TestOnlyChecksForTheSameSecretOnce(t *testing.T) {
 	password := "((cloudfoundry.password))"
 
 	man := manifest.Manifest{}
-	man.Team = "team"
+	man.Team = "teamName"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Vars: map[string]string{
@@ -194,7 +194,7 @@ func TestRaisesWarningFromInitialisingStoreWhenThereAreSecrets(t *testing.T) {
 	withoutSecretsResult := linter.Lint(manifest.Manifest{})
 	assert.False(t, withoutSecretsResult.HasErrors())
 
-	withSecretsResult := linter.Lint(manifest.Manifest{Team: "((teams.team))"})
+	withSecretsResult := linter.Lint(manifest.Manifest{Team: "((teams.teamName))"})
 	assert.Len(t, withSecretsResult.Warnings, 1)
 	assert.Equal(t, myError, withSecretsResult.Warnings[0])
 }
