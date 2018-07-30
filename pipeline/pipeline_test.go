@@ -5,6 +5,7 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
+	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,6 +19,9 @@ func testPipeline() pipeline {
 					Routes: []string{"test-route"},
 				},
 			}, nil
+		},
+		readDockerCompose: func() (dockercompose.DockerCompose, error) {
+			return dockercompose.DockerCompose{}, nil
 		},
 	}
 }

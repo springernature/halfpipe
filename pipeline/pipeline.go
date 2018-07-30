@@ -18,6 +18,7 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -28,11 +29,15 @@ type Renderer interface {
 type CfManifestReader func(string) ([]cfManifest.Application, error)
 
 type pipeline struct {
-	readCfManifest CfManifestReader
+	readCfManifest    CfManifestReader
+	readDockerCompose dockercompose.Reader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader) pipeline {
-	return pipeline{readCfManifest: cfManifestReader}
+func NewPipeline(cfManifestReader CfManifestReader, dockerComposeReader dockercompose.Reader) pipeline {
+	return pipeline{
+		readCfManifest:    cfManifestReader,
+		readDockerCompose: dockerComposeReader,
+	}
 }
 
 const artifactsFolderName = "artifacts"
@@ -129,6 +134,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	failurePlan := p.addOnFailurePlan(&cfg, man)
 	p.addUpdatePipelineJob(&cfg, man, failurePlan)
 	p.addArtifactResource(&cfg, man)
+	p.addDockerComposeResources(&cfg)
 
 	var parallelTasks []string
 	var taskBeforeParallelTasks string
@@ -233,8 +239,24 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	}
 
 	taskPath := "/bin/sh"
+	taskInputs := []atc.TaskInputConfig{{Name: gitDir}}
+
 	if isDockerCompose {
 		taskPath = "docker.sh"
+		if dockerCompose, err := p.readDockerCompose(); err == nil {
+			for _, service := range dockerCompose.Services {
+				if service.HasImage() {
+					jobConfig.Plan = append(jobConfig.Plan, atc.PlanConfig{
+						Get:    service.ResourceName(),
+						Params: atc.Params{"save": true},
+					})
+					taskInputs = append(taskInputs, atc.TaskInputConfig{
+						Name: service.ResourceName(),
+						Path: "docker-images/" + service.ResourceName(),
+					})
+				}
+			}
+		}
 	}
 
 	runPlan := atc.PlanConfig{
@@ -243,15 +265,13 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        task.Vars,
-			ImageResource: p.imageResource(task.Docker),
+			ImageResource: imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
 				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 			},
-			Inputs: []atc.TaskInputConfig{
-				{Name: gitDir},
-			},
+			Inputs: taskInputs,
 			Caches: config.CacheDirs,
 		}}
 
@@ -538,6 +558,13 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	if hasArtifacts {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
 		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline))
+	}
+}
+
+func (p pipeline) addDockerComposeResources(cfg *atc.Config) {
+	if dockerCompose, err := p.readDockerCompose(); err == nil {
+		resources := resourcesFromDockerCompose(dockerCompose)
+		cfg.Resources = append(cfg.Resources, resources...)
 	}
 }
 

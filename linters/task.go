@@ -8,10 +8,10 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
-	"gopkg.in/yaml.v2"
 )
 
 type taskLinter struct {
@@ -224,33 +224,14 @@ func (linter taskLinter) lintEnvVars(vars map[string]string, taskID string, resu
 }
 
 func (linter taskLinter) lintDockerComposeService(service string, result *LintResult) {
-	content, err := linter.Fs.ReadFile("docker-compose.yml")
+
+	dockerCompose, err := dockercompose.NewReader(linter.Fs)()
 	if err != nil {
 		result.AddError(err)
 		return
 	}
 
-	var compose struct {
-		Services map[string]interface{} `yaml:"services"`
-	}
-	err = yaml.Unmarshal(content, &compose)
-	if err != nil {
-		result.AddError(err)
-		return
-	}
-
-	if _, ok := compose.Services[service]; ok {
-		return
-	}
-
-	var composeWithoutServices map[string]interface{}
-	err = yaml.Unmarshal(content, &composeWithoutServices)
-	if err != nil {
-		result.AddError(err)
-		return
-	}
-
-	if _, ok := composeWithoutServices[service]; ok {
+	if dockerCompose.HasService(service) {
 		return
 	}
 

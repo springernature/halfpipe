@@ -15,6 +15,16 @@ resources:
     bucket: halfpipe-io-artifacts
     folder: engineering-enablement/e2e-test
     json_key: ((gcr.private_key))
+- name: dockercompose-app
+  type: docker-image
+  source:
+    repository: appropriate/curl
+- name: dockercompose-db
+  type: docker-image
+  source:
+    Password: ((gcr.private_key))
+    Username: _json_key
+    repository: eu.gcr.io/halfpipe-io/db:latest
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
@@ -308,6 +318,12 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+  - get: dockercompose-app
+    params:
+      save: true
+  - get: dockercompose-db
+    params:
+      save: true
   - task: c-name
     privileged: true
     config:
@@ -366,6 +382,10 @@ jobs:
       inputs:
       - name: git
         path: ""
+      - name: dockercompose-app
+        path: docker-images/dockercompose-app
+      - name: dockercompose-db
+        path: docker-images/dockercompose-db
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -580,6 +600,12 @@ jobs:
       passed:
       - run notify.sh
       trigger: true
+    - get: dockercompose-app
+      params:
+        save: true
+    - get: dockercompose-db
+      params:
+        save: true
   - task: docker-compose
     privileged: true
     config:
@@ -607,6 +633,10 @@ jobs:
       inputs:
       - name: git
         path: ""
+      - name: dockercompose-app
+        path: docker-images/dockercompose-app
+      - name: dockercompose-db
+        path: docker-images/dockercompose-db
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -662,6 +692,12 @@ jobs:
       passed:
       - docker-compose
       trigger: true
+    - get: dockercompose-app
+      params:
+        save: true
+    - get: dockercompose-db
+      params:
+        save: true
   - task: another-c-name
     privileged: true
     config:
@@ -720,6 +756,10 @@ jobs:
       inputs:
       - name: git
         path: ""
+      - name: dockercompose-app
+        path: docker-images/dockercompose-app
+      - name: dockercompose-db
+        path: docker-images/dockercompose-db
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
