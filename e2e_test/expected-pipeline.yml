@@ -22,9 +22,9 @@ resources:
 - name: dockercompose-db
   type: docker-image
   source:
-    Password: ((gcr.private_key))
-    Username: _json_key
+    password: ((gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/db:latest
+    username: _json_key
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
