@@ -78,6 +78,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
+				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
@@ -90,6 +91,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-promote",
+				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
@@ -100,6 +102,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 		Ensure: &atc.PlanConfig{
 			Put:      "cf halfpipe-cleanup",
+			Attempts: 2,
 			Resource: expectedDevResource.Name,
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
@@ -128,6 +131,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
+				Attempts: 2,
 				Resource: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-push",
@@ -139,6 +143,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-promote",
+				Attempts: 2,
 				Resource: expectedLiveResource.Name,
 				Params: atc.Params{
 					"command":      "halfpipe-promote",
@@ -149,6 +154,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 		Ensure: &atc.PlanConfig{
 			Put:      "cf halfpipe-cleanup",
+			Attempts: 2,
 			Resource: expectedLiveResource.Name,
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",

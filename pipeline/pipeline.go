@@ -304,6 +304,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	push := atc.PlanConfig{
 		Put:      "cf halfpipe-push",
+		Attempts: 2,
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-push",
@@ -355,6 +356,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	promote := atc.PlanConfig{
 		Put:      "cf halfpipe-promote",
+		Attempts: 2,
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-promote",
@@ -366,6 +368,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	cleanup := atc.PlanConfig{
 		Put:      "cf halfpipe-cleanup",
+		Attempts: 2,
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-cleanup",

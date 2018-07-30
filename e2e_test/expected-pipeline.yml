@@ -139,39 +139,39 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
 - name: deploy to cf
   serial: true
   plan:
@@ -192,12 +192,14 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
+    attempts: 2
   - put: cf halfpipe-promote
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
+    attempts: 2
   on_failure:
     do:
     - put: slack
@@ -207,45 +209,46 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
       manifestPath: git/manifest.yml
+    attempts: 2
 - name: deploy to staging
   serial: true
   plan:
@@ -265,6 +268,7 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
+    attempts: 2
   - task: run smoke-test.sh
     config:
       platform: linux
@@ -373,6 +377,7 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
+    attempts: 2
   on_failure:
     do:
     - put: slack
@@ -382,45 +387,46 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
   ensure:
     put: cf halfpipe-cleanup
     resource: CF api-live pe staging
     params:
       command: halfpipe-cleanup
       manifestPath: git/manifest.yml
+    attempts: 2
 - name: push to docker registry
   serial: true
   plan:
@@ -444,39 +450,39 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
 - name: run notify.sh
   serial: true
   plan:
@@ -525,42 +531,42 @@ jobs:
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
   on_failure:
-   do:
-   - put: slack
-     params:
-       channel: '#ee-re'
-       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-       text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-       username: Halfpipe
-   - task: run on failure task
-       config:
-         platform: linux
-         image_resource:
-           type: docker-image
-           source:
-             repository: node
-             tag: 9.5.0-alpine
-         run:
-           path: /bin/sh
-           args:
-           - -c
-           - |-
-             which bash > /dev/null
-             if [ $? != 0 ]; then
-               echo "WARNING: Bash is not present in the docker image"
-               echo "If your script depends on bash you will get a strange error message like:"
-               echo "  sh: yourscript.sh: command not found"
-               echo "To fix, make sure your docker image contains bash!"
-               echo ""
-               echo ""
-             fi
-             set -e
-             export GIT_REVISION=`cat .git/ref`
-             ./blah.sh
-           dir: git
-         inputs:
-         - name: git
-           path: ""
+    do:
+    - put: slack
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
+    - task: run on failure task
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
         caches:
         - path: ../../../root/.gradle/
         - path: ../../../root/.m2/
@@ -615,39 +621,39 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
 - name: another-c-name
   serial: true
   plan:
@@ -728,37 +734,37 @@ jobs:
         text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
         username: Halfpipe
     - task: run on failure task
-        config:
-          platform: linux
-          image_resource:
-            type: docker-image
-            source:
-              repository: node
-              tag: 9.5.0-alpine
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |-
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
-              set -e
-              export GIT_REVISION=`cat .git/ref`
-              ./blah.sh
-            dir: git
-          inputs:
-          - name: git
-            path: ""
-          caches:
-          - path: ../../../root/.gradle/
-          - path: ../../../root/.m2/
-          - path: ../../../root/.ivy2/
-          - path: ../../../root/.sbt/
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
 
