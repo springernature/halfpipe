@@ -60,11 +60,11 @@ tasks:
     script: /var/c-script
 
 - type: deploy-cf
-  name: deploy to staging
+  name: deploy to qa
   parallel: true
   api: ((cloudfoundry.api-live))
   org: pe
-  space: staging
+  space: qa
   username: michiel
   password: very-secret
   vars:

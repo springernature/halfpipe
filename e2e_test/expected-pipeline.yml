@@ -31,13 +31,13 @@ resources:
     password: very-secret
     space: staging
     username: michiel
-- name: CF api-live pe staging (1)
+- name: CF api-live pe qa
   type: cf-resource
   source:
     api: ((cloudfoundry.api-live))
     org: pe
     password: very-secret
-    space: staging
+    space: qa
     username: michiel
 - name: Docker Registry
   type: docker-image
@@ -442,7 +442,7 @@ jobs:
       command: halfpipe-cleanup
       manifestPath: git/manifest.yml
     attempts: 2
-- name: deploy to staging (1)
+- name: deploy to qa
   serial: true
   plan:
   - aggregate:
@@ -451,7 +451,7 @@ jobs:
       - deploy to cf
       trigger: true
   - put: cf halfpipe-push
-    resource: CF api-live pe staging (1)
+    resource: CF api-live pe qa
     params:
       appPath: git
       command: halfpipe-push
@@ -461,6 +461,7 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
+      attempts: 2
   - do:
     - task: save-artifact-in-pre-promote
       config:
@@ -474,7 +475,7 @@ jobs:
             username: _json_key
         params:
           A: blah
-          TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.live.cf.private.springer.com
         run:
           path: /bin/sh
           args:
@@ -536,7 +537,7 @@ jobs:
             username: _json_key
         params:
           A: blah
-          TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.live.cf.private.springer.com
         run:
           path: /bin/sh
           args:
@@ -567,11 +568,12 @@ jobs:
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
   - put: cf halfpipe-promote
-    resource: CF api-live pe staging (1)
+    resource: CF api-live pe qa
     params:
       command: halfpipe-promote
       manifestPath: git/manifest.yml
       testDomain: live.cf.private.springer.com
+    attempts: 2
   on_failure:
     do:
     - put: slack
@@ -616,7 +618,7 @@ jobs:
         - path: ../../../root/.sbt/
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF api-live pe staging (1)
+    resource: CF api-live pe qa
     params:
       command: halfpipe-cleanup
       manifestPath: git/manifest.yml
@@ -628,6 +630,7 @@ jobs:
     - get: git
       passed:
       - deploy to staging
+      - deploy to qa
       trigger: true
   - put: Docker Registry
     params:
