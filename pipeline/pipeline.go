@@ -321,6 +321,10 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	}
 	job.Plan = append(job.Plan, push)
 
+	// saveArtifactInPP and restoreArtifactInPP are needed to make sure we don't run pre-promote tasks in parallel when the first task saves an artifact and the second restores it.
+	var prePromoteTasks atc.PlanSequence
+	var saveArtifactInPP bool
+	var restoreArtifactInPP bool
 	for _, t := range task.PrePromote {
 		applications, e := p.readCfManifest(task.Manifest)
 		if e != nil {
@@ -336,6 +340,8 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
 			ppJob = p.runJob(ppTask, man, false)
+			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
+			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
 
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
@@ -344,6 +350,8 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
 			ppJob = p.dockerComposeJob(ppTask, man)
+			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
+			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
 
 		case manifest.ConsumerIntegrationTest:
 			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
@@ -352,8 +360,15 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			}
 			ppJob = p.consumerIntegrationTestJob(ppTask, man)
 		}
+		planConfig := atc.PlanConfig{Do: &ppJob.Plan}
+		prePromoteTasks = append(prePromoteTasks, planConfig)
+	}
 
-		job.Plan = append(job.Plan, ppJob.Plan...)
+	if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
+		aggregateJob := atc.PlanConfig{Aggregate: &prePromoteTasks}
+		job.Plan = append(job.Plan, aggregateJob)
+	} else if len(prePromoteTasks) > 0 {
+		job.Plan = append(job.Plan, prePromoteTasks...)
 	}
 
 	promote := atc.PlanConfig{

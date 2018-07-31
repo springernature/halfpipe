@@ -5,6 +5,8 @@ import (
 
 	"path"
 
+	"fmt"
+
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
@@ -240,15 +242,116 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
 
 	//pre promote 1
-	pp1 := plan[2]
+	pp1 := (*(*plan[2].Aggregate)[0].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := plan[3]
+	pp2 := (*(*plan[2].Aggregate)[1].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
+
+	//halfpipe-promote
+	assert.Equal(t, "halfpipe-promote", plan[3].Params["command"])
+
+	//halfpipe-cleanup (ensure)
+	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
+
+	//docker-compose after
+	dockerComposeAfter := config.Jobs[2]
+	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
+	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
+}
+
+func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) {
+	dockerComposeTaskBefore := manifest.DockerCompose{Name: "dc-before"}
+	dockerComposeTaskAfter := manifest.DockerCompose{Name: "dc-after"}
+	testDomain := "test.domain.com"
+
+	deployCfTask := manifest.DeployCF{
+		Name:       "deploy to dev",
+		API:        "api.dev.cf.springer-sbm.com",
+		Space:      "cf-space",
+		Org:        "cf-org",
+		TestDomain: testDomain,
+		Manifest:   "manifest",
+		Vars: manifest.Vars{
+			"A": "a",
+		},
+		DeployArtifact: "artifact.jar",
+		PrePromote: []manifest.Task{
+			manifest.Run{
+				Name:   "pp1",
+				Script: "run-script",
+				Docker: manifest.Docker{
+					Image: "docker-img",
+				},
+				Vars: manifest.Vars{
+					"PP1": "pp1",
+				},
+				SaveArtifacts: []string{"build"},
+			},
+			manifest.Run{
+				Name:   "pp2",
+				Script: "run-script",
+				Docker: manifest.Docker{
+					Image: "docker-img",
+				},
+				Vars: manifest.Vars{
+					"PP2": "pp2",
+				},
+				RestoreArtifacts: true,
+			},
+		},
+	}
+
+	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Pipeline = "mypipeline"
+	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
+
+	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
+		return []cfManifest.Application{
+			{
+				Name:   name,
+				Routes: []string{"route"},
+			},
+		}, nil
+	}
+
+	pipeline := NewPipeline(cfManifestReader)
+	config := pipeline.Render(man)
+	fmt.Println(ToString(config))
+
+	assert.Len(t, config.Jobs, 3, "should be 3 jobs")
+
+	//docker-compose before
+	assert.Equal(t, dockerComposeTaskBefore.Name, config.Jobs[0].Name)
+
+	//deploy-cf
+	deployJob := config.Jobs[1]
+	assert.Equal(t, "deploy to dev", deployJob.Name)
+
+	plan := deployJob.Plan
+
+	//halfpipe-push
+	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
+	assert.Equal(t, config.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, "artifacts-"+man.Pipeline, (*plan[0].Aggregate)[1].Get)
+	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
+
+	//pre promote 1
+	pp1 := (*plan[2].Do)[0]
+	assert.Equal(t, "pp1", pp1.Task)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
+
+	//pre promote 2
+	assert.Equal(t, "artifacts-mypipeline", (*plan[3].Do)[0].Get)
+	pp2 := (*plan[3].Do)[1]
+	assert.Equal(t, "pp2", pp2.Task)
+	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "pp2", pp2.TaskConfig.Params["PP2"])
 
 	//halfpipe-promote
 	assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
