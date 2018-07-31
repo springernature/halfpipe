@@ -279,15 +279,13 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
 	}
 
-	if len(task.SaveArtifacts) > 0 {
-		runPlan.TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactsFolderName},
-		}
-	}
-
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
 	if len(task.SaveArtifacts) > 0 {
+		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
+			{Name: artifactsFolderName},
+		}
+
 		artifactPut := atc.PlanConfig{
 			Put: GenerateArtifactsFolderName(man.Team, man.Pipeline),
 			Params: atc.Params{

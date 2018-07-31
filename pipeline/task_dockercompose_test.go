@@ -38,7 +38,6 @@ func TestRenderDockerComposeTask(t *testing.T) {
 
 	service := "asdf"
 	man := manifest.Manifest{
-		Pipeline: "pipeline-name",
 		Repo: manifest.Repo{
 			URI:      "git@git:user/repo",
 			BasePath: "base.path",
@@ -51,7 +50,6 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					"VAR1": "Value1",
 					"VAR2": "Value2",
 				},
-				SaveArtifacts: []string{"."},
 			},
 		},
 	}
@@ -81,25 +79,15 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeScript(service, expectedVars, ""), false, "../../artifacts", false, []string{"."}, "../.git/ref"),
+						Args: runScriptArgs(dockerComposeScript(service, expectedVars, ""), false, "", false, nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
 						{Name: dockerCompose.Services[0].ResourceName(), Path: "docker-images/" + dockerCompose.Services[0].ResourceName()},
 						{Name: dockerCompose.Services[1].ResourceName(), Path: "docker-images/" + dockerCompose.Services[1].ResourceName()},
 					},
-					Outputs: []atc.TaskOutputConfig{
-						{Name: "artifacts"},
-					},
 					Caches: config.CacheDirs,
 				}},
-			atc.PlanConfig{
-				Put: "artifacts-pipeline-name",
-				Params: atc.Params{
-					"folder":       "artifacts",
-					"version_file": "git/.git/ref",
-				},
-			},
 		}}
 
 	actualPipeline := p.Render(man)
