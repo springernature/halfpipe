@@ -173,8 +173,8 @@ func resourcesFromDockerCompose(dc dockercompose.DockerCompose) (resources []atc
 				},
 			}
 			if strings.HasPrefix(service.Image, config.DockerRegistry) {
-				resource.Source["username"] = defaults.DefaultValues.DockerUsername
-				resource.Source["password"] = defaults.DefaultValues.DockerPassword
+				resource.Source["Username"] = defaults.DefaultValues.DockerUsername
+				resource.Source["Password"] = defaults.DefaultValues.DockerPassword
 			}
 			resources = append(resources, resource)
 		}
