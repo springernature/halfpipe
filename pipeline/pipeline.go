@@ -134,7 +134,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	failurePlan := p.addOnFailurePlan(&cfg, man)
 	p.addUpdatePipelineJob(&cfg, man, failurePlan)
 	p.addArtifactResource(&cfg, man)
-	p.addDockerComposeResources(&cfg, man)
+	p.addDockerComposeResources(&cfg)
 
 	var parallelTasks []string
 	var taskBeforeParallelTasks string
@@ -561,10 +561,7 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func (p pipeline) addDockerComposeResources(cfg *atc.Config, man manifest.Manifest) {
-	if !man.HasDockerComposeTask() {
-		return
-	}
+func (p pipeline) addDockerComposeResources(cfg *atc.Config) {
 	if dockerCompose, err := p.readDockerCompose(); err == nil {
 		resources := resourcesFromDockerCompose(dockerCompose)
 		cfg.Resources = append(cfg.Resources, resources...)

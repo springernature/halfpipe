@@ -30,35 +30,3 @@ func TestRepo_UriFormats(t *testing.T) {
 		assert.Equal(t, test.Public, repo.IsPublic(), test.Name, i)
 	}
 }
-
-func TestManifest_HasDockerComposeTask(t *testing.T) {
-	tests := []struct {
-		manifest Manifest
-		result   bool
-	}{
-		{
-			manifest: Manifest{Tasks: TaskList{Run{}}},
-			result:   false,
-		},
-		{
-			manifest: Manifest{Tasks: TaskList{Run{}, DockerCompose{}, DeployCF{}}},
-			result:   true,
-		},
-		{
-			manifest: Manifest{OnFailure: TaskList{Run{}, DockerCompose{}, DeployCF{}}},
-			result:   true,
-		},
-		{
-			manifest: Manifest{Tasks: TaskList{DeployCF{}}},
-			result:   false,
-		},
-		{
-			manifest: Manifest{Tasks: TaskList{DeployCF{PrePromote: TaskList{Run{}, DockerCompose{}}}}},
-			result:   true,
-		},
-	}
-
-	for _, test := range tests {
-		assert.Equal(t, test.result, test.manifest.HasDockerComposeTask())
-	}
-}

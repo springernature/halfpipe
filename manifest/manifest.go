@@ -13,24 +13,6 @@ type Manifest struct {
 	AutoUpdate      bool     `json:"auto_update" yaml:"auto_update,omitempty"`
 }
 
-func (m Manifest) HasDockerComposeTask() bool {
-	var checker func(taskList TaskList) bool
-	checker = func(taskList TaskList) bool {
-		for _, task := range taskList {
-			switch t := task.(type) {
-			case DockerCompose:
-				return true
-			case DeployCF:
-				if checker(t.PrePromote) {
-					return true
-				}
-			}
-		}
-		return false
-	}
-	return checker(append(m.Tasks, m.OnFailure...))
-}
-
 type Repo struct {
 	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
 	BasePath     string   `json:"-" yaml:"-"` //don't auto unmarshal

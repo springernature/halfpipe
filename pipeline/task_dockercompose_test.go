@@ -90,8 +90,16 @@ func TestRenderDockerComposeTask(t *testing.T) {
 				}},
 		}}
 
+	expectedResources := resourcesFromDockerCompose(dockerCompose)
+
 	actualPipeline := p.Render(man)
+	actualResource0, _ := actualPipeline.Resources.Lookup(dockerCompose.Services[0].ResourceName())
+	actualResource1, _ := actualPipeline.Resources.Lookup(dockerCompose.Services[1].ResourceName())
+
 	assert.Equal(t, expectedJob, actualPipeline.Jobs[0])
+	assert.Equal(t, expectedResources[0], actualResource0)
+	assert.Equal(t, expectedResources[1], actualResource1)
+
 }
 
 func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
@@ -145,63 +153,4 @@ func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
 	assert.Equal(t, "docker-compose", step.Task)
 	assert.True(t, step.Privileged)
 
-}
-
-func TestAddResourcesForDockerComposeImages(t *testing.T) {
-	p := testPipeline()
-
-	dockerCompose := dockercompose.DockerCompose{
-		Services: []dockercompose.Service{
-			{Name: "app", Image: "eu.gcr.io/halfpipe-io/golang:latest"},
-			{Name: "db", Image: "mydb"},
-			{Name: "no-image", Image: ""},
-		},
-	}
-
-	p.readDockerCompose = func() (dockercompose.DockerCompose, error) {
-		return dockerCompose, nil
-	}
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{},
-		},
-	}
-
-	actualPipeline := p.Render(man)
-	actualResource0, _ := actualPipeline.Resources.Lookup(dockerCompose.Services[0].ResourceName())
-	actualResource1, _ := actualPipeline.Resources.Lookup(dockerCompose.Services[1].ResourceName())
-
-	expectedResources := resourcesFromDockerCompose(dockerCompose)
-
-	assert.Equal(t, expectedResources[0], actualResource0)
-	assert.Equal(t, expectedResources[1], actualResource1)
-}
-
-func TestDoesNotAddResourcesForDockerComposeImagesWhenThereIsNoDockerComposeTask(t *testing.T) {
-	p := testPipeline()
-
-	dockerCompose := dockercompose.DockerCompose{
-		Services: []dockercompose.Service{
-			{Name: "app", Image: "eu.gcr.io/halfpipe-io/golang:latest"},
-			{Name: "db", Image: "mydb"},
-			{Name: "no-image", Image: ""},
-		},
-	}
-
-	p.readDockerCompose = func() (dockercompose.DockerCompose, error) {
-		return dockerCompose, nil
-	}
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.Run{},
-		},
-	}
-
-	actualPipeline := p.Render(man)
-	_, resource0exists := actualPipeline.Resources.Lookup(dockerCompose.Services[0].ResourceName())
-	_, resource1exists := actualPipeline.Resources.Lookup(dockerCompose.Services[1].ResourceName())
-	assert.False(t, resource0exists)
-	assert.False(t, resource1exists)
 }
