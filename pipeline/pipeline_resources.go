@@ -9,8 +9,6 @@ import (
 
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/defaults"
-	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -138,7 +136,7 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush, resourceName st
 	}
 }
 
-func imageResource(docker manifest.Docker) *atc.ImageResource {
+func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	repo, tag := docker.Image, "latest"
 	if strings.Contains(docker.Image, ":") {
 		split := strings.Split(docker.Image, ":")
@@ -160,24 +158,4 @@ func imageResource(docker manifest.Docker) *atc.ImageResource {
 		Type:   "docker-image",
 		Source: source,
 	}
-}
-
-func resourcesFromDockerCompose(dc dockercompose.DockerCompose) (resources []atc.ResourceConfig) {
-	for _, service := range dc.Services {
-		if service.HasImage() {
-			resource := atc.ResourceConfig{
-				Name: service.ResourceName(),
-				Type: "docker-image",
-				Source: atc.Source{
-					"repository": service.Image,
-				},
-			}
-			if strings.HasPrefix(service.Image, config.DockerRegistry) {
-				resource.Source["Username"] = defaults.DefaultValues.DockerUsername
-				resource.Source["Password"] = defaults.DefaultValues.DockerPassword
-			}
-			resources = append(resources, resource)
-		}
-	}
-	return
 }

@@ -10,7 +10,6 @@ import (
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
-	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/pipeline"
@@ -65,7 +64,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 				linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),
 				linters.NewArtifactsLinter(),
 			},
-			Renderer: pipeline.NewPipeline(manifest.ReadAndMergeManifests, dockercompose.NewReader(fs)),
+			Renderer: pipeline.NewPipeline(manifest.ReadAndMergeManifests),
 		}
 
 		pipelineConfig, lintResults := ctrl.Process()

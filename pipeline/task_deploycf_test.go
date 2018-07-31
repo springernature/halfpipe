@@ -7,7 +7,6 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/concourse/atc"
-	"github.com/springernature/halfpipe/dockercompose"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -219,11 +218,8 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 			},
 		}, nil
 	}
-	dockerComposeReader := func() (dockercompose.DockerCompose, error) {
-		return dockercompose.DockerCompose{}, nil
-	}
 
-	pipeline := NewPipeline(cfManifestReader, dockerComposeReader)
+	pipeline := NewPipeline(cfManifestReader)
 	config := pipeline.Render(man)
 
 	assert.Len(t, config.Jobs, 3, "should be 3 jobs")
