@@ -7,20 +7,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestConvertDeployMLLocalArtifactToRunTask(t *testing.T) {
-	deployMl := manifest.DeployML{
-		Name:           "foobar",
-		Parallel:       true,
-		DeployArtifact: "d-artifact",
-		AppName:        "a-name",
-		AppVersion:     "a-version",
-		Targets:        []string{"blah", "blah1"},
-		ManualTrigger:  true,
+func TestConvertDeployMLZipToRunTask(t *testing.T) {
+	deployMl := manifest.DeployMLZip{
+		Name:          "foobar",
+		Parallel:      true,
+		DeployZip:     "d-artifact",
+		AppName:       "a-name",
+		AppVersion:    "a-version",
+		Targets:       []string{"blah", "blah1"},
+		ManualTrigger: true,
 	}
 
-	manif := manifest.Manifest{}
+	man := manifest.Manifest{}
 
-	exp := manifest.Run{
+	expected := manifest.Run{
 		Type:          "",
 		Name:          "foobar",
 		ManualTrigger: true,
@@ -40,13 +40,13 @@ func TestConvertDeployMLLocalArtifactToRunTask(t *testing.T) {
 		Parallel:         true,
 	}
 
-	act := ConvertDeployMLToRunTask(deployMl, manif)
+	actual := ConvertDeployMLZipToRunTask(deployMl, man)
 
-	assert.Equal(t, exp, act)
+	assert.Equal(t, expected, actual)
 }
 
 func TestConvertDeployMLModulesToRunTask(t *testing.T) {
-	deployMl := manifest.DeployML{
+	deployMl := manifest.DeployMLModules{
 		Name:             "foobar",
 		Parallel:         true,
 		MLModulesVersion: "1.2345",
@@ -56,9 +56,9 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		ManualTrigger:    true,
 	}
 
-	manif := manifest.Manifest{}
+	man := manifest.Manifest{}
 
-	exp := manifest.Run{
+	expected := manifest.Run{
 		Type:          "",
 		Name:          "foobar",
 		ManualTrigger: true,
@@ -80,7 +80,46 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		Parallel:         true,
 	}
 
-	act := ConvertDeployMLToRunTask(deployMl, manif)
+	actual := ConvertDeployMLModulesToRunTask(deployMl, man)
 
-	assert.Equal(t, exp, act)
+	assert.Equal(t, expected, actual)
+}
+
+func TestDefaultAppNameToPipelineName(t *testing.T) {
+	man := manifest.Manifest{Pipeline: "my-pipe"}
+
+	tests := []struct {
+		task            manifest.Run
+		expectedAppName string
+	}{
+		{ConvertDeployMLModulesToRunTask(manifest.DeployMLModules{}, man), "my-pipe"},
+		{ConvertDeployMLModulesToRunTask(manifest.DeployMLModules{AppName: "foo"}, man), "foo"},
+		{ConvertDeployMLZipToRunTask(manifest.DeployMLZip{}, man), "my-pipe"},
+		{ConvertDeployMLZipToRunTask(manifest.DeployMLZip{AppName: "foo"}, man), "foo"},
+	}
+
+	for _, test := range tests {
+		assert.Equal(t, test.expectedAppName, test.task.Vars["APP_NAME"])
+	}
+
+}
+
+func TestAppVersionOnlySetIfNotEmpty(t *testing.T) {
+	man := manifest.Manifest{Pipeline: "my-pipe"}
+
+	tests := []struct {
+		task          manifest.Run
+		appVersionSet bool
+	}{
+		{ConvertDeployMLModulesToRunTask(manifest.DeployMLModules{}, man), false},
+		{ConvertDeployMLModulesToRunTask(manifest.DeployMLModules{AppVersion: "1.1"}, man), true},
+		{ConvertDeployMLZipToRunTask(manifest.DeployMLZip{}, man), false},
+		{ConvertDeployMLZipToRunTask(manifest.DeployMLZip{AppVersion: "1.1"}, man), true},
+	}
+
+	for _, test := range tests {
+		_, exists := test.task.Vars["APP_VERSION"]
+		assert.Equal(t, test.appVersionSet, exists)
+	}
+
 }

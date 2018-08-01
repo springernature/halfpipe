@@ -122,8 +122,15 @@ func unmarshalTask(taskList *TaskList, taskIndex int, rawTask json.RawMessage, t
 		}
 		t.Type = ""
 		*taskList = append(*taskList, t)
-	case "deploy-ml":
-		t := DeployML{}
+	case "deploy-ml-zip":
+		t := DeployMLZip{}
+		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
+			return err
+		}
+		t.Type = ""
+		*taskList = append(*taskList, t)
+	case "deploy-ml-modules":
+		t := DeployMLModules{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
 			return err
 		}

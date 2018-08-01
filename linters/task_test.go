@@ -552,36 +552,33 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testin
 	}
 }
 
-func TestDeployMLTaskHasRequiredFields(t *testing.T) {
+func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 	man := manifest.Manifest{}
 	taskLinter := testTaskLinter()
 
 	man.Tasks = []manifest.Task{
-		manifest.DeployML{},
+		manifest.DeployMLZip{},
 	}
 
 	result := taskLinter.Lint(man)
 	if assert.Len(t, result.Errors, 2) {
 		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
-		assertMissingField(t, "tasks[0] deploy-ml.deploy_artifact or deploy-ml.ml_modules_version", result.Errors[1])
+		assertMissingField(t, "tasks[0] deploy-ml.deploy_artifact", result.Errors[1])
 	}
 }
 
-func TestDeployMLTaskErrorsWhenBothDeployArtifactAndMLModulesVersionAreSet(t *testing.T) {
+func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
 	man := manifest.Manifest{}
 	taskLinter := testTaskLinter()
 
 	man.Tasks = []manifest.Task{
-		manifest.DeployML{
-			DeployArtifact:   "blagh",
-			MLModulesVersion: "blagh1",
-			Targets:          []string{"blah"},
-		},
+		manifest.DeployMLModules{},
 	}
 
 	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 1) {
-		assertInvalidField(t, "deploy-ml.ml_modules_version", result.Errors[0])
+	if assert.Len(t, result.Errors, 2) {
+		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
+		assertMissingField(t, "tasks[0] deploy-ml.ml_modules_version", result.Errors[1])
 	}
 }
 

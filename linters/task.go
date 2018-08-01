@@ -51,8 +51,10 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 				} else {
 					linter.lintConsumerIntegrationTestTask(task, taskID, false, &result)
 				}
-			case manifest.DeployML:
-				linter.lintDeployMLTask(task, taskID, &result)
+			case manifest.DeployMLZip:
+				linter.lintDeployMLZipTask(task, taskID, &result)
+			case manifest.DeployMLModules:
+				linter.lintDeployMLModulesTask(task, taskID, &result)
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 			}
@@ -277,14 +279,22 @@ func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIn
 	}
 	return
 }
-func (linter taskLinter) lintDeployMLTask(mlTask manifest.DeployML, taskID string, result *LintResult) {
+
+func (linter taskLinter) lintDeployMLZipTask(mlTask manifest.DeployMLZip, taskID string, result *LintResult) {
 	if len(mlTask.Targets) == 0 {
 		result.AddError(errors.NewMissingField(taskID + " deploy-ml.target"))
 	}
-	if mlTask.DeployArtifact == "" && mlTask.MLModulesVersion == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_artifact or deploy-ml.ml_modules_version"))
+
+	if mlTask.DeployZip == "" {
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_artifact"))
 	}
-	if mlTask.DeployArtifact != "" && mlTask.MLModulesVersion != "" {
-		result.AddError(errors.NewInvalidField("deploy-ml.ml_modules_version", "only one allowed of deploy-ml.deploy_artifact and deploy-ml.ml_modules_version"))
+}
+
+func (linter taskLinter) lintDeployMLModulesTask(mlTask manifest.DeployMLModules, taskID string, result *LintResult) {
+	if len(mlTask.Targets) == 0 {
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.target"))
+	}
+	if mlTask.MLModulesVersion == "" {
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.ml_modules_version"))
 	}
 }

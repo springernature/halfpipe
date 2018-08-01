@@ -118,16 +118,16 @@ func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 
 }
 
-func TestRenderDeployMLAsRunTask(t *testing.T) {
+func TestRenderDeployMLTasksAsRunTask(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.DeployML{Name: "foobar"},
+			manifest.DeployMLZip{Name: "foobar 1"},
+			manifest.DeployMLModules{Name: "foobar 2"},
 		},
 	}
 	config := testPipeline().Render(man)
-
-	assert.Equal(t, "foobar", config.Jobs[0].Plan[1].Task)
-
+	assert.Equal(t, "foobar 1", config.Jobs[0].Plan[1].Task)
+	assert.Equal(t, "foobar 2", config.Jobs[1].Plan[1].Task)
 }
 
 func TestRenderWithParallelOnFirstTasksWithAutoUpdate(t *testing.T) {

@@ -94,12 +94,18 @@ tasks:
   consumer_host: cdc-host
   script: cdc-script
   parallel: true
-- type: deploy-ml
-  name: deploy to ml
+- type: deploy-ml-zip
+  name: deploy ml zip
+  app_name: app-name
+  app_version: app-version
+  deploy_zip: deploy-zip
+  targets:
+  - target1
+  - target2
+- type: deploy-ml-modules
   app_name: app-name
   app_version: app-version
   ml_modules_version: ml-modules-version
-  deploy_artifact: deploy-artifact
   targets:
   - target1
   - target2
@@ -210,10 +216,16 @@ tasks:
 				Parallel:     true,
 				Script:       "cdc-script",
 			},
-			DeployML{
-				Name:             "deploy to ml",
+			DeployMLZip{
+				Name:       "deploy ml zip",
+				Parallel:   false,
+				DeployZip:  "deploy-zip",
+				AppName:    "app-name",
+				AppVersion: "app-version",
+				Targets:    []string{"target1", "target2"},
+			},
+			DeployMLModules{
 				Parallel:         false,
-				DeployArtifact:   "deploy-artifact",
 				MLModulesVersion: "ml-modules-version",
 				AppName:          "app-name",
 				AppVersion:       "app-version",

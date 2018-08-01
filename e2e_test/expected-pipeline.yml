@@ -461,7 +461,7 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-      attempts: 2
+    attempts: 2
   - do:
     - task: save-artifact-in-pre-promote
       config:
@@ -913,6 +913,193 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
             ${DOCKER_COMPOSE_SERVICE:-code}
+        dir: git
+      inputs:
+      - name: git
+        path: ""
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
+  on_failure:
+    do:
+    - put: slack
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
+    - task: run on failure task
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
+- name: deploy-ml-zip
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - another-c-name
+      trigger: true
+    - get: artifacts-engineering-enablement-e2e-test
+  - task: deploy-ml-zip
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+      params:
+        APP_NAME: e2e-test
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          cp -r ../artifacts/. .
+          set -e
+          export GIT_REVISION=`cat .git/ref`
+          /ml-deploy/deploy-local-zip
+        dir: git
+      inputs:
+      - name: git
+        path: ""
+      - name: artifacts-engineering-enablement-e2e-test
+        path: artifacts
+      caches:
+      - path: ../../../root/.gradle/
+      - path: ../../../root/.m2/
+      - path: ../../../root/.ivy2/
+      - path: ../../../root/.sbt/
+  on_failure:
+    do:
+    - put: slack
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
+    - task: run on failure task
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            repository: node
+            tag: 9.5.0-alpine
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat .git/ref`
+            ./blah.sh
+          dir: git
+        inputs:
+        - name: git
+          path: ""
+        caches:
+        - path: ../../../root/.gradle/
+        - path: ../../../root/.m2/
+        - path: ../../../root/.ivy2/
+        - path: ../../../root/.sbt/
+- name: Deploy ml-modules artifact
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - deploy-ml-zip
+      trigger: true
+  - task: Deploy ml-modules artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+      params:
+        APP_NAME: my-app
+        APP_VERSION: v1
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_USER: ((artifactory.username))
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com,ml.qa1.springer-sbm.com
+        ML_MODULES_VERSION: "2.1425"
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          set -e
+          export GIT_REVISION=`cat .git/ref`
+          /ml-deploy/deploy-ml-modules
         dir: git
       inputs:
       - name: git

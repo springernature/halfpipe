@@ -6,9 +6,36 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func ConvertDeployMLToRunTask(mlTask manifest.DeployML, man manifest.Manifest) manifest.Run {
+func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
-		Name: mlTask.Name,
+		Name:   mlTask.Name,
+		Script: "/ml-deploy/deploy-ml-modules",
+		Docker: manifest.Docker{
+			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
+			Username: "_json_key",
+			Password: "((gcr.private_key))",
+		},
+		Vars: manifest.Vars{
+			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
+			"APP_NAME":             defaultValue(mlTask.AppName, man.Pipeline),
+			"ARTIFACTORY_USER":     "((artifactory.username))",
+			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
+			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
+		},
+		Parallel:      mlTask.Parallel,
+		ManualTrigger: mlTask.ManualTrigger,
+	}
+
+	if mlTask.AppVersion != "" {
+		runTask.Vars["APP_VERSION"] = mlTask.AppVersion
+	}
+	return runTask
+}
+
+func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
+	runTask := manifest.Run{
+		Name:   mlTask.Name,
+		Script: "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
@@ -16,23 +43,23 @@ func ConvertDeployMLToRunTask(mlTask manifest.DeployML, man manifest.Manifest) m
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST": strings.Join(mlTask.Targets, ","),
-			"APP_NAME":       mlTask.AppName,
-			"APP_VERSION":    mlTask.AppVersion,
+			"APP_NAME":       defaultValue(mlTask.AppName, man.Pipeline),
+			"DEPLOY_ZIP":     mlTask.DeployZip,
 		},
-		Parallel:      mlTask.Parallel,
-		ManualTrigger: mlTask.ManualTrigger,
+		Parallel:         mlTask.Parallel,
+		ManualTrigger:    mlTask.ManualTrigger,
+		RestoreArtifacts: true,
 	}
 
-	if mlTask.MLModulesVersion != "" {
-		runTask.Script = "/ml-deploy/deploy-ml-modules"
-		runTask.Vars["ML_MODULES_VERSION"] = mlTask.MLModulesVersion
-		runTask.Vars["ARTIFACTORY_USER"] = "((artifactory.username))"
-		runTask.Vars["ARTIFACTORY_PASSWORD"] = "((artifactory.password))"
-	} else {
-		runTask.Script = "/ml-deploy/deploy-local-zip"
-		runTask.Vars["DEPLOY_ZIP"] = mlTask.DeployArtifact
-		runTask.RestoreArtifacts = true
+	if mlTask.AppVersion != "" {
+		runTask.Vars["APP_VERSION"] = mlTask.AppVersion
 	}
-
 	return runTask
+}
+
+func defaultValue(value, defaultValue string) string {
+	if value != "" {
+		return value
+	}
+	return defaultValue
 }

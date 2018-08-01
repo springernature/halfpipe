@@ -98,11 +98,21 @@ type ConsumerIntegrationTest struct {
 	Parallel             bool   `yaml:"parallel,omitempty"`
 }
 
-type DeployML struct {
+type DeployMLZip struct {
+	Type          string
+	Name          string
+	Parallel      bool   `yaml:"parallel,omitempty"`
+	DeployZip     string `json:"deploy_zip"`
+	AppName       string `json:"app_name"`
+	AppVersion    string `json:"app_version"`
+	Targets       []string
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
+}
+
+type DeployMLModules struct {
 	Type             string
 	Name             string
 	Parallel         bool   `yaml:"parallel,omitempty"`
-	DeployArtifact   string `json:"deploy_artifact"`
 	MLModulesVersion string `json:"ml_modules_version"`
 	AppName          string `json:"app_name"`
 	AppVersion       string `json:"app_version"`

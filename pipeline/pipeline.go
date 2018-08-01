@@ -174,9 +174,16 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job = p.consumerIntegrationTestJob(task, man)
 			parallel = task.Parallel
 
-		case manifest.DeployML:
-			task.Name = uniqueName(&cfg, task.Name, "deploy-ml")
-			runTask := ConvertDeployMLToRunTask(task, man)
+		case manifest.DeployMLZip:
+			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-zip")
+			runTask := ConvertDeployMLZipToRunTask(task, man)
+			job = p.runJob(runTask, man, false)
+			initialPlan[0].Trigger = !task.ManualTrigger
+			parallel = task.Parallel
+
+		case manifest.DeployMLModules:
+			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-modules")
+			runTask := ConvertDeployMLModulesToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
 			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
