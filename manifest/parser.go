@@ -122,6 +122,13 @@ func unmarshalTask(taskList *TaskList, taskIndex int, rawTask json.RawMessage, t
 		}
 		t.Type = ""
 		*taskList = append(*taskList, t)
+	case "deploy-ml":
+		t := DeployML{}
+		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
+			return err
+		}
+		t.Type = ""
+		*taskList = append(*taskList, t)
 	default:
 		return errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test'", taskIndex, taskType))
 	}

@@ -8,48 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestValidYaml_RequiredFields(t *testing.T) {
-	man, errs := Parse(`
-team: my team
-pipeline: my pipeline
-tasks:
-- type: run
-  script: run.sh
-  docker:
-    image: golang:latest
-- type: docker-compose
-- type: docker-push
-  image: golang:latest
-- type: deploy-cf
-  api: ((cf.api))
-  space: live
-`)
-
-	expected := Manifest{
-		Team:     "my team",
-		Pipeline: "my pipeline",
-		Tasks: []Task{
-			Run{
-				Script: "run.sh",
-				Docker: Docker{
-					Image: "golang:latest",
-				},
-			},
-			DockerCompose{},
-			DockerPush{
-				Image: "golang:latest",
-			},
-			DeployCF{
-				API:   "((cf.api))",
-				Space: "live",
-			},
-		},
-	}
-
-	assert.Nil(t, errs)
-	assert.Equal(t, expected, man)
-}
-
 func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
@@ -136,6 +94,15 @@ tasks:
   consumer_host: cdc-host
   script: cdc-script
   parallel: true
+- type: deploy-ml
+  name: deploy to ml
+  app_name: app-name
+  app_version: app-version
+  ml_modules_version: ml-modules-version
+  deploy_artifact: deploy-artifact
+  targets:
+  - target1
+  - target2
 `)
 
 	expected := Manifest{
@@ -242,6 +209,15 @@ tasks:
 				ConsumerHost: "cdc-host",
 				Parallel:     true,
 				Script:       "cdc-script",
+			},
+			DeployML{
+				Name:             "deploy to ml",
+				Parallel:         false,
+				DeployArtifact:   "deploy-artifact",
+				MLModulesVersion: "ml-modules-version",
+				AppName:          "app-name",
+				AppVersion:       "app-version",
+				Targets:          []string{"target1", "target2"},
 			},
 		},
 	}
