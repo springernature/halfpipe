@@ -552,6 +552,39 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testin
 	}
 }
 
+func TestDeployMLTaskHasRequiredFields(t *testing.T) {
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = []manifest.Task{
+		manifest.DeployML{},
+	}
+
+	result := taskLinter.Lint(man)
+	if assert.Len(t, result.Errors, 2) {
+		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
+		assertMissingField(t, "tasks[0] deploy-ml.deploy_artifact or deploy-ml.ml_modules_version", result.Errors[1])
+	}
+}
+
+func TestDeployMLTaskErrorsWhenBothDeployArtifactAndMLModulesVersionAreSet(t *testing.T) {
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = []manifest.Task{
+		manifest.DeployML{
+			DeployArtifact:   "blagh",
+			MLModulesVersion: "blagh1",
+			Targets:          []string{"blah"},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	if assert.Len(t, result.Errors, 1) {
+		assertInvalidField(t, "deploy-ml.ml_modules_version", result.Errors[0])
+	}
+}
+
 func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
 
 	man := manifest.Manifest{}

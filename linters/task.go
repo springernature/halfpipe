@@ -51,6 +51,8 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 				} else {
 					linter.lintConsumerIntegrationTestTask(task, taskID, false, &result)
 				}
+			case manifest.DeployML:
+				linter.lintDeployMLTask(task, taskID, &result)
 			default:
 				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 			}
@@ -274,4 +276,15 @@ func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIn
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
 	}
 	return
+}
+func (linter taskLinter) lintDeployMLTask(mlTask manifest.DeployML, taskID string, result *LintResult) {
+	if len(mlTask.Targets) == 0 {
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.target"))
+	}
+	if mlTask.DeployArtifact == "" && mlTask.MLModulesVersion == "" {
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_artifact or deploy-ml.ml_modules_version"))
+	}
+	if mlTask.DeployArtifact != "" && mlTask.MLModulesVersion != "" {
+		result.AddError(errors.NewInvalidField("deploy-ml.ml_modules_version", "only one allowed of deploy-ml.deploy_artifact and deploy-ml.ml_modules_version"))
+	}
 }
