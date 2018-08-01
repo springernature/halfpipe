@@ -107,6 +107,7 @@ type DeployML struct {
 	AppName          string `json:"app_name"`
 	AppVersion       string `json:"app_version"`
 	Targets          []string
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
 }
 
 type Vars map[string]string
