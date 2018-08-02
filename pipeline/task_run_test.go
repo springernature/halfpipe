@@ -43,6 +43,7 @@ func TestRenderRunTask(t *testing.T) {
 					Source: atc.Source{
 						"repository": "imagename",
 						"tag":        "TAG",
+						"registry_mirror": "https://mirror.gcr.io",
 					},
 				},
 				Run: atc.TaskRunConfig{
@@ -93,6 +94,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 					Source: atc.Source{
 						"repository": "imagename",
 						"tag":        "TAG",
+						"registry_mirror": "https://mirror.gcr.io",
 						"username":   "user",
 						"password":   "pass",
 					},
@@ -147,6 +149,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 					Source: atc.Source{
 						"repository": "imagename",
 						"tag":        "TAG",
+						"registry_mirror": "https://mirror.gcr.io",
 					},
 				},
 				Run: atc.TaskRunConfig{

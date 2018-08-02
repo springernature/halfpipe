@@ -15,6 +15,7 @@ var dockerComposeImageResource = atc.ImageResource{
 	Source: atc.Source{
 		"repository": strings.Split(config.DockerComposeImage, ":")[0],
 		"tag":        strings.Split(config.DockerComposeImage, ":")[1],
+		"registry_mirror": "https://mirror.gcr.io",
 		"username":   "_json_key",
 		"password":   "((gcr.private_key))",
 	},
