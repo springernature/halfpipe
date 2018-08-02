@@ -18,7 +18,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
 			"APP_NAME":             defaultValue(mlTask.AppName, man.Pipeline),
-			"ARTIFACTORY_USER":     "((artifactory.username))",
+			"ARTIFACTORY_USERNAME": "((artifactory.username))",
 			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
 		},

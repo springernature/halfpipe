@@ -69,7 +69,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 			Password: "((gcr.private_key))",
 		},
 		Vars: manifest.Vars{
-			"ARTIFACTORY_USER":     "((artifactory.username))",
+			"ARTIFACTORY_USERNAME": "((artifactory.username))",
 			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 			"MARKLOGIC_HOST":       "blah,blah1",
 			"APP_NAME":             "a-name",
