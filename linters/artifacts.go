@@ -51,7 +51,15 @@ func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 			if task.DeployArtifact != "" && !thereIsAtLeastOneArtifact {
 				result.AddError(noPreviousArtifactErr("deploy-cf.deploy_artifact"))
 			}
+
+		case manifest.DeployMLZip:
+			if task.DeployZip != "" && !thereIsAtLeastOneArtifact {
+				result.AddError(noPreviousArtifactErr("deploy-ml-zip.deploy_zip"))
+			}
+
 		}
+
+
 	}
 
 	return

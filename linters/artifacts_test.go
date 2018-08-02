@@ -89,3 +89,36 @@ func TestRestoreArtifactsWorksIfPreviousTaskHaveSaved(t *testing.T) {
 	assertInvalidFieldShouldNotBeInErrors(t, "docker-compose.restore_artifacts", result.Errors)
 	assertInvalidFieldShouldNotBeInErrors(t, "docker-push.restore_artifacts", result.Errors)
 }
+
+func TestDeployMLZipRequiresASavedArtifact(t *testing.T) {
+
+	// No previous tasks have defined a SaveArtifact
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployMLZip{
+				DeployZip: "b",
+			},
+		},
+	}
+
+	result := artifactsLinter{}.Lint(man)
+	assertInvalidFieldInErrors(t, "deploy-ml-zip.deploy_zip", result.Errors)
+
+	// A previous task has saved something
+	man = manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
+				SaveArtifacts: []string{
+					"a",
+				},
+			},
+			manifest.Run{},
+			manifest.DeployMLZip{
+				DeployZip: "b",
+			},
+		},
+	}
+
+	result = artifactsLinter{}.Lint(man)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-zip.deploy_zip", result.Errors)
+}
