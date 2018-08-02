@@ -41,8 +41,8 @@ func TestRenderRunTask(t *testing.T) {
 				ImageResource: &atc.ImageResource{
 					Type: "docker-image",
 					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
+						"repository":      "imagename",
+						"tag":             "TAG",
 						"registry_mirror": "https://mirror.gcr.io",
 					},
 				},
@@ -92,11 +92,11 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				ImageResource: &atc.ImageResource{
 					Type: "docker-image",
 					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
+						"repository":      "imagename",
+						"tag":             "TAG",
 						"registry_mirror": "https://mirror.gcr.io",
-						"username":   "user",
-						"password":   "pass",
+						"username":        "user",
+						"password":        "pass",
 					},
 				},
 				Run: atc.TaskRunConfig{
@@ -147,8 +147,8 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				ImageResource: &atc.ImageResource{
 					Type: "docker-image",
 					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
+						"repository":      "imagename",
+						"tag":             "TAG",
 						"registry_mirror": "https://mirror.gcr.io",
 					},
 				},
