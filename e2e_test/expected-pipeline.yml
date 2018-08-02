@@ -49,21 +49,21 @@ resource_types:
 - name: slack-notification
   type: docker-image
   source:
+    registry_mirror: https://mirror.gcr.io
     repository: cfcommunity/slack-notification-resource
     tag: latest
-    registry_mirror: https://mirror.gcr.io
 - name: gcp-resource
   type: docker-image
   source:
+    registry_mirror: https://mirror.gcr.io
     repository: platformengineering/gcp-resource
     tag: 0.19.0
-    registry_mirror: https://mirror.gcr.io
 - name: cf-resource
   type: docker-image
   source:
+    registry_mirror: https://mirror.gcr.io
     repository: platformengineering/cf-resource
     tag: stable
-    registry_mirror: https://mirror.gcr.io
 jobs:
 - name: Test
   serial: true
@@ -77,9 +77,9 @@ jobs:
       image_resource:
         type: docker-image
         source:
+          registry_mirror: https://mirror.gcr.io
           repository: node
           tag: 9.5.0-alpine
-          registry_mirror: https://mirror.gcr.io
       run:
         path: /bin/sh
         args:
@@ -156,9 +156,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -227,9 +227,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -293,9 +293,9 @@ jobs:
             type: docker-image
             source:
               password: ((gcr.private_key))
+              registry_mirror: https://mirror.gcr.io
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
               tag: latest
-              registry_mirror: https://mirror.gcr.io
               username: _json_key
           params:
             A: blah
@@ -338,9 +338,9 @@ jobs:
             type: docker-image
             source:
               password: ((gcr.private_key))
+              registry_mirror: https://mirror.gcr.io
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               tag: latest
-              registry_mirror: https://mirror.gcr.io
               username: _json_key
           params:
             CONSUMER_GIT_KEY: ((github.private_key))
@@ -415,9 +415,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -479,9 +479,9 @@ jobs:
           type: docker-image
           source:
             password: ((gcr.private_key))
+            registry_mirror: https://mirror.gcr.io
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
-            registry_mirror: https://mirror.gcr.io
             username: _json_key
         params:
           A: blah
@@ -542,9 +542,9 @@ jobs:
           type: docker-image
           source:
             password: ((gcr.private_key))
+            registry_mirror: https://mirror.gcr.io
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
-            registry_mirror: https://mirror.gcr.io
             username: _json_key
         params:
           A: blah
@@ -599,9 +599,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -664,9 +664,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -708,9 +708,9 @@ jobs:
         type: docker-image
         source:
           password: blah
+          registry_mirror: https://mirror.gcr.io
           repository: busy
           tag: latest
-          registry_mirror: https://mirror.gcr.io
           username: michiel
       params:
         A: a
@@ -755,9 +755,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -800,9 +800,9 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
+          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
-          registry_mirror: https://mirror.gcr.io
           username: _json_key
       params:
         A: a
@@ -839,9 +839,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -884,9 +884,9 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
+          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
-          registry_mirror: https://mirror.gcr.io
           username: _json_key
       params:
         CONSUMER_GIT_KEY: ((github.private_key))
@@ -954,9 +954,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -999,9 +999,9 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
+          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
-          registry_mirror: https://mirror.gcr.io
           username: _json_key
       params:
         APP_NAME: e2e-test
@@ -1050,9 +1050,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
@@ -1094,9 +1094,9 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
+          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
-          registry_mirror: https://mirror.gcr.io
           username: _json_key
       params:
         APP_NAME: my-app
@@ -1145,9 +1145,9 @@ jobs:
         image_resource:
           type: docker-image
           source:
+            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
-            registry_mirror: https://mirror.gcr.io
         run:
           path: /bin/sh
           args:
