@@ -13,11 +13,10 @@ import (
 var dockerComposeImageResource = atc.ImageResource{
 	Type: "docker-image",
 	Source: atc.Source{
-		"repository":      strings.Split(config.DockerComposeImage, ":")[0],
-		"tag":             strings.Split(config.DockerComposeImage, ":")[1],
-		"registry_mirror": "https://mirror.gcr.io",
-		"username":        "_json_key",
-		"password":        "((gcr.private_key))",
+		"repository": strings.Split(config.DockerComposeImage, ":")[0],
+		"tag":        strings.Split(config.DockerComposeImage, ":")[1],
+		"username":   "_json_key",
+		"password":   "((gcr.private_key))",
 	},
 }
 

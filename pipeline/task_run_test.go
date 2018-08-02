@@ -92,11 +92,10 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				ImageResource: &atc.ImageResource{
 					Type: "docker-image",
 					Source: atc.Source{
-						"repository":      "imagename",
-						"tag":             "TAG",
-						"registry_mirror": "https://mirror.gcr.io",
-						"username":        "user",
-						"password":        "pass",
+						"repository": "imagename",
+						"tag":        "TAG",
+						"username":   "user",
+						"password":   "pass",
 					},
 				},
 				Run: atc.TaskRunConfig{

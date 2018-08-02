@@ -290,7 +290,6 @@ jobs:
             type: docker-image
             source:
               password: ((gcr.private_key))
-              registry_mirror: https://mirror.gcr.io
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
               tag: latest
               username: _json_key
@@ -335,7 +334,6 @@ jobs:
             type: docker-image
             source:
               password: ((gcr.private_key))
-              registry_mirror: https://mirror.gcr.io
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               tag: latest
               username: _json_key
@@ -476,7 +474,6 @@ jobs:
           type: docker-image
           source:
             password: ((gcr.private_key))
-            registry_mirror: https://mirror.gcr.io
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
             username: _json_key
@@ -539,7 +536,6 @@ jobs:
           type: docker-image
           source:
             password: ((gcr.private_key))
-            registry_mirror: https://mirror.gcr.io
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
             username: _json_key
@@ -705,7 +701,6 @@ jobs:
         type: docker-image
         source:
           password: blah
-          registry_mirror: https://mirror.gcr.io
           repository: busy
           tag: latest
           username: michiel
@@ -797,7 +792,6 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
           username: _json_key
@@ -881,7 +875,6 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: latest
           username: _json_key
@@ -996,7 +989,6 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
@@ -1091,7 +1083,6 @@ jobs:
         type: docker-image
         source:
           password: ((gcr.private_key))
-          registry_mirror: https://mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
