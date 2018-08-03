@@ -74,7 +74,6 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          registry_mirror: https://mirror.gcr.io
           repository: node
           tag: 9.5.0-alpine
       run:
@@ -153,7 +152,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -224,7 +222,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -410,7 +407,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -592,7 +588,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -657,7 +652,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -747,7 +741,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -830,7 +823,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -944,7 +936,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -1039,7 +1030,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
@@ -1133,7 +1123,6 @@ jobs:
         image_resource:
           type: docker-image
           source:
-            registry_mirror: https://mirror.gcr.io
             repository: node
             tag: 9.5.0-alpine
         run:
