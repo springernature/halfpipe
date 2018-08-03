@@ -563,7 +563,7 @@ func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 	result := taskLinter.Lint(man)
 	if assert.Len(t, result.Errors, 2) {
 		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
-		assertMissingField(t, "tasks[0] deploy-ml.deploy_artifact", result.Errors[1])
+		assertMissingField(t, "tasks[0] deploy-ml.deploy_zip", result.Errors[1])
 	}
 }
 

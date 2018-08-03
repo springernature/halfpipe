@@ -286,7 +286,7 @@ func (linter taskLinter) lintDeployMLZipTask(mlTask manifest.DeployMLZip, taskID
 	}
 
 	if mlTask.DeployZip == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_artifact"))
+		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_zip"))
 	}
 }
 
