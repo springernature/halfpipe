@@ -17,6 +17,7 @@ import (
 	"path"
 
 	"github.com/concourse/atc"
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -28,11 +29,12 @@ type Renderer interface {
 type CfManifestReader func(string) ([]cfManifest.Application, error)
 
 type pipeline struct {
+	fs             afero.Afero
 	readCfManifest CfManifestReader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader) pipeline {
-	return pipeline{readCfManifest: cfManifestReader}
+func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
+	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
 const artifactsFolderName = "artifacts"
@@ -105,7 +107,19 @@ func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *at
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.PlanConfig {
-	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
+
+	gitPlan := atc.PlanConfig{Get: gitDir, Trigger: true}
+
+	if man.AutoUpdate {
+		gitRefFile := pathToGitRef(gitDir, man.Repo.BasePath)
+		if exists, _ := p.fs.Exists(gitRefFile); exists {
+			if ref, err := p.fs.ReadFile(gitRefFile); err == nil {
+				gitPlan.Version = &atc.VersionConfig{Pinned: atc.Version{"ref": string(ref)}}
+			}
+		}
+	}
+
+	initialPlan := []atc.PlanConfig{gitPlan}
 
 	if man.TriggerInterval != "" {
 		timerResource := p.timerResource(man.TriggerInterval)

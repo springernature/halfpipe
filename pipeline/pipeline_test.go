@@ -5,21 +5,22 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 func testPipeline() pipeline {
-	return pipeline{
-		readCfManifest: func(s string) ([]cfManifest.Application, error) {
-			return []cfManifest.Application{
-				{
-					Name:   "test-name",
-					Routes: []string{"test-route"},
-				},
-			}, nil
-		},
+	cfManifestReader := func(s string) ([]cfManifest.Application, error) {
+		return []cfManifest.Application{
+			{
+				Name:   "test-name",
+				Routes: []string{"test-route"},
+			},
+		}, nil
 	}
+
+	return NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 }
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
