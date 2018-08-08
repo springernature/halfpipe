@@ -18,6 +18,8 @@ var (
 
 	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:latest"
 
+	PrometheusGatewayURL = "prometheus-pushgateway:9091"
+
 	CacheDirs = []atc.CacheConfig{
 		{Path: "../../../root/.gradle/"},
 		{Path: "../../../root/.m2/"},
