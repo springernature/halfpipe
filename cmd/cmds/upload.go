@@ -27,7 +27,8 @@ func init() {
 				return fs.OpenFile("pipeline.yml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 			}
 
-			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile, nonInteractive)
+			commandPath := os.Args[0]
+			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile, nonInteractive, commandPath)
 
 			plan, err := planner.Plan()
 			if err != nil {
