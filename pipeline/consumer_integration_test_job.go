@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"sort"
+
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -22,7 +24,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 	// it is really just a special run job, so let's reuse that
 	runTask := manifest.Run{
 		Name:   task.Name,
-		Script: consumerIntegrationTestScript,
+		Script: consumerIntegrationTestScript(task.Vars),
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
@@ -41,11 +43,23 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
 		},
 	}
+
+	for key, val := range task.Vars {
+		runTask.Vars[key] = val
+	}
+
 	job := p.runJob(runTask, man, true)
 	return job
 }
 
-const consumerIntegrationTestScript = `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+func consumerIntegrationTestScript(vars manifest.Vars) string {
+	var envStrings []string
+	for key := range vars {
+		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
+	}
+	sort.Strings(envStrings)
+
+	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
 # write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -68,6 +82,7 @@ git checkout ${REVISION}
 docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
-  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} %s \
   ${DOCKER_COMPOSE_SERVICE:-code}
-`
+`, strings.Join(envStrings, " "))
+}

@@ -13,6 +13,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	p := testPipeline()
 
 	dockerComposeService := "blah"
+	envVars := manifest.Vars{"blah": "value", "blah1": "value1"}
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Repo: manifest.Repo{
@@ -32,6 +33,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 						ConsumerHost:         "c-host",
 						Script:               "c-script",
 						DockerComposeService: dockerComposeService,
+						Vars:                 envVars,
 					},
 				},
 			},
@@ -49,6 +51,8 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 		"PROVIDER_HOST":          buildTestRoute("test-name", "cf-space", ""),
 		"DOCKER_COMPOSE_SERVICE": dockerComposeService,
 		"GCR_PRIVATE_KEY":        "((gcr.private_key))",
+		"blah":                   "value",
+		"blah1":                  "value1",
 	}
 
 	expectedPlan := atc.PlanConfig{
@@ -61,7 +65,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  gitDir + "/base.path",
-				Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
+				Args: runScriptArgs(consumerIntegrationTestScript(envVars), false, "", false, nil, "../.git/ref"),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -157,7 +161,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestScript, false, "", false, nil, "../.git/ref"),
+						Args: runScriptArgs(consumerIntegrationTestScript(manifest.Vars{}), false, "", false, nil, "../.git/ref"),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -171,4 +175,18 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 	if assert.Len(t, jobs, 1) {
 		assert.Equal(t, expectedJob, jobs[0])
 	}
+}
+
+func TestBuildsTheRightDockerComposeRunScriptWithEnvVars(t *testing.T) {
+	envVars := manifest.Vars{"blah": "value", "blah1": "value1"}
+
+	actual := consumerIntegrationTestScript(envVars)
+
+	expected := `docker-compose run --no-deps \
+  --entrypoint "${CONSUMER_SCRIPT}" \
+  -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e blah -e blah1 \
+  ${DOCKER_COMPOSE_SERVICE:-code}`
+
+	assert.Contains(t, actual, expected)
 }

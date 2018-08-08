@@ -96,6 +96,7 @@ type ConsumerIntegrationTest struct {
 	Script               string
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 	Parallel             bool   `yaml:"parallel,omitempty"`
+	Vars                 Vars
 }
 
 type DeployMLZip struct {
