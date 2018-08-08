@@ -119,6 +119,9 @@ tasks:
   provider_host: p-host
   script: c-script
   docker_compose_service: potato
+  vars:
+    K: value
+    K1: value1
 
 - type: deploy-ml-zip
   deploy_zip: target/xquery.zip

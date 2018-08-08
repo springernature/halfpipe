@@ -881,6 +881,8 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((gcr.private_key))
+        K: value
+        K1: value1
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
         PROVIDER_NAME: e2e-test
@@ -914,7 +916,7 @@ jobs:
           docker-compose run --no-deps \
             --entrypoint "${CONSUMER_SCRIPT}" \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
-            -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+            -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e K -e K1 \
             ${DOCKER_COMPOSE_SERVICE:-code}
         dir: git
       inputs:
