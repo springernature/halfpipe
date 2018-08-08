@@ -52,10 +52,7 @@ type planner struct {
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
-	yamlString, err := filechecker.ReadHalfpipeFiles(p.fs, []string{
-		config.HalfpipeFile,
-		config.HalfpipeFileWithYML,
-		config.HalfpipeFileWithYAML})
+	yamlString, err := filechecker.ReadHalfpipeFiles(p.fs, config.HalfpipeFilenameOptions)
 	if err != nil {
 		return
 	}
@@ -75,11 +72,7 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 func (p planner) getTargets() (targets Targets, err error) {
 	path := filepath.Join(p.homedir, ".flyrc")
 	exists, err := p.fs.Exists(path)
-	if err != nil {
-		return
-	}
-
-	if !exists {
+	if err != nil || !exists {
 		return
 	}
 

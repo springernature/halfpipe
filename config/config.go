@@ -39,7 +39,7 @@ const HalfpipeFile = ".halfpipe.io"
 const HalfpipeFileWithYML = ".halfpipe.io.yml"
 const HalfpipeFileWithYAML = ".halfpipe.io.yaml"
 
-var HalfpipeOptions = []string{HalfpipeFile, HalfpipeFileWithYML, HalfpipeFileWithYAML}
+var HalfpipeFilenameOptions = []string{HalfpipeFile, HalfpipeFileWithYML, HalfpipeFileWithYAML}
 
 func GetVersion() (semver.Version, error) {
 	if Version == "" {
