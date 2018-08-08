@@ -152,7 +152,6 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 
 	}
 
-	linter.lintEnvVars(cf.Vars, taskID, result)
 	return
 }
 
@@ -176,7 +175,6 @@ func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, taskID s
 		result.AddError(err)
 	}
 
-	linter.lintEnvVars(docker.Vars, taskID, result)
 	return
 }
 
@@ -203,7 +201,6 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 		result.AddError(errors.NewMissingField(taskID + " run.docker.username"))
 	}
 
-	linter.lintEnvVars(run.Vars, taskID, result)
 	return
 }
 
@@ -213,17 +210,7 @@ func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID
 		return
 	}
 
-	linter.lintEnvVars(dc.Vars, taskID, result)
 	linter.lintDockerComposeService(dc.Service, result)
-	return
-}
-
-func (linter taskLinter) lintEnvVars(vars map[string]string, taskID string, result *LintResult) {
-	for key := range vars {
-		if key != strings.ToUpper(key) {
-			result.AddError(errors.NewInvalidField(taskID+" "+key, "vars must be uppercase"))
-		}
-	}
 	return
 }
 

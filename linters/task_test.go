@@ -307,52 +307,6 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
-func TestEnvVarsMustBeUpperCase(t *testing.T) {
-	taskLinter := testTaskLinter()
-
-	badKey1 := "KeHe"
-	badKey2 := "b"
-	badKey3 := "AAAAa"
-
-	goodKey1 := "YO"
-	goodKey2 := "A"
-	goodKey3 := "AOIJASOID"
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.Run{
-				Vars: map[string]string{
-					badKey1:  "a",
-					goodKey1: "sup",
-				},
-			},
-
-			manifest.DockerPush{
-				Vars: map[string]string{
-					goodKey2: "a",
-					badKey2:  "B",
-				},
-			},
-
-			manifest.DeployCF{
-				Vars: map[string]string{
-					badKey3:  "asd",
-					goodKey3: "asd",
-				},
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assertInvalidFieldInErrors(t, badKey1, result.Errors)
-	assertInvalidFieldInErrors(t, badKey2, result.Errors)
-	assertInvalidFieldInErrors(t, badKey3, result.Errors)
-
-	assertInvalidFieldShouldNotBeInErrors(t, goodKey1, result.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, goodKey2, result.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, goodKey3, result.Errors)
-}
-
 func TestDockerCompose_Happy(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
@@ -414,28 +368,6 @@ func TestDockerCompose_MissingFile(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertFileError(t, "docker-compose.yml", result.Errors[0])
-}
-
-func TestDockerCompose_InvalidVar(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{
-				Name:    "run docker compose",
-				Service: "app",
-				Vars: manifest.Vars{
-					"a": "a",
-					"B": "b",
-				},
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertInvalidFieldInErrors(t, "tasks[0] a", result.Errors)
 }
 
 func TestDockerCompose_UnknownService(t *testing.T) {
