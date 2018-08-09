@@ -6,13 +6,14 @@ import (
 
 	"strings"
 
+	"time"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
-	"time"
 )
 
 type taskLinter struct {
@@ -129,7 +130,7 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 	if cf.Timeout != "" {
 		_, err := time.ParseDuration(cf.Timeout)
 		if err != nil {
-			result.AddError(errors.NewInvalidField(taskID + " deploy-cf.timeout", err.Error()))
+			result.AddError(errors.NewInvalidField(taskID+" deploy-cf.timeout", err.Error()))
 		}
 	}
 
