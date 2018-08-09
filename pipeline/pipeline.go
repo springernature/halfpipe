@@ -227,6 +227,14 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
+
+	if man.AutoUpdate {
+		for i, job := range cfg.Jobs {
+			job.SerialGroups = append(job.SerialGroups, "serialized")
+			cfg.Jobs[i] = job
+		}
+	}
+
 	return
 }
 
