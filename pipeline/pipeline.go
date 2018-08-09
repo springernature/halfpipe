@@ -354,6 +354,9 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	if len(vars) > 0 {
 		push.Params["vars"] = vars
 	}
+	if task.Timeout != "" {
+		push.Params["timeout"] = task.Timeout
+	}
 	job.Plan = append(job.Plan, push)
 
 	// saveArtifactInPP and restoreArtifactInPP are needed to make sure we don't run pre-promote tasks in parallel when the first task saves an artifact and the second restores it.
@@ -416,6 +419,9 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			"manifestPath": manifestPath,
 		},
 	}
+	if task.Timeout != "" {
+		promote.Params["timeout"] = task.Timeout
+	}
 	job.Plan = append(job.Plan, promote)
 
 	cleanup := atc.PlanConfig{
@@ -427,6 +433,10 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			"manifestPath": manifestPath,
 		},
 	}
+	if task.Timeout != "" {
+		cleanup.Params["timeout"] = task.Timeout
+	}
+
 	job.Ensure = &cleanup
 	return &job
 }

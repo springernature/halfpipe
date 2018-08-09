@@ -560,3 +560,21 @@ func TestRestrictionsOfOnFailureTasks(t *testing.T) {
 		assertInvalidField(t, "on_failure[1] docker-compose.passed", result.Errors[1])
 	}
 }
+
+func TestLintsTheTimeoutInDeployTask(t *testing.T) {
+	man := manifest.Manifest{}
+	taskLinter := testTaskLinter()
+
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			API:        "asdf",
+			Space:      "asdf",
+			Org:        "asdf",
+			TestDomain: "asdf",
+			Timeout:    "notAValidDuration",
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assertInvalidField(t, "tasks[0] deploy-cf.timeout", result.Errors[0])
+}

@@ -43,6 +43,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Username:   "rob",
 		Password:   "supersecret",
 		Manifest:   "manifest-live.yml",
+		Timeout:    "5m",
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
@@ -145,6 +146,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
 					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"timeout":      "5m",
 				},
 			},
 			atc.PlanConfig{
@@ -155,6 +157,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
+					"timeout":      "5m",
 				},
 			},
 		},
@@ -165,6 +168,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
 				"manifestPath": liveManifest,
+				"timeout":      "5m",
 			},
 		},
 	}

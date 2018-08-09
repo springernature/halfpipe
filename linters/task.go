@@ -12,6 +12,7 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"time"
 )
 
 type taskLinter struct {
@@ -122,6 +123,13 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 		_, found := defaults.DefaultValues.CfTestDomains[cf.API]
 		if cf.API != "" && !found {
 			result.AddError(errors.NewMissingField(taskID + " deploy-cf.testDomain"))
+		}
+	}
+
+	if cf.Timeout != "" {
+		_, err := time.ParseDuration(cf.Timeout)
+		if err != nil {
+			result.AddError(errors.NewInvalidField(taskID + " deploy-cf.timeout", err.Error()))
 		}
 	}
 

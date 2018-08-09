@@ -73,6 +73,7 @@ type DeployCF struct {
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
+	Timeout        string
 }
 
 type DockerCompose struct {

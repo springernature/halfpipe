@@ -32,6 +32,7 @@ tasks:
   password: very-secret
   test_domain: some.random.domain.com
   deploy_artifact: target/distribution/artifact.zip
+  timeout: 5m
 
 - type: deploy-cf
   name: deploy to staging

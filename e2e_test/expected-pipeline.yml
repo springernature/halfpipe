@@ -203,6 +203,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
+      timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
     resource: CF dev-api engineering-enablement dev
@@ -210,6 +211,7 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/manifest.yml
       testDomain: some.random.domain.com
+      timeout: 5m
     attempts: 2
   on_failure:
     do:
@@ -259,6 +261,7 @@ jobs:
     params:
       command: halfpipe-cleanup
       manifestPath: git/manifest.yml
+      timeout: 5m
     attempts: 2
 - name: deploy to staging
   serial: true
@@ -378,7 +381,7 @@ jobs:
               docker-compose run --no-deps \
                 --entrypoint "${CONSUMER_SCRIPT}" \
                 -e DEPENDENCY_NAME=${PROVIDER_NAME} \
-                -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+                -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST}  \
                 ${DOCKER_COMPOSE_SERVICE:-code}
             dir: git
           inputs:
