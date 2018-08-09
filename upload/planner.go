@@ -25,30 +25,28 @@ type Planner interface {
 	Plan() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool, halfpipeCommand string) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool) Planner {
 	return planner{
-		fs:              fs,
-		pathResolver:    pathResolver,
-		homedir:         homedir,
-		stdout:          stdout,
-		stderr:          stderr,
-		stdin:           stdin,
-		pipelineFile:    pipelineFile,
-		nonInteractive:  nonInteractive,
-		halfpipeCommand: halfpipeCommand,
+		fs:             fs,
+		pathResolver:   pathResolver,
+		homedir:        homedir,
+		stdout:         stdout,
+		stderr:         stderr,
+		stdin:          stdin,
+		pipelineFile:   pipelineFile,
+		nonInteractive: nonInteractive,
 	}
 }
 
 type planner struct {
-	fs              afero.Afero
-	pathResolver    PathResolver
-	homedir         string
-	stdout          io.Writer
-	stderr          io.Writer
-	stdin           io.Reader
-	pipelineFile    PipelineFile
-	nonInteractive  bool
-	halfpipeCommand string
+	fs             afero.Afero
+	pathResolver   PathResolver
+	homedir        string
+	stdout         io.Writer
+	stderr         io.Writer
+	stdin          io.Reader
+	pipelineFile   PipelineFile
+	nonInteractive bool
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -108,13 +106,18 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 		return
 	}
 
+	path, err := p.pathResolver("halfpipe")
+	if err != nil {
+		return
+	}
+
 	cmd.Cmd = exec.Cmd{
-		Path:   p.halfpipeCommand,
-		Args:   []string{p.halfpipeCommand},
+		Path:   path,
+		Args:   []string{path},
 		Stderr: p.stderr,
 		Stdout: file,
 	}
-	cmd.Printable = fmt.Sprintf("%s > %s", p.halfpipeCommand, file.Name())
+	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
 
 	return
 }

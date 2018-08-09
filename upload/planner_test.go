@@ -23,7 +23,6 @@ targets:
   %s: {}`, team)
 
 var homedir = "/home/my-user"
-var halfpipeCommand = "/usr/local/bin/hp"
 
 var stdin = gbytes.NewBuffer()
 var stdout = gbytes.NewBuffer()
@@ -40,7 +39,7 @@ var NullpipelineFile = func(fs afero.Afero) (file afero.File, err error) {
 func TestReturnsErrWhenHalfpipeFileDoesntExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false, halfpipeCommand)
+	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false)
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -50,7 +49,7 @@ func TestReturnsErrWhenHalfpipeDoesntContainTeamOrPipeline(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false, halfpipeCommand)
+	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false)
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -64,7 +63,7 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, halfpipeCommand)
+	}, false)
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
@@ -79,12 +78,12 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   halfpipeCommand,
-				Args:   []string{halfpipeCommand},
+				Path:   "halfpipe",
+				Args:   []string{"halfpipe"},
 				Stderr: stderr,
 				Stdout: file,
 			},
-			Printable: halfpipeCommand + " > pipeline.yml",
+			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
@@ -110,18 +109,18 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, halfpipeCommand)
+	}, false)
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
 		{
 			Cmd: exec.Cmd{
-				Path:   halfpipeCommand,
-				Args:   []string{halfpipeCommand},
+				Path:   "halfpipe",
+				Args:   []string{"halfpipe"},
 				Stderr: stderr,
 				Stdout: file,
 			},
-			Printable: halfpipeCommand + " > pipeline.yml",
+			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
@@ -147,18 +146,18 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, true, halfpipeCommand)
+	}, true)
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
 		{
 			Cmd: exec.Cmd{
-				Path:   halfpipeCommand,
-				Args:   []string{halfpipeCommand},
+				Path:   "halfpipe",
+				Args:   []string{"halfpipe"},
 				Stderr: stderr,
 				Stdout: file,
 			},
-			Printable: halfpipeCommand + " > pipeline.yml",
+			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
