@@ -19,6 +19,8 @@ func (teamLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 
 	if manifest.Team == "" {
 		result.AddError(errors.NewMissingField("team"))
+	} else if strings.Title(manifest.Team) == manifest.Team {
+		result.AddError(errors.NewInvalidField("team", "team needs to be lower case"))
 	}
 
 	if manifest.Pipeline == "" {

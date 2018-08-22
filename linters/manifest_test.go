@@ -26,6 +26,16 @@ func TestTeamIsMissing(t *testing.T) {
 	assertMissingField(t, "team", result.Errors[0])
 }
 
+func TestTeamIsUpperCase(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Pipeline = "yolo"
+	man.Team = "Yolo"
+
+	result := testTeamLinter().Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidField(t, "team", result.Errors[0])
+}
+
 func TestPipelineIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
