@@ -29,7 +29,7 @@ func TestTeamIsMissing(t *testing.T) {
 func TestTeamIsUpperCase(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
-	man.Team = "Yolo"
+	man.Team = "yoLo"
 
 	result := testTeamLinter().Lint(man)
 	assert.Len(t, result.Errors, 1)
