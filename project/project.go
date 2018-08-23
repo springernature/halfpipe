@@ -7,11 +7,12 @@ import (
 
 	"strings"
 
+	"bytes"
+	"io/ioutil"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tcnksm/go-gitconfig"
-	"bytes"
-	"io/ioutil"
 )
 
 type Data struct {

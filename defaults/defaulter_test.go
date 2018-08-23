@@ -21,7 +21,7 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{
 		RepoPrivateKey: "((github.private_key))",
 		Project: project.Data{
-			GitURI: "ssh@github.com:private/repo",
+			GitURI:    "ssh@github.com:private/repo",
 			GitBranch: "someBranch",
 		},
 	}

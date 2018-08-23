@@ -124,7 +124,7 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri": gitURI,
+					"uri":    gitURI,
 					"branch": branch,
 				},
 			},
