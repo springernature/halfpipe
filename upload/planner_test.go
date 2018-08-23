@@ -13,10 +13,18 @@ import (
 
 var team = "my-team"
 var pipeline = "my-pipeline"
+var branch = "my-branch"
 var validPipeline = fmt.Sprintf(`---
 team: %s
 pipeline: %s
 `, team, pipeline)
+
+var validPipelineWithBranch = fmt.Sprintf(`---
+team: %s
+pipeline: %s
+repo:
+  branch: %s
+`, team, pipeline, branch)
 
 var validFlyRc = fmt.Sprintf(`---
 targets:
@@ -126,6 +134,43 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 			Cmd: exec.Cmd{
 				Path:   "fly",
 				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+				Stdout: stdout,
+				Stderr: stderr,
+				Stdin:  stdin,
+			},
+		},
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedPlan, plan)
+}
+
+func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	file, _ := fs.Create("pipeline.yml")
+	fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
+	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
+
+	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+		return file, nil
+	}, false)
+	plan, err := planner.Plan()
+
+	expectedPlan := Plan{
+		{
+			Cmd: exec.Cmd{
+				Path:   "halfpipe",
+				Args:   []string{"halfpipe"},
+				Stderr: stderr,
+				Stdout: file,
+			},
+			Printable: "halfpipe > pipeline.yml",
+		},
+		{
+			Cmd: exec.Cmd{
+				Path:   "fly",
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml"},
 				Stdout: stdout,
 				Stderr: stderr,
 				Stdin:  stdin,

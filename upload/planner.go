@@ -170,7 +170,13 @@ func (p planner) Plan() (plan Plan, err error) {
 	}
 	plan = append(plan, lintAndRenderCmd)
 
-	uploadCmd, err := p.uploadCmd(man.Team, man.Pipeline)
+	pipelineName := man.Pipeline
+
+	if man.Repo.Branch != "" && man.Repo.Branch != "master" {
+		pipelineName = man.Pipeline + "-" + man.Repo.Branch
+	}
+
+	uploadCmd, err := p.uploadCmd(man.Team, pipelineName)
 	if err != nil {
 		return
 	}
