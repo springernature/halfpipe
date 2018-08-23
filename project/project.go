@@ -7,6 +7,9 @@ import (
 
 	"strings"
 
+	"bytes"
+	"io/ioutil"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tcnksm/go-gitconfig"
@@ -16,6 +19,33 @@ type Data struct {
 	BasePath string
 	RootName string
 	GitURI   string
+}
+
+type GitBranchResolver func() (branch string, err error)
+
+func BranchResolver() (branch string, err error) {
+	if _, e := exec.LookPath("git"); e != nil {
+		err = ErrGitNotFound
+		return
+	}
+
+	var stdout bytes.Buffer
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	cmd.Stdout = &stdout
+	cmd.Stderr = ioutil.Discard
+
+	if runErr := cmd.Run(); runErr != nil {
+		err = runErr
+		return
+	}
+
+	branch = strings.TrimSpace(stdout.String())
+	if branch == "" {
+		err = ErrBranchIsEmpty
+		return
+	}
+
+	return
 }
 
 type Project interface {
@@ -40,6 +70,7 @@ var (
 	ErrGitNotFound        = errors.New("looks like you don't have git installed")
 	ErrNoOriginConfigured = errors.New("looks like you don't have a remote origin configured")
 	ErrNotInRepo          = errors.New("looks like you are not executing halfpipe from within a git repo")
+	ErrBranchIsEmpty      = errors.New("looks like you are not on a branch?! This should never happen :o")
 )
 
 func (c projectResolver) Parse(workingDir string) (p Data, err error) {

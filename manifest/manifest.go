@@ -20,6 +20,7 @@ type Repo struct {
 	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
 	IgnoredPaths []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`
 	GitCryptKey  string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty"`
+	Branch       string   `json:"branch,omitempty" yaml:"branch,omitempty"`
 }
 
 func (repo Repo) IsPublic() bool {

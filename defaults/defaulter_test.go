@@ -31,6 +31,7 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 
 	//doesn't replace existing value
 	man.Repo.PrivateKey = "foo"
+
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, "foo", man.Repo.PrivateKey)
 }

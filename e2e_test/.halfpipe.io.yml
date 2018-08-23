@@ -3,6 +3,7 @@ pipeline: e2e-test
 
 repo:
   uri: https://github.com/robwhitby/halfpipe-example-nodejs
+  branch: add-branch-support
 
 slack_channel: "#ee-re"
 

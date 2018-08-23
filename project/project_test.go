@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var mockBranchResolver = func(b string, e error) GitBranchResolver {
+	return func() (branch string, err error) {
+		return b, e
+	}
+}
+
 func testProjectResolver() projectResolver {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	pr := NewProjectResolver(fs)
@@ -32,7 +38,7 @@ func TestErrorsIfNotInGitRepo(t *testing.T) {
 	assert.Equal(t, ErrNoOriginConfigured, err)
 }
 
-func TestGetsGitOrigin(t *testing.T) {
+func TestGetsGitData(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 

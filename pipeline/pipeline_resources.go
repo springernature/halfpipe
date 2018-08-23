@@ -33,6 +33,12 @@ func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 		sources["git_crypt_key"] = repo.GitCryptKey
 	}
 
+	if repo.Branch == "" {
+		sources["branch"] = "master"
+	} else {
+		sources["branch"] = repo.Branch
+	}
+
 	return atc.ResourceConfig{
 		Name:   gitDir,
 		Type:   "git",

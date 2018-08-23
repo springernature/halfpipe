@@ -6,18 +6,22 @@ import (
 
 	"regexp"
 
+	"fmt"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 )
 
 type repoLinter struct {
-	Fs         afero.Afero
-	WorkingDir string
+	Fs             afero.Afero
+	WorkingDir     string
+	BranchResolver project.GitBranchResolver
 }
 
-func NewRepoLinter(fs afero.Afero, workingDir string) repoLinter {
-	return repoLinter{fs, workingDir}
+func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver) repoLinter {
+	return repoLinter{fs, workingDir, branchResolver}
 }
 
 func (r repoLinter) checkGlob(glob string, basePath string) error {
@@ -67,6 +71,20 @@ func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 
 	if man.Repo.GitCryptKey != "" && !regexp.MustCompile(`\(\([a-zA-Z-_]+\.[a-zA-Z-_]+\)\)`).MatchString(man.Repo.GitCryptKey) {
 		result.AddError(errors.NewInvalidField("repo.git_crypt_key", "must be a vault secret"))
+	}
+
+	if currentBranch, err := r.BranchResolver(); err != nil {
+		result.AddError(err)
+	} else {
+		if currentBranch != "master" {
+			if man.Repo.Branch == "" {
+				result.AddError(errors.NewInvalidField("repo.branch", "must be set if you are executing halfpipe from a non master branch"))
+			}
+
+			if man.Repo.Branch != currentBranch && man.Repo.Branch != "" {
+				result.AddError(errors.NewInvalidField("repo.branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, man.Repo.Branch)))
+			}
+		}
 	}
 
 	return

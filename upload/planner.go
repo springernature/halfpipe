@@ -23,6 +23,7 @@ type Targets struct {
 
 type Planner interface {
 	Plan() (plan Plan, err error)
+	AskBranchSecurityQuestions(currentBranch string) (err error)
 }
 
 func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool) Planner {
@@ -149,6 +150,12 @@ func (p planner) Plan() (plan Plan, err error) {
 		return
 	}
 
+	lintAndRenderCmd, err := p.lintAndRender()
+	if err != nil {
+		return
+	}
+	plan = append(plan, lintAndRenderCmd)
+
 	targets, err := p.getTargets()
 	if err != nil {
 		return
@@ -164,17 +171,57 @@ func (p planner) Plan() (plan Plan, err error) {
 		plan = append(plan, cmd)
 	}
 
-	lintAndRenderCmd, err := p.lintAndRender()
-	if err != nil {
-		return
-	}
-	plan = append(plan, lintAndRenderCmd)
+	pipelineName := man.Pipeline
 
-	uploadCmd, err := p.uploadCmd(man.Team, man.Pipeline)
+	if man.Repo.Branch != "" && man.Repo.Branch != "master" {
+		pipelineName = man.Pipeline + "-" + man.Repo.Branch
+	}
+
+	uploadCmd, err := p.uploadCmd(man.Team, pipelineName)
 	if err != nil {
 		return
 	}
 	plan = append(plan, uploadCmd)
 
+	return
+}
+
+func (p planner) AskBranchSecurityQuestions(currentBranch string) (err error) {
+	fmt.Fprintln(p.stdout)
+	fmt.Fprintln(p.stdout, "WARNING! You are running halfpipe on a branch. WARNING!")
+	fmt.Fprintln(p.stdout)
+	if secErr := askSecurityQuestion("Have you made sure the cf manifest you are using in the cf-deploy resource are using different routes than on the master branch and have you read the docs at https://docs.halfpipe.io/docs/branches  [y/N]: ", []string{"y", "yes", "Y", "Yes", "YES"}, p.stdout, p.stdin); secErr != nil {
+		err = secErr
+		return
+	}
+
+	man, manifestErr := p.getHalfpipeManifest()
+	if manifestErr != nil {
+		return
+	}
+
+	expectedAnswer := []string{fmt.Sprintf("%s-%s", man.Pipeline, currentBranch)}
+	if secErr := askSecurityQuestion("What will be the name of the branch pipeline in concourse? (Hint, this is documented in the docs above): ", expectedAnswer, p.stdout, p.stdin); secErr != nil {
+		err = secErr
+		return
+	}
+
+	fmt.Fprintln(p.stdout)
+	return
+}
+
+func askSecurityQuestion(question string, expectedAnswers []string, stdout io.Writer, stdin io.Reader) (err error) {
+	fmt.Fprint(stdout, fmt.Sprintf("* %s", question))
+
+	var input string
+	fmt.Fscan(stdin, &input) // #nosec
+
+	for _, expectedAnswer := range expectedAnswers {
+		if input == expectedAnswer {
+			return
+		}
+	}
+
+	err = errors.New("Incorrect or empty response")
 	return
 }
