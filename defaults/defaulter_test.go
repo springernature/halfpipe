@@ -22,6 +22,7 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 		RepoPrivateKey: "((github.private_key))",
 		Project: project.Data{
 			GitURI: "ssh@github.com:private/repo",
+			GitBranch: "someBranch",
 		},
 	}
 
@@ -31,8 +32,10 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 
 	//doesn't replace existing value
 	man.Repo.PrivateKey = "foo"
+
 	man = manifestDefaults.Update(man)
 	assert.Equal(t, "foo", man.Repo.PrivateKey)
+	assert.Equal(t, manifestDefaults.Project.GitBranch, man.Repo.Branch)
 }
 
 func TestCFDeployDefaults(t *testing.T) {

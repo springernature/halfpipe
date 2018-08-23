@@ -108,3 +108,27 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	}
 	assert.Equal(t, expected, testPipeline().Render(man))
 }
+
+func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
+	name := gitDir
+	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
+	branch := "master"
+
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+	man.Repo.Branch = branch
+
+	expected := atc.Config{
+		Resources: atc.ResourceConfigs{
+			atc.ResourceConfig{
+				Name: name,
+				Type: "git",
+				Source: atc.Source{
+					"uri": gitURI,
+					"branch": branch,
+				},
+			},
+		},
+	}
+	assert.Equal(t, expected, testPipeline().Render(man))
+}
