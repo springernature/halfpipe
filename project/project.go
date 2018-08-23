@@ -30,7 +30,7 @@ func BranchResolver() (branch string, err error) {
 	}
 
 	var stdout bytes.Buffer
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD") // nolint
 	cmd.Stdout = &stdout
 	cmd.Stderr = ioutil.Discard
 

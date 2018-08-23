@@ -76,14 +76,12 @@ func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
 	if currentBranch, err := r.BranchResolver(); err != nil {
 		result.AddError(err)
 	} else {
-		if currentBranch != "master" {
-			if man.Repo.Branch == "" {
-				result.AddError(errors.NewInvalidField("repo.branch", "must be set if you are executing halfpipe from a non master branch"))
-			}
+		if currentBranch != "master" && man.Repo.Branch == "" {
+			result.AddError(errors.NewInvalidField("repo.branch", "must be set if you are executing halfpipe from a non master branch"))
+		}
 
-			if man.Repo.Branch != currentBranch && man.Repo.Branch != "" {
-				result.AddError(errors.NewInvalidField("repo.branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, man.Repo.Branch)))
-			}
+		if man.Repo.Branch != currentBranch && man.Repo.Branch != "" {
+			result.AddError(errors.NewInvalidField("repo.branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, man.Repo.Branch)))
 		}
 	}
 

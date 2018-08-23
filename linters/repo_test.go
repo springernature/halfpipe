@@ -174,6 +174,21 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnY(t *testing.T) {
 	assertInvalidField(t, "repo.branch", result.Errors[0])
 }
 
+func TestRepoWhenBranchIsSetToBranchXButYouAreOnMaster(t *testing.T) {
+	currentBranch := "master"
+	man := manifest.Manifest{}
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
+	man.Repo.Branch = "X"
+	linter := testRepoLinter()
+	linter.BranchResolver = func() (branch string, err error) {
+		return currentBranch, nil
+	}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assertInvalidField(t, "repo.branch", result.Errors[0])
+}
+
 func TestRepoWhenBranchResolverReturnsError(t *testing.T) {
 	expectedError := errors.New("Meeh")
 	man := manifest.Manifest{}

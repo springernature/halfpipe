@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/upload"
 	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/upload"
 )
 
 func init() {
@@ -36,8 +36,8 @@ func init() {
 				os.Exit(1)
 			}
 			if currentBranch != "master" {
-				if err := planner.AskBranchSecurityQuestions(currentBranch); err != nil {
-					printErr(err)
+				if secErr := planner.AskBranchSecurityQuestions(currentBranch); secErr != nil {
+					printErr(secErr)
 					os.Exit(1)
 				}
 			}
@@ -59,4 +59,3 @@ func init() {
 	uploadCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "If this is set, you will not get prompted for action")
 	rootCmd.AddCommand(uploadCmd)
 }
-
