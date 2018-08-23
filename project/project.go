@@ -7,9 +7,6 @@ import (
 
 	"strings"
 
-	"bytes"
-	"io/ioutil"
-
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tcnksm/go-gitconfig"
@@ -19,33 +16,6 @@ type Data struct {
 	BasePath string
 	RootName string
 	GitURI   string
-}
-
-type GitBranchResolver func() (branch string, err error)
-
-func BranchResolver() (branch string, err error) {
-	if _, e := exec.LookPath("git"); e != nil {
-		err = ErrGitNotFound
-		return
-	}
-
-	var stdout bytes.Buffer
-	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD") // nolint
-	cmd.Stdout = &stdout
-	cmd.Stderr = ioutil.Discard
-
-	if runErr := cmd.Run(); runErr != nil {
-		err = runErr
-		return
-	}
-
-	branch = strings.TrimSpace(stdout.String())
-	if branch == "" {
-		err = ErrBranchIsEmpty
-		return
-	}
-
-	return
 }
 
 type Project interface {
