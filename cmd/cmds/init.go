@@ -25,7 +25,7 @@ var initCmd = &cobra.Command{
 		}
 
 		fs := afero.Afero{Fs: afero.NewOsFs()}
-		projectResolver := project.NewProjectResolver(fs, project.BranchResolver)
+		projectResolver := project.NewProjectResolver(fs)
 
 		err = manifest.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
 

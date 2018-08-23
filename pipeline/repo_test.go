@@ -22,7 +22,8 @@ func TestRendersHttpGitResource(t *testing.T) {
 				Name: name,
 				Type: "git",
 				Source: atc.Source{
-					"uri": gitURI,
+					"uri":    gitURI,
+					"branch": "master",
 				},
 			},
 		},
@@ -47,6 +48,7 @@ func TestRendersSshGitResource(t *testing.T) {
 				Source: atc.Source{
 					"uri":         gitURI,
 					"private_key": privateKey,
+					"branch":      "master",
 				},
 			},
 		},
@@ -78,6 +80,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 					"private_key":  privateKey,
 					"paths":        watches,
 					"ignore_paths": ignores,
+					"branch":       "master",
 				},
 			},
 		},
@@ -102,6 +105,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 				Source: atc.Source{
 					"uri":           gitURI,
 					"git_crypt_key": gitCrypt,
+					"branch":        "master",
 				},
 			},
 		},

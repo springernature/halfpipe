@@ -9,15 +9,17 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 )
 
 type repoLinter struct {
-	Fs         afero.Afero
-	WorkingDir string
+	Fs             afero.Afero
+	WorkingDir     string
+	BranchResolver project.GitBranchResolver
 }
 
-func NewRepoLinter(fs afero.Afero, workingDir string) repoLinter {
-	return repoLinter{fs, workingDir}
+func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver) repoLinter {
+	return repoLinter{fs, workingDir, branchResolver}
 }
 
 func (r repoLinter) checkGlob(glob string, basePath string) error {

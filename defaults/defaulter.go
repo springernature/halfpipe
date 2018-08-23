@@ -38,10 +38,6 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		man.Repo.PrivateKey = d.RepoPrivateKey
 	}
 
-	if man.Repo.Branch == "" && d.Project.GitBranch != "" {
-		man.Repo.Branch = d.Project.GitBranch
-	}
-
 	var taskSwitcher func(task manifest.TaskList) manifest.TaskList
 
 	taskSwitcher = func(task manifest.TaskList) (tl manifest.TaskList) {

@@ -30,7 +30,7 @@ var checkVersion = func() (err error) {
 
 var rootCmd = &cobra.Command{
 	Use: "halfpipe",
-	Short: `halfpipe is a tool to lint and render concoures pipelines
+	Short: `halfpipe is a tool to lint and render concourse pipelines
 Invoke without any arguments to lint your .halfpipe.io file and render a pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := checkVersion(); err != nil {
@@ -46,7 +46,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		project, err := project.NewProjectResolver(fs, project.BranchResolver).Parse(currentDir)
+		projectData, err := project.NewProjectResolver(fs).Parse(currentDir)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)
@@ -55,10 +55,10 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		ctrl := halfpipe.Controller{
 			Fs:         fs,
 			CurrentDir: currentDir,
-			Defaulter:  defaults.NewDefaulter(project),
+			Defaulter:  defaults.NewDefaulter(projectData),
 			Linters: []linters.Linter{
 				linters.NewTeamLinter(),
-				linters.NewRepoLinter(fs, currentDir),
+				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
 				linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
 				linters.NewTasksLinter(fs),
 				linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),

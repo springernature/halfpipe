@@ -16,10 +16,9 @@ import (
 )
 
 type Data struct {
-	BasePath  string
-	RootName  string
-	GitURI    string
-	GitBranch string
+	BasePath string
+	RootName string
+	GitURI   string
 }
 
 type GitBranchResolver func() (branch string, err error)
@@ -54,18 +53,16 @@ type Project interface {
 }
 
 type projectResolver struct {
-	Fs             afero.Afero
-	LookPath       func(string) (string, error)
-	OriginURL      func() (string, error)
-	BranchResolver GitBranchResolver
+	Fs        afero.Afero
+	LookPath  func(string) (string, error)
+	OriginURL func() (string, error)
 }
 
-func NewProjectResolver(fs afero.Afero, branchResolver GitBranchResolver) projectResolver {
+func NewProjectResolver(fs afero.Afero) projectResolver {
 	return projectResolver{
-		Fs:             fs,
-		LookPath:       exec.LookPath,
-		OriginURL:      gitconfig.OriginURL,
-		BranchResolver: branchResolver,
+		Fs:        fs,
+		LookPath:  exec.LookPath,
+		OriginURL: gitconfig.OriginURL,
 	}
 }
 
@@ -119,14 +116,8 @@ func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 		return
 	}
 
-	branch, err := c.BranchResolver()
-	if err != nil {
-		return
-	}
-
 	p.GitURI = origin
 	p.BasePath = basePath
 	p.RootName = rootName
-	p.GitBranch = branch
 	return
 }
