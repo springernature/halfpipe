@@ -8,16 +8,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func testProjectResolver() projectResolver {
+var mockBranchResolver = func(b string, e error) GitBranchResolver {
+	return func() (branch string, err error) {
+		return b, e
+	}
+}
+
+func testProjectResolver(mockBranchResolver GitBranchResolver) projectResolver {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	pr := NewProjectResolver(fs)
+	pr := NewProjectResolver(fs, mockBranchResolver)
 	pr.LookPath = func(s string) (string, error) { return s, nil }
 	pr.OriginURL = func() (string, error) { return "git@origin", nil }
 	return pr
 }
 
 func TestErrorsIfGitNotFoundOnPath(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 	pr.LookPath = func(string) (string, error) { return "", errors.New("dummy") }
 
 	_, err := pr.Parse("/project/root")
@@ -25,32 +31,45 @@ func TestErrorsIfGitNotFoundOnPath(t *testing.T) {
 }
 
 func TestErrorsIfNotInGitRepo(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 	pr.OriginURL = func() (string, error) { return "", errors.New("dummy") }
 
 	_, err := pr.Parse("/project/root")
 	assert.Equal(t, ErrNoOriginConfigured, err)
 }
 
-func TestGetsGitOrigin(t *testing.T) {
-	pr := testProjectResolver()
+func TestGetsGitData(t *testing.T) {
+	branch := "my-cool-branch"
+	pr := testProjectResolver(mockBranchResolver(branch, nil))
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 
 	project, err := pr.Parse("/project/root")
 
 	assert.Nil(t, err)
 	assert.Equal(t, "git@origin", project.GitURI)
+	assert.Equal(t, branch, project.GitBranch)
+}
+
+func TestReturnsErrorFromBranchResolver(t *testing.T) {
+	expectedError := errors.New("Meehp")
+	pr := testProjectResolver(mockBranchResolver("", expectedError))
+	pr.Fs.MkdirAll("/project/root/.git", 0777)
+
+	project, err := pr.Parse("/project/root")
+
+	assert.Equal(t, expectedError, err)
+	assert.Equal(t, Data{}, project)
 }
 
 func TestErrorsOutIfStartPathCannotBeRead(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 
 	_, err := pr.Parse("/home/simon/src/repo")
 	assert.Equal(t, ErrNotInRepo, err)
 }
 
 func TestBasePathWhenInGitRepo(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 	pr.Fs.MkdirAll("/home/simon/src/repo/.git", 0777)
 	pr.Fs.MkdirAll("/home/simon/src/repo/sub1/sub2/sub3", 0777)
 
@@ -68,7 +87,7 @@ func assertBasePath(t *testing.T, pr projectResolver, workingDir string, expecte
 }
 
 func TestRootNameWhenInGitRepo(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 	pr.Fs.MkdirAll("/home/simon/src/repo/.git", 0777)
 	pr.Fs.MkdirAll("/home/simon/src/repo/sub1/sub2/sub3", 0777)
 
@@ -86,7 +105,7 @@ func assertRootName(t *testing.T, pr projectResolver, workingDir string, expecte
 }
 
 func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 	pr.Fs.MkdirAll("/home/simon/src/repo/a/b/c", 0777)
 
 	_, err := pr.Parse("/home/simon/src/repo/a/b/c")
@@ -94,7 +113,7 @@ func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
 }
 
 func TestErrorsOutIfPassedDodgyPathValue(t *testing.T) {
-	pr := testProjectResolver()
+	pr := testProjectResolver(mockBranchResolver("master", nil))
 
 	paths := []string{"", "foo", "/..", ".."}
 

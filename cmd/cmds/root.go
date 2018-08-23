@@ -46,7 +46,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		project, err := project.NewProjectResolver(fs).Parse(currentDir)
+		project, err := project.NewProjectResolver(fs, project.BranchResolver).Parse(currentDir)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)
