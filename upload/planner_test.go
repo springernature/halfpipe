@@ -77,21 +77,21 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 	expectedPlan := Plan{
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
-			},
-		},
-		{
-			Cmd: exec.Cmd{
 				Path:   "halfpipe",
 				Args:   []string{"halfpipe"},
 				Stderr: stderr,
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
+		},
+		{
+			Cmd: exec.Cmd{
+				Path:   "fly",
+				Args:   []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
+				Stdout: stdout,
+				Stderr: stderr,
+				Stdin:  stdin,
+			},
 		},
 		{
 			Cmd: exec.Cmd{

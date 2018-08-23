@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/upload"
+	"github.com/springernature/halfpipe/project"
 )
 
 func init() {
@@ -29,6 +30,18 @@ func init() {
 
 			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, os.Stdout, os.Stderr, os.Stdin, pipelineFile, nonInteractive)
 
+			currentBranch, err := project.BranchResolver()
+			if err != nil {
+				printErr(err)
+				os.Exit(1)
+			}
+			if currentBranch != "master" {
+				if err := planner.AskBranchSecurityQuestions(currentBranch); err != nil {
+					printErr(err)
+					os.Exit(1)
+				}
+			}
+
 			plan, err := planner.Plan()
 			if err != nil {
 				printErr(err)
@@ -46,3 +59,4 @@ func init() {
 	uploadCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "If this is set, you will not get prompted for action")
 	rootCmd.AddCommand(uploadCmd)
 }
+
