@@ -27,10 +27,11 @@ func deployCFResourceName(task manifest.DeployCF) string {
 	api := strings.Replace(task.API, "https://", "", -1)
 	api = strings.Replace(api, "http://", "", -1)
 
-	// if secret, tidy up
-	api = strings.Replace(api, "((cloudfoundry.", "", -1)
-	api = strings.Replace(api, "))", "", -1)
-	return fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
+	// tidy up secrets a bit
+	name := fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
+	name = strings.Replace(name, "((cloudfoundry.", "", -1)
+	name = strings.Replace(name, "))", "", -1)
+	return name
 }
 
 func uniqueName(cfg *atc.Config, name string, defaultName string) string {
