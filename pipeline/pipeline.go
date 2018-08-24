@@ -37,7 +37,7 @@ func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
-const artifactsFolderName = "artifacts"
+const artifactsDir = "artifacts"
 const gitDir = "git"
 
 const dockerPushResourceName = "Docker Registry"
@@ -263,7 +263,8 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	if task.RestoreArtifacts {
 		jobConfig.Plan = append(jobConfig.Plan, atc.PlanConfig{
-			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),
+			Get:      artifactsDir,
+			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 		})
 	}
 
@@ -291,20 +292,21 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		}}
 
 	if task.RestoreArtifacts {
-		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsDir})
 	}
 
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
 	if len(task.SaveArtifacts) > 0 {
 		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactsFolderName},
+			{Name: artifactsDir},
 		}
 
 		artifactPut := atc.PlanConfig{
-			Put: GenerateArtifactsFolderName(man.Team, man.Pipeline),
+			Put:      artifactsDir,
+			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsFolderName,
+				"folder":       artifactsDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -320,7 +322,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(GenerateArtifactsFolderName(man.Team, man.Pipeline), task.DeployArtifact)
+		appPath = path.Join(artifactsDir, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -330,9 +332,10 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	if len(task.DeployArtifact) > 0 {
 		artifactGet := atc.PlanConfig{
-			Get: GenerateArtifactsFolderName(man.Team, man.Pipeline),
+			Get:      artifactsDir,
+			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsFolderName,
+				"folder":       artifactsDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -492,7 +495,10 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 		Name:   task.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Get: GenerateArtifactsFolderName(man.Team, man.Pipeline)},
+			atc.PlanConfig{
+				Get:      artifactsDir,
+				Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
+			},
 			atc.PlanConfig{
 				Task: "Copying git repo and artifacts to a temporary build dir",
 				TaskConfig: &atc.TaskConfig{
@@ -507,12 +513,12 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 						Path: "/bin/sh",
 						Args: []string{"-c", strings.Join([]string{
 							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/. %s", artifactsFolderName, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+							fmt.Sprintf("cp -r %s/. %s", artifactsDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
-						{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName},
+						{Name: artifactsDir},
 					},
 					Outputs: []atc.TaskOutputConfig{
 						{Name: dockerBuildTmpDir},
@@ -547,7 +553,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 		artifactPath += "../"
 	}
 
-	artifactPath += artifactsFolderName
+	artifactPath += artifactsDir
 	return
 }
 

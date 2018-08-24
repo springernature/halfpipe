@@ -27,10 +27,10 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 		},
 	}
 
-	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
+	artifactResourceName := GenerateArtifactsResourceName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
-	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
+	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsDir})
 }
 
 func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
@@ -48,10 +48,10 @@ func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
 		},
 	}
 
-	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
+	artifactResourceName := GenerateArtifactsResourceName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
-	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: GenerateArtifactsFolderName(man.Team, man.Pipeline), Path: artifactsFolderName})
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
+	assert.Contains(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsDir})
 }
 
 func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
@@ -70,9 +70,9 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 	}
 
-	artifactResourceName := GenerateArtifactsFolderName(man.Team, man.Pipeline)
+	artifactResourceName := GenerateArtifactsResourceName(man.Team, man.Pipeline)
 	renderedPipeline := testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
 
 	runtTaskArgs := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
@@ -96,9 +96,9 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 	}
 
-	artifactResourceName = GenerateArtifactsFolderName(man.Team, man.Pipeline)
+	artifactResourceName = GenerateArtifactsResourceName(man.Team, man.Pipeline)
 	renderedPipeline = testPipeline().Render(man)
-	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactResourceName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
 
 	runtTaskArgs = renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")

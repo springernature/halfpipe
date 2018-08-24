@@ -75,7 +75,7 @@ func ToString(pipeline atc.Config) (string, error) {
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
-func GenerateArtifactsFolderName(team string, pipeline string) string {
+func GenerateArtifactsResourceName(team string, pipeline string) string {
 	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
 	return fmt.Sprintf("artifacts-%s", postfix)
 }

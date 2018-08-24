@@ -85,7 +85,7 @@ func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
 	}
 
 	return atc.ResourceConfig{
-		Name: GenerateArtifactsFolderName(team, pipeline),
+		Name: GenerateArtifactsResourceName(team, pipeline),
 		Type: "gcp-resource",
 		Source: atc.Source{
 			"json_key": "((gcr.private_key))",

@@ -173,16 +173,16 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	cfg := testPipeline().Render(man)
 
-	assert.Len(t, config.ResourceTypes, 1)
-	assert.Equal(t, expectedResourceType, config.ResourceTypes[0])
+	assert.Len(t, cfg.ResourceTypes, 1)
+	assert.Equal(t, expectedResourceType, cfg.ResourceTypes[0])
 
-	assert.Equal(t, expectedDevResource, config.Resources[1])
-	assert.Equal(t, expectedDevJob, config.Jobs[0])
+	assert.Equal(t, expectedDevResource, cfg.Resources[1])
+	assert.Equal(t, expectedDevJob, cfg.Jobs[0])
 
-	assert.Equal(t, expectedLiveResource, config.Resources[2])
-	assert.Equal(t, expectedLiveJob, config.Jobs[1])
+	assert.Equal(t, expectedLiveResource, cfg.Resources[2])
+	assert.Equal(t, expectedLiveJob, cfg.Jobs[1])
 }
 
 func TestRenderWithPrePromoteTasks(t *testing.T) {
@@ -217,6 +217,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Team = "myteam"
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
 
@@ -230,23 +231,24 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	}
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
-	config := pipeline.Render(man)
+	cfg := pipeline.Render(man)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
 
-	assert.Len(t, config.Jobs, 3, "should be 3 jobs")
+	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
 	//docker-compose before
-	assert.Equal(t, dockerComposeTaskBefore.Name, config.Jobs[0].Name)
+	assert.Equal(t, dockerComposeTaskBefore.Name, cfg.Jobs[0].Name)
 
 	//deploy-cf
-	deployJob := config.Jobs[1]
+	deployJob := cfg.Jobs[1]
 	assert.Equal(t, "deploy to dev", deployJob.Name)
 
 	plan := deployJob.Plan
 
 	//halfpipe-push
 	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
-	assert.Equal(t, config.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "artifacts-"+man.Pipeline, (*plan[0].Aggregate)[1].Get)
+	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, artifactsResource, (*plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
 
 	//pre promote 1
@@ -267,7 +269,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
 
 	//docker-compose after
-	dockerComposeAfter := config.Jobs[2]
+	dockerComposeAfter := cfg.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
 	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
 }
@@ -315,6 +317,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man.Team = "myteam"
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
 
@@ -328,24 +331,24 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	}
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
-	config := pipeline.Render(man)
-	fmt.Println(ToString(config))
+	cfg := pipeline.Render(man)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
 
-	assert.Len(t, config.Jobs, 3, "should be 3 jobs")
+	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
 	//docker-compose before
-	assert.Equal(t, dockerComposeTaskBefore.Name, config.Jobs[0].Name)
+	assert.Equal(t, dockerComposeTaskBefore.Name, cfg.Jobs[0].Name)
 
 	//deploy-cf
-	deployJob := config.Jobs[1]
+	deployJob := cfg.Jobs[1]
 	assert.Equal(t, "deploy to dev", deployJob.Name)
 
 	plan := deployJob.Plan
 
 	//halfpipe-push
 	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
-	assert.Equal(t, config.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "artifacts-"+man.Pipeline, (*plan[0].Aggregate)[1].Get)
+	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, artifactsResource, (*plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
 
 	//pre promote 1
@@ -355,7 +358,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	assert.Equal(t, "artifacts-mypipeline", (*plan[3].Do)[0].Get)
+	assert.Equal(t, artifactsResource, (*plan[3].Do)[0].Resource)
 	pp2 := (*plan[3].Do)[1]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
@@ -368,7 +371,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
 
 	//docker-compose after
-	dockerComposeAfter := config.Jobs[2]
+	dockerComposeAfter := cfg.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
 	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
 }

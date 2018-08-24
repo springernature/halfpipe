@@ -138,7 +138,8 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
-  - put: artifacts-engineering-enablement-e2e-test
+  - put: artifacts
+    resource: artifacts-engineering-enablement-e2e-test
     params:
       folder: artifacts
       version_file: git/.git/ref
@@ -192,14 +193,15 @@ jobs:
       passed:
       - Test
       trigger: true
-    - get: artifacts-engineering-enablement-e2e-test
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
       params:
         folder: artifacts
         version_file: git/.git/ref
   - put: cf halfpipe-push
     resource: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts-engineering-enablement-e2e-test/target/distribution/artifact.zip
+      appPath: artifacts/target/distribution/artifact.zip
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/manifest.yml
@@ -286,7 +288,8 @@ jobs:
     attempts: 2
   - aggregate:
     - do:
-      - get: artifacts-engineering-enablement-e2e-test
+      - get: artifacts
+        resource: artifacts-engineering-enablement-e2e-test
       - task: run smoke-test.sh
         config:
           platform: linux
@@ -322,8 +325,8 @@ jobs:
           inputs:
           - name: git
             path: ""
-          - name: artifacts-engineering-enablement-e2e-test
-            path: artifacts
+          - name: artifacts
+            path: ""
           caches:
           - path: ../../../root/.gradle/
           - path: ../../../root/.m2/
@@ -526,12 +529,14 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
-    - put: artifacts-engineering-enablement-e2e-test
+    - put: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
       params:
         folder: artifacts
         version_file: git/.git/ref
   - do:
-    - get: artifacts-engineering-enablement-e2e-test
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
     - task: restore artifact in pre promote
       config:
         platform: linux
@@ -567,8 +572,8 @@ jobs:
         inputs:
         - name: git
           path: ""
-        - name: artifacts-engineering-enablement-e2e-test
-          path: artifacts
+        - name: artifacts
+          path: ""
         caches:
         - path: ../../../root/.gradle/
         - path: ../../../root/.m2/
@@ -981,7 +986,8 @@ jobs:
       passed:
       - another-c-name
       trigger: true
-    - get: artifacts-engineering-enablement-e2e-test
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
   - task: deploy-ml-zip
     config:
       platform: linux
@@ -1018,8 +1024,8 @@ jobs:
       inputs:
       - name: git
         path: ""
-      - name: artifacts-engineering-enablement-e2e-test
-        path: artifacts
+      - name: artifacts
+        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/

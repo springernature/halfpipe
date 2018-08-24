@@ -62,11 +62,13 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 			SaveArtifacts: []string{"build/lib/artifact.jar"},
 		},
 	}
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Equal(t, "artifacts-team-pipeline", renderedPipeline.Jobs[0].Plan[2].Put)
-	assert.Equal(t, "artifacts", renderedPipeline.Jobs[0].Plan[2].Params["folder"])
+	assert.Equal(t, artifactsDir, renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, artifactsResource, renderedPipeline.Jobs[0].Plan[2].Resource)
+	assert.Equal(t, artifactsDir, renderedPipeline.Jobs[0].Plan[2].Params["folder"])
 	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
@@ -74,7 +76,7 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
 
-	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
+	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
 	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
@@ -94,11 +96,13 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 1)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 
-	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsDir, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, gitDir+"/.git/ref", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
@@ -106,7 +110,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
 
-	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsFolderName(man.Team, man.Pipeline))
+	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
 	assert.Equal(t, path.Join(man.Team, man.Pipeline), resource.Source["folder"])
@@ -134,15 +138,17 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
 
 	// order of the plans is important
-	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
 
-	expectedAppPath := fmt.Sprintf("artifacts-%s-%s/%s", man.Team, man.Pipeline, deployArtifactPath)
+	expectedAppPath := fmt.Sprintf("%s/%s", artifactsDir, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
@@ -164,14 +170,16 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
 
 	// order if the plans is important
-	assert.Equal(t, "artifacts-team-pipeline", (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
-	assert.Equal(t, "artifacts-team-pipeline/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
+	assert.Equal(t, artifactsDir+"/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
 func TestCopyArtifactScript(t *testing.T) {
