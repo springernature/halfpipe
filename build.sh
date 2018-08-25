@@ -1,6 +1,12 @@
 #!/usr/bin/env sh
 set -e
 
+go version | grep -q 'go1.11' || (
+    go version
+    echo error: go1.11 required
+    exit 1
+)
+
 echo [1/5] fmt ..
 go fmt ./...
 
