@@ -20,9 +20,9 @@ jobs:
           repository: golang
           tag: 1.11rc2-stretch
       run:
-        path: /bin/sh
+        path: /bin/bash
         args:
-        - -exc
+        - -ec
         - |
           cd halfpipe
           export GOCACHE=/halfpipe-cache
@@ -48,7 +48,7 @@ jobs:
           repository: golang
           tag: 1.11rc2-stretch
       run:
-        path: /bin/sh
+        path: /bin/bash
         args:
         - -ec
         - |
