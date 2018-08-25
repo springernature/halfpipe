@@ -4,7 +4,7 @@ resources:
   type: git
   source:
     branch: go1.11
-    uri: git@github.com:springernature/halfpipe.git
+    uri: https://github.com/springernature/halfpipe.git
 jobs:
 - name: Test
   serial: true
@@ -18,22 +18,25 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.11rc2-alpine3.8
+          tag: 1.11rc2-stretch
       run:
         path: /bin/sh
         args:
-        - -ec
+        - -exc
         - |
-          go test ./...
-          cd e2e_test
-          ./test.sh
+          cd halfpipe
+          export GOCACHE=/halfpipe-cache
+          ./build.sh
       inputs:
       - name: halfpipe
+      caches:
+      - path: ../../../halfpipe-cache
 - name: Build
   disable_manual_trigger: true
   plan:
   - aggregate:
     - get: halfpipe
+      trigger: true
       passed:
       - Test
   - task: Build
@@ -43,12 +46,14 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.11rc2-alpine3.8
+          tag: 1.11rc2-stretch
       run:
         path: /bin/sh
         args:
         - -ec
         - |
+          cd halfpipe
+          export GOCACHE=/halfpipe-cache
           export VERSION="0.0.0-test"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
@@ -67,3 +72,5 @@ jobs:
       - name: halfpipe
       outputs:
       - name: binaries
+      caches:
+      - path: ../../../halfpipe-cache

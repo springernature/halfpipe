@@ -1,5 +1,5 @@
-set -e
-set -o pipefail
+#/usr/bin/env bash
+set -euo pipefail
 
 HALFPIPE_PATH=${1:-"../halfpipe"}
 
