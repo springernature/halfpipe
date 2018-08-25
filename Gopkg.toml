@@ -1,8 +1,0 @@
-[prune]
-  non-go = true
-  unused-packages = true
-  go-tests = true
-
-[[constraint]]
-  name = "github.com/concourse/atc"
-  revision = "f233e595b00f4308a63baececc96d52af4d8a92e"
