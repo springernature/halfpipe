@@ -17,12 +17,5 @@ In theory yes, but there is some Springer Nature specific stuff in here. With th
 # How to I test and build?
 
 ```
-go get github.com/springernature/halfpipe
-go get golang.org/x/tools/cmd/goimports
-go get -u github.com/alecthomas/gometalinter && gometalinter --install
-brew install dep
-
-cd $GOPATH/src/github.com/springernature/halfpipe
 ./build.sh
 ```
-
