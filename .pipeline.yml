@@ -25,7 +25,7 @@ jobs:
         - -ec
         - |
           cd halfpipe
-          ./build.sh
+          ./build.sh ci
       inputs:
       - name: halfpipe
       caches:
