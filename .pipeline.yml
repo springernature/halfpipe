@@ -6,12 +6,12 @@ resources:
     branch: go1.11
     uri: https://github.com/springernature/halfpipe.git
 jobs:
-- name: Test
+- name: test
   serial: true
   plan:
   - get: halfpipe
     trigger: true
-  - task: Test
+  - task: test
     config:
       platform: linux
       image_resource:
@@ -30,14 +30,14 @@ jobs:
       - name: halfpipe
       caches:
       - path: ../../../halfpipe-cache
-- name: Build
+- name: build
   plan:
   - aggregate:
     - get: halfpipe
       trigger: true
       passed:
-      - Test
-  - task: Build
+      - test
+  - task: build
     config:
       platform: linux
       image_resource:
