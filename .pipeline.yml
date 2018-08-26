@@ -25,14 +25,12 @@ jobs:
         - -ec
         - |
           cd halfpipe
-          export GOCACHE=/halfpipe-cache
           ./build.sh
       inputs:
       - name: halfpipe
       caches:
       - path: ../../../halfpipe-cache
 - name: Build
-  disable_manual_trigger: true
   plan:
   - aggregate:
     - get: halfpipe
@@ -53,7 +51,7 @@ jobs:
         - -ec
         - |
           cd halfpipe
-          export GOCACHE=/halfpipe-cache
+          export GOPATH=/halfpipe-cache/go
           export VERSION="0.0.0-test"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
@@ -66,8 +64,8 @@ jobs:
           CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe binaries
-          ls -lah binaries
+          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe ../binaries
+          ls -lah ../binaries
       inputs:
       - name: halfpipe
       outputs:
