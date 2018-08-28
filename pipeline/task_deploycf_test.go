@@ -398,4 +398,6 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 	assert.Equal(t, gitDir, getSteps[0].Get)
 	assert.Equal(t, artifactsDir, getSteps[1].Get)
 
+	assert.Equal(t, taskDeploy.Manifest, plan[1].Params["manifestPath"])
+
 }

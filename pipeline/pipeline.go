@@ -317,7 +317,12 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 }
 
 func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config) *atc.JobConfig {
-	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
+	manifestPath := task.Manifest
+
+	if !strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
+		manifestPath = path.Join(gitDir, man.Repo.BasePath, task.Manifest)
+	}
+
 	vars := convertVars(task.Vars)
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
