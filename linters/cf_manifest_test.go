@@ -234,3 +234,22 @@ func TestWorkerApp(t *testing.T) {
 	result := linter.Lint(man)
 	assert.Empty(t, result.Errors)
 }
+
+func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
+	readerGivesError := func(s string) ([]cfManifest.Application, error) {
+		return nil, errors.New("x")
+	}
+	linter := cfManifestLinter{readCfManifest: readerGivesError}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{
+				Manifest: "../artifacts/manifest.yml",
+			},
+		},
+	}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, result.Errors, 0)
+}

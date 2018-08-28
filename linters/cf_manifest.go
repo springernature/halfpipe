@@ -4,6 +4,8 @@ import (
 	goErrors "errors"
 	"fmt"
 
+	"strings"
+
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
@@ -32,6 +34,13 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 	}
 
 	for _, manifestPath := range manifestPaths {
+
+		//skip linting if file provided as an artifact
+		//task linter will warn that file needs to be generated in previous task
+		if strings.HasPrefix(manifestPath, "../artifacts/") {
+			return
+		}
+
 		apps, err := linter.readCfManifest(manifestPath)
 
 		if err != nil {
