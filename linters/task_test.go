@@ -578,3 +578,23 @@ func TestLintsTheTimeoutInDeployTask(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assertInvalidField(t, "tasks[0] deploy-cf.timeout", result.Errors[0])
 }
+
+func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
+	taskLinter := testTaskLinter()
+	man := manifest.Manifest{}
+	man.Tasks = []manifest.Task{
+		manifest.DeployCF{
+			Manifest:   "../artifacts/manifest.yml",
+			API:        "api",
+			Space:      "space",
+			Org:        "org",
+			TestDomain: "test.domain",
+		},
+	}
+
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+	assert.Len(t, result.Warnings, 1)
+
+	println(result.Warnings)
+}

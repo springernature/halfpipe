@@ -134,7 +134,9 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 		}
 	}
 
-	if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
+	if strings.HasPrefix(cf.Manifest, "../artifacts/") {
+		result.AddWarning(errors.NewFileError(cf.Manifest, "this file must be saved as an artifact in a previous task"))
+	} else if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
 		result.AddError(err)
 	}
 
