@@ -330,7 +330,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		Serial: true,
 	}
 
-	if len(task.DeployArtifact) > 0 {
+	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
 		artifactGet := atc.PlanConfig{
 			Get:      artifactsDir,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),

@@ -375,3 +375,27 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
 	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
 }
+
+func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
+	taskDeploy := manifest.DeployCF{
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		Username:   "user",
+		Password:   "password",
+		TestDomain: "test.domain",
+		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsDir),
+	}
+
+	man := manifest.Manifest{
+		Repo:  manifest.Repo{URI: "git@github.com:foo/reponame"},
+		Tasks: []manifest.Task{taskDeploy},
+	}
+
+	plan := testPipeline().Render(man).Jobs[0].Plan
+
+	getSteps := *plan[0].Aggregate
+	assert.Equal(t, gitDir, getSteps[0].Get)
+	assert.Equal(t, artifactsDir, getSteps[1].Get)
+
+}
