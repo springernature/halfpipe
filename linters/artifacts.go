@@ -15,7 +15,7 @@ func NewArtifactsLinter() artifactsLinter {
 
 func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Artifacts"
-	result.DocsURL = "https://docs.halfpipe.io/docs/artifacts/"
+	result.DocsURL = "https://docs.halfpipe.io/artifacts/"
 
 	noPreviousArtifactErr := func(field string) error {
 		return errors.NewInvalidField(field, fmt.Sprintf("No previous task has saved an artifact"))

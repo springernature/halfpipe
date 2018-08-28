@@ -190,7 +190,7 @@ func (p planner) AskBranchSecurityQuestions(currentBranch string) (err error) {
 	fmt.Fprintln(p.stdout)
 	fmt.Fprintln(p.stdout, "WARNING! You are running halfpipe on a branch. WARNING!")
 	fmt.Fprintln(p.stdout)
-	if secErr := askSecurityQuestion("Have you made sure the cf manifest you are using in the cf-deploy resource are using different routes than on the master branch and have you read the docs at https://docs.halfpipe.io/docs/branches  [y/N]: ", []string{"y", "yes", "Y", "Yes", "YES"}, p.stdout, p.stdin); secErr != nil {
+	if secErr := askSecurityQuestion("Have you made sure the cf manifest you are using in the cf-deploy resource are using different name and routes than on the master branch and have you read the docs at https://docs.halfpipe.io/branches  [y/N]: ", []string{"y", "yes", "Y", "Yes", "YES"}, p.stdout, p.stdin); secErr != nil {
 		err = secErr
 		return
 	}

@@ -20,7 +20,7 @@ func NewCfManifestLinter(cfManifestReader pipeline.CfManifestReader) cfManifestL
 
 func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "CF Manifest Linter"
-	result.DocsURL = "https://docs.halfpipe.io/docs/cf-deployment/"
+	result.DocsURL = "https://docs.halfpipe.io/cf-deployment/"
 
 	var manifestPaths []string
 

@@ -26,7 +26,7 @@ func NewTasksLinter(fs afero.Afero) taskLinter {
 
 func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Tasks"
-	result.DocsURL = "https://docs.halfpipe.io/docs/manifest/#tasks"
+	result.DocsURL = "https://docs.halfpipe.io/manifest/#tasks"
 
 	if len(man.Tasks) == 0 {
 		result.AddError(errors.NewMissingField("tasks"))

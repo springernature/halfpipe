@@ -43,7 +43,7 @@ func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
 func (c Controller) Process() (config atc.Config, results linters.LintResults) {
 	man, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, linters.NewLintResult("Halfpipe", "https://docs.halfpipe.io/docs/manifest/#Manifest", errs, nil))
+		results = append(results, linters.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", errs, nil))
 		return
 	}
 

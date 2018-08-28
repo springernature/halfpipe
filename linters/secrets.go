@@ -26,7 +26,7 @@ func NewSecretsLinter(secretPrefix string, storeFunc secrets.SecretStoreFunc) Li
 
 func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Secrets"
-	result.DocsURL = "https://docs.halfpipe.io/docs/vault/"
+	result.DocsURL = "https://docs.halfpipe.io/vault/"
 
 	if manifest.Team == "" {
 		return
