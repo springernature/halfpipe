@@ -1,20 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ci=0
-go_opts=""
-if [ "${1:-}" == "ci" ]; then
-    ci=1
-    go_opts="-mod=readonly" # fail if go.mod needs updating
-
-    if [ -d /halfpipe-cache ]; then
-        export GOPATH=/halfpipe-cache/go
-        echo GOPATH=/halfpipe-cache/go
-        du -hd1 /halfpipe-cache
-    fi
-fi
-
-
 go version | grep -q 'go1.11' || (
     go version
     echo error: go1.11 required
@@ -25,7 +11,7 @@ echo [1/6] getting dependencies
 go mod download > /dev/null
 
 echo [2/6] fmt
-(($ci)) || go fmt ./...
+go fmt ./...
 
 echo [3/6] test
 go test $go_opts -cover ./...

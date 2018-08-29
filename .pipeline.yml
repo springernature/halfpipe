@@ -62,19 +62,20 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.10-alpine3.7
+          tag: 1.11-stretch
       run:
-        path: /bin/sh
+        path: /bin/bash
         args:
         - -ec
         - |
-          ls -al
-          export GOPATH=$PWD
-          cd src/github.com/springernature/halfpipe
-          go test ./...
+          export GOPATH=/halfpipe-cache/go
+          cd halfpipe
+          ./build.sh ci
       inputs:
       - name: halfpipe
-        path: /src/github.com/springernature/halfpipe
+      caches:
+      - path: ../../../halfpipe-cache
+
 - name: Bump Major
   plan:
   - put: version
@@ -90,51 +91,13 @@ jobs:
   - put: version
     params:
       bump: patch
-- name: End2End Test
-  serial: true
-  plan:
-  - get: halfpipe
-    passed:
-    - Test
-    trigger: true
-  - task: Test
-    config:
-      platform: linux
-      image_resource:
-        type: docker-image
-        source:
-          password: ((gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
-          username: _json_key
-      run:
-        path: /bin/sh
-        args:
-        - -ec
-        - |
-          export ROOT="$PWD"
-          export GOPATH="$PWD"
-          export CONF_PKG="github.com/springernature/halfpipe/config"
-          export LDFLAGS="-X ${CONF_PKG}.Version=0.0.0-DEV"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
-          echo "LDFLAGS=${LDFLAGS}"
-
-          # Build binaries
-          cd src/github.com/springernature/halfpipe
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux -ldflags "${LDFLAGS}" cmd/halfpipe.go
-
-          cd e2e_test
-          ./test.sh ../halfpipe_linux
-      inputs:
-      - name: halfpipe
-        path: /src/github.com/springernature/halfpipe
 - name: Release
   disable_manual_trigger: true
   plan:
   - aggregate:
     - get: halfpipe
       passed:
-      - End2End Test
+      - Test
     - get: version
       trigger: true
   - task: Build
@@ -144,14 +107,14 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.10-alpine3.7
+          tag: 1.11-stretch
       run:
         path: /bin/sh
         args:
         - -ec
         - |
-          export ROOT="$PWD"
-          export GOPATH="$PWD"
+          export ROOT=$pwd
+          export GOPATH=/halfpipe-cache/go
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
@@ -160,7 +123,8 @@ jobs:
           echo "LDFLAGS=${LDFLAGS}"
 
           # Build binaries
-          cd src/github.com/springernature/halfpipe
+          cd halfpipe
+          go mod download
           CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
@@ -168,10 +132,12 @@ jobs:
           cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
       inputs:
       - name: halfpipe
-        path: src/github.com/springernature/halfpipe
       - name: version
       outputs:
       - name: binaries
+      caches:
+      - path: ../../../halfpipe-cache
+
   - put: halfpipe
     params:
       repository: halfpipe
