@@ -7,6 +7,8 @@ go version | grep -q 'go1.11' || (
     exit 1
 )
 
+go_opts="-mod=readonly"
+
 echo [1/6] getting dependencies
 go mod download > /dev/null
 

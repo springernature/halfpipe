@@ -4,7 +4,7 @@ resources:
 - name: git
   type: git
   source:
-    branch: go1.11
+    branch: master
     uri: https://github.com/robwhitby/halfpipe-example-nodejs
 - name: slack
   type: slack-notification
