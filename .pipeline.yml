@@ -18,7 +18,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.11rc2-stretch
+          tag: 1.11-stretch
       run:
         path: /bin/bash
         args:
@@ -44,7 +44,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.11rc2-stretch
+          tag: 1.11-stretch
       run:
         path: /bin/bash
         args:
