@@ -6,13 +6,14 @@ go_opts=""
 if [ "${1:-}" == "ci" ]; then
     ci=1
     go_opts="-mod=readonly" # fail if go.mod needs updating
+
+    if [ -d /halfpipe-cache ]; then
+        export GOPATH=/halfpipe-cache/go
+        echo GOPATH=/halfpipe-cache/go
+        du -hd1 /halfpipe-cache
+    fi
 fi
 
-if [ -d /halfpipe-cache ]; then
-    export GOPATH=/halfpipe-cache/go
-    echo GOPATH=/halfpipe-cache/go
-    du -hd1 /halfpipe-cache
-fi
 
 go version | grep -q 'go1.11' || (
     go version
@@ -20,13 +21,16 @@ go version | grep -q 'go1.11' || (
     exit 1
 )
 
-echo [1/5] fmt
+echo [1/6] getting dependencies
+go mod download > /dev/null
+
+echo [2/6] fmt
 (($ci)) || go fmt ./...
 
-echo [2/5] test
+echo [3/6] test
 go test $go_opts -cover ./...
 
-echo [3/5] lint
+echo [4/6] lint
 # gometalinter not happy with 1.11
 # if command -v gometalinter > /dev/null; then
 #     gometalinter --fast \
@@ -39,14 +43,14 @@ echo [3/5] lint
 #     echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
 # fi
 
-echo [4/5] build
+echo [5/6] build
 CONF_PKG="github.com/springernature/halfpipe/config"
 LDFLAGS="-X ${CONF_PKG}.VaultPrefix=springernature"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-echo [5/5] e2e test
+echo [6/6] e2e test
 if ! e2e=$(cd e2e_test; ./test.sh 2>&1); then
     echo "${e2e}"
     exit 1
