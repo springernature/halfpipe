@@ -113,7 +113,7 @@ jobs:
         args:
         - -ec
         - |
-          export ROOT=$pwd
+          export ROOT=`pwd`
           export GOPATH=/halfpipe-cache/go
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
