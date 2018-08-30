@@ -7,18 +7,19 @@ go version | grep -q 'go1.11' || (
     exit 1
 )
 
-go_opts="-mod=readonly"
+go_opts=""
+if [ "${1-}" = "ci" ]; then
+    echo CI
+    go_opts="-mod=readonly"
+fi
 
-echo [1/6] getting dependencies
-go mod download > /dev/null
-
-echo [2/6] fmt
+echo [1/5] fmt
 go fmt ./...
 
-echo [3/6] test
+echo [2/5] test
 go test $go_opts -cover ./...
 
-echo [4/6] lint
+echo [3/5] lint
 # gometalinter not happy with 1.11
 # if command -v gometalinter > /dev/null; then
 #     gometalinter --fast \
@@ -31,14 +32,14 @@ echo [4/6] lint
 #     echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
 # fi
 
-echo [5/6] build
+echo [4/5] build
 CONF_PKG="github.com/springernature/halfpipe/config"
 LDFLAGS="-X ${CONF_PKG}.VaultPrefix=springernature"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-echo [6/6] e2e test
+echo [5/5] e2e test
 if ! e2e=$(cd e2e_test; ./test.sh 2>&1); then
     echo "${e2e}"
     exit 1
