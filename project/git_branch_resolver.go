@@ -30,12 +30,14 @@ If the above check are untrue we can assume that we are on a developer machine a
 */
 type GitBranchResolver func() (branch string, err error)
 
-func runGitBranch() (output []string, err error) {
+func gitIsOnPath() error {
 	if _, e := exec.LookPath("git"); e != nil {
-		err = ErrGitNotFound
-		return
+		return ErrGitNotFound
 	}
+	return nil
+}
 
+func runGitBranch() (output []string, err error) {
 	var stdout bytes.Buffer
 	cmd := exec.Command("git", "branch")
 	cmd.Stdout = &stdout
@@ -77,15 +79,43 @@ func runningInConcourse(gitBranchOutput []string, gitRevParseOutput []string) bo
 	return false
 }
 
+func makeSureThereIsCommits() (err error) {
+	var stderr bytes.Buffer
+	cmd := exec.Command("git", "log", "-1")
+	cmd.Stdout = ioutil.Discard
+	cmd.Stderr = &stderr
+
+	if runErr := cmd.Run(); runErr != nil {
+		if strings.Contains(stderr.String(), "does not have any commits yet") {
+			return ErrNoCommits
+		}
+		return runErr
+	}
+
+	return
+}
+
 func BranchResolver() (branch string, err error) {
+	err = gitIsOnPath()
+	if err != nil {
+		return
+	}
+
+	// If you have done a `git init` and a `git remote add origin` but not commited anything yet
+	// The calls below will fail.
+	err = makeSureThereIsCommits()
+	if err != nil {
+		return
+	}
+
 	gitBranchOutput, err := runGitBranch()
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	gitRevParseOutput, err := runGitRevParse()
 	if err != nil {
-		panic(err)
+		return
 	}
 
 	if runningInConcourse(gitBranchOutput, gitRevParseOutput) {
