@@ -76,14 +76,14 @@ func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 		return
 	}
 
-	origin, e := c.OriginURL()
-	if e != nil {
-		err = ErrNoOriginConfigured
+	basePath, rootName, err := pathRelativeToGit(workingDir)
+	if err != nil {
 		return
 	}
 
-	basePath, rootName, err := pathRelativeToGit(workingDir)
-	if err != nil {
+	origin, e := c.OriginURL()
+	if e != nil {
+		err = ErrNoOriginConfigured
 		return
 	}
 

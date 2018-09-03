@@ -32,7 +32,15 @@ func TestErrorsIfGitNotFoundOnPath(t *testing.T) {
 
 func TestErrorsIfNotInGitRepo(t *testing.T) {
 	pr := testProjectResolver()
+
+	_, err := pr.Parse("/project/root")
+	assert.Equal(t, ErrNotInRepo, err)
+}
+
+func TestErrorsIfNoGitOriginConfigured(t *testing.T) {
+	pr := testProjectResolver()
 	pr.OriginURL = func() (string, error) { return "", errors.New("dummy") }
+	pr.Fs.MkdirAll("/project/root/.git", 0777)
 
 	_, err := pr.Parse("/project/root")
 	assert.Equal(t, ErrNoOriginConfigured, err)
