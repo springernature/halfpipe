@@ -32,8 +32,9 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Team = "yoLo"
 
 	result := testTeamLinter().Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertInvalidField(t, "team", result.Errors[0])
+	assert.Len(t, result.Warnings, 1)
+	assert.Len(t, result.Errors, 0)
+	assertInvalidField(t, "team", result.Warnings[0])
 }
 
 func TestPipelineIsMissing(t *testing.T) {
