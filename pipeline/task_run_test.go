@@ -15,7 +15,7 @@ func TestRenderRunTask(t *testing.T) {
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Retries: 2,
-			Script:   "./yolo.sh",
+			Script:  "./yolo.sh",
 			Docker: manifest.Docker{
 				Image:    "imagename:TAG",
 				Username: "",

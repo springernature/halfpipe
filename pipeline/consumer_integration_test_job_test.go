@@ -121,7 +121,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.ConsumerIntegrationTest{
-				Retries:     2,
+				Retries:      2,
 				Name:         "c-name",
 				Consumer:     "c-consumer/c-path",
 				ConsumerHost: "c-host",

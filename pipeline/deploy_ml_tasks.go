@@ -9,8 +9,8 @@ import (
 func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
 		Retries: mlTask.Retries,
-		Name:     mlTask.Name,
-		Script:   "/ml-deploy/deploy-ml-modules",
+		Name:    mlTask.Name,
+		Script:  "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
@@ -36,8 +36,8 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
 		Retries: mlTask.Retries,
-		Name:     mlTask.Name,
-		Script:   "/ml-deploy/deploy-local-zip",
+		Name:    mlTask.Name,
+		Script:  "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",

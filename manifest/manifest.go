@@ -5,9 +5,9 @@ type TaskList []Task
 type Manifest struct {
 	Team            string
 	Pipeline        string
-	SlackChannel    string   `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	TriggerInterval string   `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
-	Repo            Repo     `yaml:"repo,omitempty"`
+	SlackChannel    string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
+	Repo            Repo   `yaml:"repo,omitempty"`
 	Tasks           TaskList
 	OnFailure       TaskList `json:"on_failure" yaml:"on_failure,omitempty"`
 	AutoUpdate      bool     `json:"auto_update" yaml:"auto_update,omitempty"`
@@ -38,7 +38,7 @@ type Task interface{}
 type Run struct {
 	Type             string
 	Name             string
-	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script           string
 	Docker           Docker
 	Vars             Vars     `yaml:"vars,omitempty"`
@@ -65,7 +65,7 @@ type DockerCompose struct {
 	Type             string
 	Name             string
 	Command          string
-	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars             Vars
 	Service          string
 	SaveArtifacts    []string `json:"save_artifacts"`
@@ -77,20 +77,20 @@ type DockerCompose struct {
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
 	API            string
 	Space          string
 	Org            string
 	Username       string
 	Password       string
 	Manifest       string
-	TestDomain     string   `json:"test_domain" yaml:"test_domain"`
+	TestDomain     string `json:"test_domain" yaml:"test_domain"`
 	Vars           Vars
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
 	Timeout        string
-	Retries        int      `yaml:"retries,omitempty"`
+	Retries        int `yaml:"retries,omitempty"`
 }
 
 type ConsumerIntegrationTest struct {
@@ -103,7 +103,7 @@ type ConsumerIntegrationTest struct {
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars
-	Retries              int    `yaml:"retries,omitempty"`
+	Retries              int `yaml:"retries,omitempty"`
 }
 
 type DeployMLZip struct {
@@ -114,8 +114,8 @@ type DeployMLZip struct {
 	AppName       string `json:"app_name"`
 	AppVersion    string `json:"app_version"`
 	Targets       []string
-	ManualTrigger bool   `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries       int    `yaml:"retries,omitempty"`
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries       int  `yaml:"retries,omitempty"`
 }
 
 type DeployMLModules struct {
@@ -126,8 +126,8 @@ type DeployMLModules struct {
 	AppName          string `json:"app_name"`
 	AppVersion       string `json:"app_version"`
 	Targets          []string
-	ManualTrigger    bool   `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries          int    `yaml:"retries,omitempty"`
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries          int  `yaml:"retries,omitempty"`
 }
 
 type Vars map[string]string

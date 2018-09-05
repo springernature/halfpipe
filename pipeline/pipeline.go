@@ -464,8 +464,8 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
 		Retries: task.Retries,
-		Name:     task.Name,
-		Script:   dockerComposeScript(task.Service, vars, task.Command),
+		Name:    task.Name,
+		Script:  dockerComposeScript(task.Service, vars, task.Command),
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
