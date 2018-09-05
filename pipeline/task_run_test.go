@@ -14,7 +14,7 @@ func TestRenderRunTask(t *testing.T) {
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
-			Attempts: 2,
+			Retries: 2,
 			Script:   "./yolo.sh",
 			Docker: manifest.Docker{
 				Image:    "imagename:TAG",
@@ -34,7 +34,7 @@ func TestRenderRunTask(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
-				Attempts:   2,
+				Attempts:   3,
 				Task:       "run yolo.sh",
 				Privileged: false,
 				TaskConfig: &atc.TaskConfig{

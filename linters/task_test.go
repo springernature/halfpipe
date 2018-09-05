@@ -603,72 +603,72 @@ func TestAttempts(t *testing.T) {
 	taskLinter := testTaskLinter()
 	man := manifest.Manifest{}
 	man.Tasks = []manifest.Task{
-		manifest.Run{Attempts: -20},
-		manifest.DockerPush{Attempts: -1},
-		manifest.DockerCompose{Attempts: -324},
+		manifest.Run{Retries: -20},
+		manifest.DockerPush{Retries: -1},
+		manifest.DockerCompose{Retries: -324},
 		manifest.DeployCF{
-			Attempts: -3,
+			Retries: -3,
 			PrePromote: []manifest.Task{
-				manifest.Run{Attempts: -100},
+				manifest.Run{Retries: -100},
 			},
 		},
-		manifest.ConsumerIntegrationTest{Attempts: -1},
-		manifest.DeployMLZip{Attempts: -200},
-		manifest.DeployMLModules{Attempts: -1337},
+		manifest.ConsumerIntegrationTest{Retries: -1},
+		manifest.DeployMLZip{Retries: -200},
+		manifest.DeployMLModules{Retries: -1337},
 	}
 
 	result := taskLinter.Lint(man)
-	assertInvalidFieldInErrors(t, "run.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-cf.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "docker-push.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "docker-compose.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "consumer-integration-test.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-zip.attempts", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-modules.attempts", result.Errors)
+	assertInvalidFieldInErrors(t, "run.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "deploy-cf.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "docker-push.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "docker-compose.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "consumer-integration-test.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "deploy-ml-zip.retries", result.Errors)
+	assertInvalidFieldInErrors(t, "deploy-ml-modules.retries", result.Errors)
 
 	man.Tasks = []manifest.Task{
-		manifest.Run{Attempts: 6},
-		manifest.DockerPush{Attempts: 6},
-		manifest.DockerCompose{Attempts: 6},
-		manifest.DeployCF{Attempts: 6, PrePromote: []manifest.Task{
-			manifest.Run{Attempts: 6},
+		manifest.Run{Retries: 6},
+		manifest.DockerPush{Retries: 6},
+		manifest.DockerCompose{Retries: 6},
+		manifest.DeployCF{Retries: 6, PrePromote: []manifest.Task{
+			manifest.Run{Retries: 6},
 		}},
-		manifest.ConsumerIntegrationTest{Attempts: 6},
-		manifest.DeployMLZip{Attempts: 6},
-		manifest.DeployMLModules{Attempts: 6},
+		manifest.ConsumerIntegrationTest{Retries: 6},
+		manifest.DeployMLZip{Retries: 6},
+		manifest.DeployMLModules{Retries: 6},
 	}
 
 	result2 := taskLinter.Lint(man)
-	assertInvalidFieldInErrors(t, "run.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-cf.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "docker-push.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "docker-compose.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "consumer-integration-test.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-zip.attempts", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-modules.attempts", result2.Errors)
+	assertInvalidFieldInErrors(t, "run.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "deploy-cf.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "docker-push.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "docker-compose.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "consumer-integration-test.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "deploy-ml-zip.retries", result2.Errors)
+	assertInvalidFieldInErrors(t, "deploy-ml-modules.retries", result2.Errors)
 
 	man.Tasks = []manifest.Task{
-		manifest.Run{Attempts: 1},
-		manifest.DockerPush{Attempts: 2},
-		manifest.DockerCompose{Attempts: 3},
-		manifest.DeployCF{Attempts: 4,
+		manifest.Run{Retries: 0},
+		manifest.DockerPush{Retries: 2},
+		manifest.DockerCompose{Retries: 3},
+		manifest.DeployCF{Retries: 4,
 			PrePromote: []manifest.Task{
-				manifest.Run{Attempts: 2},
+				manifest.Run{Retries: 0},
 			},
 		},
-		manifest.ConsumerIntegrationTest{Attempts: 5},
-		manifest.DeployMLZip{Attempts: 4},
-		manifest.DeployMLModules{Attempts: 3},
+		manifest.ConsumerIntegrationTest{Retries: 5},
+		manifest.DeployMLZip{Retries: 4},
+		manifest.DeployMLModules{Retries: 3},
 	}
 	result3 := taskLinter.Lint(man)
-	assertInvalidFieldShouldNotBeInErrors(t, "run.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "tasks[3].pre_promote[0] run.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "docker-push.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "docker-compose.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "consumer-integration-test.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-zip.attempts", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-modules.attempts", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "run.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "tasks[3].pre_promote[0] run.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "docker-push.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "docker-compose.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "consumer-integration-test.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-zip.retries", result3.Errors)
+	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-modules.retries", result3.Errors)
 }

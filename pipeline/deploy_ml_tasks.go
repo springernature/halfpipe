@@ -8,7 +8,7 @@ import (
 
 func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
-		Attempts: mlTask.Attempts,
+		Retries: mlTask.Retries,
 		Name:     mlTask.Name,
 		Script:   "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
@@ -35,7 +35,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 
 func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
-		Attempts: mlTask.Attempts,
+		Retries: mlTask.Retries,
 		Name:     mlTask.Name,
 		Script:   "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{

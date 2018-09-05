@@ -23,7 +23,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 
 	// it is really just a special run job, so let's reuse that
 	runTask := manifest.Run{
-		Attempts: task.Attempts,
+		Retries: task.Retries,
 		Name:     task.Name,
 		Script:   consumerIntegrationTestScript(task.Vars),
 		Docker: manifest.Docker{

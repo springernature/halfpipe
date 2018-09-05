@@ -463,7 +463,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	// it is really just a special run job, so let's reuse that
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
-		Attempts: task.GetAttempts(),
+		Retries: task.Retries,
 		Name:     task.Name,
 		Script:   dockerComposeScript(task.Service, vars, task.Command),
 		Docker: manifest.Docker{

@@ -134,8 +134,8 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 		}
 	}
 
-	if cf.GetAttempts() < 1 || cf.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-cf.attempts", "must be between 1 and 5"))
+	if cf.Retries < 0 || cf.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-cf.retries", "must be between 0 and 5"))
 	}
 
 	if strings.HasPrefix(cf.Manifest, "../artifacts/") {
@@ -186,8 +186,8 @@ func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, taskID s
 		}
 	}
 
-	if docker.GetAttempts() < 1 || docker.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" docker-push.attempts", "must be between 1 and 5"))
+	if docker.Retries < 0 || docker.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" docker-push.retries", "must be between 0 and 5"))
 	}
 
 	if err := filechecker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
@@ -209,8 +209,8 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 		}
 	}
 
-	if run.GetAttempts() < 1 || run.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" run.attempts", "must be between 1 and 5"))
+	if run.Retries < 0 || run.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" run.retries", "must be between 0 and 5"))
 	}
 
 	if run.Docker.Image == "" {
@@ -228,8 +228,8 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 }
 
 func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID string, result *LintResult) {
-	if dc.GetAttempts() < 1 || dc.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" docker-compose.attempts", "must be between 1 and 5"))
+	if dc.Retries < 0 || dc.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" docker-compose.retries", "must be between 0 and 5"))
 	}
 
 	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
@@ -292,8 +292,8 @@ func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIn
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
 	}
 
-	if cit.GetAttempts() < 1 || cit.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" consumer-integration-test.attempts", "must be between 1 and 5"))
+	if cit.Retries < 0 || cit.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" consumer-integration-test.retries", "must be between 0 and 5"))
 	}
 	return
 }
@@ -307,8 +307,8 @@ func (linter taskLinter) lintDeployMLZipTask(mlTask manifest.DeployMLZip, taskID
 		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_zip"))
 	}
 
-	if mlTask.GetAttempts() < 1 || mlTask.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-zip.attempts", "must be between 1 and 5"))
+	if mlTask.Retries < 0 || mlTask.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-zip.retries", "must be between 0 and 5"))
 	}
 
 }
@@ -321,7 +321,7 @@ func (linter taskLinter) lintDeployMLModulesTask(mlTask manifest.DeployMLModules
 		result.AddError(errors.NewMissingField(taskID + " deploy-ml.ml_modules_version"))
 	}
 
-	if mlTask.GetAttempts() < 1 || mlTask.GetAttempts() > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-modules.attempts", "must be between 1 and 5"))
+	if mlTask.Retries < 0 || mlTask.Retries > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-modules.retries", "must be between 0 and 5"))
 	}
 }
