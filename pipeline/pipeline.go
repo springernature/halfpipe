@@ -274,6 +274,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	}
 
 	runPlan := atc.PlanConfig{
+		Attempts:   task.GetAttempts(),
 		Task:       task.Name,
 		Privileged: isDockerCompose,
 		TaskConfig: &atc.TaskConfig{
@@ -349,7 +350,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	push := atc.PlanConfig{
 		Put:      "cf halfpipe-push",
-		Attempts: 2,
+		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-push",
@@ -419,7 +420,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	promote := atc.PlanConfig{
 		Put:      "cf halfpipe-promote",
-		Attempts: 2,
+		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-promote",
@@ -434,7 +435,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	cleanup := atc.PlanConfig{
 		Put:      "cf halfpipe-cleanup",
-		Attempts: 2,
+		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-cleanup",
@@ -462,8 +463,9 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	// it is really just a special run job, so let's reuse that
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
 	runTask := manifest.Run{
-		Name:   task.Name,
-		Script: dockerComposeScript(task.Service, vars, task.Command),
+		Attempts: task.GetAttempts(),
+		Name:     task.Name,
+		Script:   dockerComposeScript(task.Service, vars, task.Command),
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
@@ -483,7 +485,8 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Put: resourceName,
+				Attempts: task.GetAttempts(),
+				Put:      resourceName,
 				Params: atc.Params{
 					"build": path.Join(gitDir, man.Repo.BasePath),
 				}},
@@ -531,7 +534,8 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				}},
 
 			atc.PlanConfig{
-				Put: resourceName,
+				Attempts: task.GetAttempts(),
+				Put:      resourceName,
 				Params: atc.Params{
 					"build": path.Join(dockerBuildTmpDir, man.Repo.BasePath),
 				}},

@@ -14,7 +14,8 @@ func TestRenderRunTask(t *testing.T) {
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Tasks = []manifest.Task{
 		manifest.Run{
-			Script: "./yolo.sh",
+			Attempts: 2,
+			Script:   "./yolo.sh",
 			Docker: manifest.Docker{
 				Image:    "imagename:TAG",
 				Username: "",
@@ -32,29 +33,33 @@ func TestRenderRunTask(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
-			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
-				Platform: "linux",
-				Params: map[string]string{
-					"VAR1": "Value1",
-					"VAR2": "Value2",
-				},
-				ImageResource: &atc.ImageResource{
-					Type: "docker-image",
-					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
+			atc.PlanConfig{
+				Attempts:   2,
+				Task:       "run yolo.sh",
+				Privileged: false,
+				TaskConfig: &atc.TaskConfig{
+					Platform: "linux",
+					Params: map[string]string{
+						"VAR1": "Value1",
+						"VAR2": "Value2",
 					},
-				},
-				Run: atc.TaskRunConfig{
-					Path: "/bin/sh",
-					Dir:  gitDir,
-					Args: runScriptArgs("./yolo.sh", true, "", false, nil, ".git/ref"),
-				},
-				Inputs: []atc.TaskInputConfig{
-					{Name: gitDir},
-				},
-				Caches: config.CacheDirs,
-			}},
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": "imagename",
+							"tag":        "TAG",
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Dir:  gitDir,
+						Args: runScriptArgs("./yolo.sh", true, "", false, nil, ".git/ref"),
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: gitDir},
+					},
+					Caches: config.CacheDirs,
+				}},
 		}}
 
 	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
@@ -82,31 +87,35 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
-			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
-				Platform: "linux",
-				Params: map[string]string{
-					"VAR1": "Value1",
-					"VAR2": "Value2",
-				},
-				ImageResource: &atc.ImageResource{
-					Type: "docker-image",
-					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
-						"username":   "user",
-						"password":   "pass",
+			atc.PlanConfig{
+				Attempts:   1,
+				Task:       "run yolo.sh",
+				Privileged: false,
+				TaskConfig: &atc.TaskConfig{
+					Platform: "linux",
+					Params: map[string]string{
+						"VAR1": "Value1",
+						"VAR2": "Value2",
 					},
-				},
-				Run: atc.TaskRunConfig{
-					Path: "/bin/sh",
-					Dir:  gitDir,
-					Args: runScriptArgs("./yolo.sh", true, "", false, nil, ".git/ref"),
-				},
-				Inputs: []atc.TaskInputConfig{
-					{Name: gitDir},
-				},
-				Caches: config.CacheDirs,
-			}},
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": "imagename",
+							"tag":        "TAG",
+							"username":   "user",
+							"password":   "pass",
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Dir:  gitDir,
+						Args: runScriptArgs("./yolo.sh", true, "", false, nil, ".git/ref"),
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: gitDir},
+					},
+					Caches: config.CacheDirs,
+				}},
 		}}
 
 	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
@@ -136,29 +145,33 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
-			atc.PlanConfig{Task: "run yolo.sh", Privileged: false, TaskConfig: &atc.TaskConfig{
-				Platform: "linux",
-				Params: map[string]string{
-					"VAR1": "Value1",
-					"VAR2": "Value2",
-				},
-				ImageResource: &atc.ImageResource{
-					Type: "docker-image",
-					Source: atc.Source{
-						"repository": "imagename",
-						"tag":        "TAG",
+			atc.PlanConfig{
+				Attempts:   1,
+				Task:       "run yolo.sh",
+				Privileged: false,
+				TaskConfig: &atc.TaskConfig{
+					Platform: "linux",
+					Params: map[string]string{
+						"VAR1": "Value1",
+						"VAR2": "Value2",
 					},
-				},
-				Run: atc.TaskRunConfig{
-					Path: "/bin/sh",
-					Dir:  gitDir + "/" + basePath,
-					Args: runScriptArgs("./yolo.sh", true, "", false, nil, "../.git/ref"),
-				},
-				Inputs: []atc.TaskInputConfig{
-					{Name: gitDir},
-				},
-				Caches: config.CacheDirs,
-			}},
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": "imagename",
+							"tag":        "TAG",
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Dir:  gitDir + "/" + basePath,
+						Args: runScriptArgs("./yolo.sh", true, "", false, nil, "../.git/ref"),
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: gitDir},
+					},
+					Caches: config.CacheDirs,
+				}},
 		}}
 
 	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])

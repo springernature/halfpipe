@@ -138,6 +138,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   - put: artifacts
     resource: artifacts-engineering-enablement-e2e-test
     params:
@@ -185,6 +186,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: deploy to cf
   serial: true
   plan:
@@ -258,6 +260,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
@@ -332,6 +335,7 @@ jobs:
           - path: ../../../root/.m2/
           - path: ../../../root/.ivy2/
           - path: ../../../root/.sbt/
+        attempts: 1
     - do:
       - task: c-name
         privileged: true
@@ -396,6 +400,7 @@ jobs:
           - path: ../../../root/.m2/
           - path: ../../../root/.ivy2/
           - path: ../../../root/.sbt/
+        attempts: 1
   - put: cf halfpipe-promote
     resource: CF api-live pe staging
     params:
@@ -445,6 +450,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF api-live pe staging
@@ -529,6 +535,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
     - put: artifacts
       resource: artifacts-engineering-enablement-e2e-test
       params:
@@ -579,6 +586,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
   - put: cf halfpipe-promote
     resource: CF api-live pe qa
     params:
@@ -628,6 +636,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF api-live pe qa
@@ -650,6 +659,7 @@ jobs:
       build_args:
         A: a
         B: b
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -692,6 +702,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: run notify.sh
   serial: true
   plan:
@@ -739,6 +750,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -781,6 +793,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: docker-compose
   serial: true
   plan:
@@ -821,6 +834,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -863,6 +877,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: another-c-name
   serial: true
   plan:
@@ -936,6 +951,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -978,6 +994,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: deploy-ml-zip
   serial: true
   plan:
@@ -1031,6 +1048,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -1073,6 +1091,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 - name: Deploy ml-modules artifact
   serial: true
   plan:
@@ -1124,6 +1143,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+    attempts: 1
   on_failure:
     do:
     - put: slack
@@ -1166,4 +1186,5 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+      attempts: 1
 

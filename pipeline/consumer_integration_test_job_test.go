@@ -56,6 +56,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	}
 
 	expectedPlan := atc.PlanConfig{
+		Attempts:   1,
 		Task:       "c-name",
 		Privileged: true,
 		TaskConfig: &atc.TaskConfig{
@@ -120,6 +121,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.ConsumerIntegrationTest{
+				Attempts:     2,
 				Name:         "c-name",
 				Consumer:     "c-consumer/c-path",
 				ConsumerHost: "c-host",
@@ -152,6 +154,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					Trigger: true,
 				}}},
 			atc.PlanConfig{
+				Attempts:   2,
 				Task:       "c-name",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{

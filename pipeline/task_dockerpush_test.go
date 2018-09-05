@@ -43,7 +43,8 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
 			atc.PlanConfig{
-				Put: "Docker Registry",
+				Attempts: 1,
+				Put:      "Docker Registry",
 				Params: atc.Params{
 					"build": gitDir,
 					"build_args": map[string]interface{}{
@@ -92,9 +93,12 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
-			atc.PlanConfig{Put: "Docker Registry", Params: atc.Params{
-				"build": gitDir + "/" + basePath,
-			}},
+			atc.PlanConfig{
+				Attempts: 1,
+				Put:      "Docker Registry",
+				Params: atc.Params{
+					"build": gitDir + "/" + basePath,
+				}},
 		},
 	}
 

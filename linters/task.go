@@ -134,6 +134,10 @@ func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, r
 		}
 	}
 
+	if cf.GetAttempts() < 1 || cf.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-cf.attempts", "must be between 1 and 5"))
+	}
+
 	if strings.HasPrefix(cf.Manifest, "../artifacts/") {
 		result.AddWarning(errors.NewFileError(cf.Manifest, "this file must be saved as an artifact in a previous task"))
 	} else if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
@@ -182,6 +186,10 @@ func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, taskID s
 		}
 	}
 
+	if docker.GetAttempts() < 1 || docker.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" docker-push.attempts", "must be between 1 and 5"))
+	}
+
 	if err := filechecker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
 		result.AddError(err)
 	}
@@ -201,6 +209,10 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 		}
 	}
 
+	if run.GetAttempts() < 1 || run.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" run.attempts", "must be between 1 and 5"))
+	}
+
 	if run.Docker.Image == "" {
 		result.AddError(errors.NewMissingField(taskID + " run.docker.image"))
 	}
@@ -216,6 +228,10 @@ func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *Li
 }
 
 func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID string, result *LintResult) {
+	if dc.GetAttempts() < 1 || dc.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" docker-compose.attempts", "must be between 1 and 5"))
+	}
+
 	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
 		result.AddError(err)
 		return
@@ -275,6 +291,10 @@ func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIn
 	if cit.Script == "" {
 		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
 	}
+
+	if cit.GetAttempts() < 1 || cit.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" consumer-integration-test.attempts", "must be between 1 and 5"))
+	}
 	return
 }
 
@@ -286,6 +306,11 @@ func (linter taskLinter) lintDeployMLZipTask(mlTask manifest.DeployMLZip, taskID
 	if mlTask.DeployZip == "" {
 		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_zip"))
 	}
+
+	if mlTask.GetAttempts() < 1 || mlTask.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-zip.attempts", "must be between 1 and 5"))
+	}
+
 }
 
 func (linter taskLinter) lintDeployMLModulesTask(mlTask manifest.DeployMLModules, taskID string, result *LintResult) {
@@ -294,5 +319,9 @@ func (linter taskLinter) lintDeployMLModulesTask(mlTask manifest.DeployMLModules
 	}
 	if mlTask.MLModulesVersion == "" {
 		result.AddError(errors.NewMissingField(taskID + " deploy-ml.ml_modules_version"))
+	}
+
+	if mlTask.GetAttempts() < 1 || mlTask.GetAttempts() > 5 {
+		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-modules.attempts", "must be between 1 and 5"))
 	}
 }

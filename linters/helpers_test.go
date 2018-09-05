@@ -21,6 +21,20 @@ func assertMissingField(t *testing.T, name string, err error) {
 	}
 }
 
+func assertMissingFieldInErrors(t *testing.T, name string, errs []error) {
+	t.Helper()
+
+	for _, err := range errs {
+		mf, ok := err.(errors.MissingFieldError)
+		if ok {
+			if strings.Contains(mf.Name, name) {
+				return
+			}
+		}
+	}
+	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
+}
+
 func assertInvalidField(t *testing.T, name string, err error) {
 	t.Helper()
 

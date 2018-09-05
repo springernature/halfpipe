@@ -45,6 +45,7 @@ type Run struct {
 	SaveArtifacts    []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Parallel         bool     `yaml:"parallel,omitempty"`
+	Attempts         int      `yaml:"attempts,omitempty"`
 }
 
 type DockerPush struct {
@@ -57,6 +58,20 @@ type DockerPush struct {
 	Vars             Vars
 	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
 	Parallel         bool `yaml:"parallel,omitempty"`
+	Attempts         int  `yaml:"attempts,omitempty"`
+}
+
+type DockerCompose struct {
+	Type             string
+	Name             string
+	Command          string
+	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Vars             Vars
+	Service          string
+	SaveArtifacts    []string `json:"save_artifacts"`
+	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Parallel         bool     `yaml:"parallel,omitempty"`
+	Attempts         int      `yaml:"attempts,omitempty"`
 }
 
 type DeployCF struct {
@@ -75,18 +90,7 @@ type DeployCF struct {
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
 	Timeout        string
-}
-
-type DockerCompose struct {
-	Type             string
-	Name             string
-	Command          string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Vars             Vars
-	Service          string
-	SaveArtifacts    []string `json:"save_artifacts"`
-	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
-	Parallel         bool     `yaml:"parallel,omitempty"`
+	Attempts       int `yaml:"attempts,omitempty"`
 }
 
 type ConsumerIntegrationTest struct {
@@ -99,6 +103,7 @@ type ConsumerIntegrationTest struct {
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars
+	Attempts             int `yaml:"attempts,omitempty"`
 }
 
 type DeployMLZip struct {
@@ -110,6 +115,7 @@ type DeployMLZip struct {
 	AppVersion    string `json:"app_version"`
 	Targets       []string
 	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Attempts      int  `yaml:"attempts,omitempty"`
 }
 
 type DeployMLModules struct {
@@ -121,6 +127,56 @@ type DeployMLModules struct {
 	AppVersion       string `json:"app_version"`
 	Targets          []string
 	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	Attempts         int  `yaml:"attempts,omitempty"`
 }
 
 type Vars map[string]string
+
+func (r Run) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
+
+func (r DockerCompose) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
+
+func (r DockerPush) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
+
+func (r DeployCF) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 2
+	}
+	return r.Attempts
+}
+
+func (r ConsumerIntegrationTest) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
+
+func (r DeployMLModules) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
+
+func (r DeployMLZip) GetAttempts() int {
+	if r.Attempts == 0 {
+		return 1
+	}
+	return r.Attempts
+}
