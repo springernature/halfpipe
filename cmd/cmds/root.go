@@ -11,7 +11,6 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
@@ -59,7 +58,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			Linters: []linters.Linter{
 				linters.NewTeamLinter(),
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
-				linters.NewSecretsLinter(config.VaultPrefix, secrets.NewSecretStore(fs)),
+				linters.NewSecretsLinter(),
 				linters.NewTasksLinter(fs),
 				linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),
 				linters.NewArtifactsLinter(),

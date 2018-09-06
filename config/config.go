@@ -10,8 +10,6 @@ var (
 	// go build -ldflags "-X config.version=..."
 	Version = "0.0.0-DEV"
 
-	VaultPrefix string
-
 	SlackWebhook = "Set your slack webhook here"
 
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"

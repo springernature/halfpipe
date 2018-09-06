@@ -118,7 +118,6 @@ jobs:
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.VaultPrefix=springernature"
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
           echo "LDFLAGS=${LDFLAGS}"
 

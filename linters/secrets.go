@@ -5,85 +5,26 @@ import (
 	"regexp"
 	"strings"
 
-	"path"
-
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/linters/secrets"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-type secretsLinter struct {
-	prefix          string
-	secretStoreFunc secrets.SecretStoreFunc
-}
+type secretsLinter struct{}
 
-func NewSecretsLinter(secretPrefix string, storeFunc secrets.SecretStoreFunc) Linter {
-	return secretsLinter{
-		prefix:          secretPrefix,
-		secretStoreFunc: storeFunc,
-	}
+func NewSecretsLinter() Linter {
+	return secretsLinter{}
 }
 
 func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Secrets"
 	result.DocsURL = "https://docs.halfpipe.io/vault/"
 
-	if manifest.Team == "" {
-		return
-	}
-
-	allSecrets := findSecrets(manifest)
-	if len(allSecrets) == 0 {
-		return
-	}
-
-	store, err := s.secretStoreFunc()
-	if err != nil {
-		result.AddWarning(err)
-		return
-	}
-
-	chSecretErrs := make(chan error)
-
-	for _, sec := range allSecrets {
-		go func(str string) {
-			chSecretErrs <- s.checkExists(store, manifest.Team, manifest.Pipeline, str)
-		}(sec)
-	}
-	for range allSecrets {
-		err := <-chSecretErrs
-		if err != nil {
-			switch err.(type) {
-			case errors.VaultSecretError:
-				result.AddError(err)
-			default:
-				result.AddWarning(err)
-			}
+	for _, sec := range findSecrets(manifest) {
+		if !secretIsValidFormat(sec) || !secretHasOnlyValidChars(sec) {
+			result.AddError(errors.NewVaultSecretError(sec))
 		}
 	}
-
 	return
-}
-
-func (s secretsLinter) checkExists(store secrets.SecretStore, team string, pipeline string, concourseSecret string) error {
-	if !secretIsValidFormat(concourseSecret) || !secretHasOnlyValidChars(concourseSecret) {
-		return errors.NewVaultSecretError(concourseSecret)
-	}
-
-	secretMap, secretKey := secretToMapAndKey(concourseSecret)
-	paths := []string{
-		path.Join(s.prefix, team, pipeline, secretMap),
-		path.Join(s.prefix, team, secretMap),
-	}
-
-	for _, p := range paths {
-		exists, err := store.Exists(p, secretKey)
-		if exists || err != nil {
-			return err
-		}
-	}
-
-	return errors.NewVaultSecretNotFoundError(s.prefix, team, pipeline, concourseSecret)
 }
 
 func findSecrets(man manifest.Manifest) (secrets []string) {
@@ -104,11 +45,4 @@ func secretIsValidFormat(secret string) bool {
 
 func secretHasOnlyValidChars(secret string) bool {
 	return regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret)
-}
-
-func secretToMapAndKey(secret string) (string, string) {
-	s := strings.Replace(strings.Replace(secret, "((", "", -1), "))", "", -1)
-	parts := strings.Split(s, ".")
-	mapName, keyName := parts[0], parts[1]
-	return mapName, keyName
 }

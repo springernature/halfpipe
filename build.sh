@@ -34,8 +34,7 @@ echo [3/5] lint
 
 echo [4/5] build
 CONF_PKG="github.com/springernature/halfpipe/config"
-LDFLAGS="-X ${CONF_PKG}.VaultPrefix=springernature"
-LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.DocHost=docs.halfpipe.io"
+LDFLAGS="-X ${CONF_PKG}.DocHost=docs.halfpipe.io"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
