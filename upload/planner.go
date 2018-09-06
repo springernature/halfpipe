@@ -131,7 +131,7 @@ func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 
 	cmd.Cmd = exec.Cmd{
 		Path:   path,
-		Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+		Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 		Stdout: p.stdout,
 		Stderr: p.stderr,
 		Stdin:  p.stdin,

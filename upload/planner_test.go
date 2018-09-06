@@ -96,7 +96,7 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 		{
 			Cmd: exec.Cmd{
 				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 				Stdout: stdout,
 				Stderr: stderr,
 				Stdin:  stdin,
@@ -133,7 +133,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 		{
 			Cmd: exec.Cmd{
 				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml"},
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 				Stdout: stdout,
 				Stderr: stderr,
 				Stdin:  stdin,
@@ -170,7 +170,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
 		{
 			Cmd: exec.Cmd{
 				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml"},
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml", "--check-creds"},
 				Stdout: stdout,
 				Stderr: stderr,
 				Stdin:  stdin,
@@ -207,7 +207,7 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 		{
 			Cmd: exec.Cmd{
 				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--non-interactive"},
+				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds", "--non-interactive"},
 				Stdout: stdout,
 				Stderr: stderr,
 				Stdin:  stdin,
