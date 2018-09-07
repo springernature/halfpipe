@@ -45,48 +45,11 @@ const dockerBuildTmpDir = "docker_build"
 
 func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
 
-	slackChannelSet := man.SlackChannel != ""
-	onFailurePlanSet := man.OnFailure != nil
-
-	if slackChannelSet && onFailurePlanSet {
-		slackPlan := p.addSlackPlanConfig(cfg, man)
-		planSequence := atc.PlanSequence{*slackPlan}
-		planSequence = append(planSequence, p.addOnFailureJob(cfg, man)...)
-		return &atc.PlanConfig{Do: &planSequence}
-	}
-
-	if slackChannelSet {
+	if man.SlackChannel != "" {
 		return p.addSlackPlanConfig(cfg, man)
 	}
 
-	if onFailurePlanSet {
-		planSequence := p.addOnFailureJob(cfg, man)
-		return &atc.PlanConfig{Do: &planSequence}
-	}
-
 	return nil
-}
-
-func (p pipeline) addOnFailureJob(cfg *atc.Config, man manifest.Manifest) (planSequence atc.PlanSequence) {
-	for _, t := range man.OnFailure {
-		var onFailureJob *atc.JobConfig
-		switch ppTask := t.(type) {
-		case manifest.Run:
-			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = make(map[string]string)
-			}
-			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
-			onFailureJob = p.runJob(ppTask, man, false)
-		case manifest.DockerCompose:
-			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = make(map[string]string)
-			}
-			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
-			onFailureJob = p.dockerComposeJob(ppTask, man)
-		}
-		planSequence = append(planSequence, onFailureJob.Plan...)
-	}
-	return planSequence
 }
 
 func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {

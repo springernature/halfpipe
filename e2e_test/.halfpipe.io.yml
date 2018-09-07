@@ -6,13 +6,6 @@ repo:
 
 slack_channel: "#ee-re"
 
-on_failure:
-- type: run
-  name: run on failure task
-  script: blah.sh
-  docker:
-    image: node:9.5.0-alpine
-
 tasks:
 - type: run
   name: Test

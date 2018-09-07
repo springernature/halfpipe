@@ -135,25 +135,6 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
-func TestOnFailureRunTaskScriptFileExists(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-	man := manifest.Manifest{}
-	man.OnFailure = []manifest.Task{
-		manifest.Run{
-			Docker: manifest.Docker{
-				Image: "alpine",
-			},
-		},
-	}
-	man.Tasks = []manifest.Task{
-		manifest.DockerCompose{Service: "app"},
-	}
-
-	result := taskLinter.Lint(man)
-	assertMissingField(t, "onFailureTasks[0] run.script", result.Errors[0])
-}
-
 func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 	taskLinter := testTaskLinter()
 	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
@@ -537,27 +518,6 @@ func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
 	if assert.Len(t, result.Errors, 2) {
 		assertInvalidField(t, "tasks[0].pre_promote[0] run.passed", result.Errors[0])
 		assertInvalidField(t, "tasks[0].pre_promote[1] docker-compose.passed", result.Errors[1])
-	}
-}
-
-func TestRestrictionsOfOnFailureTasks(t *testing.T) {
-
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-
-	man.OnFailure = []manifest.Task{
-		manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Parallel: true},
-		manifest.DockerCompose{Service: "app", Parallel: true},
-	}
-	man.Tasks = []manifest.Task{
-		manifest.DockerCompose{Service: "app"},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 2) {
-		assertInvalidField(t, "on_failure[0] run.passed", result.Errors[0])
-		assertInvalidField(t, "on_failure[1] docker-compose.passed", result.Errors[1])
 	}
 }
 
