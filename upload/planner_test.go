@@ -218,3 +218,31 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expectedPlan, plan)
 }
+
+func TestReturnsAUnpausePlan(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	file, _ := fs.Create("pipeline.yml")
+	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
+	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
+
+	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+		return file, nil
+	}, true)
+	plan, err := planner.Unpause()
+
+	expectedPlan := Plan{
+		{
+			Cmd: exec.Cmd{
+				Path:   "fly",
+				Args:   []string{"fly", "-t", team, "unpause-pipeline", "-p", pipeline},
+				Stdout: stdout,
+				Stderr: stderr,
+				Stdin:  stdin,
+			},
+		},
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedPlan, plan)
+}

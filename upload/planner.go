@@ -23,6 +23,7 @@ type Targets struct {
 
 type Planner interface {
 	Plan() (plan Plan, err error)
+	Unpause() (plan Plan, err error)
 	AskBranchSecurityQuestions(currentBranch string) (err error)
 }
 
@@ -182,6 +183,30 @@ func (p planner) Plan() (plan Plan, err error) {
 		return
 	}
 	plan = append(plan, uploadCmd)
+
+	return
+}
+
+func (p planner) Unpause() (plan Plan, err error) {
+	man, err := p.getHalfpipeManifest()
+	if err != nil {
+		return
+	}
+
+	path, err := p.pathResolver("fly")
+	if err != nil {
+		return
+	}
+
+	plan = append(plan, Command{
+		Cmd: exec.Cmd{
+			Path:   path,
+			Args:   []string{"fly", "-t", man.Team, "unpause-pipeline", "-p", man.Pipeline},
+			Stdout: p.stdout,
+			Stderr: p.stderr,
+			Stdin:  p.stdin,
+		},
+	})
 
 	return
 }
