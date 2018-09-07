@@ -10,11 +10,27 @@ import (
 )
 
 type taskLinter struct {
-	Fs afero.Afero
+	Fs                              afero.Afero
+	lintRunTask                     func(task manifest.Run, taskID string, fs afero.Afero) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, taskID string, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerPushTask              func(task manifest.DockerPush, taskID string, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerComposeTask           func(task manifest.DockerCompose, taskID string, fs afero.Afero) (errs []error, warnings []error)
+	lintConsumerIntegrationTestTask func(cit manifest.ConsumerIntegrationTest, taskID string, providerHostRequired bool) (errs []error, warnings []error)
+	lintDeployMLZipTask             func(task manifest.DeployMLZip, taskID string) (errs []error, warnings []error)
+	lintDeployMLModulesTask         func(task manifest.DeployMLModules, taskID string) (errs []error, warnings []error)
 }
 
 func NewTasksLinter(fs afero.Afero) taskLinter {
-	return taskLinter{fs}
+	return taskLinter{
+		Fs:                              fs,
+		lintRunTask:                     tasks.LintRunTask,
+		lintDeployCFTask:                tasks.LintDeployCFTask,
+		lintDockerPushTask:              tasks.LintDockerPushTask,
+		lintDockerComposeTask:           tasks.LintDockerComposeTask,
+		lintConsumerIntegrationTestTask: tasks.LintConsumerIntegrationTestTask,
+		lintDeployMLZipTask:             tasks.LintDeployMLZipTask,
+		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
+	}
 }
 
 func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) {
@@ -47,30 +63,29 @@ func (linter taskLinter) lintTask(listName string, index int, t manifest.Task) (
 	taskID := fmt.Sprintf("%s[%v]", listName, index)
 	switch task := t.(type) {
 	case manifest.Run:
-		errs, warnings = tasks.LintRunTask(task, taskID, linter.Fs)
+		errs, warnings = linter.lintRunTask(task, taskID, linter.Fs)
 	case manifest.DeployCF:
-		errs, warnings = tasks.LintDeployCFTask(task, taskID, linter.Fs)
+		errs, warnings = linter.lintDeployCFTask(task, taskID, linter.Fs)
 
 		if len(task.PrePromote) > 0 {
 			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote)
 			errs = append(errs, subErrors...)
-			warnings = append(errs, subWarnings...)
-
+			warnings = append(warnings, subWarnings...)
 		}
 	case manifest.DockerPush:
-		errs, warnings = tasks.LintDockerPushTask(task, taskID, linter.Fs)
+		errs, warnings = linter.lintDockerPushTask(task, taskID, linter.Fs)
 	case manifest.DockerCompose:
-		errs, warnings = tasks.LintDockerComposeTask(task, taskID, linter.Fs)
+		errs, warnings = linter.lintDockerComposeTask(task, taskID, linter.Fs)
 	case manifest.ConsumerIntegrationTest:
 		if listName == "tasks" {
-			errs, warnings = tasks.LintConsumerIntegrationTestTask(task, taskID, true)
+			errs, warnings = linter.lintConsumerIntegrationTestTask(task, taskID, true)
 		} else {
-			errs, warnings = tasks.LintConsumerIntegrationTestTask(task, taskID, false)
+			errs, warnings = linter.lintConsumerIntegrationTestTask(task, taskID, false)
 		}
 	case manifest.DeployMLZip:
-		errs, warnings = tasks.LintDeployMLZipTask(task, taskID)
+		errs, warnings = linter.lintDeployMLZipTask(task, taskID)
 	case manifest.DeployMLModules:
-		errs, warnings = tasks.LintDeployMLModulesTask(task, taskID)
+		errs, warnings = linter.lintDeployMLModulesTask(task, taskID)
 	default:
 		errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 	}
