@@ -8,6 +8,7 @@ import (
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -98,8 +99,8 @@ type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
-	return linters.NewLintResult("fake", "url", []error{f.Error}, nil)
+func (f fakeLinter) Lint(manifest manifest.Manifest) result.LintResult {
+	return result.NewLintResult("fake", "url", []error{f.Error}, nil)
 }
 
 func TestAppliesAllLinters(t *testing.T) {

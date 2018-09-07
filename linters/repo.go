@@ -10,6 +10,7 @@ import (
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 )
@@ -40,7 +41,7 @@ func (r repoLinter) checkGlob(glob string, basePath string) error {
 	return nil
 }
 
-func (r repoLinter) Lint(man manifest.Manifest) (result LintResult) {
+func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Repo"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/#repo"
 

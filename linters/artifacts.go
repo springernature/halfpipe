@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -13,7 +14,7 @@ func NewArtifactsLinter() artifactsLinter {
 	return artifactsLinter{}
 }
 
-func (linter artifactsLinter) Lint(man manifest.Manifest) (result LintResult) {
+func (linter artifactsLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Artifacts"
 	result.DocsURL = "https://docs.halfpipe.io/artifacts/"
 

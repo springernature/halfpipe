@@ -84,6 +84,21 @@ func assertFileError(t *testing.T, path string, err error) {
 	}
 }
 
+func assertFileErrorInErrors(t *testing.T, path string, errs []error) {
+	t.Helper()
+
+	for _, err := range errs {
+		e, ok := err.(errors.FileError)
+		if ok {
+			if e.Path == path {
+				return
+			}
+		}
+	}
+	assert.Fail(t, fmt.Sprintf("Could not find FileError for path '%s' in %s", path, errs))
+
+}
+
 func assertTooManyAppsError(t *testing.T, name string, err error) {
 	t.Helper()
 

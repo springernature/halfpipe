@@ -416,12 +416,13 @@ func TestLintsSubTasksInDeployCF(t *testing.T) {
 	result := taskLinter.Lint(man)
 	assert.Len(t, result.Errors, 13)
 
-	assertInvalidField(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors[0])
-	assertInvalidField(t, "tasks[0].pre_promote[2] run.type", result.Errors[1])
-	assertInvalidField(t, "tasks[0].pre_promote[3] run.type", result.Errors[2])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[3])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
-	assertFileError(t, "docker-compose.yml", result.Errors[5])
+	assertInvalidFieldInErrors(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors)
+	assertMissingFieldInErrors(t, "tasks[0].pre_promote[0] run.script", result.Errors)
+	assertMissingFieldInErrors(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors)
+	assertInvalidFieldInErrors(t, "tasks[0].pre_promote[2] run.type", result.Errors)
+	assertInvalidFieldInErrors(t, "tasks[0].pre_promote[3] run.type", result.Errors)
+	assertMissingFieldInErrors(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors)
+	assertFileErrorInErrors(t, "docker-compose.yml", result.Errors)
 }
 
 func TestConsumerIntegrationTestTaskHasRequiredFieldsInPrePromote(t *testing.T) {
