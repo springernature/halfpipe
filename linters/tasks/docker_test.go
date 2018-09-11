@@ -1,21 +1,21 @@
 package tasks
 
 import (
-	"testing"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors, _ := LintDockerPushTask(manifest.DockerPush{}, "task", fs)
+	errors, _ := LintDockerPushTask(manifest.DockerPush{}, fs)
 
-	helpers.AssertMissingFieldInErrors(t, "docker-push.username", errors)
-	helpers.AssertMissingFieldInErrors(t, "docker-push.password", errors)
-	helpers.AssertMissingFieldInErrors(t, "docker-push.image", errors)
+	helpers.AssertMissingFieldInErrors(t, "username", errors)
+	helpers.AssertMissingFieldInErrors(t, "password", errors)
+	helpers.AssertMissingFieldInErrors(t, "image", errors)
 }
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
@@ -26,8 +26,8 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 		Image:    "asd",
 	}
 
-	errors, _ := LintDockerPushTask(task, "task", fs)
-	helpers.AssertInvalidFieldInErrors(t, "docker-push.image", errors)
+	errors, _ := LintDockerPushTask(task, fs)
+	helpers.AssertInvalidFieldInErrors(t, "image", errors)
 }
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
@@ -39,7 +39,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 		Image:    "image",
 	}
 
-	errors, _ := LintDockerPushTask(task, "task", fs)
+	errors, _ := LintDockerPushTask(task, fs)
 
 	helpers.AssertFileErrorInErrors(t, "Dockerfile", errors)
 }
@@ -58,11 +58,10 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintDockerPushTask(task, "task", fs)
+	errors, warnings := LintDockerPushTask(task, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
-
 
 func TestDockerPushRetries(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
@@ -79,15 +78,15 @@ func TestDockerPushRetries(t *testing.T) {
 	}
 
 	task.Retries = -1
-	errors, _ := LintDockerPushTask(task, "task", fs)
-	helpers.AssertInvalidFieldInErrors(t, "docker-push.retries", errors)
+	errors, _ := LintDockerPushTask(task, fs)
+	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
-	errors, _ = LintDockerPushTask(task, "task", fs)
-	helpers.AssertInvalidFieldInErrors(t, "docker-push.retries", errors)
+	errors, _ = LintDockerPushTask(task, fs)
+	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 4
-	errors, warnings := LintDockerPushTask(task, "task", fs)
+	errors, warnings := LintDockerPushTask(task, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
@@ -103,7 +102,7 @@ func TestDockerCompose_Happy(t *testing.T) {
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
 	emptyTask := manifest.DockerCompose{Service: "app"} //We specify service here as its default is set in the defaulter
-	errors, warnings := LintDockerComposeTask(emptyTask, "task", fs)
+	errors, warnings := LintDockerComposeTask(emptyTask, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 
@@ -115,7 +114,7 @@ func TestDockerCompose_Happy(t *testing.T) {
 			"B": "b",
 		},
 	}
-	errorsAgain, warningsAgain := LintDockerComposeTask(task, "task", fs)
+	errorsAgain, warningsAgain := LintDockerComposeTask(task, fs)
 	assert.Len(t, errorsAgain, 0)
 	assert.Len(t, warningsAgain, 0)
 }
@@ -124,17 +123,16 @@ func TestDockerCompose_MissingFile(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	emptyTask := manifest.DockerCompose{}
-	errors, _ := LintDockerComposeTask(emptyTask, "task", fs)
+	errors, _ := LintDockerComposeTask(emptyTask, fs)
 	helpers.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
 }
-
 
 func TestDockerCompose_UnknownService(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
 	emptyTask := manifest.DockerCompose{Service: "asdf"}
-	errors, _ := LintDockerComposeTask(emptyTask, "task", fs)
+	errors, _ := LintDockerComposeTask(emptyTask, fs)
 	helpers.AssertInvalidFieldInErrors(t, "service", errors)
 }
 
@@ -142,13 +140,13 @@ func TestDockerComposeRetries(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
-	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: -1}, "task", fs)
-	helpers.AssertInvalidFieldInErrors(t, "docker-compose.retries", errors)
+	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: -1}, fs)
+	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 
-	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 6}, "task", fs)
-	helpers.AssertInvalidFieldInErrors(t, "docker-compose.retries", errors)
+	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 6}, fs)
+	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 
-	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 5}, "task", fs)
+	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 5}, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }

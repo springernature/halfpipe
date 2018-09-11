@@ -10,24 +10,24 @@ import (
 	"regexp"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, taskID string, fs afero.Afero) (errs []error, warnings []error) {
+func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
 	if docker.Username == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" docker-push.username"))
+		errs = append(errs, errors.NewMissingField("username"))
 	}
 	if docker.Password == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" docker-push.password"))
+		errs = append(errs, errors.NewMissingField("password"))
 	}
 	if docker.Image == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" docker-push.image"))
+		errs = append(errs, errors.NewMissingField("image"))
 	} else {
 		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
 		if !matched {
-			errs = append(errs, errors.NewInvalidField(taskID+" docker-push.image", "must be specified as 'user/image' or 'registry/user/image'"))
+			errs = append(errs, errors.NewInvalidField("image", "must be specified as 'user/image' or 'registry/user/image'"))
 		}
 	}
 
 	if docker.Retries < 0 || docker.Retries > 5 {
-		errs = append(errs, errors.NewInvalidField(taskID+" docker-push.retries", "must be between 0 and 5"))
+		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
 	if err := filechecker.CheckFile(fs, "Dockerfile", false); err != nil {
@@ -37,9 +37,9 @@ func LintDockerPushTask(docker manifest.DockerPush, taskID string, fs afero.Afer
 	return
 }
 
-func LintDockerComposeTask(dc manifest.DockerCompose, taskID string, fs afero.Afero) (errs []error, warnings []error) {
+func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
 	if dc.Retries < 0 || dc.Retries > 5 {
-		errs = append(errs, errors.NewInvalidField(taskID+" docker-compose.retries", "must be between 0 and 5"))
+		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
 	if err := filechecker.CheckFile(fs, "docker-compose.yml", false); err != nil {

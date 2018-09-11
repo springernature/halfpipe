@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func LintRunTask(run manifest.Run, taskID string, fs afero.Afero) (errs []error, warnings []error) {
+func LintRunTask(run manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
 	if run.Script == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" run.script"))
+		errs = append(errs, errors.NewMissingField("script"))
 	} else {
 		// Possible for script to have args,
 		fields := strings.Fields(strings.TrimSpace(run.Script))
@@ -21,18 +21,18 @@ func LintRunTask(run manifest.Run, taskID string, fs afero.Afero) (errs []error,
 	}
 
 	if run.Retries < 0 || run.Retries > 5 {
-		errs = append(errs, errors.NewInvalidField(taskID+" run.retries", "must be between 0 and 5"))
+		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
 	if run.Docker.Image == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" run.docker.image"))
+		errs = append(errs, errors.NewMissingField("docker.image"))
 	}
 
 	if run.Docker.Username != "" && run.Docker.Password == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" run.docker.password"))
+		errs = append(errs, errors.NewMissingField("docker.password"))
 	}
 	if run.Docker.Password != "" && run.Docker.Username == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" run.docker.username"))
+		errs = append(errs, errors.NewMissingField("docker.username"))
 	}
 
 	return

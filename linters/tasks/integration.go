@@ -5,24 +5,24 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, providerHostRequired bool) (errs []error, warnings []error) {
+func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
 	if cit.Consumer == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" consumer-integration-test.consumer"))
+		errs = append(errs, errors.NewMissingField("consumer"))
 	}
 	if cit.ConsumerHost == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" consumer-integration-test.consumer_host"))
+		errs = append(errs, errors.NewMissingField("consumer_host"))
 	}
 	if providerHostRequired {
 		if cit.ProviderHost == "" {
-			errs = append(errs, errors.NewMissingField(taskID+" consumer-integration-test.provider_host"))
+			errs = append(errs, errors.NewMissingField("provider_host"))
 		}
 	}
 	if cit.Script == "" {
-		errs = append(errs, errors.NewMissingField(taskID+" consumer-integration-test.script"))
+		errs = append(errs, errors.NewMissingField("script"))
 	}
 
 	if cit.Retries < 0 || cit.Retries > 5 {
-		errs = append(errs, errors.NewInvalidField(taskID+" consumer-integration-test.retries", "must be between 0 and 5"))
+		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 	return
 }
