@@ -5,13 +5,14 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
+	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 func testPipeline() pipeline {
-	cfManifestReader := func(s string) ([]cfManifest.Application, error) {
+	cfManifestReader := func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
 		return []cfManifest.Application{
 			{
 				Name:   "test-name",

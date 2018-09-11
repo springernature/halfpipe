@@ -41,7 +41,7 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
 			return
 		}
 
-		apps, err := linter.readCfManifest(manifestPath)
+		apps, err := linter.readCfManifest(manifestPath, nil, nil)
 
 		if err != nil {
 			result.AddError(goErrors.New(fmt.Sprintf("cf-manifest error in %s, %s", manifestPath, err.Error())))

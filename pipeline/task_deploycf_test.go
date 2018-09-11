@@ -8,6 +8,7 @@ import (
 	"fmt"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -221,10 +222,10 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
 
-	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
+	cfManifestReader := func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
 		return []cfManifest.Application{
 			{
-				Name:   name,
+				Name:   "app",
 				Routes: []string{"route"},
 			},
 		}, nil
@@ -254,13 +255,13 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	//pre promote 1
 	pp1 := (*(*plan[2].Aggregate)[0].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
 	pp2 := (*(*plan[2].Aggregate)[1].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
 	//halfpipe-promote
 	assert.Equal(t, "halfpipe-promote", plan[3].Params["command"])
@@ -321,10 +322,10 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
 
-	cfManifestReader := func(name string) ([]cfManifest.Application, error) {
+	cfManifestReader := func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
 		return []cfManifest.Application{
 			{
-				Name:   name,
+				Name:   "app",
 				Routes: []string{"route"},
 			},
 		}, nil
@@ -354,14 +355,14 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	//pre promote 1
 	pp1 := (*plan[2].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
 	assert.Equal(t, artifactsResource, (*plan[3].Do)[0].Resource)
 	pp2 := (*plan[3].Do)[1]
 	assert.Equal(t, "pp2", pp2.Task)
-	assert.Equal(t, "manifest-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
+	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp2", pp2.TaskConfig.Params["PP2"])
 
 	//halfpipe-promote

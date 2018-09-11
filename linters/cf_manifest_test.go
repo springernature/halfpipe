@@ -4,34 +4,38 @@ import (
 	"testing"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-	"github.com/pkg/errors"
+	"errors"
+	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
+
+func manifestReader(applications []cfManifest.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
+	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
+		return applications, err
+	}
+}
 
 func TestNoCfDeployTasks(t *testing.T) {
 	man := manifest.Manifest{}
 
 	linter := cfManifestLinter{
-		readCfManifest: func(s string) ([]cfManifest.Application, error) {
-			return nil, errors.New("blah")
-		},
+		readCfManifest: manifestReader(nil, nil),
 	}
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 0)
 }
 
+//
 func TestOneCfDeployTask(t *testing.T) {
-	readerGivesOneApp := func(name string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:   name,
-				Routes: []string{"route"},
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:   "appName",
+			Routes: []string{"route"},
+		},
 	}
-	linter := cfManifestLinter{readCfManifest: readerGivesOneApp}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -46,10 +50,8 @@ func TestOneCfDeployTask(t *testing.T) {
 }
 
 func TestOneCfDeployTaskWithInvalidManifest(t *testing.T) {
-	readerGivesError := func(s string) ([]cfManifest.Application, error) {
-		return nil, errors.New("invalid manifest error")
-	}
-	linter := cfManifestLinter{readCfManifest: readerGivesError}
+	expectedErr := errors.New("invalid manifest error")
+	linter := cfManifestLinter{readCfManifest: manifestReader(nil, expectedErr)}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -61,23 +63,22 @@ func TestOneCfDeployTaskWithInvalidManifest(t *testing.T) {
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 1)
-	assert.Contains(t, result.Errors[0].Error(), "invalid manifest error")
+	assert.Contains(t, result.Errors[0].Error(), expectedErr.Error())
 }
 
 func TestOneCfDeployTaskWithTwoApps(t *testing.T) {
-	readerGivesTwoApps := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:   s,
-				Routes: []string{"route"},
-			},
-			{
-				Name:   s + "1",
-				Routes: []string{"route1"},
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:   "app1",
+			Routes: []string{"route"},
+		},
+		{
+			Name:   "app2",
+			Routes: []string{"route1"},
+		},
 	}
-	linter := cfManifestLinter{readCfManifest: readerGivesTwoApps}
+
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -92,16 +93,14 @@ func TestOneCfDeployTaskWithTwoApps(t *testing.T) {
 }
 
 func TestTwoCfDeployTasksWithOneApp(t *testing.T) {
-	readerGivesOneApp := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:   s,
-				Routes: []string{"route"},
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:   "app",
+			Routes: []string{"route"},
+		},
 	}
 
-	linter := cfManifestLinter{readCfManifest: readerGivesOneApp}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -119,14 +118,13 @@ func TestTwoCfDeployTasksWithOneApp(t *testing.T) {
 }
 
 func TestOneCfDeployTaskWithAnAppWithoutARoute(t *testing.T) {
-	readerGivesOneAppWithoutRoute := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name: s,
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name: "app",
+		},
 	}
-	linter := cfManifestLinter{readCfManifest: readerGivesOneAppWithoutRoute}
+
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -141,14 +139,12 @@ func TestOneCfDeployTaskWithAnAppWithoutARoute(t *testing.T) {
 }
 
 func TestOneCfDeployTaskWithAnAppWithoutAName(t *testing.T) {
-	readerGivesOneAppWithoutRoute := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Routes: []string{"route"},
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Routes: []string{"route"},
+		},
 	}
-	linter := cfManifestLinter{readCfManifest: readerGivesOneAppWithoutRoute}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -163,16 +159,14 @@ func TestOneCfDeployTaskWithAnAppWithoutAName(t *testing.T) {
 }
 
 func TestWorkerAppGivesErrorIfHealthCheckIsNotProcess(t *testing.T) {
-	reader := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:    "My-app",
-				NoRoute: true,
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:    "My-app",
+			NoRoute: true,
+		},
 	}
 
-	linter := cfManifestLinter{readCfManifest: reader}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -187,17 +181,15 @@ func TestWorkerAppGivesErrorIfHealthCheckIsNotProcess(t *testing.T) {
 }
 
 func TestErrorsIfBothNoRouteAndRoutes(t *testing.T) {
-	reader := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:    "My-app",
-				NoRoute: true,
-				Routes:  []string{"route1", "route2"},
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:    "My-app",
+			NoRoute: true,
+			Routes:  []string{"route1", "route2"},
+		},
 	}
 
-	linter := cfManifestLinter{readCfManifest: reader}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -212,17 +204,15 @@ func TestErrorsIfBothNoRouteAndRoutes(t *testing.T) {
 }
 
 func TestWorkerApp(t *testing.T) {
-	reader := func(s string) ([]cfManifest.Application, error) {
-		return []cfManifest.Application{
-			{
-				Name:            "My-app",
-				NoRoute:         true,
-				HealthCheckType: "process",
-			},
-		}, nil
+	apps := []cfManifest.Application{
+		{
+			Name:            "My-app",
+			NoRoute:         true,
+			HealthCheckType: "process",
+		},
 	}
 
-	linter := cfManifestLinter{readCfManifest: reader}
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.DeployCF{
@@ -236,10 +226,7 @@ func TestWorkerApp(t *testing.T) {
 }
 
 func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
-	readerGivesError := func(s string) ([]cfManifest.Application, error) {
-		return nil, errors.New("x")
-	}
-	linter := cfManifestLinter{readCfManifest: readerGivesError}
+	linter := cfManifestLinter{readCfManifest: manifestReader(nil, errors.New("asdf"))}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{

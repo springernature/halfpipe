@@ -129,10 +129,8 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       outputs:
       - name: artifacts
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -255,9 +253,7 @@ jobs:
             dir: git
           inputs:
           - name: git
-            path: ""
           - name: artifacts
-            path: ""
           caches:
           - path: ../../../root/.gradle/
           - path: ../../../root/.m2/
@@ -322,7 +318,6 @@ jobs:
             dir: git
           inputs:
           - name: git
-            path: ""
           caches:
           - path: ../../../root/.gradle/
           - path: ../../../root/.m2/
@@ -418,10 +413,8 @@ jobs:
           dir: git
         inputs:
         - name: git
-          path: ""
         outputs:
         - name: artifacts
-          path: ""
         caches:
         - path: ../../../root/.gradle/
         - path: ../../../root/.m2/
@@ -470,9 +463,7 @@ jobs:
           dir: git
         inputs:
         - name: git
-          path: ""
         - name: artifacts
-          path: ""
         caches:
         - path: ../../../root/.gradle/
         - path: ../../../root/.m2/
@@ -564,7 +555,6 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -612,7 +602,6 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -693,7 +682,6 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -752,9 +740,7 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       - name: artifacts
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/
@@ -813,7 +799,6 @@ jobs:
         dir: git
       inputs:
       - name: git
-        path: ""
       caches:
       - path: ../../../root/.gradle/
       - path: ../../../root/.m2/

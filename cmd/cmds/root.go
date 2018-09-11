@@ -60,10 +60,10 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
 				linters.NewSecretsLinter(),
 				linters.NewTasksLinter(fs),
-				linters.NewCfManifestLinter(manifest.ReadAndMergeManifests),
+				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
 				linters.NewArtifactsLinter(),
 			},
-			Renderer: pipeline.NewPipeline(manifest.ReadAndMergeManifests, fs),
+			Renderer: pipeline.NewPipeline(manifest.ReadAndInterpolateManifest, fs),
 		}
 
 		pipelineConfig, lintResults := ctrl.Process()

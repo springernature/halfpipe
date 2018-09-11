@@ -10,12 +10,12 @@ import (
 
 	"path/filepath"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-
 	"sort"
 
 	"path"
 
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	boshTemplate "github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -26,7 +26,7 @@ type Renderer interface {
 	Render(manifest manifest.Manifest) atc.Config
 }
 
-type CfManifestReader func(string) ([]cfManifest.Application, error)
+type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []boshTemplate.VarKV) ([]cfManifest.Application, error)
 
 type pipeline struct {
 	fs             afero.Afero
@@ -347,7 +347,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	var saveArtifactInPP bool
 	var restoreArtifactInPP bool
 	for _, t := range task.PrePromote {
-		applications, e := p.readCfManifest(task.Manifest)
+		applications, e := p.readCfManifest(task.Manifest, nil, nil)
 		if e != nil {
 			panic(e)
 		}
