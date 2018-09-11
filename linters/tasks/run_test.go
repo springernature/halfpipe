@@ -123,3 +123,15 @@ func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 		assert.Len(t, warnings, 0)
 	}
 }
+
+func TestRetries(t *testing.T) {
+	task := manifest.Run{}
+
+	task.Retries = -1
+	errors, _ := LintRunTask(task, "task", afero.Afero{Fs: afero.NewMemMapFs()})
+	helpers.AssertInvalidFieldInErrors(t, "run.retries", errors)
+
+	task.Retries = 6
+	errors, _ = LintRunTask(task, "task", afero.Afero{Fs: afero.NewMemMapFs()})
+	helpers.AssertInvalidFieldInErrors(t, "run.retries", errors)
+}

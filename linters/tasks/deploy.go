@@ -53,14 +53,14 @@ func LintDeployCFTask(cf manifest.DeployCF, taskID string, fs afero.Afero) (errs
 				errs = append(errs, errors.NewInvalidField(ppTaskID+" run.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 			}
 			if task.Parallel {
-				errs = append(errs, errors.NewInvalidField(ppTaskID+" run.passed", "You are not allowed to set 'passed' inside a pre promote task"))
+				errs = append(errs, errors.NewInvalidField(ppTaskID+" run.parallel", "You are not allowed to set 'parallel' inside a pre promote task"))
 			}
 		case manifest.DockerCompose:
 			if task.ManualTrigger == true {
 				errs = append(errs, errors.NewInvalidField(ppTaskID+" docker-compose.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 			}
 			if task.Parallel {
-				errs = append(errs, errors.NewInvalidField(ppTaskID+" docker-compose.passed", "You are not allowed to set 'passed' inside a pre promote task"))
+				errs = append(errs, errors.NewInvalidField(ppTaskID+" docker-compose.parallel", "You are not allowed to set 'parallel' inside a pre promote task"))
 			}
 		case manifest.DockerPush, manifest.DeployCF:
 			errs = append(errs, errors.NewInvalidField(ppTaskID+" run.type", "You are not allowed to have a 'deploy-cf' or 'docker-push' task as a pre promote"))

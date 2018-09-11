@@ -24,6 +24,7 @@ func LintDeployMLModulesTask(mlTask manifest.DeployMLModules, taskID string) (er
 	if len(mlTask.Targets) == 0 {
 		errs = append(errs, errors.NewMissingField(taskID+" deploy-ml.target"))
 	}
+
 	if mlTask.MLModulesVersion == "" {
 		errs = append(errs, errors.NewMissingField(taskID+" deploy-ml.ml_modules_version"))
 	}
