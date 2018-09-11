@@ -11,7 +11,7 @@ require (
 	github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40 // indirect
 	github.com/cenkalti/backoff v2.0.0+incompatible // indirect
 	github.com/charlievieth/fs v0.0.0-20170613215519-7dc373669fa1 // indirect
-	github.com/cloudfoundry/bosh-cli v5.2.2+incompatible // indirect
+	github.com/cloudfoundry/bosh-cli v5.2.2+incompatible
 	github.com/cloudfoundry/bosh-utils v0.0.0-20180725223622-407dd7546455 // indirect
 	github.com/concourse/atc v3.14.1+incompatible
 	github.com/cppforlife/go-patch v0.0.0-20171006213518-250da0e0e68c // indirect
