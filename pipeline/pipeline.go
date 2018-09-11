@@ -171,36 +171,24 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		job.Plan = aggregateGets(job)
 
+		var passedJobNames []string
 		if parallel {
 			parallelTasks = append(parallelTasks, job.Name)
 			if taskBeforeParallelTasks != "" {
-				(*job.Plan[0].Aggregate)[0].Passed = append(job.Plan[0].Passed, taskBeforeParallelTasks)
-				if man.TriggerInterval != "" {
-					// Aggregate[1] is always trigger
-					(*job.Plan[0].Aggregate)[1].Passed = append(job.Plan[0].Passed, taskBeforeParallelTasks)
-				}
+				passedJobNames = []string{taskBeforeParallelTasks}
 			}
 		} else {
 			taskBeforeParallelTasks = job.Name
 			if len(parallelTasks) > 0 {
-				(*job.Plan[0].Aggregate)[0].Passed = parallelTasks
-				if man.TriggerInterval != "" {
-					// Aggregate[1] is always trigger
-					(*job.Plan[0].Aggregate)[1].Passed = parallelTasks
-				}
+				passedJobNames = parallelTasks
 				parallelTasks = []string{}
 			} else {
 				if len(cfg.Jobs) > 0 {
-					// Aggregate[0] is always git
-					(*job.Plan[0].Aggregate)[0].Passed = []string{cfg.Jobs[len(cfg.Jobs)-1].Name}
-					if man.TriggerInterval != "" {
-						// Aggregate[1] is always trigger
-						(*job.Plan[0].Aggregate)[1].Passed = []string{cfg.Jobs[len(cfg.Jobs)-1].Name}
-					}
+					passedJobNames = append(passedJobNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
 				}
 			}
 		}
-
+		addPassedJobsToGets(job, passedJobNames)
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 
@@ -212,6 +200,16 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	}
 
 	return
+}
+
+func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
+	aggregate := *job.Plan[0].Aggregate
+	for i, get := range aggregate {
+		// Only git and timer should have passed on previous tasks
+		if get.Name() == gitDir || strings.HasPrefix(get.Name(), "timer ") {
+			aggregate[i].Passed = passedJobs
+		}
+	}
 }
 
 func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
