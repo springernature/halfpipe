@@ -7,6 +7,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"fmt"
 )
 
 
@@ -185,6 +186,26 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 
 	result := taskLinter.Lint(man)
 
-	assert.Equal(t, []error{runErr1, runErr2, deployErr, runErr1, runErr2, dockerPushErr, deployMlZipErr}, result.Errors)
-	assert.Equal(t, []error{runWarn1, runWarn1, dockerPushWarn, deployMlModulesWarn}, result.Warnings)
+	errorsToStrings := func (errs []error) (out []string) {
+		for _, e := range errs {
+			out = append(out, e.Error())
+		}
+		return
+	}
+
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runErr1),
+		fmt.Sprintf("tasks[0] %s", runErr2),
+		fmt.Sprintf("tasks[1] %s", deployErr),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr2),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushErr),
+		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
+	}, errorsToStrings(result.Errors))
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushWarn),
+		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
+	}, errorsToStrings(result.Warnings))
 }

@@ -42,7 +42,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 		return
 	}
 
-	errs, warnings := linter.lintTasks("tasks", man.Tasks)
+	errs, warnings := linter.lintTasks("", man.Tasks)
 	result.AddError(errs...)
 	result.AddWarning(warnings...)
 
@@ -60,12 +60,19 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task) (errs []
 }
 
 func (linter taskLinter) lintTask(listName string, index int, t manifest.Task) (errs []error, warnings []error) {
-	taskID := fmt.Sprintf("%s[%v]", listName, index)
+	var taskID string
+	if listName == "" {
+		taskID = fmt.Sprintf("tasks[%v]", index)
+	} else {
+		taskID = fmt.Sprintf("%s[%v]", listName, index)
+	}
+
+	prefixErrors := prefixErrorsWithIndex(taskID)
 	switch task := t.(type) {
 	case manifest.Run:
-		errs, warnings = linter.lintRunTask(task, taskID, linter.Fs)
+		errs, warnings = prefixErrors(linter.lintRunTask(task, taskID, linter.Fs))
 	case manifest.DeployCF:
-		errs, warnings = linter.lintDeployCFTask(task, taskID, linter.Fs)
+		errs, warnings = prefixErrors(linter.lintDeployCFTask(task, taskID, linter.Fs))
 
 		if len(task.PrePromote) > 0 {
 			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote)
@@ -73,22 +80,34 @@ func (linter taskLinter) lintTask(listName string, index int, t manifest.Task) (
 			warnings = append(warnings, subWarnings...)
 		}
 	case manifest.DockerPush:
-		errs, warnings = linter.lintDockerPushTask(task, taskID, linter.Fs)
+		errs, warnings = prefixErrors(linter.lintDockerPushTask(task, taskID, linter.Fs))
 	case manifest.DockerCompose:
-		errs, warnings = linter.lintDockerComposeTask(task, taskID, linter.Fs)
+		errs, warnings = prefixErrors(linter.lintDockerComposeTask(task, taskID, linter.Fs))
 	case manifest.ConsumerIntegrationTest:
 		if listName == "tasks" {
-			errs, warnings = linter.lintConsumerIntegrationTestTask(task, taskID, true)
+			errs, warnings = prefixErrors(linter.lintConsumerIntegrationTestTask(task, taskID, true))
 		} else {
-			errs, warnings = linter.lintConsumerIntegrationTestTask(task, taskID, false)
+			errs, warnings = prefixErrors(linter.lintConsumerIntegrationTestTask(task, taskID, false))
 		}
 	case manifest.DeployMLZip:
-		errs, warnings = linter.lintDeployMLZipTask(task, taskID)
+		errs, warnings = prefixErrors(linter.lintDeployMLZipTask(task, taskID))
 	case manifest.DeployMLModules:
-		errs, warnings = linter.lintDeployMLModulesTask(task, taskID)
+		errs, warnings = prefixErrors(linter.lintDeployMLModulesTask(task, taskID))
 	default:
 		errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 	}
 
 	return
+}
+
+func prefixErrorsWithIndex(prefix string) func(errs, warns []error) (rE []error, rW []error) {
+	return func(errs, warns []error) (rE []error, rW []error) {
+		for _, e := range errs {
+			rE = append(rE, fmt.Errorf("%s %s", prefix, e))
+		}
+		for _, w := range warns {
+			rW = append(rW, fmt.Errorf("%s %s", prefix, w))
+		}
+		return
+	}
 }
