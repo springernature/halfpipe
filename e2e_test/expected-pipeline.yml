@@ -5,7 +5,8 @@ resources:
   type: git
   source:
     branch: master
-    uri: https://github.com/robwhitby/halfpipe-example-nodejs
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
 - name: slack
   type: slack-notification
   source:
@@ -95,18 +96,18 @@ jobs:
             echo ""
           fi
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           ./test.sh
 
           if [ -d target/distribution ]
           then
-            mkdir -p ../artifacts/target/distribution
-            cp -r target/distribution/. ../artifacts/target/distribution/
+            mkdir -p ../../artifacts/target/distribution
+            cp -r target/distribution/. ../../artifacts/target/distribution/
           elif [ -f target/distribution ]
           then
             artifactDir=$(dirname target/distribution)
-            mkdir -p ../artifacts/$artifactDir
-            cp target/distribution ../artifacts/$artifactDir
+            mkdir -p ../../artifacts/$artifactDir
+            cp target/distribution ../../artifacts/$artifactDir
           else
             echo "ERROR: Artifact 'target/distribution' not found. Try fly hijack to check the filesystem."
             exit 1
@@ -115,18 +116,18 @@ jobs:
 
           if [ -d README.md ]
           then
-            mkdir -p ../artifacts/README.md
-            cp -r README.md/. ../artifacts/README.md/
+            mkdir -p ../../artifacts/README.md
+            cp -r README.md/. ../../artifacts/README.md/
           elif [ -f README.md ]
           then
             artifactDir=$(dirname README.md)
-            mkdir -p ../artifacts/$artifactDir
-            cp README.md ../artifacts/$artifactDir
+            mkdir -p ../../artifacts/$artifactDir
+            cp README.md ../../artifacts/$artifactDir
           else
             echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
             exit 1
           fi
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       outputs:
@@ -168,7 +169,7 @@ jobs:
       appPath: artifacts/target/distribution/artifact.zip
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -176,7 +177,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -192,7 +193,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       timeout: 5m
     attempts: 2
 - name: deploy to staging
@@ -206,10 +207,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF api-live pe staging
     params:
-      appPath: git
+      appPath: git/e2e_test
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -246,11 +247,11 @@ jobs:
                 echo ""
                 echo ""
               fi
-              cp -r ../artifacts/. .
+              cp -r ../../artifacts/. .
               set -e
-              export GIT_REVISION=`cat .git/ref`
+              export GIT_REVISION=`cat ../.git/ref`
               ./smoke-test.sh
-            dir: git
+            dir: git/e2e_test
           inputs:
           - name: git
           - name: artifacts
@@ -289,7 +290,7 @@ jobs:
             - -c
             - |
               set -e
-              export GIT_REVISION=`cat .git/ref`
+              export GIT_REVISION=`cat ../.git/ref`
               \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
               # write git key to file
@@ -315,7 +316,7 @@ jobs:
                 -e DEPENDENCY_NAME=${PROVIDER_NAME} \
                 -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST}  \
                 ${DOCKER_COMPOSE_SERVICE:-code}
-            dir: git
+            dir: git/e2e_test
           inputs:
           - name: git
           caches:
@@ -328,7 +329,7 @@ jobs:
     resource: CF api-live pe staging
     params:
       command: halfpipe-promote
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: live.cf.private.springer.com
     attempts: 2
   on_failure:
@@ -343,7 +344,7 @@ jobs:
     resource: CF api-live pe staging
     params:
       command: halfpipe-cleanup
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
     attempts: 2
 - name: deploy to qa
   serial: true
@@ -356,10 +357,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF api-live pe qa
     params:
-      appPath: git
+      appPath: git/e2e_test
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -394,23 +395,23 @@ jobs:
               echo ""
             fi
             set -e
-            export GIT_REVISION=`cat .git/ref`
+            export GIT_REVISION=`cat ../.git/ref`
             ./smoke-test.sh
 
             if [ -d build ]
             then
-              mkdir -p ../artifacts/build
-              cp -r build/. ../artifacts/build/
+              mkdir -p ../../artifacts/build
+              cp -r build/. ../../artifacts/build/
             elif [ -f build ]
             then
               artifactDir=$(dirname build)
-              mkdir -p ../artifacts/$artifactDir
-              cp build ../artifacts/$artifactDir
+              mkdir -p ../../artifacts/$artifactDir
+              cp build ../../artifacts/$artifactDir
             else
               echo "ERROR: Artifact 'build' not found. Try fly hijack to check the filesystem."
               exit 1
             fi
-          dir: git
+          dir: git/e2e_test
         inputs:
         - name: git
         outputs:
@@ -456,11 +457,11 @@ jobs:
               echo ""
               echo ""
             fi
-            cp -r ../artifacts/. .
+            cp -r ../../artifacts/. .
             set -e
-            export GIT_REVISION=`cat .git/ref`
+            export GIT_REVISION=`cat ../.git/ref`
             ./smoke-test.sh
-          dir: git
+          dir: git/e2e_test
         inputs:
         - name: git
         - name: artifacts
@@ -474,7 +475,7 @@ jobs:
     resource: CF api-live pe qa
     params:
       command: halfpipe-promote
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
       testDomain: live.cf.private.springer.com
     attempts: 2
   on_failure:
@@ -489,7 +490,7 @@ jobs:
     resource: CF api-live pe qa
     params:
       command: halfpipe-cleanup
-      manifestPath: git/manifest.yml
+      manifestPath: git/e2e_test/manifest.yml
     attempts: 2
 - name: push to docker registry
   serial: true
@@ -502,7 +503,7 @@ jobs:
       trigger: true
   - put: Docker Registry
     params:
-      build: git
+      build: git/e2e_test
       build_args:
         A: a
         B: b
@@ -550,9 +551,9 @@ jobs:
             echo ""
           fi
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           ./notify.sh
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       caches:
@@ -596,10 +597,10 @@ jobs:
         - -c
         - |
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose run -e A -e GIT_REVISION app
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       caches:
@@ -653,7 +654,7 @@ jobs:
         - -c
         - |
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
           # write git key to file
@@ -679,7 +680,7 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e K -e K1 \
             ${DOCKER_COMPOSE_SERVICE:-code}
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       caches:
@@ -733,11 +734,11 @@ jobs:
             echo ""
             echo ""
           fi
-          cp -r ../artifacts/. .
+          cp -r ../../artifacts/. .
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           /ml-deploy/deploy-local-zip
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       - name: artifacts
@@ -794,9 +795,9 @@ jobs:
             echo ""
           fi
           set -e
-          export GIT_REVISION=`cat .git/ref`
+          export GIT_REVISION=`cat ../.git/ref`
           /ml-deploy/deploy-ml-modules
-        dir: git
+        dir: git/e2e_test
       inputs:
       - name: git
       caches:

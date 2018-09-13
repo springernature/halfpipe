@@ -17,17 +17,17 @@ import (
 )
 
 type repoLinter struct {
-	Fs             afero.Afero
-	WorkingDir     string
-	branchResolver project.GitBranchResolver
-	repoUriResolver   func() (string, error)
+	Fs              afero.Afero
+	WorkingDir      string
+	branchResolver  project.GitBranchResolver
+	repoUriResolver func() (string, error)
 }
 
 func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver) repoLinter {
 	return repoLinter{
-		Fs:         fs,
-		WorkingDir: workingDir,
-		branchResolver: branchResolver,
+		Fs:              fs,
+		WorkingDir:      workingDir,
+		branchResolver:  branchResolver,
 		repoUriResolver: gitconfig.OriginURL,
 	}
 }
