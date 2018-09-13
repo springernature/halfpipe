@@ -58,7 +58,7 @@ func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 
 	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, man.Repo.URI)
 	if !match {
-		result.AddError(errors.NewInvalidField("repo.uri", "must be a valid git uri"))
+		result.AddError(errors.NewInvalidField("repo.uri", fmt.Sprintf("'%s' is not a valid git URI. If you are using SSH-aliases you must manually specify this field.", man.Repo.URI)))
 		return
 	}
 
