@@ -213,7 +213,7 @@ func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
 	man = manifestDefaults.Update(man)
 
 	assert.Equal(t, "git@github.com/foo/bar", man.Repo.URI)
-	assert.Equal(t, "", man.Repo.BasePath)
+	assert.Equal(t, pro.BasePath, man.Repo.BasePath)
 }
 
 func TestSetsDefaultDockerComposeService(t *testing.T) {

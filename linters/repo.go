@@ -13,20 +13,26 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
+	"github.com/tcnksm/go-gitconfig"
 )
 
 type repoLinter struct {
 	Fs             afero.Afero
 	WorkingDir     string
-	BranchResolver project.GitBranchResolver
+	branchResolver project.GitBranchResolver
+	repoUriResolver   func() (string, error)
 }
 
 func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver) repoLinter {
-	return repoLinter{fs, workingDir, branchResolver}
+	return repoLinter{
+		Fs:         fs,
+		WorkingDir: workingDir,
+		branchResolver: branchResolver,
+		repoUriResolver: gitconfig.OriginURL,
+	}
 }
 
 func (r repoLinter) checkGlob(glob string, basePath string) error {
-
 	//need the path to the repo
 	repoRoot := strings.Replace(r.WorkingDir, basePath, "", -1)
 
@@ -74,7 +80,7 @@ func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 		result.AddError(errors.NewInvalidField("repo.git_crypt_key", "must be a vault secret"))
 	}
 
-	if currentBranch, err := r.BranchResolver(); err != nil {
+	if currentBranch, err := r.branchResolver(); err != nil {
 		result.AddError(err)
 	} else {
 		if currentBranch != "master" && man.Repo.Branch == "" {
@@ -83,6 +89,14 @@ func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 
 		if man.Repo.Branch != currentBranch && man.Repo.Branch != "" {
 			result.AddError(errors.NewInvalidField("repo.branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, man.Repo.Branch)))
+		}
+	}
+
+	if resolvedRepoURI, err := r.repoUriResolver(); err != nil {
+		result.AddError(err)
+	} else {
+		if resolvedRepoURI != man.Repo.URI {
+			result.AddWarning(fmt.Errorf("you have specified 'repo.uri', make sure that its the same repo that you execute halfpipe in"))
 		}
 	}
 

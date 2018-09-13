@@ -13,8 +13,11 @@ import (
 func testRepoLinter() repoLinter {
 	return repoLinter{
 		Fs: afero.Afero{Fs: afero.NewMemMapFs()},
-		BranchResolver: func() (branch string, err error) {
+		branchResolver: func() (branch string, err error) {
 			return "master", nil
+		},
+		repoUriResolver: func() (string, error) {
+			return "https://github.com/springernature/halfpipe.git", nil
 		},
 	}
 }
@@ -136,7 +139,7 @@ func TestRepoWhenBranchIsNotSetAndOnNonMasterBranch(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	linter := testRepoLinter()
-	linter.BranchResolver = func() (branch string, err error) {
+	linter.branchResolver = func() (branch string, err error) {
 		return currentBranch, nil
 	}
 
@@ -151,7 +154,7 @@ func TestRepoWhenBranchIsSetAndOnNonMasterBranch(t *testing.T) {
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.Branch = currentBranch
 	linter := testRepoLinter()
-	linter.BranchResolver = func() (branch string, err error) {
+	linter.branchResolver = func() (branch string, err error) {
 		return currentBranch, nil
 	}
 
@@ -165,7 +168,7 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnY(t *testing.T) {
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.Branch = "X"
 	linter := testRepoLinter()
-	linter.BranchResolver = func() (branch string, err error) {
+	linter.branchResolver = func() (branch string, err error) {
 		return currentBranch, nil
 	}
 
@@ -180,7 +183,7 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnMaster(t *testing.T) {
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	man.Repo.Branch = "X"
 	linter := testRepoLinter()
-	linter.BranchResolver = func() (branch string, err error) {
+	linter.branchResolver = func() (branch string, err error) {
 		return currentBranch, nil
 	}
 
@@ -194,7 +197,37 @@ func TestRepoWhenBranchResolverReturnsError(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	linter := testRepoLinter()
-	linter.BranchResolver = func() (branch string, err error) {
+	linter.branchResolver = func() (branch string, err error) {
+		return "", expectedError
+	}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Errors, 1)
+	assert.Equal(t, expectedError, result.Errors[0])
+}
+
+func TestRepoWhenRepoUriIsNotSameAsRepoResolver(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
+	linter := testRepoLinter()
+	linter.repoUriResolver = func() (string, error) {
+		return "git@github.com:springernature/someRandomRepo.git", nil
+	}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+	assert.Len(t, result.Warnings, 1)
+}
+
+func TestPassesOnRepoUriResolverErrors(t *testing.T) {
+	expectedError := errors.New("mehp")
+	man := manifest.Manifest{}
+	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
+	linter := testRepoLinter()
+	linter.branchResolver = func() (branch string, err error) {
+		return "master", nil
+	}
+	linter.repoUriResolver = func() (string, error) {
 		return "", expectedError
 	}
 
