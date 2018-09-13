@@ -75,7 +75,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 		gitDir,
 		"CF api.foo.bar ee dev",
 		"CF api.foo.bar ee dev (1)",
-		"CF api-dev org-dev space-dev",
+		"CF dev org-dev space-dev",
 		"Docker Registry",
 		"Docker Registry (1)",
 		"Docker Registry (2)",

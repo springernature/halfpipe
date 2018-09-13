@@ -31,6 +31,8 @@ func deployCFResourceName(task manifest.DeployCF) string {
 	name := fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
 	name = strings.Replace(name, "((cloudfoundry.", "", -1)
 	name = strings.Replace(name, "))", "", -1)
+	name = strings.Replace(name, "api-", "", -1)
+	name = strings.Replace(name, " org-snpaas", "", -1)
 	return name
 }
 
