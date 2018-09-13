@@ -1,6 +1,14 @@
 package manifest
 
+import "strings"
+
 type TaskList []Task
+
+type Task interface {
+	ReadsFromArtifacts() bool
+	GetAttempts() int
+	SavesArtifacts() bool
+}
 
 type Manifest struct {
 	Team            string
@@ -9,7 +17,7 @@ type Manifest struct {
 	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
 	Repo            Repo   `yaml:"repo,omitempty"`
 	Tasks           TaskList
-	AutoUpdate      bool `json:"auto_update" yaml:"auto_update,omitempty"`
+	AutoUpdate      bool   `json:"auto_update" yaml:"auto_update,omitempty"`
 }
 
 type Repo struct {
@@ -32,12 +40,10 @@ type Docker struct {
 	Password string `yaml:"password,omitempty"`
 }
 
-type Task interface{}
-
 type Run struct {
 	Type             string
 	Name             string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script           string
 	Docker           Docker
 	Vars             Vars     `yaml:"vars,omitempty"`
@@ -45,6 +51,18 @@ type Run struct {
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Parallel         bool     `yaml:"parallel,omitempty"`
 	Retries          int      `yaml:"retries,omitempty"`
+}
+
+func (r Run) SavesArtifacts() bool {
+	return len(r.SaveArtifacts) > 0
+}
+
+func (r Run) ReadsFromArtifacts() bool {
+	return r.RestoreArtifacts
+}
+
+func (r Run) GetAttempts() int {
+	return 1 + r.Retries
 }
 
 type DockerPush struct {
@@ -60,11 +78,23 @@ type DockerPush struct {
 	Retries          int  `yaml:"retries,omitempty"`
 }
 
+func (r DockerPush) SavesArtifacts() bool {
+	return false
+}
+
+func (r DockerPush) ReadsFromArtifacts() bool {
+	return r.RestoreArtifacts
+}
+
+func (r DockerPush) GetAttempts() int {
+	return 1 + r.Retries
+}
+
 type DockerCompose struct {
 	Type             string
 	Name             string
 	Command          string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars             Vars
 	Service          string
 	SaveArtifacts    []string `json:"save_artifacts"`
@@ -73,23 +103,47 @@ type DockerCompose struct {
 	Retries          int      `yaml:"retries,omitempty"`
 }
 
+func (r DockerCompose) SavesArtifacts() bool {
+	return len(r.SaveArtifacts) > 0
+}
+
+func (r DockerCompose) ReadsFromArtifacts() bool {
+	return r.RestoreArtifacts
+}
+
+func (r DockerCompose) GetAttempts() int {
+	return 1 + r.Retries
+}
+
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
+	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	API            string
 	Space          string
 	Org            string
 	Username       string
 	Password       string
 	Manifest       string
-	TestDomain     string `json:"test_domain" yaml:"test_domain"`
+	TestDomain     string   `json:"test_domain" yaml:"test_domain"`
 	Vars           Vars
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
 	Timeout        string
-	Retries        int `yaml:"retries,omitempty"`
+	Retries        int      `yaml:"retries,omitempty"`
+}
+
+func (r DeployCF) SavesArtifacts() bool {
+	return false
+}
+
+func (r DeployCF) ReadsFromArtifacts() bool {
+	return r.DeployArtifact != "" || strings.HasPrefix(r.Manifest, "../artifacts/")
+}
+
+func (r DeployCF) GetAttempts() int {
+	return 2 + r.Retries
 }
 
 type ConsumerIntegrationTest struct {
@@ -102,7 +156,19 @@ type ConsumerIntegrationTest struct {
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars
-	Retries              int `yaml:"retries,omitempty"`
+	Retries              int    `yaml:"retries,omitempty"`
+}
+
+func (r ConsumerIntegrationTest) SavesArtifacts() bool {
+	return false
+}
+
+func (r ConsumerIntegrationTest) ReadsFromArtifacts() bool {
+	return false
+}
+
+func (r ConsumerIntegrationTest) GetAttempts() int {
+	return 1 + r.Retries
 }
 
 type DeployMLZip struct {
@@ -113,8 +179,20 @@ type DeployMLZip struct {
 	AppName       string `json:"app_name"`
 	AppVersion    string `json:"app_version"`
 	Targets       []string
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries       int  `yaml:"retries,omitempty"`
+	ManualTrigger bool   `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries       int    `yaml:"retries,omitempty"`
+}
+
+func (r DeployMLZip) SavesArtifacts() bool {
+	return false
+}
+
+func (r DeployMLZip) GetAttempts() int {
+	return 1 + r.Retries
+}
+
+func (r DeployMLZip) ReadsFromArtifacts() bool {
+	return true
 }
 
 type DeployMLModules struct {
@@ -125,36 +203,20 @@ type DeployMLModules struct {
 	AppName          string `json:"app_name"`
 	AppVersion       string `json:"app_version"`
 	Targets          []string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries          int  `yaml:"retries,omitempty"`
+	ManualTrigger    bool   `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries          int    `yaml:"retries,omitempty"`
 }
 
-type Vars map[string]string
-
-func (r Run) GetAttempts() int {
-	return 1 + r.Retries
+func (r DeployMLModules) SavesArtifacts() bool {
+	return false
 }
 
-func (r DockerCompose) GetAttempts() int {
-	return 1 + r.Retries
-}
-
-func (r DockerPush) GetAttempts() int {
-	return 1 + r.Retries
-}
-
-func (r DeployCF) GetAttempts() int {
-	return 2 + r.Retries
-}
-
-func (r ConsumerIntegrationTest) GetAttempts() int {
-	return 1 + r.Retries
+func (r DeployMLModules) ReadsFromArtifacts() bool {
+	return false
 }
 
 func (r DeployMLModules) GetAttempts() int {
 	return 1 + r.Retries
 }
 
-func (r DeployMLZip) GetAttempts() int {
-	return 1 + r.Retries
-}
+type Vars map[string]string

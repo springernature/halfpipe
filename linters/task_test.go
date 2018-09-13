@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"github.com/springernature/halfpipe/linters/tasks"
 )
 
 func testTaskLinter() taskLinter {
@@ -113,6 +114,9 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintDeployMLModulesTaskNum += 1
 			return
 		},
+		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+			return
+		},
 	}
 
 	taskLinter.Lint(man)
@@ -195,6 +199,9 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 			return []error{}, []error{deployMlModulesWarn}
 
 		},
+		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+			return
+		},
 	}
 
 	result := taskLinter.Lint(man)
@@ -210,19 +217,224 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 		fmt.Sprintf("tasks[0] %s", runErr1),
 		fmt.Sprintf("tasks[0] %s", runErr2),
 		fmt.Sprintf("tasks[1] %s", deployErr),
+		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
+	}, errorsToStrings(result.Errors))
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runWarn1),
+		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
+	}, errorsToStrings(result.Warnings))
+}
+
+func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{},
+			manifest.DeployCF{
+				PrePromote: []manifest.Task{
+					manifest.Run{},
+					manifest.DockerPush{},
+				},
+			},
+			manifest.DeployMLZip{},
+			manifest.DeployMLModules{},
+		},
+	}
+
+	runErr1 := errors.New("runErr1")
+	runErr2 := errors.New("runErr2")
+	runWarn1 := errors.New("runWarn1")
+
+	prePromoteErr := errors.New("prePromoteErr")
+	prePromoteWarn := errors.New("prePromoteWarn")
+
+	dockerPushErr := errors.New("dockerPushErr")
+	dockerPushWarn := errors.New("dockerPushWarn")
+
+	deployMlZipErr := errors.New("deployMlZipErr")
+
+	deployMlModulesWarn := errors.New("deployMlModulesWarn")
+	taskLinter := taskLinter{
+		Fs: afero.Afero{
+			Fs: nil,
+		},
+		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{runErr1, runErr2}, []error{runWarn1}
+		},
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
+			return
+		},
+		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
+			return []error{prePromoteErr}, []error{prePromoteWarn}
+		},
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{dockerPushErr}, []error{dockerPushWarn}
+		},
+		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
+			return []error{deployMlZipErr}, []error{}
+		},
+		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) {
+			return []error{}, []error{deployMlModulesWarn}
+
+		},
+		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+			return
+		},
+	}
+
+	result := taskLinter.Lint(man)
+
+	errorsToStrings := func(errs []error) (out []string) {
+		for _, e := range errs {
+			out = append(out, e.Error())
+		}
+		return
+	}
+
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runErr1),
+		fmt.Sprintf("tasks[0] %s", runErr2),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteErr),
-		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteErr),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr1),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr2),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteErr),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushErr),
 		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
 	}, errorsToStrings(result.Errors))
 	assert.Equal(t, []string{
 		fmt.Sprintf("tasks[0] %s", runWarn1),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteWarn),
-		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushWarn),
 		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
 	}, errorsToStrings(result.Warnings))
+}
+
+func TestLintArtifactsWithPrePromote(t *testing.T) {
+	taskLinter := taskLinter{Fs: afero.Afero{},
+		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) { return },
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
+		lintArtifacts: tasks.LintArtifacts,
+	}
+
+	t.Run("No previous saved artifact", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.DeployCF{
+					PrePromote: []manifest.Task{
+						manifest.Run{},
+						manifest.Run{RestoreArtifacts: true},
+					},
+				},
+				manifest.Run{},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 1)
+		assert.Len(t, result.Warnings, 0)
+		assert.Equal(t, "tasks[1].pre_promote[1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
+
+	})
+
+	t.Run("A previous pre promote step have saved artifact", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.DeployCF{
+					PrePromote: []manifest.Task{
+						manifest.Run{},
+						manifest.Run{SaveArtifacts: []string{"."}},
+						manifest.Run{},
+						manifest.Run{RestoreArtifacts: true},
+					},
+				},
+				manifest.Run{},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 0)
+		assert.Len(t, result.Warnings, 0)
+
+	})
+
+	t.Run("A previous non pre promote step have saved artifact", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{SaveArtifacts: []string{"."}},
+				manifest.DeployCF{
+					PrePromote: []manifest.Task{
+						manifest.Run{},
+						manifest.Run{},
+						manifest.Run{RestoreArtifacts: true},
+					},
+				},
+				manifest.Run{},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 0)
+		assert.Len(t, result.Warnings, 0)
+
+	})
+
+	t.Run("A previous pre promote step have saved artifact should not be reusable", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.DeployCF{
+					PrePromote: []manifest.Task{
+						manifest.Run{SaveArtifacts: []string{"."}},
+						manifest.Run{},
+						manifest.Run{RestoreArtifacts: true},
+					},
+				},
+				manifest.Run{RestoreArtifacts: true},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 1)
+		assert.Len(t, result.Warnings, 0)
+		assert.Equal(t, "tasks[2] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
+
+	})
+
+	t.Run("A previous step haven't saved artifacts and the deploy uses a generated manifest manifest path", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.DeployCF{Manifest: "../artifacts/some/path/manifest.yml"},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 1)
+		assert.Len(t, result.Warnings, 0)
+		assert.Equal(t, "tasks[1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
+	})
+
+	t.Run("A previous step have saved artifacts and the deploy uses a generated manifest manifest path", func(t *testing.T) {
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{SaveArtifacts: []string{"."}},
+				manifest.DeployCF{Manifest: "../artifacts/some/path/manifest.yml"},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 0)
+		assert.Len(t, result.Warnings, 0)
+	})
+
 }

@@ -97,3 +97,25 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 	assert.Len(t, warnings, 1)
 	helpers.AssertFileErrorInErrors(t, "../artifacts/manifest.yml", warnings)
 }
+
+func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		Manifest:   "../artifacts/manifest.yml",
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		TestDomain: "test.domain",
+		PrePromote: []manifest.Task{
+			manifest.Run{},
+		},
+	}
+
+	errors, warnings := LintDeployCFTask(task, fs)
+
+	assert.Len(t, errors, 1)
+	assert.Len(t, warnings, 1)
+	helpers.AssertInvalidFieldInErrors(t, "pre_promote", errors)
+}
