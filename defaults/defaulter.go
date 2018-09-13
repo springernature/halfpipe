@@ -14,6 +14,10 @@ type Defaults struct {
 	RepoPrivateKey       string
 	CfUsername           string
 	CfPassword           string
+	CfUsernameSnPaas     string
+	CfPasswordSnPaas     string
+	CfOrgSnPaas          string
+	CfApiSnPaas          string
 	CfManifest           string
 	CfTestDomains        map[string]string
 	DockerUsername       string
@@ -46,15 +50,29 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		for i, t := range task {
 			switch task := t.(type) {
 			case manifest.DeployCF:
-				if task.Org == "" {
-					task.Org = man.Team
+
+				if task.API == d.CfApiSnPaas {
+					if task.Org == "" {
+						task.Org = d.CfOrgSnPaas
+					}
+					if task.Username == "" {
+						task.Username = d.CfUsernameSnPaas
+					}
+					if task.Password == "" {
+						task.Password = d.CfPasswordSnPaas
+					}
+				} else {
+					if task.Org == "" {
+						task.Org = man.Team
+					}
+					if task.Username == "" {
+						task.Username = d.CfUsername
+					}
+					if task.Password == "" {
+						task.Password = d.CfPassword
+					}
 				}
-				if task.Username == "" {
-					task.Username = d.CfUsername
-				}
-				if task.Password == "" {
-					task.Password = d.CfPassword
-				}
+
 				if task.Manifest == "" {
 					task.Manifest = d.CfManifest
 				}

@@ -2,6 +2,10 @@ code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c h1:VzwteSWGbW9m
 code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c/go.mod h1:wN/zk7mhREp/oviagqUXY3EwuHhWyOvAdsn5Y4CzOrc=
 code.cloudfoundry.org/cli v6.38.0+incompatible h1:hMobKRvaN6GAMzUYcIh6y6LyyotP8ig5i/v3yz2hrNo=
 code.cloudfoundry.org/cli v6.38.0+incompatible/go.mod h1:e4d+EpbwevNhyTZKybrLlyTvpH+W22vMsmdmcTxs/Fo=
+code.cloudfoundry.org/clock v0.0.0-20180518195852-02e53af36e6c h1:5eeuG0BHx1+DHeT3AP+ISKZ2ht1UjGhm581ljqYpVeQ=
+code.cloudfoundry.org/clock v0.0.0-20180518195852-02e53af36e6c/go.mod h1:QD9Lzhd/ux6eNQVUDVRJX/RKTigpewimNYBi7ivZKY8=
+code.cloudfoundry.org/garden v0.0.0-20180820151144-7999b305fe99 h1:OyV+Kz/EvfZuE3VivmP2V+e/dt+FG1GmGe+rwbDcLWo=
+code.cloudfoundry.org/garden v0.0.0-20180820151144-7999b305fe99/go.mod h1:9edl55ou1627lC7chvtltZ561+iITkNTzkZsLgohU8s=
 code.cloudfoundry.org/lager v1.1.0 h1:v0RELJ2jqTeF2DW7PNjZaaGlrXbVxJBVz3uLxdP3fuY=
 code.cloudfoundry.org/lager v1.1.0/go.mod h1:O2sS7gKP3HM2iemG+EnwvyNQK7pTSC6Foi4QiMp9sSk=
 github.com/Masterminds/squirrel v0.0.0-20180908144651-2a316574a693 h1:56Y4QThWIJzn20ETB1l8mV30qBewMO1MHJ+JgU8tSj4=
@@ -24,8 +28,16 @@ github.com/cloudfoundry/bosh-utils v0.0.0-20180725223622-407dd7546455 h1:iLnjvzw
 github.com/cloudfoundry/bosh-utils v0.0.0-20180725223622-407dd7546455/go.mod h1:JCrKwetZGjxbfq1U139TZuXDBfdGLtjOEAfxMWKV/QM=
 github.com/concourse/atc v3.14.1+incompatible h1:9Pp2updGcwAFi3+mq9WVWKWoDXYXI89W3fH+rn6PlbM=
 github.com/concourse/atc v3.14.1+incompatible/go.mod h1:sB+NvCgZM3gsgFKEec4dRfBAxz8AHrUgol2t4B42wVM=
+github.com/concourse/baggageclaim v0.0.0-20180823133644-554e6fa9eb26 h1:l+V9x1XFaI8QzTFNFBXtnHO5Zsi3TVPQ900zTtS5S/U=
+github.com/concourse/baggageclaim v0.0.0-20180823133644-554e6fa9eb26/go.mod h1:vM/dGNuIHSouhdCfTLwZ5LhmrBSxUPc5XhO4McTBxLg=
+github.com/concourse/go-archive v0.0.0-20180803203406-784931698f4f h1:Z7s60kZd9kuWiosivO9QPGH1vmfC/lzLDiuWIy0MT+o=
+github.com/concourse/go-archive v0.0.0-20180803203406-784931698f4f/go.mod h1:Xfo080IPQBmVz3I5ehjCddW3phA2mwv0NFwlpjf5CO8=
+github.com/concourse/retryhttp v0.0.0-20170802173037-937335fd9545 h1:EprZV3ig+v+5sOp0eruDCgrW/nlmyXm4Z8JOF1Unz1o=
+github.com/concourse/retryhttp v0.0.0-20170802173037-937335fd9545/go.mod h1:4+V9YCkKuoV7rg+/No+ZM9FsO3BK4tIJNUiYMI7nki0=
 github.com/cppforlife/go-patch v0.0.0-20171006213518-250da0e0e68c h1:L6Qwcfk/qeD05lCaMxjhn8fCKNAVEWOBn1vqU7KJHtk=
 github.com/cppforlife/go-patch v0.0.0-20171006213518-250da0e0e68c/go.mod h1:67a7aIi94FHDZdoeGSJRRFDp66l9MhaAG1yGxpUoFD8=
+github.com/cppforlife/go-semi-semantic v0.0.0-20160921010311-576b6af77ae4 h1:J+ghqo7ZubTzelkjo9hntpTtP/9lUCWH9icEmAW+B+Q=
+github.com/cppforlife/go-semi-semantic v0.0.0-20160921010311-576b6af77ae4/go.mod h1:socxpf5+mELPbosI149vWpNlHK6mbfWFxSWOoSndXR8=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/docker/distribution v2.6.2+incompatible h1:4FI6af79dfCS/CYb+RRtkSHw3q1L/bnDjG1PcPZtQhM=

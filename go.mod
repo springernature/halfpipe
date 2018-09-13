@@ -3,6 +3,8 @@ module github.com/springernature/halfpipe
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c // indirect
 	code.cloudfoundry.org/cli v6.38.0+incompatible
+	code.cloudfoundry.org/clock v0.0.0-20180518195852-02e53af36e6c // indirect
+	code.cloudfoundry.org/garden v0.0.0-20180820151144-7999b305fe99 // indirect
 	code.cloudfoundry.org/lager v1.1.0 // indirect
 	github.com/Masterminds/squirrel v0.0.0-20180908144651-2a316574a693 // indirect
 	github.com/Microsoft/go-winio v0.4.11 // indirect
@@ -14,7 +16,11 @@ require (
 	github.com/cloudfoundry/bosh-cli v5.2.2+incompatible
 	github.com/cloudfoundry/bosh-utils v0.0.0-20180725223622-407dd7546455 // indirect
 	github.com/concourse/atc v3.14.1+incompatible
+	github.com/concourse/baggageclaim v0.0.0-20180823133644-554e6fa9eb26 // indirect
+	github.com/concourse/go-archive v0.0.0-20180803203406-784931698f4f // indirect
+	github.com/concourse/retryhttp v0.0.0-20170802173037-937335fd9545 // indirect
 	github.com/cppforlife/go-patch v0.0.0-20171006213518-250da0e0e68c // indirect
+	github.com/cppforlife/go-semi-semantic v0.0.0-20160921010311-576b6af77ae4 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/distribution v2.6.2+incompatible // indirect
 	github.com/docker/docker v1.13.1 // indirect

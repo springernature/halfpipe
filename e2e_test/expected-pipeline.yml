@@ -35,15 +35,15 @@ resources:
     prometheusGatewayURL: prometheus-pushgateway:9091
     space: staging
     username: michiel
-- name: CF api-live pe qa
+- name: CF api-snpaas org-snpaas qa
   type: cf-resource
   source:
-    api: ((cloudfoundry.api-live))
-    org: pe
-    password: very-secret
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    password: ((cloudfoundry.password-snpaas))
     prometheusGatewayURL: prometheus-pushgateway:9091
     space: qa
-    username: michiel
+    username: ((cloudfoundry.username-snpaas))
 - name: Docker Registry
   type: docker-image
   source:
@@ -355,13 +355,13 @@ jobs:
       - deploy to cf
       trigger: true
   - put: cf halfpipe-push
-    resource: CF api-live pe qa
+    resource: CF api-snpaas org-snpaas qa
     params:
       appPath: git/e2e_test
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e_test/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
       vars:
         A: "0.1"
         B: "false"
@@ -379,7 +379,7 @@ jobs:
             username: _json_key
         params:
           A: blah
-          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.live.cf.private.springer.com
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
         run:
           path: /bin/sh
           args:
@@ -442,7 +442,7 @@ jobs:
             username: _json_key
         params:
           A: blah
-          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.live.cf.private.springer.com
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
         run:
           path: /bin/sh
           args:
@@ -472,11 +472,11 @@ jobs:
         - path: ../../../root/.sbt/
       attempts: 1
   - put: cf halfpipe-promote
-    resource: CF api-live pe qa
+    resource: CF api-snpaas org-snpaas qa
     params:
       command: halfpipe-promote
       manifestPath: git/e2e_test/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
     attempts: 2
   on_failure:
     put: slack
@@ -487,7 +487,7 @@ jobs:
       username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF api-live pe qa
+    resource: CF api-snpaas org-snpaas qa
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e_test/manifest.yml

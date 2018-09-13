@@ -39,9 +39,10 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 func TestCFDeployDefaults(t *testing.T) {
 
 	manifestDefaults := Defaults{
-		CfUsername: "((cloudfoundry.username))",
-		CfPassword: "((cloudfoundry.password))",
-		CfManifest: "manifest.yml",
+		CfUsername:  "((cloudfoundry.username))",
+		CfPassword:  "((cloudfoundry.password))",
+		CfManifest:  "manifest.yml",
+		CfApiSnPaas: "((snpaas-api))",
 	}
 
 	task1 := manifest.DeployCF{}
@@ -63,6 +64,35 @@ func TestCFDeployDefaults(t *testing.T) {
 	}
 
 	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask1, task2}}
+
+	actual := manifestDefaults.Update(man)
+
+	assert.Equal(t, expected, actual)
+}
+
+func TestCFDeployDefaultsForSNPaaS(t *testing.T) {
+
+	manifestDefaults := Defaults{
+		CfUsernameSnPaas: "u",
+		CfPasswordSnPaas: "p",
+		CfOrgSnPaas:      "o",
+		CfApiSnPaas:      "a",
+	}
+
+	task := manifest.DeployCF{
+		API: "a",
+	}
+
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task}}
+
+	expectedTask := manifest.DeployCF{
+		API:      "a",
+		Org:      manifestDefaults.CfOrgSnPaas,
+		Username: manifestDefaults.CfUsernameSnPaas,
+		Password: manifestDefaults.CfPasswordSnPaas,
+	}
+
+	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask}}
 
 	actual := manifestDefaults.Update(man)
 
