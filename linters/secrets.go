@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -15,7 +16,7 @@ func NewSecretsLinter() Linter {
 	return secretsLinter{}
 }
 
-func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
+func (s secretsLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Secrets"
 	result.DocsURL = "https://docs.halfpipe.io/vault/"
 

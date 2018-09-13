@@ -2,29 +2,40 @@ package linters
 
 import (
 	"fmt"
-	"regexp"
-
-	"strings"
-
-	"time"
-
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/errors"
-	"github.com/springernature/halfpipe/linters/filechecker"
+	"github.com/springernature/halfpipe/linters/result"
+	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
-	"gopkg.in/yaml.v2"
 )
 
 type taskLinter struct {
-	Fs afero.Afero
+	Fs                              afero.Afero
+	lintRunTask                     func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
+	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
+	lintDockerPushTask              func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error)
+	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error)
+	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
+	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
 }
 
 func NewTasksLinter(fs afero.Afero) taskLinter {
-	return taskLinter{fs}
+	return taskLinter{
+		Fs:                              fs,
+		lintRunTask:                     tasks.LintRunTask,
+		lintDeployCFTask:                tasks.LintDeployCFTask,
+		LintPrePromoteTask:              tasks.LintPrePromoteTask,
+		lintDockerPushTask:              tasks.LintDockerPushTask,
+		lintDockerComposeTask:           tasks.LintDockerComposeTask,
+		lintConsumerIntegrationTestTask: tasks.LintConsumerIntegrationTestTask,
+		lintDeployMLZipTask:             tasks.LintDeployMLZipTask,
+		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
+	}
 }
 
-func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
+func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Tasks"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/#tasks"
 
@@ -33,253 +44,78 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 		return
 	}
 
-	var lintTasks func(string, []manifest.Task)
-	lintTasks = func(listName string, tasks []manifest.Task) {
-		for i, t := range tasks {
-			taskID := fmt.Sprintf("%s[%v]", listName, i)
-			switch task := t.(type) {
-			case manifest.Run:
-				linter.lintRunTask(task, taskID, &result)
-			case manifest.DeployCF:
-				linter.lintDeployCFTask(task, taskID, &result)
-				lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote)
-			case manifest.DockerPush:
-				linter.lintDockerPushTask(task, taskID, &result)
-			case manifest.DockerCompose:
-				linter.lintDockerComposeTask(task, taskID, &result)
-			case manifest.ConsumerIntegrationTest:
-				if listName == "tasks" {
-					linter.lintConsumerIntegrationTestTask(task, taskID, true, &result)
-				} else {
-					linter.lintConsumerIntegrationTestTask(task, taskID, false, &result)
-				}
-			case manifest.DeployMLZip:
-				linter.lintDeployMLZipTask(task, taskID, &result)
-			case manifest.DeployMLModules:
-				linter.lintDeployMLModulesTask(task, taskID, &result)
-			default:
-				result.AddError(errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
-			}
-		}
-	}
-
-	lintTasks("tasks", man.Tasks)
+	errs, warnings := linter.lintTasks("", man.Tasks)
+	result.AddError(errs...)
+	result.AddWarning(warnings...)
 
 	return
 }
 
-func (linter taskLinter) lintDeployCFTask(cf manifest.DeployCF, taskID string, result *LintResult) {
-	if cf.API == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-cf.api"))
-	}
-	if cf.Space == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-cf.space"))
-	}
-	if cf.Org == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-cf.org"))
-	}
-	if cf.TestDomain == "" {
-		_, found := defaults.DefaultValues.CfTestDomains[cf.API]
-		if cf.API != "" && !found {
-			result.AddError(errors.NewMissingField(taskID + " deploy-cf.testDomain"))
-		}
-	}
-
-	if cf.Timeout != "" {
-		_, err := time.ParseDuration(cf.Timeout)
-		if err != nil {
-			result.AddError(errors.NewInvalidField(taskID+" deploy-cf.timeout", err.Error()))
-		}
-	}
-
-	if cf.Retries < 0 || cf.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-cf.retries", "must be between 0 and 5"))
-	}
-
-	if strings.HasPrefix(cf.Manifest, "../artifacts/") {
-		result.AddWarning(errors.NewFileError(cf.Manifest, "this file must be saved as an artifact in a previous task"))
-	} else if err := filechecker.CheckFile(linter.Fs, cf.Manifest, false); err != nil {
-		result.AddError(err)
-	}
-
-	for i, prePromote := range cf.PrePromote {
-		ppTaskID := fmt.Sprintf("%s.pre_promote[%v]", taskID, i)
-		switch task := prePromote.(type) {
-		case manifest.Run:
-			if task.ManualTrigger == true {
-				result.AddError(errors.NewInvalidField(ppTaskID+" run.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
-			}
-			if task.Parallel {
-				result.AddError(errors.NewInvalidField(ppTaskID+" run.passed", "You are not allowed to set 'passed' inside a pre promote task"))
-			}
-		case manifest.DockerCompose:
-			if task.ManualTrigger == true {
-				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
-			}
-			if task.Parallel {
-				result.AddError(errors.NewInvalidField(ppTaskID+" docker-compose.passed", "You are not allowed to set 'passed' inside a pre promote task"))
-			}
-		case manifest.DockerPush, manifest.DeployCF:
-			result.AddError(errors.NewInvalidField(ppTaskID+" run.type", "You are not allowed to have a 'deploy-cf' or 'docker-push' task as a pre promote"))
-		}
-
+func (linter taskLinter) lintTasks(listName string, ts []manifest.Task) (errs []error, warnings []error) {
+	for i, t := range ts {
+		e, w := linter.lintTask(listName, i, t)
+		errs = append(errs, e...)
+		warnings = append(warnings, w...)
 	}
 
 	return
 }
 
-func (linter taskLinter) lintDockerPushTask(docker manifest.DockerPush, taskID string, result *LintResult) {
-	if docker.Username == "" {
-		result.AddError(errors.NewMissingField(taskID + " docker-push.username"))
-	}
-	if docker.Password == "" {
-		result.AddError(errors.NewMissingField(taskID + " docker-push.password"))
-	}
-	if docker.Image == "" {
-		result.AddError(errors.NewMissingField(taskID + " docker-push.image"))
+func (linter taskLinter) lintTask(listName string, index int, t manifest.Task) (errs []error, warnings []error) {
+	var taskID string
+	if listName == "" {
+		taskID = fmt.Sprintf("tasks[%v]", index)
 	} else {
-		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
-		if !matched {
-			result.AddError(errors.NewInvalidField(taskID+" docker-push.image", "must be specified as 'user/image' or 'registry/user/image'"))
+		taskID = fmt.Sprintf("%s[%v]", listName, index)
+	}
+
+	prefixErrors := prefixErrorsWithIndex(taskID)
+	switch task := t.(type) {
+	case manifest.Run:
+		errs, warnings = prefixErrors(linter.lintRunTask(task, linter.Fs))
+	case manifest.DeployCF:
+		errs, warnings = prefixErrors(linter.lintDeployCFTask(task, linter.Fs))
+
+		if len(task.PrePromote) > 0 {
+			for pI, preTask := range task.PrePromote {
+				e, w := prefixErrorsWithIndex(fmt.Sprintf("%s.pre_promote[%v]", taskID, pI))(linter.LintPrePromoteTask(preTask))
+				errs = append(errs, e...)
+				warnings = append(warnings, w...)
+			}
+
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote)
+			errs = append(errs, subErrors...)
+			warnings = append(warnings, subWarnings...)
 		}
-	}
-
-	if docker.Retries < 0 || docker.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" docker-push.retries", "must be between 0 and 5"))
-	}
-
-	if err := filechecker.CheckFile(linter.Fs, "Dockerfile", false); err != nil {
-		result.AddError(err)
-	}
-
-	return
-}
-
-func (linter taskLinter) lintRunTask(run manifest.Run, taskID string, result *LintResult) {
-	if run.Script == "" {
-		result.AddError(errors.NewMissingField(taskID + " run.script"))
-	} else {
-		// Possible for script to have args,
-		fields := strings.Fields(strings.TrimSpace(run.Script))
-		command := fields[0]
-		if err := filechecker.CheckFile(linter.Fs, command, true); err != nil {
-			result.AddWarning(err)
+	case manifest.DockerPush:
+		errs, warnings = prefixErrors(linter.lintDockerPushTask(task, linter.Fs))
+	case manifest.DockerCompose:
+		errs, warnings = prefixErrors(linter.lintDockerComposeTask(task, linter.Fs))
+	case manifest.ConsumerIntegrationTest:
+		if listName == "tasks" {
+			errs, warnings = prefixErrors(linter.lintConsumerIntegrationTestTask(task, true))
+		} else {
+			errs, warnings = prefixErrors(linter.lintConsumerIntegrationTestTask(task, false))
 		}
-	}
-
-	if run.Retries < 0 || run.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" run.retries", "must be between 0 and 5"))
-	}
-
-	if run.Docker.Image == "" {
-		result.AddError(errors.NewMissingField(taskID + " run.docker.image"))
-	}
-
-	if run.Docker.Username != "" && run.Docker.Password == "" {
-		result.AddError(errors.NewMissingField(taskID + " run.docker.password"))
-	}
-	if run.Docker.Password != "" && run.Docker.Username == "" {
-		result.AddError(errors.NewMissingField(taskID + " run.docker.username"))
+	case manifest.DeployMLZip:
+		errs, warnings = prefixErrors(linter.lintDeployMLZipTask(task))
+	case manifest.DeployMLModules:
+		errs, warnings = prefixErrors(linter.lintDeployMLModulesTask(task))
+	default:
+		errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 	}
 
 	return
 }
 
-func (linter taskLinter) lintDockerComposeTask(dc manifest.DockerCompose, taskID string, result *LintResult) {
-	if dc.Retries < 0 || dc.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" docker-compose.retries", "must be between 0 and 5"))
-	}
-
-	if err := filechecker.CheckFile(linter.Fs, "docker-compose.yml", false); err != nil {
-		result.AddError(err)
-		return
-	}
-
-	linter.lintDockerComposeService(dc.Service, result)
-	return
-}
-
-func (linter taskLinter) lintDockerComposeService(service string, result *LintResult) {
-	content, err := linter.Fs.ReadFile("docker-compose.yml")
-	if err != nil {
-		result.AddError(err)
-		return
-	}
-
-	var compose struct {
-		Services map[string]interface{} `yaml:"services"`
-	}
-	err = yaml.Unmarshal(content, &compose)
-	if err != nil {
-		result.AddError(err)
-		return
-	}
-
-	if _, ok := compose.Services[service]; ok {
-		return
-	}
-
-	var composeWithoutServices map[string]interface{}
-	err = yaml.Unmarshal(content, &composeWithoutServices)
-	if err != nil {
-		result.AddError(err)
-		return
-	}
-
-	if _, ok := composeWithoutServices[service]; ok {
-		return
-	}
-
-	result.AddError(errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
-	return
-}
-
-func (linter taskLinter) lintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, taskID string, providerHostRequired bool, result *LintResult) {
-	if cit.Consumer == "" {
-		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer"))
-	}
-	if cit.ConsumerHost == "" {
-		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.consumer_host"))
-	}
-	if providerHostRequired {
-		if cit.ProviderHost == "" {
-			result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.provider_host"))
+func prefixErrorsWithIndex(prefix string) func(errs, warns []error) (rE []error, rW []error) {
+	return func(errs, warns []error) (rE []error, rW []error) {
+		for _, e := range errs {
+			rE = append(rE, fmt.Errorf("%s %s", prefix, e))
 		}
-	}
-	if cit.Script == "" {
-		result.AddError(errors.NewMissingField(taskID + " consumer-integration-test.script"))
-	}
-
-	if cit.Retries < 0 || cit.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" consumer-integration-test.retries", "must be between 0 and 5"))
-	}
-	return
-}
-
-func (linter taskLinter) lintDeployMLZipTask(mlTask manifest.DeployMLZip, taskID string, result *LintResult) {
-	if len(mlTask.Targets) == 0 {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.target"))
-	}
-
-	if mlTask.DeployZip == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.deploy_zip"))
-	}
-
-	if mlTask.Retries < 0 || mlTask.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-zip.retries", "must be between 0 and 5"))
-	}
-
-}
-
-func (linter taskLinter) lintDeployMLModulesTask(mlTask manifest.DeployMLModules, taskID string, result *LintResult) {
-	if len(mlTask.Targets) == 0 {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.target"))
-	}
-	if mlTask.MLModulesVersion == "" {
-		result.AddError(errors.NewMissingField(taskID + " deploy-ml.ml_modules_version"))
-	}
-
-	if mlTask.Retries < 0 || mlTask.Retries > 5 {
-		result.AddError(errors.NewInvalidField(taskID+" deploy-ml-modules.retries", "must be between 0 and 5"))
+		for _, w := range warns {
+			rW = append(rW, fmt.Errorf("%s %s", prefix, w))
+		}
+		return
 	}
 }

@@ -8,6 +8,7 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 )
@@ -20,7 +21,7 @@ func NewCfManifestLinter(cfManifestReader pipeline.CfManifestReader) cfManifestL
 	return cfManifestLinter{cfManifestReader}
 }
 
-func (linter cfManifestLinter) Lint(man manifest.Manifest) (result LintResult) {
+func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "CF Manifest Linter"
 	result.DocsURL = "https://docs.halfpipe.io/cf-deployment/"
 

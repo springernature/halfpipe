@@ -1,16 +1,14 @@
-package linters
+package helpers
 
 import (
-	"strings"
-	"testing"
-
 	"fmt"
-
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/stretchr/testify/assert"
+	"strings"
+	"testing"
 )
 
-func assertMissingField(t *testing.T, name string, err error) {
+func AssertMissingField(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.MissingFieldError)
@@ -21,7 +19,7 @@ func assertMissingField(t *testing.T, name string, err error) {
 	}
 }
 
-func assertMissingFieldInErrors(t *testing.T, name string, errs []error) {
+func AssertMissingFieldInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
@@ -35,7 +33,7 @@ func assertMissingFieldInErrors(t *testing.T, name string, errs []error) {
 	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
 }
 
-func assertInvalidField(t *testing.T, name string, err error) {
+func AssertInvalidField(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.InvalidFieldError)
@@ -46,7 +44,7 @@ func assertInvalidField(t *testing.T, name string, err error) {
 	}
 }
 
-func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
+func AssertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
@@ -60,7 +58,7 @@ func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
 }
 
-func assertInvalidFieldShouldNotBeInErrors(t *testing.T, name string, errs []error) {
+func AssertInvalidFieldShouldNotBeInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
@@ -73,7 +71,7 @@ func assertInvalidFieldShouldNotBeInErrors(t *testing.T, name string, errs []err
 	}
 }
 
-func assertFileError(t *testing.T, path string, err error) {
+func AssertFileError(t *testing.T, path string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.FileError)
@@ -84,7 +82,7 @@ func assertFileError(t *testing.T, path string, err error) {
 	}
 }
 
-func assertFileErrorInErrors(t *testing.T, path string, errs []error) {
+func AssertFileErrorInErrors(t *testing.T, path string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
@@ -99,7 +97,7 @@ func assertFileErrorInErrors(t *testing.T, path string, errs []error) {
 
 }
 
-func assertTooManyAppsError(t *testing.T, name string, err error) {
+func AssertTooManyAppsError(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.TooManyAppsError)
@@ -110,7 +108,7 @@ func assertTooManyAppsError(t *testing.T, name string, err error) {
 	}
 }
 
-func assertNoRoutesError(t *testing.T, name string, err error) {
+func AssertNoRoutesError(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.NoRoutesError)
@@ -121,7 +119,7 @@ func assertNoRoutesError(t *testing.T, name string, err error) {
 	}
 }
 
-func assertNoNameError(t *testing.T, name string, err error) {
+func AssertNoNameError(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.NoNameError)
@@ -132,7 +130,7 @@ func assertNoNameError(t *testing.T, name string, err error) {
 	}
 }
 
-func assertWrongHealthCheck(t *testing.T, name string, err error) {
+func AssertWrongHealthCheck(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.WrongHealthCheck)
@@ -143,7 +141,7 @@ func assertWrongHealthCheck(t *testing.T, name string, err error) {
 	}
 }
 
-func assertBadRoutes(t *testing.T, name string, err error) {
+func AssertBadRoutes(t *testing.T, name string, err error) {
 	t.Helper()
 
 	mf, ok := err.(errors.BadRoutesError)

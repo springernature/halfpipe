@@ -9,6 +9,7 @@ import (
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/filechecker"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 )
@@ -40,10 +41,10 @@ func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
 	return
 }
 
-func (c Controller) Process() (config atc.Config, results linters.LintResults) {
+func (c Controller) Process() (config atc.Config, results result.LintResults) {
 	man, errs := c.getManifest()
 	if errs != nil {
-		results = append(results, linters.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", errs, nil))
+		results = append(results, result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", errs, nil))
 		return
 	}
 

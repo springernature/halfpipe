@@ -3,16 +3,12 @@ package linters
 import (
 	"testing"
 
+	"fmt"
+	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
-
-var validDockerCompose = `
-version: 3
-services:
-  app:
-    image: appropriate/curl`
 
 func testTaskLinter() taskLinter {
 	return taskLinter{
@@ -29,606 +25,204 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	assertMissingField(t, "tasks", result.Errors[0])
 }
 
-func TestRunTaskWithoutScriptAndImage(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.Run{},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 2)
-	assertMissingField(t, "tasks[0] run.script", result.Errors[0])
-	assertMissingField(t, "tasks[0] run.docker.image", result.Errors[1])
-}
-
-func TestRunTaskWithScriptAndImage(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./build.sh",
-			Docker: manifest.Docker{
-				Image: "alpine",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Warnings, 1) {
-		assertFileError(t, "./build.sh", result.Warnings[0])
-	}
-}
-
-func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./build.sh",
-			Docker: manifest.Docker{
-				Image:    "alpine",
-				Password: "secret",
-				Username: "Michiel",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./build.sh",
-			Docker: manifest.Docker{
-				Image:    "alpine",
-				Password: "secret",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "tasks[0] run.docker.username", result.Errors[0])
-}
-func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./build.sh",
-			Docker: manifest.Docker{
-				Image:    "alpine",
-				Username: "Michiel",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "tasks[0] run.docker.password", result.Errors[0])
-}
-
-func TestRunTaskScriptFileExists(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./build.sh",
-			Docker: manifest.Docker{
-				Image: "alpine",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-func TestRunTaskScriptAcceptsArguments(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("build.sh", []byte("foo"), 0777)
-
-	for _, script := range []string{"./build.sh", "build.sh", "./build.sh --arg 1", "build.sh some args"} {
-		man := manifest.Manifest{}
-		man.Tasks = []manifest.Task{
-			manifest.Run{
-				Script: script,
-				Docker: manifest.Docker{
-					Image: "alpine",
-				},
-			},
-		}
-
-		result := taskLinter.Lint(man)
-		assert.Len(t, result.Errors, 0)
-	}
-}
-
-func TestCFDeployTaskWithEmptyTask(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{Manifest: "manifest.yml"},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 4)
-	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
-	assertMissingField(t, "tasks[0] deploy-cf.space", result.Errors[1])
-	assertMissingField(t, "tasks[0] deploy-cf.org", result.Errors[2])
-	assertFileError(t, "manifest.yml", result.Errors[3])
-}
-
-func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("manifest.yml", []byte("foo"), 0777)
-	allesOk := manifest.Manifest{}
-	allesOk.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:      "((cloudfoundry.api-dev))",
-			Org:      "Something",
-			Space:    "Something",
-			Manifest: "manifest.yml"},
-	}
-
-	result := taskLinter.Lint(allesOk)
-	assert.Len(t, result.Errors, 0)
-
-	noAPIDefined := manifest.Manifest{}
-	noAPIDefined.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:      "",
-			Org:      "Something",
-			Space:    "Something",
-			Manifest: "manifest.yml"},
-	}
-
-	result = taskLinter.Lint(noAPIDefined)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "tasks[0] deploy-cf.api", result.Errors[0])
-
-	randomAPIDefinedWithoutTestDomain := manifest.Manifest{}
-	randomAPIDefinedWithoutTestDomain.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:      "someRandomApi",
-			Org:      "Something",
-			Space:    "Something",
-			Manifest: "manifest.yml"},
-	}
-
-	result = taskLinter.Lint(randomAPIDefinedWithoutTestDomain)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "tasks[0] deploy-cf.testDomain", result.Errors[0])
-
-}
-
-func TestDockerPushTaskWithEmptyTask(t *testing.T) {
-	taskLinter := testTaskLinter()
+func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
+			manifest.Run{},
+			manifest.DeployCF{
+				PrePromote: []manifest.Task{
+					manifest.Run{},
+					manifest.DeployCF{
+						PrePromote: []manifest.Task{
+							manifest.Run{},
+						},
+					},
+					manifest.DockerPush{},
+					manifest.DockerCompose{},
+					manifest.ConsumerIntegrationTest{},
+					manifest.DeployMLZip{},
+					manifest.DeployMLModules{},
+				},
+			},
 			manifest.DockerPush{},
+			manifest.DockerCompose{},
+			manifest.ConsumerIntegrationTest{},
+			manifest.DeployMLZip{},
+			manifest.DeployMLModules{},
 		},
 	}
 
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 4)
-	assertMissingField(t, "tasks[0] docker-push.username", result.Errors[0])
-	assertMissingField(t, "tasks[0] docker-push.password", result.Errors[1])
-	assertMissingField(t, "tasks[0] docker-push.image", result.Errors[2])
-	assertFileError(t, "Dockerfile", result.Errors[3])
+	calledLintRunTask := false
+	calledLintRunTaskNum := 0
+	calledLintDeployCFTask := false
+	calledLintDeployCFTaskNum := 0
+	calledLintDockerPushTask := false
+	calledLintDockerPushTaskNum := 0
+	calledLintDockerComposeTask := false
+	calledLintDockerComposeTaskNum := 0
+	calledLintConsumerIntegrationTestTask := false
+	calledLintConsumerIntegrationTestTaskNum := 0
+	calledLintDeployMLZipTask := false
+	calledLintDeployMLZipTaskNum := 0
+	calledLintDeployMLModulesTask := false
+	calledLintDeployMLModulesTaskNum := 0
+	calledLintPrePromoteTasks := false
+	calledLintPrePromoteTasksNum := 0
 
-}
-
-func TestDockerPushTaskWithBadRepo(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerPush{
-				Username: "asd",
-				Password: "asd",
-				Image:    "asd",
-			},
+	taskLinter := taskLinter{
+		Fs: afero.Afero{
+			Fs: nil,
+		},
+		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+			calledLintRunTask = true
+			calledLintRunTaskNum += 1
+			return
+		},
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
+			calledLintDeployCFTask = true
+			calledLintDeployCFTaskNum += 1
+			return
+		},
+		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
+			calledLintPrePromoteTasks = true
+			calledLintPrePromoteTasksNum += 1
+			return
+		},
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
+			calledLintDockerPushTask = true
+			calledLintDockerPushTaskNum += 1
+			return
+		},
+		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
+			calledLintDockerComposeTask = true
+			calledLintDockerComposeTaskNum += 1
+			return
+		},
+		lintConsumerIntegrationTestTask: func(cit manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
+			calledLintConsumerIntegrationTestTask = true
+			calledLintConsumerIntegrationTestTaskNum += 1
+			return
+		},
+		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
+			calledLintDeployMLZipTask = true
+			calledLintDeployMLZipTaskNum += 1
+			return
+		},
+		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) {
+			calledLintDeployMLModulesTask = true
+			calledLintDeployMLModulesTaskNum += 1
+			return
 		},
 	}
 
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 2)
-	assertInvalidField(t, "tasks[0] docker-push.image", result.Errors[0])
-	assertFileError(t, "Dockerfile", result.Errors[1])
+	taskLinter.Lint(man)
 
+	assert.True(t, calledLintRunTask)
+	assert.Equal(t, 3, calledLintRunTaskNum)
+
+	assert.True(t, calledLintDeployCFTask)
+	assert.Equal(t, 2, calledLintDeployCFTaskNum)
+
+	assert.True(t, calledLintPrePromoteTasks)
+	assert.Equal(t, 8, calledLintPrePromoteTasksNum)
+
+	assert.True(t, calledLintDockerPushTask)
+	assert.Equal(t, 2, calledLintDockerPushTaskNum)
+
+	assert.True(t, calledLintDockerComposeTask)
+	assert.Equal(t, 2, calledLintDockerComposeTaskNum)
+
+	assert.True(t, calledLintConsumerIntegrationTestTask)
+	assert.Equal(t, 2, calledLintConsumerIntegrationTestTaskNum)
+
+	assert.True(t, calledLintDeployMLZipTask)
+	assert.Equal(t, 2, calledLintDeployMLZipTaskNum)
+
+	assert.True(t, calledLintDeployMLModulesTask)
+	assert.Equal(t, 2, calledLintDeployMLModulesTaskNum)
 }
 
-func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
-	taskLinter := testTaskLinter()
+func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.DockerPush{
-				Username: "asd",
-				Password: "asd",
-				Image:    "asd/asd",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertFileError(t, "Dockerfile", result.Errors[0])
-}
-
-func TestDockerPushTaskWithCorrectData(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerPush{
-				Username: "asd",
-				Password: "asd",
-				Image:    "asd/asd",
-				Vars: map[string]string{
-					"A": "a",
-					"B": "b",
+			manifest.Run{},
+			manifest.DeployCF{
+				PrePromote: []manifest.Task{
+					manifest.Run{},
+					manifest.DockerPush{},
 				},
 			},
+			manifest.DeployMLZip{},
+			manifest.DeployMLModules{},
+		},
+	}
+
+	runErr1 := errors.New("runErr1")
+	runErr2 := errors.New("runErr2")
+	runWarn1 := errors.New("runWarn1")
+
+	deployErr := errors.New("deployErr")
+
+	prePromoteErr := errors.New("prePromoteErr")
+	prePromoteWarn := errors.New("prePromoteWarn")
+
+	dockerPushErr := errors.New("dockerPushErr")
+	dockerPushWarn := errors.New("dockerPushWarn")
+
+	deployMlZipErr := errors.New("deployMlZipErr")
+
+	deployMlModulesWarn := errors.New("deployMlModulesWarn")
+	taskLinter := taskLinter{
+		Fs: afero.Afero{
+			Fs: nil,
+		},
+		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{runErr1, runErr2}, []error{runWarn1}
+		},
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{deployErr}, []error{}
+		},
+		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
+			return []error{prePromoteErr}, []error{prePromoteWarn}
+		},
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{dockerPushErr}, []error{dockerPushWarn}
+		},
+		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
+			return []error{deployMlZipErr}, []error{}
+		},
+		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) {
+			return []error{}, []error{deployMlModulesWarn}
+
 		},
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
 
-func TestDockerCompose_Happy(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{Service: "app"}, // empty is ok, everything is optional
-			manifest.DockerCompose{
-				Name:    "run docker compose",
-				Service: "app",
-				Vars: manifest.Vars{
-					"A": "a",
-					"B": "b",
-				},
-			},
-		},
+	errorsToStrings := func(errs []error) (out []string) {
+		for _, e := range errs {
+			out = append(out, e.Error())
+		}
+		return
 	}
 
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-func TestDockerCompose_HappyWithoutServicesKey(t *testing.T) {
-	var compose = `
-app1:
-  image: appropriate/curl
-
-app2:
-  image: appropriate/curl
-`
-
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(compose), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{Service: "app2"},
-			manifest.DockerCompose{
-				Name:    "run docker compose",
-				Service: "app1",
-				Vars: manifest.Vars{
-					"A": "a",
-					"B": "b",
-				},
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
-func TestDockerCompose_MissingFile(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{manifest.DockerCompose{}},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertFileError(t, "docker-compose.yml", result.Errors[0])
-}
-
-func TestDockerCompose_UnknownService(t *testing.T) {
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{
-				Service: "asdf",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertInvalidFieldInErrors(t, "service", result.Errors)
-}
-
-func TestDockerCompose_UnknownServiceWithoutServicesKey(t *testing.T) {
-
-	var compose = `
-app1:
-  image: appropriate/curl
-app2:
-  image: appropriate/curl
-`
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(compose), 0777)
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DockerCompose{
-				Service: "asdf",
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertInvalidFieldInErrors(t, "service", result.Errors)
-}
-
-func TestLintsSubTasksInDeployCF(t *testing.T) {
-
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:   "((cloudfoundry.api-dev))",
-			Org:   "org",
-			Space: "space",
-			PrePromote: []manifest.Task{
-				manifest.Run{
-					ManualTrigger: true,
-				},
-				manifest.DockerCompose{},
-				manifest.DeployCF{},
-				manifest.DockerPush{},
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 13)
-
-	assertInvalidField(t, "tasks[0].pre_promote[0] run.manual_trigger", result.Errors[0])
-	assertInvalidField(t, "tasks[0].pre_promote[2] run.type", result.Errors[1])
-	assertInvalidField(t, "tasks[0].pre_promote[3] run.type", result.Errors[2])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.script", result.Errors[3])
-	assertMissingField(t, "tasks[0].pre_promote[0] run.docker.image", result.Errors[4])
-	assertFileError(t, "docker-compose.yml", result.Errors[5])
-}
-
-func TestConsumerIntegrationTestTaskHasRequiredFieldsInPrePromote(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:   "cf-api",
-			Org:   "cf-org",
-			Space: "cf-space",
-			PrePromote: manifest.TaskList{
-				manifest.ConsumerIntegrationTest{},
-			},
-			TestDomain: "some.domain.io",
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 3) {
-		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.consumer", result.Errors[0])
-		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.consumer_host", result.Errors[1])
-		assertMissingField(t, "tasks[0].pre_promote[0] consumer-integration-test.script", result.Errors[2])
-	}
-}
-
-func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.ConsumerIntegrationTest{},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 4) {
-		assertMissingField(t, "tasks[0] consumer-integration-test.consumer", result.Errors[0])
-		assertMissingField(t, "tasks[0] consumer-integration-test.consumer_host", result.Errors[1])
-		assertMissingField(t, "tasks[0] consumer-integration-test.provider_host", result.Errors[2])
-		assertMissingField(t, "tasks[0] consumer-integration-test.script", result.Errors[3])
-	}
-}
-
-func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployMLZip{},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 2) {
-		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
-		assertMissingField(t, "tasks[0] deploy-ml.deploy_zip", result.Errors[1])
-	}
-}
-
-func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployMLModules{},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 2) {
-		assertMissingField(t, "tasks[0] deploy-ml.target", result.Errors[0])
-		assertMissingField(t, "tasks[0] deploy-ml.ml_modules_version", result.Errors[1])
-	}
-}
-
-func TestCannotSetPassedInPrePromoteTasks(t *testing.T) {
-
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-	taskLinter.Fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:        "api",
-			Org:        "org",
-			Space:      "space",
-			TestDomain: "foo.com",
-			PrePromote: []manifest.Task{
-				manifest.Run{Script: "/foo", Docker: manifest.Docker{Image: "foo"}, Parallel: true},
-				manifest.DockerCompose{Service: "app", Parallel: true},
-			},
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	if assert.Len(t, result.Errors, 2) {
-		assertInvalidField(t, "tasks[0].pre_promote[0] run.passed", result.Errors[0])
-		assertInvalidField(t, "tasks[0].pre_promote[1] docker-compose.passed", result.Errors[1])
-	}
-}
-
-func TestLintsTheTimeoutInDeployTask(t *testing.T) {
-	man := manifest.Manifest{}
-	taskLinter := testTaskLinter()
-
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			API:        "asdf",
-			Space:      "asdf",
-			Org:        "asdf",
-			TestDomain: "asdf",
-			Timeout:    "notAValidDuration",
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assertInvalidField(t, "tasks[0] deploy-cf.timeout", result.Errors[0])
-}
-
-func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.DeployCF{
-			Manifest:   "../artifacts/manifest.yml",
-			API:        "api",
-			Space:      "space",
-			Org:        "org",
-			TestDomain: "test.domain",
-		},
-	}
-
-	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-	assert.Len(t, result.Warnings, 1)
-
-	println(result.Warnings)
-}
-
-func TestAttempts(t *testing.T) {
-	taskLinter := testTaskLinter()
-	man := manifest.Manifest{}
-	man.Tasks = []manifest.Task{
-		manifest.Run{Retries: -20},
-		manifest.DockerPush{Retries: -1},
-		manifest.DockerCompose{Retries: -324},
-		manifest.DeployCF{
-			Retries: -3,
-			PrePromote: []manifest.Task{
-				manifest.Run{Retries: -100},
-			},
-		},
-		manifest.ConsumerIntegrationTest{Retries: -1},
-		manifest.DeployMLZip{Retries: -200},
-		manifest.DeployMLModules{Retries: -1337},
-	}
-
-	result := taskLinter.Lint(man)
-	assertInvalidFieldInErrors(t, "run.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-cf.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "docker-push.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "docker-compose.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "consumer-integration-test.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-zip.retries", result.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-modules.retries", result.Errors)
-
-	man.Tasks = []manifest.Task{
-		manifest.Run{Retries: 6},
-		manifest.DockerPush{Retries: 6},
-		manifest.DockerCompose{Retries: 6},
-		manifest.DeployCF{Retries: 6, PrePromote: []manifest.Task{
-			manifest.Run{Retries: 6},
-		}},
-		manifest.ConsumerIntegrationTest{Retries: 6},
-		manifest.DeployMLZip{Retries: 6},
-		manifest.DeployMLModules{Retries: 6},
-	}
-
-	result2 := taskLinter.Lint(man)
-	assertInvalidFieldInErrors(t, "run.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-cf.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "tasks[3].pre_promote[0] run.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "docker-push.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "docker-compose.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "consumer-integration-test.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-zip.retries", result2.Errors)
-	assertInvalidFieldInErrors(t, "deploy-ml-modules.retries", result2.Errors)
-
-	man.Tasks = []manifest.Task{
-		manifest.Run{Retries: 0},
-		manifest.DockerPush{Retries: 2},
-		manifest.DockerCompose{Retries: 3},
-		manifest.DeployCF{Retries: 4,
-			PrePromote: []manifest.Task{
-				manifest.Run{Retries: 0},
-			},
-		},
-		manifest.ConsumerIntegrationTest{Retries: 5},
-		manifest.DeployMLZip{Retries: 4},
-		manifest.DeployMLModules{Retries: 3},
-	}
-	result3 := taskLinter.Lint(man)
-	assertInvalidFieldShouldNotBeInErrors(t, "run.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-cf.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "tasks[3].pre_promote[0] run.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "docker-push.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "docker-compose.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "consumer-integration-test.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-zip.retries", result3.Errors)
-	assertInvalidFieldShouldNotBeInErrors(t, "deploy-ml-modules.retries", result3.Errors)
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runErr1),
+		fmt.Sprintf("tasks[0] %s", runErr2),
+		fmt.Sprintf("tasks[1] %s", deployErr),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteErr),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteErr),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr2),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushErr),
+		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
+	}, errorsToStrings(result.Errors))
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushWarn),
+		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
+	}, errorsToStrings(result.Warnings))
 }
