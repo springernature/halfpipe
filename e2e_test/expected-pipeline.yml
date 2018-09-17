@@ -137,6 +137,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
     resource: artifacts-engineering-enablement-e2e-test
@@ -260,6 +261,7 @@ jobs:
           - path: ../../../root/.m2/
           - path: ../../../root/.ivy2/
           - path: ../../../root/.sbt/
+          - path: ../../../halfpipe-cache
         attempts: 1
     - do:
       - task: c-name
@@ -324,6 +326,7 @@ jobs:
           - path: ../../../root/.m2/
           - path: ../../../root/.ivy2/
           - path: ../../../root/.sbt/
+          - path: ../../../halfpipe-cache
         attempts: 1
   - put: cf halfpipe-promote
     resource: CF live pe staging
@@ -421,6 +424,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+        - path: ../../../halfpipe-cache
       attempts: 1
     - put: artifacts
       resource: artifacts-engineering-enablement-e2e-test
@@ -470,6 +474,7 @@ jobs:
         - path: ../../../root/.m2/
         - path: ../../../root/.ivy2/
         - path: ../../../root/.sbt/
+        - path: ../../../halfpipe-cache
       attempts: 1
   - put: cf halfpipe-promote
     resource: CF snpaas qa
@@ -561,6 +566,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     put: slack
@@ -608,6 +614,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     put: slack
@@ -688,6 +695,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     put: slack
@@ -747,6 +755,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     put: slack
@@ -805,6 +814,7 @@ jobs:
       - path: ../../../root/.m2/
       - path: ../../../root/.ivy2/
       - path: ../../../root/.sbt/
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     put: slack

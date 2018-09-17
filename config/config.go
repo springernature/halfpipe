@@ -23,6 +23,7 @@ var (
 		{Path: "../../../root/.m2/"},
 		{Path: "../../../root/.ivy2/"},
 		{Path: "../../../root/.sbt/"},
+		{Path: "../../../halfpipe-cache"},
 	}
 )
 
