@@ -47,7 +47,7 @@ var NullpipelineFile = func(fs afero.Afero) (file afero.File, err error) {
 func TestReturnsErrWhenHalfpipeFileDoesntExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false, "master")
+	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master")
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -57,7 +57,7 @@ func TestReturnsErrWhenHalfpipeDoesntContainTeamOrPipeline(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, NullpipelineFile, false, "master")
+	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master")
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -69,7 +69,7 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 	file, _ := fs.Create("pipeline.yml")
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, false, "master")
 	plan, err := planner.Plan()
@@ -79,27 +79,20 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 			Cmd: exec.Cmd{
 				Path:   "halfpipe",
 				Args:   []string{"halfpipe"},
-				Stderr: stderr,
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
 			},
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 			},
 		},
 	}
@@ -115,7 +108,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, false, "master")
 	plan, err := planner.Plan()
@@ -125,18 +118,14 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 			Cmd: exec.Cmd{
 				Path:   "halfpipe",
 				Args:   []string{"halfpipe"},
-				Stderr: stderr,
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 			},
 		},
 	}
@@ -152,7 +141,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
 	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, false, "master")
 	plan, err := planner.Plan()
@@ -162,18 +151,14 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
 			Cmd: exec.Cmd{
 				Path:   "halfpipe",
 				Args:   []string{"halfpipe"},
-				Stderr: stderr,
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml", "--check-creds"},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml", "--check-creds"},
 			},
 		},
 	}
@@ -189,7 +174,7 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, true, "master")
 	plan, err := planner.Plan()
@@ -199,18 +184,14 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 			Cmd: exec.Cmd{
 				Path:   "halfpipe",
 				Args:   []string{"halfpipe"},
-				Stderr: stderr,
 				Stdout: file,
 			},
 			Printable: "halfpipe > pipeline.yml",
 		},
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds", "--non-interactive"},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds", "--non-interactive"},
 			},
 		},
 	}
@@ -226,7 +207,7 @@ func TestReturnsAUnpausePlan(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, true, "master")
 	plan, err := planner.Unpause()
@@ -234,11 +215,8 @@ func TestReturnsAUnpausePlan(t *testing.T) {
 	expectedPlan := Plan{
 		{
 			Cmd: exec.Cmd{
-				Path:   "fly",
-				Args:   []string{"fly", "-t", team, "unpause-pipeline", "-p", pipeline},
-				Stdout: stdout,
-				Stderr: stderr,
-				Stdin:  stdin,
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "unpause-pipeline", "-p", pipeline},
 			},
 		},
 	}
@@ -254,7 +232,7 @@ func TestReturnsAPlanWithSecurityQuestionIfNotOnMaster(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, stdout, stderr, stdin, func(fs afero.Afero) (afero.File, error) {
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
 	}, false, "a-branch")
 	plan, err := planner.Plan()

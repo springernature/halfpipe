@@ -1,20 +1,19 @@
 package upload
 
 import (
-	"io"
-	"github.com/pkg/errors"
 	"fmt"
+	"github.com/pkg/errors"
+	"io"
 )
 
 var ErrWrongAnswer = errors.New("incorrect or empty response")
 
-func SecurityQuestion(stdout io.Writer, stdin io.Reader, pipeline, currentBranch string) Command {
+func SecurityQuestion(pipeline, currentBranch string) Command {
 	pipelineName := fmt.Sprintf("%s-%s", pipeline, currentBranch)
 	return Command{
 		Printable: "# Security question",
-		Executor: func() error {
-			fmt.Fprintf(stdout, `
-WARNING! You are running halfpipe on a branch. WARNING!
+		Executor: func(stdout io.Writer, stdin io.Reader) error {
+			fmt.Fprintf(stdout, `WARNING! You are running halfpipe on a branch. WARNING!
 * You are on branch %s
 * We will upload the pipeline as %s
 * Have you made sure any Cloud Foundry manifests you are using in deploy-cf tasks have different app name and routes than on the master branch? 

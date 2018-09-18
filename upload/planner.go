@@ -2,7 +2,6 @@ package upload
 
 import (
 	"fmt"
-	"io"
 	"os/exec"
 	"path/filepath"
 
@@ -26,14 +25,11 @@ type Planner interface {
 	Unpause() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool, currentBranch string) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
 		homedir:        homedir,
-		stdout:         stdout,
-		stderr:         stderr,
-		stdin:          stdin,
 		pipelineFile:   pipelineFile,
 		nonInteractive: nonInteractive,
 		currentBranch:  currentBranch,
@@ -44,9 +40,6 @@ type planner struct {
 	fs             afero.Afero
 	pathResolver   PathResolver
 	homedir        string
-	stdout         io.Writer
-	stderr         io.Writer
-	stdin          io.Reader
 	pipelineFile   PipelineFile
 	nonInteractive bool
 	currentBranch  string
@@ -93,11 +86,8 @@ func (p planner) loginCommand(team string) (cmd Command, err error) {
 	}
 
 	cmd.Cmd = exec.Cmd{
-		Path:   path,
-		Args:   []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
-		Stdout: p.stdout,
-		Stderr: p.stderr,
-		Stdin:  p.stdin,
+		Path: path,
+		Args: []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
 	}
 
 	return
@@ -117,7 +107,6 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 	cmd.Cmd = exec.Cmd{
 		Path:   path,
 		Args:   []string{path},
-		Stderr: p.stderr,
 		Stdout: file,
 	}
 	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
@@ -132,11 +121,8 @@ func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 	}
 
 	cmd.Cmd = exec.Cmd{
-		Path:   path,
-		Args:   []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
-		Stdout: p.stdout,
-		Stderr: p.stderr,
-		Stdin:  p.stdin,
+		Path: path,
+		Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
 	}
 
 	if p.nonInteractive {
@@ -153,7 +139,7 @@ func (p planner) Plan() (plan Plan, err error) {
 	}
 
 	if p.currentBranch != "master" {
-		plan = append(plan, SecurityQuestion(p.stdout, p.stdin, man.Pipeline, p.currentBranch))
+		plan = append(plan, SecurityQuestion(man.Pipeline, p.currentBranch))
 	}
 
 	lintAndRenderCmd, err := p.lintAndRender()
@@ -205,19 +191,10 @@ func (p planner) Unpause() (plan Plan, err error) {
 
 	plan = append(plan, Command{
 		Cmd: exec.Cmd{
-			Path:   path,
-			Args:   []string{"fly", "-t", man.Team, "unpause-pipeline", "-p", man.Pipeline},
-			Stdout: p.stdout,
-			Stderr: p.stderr,
-			Stdin:  p.stdin,
+			Path: path,
+			Args: []string{"fly", "-t", man.Team, "unpause-pipeline", "-p", man.Pipeline},
 		},
 	})
 
 	return
-}
-
-func (p planner) branchSecurityQuestion() Command {
-	return Command{
-		Printable: "# Security question",
-	}
 }

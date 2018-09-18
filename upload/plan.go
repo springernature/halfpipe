@@ -10,7 +10,7 @@ import (
 
 type Plan []Command
 
-func (p Plan) Execute(stdout io.Writer, stdin io.Reader, nonInteractive bool) (err error) {
+func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonInteractive bool) (err error) {
 	fmt.Fprintln(stdout, "Planned execution") // #nosec
 	for _, cmd := range p {
 		fmt.Fprintf(stdout, "\t* %s\n", cmd) // #nosec
@@ -28,18 +28,8 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader, nonInteractive bool) (e
 
 	for _, cmd := range p {
 		fmt.Fprintf(stdout, "\n=== %s ===\n", cmd) // #nosec
-		if cmd.Executor != nil {
-			runErr := cmd.Executor()
-			if runErr != nil {
-				err = runErr
-				return
-			}
-		} else {
-			runErr := cmd.Cmd.Run()
-			if runErr != nil {
-				err = runErr
-				return
-			}
+		if runErr := cmd.Run(stdout, stderr, stdin); runErr != nil {
+			return runErr
 		}
 	}
 
@@ -50,7 +40,7 @@ type Command struct {
 	Cmd       exec.Cmd
 	Printable string
 
-	Executor func() error
+	Executor func(stdout io.Writer, stdin io.Reader) error
 }
 
 func (c Command) String() string {
@@ -58,5 +48,27 @@ func (c Command) String() string {
 		return c.Printable
 	}
 	return strings.Join(c.Cmd.Args, " ")
+}
 
+func (c Command) Run(stdout io.Writer, stderr io.Writer, stdin io.Reader) error {
+	if c.Executor != nil {
+		if err := c.Executor(stdout, stdin); err != nil {
+			return err
+		}
+	} else {
+		if c.Cmd.Stdin == nil {
+			c.Cmd.Stdin = stdin
+		}
+		if c.Cmd.Stdout == nil {
+			c.Cmd.Stdout = stdout
+		}
+		if c.Cmd.Stderr == nil {
+			c.Cmd.Stderr = stderr
+		}
+		if err := c.Cmd.Run(); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -27,7 +27,7 @@ func init() {
 				os.Exit(1)
 			}
 
-			writer := &CapturingWriter{
+			capturingStdOut := &CapturingWriter{
 				Stdout: os.Stdout,
 			}
 
@@ -41,7 +41,7 @@ func init() {
 				os.Exit(1)
 			}
 
-			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, writer, os.Stderr, os.Stdin, pipelineFile, nonInteractive, currentBranch)
+			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, pipelineFile, nonInteractive, currentBranch)
 
 			plan, err := planner.Plan()
 			if err != nil {
@@ -49,14 +49,14 @@ func init() {
 				os.Exit(1)
 			}
 
-			if err := plan.Execute(writer, os.Stdin, nonInteractive); err != nil {
+			if err := plan.Execute(capturingStdOut, os.Stderr, os.Stdin, nonInteractive); err != nil {
 				printErr(err)
 				os.Exit(1)
 			}
 
-			if shouldUnpause(writer) {
-				fmt.Fprint(writer, "\n====================\n")                                                                            // #nosec
-				fmt.Fprint(writer, "\nWhen the pipeline gets uploaded for the first time it must be unpaused. We will do it for you. \n") // #nosec
+			if shouldUnpause(capturingStdOut) {
+				fmt.Fprint(capturingStdOut, "\n====================\n")                                                                            // #nosec
+				fmt.Fprint(capturingStdOut, "\nWhen the pipeline gets uploaded for the first time it must be unpaused. We will do it for you. \n") // #nosec
 
 				plan, err := planner.Unpause()
 				if err != nil {
@@ -64,7 +64,7 @@ func init() {
 					os.Exit(1)
 				}
 
-				if err := plan.Execute(writer, os.Stdin, true); err != nil {
+				if err := plan.Execute(capturingStdOut, os.Stderr, os.Stdin, true); err != nil {
 					os.Exit(1)
 				}
 			}
