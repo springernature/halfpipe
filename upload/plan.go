@@ -28,10 +28,18 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader, nonInteractive bool) (e
 
 	for _, cmd := range p {
 		fmt.Fprintf(stdout, "\n=== %s ===\n", cmd) // #nosec
-		runErr := cmd.Cmd.Run()
-		if runErr != nil {
-			err = runErr
-			return
+		if cmd.Executor != nil {
+			runErr := cmd.Executor()
+			if runErr != nil {
+				err = runErr
+				return
+			}
+		} else {
+			runErr := cmd.Cmd.Run()
+			if runErr != nil {
+				err = runErr
+				return
+			}
 		}
 	}
 
@@ -41,6 +49,8 @@ func (p Plan) Execute(stdout io.Writer, stdin io.Reader, nonInteractive bool) (e
 type Command struct {
 	Cmd       exec.Cmd
 	Printable string
+
+	Executor func() error
 }
 
 func (c Command) String() string {

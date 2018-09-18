@@ -35,19 +35,13 @@ func init() {
 				return fs.OpenFile("pipeline.yml", os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 			}
 
-			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, writer, os.Stderr, os.Stdin, pipelineFile, nonInteractive)
-
 			currentBranch, err := project.BranchResolver()
 			if err != nil {
 				printErr(err)
 				os.Exit(1)
 			}
-			if currentBranch != "master" {
-				if secErr := planner.AskBranchSecurityQuestions(currentBranch); secErr != nil {
-					printErr(secErr)
-					os.Exit(1)
-				}
-			}
+
+			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, writer, os.Stderr, os.Stdin, pipelineFile, nonInteractive, currentBranch)
 
 			plan, err := planner.Plan()
 			if err != nil {

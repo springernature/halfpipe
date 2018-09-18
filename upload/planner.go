@@ -24,10 +24,9 @@ type Targets struct {
 type Planner interface {
 	Plan() (plan Plan, err error)
 	Unpause() (plan Plan, err error)
-	AskBranchSecurityQuestions(currentBranch string) (err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdout io.Writer, stderr io.Writer, stdin io.Reader, pipelineFile PipelineFile, nonInteractive bool, currentBranch string) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
@@ -37,6 +36,7 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, stdou
 		stdin:          stdin,
 		pipelineFile:   pipelineFile,
 		nonInteractive: nonInteractive,
+		currentBranch:  currentBranch,
 	}
 }
 
@@ -49,6 +49,7 @@ type planner struct {
 	stdin          io.Reader
 	pipelineFile   PipelineFile
 	nonInteractive bool
+	currentBranch  string
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -151,6 +152,10 @@ func (p planner) Plan() (plan Plan, err error) {
 		return
 	}
 
+	if p.currentBranch != "master" {
+		plan = append(plan, SecurityQuestion(p.stdout, p.stdin, man.Pipeline, p.currentBranch))
+	}
+
 	lintAndRenderCmd, err := p.lintAndRender()
 	if err != nil {
 		return
@@ -211,42 +216,8 @@ func (p planner) Unpause() (plan Plan, err error) {
 	return
 }
 
-func (p planner) AskBranchSecurityQuestions(currentBranch string) (err error) {
-	fmt.Fprintln(p.stdout)
-	fmt.Fprintln(p.stdout, "WARNING! You are running halfpipe on a branch. WARNING!")
-	fmt.Fprintln(p.stdout)
-	if secErr := askSecurityQuestion("Have you made sure any Cloud Foundry manifests you are using in deploy-cf tasks have different app name and routes than on the master branch? And have you read the docs at https://docs.halfpipe.io/branches [y/N]: ", []string{"y", "yes", "Y", "Yes", "YES"}, p.stdout, p.stdin); secErr != nil {
-		err = secErr
-		return
+func (p planner) branchSecurityQuestion() Command {
+	return Command{
+		Printable: "# Security question",
 	}
-
-	man, manifestErr := p.getHalfpipeManifest()
-	if manifestErr != nil {
-		return
-	}
-
-	expectedAnswer := []string{fmt.Sprintf("%s-%s", man.Pipeline, currentBranch)}
-	if secErr := askSecurityQuestion("What will be the name of the pipeline in concourse? (Hint, this is documented in the docs above): ", expectedAnswer, p.stdout, p.stdin); secErr != nil {
-		err = secErr
-		return
-	}
-
-	fmt.Fprintln(p.stdout)
-	return
-}
-
-func askSecurityQuestion(question string, expectedAnswers []string, stdout io.Writer, stdin io.Reader) (err error) {
-	fmt.Fprint(stdout, fmt.Sprintf("* %s", question))
-
-	var input string
-	fmt.Fscan(stdin, &input) // #nosec
-
-	for _, expectedAnswer := range expectedAnswers {
-		if input == expectedAnswer {
-			return
-		}
-	}
-
-	err = errors.New("Incorrect or empty response")
-	return
 }
