@@ -83,16 +83,16 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
 			URI:          "https://github.com/springernature/halfpipe.git",
-			BasePath:     "sub/dir",
+			BasePath:     "project-name",
 			WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 			IgnoredPaths: []string{"c/*", "d"},
 		},
 	}
 
 	linter := testRepoLinter()
-	linter.WorkingDir = "/repo/sub/dir"
-	linter.Fs.Mkdir("/repo/watches/there", 0777)
-	linter.Fs.Mkdir("/repo/c/d/e/f/g/h", 0777)
+	linter.WorkingDir = "/home/projects/repo-project-name/project-name"
+	linter.Fs.Mkdir("/home/projects/repo-project-name/watches/there", 0777)
+	linter.Fs.Mkdir("/home/projects/repo-project-name/c/d/e/f/g/h", 0777)
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 2)

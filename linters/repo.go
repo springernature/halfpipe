@@ -33,8 +33,7 @@ func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.Git
 }
 
 func (r repoLinter) checkGlob(glob string, basePath string) error {
-	//need the path to the repo
-	repoRoot := strings.Replace(r.WorkingDir, basePath, "", -1)
+	repoRoot := strings.TrimSuffix(r.WorkingDir, basePath)
 
 	matches, err := afero.Glob(r.Fs, filepath.Join(repoRoot, glob))
 	if err != nil {
