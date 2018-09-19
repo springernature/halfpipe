@@ -60,7 +60,7 @@ resource_types:
   type: docker-image
   source:
     repository: platformengineering/gcp-resource
-    tag: 0.19.0
+    tag: 0.21.0
 - name: cf-resource
   type: docker-image
   source:
