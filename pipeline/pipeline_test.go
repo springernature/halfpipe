@@ -44,37 +44,6 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	assert.Equal(t, (*config.Jobs[2].Plan[0].Aggregate)[0].Trigger, true)
 }
 
-func TestPassedOnPreviousTaskWithAutoUpdate(t *testing.T) {
-	man := manifest.Manifest{
-		AutoUpdate: true,
-		Tasks: []manifest.Task{
-			manifest.Run{Script: "asd.sh"},
-			manifest.DeployCF{ManualTrigger: true},
-			manifest.DockerPush{},
-		},
-	}
-	config := testPipeline().Render(man)
-
-	assert.Len(t, config.Jobs, 4)
-
-	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
-	assert.Equal(t, config.Jobs[0].Plan[0].Trigger, true)
-	assert.Equal(t, config.Jobs[0].SerialGroups, []string{"serialized"})
-
-	assert.Equal(t, (*config.Jobs[1].Plan[0].Aggregate)[0].Passed[0], config.Jobs[0].Name)
-	assert.Equal(t, (*config.Jobs[1].Plan[0].Aggregate)[0].Trigger, true)
-	assert.Equal(t, config.Jobs[1].SerialGroups, []string{"serialized"})
-
-	assert.Equal(t, (*config.Jobs[2].Plan[0].Aggregate)[0].Passed[0], config.Jobs[1].Name)
-	assert.Equal(t, (*config.Jobs[2].Plan[0].Aggregate)[0].Trigger, false)
-	assert.Equal(t, config.Jobs[2].SerialGroups, []string{"serialized"})
-
-	assert.Equal(t, (*config.Jobs[3].Plan[0].Aggregate)[0].Passed[0], config.Jobs[2].Name)
-	assert.Equal(t, (*config.Jobs[3].Plan[0].Aggregate)[0].Trigger, true)
-	assert.Equal(t, config.Jobs[3].SerialGroups, []string{"serialized"})
-
-}
-
 func TestRenderWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -135,42 +104,4 @@ func TestRenderDeployMLTasksAsRunTask(t *testing.T) {
 	config := testPipeline().Render(man)
 	assert.Equal(t, "foobar 1", config.Jobs[0].Plan[1].Task)
 	assert.Equal(t, "foobar 2", config.Jobs[1].Plan[1].Task)
-}
-
-func TestRenderWithParallelOnFirstTasksWithAutoUpdate(t *testing.T) {
-	man := manifest.Manifest{
-		AutoUpdate: true,
-		Tasks: []manifest.Task{
-			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
-			manifest.DeployCF{Name: "Deploy", Parallel: true},
-
-			manifest.DockerPush{Name: "Push"},
-		},
-	}
-	config := testPipeline().Render(man)
-
-	assert.Equal(t, "Update Pipeline", (*config.Jobs[1].Plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "Update Pipeline", (*config.Jobs[2].Plan[0].Aggregate)[0].Passed[0])
-
-	assert.Equal(t, []string{"Build", "Deploy"}, (*config.Jobs[3].Plan[0].Aggregate)[0].Passed)
-
-}
-
-func TestRenderTwoGetJobsAsAggregate(t *testing.T) {
-	man := manifest.Manifest{
-		AutoUpdate: true,
-		Tasks: []manifest.Task{
-			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
-			manifest.DeployCF{Name: "Deploy", Parallel: true},
-
-			manifest.DockerPush{Name: "Push"},
-		},
-	}
-	config := testPipeline().Render(man)
-
-	assert.Equal(t, "Update Pipeline", (*config.Jobs[1].Plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "Update Pipeline", (*config.Jobs[2].Plan[0].Aggregate)[0].Passed[0])
-
-	assert.Equal(t, []string{"Build", "Deploy"}, (*config.Jobs[3].Plan[0].Aggregate)[0].Passed)
-
 }

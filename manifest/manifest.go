@@ -17,7 +17,6 @@ type Manifest struct {
 	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
 	Repo            Repo   `yaml:"repo,omitempty"`
 	Tasks           TaskList
-	AutoUpdate      bool `json:"auto_update" yaml:"auto_update,omitempty"`
 }
 
 type Repo struct {

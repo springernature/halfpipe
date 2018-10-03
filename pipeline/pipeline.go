@@ -71,18 +71,7 @@ func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *at
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.PlanConfig {
 
-	gitPlan := atc.PlanConfig{Get: gitDir, Trigger: true}
-
-	if man.AutoUpdate {
-		gitRefFile := pathToGitRef(gitDir, man.Repo.BasePath)
-		if exists, _ := p.fs.Exists(gitRefFile); exists {
-			if ref, err := p.fs.ReadFile(gitRefFile); err == nil {
-				gitPlan.Version = &atc.VersionConfig{Pinned: atc.Version{"ref": string(ref)}}
-			}
-		}
-	}
-
-	initialPlan := []atc.PlanConfig{gitPlan}
+	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
 
 	if man.TriggerInterval != "" {
 		timerResource := p.timerResource(man.TriggerInterval)
@@ -104,7 +93,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	initialPlan := p.initialPlan(&cfg, man)
 	failurePlan := p.addOnFailurePlan(&cfg, man)
-	p.addUpdatePipelineJob(&cfg, man, failurePlan)
 	p.addArtifactResource(&cfg, man)
 
 	var parallelTasks []string
@@ -190,13 +178,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		}
 		addPassedJobsToGets(job, passedJobNames)
 		cfg.Jobs = append(cfg.Jobs, *job)
-	}
-
-	if man.AutoUpdate {
-		for i, job := range cfg.Jobs {
-			job.SerialGroups = append(job.SerialGroups, "serialized")
-			cfg.Jobs[i] = job
-		}
 	}
 
 	return
