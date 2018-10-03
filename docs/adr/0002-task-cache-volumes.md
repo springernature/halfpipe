@@ -2,10 +2,6 @@
 
 Date: 17 September 2018
 
-## Status
-
-Proposed
-
 ## Context
 
 Concourse has [task caches](https://concourse-ci.org/tasks.html#task-caches) to save state between runs of the same task on the same worker. This can greatly speed up tasks - making users happy, and reduce load - making operators happy. win win.

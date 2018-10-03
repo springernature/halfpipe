@@ -19,10 +19,6 @@ var (
 	PrometheusGatewayURL = "prometheus-pushgateway:9091"
 
 	CacheDirs = []atc.CacheConfig{
-		{Path: "../../../root/.gradle/"},
-		{Path: "../../../root/.m2/"},
-		{Path: "../../../root/.ivy2/"},
-		{Path: "../../../root/.sbt/"},
 		{Path: "../../../halfpipe-cache"},
 	}
 )
