@@ -333,6 +333,7 @@ func TestSetsArtifactoryUsernameAndPassword(t *testing.T) {
 					"ARTIFACTORY_PASSWORD": otherPassword,
 				},
 			},
+			manifest.ConsumerIntegrationTest{},
 		},
 	}
 
@@ -365,4 +366,8 @@ func TestSetsArtifactoryUsernameAndPassword(t *testing.T) {
 	assert.Equal(t, otherUsername, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, otherPassword, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_PASSWORD"])
 	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_URL"])
+
+	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_USERNAME"])
+	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_PASSWORD"])
+	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_URL"])
 }

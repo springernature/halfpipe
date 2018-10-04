@@ -111,7 +111,9 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				}
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
-
+			case manifest.ConsumerIntegrationTest:
+				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
+				tl[i] = task
 			default:
 				tl[i] = task
 			}
