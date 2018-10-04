@@ -13,9 +13,10 @@ type Task interface {
 type Manifest struct {
 	Team            string
 	Pipeline        string
-	SlackChannel    string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	TriggerInterval string `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
-	Repo            Repo   `yaml:"repo,omitempty"`
+	SlackChannel    string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	TriggerInterval string         `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
+	Repo            Repo           `yaml:"repo,omitempty"`
+	FeatureToggles  FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Tasks           TaskList
 }
 

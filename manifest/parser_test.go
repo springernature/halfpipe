@@ -24,6 +24,10 @@ repo:
   git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
 trigger_interval: 4h
+feature_toggles:
+- feature1
+- feature2
+- featureXYZ
 tasks:
 - type: run
   name: run task
@@ -122,6 +126,11 @@ tasks:
 		},
 		SlackChannel:    "#ee-activity",
 		TriggerInterval: "4h",
+		FeatureToggles: FeatureToggles{
+			"feature1",
+			"feature2",
+			"featureXYZ",
+		},
 		Tasks: []Task{
 			Run{
 				Name:   "run task",
