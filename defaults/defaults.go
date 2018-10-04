@@ -25,4 +25,8 @@ var DefaultValues = Defaults{
 	DockerUsername:       "_json_key",
 	DockerPassword:       "((gcr.private_key))",
 	DockerComposeService: "app",
+
+	ArtifactoryUsername: "((artifactory.username))",
+	ArtifactoryPassword: "((artifactory.password))",
+	ArtifactoryUrl:      "((artifactory.url))",
 }

@@ -24,6 +24,9 @@ type Defaults struct {
 	DockerPassword       string
 	Project              project.Data
 	DockerComposeService string
+	ArtifactoryUsername  string
+	ArtifactoryPassword  string
+	ArtifactoryUrl       string
 }
 
 func NewDefaulter(project project.Data) Defaults {
@@ -50,7 +53,6 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		for i, t := range task {
 			switch task := t.(type) {
 			case manifest.DeployCF:
-
 				if task.API == d.CfApiSnPaas {
 					if task.Org == "" {
 						task.Org = d.CfOrgSnPaas
@@ -92,6 +94,7 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Docker.Username = d.DockerUsername
 					task.Docker.Password = d.DockerPassword
 				}
+				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
 
 			case manifest.DockerPush:
@@ -99,12 +102,14 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Username = d.DockerUsername
 					task.Password = d.DockerPassword
 				}
+				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
 
 			case manifest.DockerCompose:
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
 				}
+				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
 
 			default:
@@ -119,4 +124,24 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 
 	return man
 
+}
+
+func (d Defaults) addArtifactoryCredentialsToVars(vars manifest.Vars) manifest.Vars {
+	if len(vars) == 0 {
+		vars = make(map[string]string)
+	}
+
+	if _, found := vars["ARTIFACTORY_USERNAME"]; !found {
+		vars["ARTIFACTORY_USERNAME"] = d.ArtifactoryUsername
+	}
+
+	if _, found := vars["ARTIFACTORY_PASSWORD"]; !found {
+		vars["ARTIFACTORY_PASSWORD"] = d.ArtifactoryPassword
+	}
+
+	if _, found := vars["ARTIFACTORY_URL"]; !found {
+		vars["ARTIFACTORY_URL"] = d.ArtifactoryUrl
+	}
+
+	return vars
 }

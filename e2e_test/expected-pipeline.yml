@@ -81,6 +81,10 @@ jobs:
         source:
           repository: node
           tag: 9.5.0-alpine
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
       run:
         path: /bin/sh
         args:
@@ -229,6 +233,9 @@ jobs:
               username: _json_key
           params:
             A: blah
+            ARTIFACTORY_PASSWORD: ((artifactory.password))
+            ARTIFACTORY_URL: ((artifactory.url))
+            ARTIFACTORY_USERNAME: ((artifactory.username))
             TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
           run:
             path: /bin/sh
@@ -370,6 +377,9 @@ jobs:
             username: _json_key
         params:
           A: blah
+          ARTIFACTORY_PASSWORD: ((artifactory.password))
+          ARTIFACTORY_URL: ((artifactory.url))
+          ARTIFACTORY_USERNAME: ((artifactory.username))
           TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
         run:
           path: /bin/sh
@@ -430,6 +440,9 @@ jobs:
             username: _json_key
         params:
           A: blah
+          ARTIFACTORY_PASSWORD: ((artifactory.password))
+          ARTIFACTORY_URL: ((artifactory.url))
+          ARTIFACTORY_USERNAME: ((artifactory.username))
           TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
         run:
           path: /bin/sh
@@ -491,6 +504,9 @@ jobs:
       build: git/e2e_test
       build_args:
         A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
     attempts: 1
   on_failure:
@@ -520,6 +536,9 @@ jobs:
           username: michiel
       params:
         A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
       run:
         path: /bin/sh
@@ -572,6 +591,9 @@ jobs:
           username: _json_key
       params:
         A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((gcr.private_key))
       run:
         path: docker.sh
@@ -581,7 +603,7 @@ jobs:
           set -e
           export GIT_REVISION=`cat ../.git/ref`
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose run -e A -e GIT_REVISION app
+          docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e GIT_REVISION app
         dir: git/e2e_test
       inputs:
       - name: git
