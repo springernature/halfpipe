@@ -202,3 +202,30 @@ fi
 `
 	assert.Equal(t, expected, actual)
 }
+
+func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{
+				RestoreArtifacts: true,
+				SaveArtifacts: []string{
+					".",
+				},
+			},
+		},
+	}
+
+	config := testPipeline().Render(man)
+
+	hasArtifactGet := func() bool {
+		for _, task := range *config.Jobs[0].Plan[0].Aggregate {
+			if task.Get == artifactsDir {
+				return true
+			}
+		}
+		return false
+	}
+
+	assert.True(t, hasArtifactGet())
+	assert.Equal(t, "artifacts", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+}

@@ -254,7 +254,14 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
 	if len(task.SaveArtifacts) > 0 {
-		jobConfig.Plan[0].TaskConfig.Outputs = []atc.TaskOutputConfig{
+		runTaskIndex := 0
+		if task.RestoreArtifacts {
+			// If we restore an artifact prior to saving the
+			// get of the artifact will be the first task in the plan.
+			runTaskIndex = 1
+		}
+
+		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = []atc.TaskOutputConfig{
 			{Name: artifactsDir},
 		}
 
