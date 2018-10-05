@@ -105,13 +105,13 @@ jobs:
 
           if [ -d target/distribution ]
           then
-            mkdir -p ../../artifacts/target/distribution
-            cp -r target/distribution/. ../../artifacts/target/distribution/
+            mkdir -p ../../artifacts-out/target/distribution
+            cp -r target/distribution/. ../../artifacts-out/target/distribution/
           elif [ -f target/distribution ]
           then
             artifactDir=$(dirname target/distribution)
-            mkdir -p ../../artifacts/$artifactDir
-            cp target/distribution ../../artifacts/$artifactDir
+            mkdir -p ../../artifacts-out/$artifactDir
+            cp target/distribution ../../artifacts-out/$artifactDir
           else
             echo "ERROR: Artifact 'target/distribution' not found. Try fly hijack to check the filesystem."
             exit 1
@@ -120,13 +120,13 @@ jobs:
 
           if [ -d README.md ]
           then
-            mkdir -p ../../artifacts/README.md
-            cp -r README.md/. ../../artifacts/README.md/
+            mkdir -p ../../artifacts-out/README.md
+            cp -r README.md/. ../../artifacts-out/README.md/
           elif [ -f README.md ]
           then
             artifactDir=$(dirname README.md)
-            mkdir -p ../../artifacts/$artifactDir
-            cp README.md ../../artifacts/$artifactDir
+            mkdir -p ../../artifacts-out/$artifactDir
+            cp README.md ../../artifacts-out/$artifactDir
           else
             echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
             exit 1
@@ -135,14 +135,14 @@ jobs:
       inputs:
       - name: git
       outputs:
-      - name: artifacts
+      - name: artifacts-out
       caches:
       - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
     resource: artifacts-engineering-enablement-e2e-test
     params:
-      folder: artifacts
+      folder: artifacts-out
       version_file: git/.git/ref
   on_failure:
     put: slack
@@ -404,13 +404,13 @@ jobs:
 
             if [ -d build ]
             then
-              mkdir -p ../../artifacts/build
-              cp -r build/. ../../artifacts/build/
+              mkdir -p ../../artifacts-out/build
+              cp -r build/. ../../artifacts-out/build/
             elif [ -f build ]
             then
               artifactDir=$(dirname build)
-              mkdir -p ../../artifacts/$artifactDir
-              cp build ../../artifacts/$artifactDir
+              mkdir -p ../../artifacts-out/$artifactDir
+              cp build ../../artifacts-out/$artifactDir
             else
               echo "ERROR: Artifact 'build' not found. Try fly hijack to check the filesystem."
               exit 1
@@ -419,14 +419,14 @@ jobs:
         inputs:
         - name: git
         outputs:
-        - name: artifacts
+        - name: artifacts-out
         caches:
         - path: ../../../halfpipe-cache
       attempts: 1
     - put: artifacts
       resource: artifacts-engineering-enablement-e2e-test
       params:
-        folder: artifacts
+        folder: artifacts-out
         version_file: git/.git/ref
   - do:
     - get: artifacts

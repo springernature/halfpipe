@@ -37,7 +37,10 @@ func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
+const artifactsName = "artifacts"
+const artifactsOutDir = "artifacts-out"
 const artifactsDir = "artifacts"
+
 const gitDir = "git"
 
 const dockerPushResourceName = "Docker Registry"
@@ -218,7 +221,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	if task.RestoreArtifacts {
 		jobConfig.Plan = append(jobConfig.Plan, atc.PlanConfig{
-			Get:      artifactsDir,
+			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 		})
 	}
@@ -239,7 +242,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), pathToArtifactsOutDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -248,7 +251,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		}}
 
 	if task.RestoreArtifacts {
-		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsDir})
+		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsName})
 	}
 
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
@@ -262,14 +265,14 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		}
 
 		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactsDir},
+			{Name: artifactsOutDir},
 		}
 
 		artifactPut := atc.PlanConfig{
-			Put:      artifactsDir,
+			Put:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsDir,
+				"folder":       artifactsOutDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -300,7 +303,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
 		artifactGet := atc.PlanConfig{
-			Get:      artifactsDir,
+			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
 				"folder":       artifactsDir,
@@ -466,7 +469,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Get:      artifactsDir,
+				Get:      artifactsName,
 				Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			},
 			atc.PlanConfig{
@@ -488,7 +491,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
-						{Name: artifactsDir},
+						{Name: artifactsName},
 					},
 					Outputs: []atc.TaskOutputConfig{
 						{Name: dockerBuildTmpDir},
@@ -525,6 +528,18 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 	}
 
 	artifactPath += artifactsDir
+	return
+}
+
+func pathToArtifactsOutDir(repoName string, basePath string) (artifactPath string) {
+	fullPath := path.Join(repoName, basePath)
+	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
+
+	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
+		artifactPath += "../"
+	}
+
+	artifactPath += artifactsOutDir
 	return
 }
 
@@ -578,7 +593,7 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string) []string {
+func runScriptArgs(script string, checkForBash bool, artifactsPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
@@ -608,7 +623,7 @@ fi`)
 	)
 
 	for _, artifact := range saveArtifacts {
-		out = append(out, copyArtifactScript(artifactsPath, artifact))
+		out = append(out, copyArtifactScript(artifactsOutPath, artifact))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }

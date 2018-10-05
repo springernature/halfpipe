@@ -25,7 +25,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "../artifacts", false, []string{"build/lib"}, ".git/ref")
+	expectedRunScript := runScriptArgs("./build.sh", true, "", "../artifacts-out", false, []string{"build/lib"}, ".git/ref")
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
@@ -45,7 +45,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "../../../artifacts", false, []string{"build/lib"}, "../../.git/ref")
+	expectedRunScript := runScriptArgs("./build.sh", true, "", "../../../artifacts-out", false, []string{"build/lib"}, "../../.git/ref")
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
@@ -66,9 +66,9 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Equal(t, artifactsDir, renderedPipeline.Jobs[0].Plan[2].Put)
+	assert.Equal(t, artifactsName, renderedPipeline.Jobs[0].Plan[2].Put)
 	assert.Equal(t, artifactsResource, renderedPipeline.Jobs[0].Plan[2].Resource)
-	assert.Equal(t, artifactsDir, renderedPipeline.Jobs[0].Plan[2].Params["folder"])
+	assert.Equal(t, artifactsOutDir, renderedPipeline.Jobs[0].Plan[2].Params["folder"])
 	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
@@ -227,5 +227,5 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 	}
 
 	assert.True(t, hasArtifactGet())
-	assert.Equal(t, "artifacts", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
 }
