@@ -23,10 +23,10 @@ type Manifest struct {
 type Repo struct {
 	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
 	BasePath     string   `json:"-" yaml:"-"` //don't auto unmarshal
-	PrivateKey   string   `json:"private_key,omitempty" yaml:"private_key,omitempty"`
+	PrivateKey   string   `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`
 	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
 	IgnoredPaths []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`
-	GitCryptKey  string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty"`
+	GitCryptKey  string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty" secretAllowed:"true"`
 	Branch       string   `json:"branch,omitempty" yaml:"branch,omitempty"`
 }
 
@@ -36,8 +36,8 @@ func (repo Repo) IsPublic() bool {
 
 type Docker struct {
 	Image    string
-	Username string `yaml:"username,omitempty"`
-	Password string `yaml:"password,omitempty"`
+	Username string `yaml:"username,omitempty" secretAllowed:"true"`
+	Password string `yaml:"password,omitempty" secretAllowed:"true"`
 }
 
 type Run struct {
@@ -46,7 +46,7 @@ type Run struct {
 	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script           string
 	Docker           Docker
-	Vars             Vars     `yaml:"vars,omitempty"`
+	Vars             Vars     `yaml:"vars,omitempty" secretAllowed:"true"`
 	SaveArtifacts    []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Parallel         bool     `yaml:"parallel,omitempty"`
@@ -68,11 +68,11 @@ func (r Run) GetAttempts() int {
 type DockerPush struct {
 	Type             string
 	Name             string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Username         string
-	Password         string
+	ManualTrigger    bool   `json:"manual_trigger" yaml:"manual_trigger"`
+	Username         string `secretAllowed:"true"`
+	Password         string `secretAllowed:"true"`
 	Image            string
-	Vars             Vars
+	Vars             Vars `secretAllowed:"true"`
 	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
 	Parallel         bool `yaml:"parallel,omitempty"`
 	Retries          int  `yaml:"retries,omitempty"`
@@ -95,7 +95,7 @@ type DockerCompose struct {
 	Name             string
 	Command          string
 	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Vars             Vars
+	Vars             Vars `secretAllowed:"true"`
 	Service          string
 	SaveArtifacts    []string `json:"save_artifacts"`
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
@@ -118,15 +118,15 @@ func (r DockerCompose) GetAttempts() int {
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool `json:"manual_trigger" yaml:"manual_trigger"`
-	API            string
-	Space          string
-	Org            string
-	Username       string
-	Password       string
+	ManualTrigger  bool   `json:"manual_trigger" yaml:"manual_trigger"`
+	API            string `secretAllowed:"true"`
+	Space          string `secretAllowed:"true"`
+	Org            string `secretAllowed:"true"`
+	Username       string `secretAllowed:"true"`
+	Password       string `secretAllowed:"true"`
 	Manifest       string
-	TestDomain     string `json:"test_domain" yaml:"test_domain"`
-	Vars           Vars
+	TestDomain     string   `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
+	Vars           Vars     `secretAllowed:"true"`
 	DeployArtifact string   `json:"deploy_artifact"`
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
@@ -155,8 +155,8 @@ type ConsumerIntegrationTest struct {
 	Script               string
 	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
 	Parallel             bool   `yaml:"parallel,omitempty"`
-	Vars                 Vars
-	Retries              int `yaml:"retries,omitempty"`
+	Vars                 Vars   `secretAllowed:"true"`
+	Retries              int    `yaml:"retries,omitempty"`
 }
 
 func (r ConsumerIntegrationTest) SavesArtifacts() bool {
@@ -174,13 +174,13 @@ func (r ConsumerIntegrationTest) GetAttempts() int {
 type DeployMLZip struct {
 	Type          string
 	Name          string
-	Parallel      bool   `yaml:"parallel,omitempty"`
-	DeployZip     string `json:"deploy_zip"`
-	AppName       string `json:"app_name"`
-	AppVersion    string `json:"app_version"`
-	Targets       []string
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries       int  `yaml:"retries,omitempty"`
+	Parallel      bool     `yaml:"parallel,omitempty"`
+	DeployZip     string   `json:"deploy_zip"`
+	AppName       string   `json:"app_name"`
+	AppVersion    string   `json:"app_version"`
+	Targets       []string `secretAllowed:"true"`
+	ManualTrigger bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries       int      `yaml:"retries,omitempty"`
 }
 
 func (r DeployMLZip) SavesArtifacts() bool {
@@ -198,13 +198,13 @@ func (r DeployMLZip) ReadsFromArtifacts() bool {
 type DeployMLModules struct {
 	Type             string
 	Name             string
-	Parallel         bool   `yaml:"parallel,omitempty"`
-	MLModulesVersion string `json:"ml_modules_version"`
-	AppName          string `json:"app_name"`
-	AppVersion       string `json:"app_version"`
-	Targets          []string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries          int  `yaml:"retries,omitempty"`
+	Parallel         bool     `yaml:"parallel,omitempty"`
+	MLModulesVersion string   `json:"ml_modules_version"`
+	AppName          string   `json:"app_name"`
+	AppVersion       string   `json:"app_version"`
+	Targets          []string `secretAllowed:"true"`
+	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries          int      `yaml:"retries,omitempty"`
 }
 
 func (r DeployMLModules) SavesArtifacts() bool {
