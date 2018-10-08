@@ -15,6 +15,7 @@ type Manifest struct {
 	Pipeline        string
 	SlackChannel    string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
 	TriggerInterval string         `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
+	CronTrigger     string         `json:"cron_trigger" yaml:"cron_trigger,omitempty"`
 	Repo            Repo           `yaml:"repo,omitempty"`
 	FeatureToggles  FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Tasks           TaskList

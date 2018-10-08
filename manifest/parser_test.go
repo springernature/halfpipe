@@ -24,6 +24,7 @@ repo:
   git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
 trigger_interval: 4h
+cron_trigger: "*/10 * * * *"
 feature_toggles:
 - feature1
 - feature2
@@ -126,6 +127,7 @@ tasks:
 		},
 		SlackChannel:    "#ee-activity",
 		TriggerInterval: "4h",
+		CronTrigger:     "*/10 * * * *",
 		FeatureToggles: FeatureToggles{
 			"feature1",
 			"feature2",
