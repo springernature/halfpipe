@@ -52,7 +52,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
-			"tag":        "latest",
+			"tag":        "v1.4.2",
 		},
 	}
 }
@@ -110,6 +110,29 @@ func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 		Name:   "timer " + interval,
 		Type:   "time",
 		Source: atc.Source{"interval": interval},
+	}
+}
+
+func (p pipeline) cronResource(expression string) atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name: "cron " + expression,
+		Type: "cron-resource",
+		Source: atc.Source{
+			"expression":       expression,
+			"location":         "UTC",
+			"fire_immediately": false,
+		},
+	}
+}
+
+func cronResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name: "cron-resource",
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": "cftoolsmiths/cron-resource",
+			"tag":        "v0.3",
+		},
 	}
 }
 

@@ -76,7 +76,11 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.Plan
 
 	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
 
-	if man.TriggerInterval != "" {
+	if man.CronTrigger != "" {
+		cronResource := p.cronResource(man.CronTrigger)
+		cfg.Resources = append(cfg.Resources, cronResource)
+		initialPlan = append(initialPlan, atc.PlanConfig{Get: cronResource.Name, Trigger: true})
+	} else if man.TriggerInterval != "" {
 		timerResource := p.timerResource(man.TriggerInterval)
 		cfg.Resources = append(cfg.Resources, timerResource)
 		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
@@ -190,7 +194,7 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	aggregate := *job.Plan[0].Aggregate
 	for i, get := range aggregate {
 		// Only git and timer should have passed on previous tasks
-		if get.Name() == gitDir || strings.HasPrefix(get.Name(), "timer ") {
+		if get.Name() == gitDir || strings.HasPrefix(get.Name(), "timer ") || strings.HasPrefix(get.Name(), "cron ") {
 			aggregate[i].Passed = passedJobs
 		}
 	}

@@ -62,6 +62,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 				linters.NewSecretsLinter(man.NewSecretValidator()),
 				linters.NewTasksLinter(fs),
 				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
+				linters.NewTriggerLinter(),
 			},
 			Renderer: pipeline.NewPipeline(manifest.ReadAndInterpolateManifest, fs),
 		}
