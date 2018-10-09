@@ -13,8 +13,13 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
+var ErrFlyNotInstalled = func(os string) error {
+	return fmt.Errorf(`could not find the 'fly' binary. Please download it from here 'https://concourse.halfpipe.io/api/v1/cli?arch=amd64&platform=%s', make sure its called 'fly', is executable and put it on your path`, os)
+}
+
 type PathResolver func(string) (string, error)
 type PipelineFile func(fs afero.Afero) (afero.File, error)
+type OSResolver func() string
 
 type Targets struct {
 	Targets map[string]interface{}
@@ -25,7 +30,7 @@ type Planner interface {
 	Unpause() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
@@ -33,6 +38,7 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipel
 		pipelineFile:   pipelineFile,
 		nonInteractive: nonInteractive,
 		currentBranch:  currentBranch,
+		oSResolver:     osResolver,
 	}
 }
 
@@ -43,6 +49,7 @@ type planner struct {
 	pipelineFile   PipelineFile
 	nonInteractive bool
 	currentBranch  string
+	oSResolver     OSResolver
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -82,6 +89,7 @@ func (p planner) getTargets() (targets Targets, err error) {
 func (p planner) loginCommand(team string) (cmd Command, err error) {
 	path, err := p.pathResolver("fly")
 	if err != nil {
+		err = ErrFlyNotInstalled(p.oSResolver())
 		return
 	}
 
@@ -117,6 +125,7 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 	path, err := p.pathResolver("fly")
 	if err != nil {
+		err = ErrFlyNotInstalled(p.oSResolver())
 		return
 	}
 

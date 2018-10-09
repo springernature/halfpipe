@@ -72,7 +72,6 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		}
 
 	case reflect.TypeOf(TaskList{}):
-
 		for i, elem := range v.Interface().(TaskList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs)
@@ -112,9 +111,6 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				return
 			}
 		}
-
-		//default:
-		//	panic(fmt.Sprintf("Not implemented for %s", v.Type()))
 	}
 }
 
