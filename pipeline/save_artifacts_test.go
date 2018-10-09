@@ -49,17 +49,25 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
-func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
+func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *testing.T) {
 	gitURI := "git@github.com:springernature/myRepo.git"
-	man := manifest.Manifest{}
-	man.Team = "team"
-	man.Pipeline = "pipeline"
-	man.Repo.URI = gitURI
-	man.Repo.BasePath = "apps/subapp1"
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script:        "./build.sh",
-			SaveArtifacts: []string{"build/lib/artifact.jar"},
+
+	man := manifest.Manifest{
+		Team:     "team",
+		Pipeline: "pipeline",
+		ArtifactConfig: manifest.ArtifactConfig{
+			Bucket:  "((override.Bucket))",
+			JsonKey: "((override.JsonKey))",
+		},
+		Repo: manifest.Repo{
+			URI:      gitURI,
+			BasePath: "apps/subapp1",
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{
+				Script:        "./build.sh",
+				SaveArtifacts: []string{"build/lib/artifact.jar"},
+			},
 		},
 	}
 	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
@@ -78,8 +86,8 @@ func TestRendersPipelineWithSaveArtifacts(t *testing.T) {
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
-	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
-	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
+	assert.Equal(t, man.ArtifactConfig.Bucket, resource.Source["bucket"])
+	assert.Equal(t, man.ArtifactConfig.JsonKey, resource.Source["json_key"])
 }
 
 func TestRendersPipelineWithDeployArtifacts(t *testing.T) {

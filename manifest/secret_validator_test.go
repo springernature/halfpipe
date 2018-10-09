@@ -378,3 +378,15 @@ func TestBadKeys(t *testing.T) {
 	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].api"))
 	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].pre_promote[0].vars[SuperSecret]"))
 }
+
+func TestArtifactConfig(t *testing.T) {
+	man := manifest.Manifest{
+		ArtifactConfig: manifest.ArtifactConfig{
+			Bucket:  "((superSecret.bucket))",
+			JsonKey: "((superSecret.JsonKey))",
+		},
+	}
+
+	errs := secretValidator.Validate(man)
+	assert.Len(t, errs, 0)
+}

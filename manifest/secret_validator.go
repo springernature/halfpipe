@@ -45,6 +45,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 	v := reflect.ValueOf(i)
 
 	switch v.Type() {
+
 	case reflect.TypeOf(Manifest{}),
 		reflect.TypeOf(Repo{}),
 		reflect.TypeOf(Run{}),
@@ -54,7 +55,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(DeployCF{}),
 		reflect.TypeOf(ConsumerIntegrationTest{}),
 		reflect.TypeOf(DeployMLZip{}),
-		reflect.TypeOf(DeployMLModules{}):
+		reflect.TypeOf(DeployMLModules{}),
+		reflect.TypeOf(ArtifactConfig{}):
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
 			name := v.Type().Field(i).Name
@@ -76,6 +78,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs)
 		}
+
 	case reflect.TypeOf([]string{"stringArray"}):
 		for i, elem := range v.Interface().([]string) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
@@ -111,7 +114,15 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				return
 			}
 		}
+
+	case reflect.TypeOf(true), reflect.TypeOf(0):
+		// Stuff that we don't care about as they cannot contain secrets.
+		return
+
+	default:
+		panic(fmt.Sprintf("Not implemented for %s", v.Type()))
 	}
+
 }
 
 func (s secretValidator) Validate(man Manifest) (errors []error) {

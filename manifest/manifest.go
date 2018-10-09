@@ -16,8 +16,14 @@ type Manifest struct {
 	SlackChannel    string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
 	TriggerInterval string         `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
 	Repo            Repo           `yaml:"repo,omitempty"`
+	ArtifactConfig  ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
 	FeatureToggles  FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Tasks           TaskList
+}
+
+type ArtifactConfig struct {
+	Bucket  string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true"`
+	JsonKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
 }
 
 type Repo struct {

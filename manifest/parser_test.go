@@ -8,6 +8,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestEmptyManifest(t *testing.T) {
+	man, errs := Parse(``)
+	assert.Nil(t, errs)
+	assert.Equal(t, Manifest{}, man)
+}
+
 func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
@@ -24,6 +30,9 @@ repo:
   git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
 trigger_interval: 4h
+artifact_config:
+  bucket: myBucket
+  json_key: ((some.jsonKey))
 feature_toggles:
 - feature1
 - feature2
@@ -123,6 +132,10 @@ tasks:
 				"README.md",
 			},
 			GitCryptKey: "git-crypt-key",
+		},
+		ArtifactConfig: ArtifactConfig{
+			Bucket:  "myBucket",
+			JsonKey: "((some.jsonKey))",
 		},
 		SlackChannel:    "#ee-activity",
 		TriggerInterval: "4h",

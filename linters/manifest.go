@@ -8,13 +8,13 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-type teamLinter struct{}
+type manifestLinter struct{}
 
-func NewTeamLinter() teamLinter {
-	return teamLinter{}
+func NewTeamLinter() manifestLinter {
+	return manifestLinter{}
 }
 
-func (teamLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+func (manifestLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Manifest"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/"
 
@@ -30,6 +30,12 @@ func (teamLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
 
 	if strings.Contains(manifest.Pipeline, " ") {
 		result.AddError(errors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
+	}
+
+	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JsonKey == "") ||
+		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JsonKey != "") {
+		result.AddError(errors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
+
 	}
 
 	return

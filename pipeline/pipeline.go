@@ -589,7 +589,7 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 
 	if hasArtifacts {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline))
+		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline, man.ArtifactConfig))
 	}
 }
 

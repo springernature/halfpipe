@@ -78,19 +78,29 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) gcpResource(team, pipeline string) atc.ResourceConfig {
+func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
 	filter := func(str string) string {
 		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
 		return reg.ReplaceAllString(strings.ToLower(str), "")
+	}
+
+	bucket := "halfpipe-io-artifacts"
+	json_key := "((gcr.private_key))"
+
+	if artifactConfig.Bucket != "" {
+		bucket = artifactConfig.Bucket
+	}
+	if artifactConfig.JsonKey != "" {
+		json_key = artifactConfig.JsonKey
 	}
 
 	return atc.ResourceConfig{
 		Name: GenerateArtifactsResourceName(team, pipeline),
 		Type: "gcp-resource",
 		Source: atc.Source{
-			"json_key": "((gcr.private_key))",
+			"bucket":   bucket,
 			"folder":   path.Join(filter(team), filter(pipeline)),
-			"bucket":   "halfpipe-io-artifacts",
+			"json_key": json_key,
 		},
 	}
 }
