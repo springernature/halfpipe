@@ -250,6 +250,31 @@ func TestReturnsAUnpausePlan(t *testing.T) {
 	assert.Equal(t, expectedPlan, plan)
 }
 
+func TestReturnsAUnpausePlanForBranch(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	file, _ := fs.Create("pipeline.yml")
+	fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
+	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
+
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
+		return file, nil
+	}, true, "master", osResolver)
+	plan, err := planner.Unpause()
+
+	expectedPlan := Plan{
+		{
+			Cmd: exec.Cmd{
+				Path: "fly",
+				Args: []string{"fly", "-t", team, "unpause-pipeline", "-p", fmt.Sprintf("%s-%s", pipeline, branch)},
+			},
+		},
+	}
+
+	assert.Nil(t, err)
+	assert.Equal(t, expectedPlan, plan)
+}
+
 func TestReturnsAPlanWithSecurityQuestionIfNotOnMaster(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 

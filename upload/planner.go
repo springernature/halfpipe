@@ -172,13 +172,7 @@ func (p planner) Plan() (plan Plan, err error) {
 		plan = append(plan, cmd)
 	}
 
-	pipelineName := man.Pipeline
-
-	if man.Repo.Branch != "" && man.Repo.Branch != "master" {
-		pipelineName = man.Pipeline + "-" + man.Repo.Branch
-	}
-
-	uploadCmd, err := p.uploadCmd(man.Team, pipelineName)
+	uploadCmd, err := p.uploadCmd(man.Team, p.pipelineName(man))
 	if err != nil {
 		return
 	}
@@ -201,9 +195,19 @@ func (p planner) Unpause() (plan Plan, err error) {
 	plan = append(plan, Command{
 		Cmd: exec.Cmd{
 			Path: path,
-			Args: []string{"fly", "-t", man.Team, "unpause-pipeline", "-p", man.Pipeline},
+			Args: []string{"fly", "-t", man.Team, "unpause-pipeline", "-p", p.pipelineName(man)},
 		},
 	})
+
+	return
+}
+
+func (p planner) pipelineName(manifest manifest.Manifest) (pipelineName string) {
+	pipelineName = manifest.Pipeline
+
+	if manifest.Repo.Branch != "" && manifest.Repo.Branch != "master" {
+		pipelineName = fmt.Sprintf("%s-%s", manifest.Pipeline, manifest.Repo.Branch)
+	}
 
 	return
 }
