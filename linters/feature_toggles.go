@@ -7,7 +7,7 @@ import (
 )
 
 var ErrNonSupportedFeature = func(feature string) error {
-	return fmt.Errorf("fetaure '%s' is not supported", feature)
+	return fmt.Errorf("feature '%s' is not supported", feature)
 }
 
 type featureToggleLinter struct {
