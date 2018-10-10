@@ -8,6 +8,7 @@ type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
 	SavesArtifacts() bool
+	IsManualTrigger() bool
 }
 
 type Manifest struct {
@@ -60,6 +61,10 @@ type Run struct {
 	Retries          int      `yaml:"retries,omitempty"`
 }
 
+func (r Run) IsManualTrigger() bool {
+	return r.ManualTrigger
+}
+
 func (r Run) SavesArtifacts() bool {
 	return len(r.SaveArtifacts) > 0
 }
@@ -85,6 +90,10 @@ type DockerPush struct {
 	Retries          int  `yaml:"retries,omitempty"`
 }
 
+func (r DockerPush) IsManualTrigger() bool {
+	return r.ManualTrigger
+}
+
 func (r DockerPush) SavesArtifacts() bool {
 	return false
 }
@@ -108,6 +117,10 @@ type DockerCompose struct {
 	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
 	Parallel         bool     `yaml:"parallel,omitempty"`
 	Retries          int      `yaml:"retries,omitempty"`
+}
+
+func (r DockerCompose) IsManualTrigger() bool {
+	return r.ManualTrigger
 }
 
 func (r DockerCompose) SavesArtifacts() bool {
@@ -141,6 +154,10 @@ type DeployCF struct {
 	Retries        int `yaml:"retries,omitempty"`
 }
 
+func (r DeployCF) IsManualTrigger() bool {
+	return r.ManualTrigger
+}
+
 func (r DeployCF) SavesArtifacts() bool {
 	return false
 }
@@ -164,6 +181,10 @@ type ConsumerIntegrationTest struct {
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars   `secretAllowed:"true"`
 	Retries              int    `yaml:"retries,omitempty"`
+}
+
+func (r ConsumerIntegrationTest) IsManualTrigger() bool {
+	return false
 }
 
 func (r ConsumerIntegrationTest) SavesArtifacts() bool {
@@ -190,6 +211,10 @@ type DeployMLZip struct {
 	Retries       int      `yaml:"retries,omitempty"`
 }
 
+func (r DeployMLZip) IsManualTrigger() bool {
+	return r.ManualTrigger
+}
+
 func (r DeployMLZip) SavesArtifacts() bool {
 	return false
 }
@@ -212,6 +237,10 @@ type DeployMLModules struct {
 	Targets          []string `secretAllowed:"true"`
 	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Retries          int      `yaml:"retries,omitempty"`
+}
+
+func (r DeployMLModules) IsManualTrigger() bool {
+	return r.ManualTrigger
 }
 
 func (r DeployMLModules) SavesArtifacts() bool {

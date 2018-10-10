@@ -41,7 +41,7 @@ func TestTriggerIntervalSetAddsResource(t *testing.T) {
 	config := testPipeline().Render(man)
 	resources := config.Resources
 	assert.Equal(t, "git", resources[0].Type)
-	assert.Equal(t, "timer 1h", resources[1].Name)
+	assert.Equal(t, timerName, resources[1].Name)
 	assert.Equal(t, "time", resources[1].Type)
 	assert.Equal(t, man.TriggerInterval, resources[1].Source["interval"])
 }
@@ -62,7 +62,7 @@ func TestTriggerIntervalSetWithCorrectPassedOnSecondJob(t *testing.T) {
 
 	assert.Len(t, t1, 2)
 	assert.Equal(t, gitDir, t1Aggregate[0].Name())
-	assert.Equal(t, "timer 1h", t1Aggregate[1].Name())
+	assert.Equal(t, timerName, t1Aggregate[1].Name())
 	assert.True(t, t1Aggregate[1].Trigger)
 
 	t2 := config.Jobs[1].Plan
@@ -71,7 +71,7 @@ func TestTriggerIntervalSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	assert.Equal(t, gitDir, t2Aggregate[0].Name())
 	assert.Equal(t, []string{t1[1].Task}, t2Aggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", t2Aggregate[1].Name())
+	assert.Equal(t, timerName, t2Aggregate[1].Name())
 	assert.Equal(t, []string{t1[1].Task}, t2Aggregate[1].Passed)
 }
 
@@ -93,7 +93,7 @@ func TestTriggerIntervalSetWithParallelTasks(t *testing.T) {
 
 	assert.Len(t, first, 2)
 	assert.Equal(t, gitDir, firstAggregate[0].Name())
-	assert.Equal(t, "timer 1h", firstAggregate[1].Name())
+	assert.Equal(t, timerName, firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
@@ -102,7 +102,7 @@ func TestTriggerIntervalSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", p1Aggregate[1].Name())
+	assert.Equal(t, timerName, p1Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[1].Passed)
 
 	p2 := config.Jobs[2].Plan
@@ -111,7 +111,7 @@ func TestTriggerIntervalSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", p2Aggregate[1].Name())
+	assert.Equal(t, timerName, p2Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[1].Passed)
 
 	last := config.Jobs[3].Plan
@@ -120,7 +120,7 @@ func TestTriggerIntervalSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", lastAggregate[1].Name())
+	assert.Equal(t, timerName, lastAggregate[1].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[1].Passed)
 }
 
@@ -143,7 +143,7 @@ func TestTriggerIntervalSetWhenUsingRestoreArtifact(t *testing.T) {
 
 	assert.Len(t, first, 3)
 	assert.Equal(t, gitDir, firstAggregate[0].Name())
-	assert.Equal(t, "timer 1h", firstAggregate[1].Name())
+	assert.Equal(t, timerName, firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
@@ -152,7 +152,7 @@ func TestTriggerIntervalSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", p1Aggregate[1].Name())
+	assert.Equal(t, timerName, p1Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[1].Passed)
 
 	p2 := config.Jobs[2].Plan
@@ -161,7 +161,7 @@ func TestTriggerIntervalSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", p2Aggregate[1].Name())
+	assert.Equal(t, timerName, p2Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[1].Passed)
 
 	// Artifacts should not have any passed.
@@ -174,7 +174,7 @@ func TestTriggerIntervalSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[0].Passed)
 
-	assert.Equal(t, "timer 1h", lastAggregate[1].Name())
+	assert.Equal(t, timerName, lastAggregate[1].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[1].Passed)
 
 	// Artifacts should not have any passed.

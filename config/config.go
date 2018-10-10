@@ -46,3 +46,6 @@ func GetVersion() (semver.Version, error) {
 	}
 	return version, nil
 }
+
+const VersionBucket = "halfpipe-io-semver"
+const VersionJsonKey = "((gcr.private_key))"

@@ -2,6 +2,17 @@ package manifest
 
 type FeatureToggles []string
 
+const FeatureVersioned = "versioned"
+
 var AvailableFeatureToggles = FeatureToggles{
-	"versioned",
+	FeatureVersioned,
+}
+
+func (f FeatureToggles) Versioned() bool {
+	for _, feature := range f {
+		if feature == FeatureVersioned {
+			return true
+		}
+	}
+	return false
 }

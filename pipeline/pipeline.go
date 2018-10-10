@@ -46,6 +46,11 @@ const gitDir = "git"
 const dockerPushResourceName = "Docker Registry"
 const dockerBuildTmpDir = "docker_build"
 
+const versionName = "version"
+
+const cronName = "cron"
+const timerName = "timer"
+
 func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
 
 	if man.SlackChannel != "" {
@@ -72,20 +77,21 @@ func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *at
 	return &slackPlanConfig
 }
 
-func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest) []atc.PlanConfig {
+func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool) []atc.PlanConfig {
+	// If Version feature toggle is enabled git should not have trigger true.
+	initialPlan := []atc.PlanConfig{{Get: gitDir}}
 
-	initialPlan := []atc.PlanConfig{{Get: gitDir, Trigger: true}}
-
-	if man.CronTrigger != "" {
-		cronResource := p.cronResource(man.CronTrigger)
-		cfg.Resources = append(cfg.Resources, cronResource)
-		cfg.ResourceTypes = append(cfg.ResourceTypes, cronResourceType())
-		initialPlan = append(initialPlan, atc.PlanConfig{Get: cronResource.Name, Trigger: true})
-	} else if man.TriggerInterval != "" {
-		timerResource := p.timerResource(man.TriggerInterval)
-		cfg.Resources = append(cfg.Resources, timerResource)
-		initialPlan = append(initialPlan, atc.PlanConfig{Get: timerResource.Name, Trigger: true})
+	if includeVersion {
+		initialPlan = append(initialPlan, atc.PlanConfig{Get: versionName})
+	} else {
+		if man.CronTrigger != "" {
+			initialPlan = append(initialPlan, atc.PlanConfig{Get: cronName})
+		}
+		if man.TriggerInterval != "" {
+			initialPlan = append(initialPlan, atc.PlanConfig{Get: timerName})
+		}
 	}
+
 	return initialPlan
 }
 
@@ -99,9 +105,16 @@ func (p pipeline) addCfResourceType(cfg *atc.Config) {
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
-	initialPlan := p.initialPlan(&cfg, man)
 	failurePlan := p.addOnFailurePlan(&cfg, man)
 	p.addArtifactResource(&cfg, man)
+
+	if man.CronTrigger != "" {
+		p.addCronResource(&cfg, man)
+	}
+
+	if man.TriggerInterval != "" {
+		p.addTriggerResource(&cfg, man)
+	}
 
 	var parallelTasks []string
 	var taskBeforeParallelTasks string
@@ -109,20 +122,35 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
 	}
 
+	if man.FeatureToggles.Versioned() {
+		cfg.Resources = append(cfg.Resources, p.versionResource(man))
+		job := p.versionUpdateJob(man)
+		job.Failure = failurePlan
+		job.Plan = append(p.initialPlan(&cfg, man, false), job.Plan...)
+		job.Plan = aggregateGets(&job)
+
+		aggregate := *job.Plan[0].Aggregate
+		for i := range aggregate {
+			aggregate[i].Trigger = true
+		}
+
+		cfg.Jobs = append(cfg.Jobs, job)
+	}
+
 	for _, t := range man.Tasks {
+		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned())
+
 		var job *atc.JobConfig
 		var parallel bool
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			job = p.runJob(task, man, false)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
 			job = p.dockerComposeJob(task, man)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
 		case manifest.DeployCF:
@@ -131,7 +159,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			job = p.deployCFJob(task, resourceName, man, &cfg)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
 		case manifest.DockerPush:
@@ -139,7 +166,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
 		case manifest.ConsumerIntegrationTest:
@@ -151,20 +177,17 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-zip")
 			runTask := ConvertDeployMLZipToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 
 		case manifest.DeployMLModules:
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-modules")
 			runTask := ConvertDeployMLModulesToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			initialPlan[0].Trigger = !task.ManualTrigger
 			parallel = task.Parallel
 		}
 
 		job.Failure = failurePlan
 		job.Plan = append(initialPlan, job.Plan...)
-
 		job.Plan = aggregateGets(job)
 
 		var passedJobNames []string
@@ -184,7 +207,10 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 				}
 			}
 		}
+
 		addPassedJobsToGets(job, passedJobNames)
+		configureTriggerOnGets(job, t.IsManualTrigger(), man.FeatureToggles.Versioned())
+
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 
@@ -194,10 +220,24 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	aggregate := *job.Plan[0].Aggregate
 	for i, get := range aggregate {
-		// Only git and timer should have passed on previous tasks
-		if get.Name() == gitDir || strings.HasPrefix(get.Name(), "timer ") || strings.HasPrefix(get.Name(), "cron") {
+		if get.Name() == gitDir ||
+			get.Name() == versionName ||
+			get.Name() == timerName ||
+			get.Name() == cronName {
 			aggregate[i].Passed = passedJobs
 		}
+	}
+}
+
+func configureTriggerOnGets(job *atc.JobConfig, manualTrigger bool, versioningEnabled bool) {
+	aggregate := *job.Plan[0].Aggregate
+	for i, get := range aggregate {
+		if get.Get == versionName && !manualTrigger {
+			aggregate[i].Trigger = true
+		} else {
+			aggregate[i].Trigger = !manualTrigger && !versioningEnabled
+		}
+
 	}
 }
 
@@ -595,6 +635,19 @@ func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	if hasArtifacts {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
 		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline, man.ArtifactConfig))
+	}
+}
+
+func (p pipeline) addCronResource(cfg *atc.Config, man manifest.Manifest) {
+	if man.CronTrigger != "" {
+		cfg.ResourceTypes = append(cfg.ResourceTypes, cronResourceType())
+		cfg.Resources = append(cfg.Resources, p.cronResource(man.CronTrigger))
+	}
+}
+
+func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
+	if man.TriggerInterval != "" {
+		cfg.Resources = append(cfg.Resources, p.timerResource(man.TriggerInterval))
 	}
 }
 

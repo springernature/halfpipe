@@ -7,6 +7,7 @@ import (
 
 	"path"
 
+	"fmt"
 	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -107,7 +108,7 @@ func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.Art
 
 func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name:   "timer " + interval,
+		Name:   timerName,
 		Type:   "time",
 		Source: atc.Source{"interval": interval},
 	}
@@ -115,7 +116,7 @@ func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func (p pipeline) cronResource(expression string) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: "cron",
+		Name: cronName,
 		Type: "cron-resource",
 		Source: atc.Source{
 			"expression":       expression,
@@ -198,5 +199,37 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	return &atc.ImageResource{
 		Type:   "docker-image",
 		Source: source,
+	}
+}
+
+func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
+	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.Pipeline)
+	if manifest.Repo.Branch != "" && manifest.Repo.Branch != "master" {
+		key = fmt.Sprintf("%s-%s", key, manifest.Repo.Branch)
+	}
+
+	return atc.ResourceConfig{
+		Name: versionName,
+		Type: "semver",
+		Source: atc.Source{
+			"driver":   "gcs",
+			"key":      key,
+			"bucket":   config.VersionBucket,
+			"json_key": config.VersionJsonKey,
+		},
+	}
+}
+
+func (p pipeline) versionUpdateJob(manifest manifest.Manifest) atc.JobConfig {
+	return atc.JobConfig{
+		Name: "update version",
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{
+				Put: versionName,
+				Params: atc.Params{
+					"bump": "minor",
+				},
+			},
+		},
 	}
 }
