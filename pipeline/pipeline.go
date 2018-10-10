@@ -78,7 +78,6 @@ func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *at
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool) []atc.PlanConfig {
-	// If Version feature toggle is enabled git should not have trigger true.
 	initialPlan := []atc.PlanConfig{{Get: gitDir}}
 
 	if includeVersion {
