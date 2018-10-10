@@ -7,6 +7,21 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestCronTriggerResourceTypeSet(t *testing.T) {
+	man := manifest.Manifest{
+		Repo:        manifest.Repo{URI: gitDir},
+		CronTrigger: "*/10 * * * *",
+		Tasks: []manifest.Task{
+			manifest.Run{Script: "run.sh"},
+		},
+	}
+
+	config := testPipeline().Render(man)
+	resourceTypes := config.ResourceTypes
+	assert.Equal(t, "docker-image", resourceTypes[0].Type)
+	assert.Equal(t, "cron-resource", resourceTypes[0].Name)
+}
+
 func TestCronTriggerNotSet(t *testing.T) {
 	man := manifest.Manifest{
 		Repo: manifest.Repo{URI: gitDir},
@@ -41,7 +56,7 @@ func TestCronTriggerSetAddsResource(t *testing.T) {
 	config := testPipeline().Render(man)
 	resources := config.Resources
 	assert.Equal(t, "git", resources[0].Type)
-	assert.Equal(t, "cron */10 * * * *", resources[1].Name)
+	assert.Equal(t, "cron", resources[1].Name)
 	assert.Equal(t, "cron-resource", resources[1].Type)
 	assert.Equal(t, man.CronTrigger, resources[1].Source["expression"])
 }
@@ -62,7 +77,7 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 
 	assert.Len(t, t1, 2)
 	assert.Equal(t, gitDir, t1Aggregate[0].Name())
-	assert.Equal(t, "cron */10 * * * *", t1Aggregate[1].Name())
+	assert.Equal(t, "cron", t1Aggregate[1].Name())
 	assert.True(t, t1Aggregate[1].Trigger)
 
 	t2 := config.Jobs[1].Plan
@@ -71,7 +86,7 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	assert.Equal(t, gitDir, t2Aggregate[0].Name())
 	assert.Equal(t, []string{t1[1].Task}, t2Aggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", t2Aggregate[1].Name())
+	assert.Equal(t, "cron", t2Aggregate[1].Name())
 	assert.Equal(t, []string{t1[1].Task}, t2Aggregate[1].Passed)
 }
 
@@ -93,7 +108,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 
 	assert.Len(t, first, 2)
 	assert.Equal(t, gitDir, firstAggregate[0].Name())
-	assert.Equal(t, "cron */10 * * * *", firstAggregate[1].Name())
+	assert.Equal(t, "cron", firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
@@ -102,7 +117,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", p1Aggregate[1].Name())
+	assert.Equal(t, "cron", p1Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[1].Passed)
 
 	p2 := config.Jobs[2].Plan
@@ -111,7 +126,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", p2Aggregate[1].Name())
+	assert.Equal(t, "cron", p2Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[1].Passed)
 
 	last := config.Jobs[3].Plan
@@ -120,7 +135,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	assert.Equal(t, gitDir, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", lastAggregate[1].Name())
+	assert.Equal(t, "cron", lastAggregate[1].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[1].Passed)
 }
 
@@ -143,7 +158,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 
 	assert.Len(t, first, 3)
 	assert.Equal(t, gitDir, firstAggregate[0].Name())
-	assert.Equal(t, "cron */10 * * * *", firstAggregate[1].Name())
+	assert.Equal(t, "cron", firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
@@ -152,7 +167,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", p1Aggregate[1].Name())
+	assert.Equal(t, "cron", p1Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[1].Passed)
 
 	p2 := config.Jobs[2].Plan
@@ -161,7 +176,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", p2Aggregate[1].Name())
+	assert.Equal(t, "cron", p2Aggregate[1].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[1].Passed)
 
 	// Artifacts should not have any passed.
@@ -174,7 +189,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	assert.Equal(t, gitDir, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[0].Passed)
 
-	assert.Equal(t, "cron */10 * * * *", lastAggregate[1].Name())
+	assert.Equal(t, "cron", lastAggregate[1].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[1].Passed)
 
 	// Artifacts should not have any passed.

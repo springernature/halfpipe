@@ -1,6 +1,8 @@
 package linters
 
 import (
+	"fmt"
+	"github.com/mbrevoort/cronexpr"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
@@ -17,6 +19,13 @@ func (triggerLinter) Lint(manifest manifest.Manifest) (result result.LintResult)
 		result.AddError(errors.NewInvalidField("trigger_interval", "please remove trigger_interval if you use cron_trigger"))
 	} else if manifest.TriggerInterval != "" {
 		result.AddWarning(errors.NewInvalidField("trigger_interval", "trigger_interval is deprecated, please use cron_trigger instead"))
+	}
+
+	if manifest.CronTrigger != "" {
+		_, err := cronexpr.Parse(manifest.CronTrigger)
+		if err != nil {
+			result.AddError(errors.NewInvalidField("cron_trigger", fmt.Sprintf("%s is not a valid cron expression", manifest.CronTrigger)))
+		}
 	}
 
 	return
