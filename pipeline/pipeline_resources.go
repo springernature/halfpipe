@@ -105,12 +105,12 @@ func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func (p pipeline) cronResource(expression string) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: "cron " + expression,
+		Name: "cron",
 		Type: "cron-resource",
 		Source: atc.Source{
 			"expression":       expression,
 			"location":         "UTC",
-			"fire_immediately": false,
+			"fire_immediately": true,
 		},
 	}
 }
@@ -120,8 +120,9 @@ func cronResourceType() atc.ResourceType {
 		Name: "cron-resource",
 		Type: "docker-image",
 		Source: atc.Source{
-			"repository": "cftoolsmiths/cron-resource",
-			"tag":        "v0.3",
+			"repository":       "cftoolsmiths/cron-resource",
+			"tag":              "v0.3",
+			"fire_immediately": true,
 		},
 	}
 }

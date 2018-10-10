@@ -32,6 +32,16 @@ func TestCronTriggerOnly(t *testing.T) {
 	assert.False(t, result.HasErrors())
 }
 
+func TestInvalidCronTrigger(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Team = "yolo"
+	man.Pipeline = "alles-gut"
+	man.CronTrigger = "*/99 * * * *"
+
+	result := testTriggerLinter().Lint(man)
+	assert.True(t, result.HasErrors())
+}
+
 func TestIntervalTriggerTriggerOnly(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
@@ -41,3 +51,4 @@ func TestIntervalTriggerTriggerOnly(t *testing.T) {
 	result := testTriggerLinter().Lint(man)
 	assert.True(t, result.HasWarnings())
 }
+
