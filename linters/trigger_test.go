@@ -51,4 +51,3 @@ func TestIntervalTriggerTriggerOnly(t *testing.T) {
 	result := testTriggerLinter().Lint(man)
 	assert.True(t, result.HasWarnings())
 }
-

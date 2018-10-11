@@ -79,10 +79,12 @@ type DockerPush struct {
 	Username         string `secretAllowed:"true"`
 	Password         string `secretAllowed:"true"`
 	Image            string
-	Vars             Vars `secretAllowed:"true"`
-	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
-	Parallel         bool `yaml:"parallel,omitempty"`
-	Retries          int  `yaml:"retries,omitempty"`
+	Vars             Vars   `secretAllowed:"true"`
+	RestoreArtifacts bool   `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Parallel         bool   `yaml:"parallel,omitempty"`
+	Retries          int    `yaml:"retries,omitempty"`
+	TagFile          string `json:"tag_file" yaml:"tag_file,omitempty"`
+	TagAsLatest      bool   `json:"tag_as_latest" yaml:"tag_as_latest,omitempty"`
 }
 
 func (r DockerPush) SavesArtifacts() bool {
