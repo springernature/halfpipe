@@ -1,0 +1,889 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: slack
+  type: slack-notification
+  source:
+    url: https://hooks.slack.com/services/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
+- name: artifacts-engineering-enablement-e2e-test
+  type: gcp-resource
+  source:
+    bucket: halfpipe-io-artifacts
+    folder: engineering-enablement/e2e-test
+    json_key: ((gcr.private_key))
+- name: version
+  type: semver
+  source:
+    bucket: halfpipe-io-semver
+    driver: gcs
+    json_key: ((gcr.private_key))
+    key: engineering-enablement-e2e-test
+- name: CF dev-api engineering-enablement dev
+  type: cf-resource
+  source:
+    api: dev-api
+    org: engineering-enablement
+    password: very-secret
+    prometheusGatewayURL: prometheus-pushgateway:9091
+    space: dev
+    username: michiel
+- name: CF live pe staging
+  type: cf-resource
+  source:
+    api: ((cloudfoundry.api-live))
+    org: pe
+    password: very-secret
+    prometheusGatewayURL: prometheus-pushgateway:9091
+    space: staging
+    username: michiel
+- name: CF snpaas qa
+  type: cf-resource
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    password: ((cloudfoundry.password-snpaas))
+    prometheusGatewayURL: prometheus-pushgateway:9091
+    space: qa
+    username: ((cloudfoundry.username-snpaas))
+- name: Docker Registry
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+resource_types:
+- name: slack-notification
+  type: docker-image
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: v1.4.2
+- name: gcp-resource
+  type: docker-image
+  source:
+    repository: platformengineering/gcp-resource
+    tag: 0.21.0
+- name: cf-resource
+  type: docker-image
+  source:
+    repository: platformengineering/cf-resource
+    tag: stable
+jobs:
+- name: update version
+  plan:
+  - aggregate:
+    - get: git
+      trigger: true
+  - put: version
+    params:
+      bump: minor
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: Test
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - update version
+    - get: version
+      passed:
+      - update version
+      trigger: true
+  - task: Test
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: node
+          tag: 9.5.0-alpine
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          ./test.sh
+
+          if [ -d target/distribution ]
+          then
+            mkdir -p ../../artifacts-out/target/distribution
+            cp -r target/distribution/. ../../artifacts-out/target/distribution/
+          elif [ -f target/distribution ]
+          then
+            artifactDir=$(dirname target/distribution)
+            mkdir -p ../../artifacts-out/$artifactDir
+            cp target/distribution ../../artifacts-out/$artifactDir
+          else
+            echo "ERROR: Artifact 'target/distribution' not found. Try fly hijack to check the filesystem."
+            exit 1
+          fi
+
+
+          if [ -d README.md ]
+          then
+            mkdir -p ../../artifacts-out/README.md
+            cp -r README.md/. ../../artifacts-out/README.md/
+          elif [ -f README.md ]
+          then
+            artifactDir=$(dirname README.md)
+            mkdir -p ../../artifacts-out/$artifactDir
+            cp README.md ../../artifacts-out/$artifactDir
+          else
+            echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
+            exit 1
+          fi
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: artifacts-out
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  - put: artifacts
+    resource: artifacts-engineering-enablement-e2e-test
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: deploy to cf
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - Test
+    - get: version
+      passed:
+      - Test
+      trigger: true
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
+      params:
+        folder: artifacts
+        version_file: git/.git/ref
+  - put: cf halfpipe-push
+    resource: CF dev-api engineering-enablement dev
+    params:
+      appPath: artifacts/target/distribution/artifact.zip
+      command: halfpipe-push
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    attempts: 2
+  - put: cf halfpipe-promote
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-promote
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    attempts: 2
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      timeout: 5m
+    attempts: 2
+- name: deploy to staging
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - deploy to cf
+    - get: version
+      passed:
+      - deploy to cf
+      trigger: true
+  - put: cf halfpipe-push
+    resource: CF live pe staging
+    params:
+      appPath: git/e2e_test_versioned
+      command: halfpipe-push
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: live.cf.private.springer.com
+      vars:
+        A: "0.1"
+        B: "false"
+    attempts: 2
+  - aggregate:
+    - do:
+      - get: artifacts
+        resource: artifacts-engineering-enablement-e2e-test
+      - task: run smoke-test.sh
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              password: ((gcr.private_key))
+              repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+              tag: latest
+              username: _json_key
+          params:
+            A: blah
+            ARTIFACTORY_PASSWORD: ((artifactory.password))
+            ARTIFACTORY_URL: ((artifactory.url))
+            ARTIFACTORY_USERNAME: ((artifactory.username))
+            TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+          run:
+            path: /bin/sh
+            args:
+            - -c
+            - |-
+              which bash > /dev/null
+              if [ $? != 0 ]; then
+                echo "WARNING: Bash is not present in the docker image"
+                echo "If your script depends on bash you will get a strange error message like:"
+                echo "  sh: yourscript.sh: command not found"
+                echo "To fix, make sure your docker image contains bash!"
+                echo ""
+                echo ""
+              fi
+              cp -r ../../artifacts/. .
+              set -e
+              export GIT_REVISION=`cat ../.git/ref`
+              export BUILD_VERSION=`cat ../../version/version`
+              ./smoke-test.sh
+            dir: git/e2e_test_versioned
+          inputs:
+          - name: git
+          - name: artifacts
+          - name: version
+          caches:
+          - path: ../../../halfpipe-cache
+        attempts: 1
+    - do:
+      - task: c-name
+        privileged: true
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              password: ((gcr.private_key))
+              repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+              tag: latest
+              username: _json_key
+          params:
+            ARTIFACTORY_PASSWORD: ((artifactory.password))
+            ARTIFACTORY_URL: ((artifactory.url))
+            ARTIFACTORY_USERNAME: ((artifactory.username))
+            CONSUMER_GIT_KEY: ((github.private_key))
+            CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+            CONSUMER_HOST: c-host
+            CONSUMER_PATH: ""
+            CONSUMER_SCRIPT: /var/c-script
+            DOCKER_COMPOSE_SERVICE: ""
+            GCR_PRIVATE_KEY: ((gcr.private_key))
+            PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+            PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
+            PROVIDER_NAME: e2e-test
+          run:
+            path: docker.sh
+            args:
+            - -c
+            - |
+              set -e
+              export GIT_REVISION=`cat ../.git/ref`
+              export BUILD_VERSION=`cat ../../version/version`
+              \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+
+              # write git key to file
+              echo "${CONSUMER_GIT_KEY}" > .gitkey
+              chmod 600 .gitkey
+
+              set -x
+
+              # get current revision of consumer
+              REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
+
+              # clone consumer into "consumer-repo" dir
+              GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
+              cd consumer-repo/${CONSUMER_PATH}
+
+              # checkout revision
+              git checkout ${REVISION}
+
+              # run the tests with docker-compose
+              # note: old system reads CF manifest env vars and sets them all here
+              docker-compose run --no-deps \
+                --entrypoint "${CONSUMER_SCRIPT}" \
+                -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+                -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME \
+                ${DOCKER_COMPOSE_SERVICE:-code}
+            dir: git/e2e_test_versioned
+          inputs:
+          - name: git
+          - name: version
+          caches:
+          - path: ../../../halfpipe-cache
+        attempts: 1
+  - put: cf halfpipe-promote
+    resource: CF live pe staging
+    params:
+      command: halfpipe-promote
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: live.cf.private.springer.com
+    attempts: 2
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF live pe staging
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e_test_versioned/manifest.yml
+    attempts: 2
+- name: deploy to qa
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - deploy to cf
+    - get: version
+      passed:
+      - deploy to cf
+      trigger: true
+  - put: cf halfpipe-push
+    resource: CF snpaas qa
+    params:
+      appPath: git/e2e_test_versioned
+      command: halfpipe-push
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: springernature.app
+      vars:
+        A: "0.1"
+        B: "false"
+    attempts: 2
+  - do:
+    - task: save-artifact-in-pre-promote
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            password: ((gcr.private_key))
+            repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+            tag: latest
+            username: _json_key
+        params:
+          A: blah
+          ARTIFACTORY_PASSWORD: ((artifactory.password))
+          ARTIFACTORY_URL: ((artifactory.url))
+          ARTIFACTORY_USERNAME: ((artifactory.username))
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            set -e
+            export GIT_REVISION=`cat ../.git/ref`
+            export BUILD_VERSION=`cat ../../version/version`
+            ./smoke-test.sh
+
+            if [ -d build ]
+            then
+              mkdir -p ../../artifacts-out/build
+              cp -r build/. ../../artifacts-out/build/
+            elif [ -f build ]
+            then
+              artifactDir=$(dirname build)
+              mkdir -p ../../artifacts-out/$artifactDir
+              cp build ../../artifacts-out/$artifactDir
+            else
+              echo "ERROR: Artifact 'build' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          dir: git/e2e_test_versioned
+        inputs:
+        - name: git
+        - name: version
+        outputs:
+        - name: artifacts-out
+        caches:
+        - path: ../../../halfpipe-cache
+      attempts: 1
+    - put: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
+      params:
+        folder: artifacts-out
+        version_file: git/.git/ref
+  - do:
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
+    - task: restore artifact in pre promote
+      config:
+        platform: linux
+        image_resource:
+          type: docker-image
+          source:
+            password: ((gcr.private_key))
+            repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+            tag: latest
+            username: _json_key
+        params:
+          A: blah
+          ARTIFACTORY_PASSWORD: ((artifactory.password))
+          ARTIFACTORY_URL: ((artifactory.url))
+          ARTIFACTORY_USERNAME: ((artifactory.username))
+          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
+        run:
+          path: /bin/sh
+          args:
+          - -c
+          - |-
+            which bash > /dev/null
+            if [ $? != 0 ]; then
+              echo "WARNING: Bash is not present in the docker image"
+              echo "If your script depends on bash you will get a strange error message like:"
+              echo "  sh: yourscript.sh: command not found"
+              echo "To fix, make sure your docker image contains bash!"
+              echo ""
+              echo ""
+            fi
+            cp -r ../../artifacts/. .
+            set -e
+            export GIT_REVISION=`cat ../.git/ref`
+            export BUILD_VERSION=`cat ../../version/version`
+            ./smoke-test.sh
+          dir: git/e2e_test_versioned
+        inputs:
+        - name: git
+        - name: artifacts
+        - name: version
+        caches:
+        - path: ../../../halfpipe-cache
+      attempts: 1
+  - put: cf halfpipe-promote
+    resource: CF snpaas qa
+    params:
+      command: halfpipe-promote
+      manifestPath: git/e2e_test_versioned/manifest.yml
+      testDomain: springernature.app
+    attempts: 2
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF snpaas qa
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e_test_versioned/manifest.yml
+    attempts: 2
+- name: push to docker registry
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - deploy to staging
+      - deploy to qa
+    - get: version
+      passed:
+      - deploy to staging
+      - deploy to qa
+      trigger: true
+  - put: Docker Registry
+    params:
+      build: git/e2e_test_versioned
+      build_args:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: run notify.sh
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - push to docker registry
+    - get: version
+      passed:
+      - push to docker registry
+      trigger: true
+  - task: run notify.sh
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: blah
+          repository: busy
+          tag: latest
+          username: michiel
+      params:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          ./notify.sh
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: docker-compose
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - run notify.sh
+    - get: version
+      passed:
+      - run notify.sh
+      trigger: true
+  - task: docker-compose
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: latest
+          username: _json_key
+      params:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        GCR_PRIVATE_KEY: ((gcr.private_key))
+      run:
+        path: docker.sh
+        args:
+        - -c
+        - |
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+          docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION app
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: another-c-name
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - docker-compose
+    - get: version
+      passed:
+      - docker-compose
+      trigger: true
+  - task: another-c-name
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: latest
+          username: _json_key
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CONSUMER_GIT_KEY: ((github.private_key))
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_SERVICE: potato
+        GCR_PRIVATE_KEY: ((gcr.private_key))
+        K: value
+        K1: value1
+        PROVIDER_HOST: p-host
+        PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
+        PROVIDER_NAME: e2e-test
+      run:
+        path: docker.sh
+        args:
+        - -c
+        - |
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+
+          # write git key to file
+          echo "${CONSUMER_GIT_KEY}" > .gitkey
+          chmod 600 .gitkey
+
+          set -x
+
+          # get current revision of consumer
+          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
+
+          # clone consumer into "consumer-repo" dir
+          GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
+          cd consumer-repo/${CONSUMER_PATH}
+
+          # checkout revision
+          git checkout ${REVISION}
+
+          # run the tests with docker-compose
+          # note: old system reads CF manifest env vars and sets them all here
+          docker-compose run --no-deps \
+            --entrypoint "${CONSUMER_SCRIPT}" \
+            -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+            -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 \
+            ${DOCKER_COMPOSE_SERVICE:-code}
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: deploy-ml-zip
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - another-c-name
+    - get: version
+      passed:
+      - another-c-name
+      trigger: true
+    - get: artifacts
+      resource: artifacts-engineering-enablement-e2e-test
+  - task: deploy-ml-zip
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+      params:
+        APP_NAME: e2e-test
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          cp -r ../../artifacts/. .
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          /ml-deploy/deploy-local-zip
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: artifacts
+      - name: version
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+- name: Deploy ml-modules artifact
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - deploy-ml-zip
+    - get: version
+      passed:
+      - deploy-ml-zip
+      trigger: true
+  - task: Deploy ml-modules artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+      params:
+        APP_NAME: my-app
+        APP_VERSION: v1
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com,ml.qa1.springer-sbm.com
+        ML_MODULES_VERSION: "2.1425"
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+          set -e
+          export GIT_REVISION=`cat ../.git/ref`
+          export BUILD_VERSION=`cat ../../version/version`
+          /ml-deploy/deploy-ml-modules
+        dir: git/e2e_test_versioned
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  on_failure:
+    put: slack
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+
