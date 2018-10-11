@@ -298,6 +298,10 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsName})
 	}
 
+	if man.FeatureToggles.Versioned() {
+		runPlan.TaskConfig.Inputs = append(runPlan.TaskConfig.Inputs, atc.TaskInputConfig{Name: versionName})
+	}
+
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
 	if len(task.SaveArtifacts) > 0 {

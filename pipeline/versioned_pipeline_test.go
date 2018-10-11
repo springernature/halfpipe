@@ -253,5 +253,67 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 		assert.NotContains(t, "timer ", get.Get)
 		assert.Equal(t, []string{firstJob}, get.Passed)
 	}
+}
 
+func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobs(t *testing.T) {
+	// We don't need to care about docker-push and deploy-cf.
+	// As they are inputs in the aggregate the put containers will have them mapped..
+	man := manifest.Manifest{
+		FeatureToggles: manifest.FeatureToggles{
+			manifest.FeatureVersioned,
+		},
+
+		Tasks: manifest.TaskList{
+			manifest.Run{Name: "run"},
+			manifest.DockerCompose{Name: "dockerCompose"},
+			manifest.ConsumerIntegrationTest{Name: "cIT"},
+			manifest.DeployMLZip{Name: "deployMLZip"},
+			manifest.DeployMLModules{Name: "deployMLModules"},
+			manifest.DeployCF{
+				Name: "deploy",
+				PrePromote: manifest.TaskList{
+					manifest.Run{Name: "deployRun"},
+					manifest.DockerCompose{Name: "deployDockerCompose"},
+					manifest.ConsumerIntegrationTest{Name: "deployCIT"},
+				},
+			},
+		},
+	}
+
+	expectedInput := atc.TaskInputConfig{
+		Name: versionName,
+	}
+
+	config := testPipeline().Render(man)
+
+	run, _ := config.Jobs.Lookup("run")
+	assert.Contains(t, run.Plan[1].TaskConfig.Inputs, expectedInput)
+
+	dockerCompose, _ := config.Jobs.Lookup("dockerCompose")
+	assert.Contains(t, dockerCompose.Plan[1].TaskConfig.Inputs, expectedInput)
+
+	cIT, _ := config.Jobs.Lookup("cIT")
+	assert.Contains(t, cIT.Plan[1].TaskConfig.Inputs, expectedInput)
+
+	deployMLZip, _ := config.Jobs.Lookup("deployMLZip")
+	assert.Contains(t, deployMLZip.Plan[1].TaskConfig.Inputs, expectedInput)
+
+	deployMLModules, _ := config.Jobs.Lookup("deployMLModules")
+	assert.Contains(t, deployMLModules.Plan[1].TaskConfig.Inputs, expectedInput)
+
+	var foundPrePromoteTasks int
+	deploy, _ := config.Jobs.Lookup("deploy")
+	for _, plan := range deploy.Plan {
+		if plan.Aggregate != nil {
+			for _, a := range *plan.Aggregate {
+				if a.Do != nil {
+					for _, prePromoteTask := range *a.Do {
+						foundPrePromoteTasks += 1
+						assert.Contains(t, prePromoteTask.TaskConfig.Inputs, expectedInput)
+					}
+				}
+			}
+		}
+	}
+	assert.Equal(t, 3, foundPrePromoteTasks)
 }
