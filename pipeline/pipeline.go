@@ -286,7 +286,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), pathToArtifactsOutDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), pathToArtifactsOutDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -478,7 +478,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	runTask := manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
-		Script:  dockerComposeScript(task.Service, vars, task.Command),
+		Script:  dockerComposeScript(task.Service, vars, task.Command, man.FeatureToggles.Versioned()),
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
@@ -596,13 +596,21 @@ func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	return
 }
 
-func dockerComposeScript(service string, vars map[string]string, containerCommand string) string {
+func pathToVersionFile(basePath string) (gitRefPath string) {
+	gitRefPath, _ = filepath.Rel(basePath, path.Join("..", "version", "version"))
+	return
+}
+
+func dockerComposeScript(service string, vars map[string]string, containerCommand string, versioningEnabled bool) string {
 	envStrings := []string{"-e GIT_REVISION"}
 	for key := range vars {
 		if key == "GCR_PRIVATE_KEY" {
 			continue
 		}
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
+	}
+	if versioningEnabled {
+		envStrings = append(envStrings, "-e BUILD_VERSION")
 	}
 	sort.Strings(envStrings)
 
@@ -654,7 +662,7 @@ func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string) []string {
+func runScriptArgs(script string, checkForBash bool, artifactsPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
@@ -680,6 +688,15 @@ fi`)
 	out = append(out,
 		"set -e",
 		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
+	)
+
+	if versioningEnabled {
+		out = append(out,
+			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile),
+		)
+	}
+
+	out = append(out,
 		script,
 	)
 
