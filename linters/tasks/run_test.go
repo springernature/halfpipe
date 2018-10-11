@@ -22,7 +22,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	helpers.AssertMissingField(t, "docker.image", errors[1])
 }
 
-func TestRunTaskWithScriptAndImage(t *testing.T) {
+func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
 	task := manifest.Run{
 		Script: "./build.sh",
 		Docker: manifest.Docker{
@@ -31,9 +31,9 @@ func TestRunTaskWithScriptAndImage(t *testing.T) {
 	}
 
 	errors, warnings := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
-	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 1)
-	helpers.AssertFileError(t, "./build.sh", warnings[0])
+	assert.Len(t, errors, 1)
+	assert.Len(t, warnings, 0)
+	helpers.AssertFileErrorInErrors(t, "./build.sh", errors)
 }
 
 func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
@@ -42,6 +42,24 @@ func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
 
 	task := manifest.Run{
 		Script: "./build.sh",
+		Docker: manifest.Docker{
+			Image:    "alpine",
+			Password: "secret",
+			Username: "Michiel",
+		},
+	}
+
+	errors, warnings := LintRunTask(task, fs)
+	assert.Len(t, errors, 0)
+	assert.Len(t, warnings, 0)
+}
+
+func TestRunTaskWithScriptWithoutDotSlashAndImageWithPasswordAndUsername(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("build.sh", []byte("foo"), 0777)
+
+	task := manifest.Run{
+		Script: "build.sh",
 		Docker: manifest.Docker{
 			Image:    "alpine",
 			Password: "secret",
@@ -122,6 +140,34 @@ func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	}
+}
+
+func TestRunTaskWithScriptThatStartsWithBackSlackShouldNotError(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	task := manifest.Run{
+		Script: `\make`,
+		Docker: manifest.Docker{
+			Image: "alpine",
+		},
+	}
+
+	errors, warnings := LintRunTask(task, fs)
+	assert.Len(t, errors, 0)
+	assert.Len(t, warnings, 1)
+	assert.Contains(t, warnings, WarnScriptMustExistInDockerImage("make"))
+
+	taskWithArgs := manifest.Run{
+		Script: `\ls -al`,
+		Docker: manifest.Docker{
+			Image: "alpine",
+		},
+	}
+
+	errors2, warnings2 := LintRunTask(taskWithArgs, fs)
+	assert.Len(t, errors2, 0)
+	assert.Len(t, warnings2, 1)
+	assert.Contains(t, warnings2, WarnScriptMustExistInDockerImage("ls"))
 }
 
 func TestRetries(t *testing.T) {
