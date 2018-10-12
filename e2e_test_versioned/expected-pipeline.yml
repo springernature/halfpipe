@@ -561,6 +561,8 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+      tag_as_latest: true
+      tag_file: version/number
     attempts: 1
   on_failure:
     put: slack

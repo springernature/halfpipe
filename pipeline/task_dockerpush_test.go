@@ -51,6 +51,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 						"A": "a",
 						"B": "b",
 					},
+					"tag_as_latest": true,
 				},
 			},
 		},
@@ -97,7 +98,8 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 				Attempts: 1,
 				Put:      "Docker Registry",
 				Params: atc.Params{
-					"build": gitDir + "/" + basePath,
+					"build":         gitDir + "/" + basePath,
+					"tag_as_latest": true,
 				}},
 		},
 	}
@@ -105,4 +107,63 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	// First resource will always be the git resource.
 	assert.Equal(t, expectedResource, testPipeline().Render(man).Resources[1])
 	assert.Equal(t, expectedJobConfig, testPipeline().Render(man).Jobs[0])
+}
+
+func TestRenderDockerPushWithVersioning(t *testing.T) {
+	basePath := "subapp/sub2"
+	man := manifest.Manifest{
+		Repo: manifest.Repo{
+			URI:      "git@github.com:/springernature/foo.git",
+			BasePath: basePath,
+		},
+		FeatureToggles: manifest.FeatureToggles{
+			manifest.FeatureVersioned,
+		},
+	}
+
+	username := "halfpipe"
+	password := "secret"
+	repo := "halfpipe/halfpipe-cli"
+	man.Tasks = []manifest.Task{
+		manifest.DockerPush{
+			Username: username,
+			Password: password,
+			Image:    repo,
+		},
+	}
+
+	expectedResource := atc.ResourceConfig{
+		Name: "Docker Registry",
+		Type: "docker-image",
+		Source: atc.Source{
+			"username":   username,
+			"password":   password,
+			"repository": repo,
+		},
+	}
+
+	expectedJobConfig := atc.JobConfig{
+		Name:   "docker-push",
+		Serial: true,
+		Plan: atc.PlanSequence{
+			atc.PlanConfig{
+				Aggregate: &atc.PlanSequence{
+					atc.PlanConfig{Get: gitDir, Passed: []string{"update version"}},
+					atc.PlanConfig{Get: versionName, Passed: []string{"update version"}, Trigger: true},
+				},
+			},
+			atc.PlanConfig{
+				Attempts: 1,
+				Put:      "Docker Registry",
+				Params: atc.Params{
+					"tag_file":      "version/number",
+					"build":         gitDir + "/" + basePath,
+					"tag_as_latest": true,
+				}},
+		},
+	}
+
+	// First resource will always be the git resource.
+	assert.Equal(t, expectedResource, testPipeline().Render(man).Resources[2])
+	assert.Equal(t, expectedJobConfig, testPipeline().Render(man).Jobs[1])
 }
