@@ -233,10 +233,9 @@ func configureTriggerOnGets(job *atc.JobConfig, manualTrigger bool, versioningEn
 	for i, get := range aggregate {
 		if get.Get == versionName && !manualTrigger {
 			aggregate[i].Trigger = true
-		} else {
+		} else if get.Get != artifactsName {
 			aggregate[i].Trigger = !manualTrigger && !versioningEnabled
 		}
-
 	}
 }
 

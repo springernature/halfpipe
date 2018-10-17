@@ -160,7 +160,6 @@ jobs:
       - Test
       trigger: true
     - get: artifacts
-      trigger: true
       resource: artifacts-engineering-enablement-e2e-test
       params:
         folder: artifacts
@@ -711,7 +710,6 @@ jobs:
       - another-c-name
       trigger: true
     - get: artifacts
-      trigger: true
       resource: artifacts-engineering-enablement-e2e-test
   - task: deploy-ml-zip
     config:
