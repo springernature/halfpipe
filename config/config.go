@@ -18,6 +18,8 @@ var (
 
 	PrometheusGatewayURL = "prometheus-pushgateway:9091"
 
+	ConcourseHost = "https://concourse.halfpipe.io"
+
 	CacheDirs = []atc.CacheConfig{
 		{Path: "../../../halfpipe-cache"},
 	}

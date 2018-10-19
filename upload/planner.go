@@ -20,9 +20,14 @@ var ErrFlyNotInstalled = func(os string) error {
 type PathResolver func(string) (string, error)
 type PipelineFile func(fs afero.Afero) (afero.File, error)
 type OSResolver func() string
+type EnvResolver func(envVar string) string
 
 type Targets struct {
-	Targets map[string]interface{}
+	Targets map[string]Target
+}
+
+type Target struct {
+	API string
 }
 
 type Planner interface {
@@ -30,7 +35,7 @@ type Planner interface {
 	Unpause() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver, envResolver EnvResolver) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
@@ -39,6 +44,7 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipel
 		nonInteractive: nonInteractive,
 		currentBranch:  currentBranch,
 		oSResolver:     osResolver,
+		envResolver:    envResolver,
 	}
 }
 
@@ -50,6 +56,7 @@ type planner struct {
 	nonInteractive bool
 	currentBranch  string
 	oSResolver     OSResolver
+	envResolver    EnvResolver
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -86,7 +93,7 @@ func (p planner) getTargets() (targets Targets, err error) {
 	return
 }
 
-func (p planner) loginCommand(team string) (cmd Command, err error) {
+func (p planner) loginCommand(team string, host string) (cmd Command, err error) {
 	path, err := p.pathResolver("fly")
 	if err != nil {
 		err = ErrFlyNotInstalled(p.oSResolver())
@@ -95,7 +102,7 @@ func (p planner) loginCommand(team string) (cmd Command, err error) {
 
 	cmd.Cmd = exec.Cmd{
 		Path: path,
-		Args: []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
+		Args: []string{"fly", "-t", team, "login", "-c", host, "-n", team},
 	}
 
 	return
@@ -162,8 +169,14 @@ func (p planner) Plan() (plan Plan, err error) {
 		return
 	}
 
-	if _, ok := targets.Targets[man.Team]; !ok {
-		cmd, loginError := p.loginCommand(man.Team)
+	concourseOverrideHost := p.envResolver("CONCOURSE_HOST")
+	if target, ok := targets.Targets[man.Team]; !ok || concourseOverrideHost != "" && target.API != concourseOverrideHost {
+		host := config.ConcourseHost
+		if concourseOverrideHost != "" {
+			host = concourseOverrideHost
+		}
+
+		cmd, loginError := p.loginCommand(man.Team, host)
 		if loginError != nil {
 			err = loginError
 			return
