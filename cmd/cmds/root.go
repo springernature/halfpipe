@@ -15,6 +15,7 @@ import (
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
+	"runtime"
 )
 
 var checkVersion = func() (err error) {
@@ -60,7 +61,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 				linters.NewTeamLinter(),
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
 				linters.NewSecretsLinter(man.NewSecretValidator()),
-				linters.NewTasksLinter(fs),
+				linters.NewTasksLinter(fs, runtime.GOOS),
 				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
 				linters.NewTriggerLinter(),
 				linters.NewFeatureToggleLinter(man.AvailableFeatureToggles),

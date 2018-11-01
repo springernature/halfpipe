@@ -13,7 +13,11 @@ var WarnScriptMustExistInDockerImage = func(script string) error {
 	return fmt.Errorf("make sure '%s' is availible in the docker image you have specified", script)
 }
 
-func LintRunTask(run manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+var WarnMakeSureScriptIsExecutable = func(script string) error {
+	return fmt.Errorf("we have disabled the executable test for windows hosts. Make sure '%s' is actually executable otherwise the pipeline will produce runtime errors", script)
+}
+
+func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 	if run.Script == "" {
 		errs = append(errs, errors.NewMissingField("script"))
 	} else if strings.HasPrefix(run.Script, `\`) {
@@ -24,7 +28,11 @@ func LintRunTask(run manifest.Run, fs afero.Afero) (errs []error, warnings []err
 		// Possible for script to have args,
 		fields := strings.Fields(strings.TrimSpace(run.Script))
 		command := fields[0]
-		if err := filechecker.CheckFile(fs, command, true); err != nil {
+		checkForExecutable := os != "windows"
+		if !checkForExecutable {
+			warnings = append(warnings, WarnMakeSureScriptIsExecutable(command))
+		}
+		if err := filechecker.CheckFile(fs, command, checkForExecutable); err != nil {
 			errs = append(errs, err)
 		}
 	}

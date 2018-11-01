@@ -13,7 +13,7 @@ import (
 
 type taskLinter struct {
 	Fs                              afero.Afero
-	lintRunTask                     func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error)
+	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error)
@@ -22,9 +22,10 @@ type taskLinter struct {
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error)
+	os                              string
 }
 
-func NewTasksLinter(fs afero.Afero) taskLinter {
+func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 	return taskLinter{
 		Fs:                              fs,
 		lintRunTask:                     tasks.LintRunTask,
@@ -36,6 +37,7 @@ func NewTasksLinter(fs afero.Afero) taskLinter {
 		lintDeployMLZipTask:             tasks.LintDeployMLZipTask,
 		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
 		lintArtifacts:                   tasks.LintArtifacts,
+		os:                              os,
 	}
 }
 
@@ -75,7 +77,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		var warnings []error
 		switch task := t.(type) {
 		case manifest.Run:
-			errs, warnings = linter.lintRunTask(task, linter.Fs)
+			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os)
 		case manifest.DeployCF:
 			errs, warnings = linter.lintDeployCFTask(task, linter.Fs)
 

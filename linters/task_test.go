@@ -74,7 +74,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 		Fs: afero.Afero{
 			Fs: nil,
 		},
-		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			calledLintRunTask = true
 			calledLintRunTaskNum += 1
 			return
@@ -180,7 +180,7 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 		Fs: afero.Afero{
 			Fs: nil,
 		},
-		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return []error{runErr1, runErr2}, []error{runWarn1}
 		},
 		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
@@ -257,7 +257,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		Fs: afero.Afero{
 			Fs: nil,
 		},
-		lintRunTask: func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) {
+		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return []error{runErr1, runErr2}, []error{runWarn1}
 		},
 		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
@@ -312,10 +312,10 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 
 func TestLintArtifactsWithPrePromote(t *testing.T) {
 	taskLinter := taskLinter{Fs: afero.Afero{},
-		lintRunTask:        func(task manifest.Run, fs afero.Afero) (errs []error, warnings []error) { return },
-		lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
-		lintArtifacts:      tasks.LintArtifacts,
+		lintArtifacts: tasks.LintArtifacts,
 	}
 
 	t.Run("No previous saved artifact", func(t *testing.T) {

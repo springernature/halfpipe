@@ -14,7 +14,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 		manifest.Run{},
 	}
 
-	errors, warnings := LintRunTask(manifest.Run{}, afero.Afero{})
+	errors, warnings := LintRunTask(manifest.Run{}, afero.Afero{}, "")
 	assert.Len(t, errors, 2)
 	assert.Len(t, warnings, 0)
 
@@ -30,7 +30,7 @@ func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, warnings := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	helpers.AssertFileErrorInErrors(t, "./build.sh", errors)
@@ -49,7 +49,7 @@ func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
@@ -67,7 +67,7 @@ func TestRunTaskWithScriptWithoutDotSlashAndImageWithPasswordAndUsername(t *test
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
@@ -84,7 +84,7 @@ func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	helpers.AssertMissingField(t, "docker.username", errors[0])
@@ -102,7 +102,7 @@ func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	helpers.AssertMissingField(t, "docker.password", errors[0])
@@ -119,7 +119,7 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
@@ -136,7 +136,7 @@ func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 			},
 		}
 
-		errors, warnings := LintRunTask(task, fs)
+		errors, warnings := LintRunTask(task, fs, "")
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	}
@@ -152,7 +152,7 @@ func TestRunTaskWithScriptThatStartsWithBackSlackShouldNotError(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs)
+	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 1)
 	assert.Contains(t, warnings, WarnScriptMustExistInDockerImage("make"))
@@ -164,7 +164,7 @@ func TestRunTaskWithScriptThatStartsWithBackSlackShouldNotError(t *testing.T) {
 		},
 	}
 
-	errors2, warnings2 := LintRunTask(taskWithArgs, fs)
+	errors2, warnings2 := LintRunTask(taskWithArgs, fs, "")
 	assert.Len(t, errors2, 0)
 	assert.Len(t, warnings2, 1)
 	assert.Contains(t, warnings2, WarnScriptMustExistInDockerImage("ls"))
@@ -174,10 +174,29 @@ func TestRetries(t *testing.T) {
 	task := manifest.Run{}
 
 	task.Retries = -1
-	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
-	errors, _ = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+}
+
+func TestShouldSkipExecutableTestAndProduceWarningIfRunningOnWindows(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("build.sh", []byte("foo"), 0444)
+
+	task := manifest.Run{
+		Script: "build.sh",
+		Docker: manifest.Docker{
+			Image:    "alpine",
+			Password: "secret",
+			Username: "Michiel",
+		},
+	}
+
+	errors, warnings := LintRunTask(task, fs, "windows")
+	assert.Len(t, errors, 0)
+	assert.Len(t, warnings, 1)
+	assert.Equal(t, WarnMakeSureScriptIsExecutable("build.sh"), warnings[0])
 }
