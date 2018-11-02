@@ -116,7 +116,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
 		job := p.versionUpdateJob(man)
 		if man.SlackChannel != "" {
-			job.Failure = slackOnFailurePlan(man.SlackChannel)
+			failurePlan := slackOnFailurePlan(man.SlackChannel)
+			job.Failure = &failurePlan
 		}
 
 		job.Plan = append(p.initialPlan(&cfg, man, false), job.Plan...)
@@ -179,10 +180,19 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			parallel = task.Parallel
 		}
 
-		if t.SavesArtifactsOnFailure() {
-			job.Failure = saveArtifactOnFailurePlan(man.Team, man.Pipeline)
-		} else if man.SlackChannel != "" {
-			job.Failure = slackOnFailurePlan(man.SlackChannel)
+		if t.SavesArtifactsOnFailure() || man.SlackChannel != "" {
+			sequence := atc.PlanSequence{}
+
+			if t.SavesArtifactsOnFailure() {
+				sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
+			}
+			if man.SlackChannel != "" {
+				sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
+			}
+
+			job.Failure = &atc.PlanConfig{
+				Aggregate: &sequence,
+			}
 		}
 
 		job.Plan = append(initialPlan, job.Plan...)

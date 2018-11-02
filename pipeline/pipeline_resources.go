@@ -62,7 +62,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 
 func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: "slack",
+		Name: slackResourceName,
 		Type: slackResourceName,
 		Source: atc.Source{
 			"url": config.SlackWebhook,

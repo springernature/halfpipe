@@ -82,8 +82,8 @@ func GenerateArtifactsResourceName(team string, pipeline string) string {
 	return fmt.Sprintf("artifacts-%s", postfix)
 }
 
-func saveArtifactOnFailurePlan(team, pipeline string) *atc.PlanConfig {
-	return &atc.PlanConfig{
+func saveArtifactOnFailurePlan(team, pipeline string) atc.PlanConfig {
+	return atc.PlanConfig{
 		Put:      artifactsOnFailureName,
 		Resource: GenerateArtifactsResourceName(team, pipeline),
 		Params: atc.Params{
@@ -94,8 +94,8 @@ func saveArtifactOnFailurePlan(team, pipeline string) *atc.PlanConfig {
 	}
 }
 
-func slackOnFailurePlan(channel string) *atc.PlanConfig {
-	return &atc.PlanConfig{
+func slackOnFailurePlan(channel string) atc.PlanConfig {
+	return atc.PlanConfig{
 		Put: slackResourceName,
 		Params: atc.Params{
 			"channel":  channel,

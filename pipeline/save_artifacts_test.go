@@ -6,9 +6,9 @@ import (
 
 	"path"
 
+	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"github.com/concourse/atc"
 )
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
@@ -148,7 +148,8 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 	config, _ := renderedPipeline.Jobs.Lookup(name)
 	assert.Contains(t, config.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 
-	failurePlan := config.Failure
+	failurePlan := (*config.Failure.Aggregate)[0]
+
 	assert.Equal(t, artifactsOnFailureName, failurePlan.Put)
 	assert.Equal(t, GenerateArtifactsResourceName(team, pipeline), failurePlan.Resource)
 	assert.Equal(t, artifactsOutDirOnFailure, failurePlan.Params["folder"])
