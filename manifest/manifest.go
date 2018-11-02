@@ -8,6 +8,7 @@ type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
 	SavesArtifacts() bool
+	SavesArtifactsOnFailure() bool
 	IsManualTrigger() bool
 }
 
@@ -62,6 +63,10 @@ type Run struct {
 	Retries                int      `yaml:"retries,omitempty"`
 }
 
+func (r Run) SavesArtifactsOnFailure() bool {
+	return len(r.SaveArtifactsOnFailure) > 0
+}
+
 func (r Run) IsManualTrigger() bool {
 	return r.ManualTrigger
 }
@@ -89,6 +94,10 @@ type DockerPush struct {
 	RestoreArtifacts bool   `json:"restore_artifacts" yaml:"restore_artifacts"`
 	Parallel         bool   `yaml:"parallel,omitempty"`
 	Retries          int    `yaml:"retries,omitempty"`
+}
+
+func (r DockerPush) SavesArtifactsOnFailure() bool {
+	return false
 }
 
 func (r DockerPush) IsManualTrigger() bool {
@@ -119,6 +128,10 @@ type DockerCompose struct {
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	Parallel               bool     `yaml:"parallel,omitempty"`
 	Retries                int      `yaml:"retries,omitempty"`
+}
+
+func (r DockerCompose) SavesArtifactsOnFailure() bool {
+	return len(r.SaveArtifactsOnFailure) > 0
 }
 
 func (r DockerCompose) IsManualTrigger() bool {
@@ -156,6 +169,10 @@ type DeployCF struct {
 	Retries        int      `yaml:"retries,omitempty"`
 }
 
+func (r DeployCF) SavesArtifactsOnFailure() bool {
+	return false
+}
+
 func (r DeployCF) IsManualTrigger() bool {
 	return r.ManualTrigger
 }
@@ -183,6 +200,10 @@ type ConsumerIntegrationTest struct {
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars   `secretAllowed:"true"`
 	Retries              int    `yaml:"retries,omitempty"`
+}
+
+func (r ConsumerIntegrationTest) SavesArtifactsOnFailure() bool {
+	return false
 }
 
 func (r ConsumerIntegrationTest) IsManualTrigger() bool {
@@ -213,6 +234,10 @@ type DeployMLZip struct {
 	Retries       int      `yaml:"retries,omitempty"`
 }
 
+func (r DeployMLZip) SavesArtifactsOnFailure() bool {
+	return false
+}
+
 func (r DeployMLZip) IsManualTrigger() bool {
 	return r.ManualTrigger
 }
@@ -239,6 +264,10 @@ type DeployMLModules struct {
 	Targets          []string `secretAllowed:"true"`
 	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Retries          int      `yaml:"retries,omitempty"`
+}
+
+func (r DeployMLModules) SavesArtifactsOnFailure() bool {
+	return false
 }
 
 func (r DeployMLModules) IsManualTrigger() bool {

@@ -97,37 +97,31 @@ func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
 	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config1))
-	assert.True(t, containsPut(artifactsOnFailureName, config1))
 
 	config2, _ := renderedPipeline.Jobs.Lookup(run2)
 	assert.NotContains(t, config2.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config2.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.False(t, containsPut(artifactsName, config2))
-	assert.True(t, containsPut(artifactsOnFailureName, config2))
 
 	config3, _ := renderedPipeline.Jobs.Lookup(run3)
 	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config3))
-	assert.True(t, containsPut(artifactsOnFailureName, config3))
 
 	config4, _ := renderedPipeline.Jobs.Lookup(dockerCompose1)
 	assert.Contains(t, config4.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config4.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config4))
-	assert.True(t, containsPut(artifactsOnFailureName, config4))
 
 	config5, _ := renderedPipeline.Jobs.Lookup(dockerCompose2)
 	assert.NotContains(t, config5.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config5.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.False(t, containsPut(artifactsName, config5))
-	assert.True(t, containsPut(artifactsOnFailureName, config5))
 
 	config6, _ := renderedPipeline.Jobs.Lookup(dockerCompose3)
 	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config6))
-	assert.True(t, containsPut(artifactsOnFailureName, config6))
 }
 
 func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
@@ -154,11 +148,12 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 	config, _ := renderedPipeline.Jobs.Lookup(name)
 	assert.Contains(t, config.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 
-	failurePut := config.Plan[len(config.Plan)-1]
-	assert.Equal(t, artifactsOnFailureName, failurePut.Put)
-	assert.Equal(t, GenerateArtifactsOnFailureResourceName(team, pipeline), failurePut.Resource)
-	assert.Equal(t, artifactsOutDirOnFailure, failurePut.Params["folder"])
-	assert.Equal(t, "git/.git/ref", failurePut.Params["version_file"])
+	failurePlan := config.Failure
+	assert.Equal(t, artifactsOnFailureName, failurePlan.Put)
+	assert.Equal(t, GenerateArtifactsResourceName(team, pipeline), failurePlan.Resource)
+	assert.Equal(t, artifactsOutDirOnFailure, failurePlan.Params["folder"])
+	assert.Equal(t, "git/.git/ref", failurePlan.Params["version_file"])
+	assert.Equal(t, "failure", failurePlan.Params["postfix"])
 }
 
 func TestRendersPipelineFailureOutputHasResourceDef(t *testing.T) {

@@ -58,7 +58,6 @@ const cronName = "cron"
 const timerName = "timer"
 
 func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
-
 	if man.SlackChannel != "" {
 		return p.addSlackPlanConfig(cfg, man)
 	}
@@ -191,7 +190,12 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			parallel = task.Parallel
 		}
 
-		job.Failure = failurePlan
+		if t.SavesArtifactsOnFailure() {
+			job.Failure = saveArtifactOnFailurePlan(man.Team, man.Pipeline)
+		} else {
+			job.Failure = failurePlan
+		}
+
 		job.Plan = append(initialPlan, job.Plan...)
 		job.Plan = aggregateGets(job)
 
@@ -332,17 +336,6 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	if len(task.SaveArtifactsOnFailure) > 0 {
 		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
-
-		artifactPut := atc.PlanConfig{
-			Put:      artifactsOnFailureName,
-			Resource: GenerateArtifactsOnFailureResourceName(man.Team, man.Pipeline),
-			Params: atc.Params{
-				"folder":       artifactsOutDirOnFailure,
-				"version_file": path.Join(gitDir, ".git", "ref"),
-			},
-		}
-		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
-
 	}
 
 	return &jobConfig
@@ -502,9 +495,9 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 			Username: "_json_key",
 			Password: "((gcr.private_key))",
 		},
-		Vars:             vars,
-		SaveArtifacts:    task.SaveArtifacts,
-		RestoreArtifacts: task.RestoreArtifacts,
+		Vars:                   vars,
+		SaveArtifacts:          task.SaveArtifacts,
+		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 	}
 	job := p.runJob(runTask, man, true)
@@ -652,25 +645,35 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 }
 
 func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
-	hasArtifacts := false
+	var savesArtifacts bool
+	var savesArtifactsOnFailure bool
+	var restoresArtifacts bool
+
 	for _, t := range man.Tasks {
 		switch task := t.(type) {
 		case manifest.Run:
 			if len(task.SaveArtifacts) > 0 {
-				hasArtifacts = true
+				savesArtifacts = true
+			}
+			if len(task.SaveArtifactsOnFailure) > 0 {
+				savesArtifactsOnFailure = true
 			}
 		case manifest.DockerCompose:
 			if len(task.SaveArtifacts) > 0 {
-				hasArtifacts = true
+				savesArtifacts = true
+			}
+			if len(task.SaveArtifactsOnFailure) > 0 {
+				savesArtifactsOnFailure = true
 			}
 		case manifest.DeployCF:
-			if len(task.DeployArtifact) > 0 {
-				hasArtifacts = true
+			if task.DeployArtifact != "" {
+				restoresArtifacts = true
 			}
 		}
+
 	}
 
-	if hasArtifacts {
+	if savesArtifacts || savesArtifactsOnFailure || restoresArtifacts {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
 		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline, man.ArtifactConfig))
 	}
