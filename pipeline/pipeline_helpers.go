@@ -81,3 +81,8 @@ func GenerateArtifactsResourceName(team string, pipeline string) string {
 	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
 	return fmt.Sprintf("artifacts-%s", postfix)
 }
+
+func GenerateArtifactsOnFailureResourceName(team string, pipeline string) string {
+	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
+	return fmt.Sprintf("artifacts-%s-on-failure", postfix)
+}

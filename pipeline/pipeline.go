@@ -37,9 +37,15 @@ func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
+const artifactsResourceName = "gcp-resource"
+
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
 const artifactsDir = "artifacts"
+
+const artifactsOutDirOnFailure = "artifacts-out-failure"
+const artifactsOnFailureName = "artifacts-on-failure"
+const artifactsOnFailureDir = "artifacts-on-failure-out"
 
 const gitDir = "git"
 
@@ -303,17 +309,15 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
-	if len(task.SaveArtifacts) > 0 {
-		runTaskIndex := 0
-		if task.RestoreArtifacts {
-			// If we restore an artifact prior to saving the
-			// get of the artifact will be the first task in the plan.
-			runTaskIndex = 1
-		}
+	runTaskIndex := 0
+	if task.RestoreArtifacts {
+		// If we restore an artifact prior to saving the
+		// get of the artifact will be the first task in the plan.
+		runTaskIndex = 1
+	}
 
-		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactsOutDir},
-		}
+	if len(task.SaveArtifacts) > 0 {
+		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 
 		artifactPut := atc.PlanConfig{
 			Put:      artifactsName,
@@ -324,6 +328,21 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			},
 		}
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
+	}
+
+	if len(task.SaveArtifactsOnFailure) > 0 {
+		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+
+		artifactPut := atc.PlanConfig{
+			Put:      artifactsOnFailureName,
+			Resource: GenerateArtifactsOnFailureResourceName(man.Team, man.Pipeline),
+			Params: atc.Params{
+				"folder":       artifactsOutDirOnFailure,
+				"version_file": path.Join(gitDir, ".git", "ref"),
+			},
+		}
+		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
+
 	}
 
 	return &jobConfig
@@ -353,7 +372,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsDir,
+				"folder":       artifactsOnFailureDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -486,6 +505,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		Vars:             vars,
 		SaveArtifacts:    task.SaveArtifacts,
 		RestoreArtifacts: task.RestoreArtifacts,
+		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 	}
 	job := p.runJob(runTask, man, true)
 	return job

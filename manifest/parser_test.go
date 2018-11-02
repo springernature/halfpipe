@@ -52,6 +52,8 @@ tasks:
   save_artifacts:
   - target/dist/artifact.zip
   - README.md
+  save_artifacts_on_failure:
+  - test_reports
 - type: docker-compose
   name: docker compose task
   vars:
@@ -60,6 +62,8 @@ tasks:
   save_artifacts:
   - target/dist/artifact.zip
   - README.md
+  save_artifacts_on_failure:
+  - test_reports
 - type: docker-push
   name: docker push task
   username: user
@@ -163,6 +167,9 @@ tasks:
 					"target/dist/artifact.zip",
 					"README.md",
 				},
+				SaveArtifactsOnFailure: []string{
+					"test_reports",
+				},
 			},
 			DockerCompose{
 				Name: "docker compose task",
@@ -173,6 +180,9 @@ tasks:
 				SaveArtifacts: []string{
 					"target/dist/artifact.zip",
 					"README.md",
+				},
+				SaveArtifactsOnFailure: []string{
+					"test_reports",
 				},
 			},
 			DockerPush{

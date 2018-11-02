@@ -70,7 +70,7 @@ func (p pipeline) slackResource() atc.ResourceConfig {
 
 func (p pipeline) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "gcp-resource",
+		Name: artifactsResourceName,
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "platformengineering/gcp-resource",
@@ -97,7 +97,7 @@ func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.Art
 
 	return atc.ResourceConfig{
 		Name: GenerateArtifactsResourceName(team, pipeline),
-		Type: "gcp-resource",
+		Type: artifactsResourceName,
 		Source: atc.Source{
 			"bucket":   bucket,
 			"folder":   path.Join(filter(team), filter(pipeline)),

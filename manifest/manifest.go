@@ -49,16 +49,17 @@ type Docker struct {
 }
 
 type Run struct {
-	Type             string
-	Name             string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Script           string
-	Docker           Docker
-	Vars             Vars     `yaml:"vars,omitempty" secretAllowed:"true"`
-	SaveArtifacts    []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
-	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	Parallel         bool     `yaml:"parallel,omitempty"`
-	Retries          int      `yaml:"retries,omitempty"`
+	Type                   string
+	Name                   string
+	ManualTrigger          bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Script                 string
+	Docker                 Docker
+	Vars                   Vars     `yaml:"vars,omitempty" secretAllowed:"true"`
+	SaveArtifacts          []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	Parallel               bool     `yaml:"parallel,omitempty"`
+	Retries                int      `yaml:"retries,omitempty"`
 }
 
 func (r Run) IsManualTrigger() bool {
@@ -84,10 +85,10 @@ type DockerPush struct {
 	Username         string `secretAllowed:"true"`
 	Password         string `secretAllowed:"true"`
 	Image            string
-	Vars             Vars `secretAllowed:"true"`
-	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
-	Parallel         bool `yaml:"parallel,omitempty"`
-	Retries          int  `yaml:"retries,omitempty"`
+	Vars             Vars   `secretAllowed:"true"`
+	RestoreArtifacts bool   `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Parallel         bool   `yaml:"parallel,omitempty"`
+	Retries          int    `yaml:"retries,omitempty"`
 }
 
 func (r DockerPush) IsManualTrigger() bool {
@@ -107,16 +108,17 @@ func (r DockerPush) GetAttempts() int {
 }
 
 type DockerCompose struct {
-	Type             string
-	Name             string
-	Command          string
-	ManualTrigger    bool `json:"manual_trigger" yaml:"manual_trigger"`
-	Vars             Vars `secretAllowed:"true"`
-	Service          string
-	SaveArtifacts    []string `json:"save_artifacts"`
-	RestoreArtifacts bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
-	Parallel         bool     `yaml:"parallel,omitempty"`
-	Retries          int      `yaml:"retries,omitempty"`
+	Type                   string
+	Name                   string
+	Command                string
+	ManualTrigger          bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	Vars                   Vars     `secretAllowed:"true"`
+	Service                string
+	SaveArtifacts          []string `json:"save_artifacts"`
+	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
+	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	Parallel               bool     `yaml:"parallel,omitempty"`
+	Retries                int      `yaml:"retries,omitempty"`
 }
 
 func (r DockerCompose) IsManualTrigger() bool {
@@ -138,12 +140,12 @@ func (r DockerCompose) GetAttempts() int {
 type DeployCF struct {
 	Type           string
 	Name           string
-	ManualTrigger  bool   `json:"manual_trigger" yaml:"manual_trigger"`
-	API            string `secretAllowed:"true"`
-	Space          string `secretAllowed:"true"`
-	Org            string `secretAllowed:"true"`
-	Username       string `secretAllowed:"true"`
-	Password       string `secretAllowed:"true"`
+	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	API            string   `secretAllowed:"true"`
+	Space          string   `secretAllowed:"true"`
+	Org            string   `secretAllowed:"true"`
+	Username       string   `secretAllowed:"true"`
+	Password       string   `secretAllowed:"true"`
 	Manifest       string
 	TestDomain     string   `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
 	Vars           Vars     `secretAllowed:"true"`
@@ -151,7 +153,7 @@ type DeployCF struct {
 	PrePromote     TaskList `json:"pre_promote"`
 	Parallel       bool     `yaml:"parallel,omitempty"`
 	Timeout        string
-	Retries        int `yaml:"retries,omitempty"`
+	Retries        int      `yaml:"retries,omitempty"`
 }
 
 func (r DeployCF) IsManualTrigger() bool {
