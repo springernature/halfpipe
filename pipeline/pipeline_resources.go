@@ -47,9 +47,11 @@ func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
+const slackResourceName = "slack-notification"
+
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "slack-notification",
+		Name: slackResourceName,
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
@@ -61,7 +63,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: "slack",
-		Type: "slack-notification",
+		Type: slackResourceName,
 		Source: atc.Source{
 			"url": config.SlackWebhook,
 		},

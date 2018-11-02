@@ -57,29 +57,12 @@ const versionName = "version"
 const cronName = "cron"
 const timerName = "timer"
 
-func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
-	if man.SlackChannel != "" {
-		return p.addSlackPlanConfig(cfg, man)
-	}
-
-	return nil
-}
-
-func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
-	slackResource := p.slackResource()
-	cfg.Resources = append(cfg.Resources, slackResource)
+func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()
 	cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
-	slackPlanConfig := atc.PlanConfig{
-		Put: slackResource.Name,
-		Params: atc.Params{
-			"channel":  man.SlackChannel,
-			"username": "Halfpipe",
-			"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
-			"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
-		},
-	}
-	return &slackPlanConfig
+
+	slackResource := p.slackResource()
+	cfg.Resources = append(cfg.Resources, slackResource)
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool) []atc.PlanConfig {
@@ -109,7 +92,10 @@ func (p pipeline) addCfResourceType(cfg *atc.Config) {
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
-	failurePlan := p.addOnFailurePlan(&cfg, man)
+	if man.SlackChannel != "" {
+		p.addSlackResourceTypeAndResource(&cfg)
+	}
+
 	p.addArtifactResource(&cfg, man)
 
 	if man.CronTrigger != "" {
@@ -129,7 +115,10 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	if man.FeatureToggles.Versioned() {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
 		job := p.versionUpdateJob(man)
-		job.Failure = failurePlan
+		if man.SlackChannel != "" {
+			job.Failure = slackOnFailurePlan(man.SlackChannel)
+		}
+
 		job.Plan = append(p.initialPlan(&cfg, man, false), job.Plan...)
 		job.Plan = aggregateGets(&job)
 
@@ -192,8 +181,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		if t.SavesArtifactsOnFailure() {
 			job.Failure = saveArtifactOnFailurePlan(man.Team, man.Pipeline)
-		} else {
-			job.Failure = failurePlan
+		} else if man.SlackChannel != "" {
+			job.Failure = slackOnFailurePlan(man.SlackChannel)
 		}
 
 		job.Plan = append(initialPlan, job.Plan...)

@@ -93,3 +93,15 @@ func saveArtifactOnFailurePlan(team, pipeline string) *atc.PlanConfig {
 		},
 	}
 }
+
+func slackOnFailurePlan(channel string) *atc.PlanConfig {
+	return &atc.PlanConfig{
+		Put: slackResourceName,
+		Params: atc.Params{
+			"channel":  channel,
+			"username": "Halfpipe",
+			"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
+			"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
+		},
+	}
+}
