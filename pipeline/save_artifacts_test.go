@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"path"
@@ -389,4 +390,35 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 
 	assert.True(t, hasArtifactGet())
 	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+}
+
+func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
+	jarOutputFolder := "build/jars"
+	testReportsFolder := "build/test-reports"
+
+	man := manifest.Manifest{
+		Repo: manifest.Repo{
+			BasePath: "yeah/yeah",
+		},
+		Tasks: []manifest.Task{
+
+			manifest.Run{
+				Script: "\\make ; ls -al",
+				SaveArtifacts: []string{
+					jarOutputFolder,
+				},
+				SaveArtifactsOnFailure: []string{
+					testReportsFolder,
+				},
+			},
+		},
+	}
+
+	config := testPipeline().Render(man)
+
+	assert.Equal(t, artifactsOutDir, config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+	assert.Equal(t, artifactsOutDirOnFailure, config.Jobs[0].Plan[1].TaskConfig.Outputs[1].Name)
+
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), jarOutputFolder)
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), testReportsFolder)
 }

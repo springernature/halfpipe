@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/concourse/atc"
@@ -179,14 +180,14 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 
 func TestRunScriptArgs(t *testing.T) {
 	withNoArtifacts := runScriptArgs("./build.sh", true, "", "", false, nil, ".git/ref", false, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nexport GIT_REVISION=`cat .git/ref`\n\nif ! ./build.sh ; then\n       exit 1\nfi"}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
 
 func TestRunScriptArgsWhenInMonoRepo(t *testing.T) {
 	withNoArtifacts := runScriptArgs("./build.sh", true, "", "", false, nil, ".git/ref", false, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nexport GIT_REVISION=`cat .git/ref`\n\nif ! ./build.sh ; then\n       exit 1\nfi"}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
@@ -203,7 +204,7 @@ func TestRunScriptPath(t *testing.T) {
 
 	for initial, updated := range tests {
 		args := runScriptArgs(initial, true, "", "", false, nil, ".git/ref", false, "")
-		expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n" + updated}
+		expected := []string{"-c", fmt.Sprintf("which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nexport GIT_REVISION=`cat .git/ref`\n\nif ! %s ; then\n       exit 1\nfi", updated)}
 
 		assert.Equal(t, expected, args, initial)
 	}

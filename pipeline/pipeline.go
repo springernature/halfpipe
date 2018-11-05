@@ -714,7 +714,6 @@ fi`)
 	}
 
 	out = append(out,
-		"set -e",
 		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
 	)
 
@@ -724,14 +723,22 @@ fi`)
 		)
 	}
 
+	scriptCall := fmt.Sprintf(`
+if ! %s ; then
+       %s
+fi`, script, onErrorScript())
 	out = append(out,
-		script,
+		scriptCall,
 	)
 
 	for _, artifactPath := range saveArtifacts {
 		out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
+}
+
+func onErrorScript() string {
+	return "exit 1"
 }
 
 func copyArtifactScript(artifactsPath string, artifactOutputFolder string) string {
@@ -757,7 +764,7 @@ fi
 
 	byteBuffer := new(bytes.Buffer)
 	err = tmpl.Execute(byteBuffer, struct {
-		ArtifactsPath  string
+		ArtifactsPath        string
 		ArtifactOutputFolder string
 	}{
 		ArtifactsPath:        artifactsPath,
