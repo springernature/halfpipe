@@ -711,13 +711,8 @@ fi`)
 		)
 	}
 
-	scriptCall := fmt.Sprintf(`
-if ! %s ; then
-	%s
-fi`, script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
-	out = append(out,
-		scriptCall,
-	)
+	scriptCall := fmt.Sprintf("%s\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n%s\nfi", script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
+	out = append(out, scriptCall)
 
 	for _, artifactPath := range saveArtifacts {
 		out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
@@ -726,8 +721,13 @@ fi`, script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
 }
 
 func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) string {
-	//return copyArtifactScript("somePath", "someFolder") + "\nexit 1"
-	return "exit 1"
+	var returnScript []string
+
+	for _, artifactPath := range artifactPaths {
+		returnScript = append(returnScript, copyArtifactScript(artifactPath, saveArtifactsOnFailurePath))
+	}
+	returnScript = append(returnScript, "exit 1")
+	return strings.Join(returnScript, "\n")
 }
 
 func copyArtifactScript(artifactsPath string, artifactOutputFolder string) string {
