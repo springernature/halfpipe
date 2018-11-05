@@ -729,8 +729,8 @@ fi`)
 		script,
 	)
 
-	for _, artifact := range saveArtifacts {
-		out = append(out, copyArtifactScript(artifactsOutPath, artifact))
+	for _, artifactPath := range saveArtifacts {
+		out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }
