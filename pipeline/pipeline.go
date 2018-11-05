@@ -293,7 +293,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsOutDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath), task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -597,18 +597,6 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 	return
 }
 
-func pathToArtifactsOutDir(repoName string, basePath string, artifactsOutDir string) (artifactPath string) {
-	fullPath := path.Join(repoName, basePath)
-	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
-
-	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
-		artifactPath += "../"
-	}
-
-	artifactPath += artifactsOutDir
-	return
-}
-
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	gitRefPath, _ = filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
 	return
@@ -690,7 +678,7 @@ func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string) []string {
+func runScriptArgs(script string, checkForBash bool, artifactsInPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string, saveArtifactsOnFailure []string, saveArtifactsOnFailurePath string) []string {
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
@@ -710,7 +698,7 @@ fi`)
 	}
 
 	if restoreArtifacts {
-		out = append(out, fmt.Sprintf("cp -r %s/. .", artifactsPath))
+		out = append(out, fmt.Sprintf("cp -r %s/. .", artifactsInPath))
 	}
 
 	out = append(out,
@@ -725,8 +713,8 @@ fi`)
 
 	scriptCall := fmt.Sprintf(`
 if ! %s ; then
-       %s
-fi`, script, onErrorScript())
+	%s
+fi`, script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
 	out = append(out,
 		scriptCall,
 	)
@@ -737,7 +725,8 @@ fi`, script, onErrorScript())
 	return []string{"-c", strings.Join(out, "\n")}
 }
 
-func onErrorScript() string {
+func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) string {
+	//return copyArtifactScript("somePath", "someFolder") + "\nexit 1"
 	return "exit 1"
 }
 

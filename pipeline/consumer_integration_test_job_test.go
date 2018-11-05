@@ -66,7 +66,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  gitDir + "/base.path",
-				Args: runScriptArgs(consumerIntegrationTestScript(envVars), false, "", "", false, nil, "../.git/ref", false, ""),
+				Args: runScriptArgs(consumerIntegrationTestScript(envVars), false, "", "", false, nil, "../.git/ref", false, "", []string{}, ""),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -164,7 +164,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestScript(manifest.Vars{}), false, "", "", false, nil, "../.git/ref", false, ""),
+						Args: runScriptArgs(consumerIntegrationTestScript(manifest.Vars{}), false, "", "", false, nil, "../.git/ref", false, "", []string{}, ""),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
