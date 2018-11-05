@@ -344,27 +344,6 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
-func TestCopyArtifactScript(t *testing.T) {
-	actual := copyArtifactScript("target/dist/artifact.jar", "../../artifacts")
-
-	expected := `
-if [ -d target/dist/artifact.jar ]
-then
-  mkdir -p ../../artifacts/target/dist/artifact.jar
-  cp -r target/dist/artifact.jar/. ../../artifacts/target/dist/artifact.jar/
-elif [ -f target/dist/artifact.jar ]
-then
-  artifactDir=$(dirname target/dist/artifact.jar)
-  mkdir -p ../../artifacts/$artifactDir
-  cp target/dist/artifact.jar ../../artifacts/$artifactDir
-else
-  echo "ERROR: Artifact 'target/dist/artifact.jar' not found. Try fly hijack to check the filesystem."
-  exit 1
-fi
-`
-	assert.Equal(t, expected, actual)
-}
-
 func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -419,6 +398,6 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	assert.Equal(t, artifactsOutDir, config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
 	assert.Equal(t, artifactsOutDirOnFailure, config.Jobs[0].Plan[1].TaskConfig.Outputs[1].Name)
 
-	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), jarOutputFolder)
-	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), testReportsFolder)
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))
 }

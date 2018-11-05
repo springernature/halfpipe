@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"text/template"
-
-	"bytes"
-
 	"path/filepath"
 
 	"sort"
@@ -760,41 +756,4 @@ func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) st
 	}
 	returnScript = append(returnScript, "  exit 1")
 	return strings.Join(returnScript, "\n")
-}
-
-func copyArtifactScript(artifactsPath string, artifactOutputFolder string) string {
-	tmpl, err := template.New("runScript").Parse(`
-if [ -d {{.ArtifactsPath}} ]
-then
-  mkdir -p {{.ArtifactOutputFolder}}/{{.ArtifactsPath}}
-  cp -r {{.ArtifactsPath}}/. {{.ArtifactOutputFolder}}/{{.ArtifactsPath}}/
-elif [ -f {{.ArtifactsPath}} ]
-then
-  artifactDir=$(dirname {{.ArtifactsPath}})
-  mkdir -p {{.ArtifactOutputFolder}}/$artifactDir
-  cp {{.ArtifactsPath}} {{.ArtifactOutputFolder}}/$artifactDir
-else
-  echo "ERROR: Artifact '{{.ArtifactsPath}}' not found. Try fly hijack to check the filesystem."
-  exit 1
-fi
-`)
-
-	if err != nil {
-		panic(err)
-	}
-
-	byteBuffer := new(bytes.Buffer)
-	err = tmpl.Execute(byteBuffer, struct {
-		ArtifactsPath        string
-		ArtifactOutputFolder string
-	}{
-		ArtifactsPath:        artifactsPath,
-		ArtifactOutputFolder: artifactOutputFolder,
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	return byteBuffer.String()
 }
