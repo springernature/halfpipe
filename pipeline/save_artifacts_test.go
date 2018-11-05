@@ -344,7 +344,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 }
 
 func TestCopyArtifactScript(t *testing.T) {
-	actual := copyArtifactScript("../../artifacts", "target/dist/artifact.jar")
+	actual := copyArtifactScript("target/dist/artifact.jar", "../../artifacts")
 
 	expected := `
 if [ -d target/dist/artifact.jar ]

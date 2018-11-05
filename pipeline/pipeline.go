@@ -735,19 +735,19 @@ fi`)
 	return []string{"-c", strings.Join(out, "\n")}
 }
 
-func copyArtifactScript(artifactsPath string, saveArtifact string) string {
+func copyArtifactScript(artifactsPath string, artifactOutputFolder string) string {
 	tmpl, err := template.New("runScript").Parse(`
-if [ -d {{.SaveArtifactTask}} ]
+if [ -d {{.ArtifactsPath}} ]
 then
-  mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
-  cp -r {{.SaveArtifactTask}}/. {{.PathToArtifact}}/{{.SaveArtifactTask}}/
-elif [ -f {{.SaveArtifactTask}} ]
+  mkdir -p {{.ArtifactOutputFolder}}/{{.ArtifactsPath}}
+  cp -r {{.ArtifactsPath}}/. {{.ArtifactOutputFolder}}/{{.ArtifactsPath}}/
+elif [ -f {{.ArtifactsPath}} ]
 then
-  artifactDir=$(dirname {{.SaveArtifactTask}})
-  mkdir -p {{.PathToArtifact}}/$artifactDir
-  cp {{.SaveArtifactTask}} {{.PathToArtifact}}/$artifactDir
+  artifactDir=$(dirname {{.ArtifactsPath}})
+  mkdir -p {{.ArtifactOutputFolder}}/$artifactDir
+  cp {{.ArtifactsPath}} {{.ArtifactOutputFolder}}/$artifactDir
 else
-  echo "ERROR: Artifact '{{.SaveArtifactTask}}' not found. Try fly hijack to check the filesystem."
+  echo "ERROR: Artifact '{{.ArtifactsPath}}' not found. Try fly hijack to check the filesystem."
   exit 1
 fi
 `)
@@ -758,11 +758,11 @@ fi
 
 	byteBuffer := new(bytes.Buffer)
 	err = tmpl.Execute(byteBuffer, struct {
-		PathToArtifact   string
-		SaveArtifactTask string
+		ArtifactsPath  string
+		ArtifactOutputFolder string
 	}{
-		artifactsPath,
-		saveArtifact,
+		ArtifactsPath:        artifactsPath,
+		ArtifactOutputFolder: artifactOutputFolder,
 	})
 
 	if err != nil {
