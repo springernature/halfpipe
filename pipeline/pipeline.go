@@ -289,7 +289,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath), task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath), task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure), task),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -472,7 +472,7 @@ func buildTestRoute(appName, space, testDomain string) string {
 	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
 }
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
+func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
 	vars := task.Vars
 	if vars == nil {
 		vars = make(map[string]string)
@@ -480,7 +480,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 
 	// it is really just a special run job, so let's reuse that
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
-	runTask := manifest.Run{
+	return manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
 		Script:  dockerComposeScript(task.Service, vars, task.Command, man.FeatureToggles.Versioned()),
@@ -494,8 +494,10 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 	}
-	job := p.runJob(runTask, man, true)
-	return job
+}
+
+func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
+	return p.runJob(dockerComposeToRunTask(task, man), man, true)
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
@@ -674,11 +676,14 @@ func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsInPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string, saveArtifactsOnFailure []string, saveArtifactsOnFailurePath string) []string {
+func runScriptArgs(scriptASD string, checkForBash bool, artifactsInPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string, saveArtifactsOnFailure []string, saveArtifactsOnFailurePath string, task manifest.Run) []string {
+	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
 
+	fmt.Print("asdasdasdasdasd")
+	fmt.Println(script)
 	var out []string
 
 	if checkForBash {

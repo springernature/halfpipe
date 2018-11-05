@@ -18,16 +18,17 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
 	man.Repo.URI = gitURI
+	runTask := manifest.Run{
+		Script:        "./build.sh",
+		SaveArtifacts: []string{"build/lib"},
+	}
 	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script:        "./build.sh",
-			SaveArtifacts: []string{"build/lib"},
-		},
+		runTask,
 	}
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "", "../artifacts-out", false, []string{"build/lib"}, ".git/ref", false, "", []string{}, "")
+	expectedRunScript := runScriptArgs("./build.sh", true, "", "../artifacts-out", false, []string{"build/lib"}, ".git/ref", false, "", []string{}, "", runTask)
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
@@ -190,16 +191,17 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	man := manifest.Manifest{}
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
+	runTask := manifest.Run{
+		Script:        "./build.sh",
+		SaveArtifacts: []string{"build/lib"},
+	}
 	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script:        "./build.sh",
-			SaveArtifacts: []string{"build/lib"},
-		},
+		runTask,
 	}
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "", "../../../artifacts-out", false, []string{"build/lib"}, "../../.git/ref", false, "", []string{}, "")
+	expectedRunScript := runScriptArgs("./build.sh", true, "", "../../../artifacts-out", false, []string{"build/lib"}, "../../.git/ref", false, "", []string{}, "", runTask)
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 

@@ -14,6 +14,14 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 
 	dockerComposeService := "blah"
 	envVars := manifest.Vars{"blah": "value", "blah1": "value1"}
+	cit := manifest.ConsumerIntegrationTest{
+		Name:                 "c-name",
+		Consumer:             "c-consumer/c-path",
+		ConsumerHost:         "c-host",
+		Script:               "c-script",
+		DockerComposeService: dockerComposeService,
+		Vars:                 envVars,
+	}
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Repo: manifest.Repo{
@@ -27,14 +35,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 				Space: "cf-space",
 				Org:   "cf-org",
 				PrePromote: []manifest.Task{
-					manifest.ConsumerIntegrationTest{
-						Name:                 "c-name",
-						Consumer:             "c-consumer/c-path",
-						ConsumerHost:         "c-host",
-						Script:               "c-script",
-						DockerComposeService: dockerComposeService,
-						Vars:                 envVars,
-					},
+					cit,
 				},
 			},
 		},
@@ -66,7 +67,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  gitDir + "/base.path",
-				Args: runScriptArgs(consumerIntegrationTestScript(envVars), false, "", "", false, nil, "../.git/ref", false, "", []string{}, ""),
+				Args: runScriptArgs(consumerIntegrationTestScript(envVars), false, "", "", false, nil, "../.git/ref", false, "", []string{}, "", consumerIntegrationTestToRunTask(cit, man)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -113,6 +114,14 @@ func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
 func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 	p := testPipeline()
 
+	cit := manifest.ConsumerIntegrationTest{
+		Retries:      2,
+		Name:         "c-name",
+		Consumer:     "c-consumer/c-path",
+		ConsumerHost: "c-host",
+		ProviderHost: "p-host",
+		Script:       "c-script",
+	}
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Repo: manifest.Repo{
@@ -120,14 +129,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 			BasePath: "base.path",
 		},
 		Tasks: []manifest.Task{
-			manifest.ConsumerIntegrationTest{
-				Retries:      2,
-				Name:         "c-name",
-				Consumer:     "c-consumer/c-path",
-				ConsumerHost: "c-host",
-				ProviderHost: "p-host",
-				Script:       "c-script",
-			},
+			cit,
 		},
 	}
 
@@ -164,7 +166,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestScript(manifest.Vars{}), false, "", "", false, nil, "../.git/ref", false, "", []string{}, ""),
+						Args: runScriptArgs(consumerIntegrationTestScript(manifest.Vars{}), false, "", "", false, nil, "../.git/ref", false, "", []string{}, "", consumerIntegrationTestToRunTask(cit, man)),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
