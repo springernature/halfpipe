@@ -41,11 +41,10 @@ const artifactsResourceName = "gcp-resource"
 
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
-const artifactsDir = "artifacts"
+const artifactsInDir = "artifacts"
 
-const artifactsOutDirOnFailure = "artifacts-out-failure"
 const artifactsOnFailureName = "artifacts-on-failure"
-const artifactsOnFailureDir = "artifacts-on-failure-out"
+const artifactsOutDirOnFailure = "artifacts-out-failure"
 
 const gitDir = "git"
 
@@ -294,7 +293,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), pathToArtifactsOutDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath)),
+				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsOutDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath)),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -343,7 +342,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config) *atc.JobConfig {
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
-	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
+	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		manifestPath = strings.TrimPrefix(task.Manifest, "../")
 	}
 
@@ -351,7 +350,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsDir, task.DeployArtifact)
+		appPath = path.Join(artifactsInDir, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -359,12 +358,12 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		Serial: true,
 	}
 
-	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
+	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		artifactGet := atc.PlanConfig{
 			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsOnFailureDir,
+				"folder":       artifactsOutDirOnFailure,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -549,7 +548,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 						Path: "/bin/sh",
 						Args: []string{"-c", strings.Join([]string{
 							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/. %s", artifactsDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -586,7 +585,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man)
 }
 
-func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
+func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {
 	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
@@ -598,7 +597,7 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 	return
 }
 
-func pathToArtifactsOutDir(repoName string, basePath string) (artifactPath string) {
+func pathToArtifactsOutDir(repoName string, basePath string, artifactsOutDir string) (artifactPath string) {
 	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 

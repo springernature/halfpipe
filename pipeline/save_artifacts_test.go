@@ -223,7 +223,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 			},
 		},
 	}
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -257,12 +257,12 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 1)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 
-	assert.Equal(t, artifactsDir, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, gitDir+"/.git/ref", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Params["version_file"])
 
@@ -299,7 +299,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -309,7 +309,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
 
-	expectedAppPath := fmt.Sprintf("%s/%s", artifactsDir, deployArtifactPath)
+	expectedAppPath := fmt.Sprintf("%s/%s", artifactsInDir, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
@@ -331,7 +331,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -340,7 +340,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	// order if the plans is important
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
-	assert.Equal(t, artifactsDir+"/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
+	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
 func TestCopyArtifactScript(t *testing.T) {
@@ -380,7 +380,7 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 
 	hasArtifactGet := func() bool {
 		for _, task := range *config.Jobs[0].Plan[0].Aggregate {
-			if task.Get == artifactsDir {
+			if task.Get == artifactsName {
 				return true
 			}
 		}
