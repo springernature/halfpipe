@@ -76,7 +76,7 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "platformengineering/gcp-resource",
-			"tag":        "0.21.0",
+			"tag":        "stable",
 		},
 	}
 }
