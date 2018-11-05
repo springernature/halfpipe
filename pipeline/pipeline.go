@@ -694,11 +694,31 @@ if [ $? != 0 ]; then
   echo "To fix, make sure your docker image contains bash!"
   echo ""
   echo ""
-fi`)
+fi
+`)
+	}
+	if len(saveArtifacts) != 0 || len(saveArtifactsOnFailure) != 0 {
+		out = append(out, `function copyArtifact() {
+  ARTIFACT=$1
+  ARTIFACT_OUT_PATH=$2
+  if [ -d $ARTIFACT ] ; then
+    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+    cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+  elif [ -f $ARTIFACT ] ; then
+    ARTIFACT_DIR=$(dirname $ARTIFACT)
+    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+    cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+  else
+    echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+    exit 1
+  fi
+}
+`)
 	}
 
 	if restoreArtifacts {
-		out = append(out, fmt.Sprintf("cp -r %s/. .", artifactsInPath))
+		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
+		out = append(out, fmt.Sprintf("cp -r %s/. .\n", artifactsInPath))
 	}
 
 	out = append(out,
@@ -711,22 +731,34 @@ fi`)
 		)
 	}
 
-	scriptCall := fmt.Sprintf("%s\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n%s\nfi", script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
+	scriptCall := fmt.Sprintf(`
+%s
+EXIT_STATUS=$?
+if [ $EXIT_STATUS != 0 ] ; then
+%s
+fi
+`, script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
 	out = append(out, scriptCall)
 
+	if len(saveArtifacts) != 0 {
+		out = append(out, "# Artifacts to copy from task")
+	}
 	for _, artifactPath := range saveArtifacts {
-		out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
+		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, artifactsOutPath))
+		//out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }
 
 func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) string {
 	var returnScript []string
-
-	for _, artifactPath := range artifactPaths {
-		returnScript = append(returnScript, copyArtifactScript(artifactPath, saveArtifactsOnFailurePath))
+	if len(artifactPaths) != 0 {
+		returnScript = append(returnScript, "  # Artifacts to copy in case of failure")
 	}
-	returnScript = append(returnScript, "exit 1")
+	for _, artifactPath := range artifactPaths {
+		returnScript = append(returnScript, fmt.Sprintf("  copyArtifact %s %s", artifactPath, saveArtifactsOnFailurePath))
+	}
+	returnScript = append(returnScript, "  exit 1")
 	return strings.Join(returnScript, "\n")
 }
 
