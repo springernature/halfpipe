@@ -81,7 +81,7 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
+func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
 	filter := func(str string) string {
 		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
 		return reg.ReplaceAllString(strings.ToLower(str), "")
@@ -106,6 +106,12 @@ func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.Art
 			"json_key": json_key,
 		},
 	}
+}
+
+func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
+	config := p.artifactResource(team, pipeline, artifactConfig)
+	config.Name = GenerateArtifactsOnFailureResourceName(team, pipeline)
+	return config
 }
 
 func (p pipeline) timerResource(interval string) atc.ResourceConfig {

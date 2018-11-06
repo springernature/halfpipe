@@ -153,7 +153,7 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 	failurePlan := (*config.Failure.Aggregate)[0]
 
 	assert.Equal(t, artifactsOnFailureName, failurePlan.Put)
-	assert.Equal(t, GenerateArtifactsResourceName(team, pipeline), failurePlan.Resource)
+	assert.Equal(t, GenerateArtifactsOnFailureResourceName(team, pipeline), failurePlan.Resource)
 	assert.Equal(t, artifactsOutDirOnFailure, failurePlan.Params["folder"])
 	assert.Equal(t, "git/.git/ref", failurePlan.Params["version_file"])
 	assert.Equal(t, "failure", failurePlan.Params["postfix"])
@@ -377,12 +377,15 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	jarOutputFolder := "build/jars"
 	testReportsFolder := "build/test-reports"
 
+	team := "team"
+	pipeline := "pipeline"
 	man := manifest.Manifest{
+		Team:     team,
+		Pipeline: pipeline,
 		Repo: manifest.Repo{
 			BasePath: "yeah/yeah",
 		},
 		Tasks: []manifest.Task{
-
 			manifest.Run{
 				Script: "\\make ; ls -al",
 				SaveArtifacts: []string{
@@ -397,9 +400,169 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 
 	config := testPipeline().Render(man)
 
+	_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+	assert.True(t, found)
+
+	_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+	assert.True(t, foundOnFailure)
+
 	assert.Equal(t, artifactsOutDir, config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
 	assert.Equal(t, artifactsOutDirOnFailure, config.Jobs[0].Plan[1].TaskConfig.Outputs[1].Name)
 
+	assert.Equal(t, atc.PlanConfig{
+		Put:      artifactsName,
+		Resource: GenerateArtifactsResourceName(team, pipeline),
+		Params: atc.Params{
+			"folder":       artifactsOutDir,
+			"version_file": "git/.git/ref",
+		},
+	}, config.Jobs[0].Plan[2])
+
+	failureAggregate := config.Jobs[0].Failure.Aggregate
+	assert.Equal(t, saveArtifactOnFailurePlan(team, pipeline), (*failureAggregate)[0])
+
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))
+}
+
+func TestRenderRunWithCorrectResources(t *testing.T) {
+
+	t.Run("It has no artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.False(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+
+	})
+
+	t.Run("It has restore artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					RestoreArtifacts: true,
+					Script:           "\\make ; ls -al",
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifacts: []string{
+						"a",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts on failure", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifactsOnFailure: []string{
+						"a",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.False(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.True(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts on failure and normal artifact save", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifactsOnFailure: []string{
+						"a",
+					},
+					SaveArtifacts: []string{
+						"b",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.True(t, foundOnFailure)
+	})
 }
