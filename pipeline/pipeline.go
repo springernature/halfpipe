@@ -289,7 +289,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath), task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure), task),
+				Args: runScriptArgs(task, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir), pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure), pathToGitRef(gitDir, man.Repo.BasePath), pathToVersionFile(man.Repo.BasePath), man.FeatureToggles.Versioned(), !isDockerCompose),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -676,14 +676,12 @@ func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(scriptASD string, checkForBash bool, artifactsInPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string, saveArtifactsOnFailure []string, saveArtifactsOnFailurePath string, task manifest.Run) []string {
+func runScriptArgs(task manifest.Run, artifactsInPath string, artifactsOutPath string, saveArtifactsOnFailurePath string, pathToGitRef string, pathToVersionFile string, versioningEnabled bool, checkForBash bool) []string {
 	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
 
-	fmt.Print("asdasdasdasdasd")
-	fmt.Println(script)
 	var out []string
 
 	if checkForBash {
@@ -698,7 +696,7 @@ if [ $? != 0 ]; then
 fi
 `)
 	}
-	if len(saveArtifacts) != 0 || len(saveArtifactsOnFailure) != 0 {
+	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
 		out = append(out, `function copyArtifact() {
   ARTIFACT=$1
   ARTIFACT_OUT_PATH=$2
@@ -717,7 +715,7 @@ fi
 `)
 	}
 
-	if restoreArtifacts {
+	if task.RestoreArtifacts {
 		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
 		out = append(out, fmt.Sprintf("cp -r %s/. .\n", artifactsInPath))
 	}
@@ -738,13 +736,13 @@ EXIT_STATUS=$?
 if [ $EXIT_STATUS != 0 ] ; then
 %s
 fi
-`, script, onErrorScript(saveArtifactsOnFailure, saveArtifactsOnFailurePath))
+`, script, onErrorScript(task.SaveArtifactsOnFailure, saveArtifactsOnFailurePath))
 	out = append(out, scriptCall)
 
-	if len(saveArtifacts) != 0 {
+	if len(task.SaveArtifacts) != 0 {
 		out = append(out, "# Artifacts to copy from task")
 	}
-	for _, artifactPath := range saveArtifacts {
+	for _, artifactPath := range task.SaveArtifacts {
 		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, artifactsOutPath))
 		//out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
 	}
