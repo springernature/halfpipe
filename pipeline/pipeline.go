@@ -630,34 +630,18 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 
 func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
 	var savesArtifacts bool
-	var savesArtifactsOnFailure bool
 	var restoresArtifacts bool
 
-	for _, t := range man.Tasks {
-		switch task := t.(type) {
-		case manifest.Run:
-			if len(task.SaveArtifacts) > 0 {
-				savesArtifacts = true
-			}
-			if len(task.SaveArtifactsOnFailure) > 0 {
-				savesArtifactsOnFailure = true
-			}
-		case manifest.DockerCompose:
-			if len(task.SaveArtifacts) > 0 {
-				savesArtifacts = true
-			}
-			if len(task.SaveArtifactsOnFailure) > 0 {
-				savesArtifactsOnFailure = true
-			}
-		case manifest.DeployCF:
-			if task.DeployArtifact != "" {
-				restoresArtifacts = true
-			}
+	for _, task := range man.Tasks {
+		if task.SavesArtifacts() || task.SavesArtifactsOnFailure() {
+			savesArtifacts = true
 		}
-
+		if task.ReadsFromArtifacts() {
+			restoresArtifacts = true
+		}
 	}
 
-	if savesArtifacts || savesArtifactsOnFailure || restoresArtifacts {
+	if savesArtifacts || restoresArtifacts {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
 		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline, man.ArtifactConfig))
 	}
