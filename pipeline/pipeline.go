@@ -359,7 +359,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsOutDirOnFailure,
+				"folder":       artifactsInDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}

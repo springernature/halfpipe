@@ -10,6 +10,8 @@ tasks:
   save_artifacts:
   - target/distribution
   - README.md
+  save_artifacts_on_failure:
+  - .halfpipe.io.yml
   docker:
     image: node:9.5.0-alpine
 
@@ -99,6 +101,8 @@ tasks:
 - type: docker-compose
   vars:
     A: a
+  save_artifacts_on_failure:
+    - docker-compose.yml
 
 - type: consumer-integration-test
   name: another-c-name

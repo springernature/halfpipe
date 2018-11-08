@@ -7,11 +7,17 @@ resources:
     branch: master
     private_key: ((github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: slack
+- name: slack-notification
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
 - name: artifacts-engineering-enablement-e2e-test
+  type: gcp-resource
+  source:
+    bucket: halfpipe-io-artifacts
+    folder: engineering-enablement/e2e-test
+    json_key: ((gcr.private_key))
+- name: artifacts-engineering-enablement-e2e-test-on-failure
   type: gcp-resource
   source:
     bucket: halfpipe-io-artifacts
@@ -67,7 +73,7 @@ resource_types:
   type: docker-image
   source:
     repository: platformengineering/gcp-resource
-    tag: 0.21.0
+    tag: stable
 - name: cf-resource
   type: docker-image
   source:
@@ -83,7 +89,7 @@ jobs:
     params:
       bump: minor
   on_failure:
-    put: slack
+    put: slack-notification
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -116,7 +122,7 @@ jobs:
         path: /bin/sh
         args:
         - -c
-        - |
+        - |-
           which bash > /dev/null
           if [ $? != 0 ]; then
             echo "WARNING: Bash is not present in the docker image"
@@ -126,45 +132,44 @@ jobs:
             echo ""
             echo ""
           fi
-          set -e
+
+          function copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+            if [ -d $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+            elif [ -f $ARTIFACT ] ; then
+              ARTIFACT_DIR=$(dirname $ARTIFACT)
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           ./test.sh
-
-          if [ -d target/distribution ]
-          then
-            mkdir -p ../../artifacts-out/target/distribution
-            cp -r target/distribution/. ../../artifacts-out/target/distribution/
-          elif [ -f target/distribution ]
-          then
-            artifactDir=$(dirname target/distribution)
-            mkdir -p ../../artifacts-out/$artifactDir
-            cp target/distribution ../../artifacts-out/$artifactDir
-          else
-            echo "ERROR: Artifact 'target/distribution' not found. Try fly hijack to check the filesystem."
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
             exit 1
           fi
 
-
-          if [ -d README.md ]
-          then
-            mkdir -p ../../artifacts-out/README.md
-            cp -r README.md/. ../../artifacts-out/README.md/
-          elif [ -f README.md ]
-          then
-            artifactDir=$(dirname README.md)
-            mkdir -p ../../artifacts-out/$artifactDir
-            cp README.md ../../artifacts-out/$artifactDir
-          else
-            echo "ERROR: Artifact 'README.md' not found. Try fly hijack to check the filesystem."
-            exit 1
-          fi
+          # Artifacts to copy from task
+          copyArtifact target/distribution ../../artifacts-out
+          copyArtifact README.md ../../artifacts-out
         dir: git/e2e_test_versioned
       inputs:
       - name: git
       - name: version
       outputs:
       - name: artifacts-out
+      - name: artifacts-out-failure
       caches:
       - path: ../../../halfpipe-cache
     attempts: 1
@@ -174,12 +179,19 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: artifacts-on-failure
+      resource: artifacts-engineering-enablement-e2e-test-on-failure
+      params:
+        folder: artifacts-out-failure
+        postfix: failure
+        version_file: git/.git/ref
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: deploy to cf
   serial: true
   plan:
@@ -215,12 +227,13 @@ jobs:
       timeout: 5m
     attempts: 2
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
@@ -276,7 +289,7 @@ jobs:
             path: /bin/sh
             args:
             - -c
-            - |-
+            - |
               which bash > /dev/null
               if [ $? != 0 ]; then
                 echo "WARNING: Bash is not present in the docker image"
@@ -286,11 +299,18 @@ jobs:
                 echo ""
                 echo ""
               fi
+
+              # Copying in artifacts from previous task
               cp -r ../../artifacts/. .
-              set -e
+
               export GIT_REVISION=`cat ../.git/ref`
               export BUILD_VERSION=`cat ../../version/version`
+
               ./smoke-test.sh
+              EXIT_STATUS=$?
+              if [ $EXIT_STATUS != 0 ] ; then
+                exit 1
+              fi
             dir: git/e2e_test_versioned
           inputs:
           - name: git
@@ -330,9 +350,9 @@ jobs:
             args:
             - -c
             - |
-              set -e
               export GIT_REVISION=`cat ../.git/ref`
               export BUILD_VERSION=`cat ../../version/version`
+
               \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
               # write git key to file
@@ -358,6 +378,11 @@ jobs:
                 -e DEPENDENCY_NAME=${PROVIDER_NAME} \
                 -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME \
                 ${DOCKER_COMPOSE_SERVICE:-code}
+
+              EXIT_STATUS=$?
+              if [ $EXIT_STATUS != 0 ] ; then
+                exit 1
+              fi
             dir: git/e2e_test_versioned
           inputs:
           - name: git
@@ -373,12 +398,13 @@ jobs:
       testDomain: live.cf.private.springer.com
     attempts: 2
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF live pe staging
@@ -430,7 +456,7 @@ jobs:
           path: /bin/sh
           args:
           - -c
-          - |
+          - |-
             which bash > /dev/null
             if [ $? != 0 ]; then
               echo "WARNING: Bash is not present in the docker image"
@@ -440,24 +466,34 @@ jobs:
               echo ""
               echo ""
             fi
-            set -e
+
+            function copyArtifact() {
+              ARTIFACT=$1
+              ARTIFACT_OUT_PATH=$2
+              if [ -d $ARTIFACT ] ; then
+                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+                cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+              elif [ -f $ARTIFACT ] ; then
+                ARTIFACT_DIR=$(dirname $ARTIFACT)
+                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+                cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+              else
+                echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+                exit 1
+              fi
+            }
+
             export GIT_REVISION=`cat ../.git/ref`
             export BUILD_VERSION=`cat ../../version/version`
-            ./smoke-test.sh
 
-            if [ -d build ]
-            then
-              mkdir -p ../../artifacts-out/build
-              cp -r build/. ../../artifacts-out/build/
-            elif [ -f build ]
-            then
-              artifactDir=$(dirname build)
-              mkdir -p ../../artifacts-out/$artifactDir
-              cp build ../../artifacts-out/$artifactDir
-            else
-              echo "ERROR: Artifact 'build' not found. Try fly hijack to check the filesystem."
+            ./smoke-test.sh
+            EXIT_STATUS=$?
+            if [ $EXIT_STATUS != 0 ] ; then
               exit 1
             fi
+
+            # Artifacts to copy from task
+            copyArtifact build ../../artifacts-out
           dir: git/e2e_test_versioned
         inputs:
         - name: git
@@ -495,7 +531,7 @@ jobs:
           path: /bin/sh
           args:
           - -c
-          - |-
+          - |
             which bash > /dev/null
             if [ $? != 0 ]; then
               echo "WARNING: Bash is not present in the docker image"
@@ -505,11 +541,18 @@ jobs:
               echo ""
               echo ""
             fi
+
+            # Copying in artifacts from previous task
             cp -r ../../artifacts/. .
-            set -e
+
             export GIT_REVISION=`cat ../.git/ref`
             export BUILD_VERSION=`cat ../../version/version`
+
             ./smoke-test.sh
+            EXIT_STATUS=$?
+            if [ $EXIT_STATUS != 0 ] ; then
+              exit 1
+            fi
           dir: git/e2e_test_versioned
         inputs:
         - name: git
@@ -526,12 +569,13 @@ jobs:
       testDomain: springernature.app
     attempts: 2
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF snpaas qa
@@ -565,12 +609,13 @@ jobs:
       tag_file: version/number
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: run notify.sh
   serial: true
   plan:
@@ -602,7 +647,7 @@ jobs:
         path: /bin/sh
         args:
         - -c
-        - |-
+        - |
           which bash > /dev/null
           if [ $? != 0 ]; then
             echo "WARNING: Bash is not present in the docker image"
@@ -612,10 +657,15 @@ jobs:
             echo ""
             echo ""
           fi
-          set -e
+
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           ./notify.sh
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
@@ -624,12 +674,13 @@ jobs:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: docker-compose
   serial: true
   plan:
@@ -663,25 +714,57 @@ jobs:
         args:
         - -c
         - |
-          set -e
+          function copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+            if [ -d $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+            elif [ -f $ARTIFACT ] ; then
+              ARTIFACT_DIR=$(dirname $ARTIFACT)
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION app
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact docker-compose.yml ../../artifacts-out-failure
+            exit 1
+          fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
       - name: version
+      outputs:
+      - name: artifacts-out-failure
       caches:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: artifacts-on-failure
+      resource: artifacts-engineering-enablement-e2e-test-on-failure
+      params:
+        folder: artifacts-out-failure
+        postfix: failure
+        version_file: git/.git/ref
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: another-c-name
   serial: true
   plan:
@@ -725,9 +808,9 @@ jobs:
         args:
         - -c
         - |
-          set -e
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
           # write git key to file
@@ -753,6 +836,11 @@ jobs:
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 \
             ${DOCKER_COMPOSE_SERVICE:-code}
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
@@ -761,12 +849,13 @@ jobs:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: deploy-ml-zip
   serial: true
   plan:
@@ -798,7 +887,7 @@ jobs:
         path: /bin/sh
         args:
         - -c
-        - |-
+        - |
           which bash > /dev/null
           if [ $? != 0 ]; then
             echo "WARNING: Bash is not present in the docker image"
@@ -808,11 +897,18 @@ jobs:
             echo ""
             echo ""
           fi
+
+          # Copying in artifacts from previous task
           cp -r ../../artifacts/. .
-          set -e
+
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           /ml-deploy/deploy-local-zip
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
@@ -822,12 +918,13 @@ jobs:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 - name: Deploy ml-modules artifact
   serial: true
   plan:
@@ -860,7 +957,7 @@ jobs:
         path: /bin/sh
         args:
         - -c
-        - |-
+        - |
           which bash > /dev/null
           if [ $? != 0 ]; then
             echo "WARNING: Bash is not present in the docker image"
@@ -870,10 +967,15 @@ jobs:
             echo ""
             echo ""
           fi
-          set -e
+
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
+
           /ml-deploy/deploy-ml-modules
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
@@ -882,10 +984,11 @@ jobs:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
-    put: slack
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
+    aggregate:
+    - put: slack-notification
+      params:
+        channel: '#ee-re'
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+        username: Halfpipe
 

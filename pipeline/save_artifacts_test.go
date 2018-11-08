@@ -535,7 +535,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		assert.True(t, foundOnFailure)
 	})
 
-	t.Run("It has safe artifacts on failure and normal artifact save", func(t *testing.T) {
+	t.Run("It has save artifacts on failure and normal artifact save", func(t *testing.T) {
 		team := "team"
 		pipeline := "pipeline"
 		man := manifest.Manifest{
@@ -565,4 +565,41 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
 		assert.True(t, foundOnFailure)
 	})
+
+	t.Run("It has save artifacts, save artifacts on failure and versioned resources", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			FeatureToggles: []string{
+				manifest.FeatureVersioned,
+			},
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifactsOnFailure: []string{
+						"a",
+					},
+					SaveArtifacts: []string{
+						"b",
+					},
+				},
+			},
+		}
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.True(t, foundOnFailure)
+
+		_, foundVersion := config.Resources.Lookup(versionName)
+		assert.True(t, foundVersion)
+	})
+
 }
