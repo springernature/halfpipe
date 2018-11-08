@@ -693,7 +693,7 @@ fi
 `)
 	}
 	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
-		out = append(out, `function copyArtifact() {
+		out = append(out, `copyArtifact() {
   ARTIFACT=$1
   ARTIFACT_OUT_PATH=$2
   if [ -d $ARTIFACT ] ; then

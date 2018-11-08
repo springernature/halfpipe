@@ -106,7 +106,7 @@ jobs:
             echo ""
           fi
 
-          function copyArtifact() {
+          copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
             if [ -d $ARTIFACT ] ; then
@@ -425,7 +425,7 @@ jobs:
               echo ""
             fi
 
-            function copyArtifact() {
+            copyArtifact() {
               ARTIFACT=$1
               ARTIFACT_OUT_PATH=$2
               if [ -d $ARTIFACT ] ; then
@@ -655,7 +655,7 @@ jobs:
         args:
         - -c
         - |
-          function copyArtifact() {
+          copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
             if [ -d $ARTIFACT ] ; then
