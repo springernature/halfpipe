@@ -47,9 +47,11 @@ func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
+const slackResourceName = "slack-notification"
+
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "slack-notification",
+		Name: slackResourceName,
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
@@ -60,8 +62,8 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 
 func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: "slack",
-		Type: "slack-notification",
+		Name: slackResourceName,
+		Type: slackResourceName,
 		Source: atc.Source{
 			"url": config.SlackWebhook,
 		},
@@ -70,16 +72,16 @@ func (p pipeline) slackResource() atc.ResourceConfig {
 
 func (p pipeline) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "gcp-resource",
+		Name: artifactsResourceName,
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": "platformengineering/gcp-resource",
-			"tag":        "0.21.0",
+			"tag":        "stable",
 		},
 	}
 }
 
-func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
+func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
 	filter := func(str string) string {
 		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
 		return reg.ReplaceAllString(strings.ToLower(str), "")
@@ -97,13 +99,19 @@ func (p pipeline) gcpResource(team, pipeline string, artifactConfig manifest.Art
 
 	return atc.ResourceConfig{
 		Name: GenerateArtifactsResourceName(team, pipeline),
-		Type: "gcp-resource",
+		Type: artifactsResourceName,
 		Source: atc.Source{
 			"bucket":   bucket,
 			"folder":   path.Join(filter(team), filter(pipeline)),
 			"json_key": json_key,
 		},
 	}
+}
+
+func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
+	config := p.artifactResource(team, pipeline, artifactConfig)
+	config.Name = GenerateArtifactsOnFailureResourceName(team, pipeline)
+	return config
 }
 
 func (p pipeline) timerResource(interval string) atc.ResourceConfig {

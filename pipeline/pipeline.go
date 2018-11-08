@@ -4,10 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"text/template"
-
-	"bytes"
-
 	"path/filepath"
 
 	"sort"
@@ -37,9 +33,14 @@ func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
+const artifactsResourceName = "gcp-resource"
+
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
-const artifactsDir = "artifacts"
+const artifactsInDir = "artifacts"
+
+const artifactsOnFailureName = "artifacts-on-failure"
+const artifactsOutDirOnFailure = "artifacts-out-failure"
 
 const gitDir = "git"
 
@@ -51,30 +52,12 @@ const versionName = "version"
 const cronName = "cron"
 const timerName = "timer"
 
-func (p pipeline) addOnFailurePlan(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
-
-	if man.SlackChannel != "" {
-		return p.addSlackPlanConfig(cfg, man)
-	}
-
-	return nil
-}
-
-func (p pipeline) addSlackPlanConfig(cfg *atc.Config, man manifest.Manifest) *atc.PlanConfig {
-	slackResource := p.slackResource()
-	cfg.Resources = append(cfg.Resources, slackResource)
+func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()
 	cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
-	slackPlanConfig := atc.PlanConfig{
-		Put: slackResource.Name,
-		Params: atc.Params{
-			"channel":  man.SlackChannel,
-			"username": "Halfpipe",
-			"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
-			"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
-		},
-	}
-	return &slackPlanConfig
+
+	slackResource := p.slackResource()
+	cfg.Resources = append(cfg.Resources, slackResource)
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool) []atc.PlanConfig {
@@ -104,7 +87,10 @@ func (p pipeline) addCfResourceType(cfg *atc.Config) {
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
-	failurePlan := p.addOnFailurePlan(&cfg, man)
+	if man.SlackChannel != "" {
+		p.addSlackResourceTypeAndResource(&cfg)
+	}
+
 	p.addArtifactResource(&cfg, man)
 
 	if man.CronTrigger != "" {
@@ -124,7 +110,11 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	if man.FeatureToggles.Versioned() {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
 		job := p.versionUpdateJob(man)
-		job.Failure = failurePlan
+		if man.SlackChannel != "" {
+			failurePlan := slackOnFailurePlan(man.SlackChannel)
+			job.Failure = &failurePlan
+		}
+
 		job.Plan = append(p.initialPlan(&cfg, man, false), job.Plan...)
 		job.Plan = aggregateGets(&job)
 
@@ -185,7 +175,21 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			parallel = task.Parallel
 		}
 
-		job.Failure = failurePlan
+		if t.SavesArtifactsOnFailure() || man.SlackChannel != "" {
+			sequence := atc.PlanSequence{}
+
+			if t.SavesArtifactsOnFailure() {
+				sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
+			}
+			if man.SlackChannel != "" {
+				sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
+			}
+
+			job.Failure = &atc.PlanConfig{
+				Aggregate: &sequence,
+			}
+		}
+
 		job.Plan = append(initialPlan, job.Plan...)
 		job.Plan = aggregateGets(job)
 
@@ -285,7 +289,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, man.Repo.BasePath),
-				Args: runScriptArgs(task.Script, !isDockerCompose, pathToArtifactsDir(gitDir, man.Repo.BasePath), pathToArtifactsOutDir(gitDir, man.Repo.BasePath), task.RestoreArtifacts, task.SaveArtifacts, pathToGitRef(gitDir, man.Repo.BasePath), man.FeatureToggles.Versioned(), pathToVersionFile(man.Repo.BasePath)),
+				Args: runScriptArgs(task, man, !isDockerCompose),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -303,17 +307,15 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
-	if len(task.SaveArtifacts) > 0 {
-		runTaskIndex := 0
-		if task.RestoreArtifacts {
-			// If we restore an artifact prior to saving the
-			// get of the artifact will be the first task in the plan.
-			runTaskIndex = 1
-		}
+	runTaskIndex := 0
+	if task.RestoreArtifacts {
+		// If we restore an artifact prior to saving the
+		// get of the artifact will be the first task in the plan.
+		runTaskIndex = 1
+	}
 
-		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = []atc.TaskOutputConfig{
-			{Name: artifactsOutDir},
-		}
+	if len(task.SaveArtifacts) > 0 {
+		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 
 		artifactPut := atc.PlanConfig{
 			Put:      artifactsName,
@@ -326,13 +328,17 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
 	}
 
+	if len(task.SaveArtifactsOnFailure) > 0 {
+		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	}
+
 	return &jobConfig
 }
 
 func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config) *atc.JobConfig {
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
-	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
+	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		manifestPath = strings.TrimPrefix(task.Manifest, "../")
 	}
 
@@ -340,7 +346,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsDir, task.DeployArtifact)
+		appPath = path.Join(artifactsInDir, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -348,12 +354,12 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		Serial: true,
 	}
 
-	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsDir)) {
+	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		artifactGet := atc.PlanConfig{
 			Get:      artifactsName,
 			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
 			Params: atc.Params{
-				"folder":       artifactsDir,
+				"folder":       artifactsOutDirOnFailure,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
@@ -466,7 +472,7 @@ func buildTestRoute(appName, space, testDomain string) string {
 	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
 }
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
+func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
 	vars := task.Vars
 	if vars == nil {
 		vars = make(map[string]string)
@@ -474,7 +480,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 
 	// it is really just a special run job, so let's reuse that
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
-	runTask := manifest.Run{
+	return manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
 		Script:  dockerComposeScript(task.Service, vars, task.Command, man.FeatureToggles.Versioned()),
@@ -483,12 +489,15 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 			Username: "_json_key",
 			Password: "((gcr.private_key))",
 		},
-		Vars:             vars,
-		SaveArtifacts:    task.SaveArtifacts,
-		RestoreArtifacts: task.RestoreArtifacts,
+		Vars:                   vars,
+		SaveArtifacts:          task.SaveArtifacts,
+		RestoreArtifacts:       task.RestoreArtifacts,
+		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 	}
-	job := p.runJob(runTask, man, true)
-	return job
+}
+
+func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
+	return p.runJob(dockerComposeToRunTask(task, man), man, true)
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
@@ -537,7 +546,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 						Path: "/bin/sh",
 						Args: []string{"-c", strings.Join([]string{
 							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/. %s", artifactsDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
@@ -574,7 +583,7 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, m
 	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man)
 }
 
-func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) {
+func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {
 	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
@@ -583,18 +592,6 @@ func pathToArtifactsDir(repoName string, basePath string) (artifactPath string) 
 	}
 
 	artifactPath += artifactsDir
-	return
-}
-
-func pathToArtifactsOutDir(repoName string, basePath string) (artifactPath string) {
-	fullPath := path.Join(repoName, basePath)
-	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
-
-	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
-		artifactPath += "../"
-	}
-
-	artifactPath += artifactsOutDir
 	return
 }
 
@@ -632,27 +629,32 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 }
 
 func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
-	hasArtifacts := false
-	for _, t := range man.Tasks {
-		switch task := t.(type) {
-		case manifest.Run:
-			if len(task.SaveArtifacts) > 0 {
-				hasArtifacts = true
-			}
-		case manifest.DockerCompose:
-			if len(task.SaveArtifacts) > 0 {
-				hasArtifacts = true
-			}
-		case manifest.DeployCF:
-			if len(task.DeployArtifact) > 0 {
-				hasArtifacts = true
-			}
+	var savesArtifacts bool
+	var savesArtifactsOnFailure bool
+	var restoresArtifacts bool
+
+	for _, task := range man.Tasks {
+		if task.SavesArtifacts() {
+			savesArtifacts = true
+		}
+		if task.SavesArtifactsOnFailure() {
+			savesArtifactsOnFailure = true
+		}
+		if task.ReadsFromArtifacts() {
+			restoresArtifacts = true
 		}
 	}
 
-	if hasArtifacts {
+	if savesArtifacts || restoresArtifacts || savesArtifactsOnFailure {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-		cfg.Resources = append(cfg.Resources, p.gcpResource(man.Team, man.Pipeline, man.ArtifactConfig))
+	}
+
+	if savesArtifacts || restoresArtifacts {
+		cfg.Resources = append(cfg.Resources, p.artifactResource(man.Team, man.Pipeline, man.ArtifactConfig))
+	}
+
+	if savesArtifactsOnFailure {
+		cfg.Resources = append(cfg.Resources, p.artifactResourceOnFailure(man.Team, man.Pipeline, man.ArtifactConfig))
 	}
 }
 
@@ -669,7 +671,9 @@ func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(script string, checkForBash bool, artifactsPath string, artifactsOutPath string, restoreArtifacts bool, saveArtifacts []string, pathToGitRef string, versioningEnabled bool, pathToVersionFile string) []string {
+func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool) []string {
+
+	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
 		script = "./" + script
 	}
@@ -685,67 +689,70 @@ if [ $? != 0 ]; then
   echo "To fix, make sure your docker image contains bash!"
   echo ""
   echo ""
-fi`)
+fi
+`)
+	}
+	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
+		out = append(out, `function copyArtifact() {
+  ARTIFACT=$1
+  ARTIFACT_OUT_PATH=$2
+  if [ -d $ARTIFACT ] ; then
+    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+    cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+  elif [ -f $ARTIFACT ] ; then
+    ARTIFACT_DIR=$(dirname $ARTIFACT)
+    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+    cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+  else
+    echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+    exit 1
+  fi
+}
+`)
 	}
 
-	if restoreArtifacts {
-		out = append(out, fmt.Sprintf("cp -r %s/. .", artifactsPath))
+	if task.RestoreArtifacts {
+		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
+		out = append(out, fmt.Sprintf("cp -r %s/. .\n", pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir)))
 	}
 
 	out = append(out,
-		"set -e",
-		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef),
+		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, man.Repo.BasePath)),
 	)
 
-	if versioningEnabled {
+	if man.FeatureToggles.Versioned() {
 		out = append(out,
-			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile),
+			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(man.Repo.BasePath)),
 		)
 	}
 
-	out = append(out,
-		script,
-	)
+	scriptCall := fmt.Sprintf(`
+%s
+EXIT_STATUS=$?
+if [ $EXIT_STATUS != 0 ] ; then
+%s
+fi
+`, script, onErrorScript(task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure)))
+	out = append(out, scriptCall)
 
-	for _, artifact := range saveArtifacts {
-		out = append(out, copyArtifactScript(artifactsOutPath, artifact))
+	if len(task.SaveArtifacts) != 0 {
+		out = append(out, "# Artifacts to copy from task")
+	}
+	for _, artifactPath := range task.SaveArtifacts {
+		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir)))
+		//out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }
 
-func copyArtifactScript(artifactsPath string, saveArtifact string) string {
-	tmpl, err := template.New("runScript").Parse(`
-if [ -d {{.SaveArtifactTask}} ]
-then
-  mkdir -p {{.PathToArtifact}}/{{.SaveArtifactTask}}
-  cp -r {{.SaveArtifactTask}}/. {{.PathToArtifact}}/{{.SaveArtifactTask}}/
-elif [ -f {{.SaveArtifactTask}} ]
-then
-  artifactDir=$(dirname {{.SaveArtifactTask}})
-  mkdir -p {{.PathToArtifact}}/$artifactDir
-  cp {{.SaveArtifactTask}} {{.PathToArtifact}}/$artifactDir
-else
-  echo "ERROR: Artifact '{{.SaveArtifactTask}}' not found. Try fly hijack to check the filesystem."
-  exit 1
-fi
-`)
-
-	if err != nil {
-		panic(err)
+func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) string {
+	var returnScript []string
+	if len(artifactPaths) != 0 {
+		returnScript = append(returnScript, "  # Artifacts to copy in case of failure")
 	}
-
-	byteBuffer := new(bytes.Buffer)
-	err = tmpl.Execute(byteBuffer, struct {
-		PathToArtifact   string
-		SaveArtifactTask string
-	}{
-		artifactsPath,
-		saveArtifact,
-	})
-
-	if err != nil {
-		panic(err)
+	for _, artifactPath := range artifactPaths {
+		returnScript = append(returnScript, fmt.Sprintf("  copyArtifact %s %s", artifactPath, saveArtifactsOnFailurePath))
 	}
-
-	return byteBuffer.String()
+	returnScript = append(returnScript, "  exit 1")
+	return strings.Join(returnScript, "\n")
 }

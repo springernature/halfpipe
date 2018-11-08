@@ -81,3 +81,31 @@ func GenerateArtifactsResourceName(team string, pipeline string) string {
 	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
 	return fmt.Sprintf("artifacts-%s", postfix)
 }
+
+func GenerateArtifactsOnFailureResourceName(team string, pipeline string) string {
+	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
+	return fmt.Sprintf("artifacts-%s-on-failure", postfix)
+}
+func saveArtifactOnFailurePlan(team, pipeline string) atc.PlanConfig {
+	return atc.PlanConfig{
+		Put:      artifactsOnFailureName,
+		Resource: GenerateArtifactsOnFailureResourceName(team, pipeline),
+		Params: atc.Params{
+			"folder":       artifactsOutDirOnFailure,
+			"version_file": path.Join(gitDir, ".git", "ref"),
+			"postfix":      "failure",
+		},
+	}
+}
+
+func slackOnFailurePlan(channel string) atc.PlanConfig {
+	return atc.PlanConfig{
+		Put: slackResourceName,
+		Params: atc.Params{
+			"channel":  channel,
+			"username": "Halfpipe",
+			"icon_url": "https://concourse.halfpipe.io/public/images/favicon-failed.png",
+			"text":     "The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>",
+		},
+	}
+}

@@ -2,10 +2,12 @@ package pipeline
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"path"
 
+	"github.com/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,17 +18,170 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
 	man.Repo.URI = gitURI
+	runTask := manifest.Run{
+		Script:        "./build.sh",
+		SaveArtifacts: []string{"build/lib"},
+	}
 	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script:        "./build.sh",
-			SaveArtifacts: []string{"build/lib"},
-		},
+		runTask,
 	}
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "", "../artifacts-out", false, []string{"build/lib"}, ".git/ref", false, "")
+	expectedRunScript := runScriptArgs(runTask, manifest.Manifest{}, true)
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
+}
+
+func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
+	gitURI := "git@github.com:springernature/yolo.git"
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+
+	run1 := "run1"
+	run2 := "run2"
+	run3 := "run3"
+	dockerCompose1 := "dockerCompose1"
+	dockerCompose2 := "dockerCompose2"
+	dockerCompose3 := "dockerCompose3"
+
+	team := "myTeam"
+	pipeline := "myPipeline"
+
+	man.Team = team
+	man.Pipeline = pipeline
+	man.Tasks = []manifest.Task{
+		manifest.Run{
+			Name:                   run1,
+			Script:                 "./build.sh",
+			SaveArtifacts:          []string{"build/lib"},
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+		manifest.Run{
+			Name:                   run2,
+			Script:                 "./build.sh",
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+		manifest.Run{
+			Name:                   run3,
+			Script:                 "./build.sh",
+			RestoreArtifacts:       true,
+			SaveArtifacts:          []string{"build/lib"},
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+		manifest.DockerCompose{
+			Name:                   dockerCompose1,
+			SaveArtifacts:          []string{"build/lib"},
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+		manifest.DockerCompose{
+			Name:                   dockerCompose2,
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+		manifest.DockerCompose{
+			Name:                   dockerCompose3,
+			RestoreArtifacts:       true,
+			SaveArtifacts:          []string{"build/lib"},
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+	}
+
+	containsPut := func(putName string, config atc.JobConfig) bool {
+		for _, c := range config.Plan {
+			if c.Put == putName {
+				return true
+			}
+		}
+		return false
+	}
+
+	renderedPipeline := testPipeline().Render(man)
+	config1, _ := renderedPipeline.Jobs.Lookup(run1)
+	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.True(t, containsPut(artifactsName, config1))
+
+	config2, _ := renderedPipeline.Jobs.Lookup(run2)
+	assert.NotContains(t, config2.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config2.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.False(t, containsPut(artifactsName, config2))
+
+	config3, _ := renderedPipeline.Jobs.Lookup(run3)
+	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.True(t, containsPut(artifactsName, config3))
+
+	config4, _ := renderedPipeline.Jobs.Lookup(dockerCompose1)
+	assert.Contains(t, config4.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config4.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.True(t, containsPut(artifactsName, config4))
+
+	config5, _ := renderedPipeline.Jobs.Lookup(dockerCompose2)
+	assert.NotContains(t, config5.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config5.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.False(t, containsPut(artifactsName, config5))
+
+	config6, _ := renderedPipeline.Jobs.Lookup(dockerCompose3)
+	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.True(t, containsPut(artifactsName, config6))
+}
+
+func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
+	gitURI := "git@github.com:springernature/yolo.git"
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+
+	name := "name"
+
+	team := "myTeam"
+	pipeline := "myPipeline"
+
+	man.Team = team
+	man.Pipeline = pipeline
+	man.Tasks = []manifest.Task{
+		manifest.Run{
+			Name:                   name,
+			Script:                 "./build.sh",
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+	}
+
+	renderedPipeline := testPipeline().Render(man)
+	config, _ := renderedPipeline.Jobs.Lookup(name)
+	assert.Contains(t, config.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+
+	failurePlan := (*config.Failure.Aggregate)[0]
+
+	assert.Equal(t, artifactsOnFailureName, failurePlan.Put)
+	assert.Equal(t, GenerateArtifactsOnFailureResourceName(team, pipeline), failurePlan.Resource)
+	assert.Equal(t, artifactsOutDirOnFailure, failurePlan.Params["folder"])
+	assert.Equal(t, "git/.git/ref", failurePlan.Params["version_file"])
+	assert.Equal(t, "failure", failurePlan.Params["postfix"])
+}
+
+func TestRendersPipelineFailureOutputHasResourceDef(t *testing.T) {
+	gitURI := "git@github.com:springernature/yolo.git"
+	man := manifest.Manifest{}
+	man.Repo.URI = gitURI
+
+	name := "name"
+
+	team := "myTeam"
+	pipeline := "myPipeline"
+
+	man.Team = team
+	man.Pipeline = pipeline
+	man.Tasks = []manifest.Task{
+		manifest.Run{
+			Name:                   name,
+			Script:                 "./build.sh",
+			SaveArtifactsOnFailure: []string{"test-reports"},
+		},
+	}
+
+	renderedPipeline := testPipeline().Render(man)
+	_, found := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
+	assert.True(t, found)
 }
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
@@ -36,16 +191,17 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	man := manifest.Manifest{}
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
+	runTask := manifest.Run{
+		Script:        "./build.sh",
+		SaveArtifacts: []string{"build/lib"},
+	}
 	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script:        "./build.sh",
-			SaveArtifacts: []string{"build/lib"},
-		},
+		runTask,
 	}
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
-	expectedRunScript := runScriptArgs("./build.sh", true, "", "../../../artifacts-out", false, []string{"build/lib"}, "../../.git/ref", false, "")
+	expectedRunScript := runScriptArgs(runTask, man, true)
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
 }
 
@@ -70,7 +226,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 			},
 		},
 	}
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	renderedPipeline := testPipeline().Render(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -79,7 +235,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 	assert.Equal(t, artifactsOutDir, renderedPipeline.Jobs[0].Plan[2].Params["folder"])
 	assert.Equal(t, gitDir+"/.git/ref", renderedPipeline.Jobs[0].Plan[2].Params["version_file"])
 
-	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
+	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
@@ -104,16 +260,16 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 1)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 
-	assert.Equal(t, artifactsDir, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
+	assert.Equal(t, artifactsName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, gitDir+"/.git/ref", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Params["version_file"])
 
-	resourceType, _ := renderedPipeline.ResourceTypes.Lookup("gcp-resource")
+	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
 	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
@@ -146,7 +302,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -156,7 +312,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
 
-	expectedAppPath := fmt.Sprintf("%s/%s", artifactsDir, deployArtifactPath)
+	expectedAppPath := fmt.Sprintf("%s/%s", artifactsInDir, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
@@ -178,7 +334,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -187,28 +343,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	// order if the plans is important
 	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
-	assert.Equal(t, artifactsDir+"/build/lib/artifact.jar", renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
-}
-
-func TestCopyArtifactScript(t *testing.T) {
-	actual := copyArtifactScript("../../artifacts", "target/dist/artifact.jar")
-
-	expected := `
-if [ -d target/dist/artifact.jar ]
-then
-  mkdir -p ../../artifacts/target/dist/artifact.jar
-  cp -r target/dist/artifact.jar/. ../../artifacts/target/dist/artifact.jar/
-elif [ -f target/dist/artifact.jar ]
-then
-  artifactDir=$(dirname target/dist/artifact.jar)
-  mkdir -p ../../artifacts/$artifactDir
-  cp target/dist/artifact.jar ../../artifacts/$artifactDir
-else
-  echo "ERROR: Artifact 'target/dist/artifact.jar' not found. Try fly hijack to check the filesystem."
-  exit 1
-fi
-`
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
 }
 
 func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
@@ -227,7 +362,7 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 
 	hasArtifactGet := func() bool {
 		for _, task := range *config.Jobs[0].Plan[0].Aggregate {
-			if task.Get == artifactsDir {
+			if task.Get == artifactsName {
 				return true
 			}
 		}
@@ -236,4 +371,198 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 
 	assert.True(t, hasArtifactGet())
 	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+}
+
+func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
+	jarOutputFolder := "build/jars"
+	testReportsFolder := "build/test-reports"
+
+	team := "team"
+	pipeline := "pipeline"
+	man := manifest.Manifest{
+		Team:     team,
+		Pipeline: pipeline,
+		Repo: manifest.Repo{
+			BasePath: "yeah/yeah",
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{
+				Script: "\\make ; ls -al",
+				SaveArtifacts: []string{
+					jarOutputFolder,
+				},
+				SaveArtifactsOnFailure: []string{
+					testReportsFolder,
+				},
+			},
+		},
+	}
+
+	config := testPipeline().Render(man)
+
+	_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+	assert.True(t, found)
+
+	_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+	assert.True(t, foundOnFailure)
+
+	assert.Equal(t, artifactsOutDir, config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+	assert.Equal(t, artifactsOutDirOnFailure, config.Jobs[0].Plan[1].TaskConfig.Outputs[1].Name)
+
+	assert.Equal(t, atc.PlanConfig{
+		Put:      artifactsName,
+		Resource: GenerateArtifactsResourceName(team, pipeline),
+		Params: atc.Params{
+			"folder":       artifactsOutDir,
+			"version_file": "git/.git/ref",
+		},
+	}, config.Jobs[0].Plan[2])
+
+	failureAggregate := config.Jobs[0].Failure.Aggregate
+	assert.Equal(t, saveArtifactOnFailurePlan(team, pipeline), (*failureAggregate)[0])
+
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))
+}
+
+func TestRenderRunWithCorrectResources(t *testing.T) {
+
+	t.Run("It has no artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.False(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+
+	})
+
+	t.Run("It has restore artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					RestoreArtifacts: true,
+					Script:           "\\make ; ls -al",
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifacts: []string{
+						"a",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.False(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts on failure", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifactsOnFailure: []string{
+						"a",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.False(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.True(t, foundOnFailure)
+	})
+
+	t.Run("It has safe artifacts on failure and normal artifact save", func(t *testing.T) {
+		team := "team"
+		pipeline := "pipeline"
+		man := manifest.Manifest{
+			Team:     team,
+			Pipeline: pipeline,
+			Repo: manifest.Repo{
+				BasePath: "yeah/yeah",
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script: "\\make ; ls -al",
+					SaveArtifactsOnFailure: []string{
+						"a",
+					},
+					SaveArtifacts: []string{
+						"b",
+					},
+				},
+			},
+		}
+
+		config := testPipeline().Render(man)
+
+		_, found := config.Resources.Lookup(GenerateArtifactsResourceName(team, pipeline))
+		assert.True(t, found)
+
+		_, foundOnFailure := config.Resources.Lookup(GenerateArtifactsOnFailureResourceName(team, pipeline))
+		assert.True(t, foundOnFailure)
+	})
 }

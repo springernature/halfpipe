@@ -11,8 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) *atc.JobConfig {
-
+func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
@@ -21,7 +20,7 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(man.Pipeline))
 
-	// it is really just a special run job, so let's reuse that
+
 	runTask := manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
@@ -49,7 +48,12 @@ func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTe
 		runTask.Vars[key] = val
 	}
 
-	job := p.runJob(runTask, man, true)
+	return runTask
+}
+
+func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) *atc.JobConfig {
+	// it is really just a special run job, so let's reuse that
+	job := p.runJob(consumerIntegrationTestToRunTask(task, man), man, true)
 	return job
 }
 

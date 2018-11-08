@@ -233,7 +233,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -333,7 +333,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsDir, man.Team, man.Pipeline)
+	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -385,7 +385,7 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 		Username:   "user",
 		Password:   "password",
 		TestDomain: "test.domain",
-		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsDir),
+		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsInDir),
 	}
 
 	man := manifest.Manifest{
@@ -397,8 +397,8 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 
 	getSteps := *plan[0].Aggregate
 	assert.Equal(t, gitDir, getSteps[0].Get)
-	assert.Equal(t, artifactsDir, getSteps[1].Get)
+	assert.Equal(t, artifactsName, getSteps[1].Get)
 
-	assert.Equal(t, artifactsDir+"/manifest.yml", plan[1].Params["manifestPath"])
+	assert.Equal(t, path.Join(artifactsInDir, "manifest.yml"), plan[1].Params["manifestPath"])
 
 }

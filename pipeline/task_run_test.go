@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/concourse/atc"
@@ -12,20 +13,21 @@ import (
 func TestRenderRunTask(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Retries: 2,
-			Script:  "./yolo.sh",
-			Docker: manifest.Docker{
-				Image:    "imagename:TAG",
-				Username: "",
-				Password: "",
-			},
-			Vars: manifest.Vars{
-				"VAR1": "Value1",
-				"VAR2": "Value2",
-			},
+	runTask := manifest.Run{
+		Retries: 2,
+		Script:  "./yolo.sh",
+		Docker: manifest.Docker{
+			Image:    "imagename:TAG",
+			Username: "",
+			Password: "",
 		},
+		Vars: manifest.Vars{
+			"VAR1": "Value1",
+			"VAR2": "Value2",
+		},
+	}
+	man.Tasks = []manifest.Task{
+		runTask,
 	}
 
 	expected := atc.JobConfig{
@@ -53,7 +55,7 @@ func TestRenderRunTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir,
-						Args: runScriptArgs("./yolo.sh", true, "", "", false, nil, ".git/ref", false, ""),
+						Args: runScriptArgs(runTask, manifest.Manifest{}, true),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -67,19 +69,20 @@ func TestRenderRunTask(t *testing.T) {
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./yolo.sh",
-			Docker: manifest.Docker{
-				Image:    "imagename:TAG",
-				Username: "user",
-				Password: "pass",
-			},
-			Vars: map[string]string{
-				"VAR1": "Value1",
-				"VAR2": "Value2",
-			},
+	runTask := manifest.Run{
+		Script: "./yolo.sh",
+		Docker: manifest.Docker{
+			Image:    "imagename:TAG",
+			Username: "user",
+			Password: "pass",
 		},
+		Vars: map[string]string{
+			"VAR1": "Value1",
+			"VAR2": "Value2",
+		},
+	}
+	man.Tasks = []manifest.Task{
+		runTask,
 	}
 
 	expected := atc.JobConfig{
@@ -109,7 +112,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir,
-						Args: runScriptArgs("./yolo.sh", true, "", "", false, nil, ".git/ref", false, ""),
+						Args: runScriptArgs(runTask, manifest.Manifest{}, true),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -127,17 +130,18 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	man.Repo.BasePath = basePath
 
-	man.Tasks = []manifest.Task{
-		manifest.Run{
-			Script: "./yolo.sh",
-			Docker: manifest.Docker{
-				Image: "imagename:TAG",
-			},
-			Vars: map[string]string{
-				"VAR1": "Value1",
-				"VAR2": "Value2",
-			},
+	runTask := manifest.Run{
+		Script: "./yolo.sh",
+		Docker: manifest.Docker{
+			Image: "imagename:TAG",
 		},
+		Vars: map[string]string{
+			"VAR1": "Value1",
+			"VAR2": "Value2",
+		},
+	}
+	man.Tasks = []manifest.Task{
+		runTask,
 	}
 
 	expected := atc.JobConfig{
@@ -165,7 +169,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "/bin/sh",
 						Dir:  gitDir + "/" + basePath,
-						Args: runScriptArgs("./yolo.sh", true, "", "", false, nil, "../.git/ref", false, ""),
+						Args: runScriptArgs(runTask, man, true),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -178,15 +182,15 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 }
 
 func TestRunScriptArgs(t *testing.T) {
-	withNoArtifacts := runScriptArgs("./build.sh", true, "", "", false, nil, ".git/ref", false, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	withNoArtifacts := runScriptArgs(manifest.Run{Script: "./build.sh"}, manifest.Manifest{}, true)
+	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n"}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
 
 func TestRunScriptArgsWhenInMonoRepo(t *testing.T) {
-	withNoArtifacts := runScriptArgs("./build.sh", true, "", "", false, nil, ".git/ref", false, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n./build.sh"}
+	withNoArtifacts := runScriptArgs(manifest.Run{Script: "./build.sh"}, manifest.Manifest{}, true)
+	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n"}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
@@ -202,8 +206,8 @@ func TestRunScriptPath(t *testing.T) {
 	}
 
 	for initial, updated := range tests {
-		args := runScriptArgs(initial, true, "", "", false, nil, ".git/ref", false, "")
-		expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\nset -e\nexport GIT_REVISION=`cat .git/ref`\n" + updated}
+		args := runScriptArgs(manifest.Run{Script: initial}, manifest.Manifest{}, true)
+		expected := []string{"-c", fmt.Sprintf("which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n%s\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n", updated)}
 
 		assert.Equal(t, expected, args, initial)
 	}

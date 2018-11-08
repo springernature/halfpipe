@@ -24,20 +24,21 @@ func TestRenderDockerComposeTask(t *testing.T) {
 	p := testPipeline()
 
 	service := "asdf"
+	dockerComposeTask := manifest.DockerCompose{
+		Name:    "",
+		Service: service,
+		Vars: manifest.Vars{
+			"VAR1": "Value1",
+			"VAR2": "Value2",
+		},
+	}
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
 			URI:      "git@git:user/repo",
 			BasePath: "base.path",
 		},
 		Tasks: []manifest.Task{
-			manifest.DockerCompose{
-				Name:    "",
-				Service: service,
-				Vars: manifest.Vars{
-					"VAR1": "Value1",
-					"VAR2": "Value2",
-				},
-			},
+			dockerComposeTask,
 		},
 	}
 
@@ -63,7 +64,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeScript(service, expectedVars, "", false), false, "", "", false, nil, "../.git/ref", false, ""),
+						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
@@ -78,21 +79,22 @@ func TestRenderDockerComposeTask(t *testing.T) {
 func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	p := testPipeline()
 
+	dockerComposeTask := manifest.DockerCompose{
+		Name:    "",
+		Service: "app",
+		Command: "/usr/bin/a-command",
+		Vars: manifest.Vars{
+			"VAR1": "Value 1",
+			"VAR2": "Value 2",
+		},
+	}
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
 			URI:      "git@git:user/repo",
 			BasePath: "base.path",
 		},
 		Tasks: []manifest.Task{
-			manifest.DockerCompose{
-				Name:    "",
-				Service: "app",
-				Command: "/usr/bin/a-command",
-				Vars: manifest.Vars{
-					"VAR1": "Value 1",
-					"VAR2": "Value 2",
-				},
-			},
+			dockerComposeTask,
 		},
 	}
 
@@ -118,7 +120,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeScript("app", expectedVars, "/usr/bin/a-command", false), false, "", "", false, nil, "../.git/ref", false, ""),
+						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},
