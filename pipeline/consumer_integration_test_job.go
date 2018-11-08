@@ -20,7 +20,6 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(man.Pipeline))
 
-
 	runTask := manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
