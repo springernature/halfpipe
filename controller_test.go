@@ -24,24 +24,16 @@ func testController() Controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return Controller{
-		Fs:         fs,
-		CurrentDir: "/pwd/foo",
-		Defaulter:  defaults.DefaultValues,
+		Fs:               fs,
+		CurrentDir:       "/pwd/foo",
+		Defaulter:        defaults.DefaultValues,
+		HalfpipeFilePath: ".halfpipe.io",
 	}
-}
-
-func TestProcessDoesNothingWhenFilesDoNotExist(t *testing.T) {
-	c := testController()
-	pipeline, results := c.Process()
-
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 1)
-	assert.IsType(t, errors.HalfpipeFileError{}, results[0].Errors[0])
 }
 
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io.yml", []byte(validHalfpipeYaml), 0777)
+	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{

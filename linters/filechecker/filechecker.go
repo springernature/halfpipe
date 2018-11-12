@@ -2,9 +2,11 @@ package filechecker
 
 import (
 	"fmt"
-
+	errors2 "github.com/pkg/errors"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/errors"
+	"path"
 )
 
 func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
@@ -45,25 +47,25 @@ func ReadFile(fs afero.Afero, path string) (content string, err error) {
 	content = string(bytez)
 	return
 }
-
-func ReadHalfpipeFiles(fs afero.Afero, paths []string) (content string, err error) {
+func GetHalfpipeFilePath(fs afero.Afero, workingDir string) (halfpipeFilePath string, err error) {
 	var foundPaths []string
 
-	for _, path := range paths {
-		if exists, fileNotExistErr := fs.Exists(path); exists && fileNotExistErr == nil {
-			foundPaths = append(foundPaths, path)
+	for _, p := range config.HalfpipeFilenameOptions {
+		joinedPath := path.Join(workingDir, p)
+		if exists, fileNotExistErr := fs.Exists(joinedPath); exists && fileNotExistErr == nil {
+			foundPaths = append(foundPaths, p)
 		}
 	}
 
 	if len(foundPaths) > 1 {
-		err = errors.NewHalfpipeFileError(fmt.Sprintf("found %s files. Please use only 1 of those", foundPaths))
+		err = errors2.New(fmt.Sprintf("found %s files. Please use only 1 of those", foundPaths))
 		return
 	}
 
 	if len(foundPaths) == 0 {
-		err = errors.NewHalfpipeFileError(fmt.Sprintf("couldn't find any of the allowed %s files", paths))
+		err = errors2.New(fmt.Sprintf("couldn't find any of the allowed %s files", config.HalfpipeFilenameOptions))
 		return
 	}
 
-	return ReadFile(fs, foundPaths[0])
+	return foundPaths[0], nil
 }

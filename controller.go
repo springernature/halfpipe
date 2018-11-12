@@ -1,32 +1,28 @@
 package halfpipe
 
 import (
-	"path/filepath"
-
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
+	"path"
 )
 
 type Controller struct {
-	Fs         afero.Afero
-	CurrentDir string
-	Defaulter  defaults.Defaults
-	Linters    []linters.Linter
-	Renderer   pipeline.Renderer
+	Fs               afero.Afero
+	CurrentDir       string
+	Defaulter        defaults.Defaults
+	Linters          []linters.Linter
+	Renderer         pipeline.Renderer
+	HalfpipeFilePath string
 }
 
 func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
-	yaml, err := filechecker.ReadHalfpipeFiles(c.Fs, []string{
-		filepath.Join(c.CurrentDir, config.HalfpipeFile),
-		filepath.Join(c.CurrentDir, config.HalfpipeFileWithYML),
-		filepath.Join(c.CurrentDir, config.HalfpipeFileWithYAML)})
+	yaml, err := filechecker.ReadFile(c.Fs, path.Join(c.CurrentDir, c.HalfpipeFilePath))
 	if err != nil {
 		errors = append(errors, err)
 		return

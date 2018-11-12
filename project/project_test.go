@@ -49,6 +49,7 @@ func TestErrorsIfNoGitOriginConfigured(t *testing.T) {
 func TestGetsGitData(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
+	pr.Fs.Create("/project/root/.halfpipe.io")
 
 	project, err := pr.Parse("/project/root")
 
@@ -67,6 +68,10 @@ func TestBasePathWhenInGitRepo(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/home/simon/src/repo/.git", 0777)
 	pr.Fs.MkdirAll("/home/simon/src/repo/sub1/sub2/sub3", 0777)
+	pr.Fs.Create("/home/simon/src/repo/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/sub2/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/sub2/sub3/.halfpipe.io")
 
 	assertBasePath(t, pr, "/home/simon/src/repo", "")
 	assertBasePath(t, pr, "/home/simon/src/repo/sub1", "sub1")
@@ -85,6 +90,10 @@ func TestRootNameWhenInGitRepo(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/home/simon/src/repo/.git", 0777)
 	pr.Fs.MkdirAll("/home/simon/src/repo/sub1/sub2/sub3", 0777)
+	pr.Fs.Create("/home/simon/src/repo/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/sub2/.halfpipe.io")
+	pr.Fs.Create("/home/simon/src/repo/sub1/sub2/sub3/.halfpipe.io")
 
 	assertRootName(t, pr, "/home/simon/src/repo", "repo")
 	assertRootName(t, pr, "/home/simon/src/repo/sub1", "repo")

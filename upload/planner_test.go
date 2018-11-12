@@ -57,7 +57,7 @@ var envResolver = func(envVar string) string {
 func TestReturnsErrWhenHalfpipeFileDoesntExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver)
+	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -77,7 +77,7 @@ func TestReturnsReadableErrorWhenFlyIsNotOnPath(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolverWithoutFly, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "master", osResolver, envResolver)
+	}, false, "master", osResolver, envResolver, "")
 
 	_, err := planner.Plan()
 	assert.Equal(t, ErrFlyNotInstalled(osResolver()), err)
@@ -87,7 +87,7 @@ func TestReturnsErrWhenHalfpipeDoesntContainTeamOrPipeline(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 
-	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver)
+	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
 	_, err := planner.Plan()
 
 	assert.Error(t, err)
@@ -101,7 +101,7 @@ func TestReturnsAPlanWithLogin(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "master", osResolver, envResolver)
+	}, false, "master", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
@@ -140,7 +140,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "master", osResolver, envResolver)
+	}, false, "master", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
@@ -173,7 +173,7 @@ func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "master", osResolver, envResolver)
+	}, false, "master", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
@@ -206,7 +206,7 @@ func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, true, "master", osResolver, envResolver)
+	}, true, "master", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	expectedPlan := Plan{
@@ -239,7 +239,7 @@ func TestReturnsAUnpausePlan(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, true, "master", osResolver, envResolver)
+	}, true, "master", osResolver, envResolver, "")
 	plan, err := planner.Unpause()
 
 	expectedPlan := Plan{
@@ -264,7 +264,7 @@ func TestReturnsAUnpausePlanForBranch(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, true, "master", osResolver, envResolver)
+	}, true, "master", osResolver, envResolver, "")
 	plan, err := planner.Unpause()
 
 	expectedPlan := Plan{
@@ -289,7 +289,7 @@ func TestReturnsAPlanWithSecurityQuestionIfNotOnMaster(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "a-branch", osResolver, envResolver)
+	}, false, "a-branch", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	assert.NoError(t, err)
@@ -311,7 +311,7 @@ func TestCanOverrideTheApi(t *testing.T) {
 
 	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
 		return file, nil
-	}, false, "master", osResolver, envResolver)
+	}, false, "master", osResolver, envResolver, "")
 	plan, err := planner.Plan()
 
 	assert.NoError(t, err)
