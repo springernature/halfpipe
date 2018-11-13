@@ -692,6 +692,18 @@ if [ $? != 0 ]; then
 fi
 `)
 	}
+
+	out = append(out, `if [ -e /etc/alpine-release ]
+then
+  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+  echo "There is a known issue where DNS resolving does not work as expected"
+  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+  echo "we recommend debian:stretch-slim as an alternative"
+  echo ""
+  echo ""
+fi
+`)
 	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
 		out = append(out, `copyArtifact() {
   ARTIFACT=$1
