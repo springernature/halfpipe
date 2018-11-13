@@ -134,6 +134,36 @@ func TestRunTaskDockerDefault(t *testing.T) {
 	assert.Equal(t, expectedTask2Docker, actual.Tasks[1].(manifest.Run).Docker)
 }
 
+func TestDockerComposeTaskSaveArtifactsOnFailureDefault(t *testing.T) {
+	composeDefaultService := "app"
+
+	manifestDefaults := Defaults{
+		Project: project.Data{
+			HalfpipeFilePath: ".halfpipe.io.yaml",
+		},
+		DockerComposeService: composeDefaultService,
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{},
+		},
+	}
+
+	expectedDCTask := manifest.DockerCompose{
+		SaveArtifactsOnFailure: []string{manifestDefaults.Project.HalfpipeFilePath},
+		Parallel:               false,
+		Retries:                0,
+	}
+
+	man = manifestDefaults.Update(man)
+
+
+	actual := manifestDefaults.Update(man)
+
+	assert.Equal(t, expectedDCTask.SaveArtifactsOnFailure, actual.Tasks[0].(manifest.DockerCompose).SaveArtifactsOnFailure)
+}
+
 func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 
 	manifestDefaults := Defaults{
@@ -142,11 +172,17 @@ func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 		},
 	}
 
-	task1 := manifest.Run{
-		Script: "./blah",
-		Docker: manifest.Docker{
-			Image: "Blah",
-		},
+	task1 := manifest.DockerCompose{
+		Name:                   "",
+		Command:                "",
+		ManualTrigger:          false,
+		Vars:                   nil,
+		Service:                "",
+		SaveArtifacts:          nil,
+		RestoreArtifacts:       false,
+		SaveArtifactsOnFailure: nil,
+		Parallel:               false,
+		Retries:                0,
 	}
 
 	task2 := manifest.Run{

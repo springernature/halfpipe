@@ -114,6 +114,9 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
 				}
+				if !containsHalfpipeFile(task.SaveArtifactsOnFailure) {
+					task.SaveArtifactsOnFailure = append(task.SaveArtifactsOnFailure, d.Project.HalfpipeFilePath)
+				}
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
 			case manifest.ConsumerIntegrationTest:
