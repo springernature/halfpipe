@@ -78,7 +78,7 @@ func TestReadHalfpipeFilesErrorsTwoFileOptionsExist(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte{}, 0700)
 	fs.WriteFile(".halfpipe.io.yml", []byte{}, 0700)
 
-	_, err := GetHalfpipeFilePath(fs, "")
+	_, err := GetHalfpipeFileName(fs, "")
 
 	assert.EqualError(t, err, "found [.halfpipe.io .halfpipe.io.yml] files. Please use only 1 of those")
 }
@@ -86,7 +86,7 @@ func TestReadHalfpipeFilesErrorsTwoFileOptionsExist(t *testing.T) {
 func TestReadHalfpipeFilesErrorsWhenBothOptionsAreNotThere(t *testing.T) {
 	pr := testFs()
 
-	_, err := GetHalfpipeFilePath(pr, "")
+	_, err := GetHalfpipeFileName(pr, "")
 
 	assert.EqualError(t, err, "couldn't find any of the allowed [.halfpipe.io .halfpipe.io.yml .halfpipe.io.yaml] files")
 }
@@ -94,6 +94,6 @@ func TestReadHalfpipeFilesErrorsWhenBothOptionsAreNotThere(t *testing.T) {
 func TestReadHalfpipeFilesIsHappyWithOneOfTheOptions(t *testing.T) {
 	fs := testFs()
 	fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
-	_, err := GetHalfpipeFilePath(fs, "")
+	_, err := GetHalfpipeFileName(fs, "")
 	assert.Nil(t, err)
 }

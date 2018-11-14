@@ -47,7 +47,8 @@ func ReadFile(fs afero.Afero, path string) (content string, err error) {
 	content = string(bytez)
 	return
 }
-func GetHalfpipeFilePath(fs afero.Afero, workingDir string) (halfpipeFilePath string, err error) {
+
+func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName string, err error) {
 	var foundPaths []string
 
 	for _, p := range config.HalfpipeFilenameOptions {

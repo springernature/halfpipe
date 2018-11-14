@@ -89,8 +89,7 @@ func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 		return
 	}
 
-	halfpipeFilePath, e := filechecker.GetHalfpipeFilePath(c.Fs, workingDir)
-
+	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
 		err = e
 		return

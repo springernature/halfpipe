@@ -50,7 +50,6 @@ func init() {
 			}
 
 			currentDir, err := os.Getwd()
-
 			if err != nil {
 				printErr(err)
 				os.Exit(1)

@@ -62,8 +62,7 @@ type planner struct {
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
-	halfpipeFilePath, err := filechecker.GetHalfpipeFilePath(p.fs, p.workingDir)
-
+	halfpipeFilePath, err := filechecker.GetHalfpipeFileName(p.fs, p.workingDir)
 	if err != nil {
 		return
 	}
