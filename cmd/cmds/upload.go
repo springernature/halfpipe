@@ -48,7 +48,14 @@ func init() {
 			osResolver := func() string {
 				return runtime.GOOS
 			}
-			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, pipelineFile, nonInteractive, currentBranch, osResolver, os.Getenv)
+
+			currentDir, err := os.Getwd()
+			if err != nil {
+				printErr(err)
+				os.Exit(1)
+			}
+
+			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, pipelineFile, nonInteractive, currentBranch, osResolver, os.Getenv, currentDir)
 
 			plan, err := planner.Plan()
 			if err != nil {

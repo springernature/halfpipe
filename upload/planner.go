@@ -35,7 +35,7 @@ type Planner interface {
 	Unpause() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver, envResolver EnvResolver) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver, envResolver EnvResolver, workingDir string) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
@@ -45,6 +45,7 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipel
 		currentBranch:  currentBranch,
 		oSResolver:     osResolver,
 		envResolver:    envResolver,
+		workingDir:     workingDir,
 	}
 }
 
@@ -57,10 +58,16 @@ type planner struct {
 	currentBranch  string
 	oSResolver     OSResolver
 	envResolver    EnvResolver
+	workingDir     string
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
-	yamlString, err := filechecker.ReadHalfpipeFiles(p.fs, config.HalfpipeFilenameOptions)
+	halfpipeFilePath, err := filechecker.GetHalfpipeFileName(p.fs, p.workingDir)
+	if err != nil {
+		return
+	}
+
+	yamlString, err := filechecker.ReadFile(p.fs, halfpipeFilePath)
 	if err != nil {
 		return
 	}

@@ -134,6 +134,79 @@ func TestRunTaskDockerDefault(t *testing.T) {
 	assert.Equal(t, expectedTask2Docker, actual.Tasks[1].(manifest.Run).Docker)
 }
 
+func TestDockerComposeTaskSaveArtifactsOnFailureDefault(t *testing.T) {
+	composeDefaultService := "app"
+
+	manifestDefaults := Defaults{
+		Project: project.Data{
+			HalfpipeFilePath: ".halfpipe.io.yaml",
+		},
+		DockerComposeService: composeDefaultService,
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DockerCompose{},
+		},
+	}
+
+	expectedDCTask := manifest.DockerCompose{
+		SaveArtifactsOnFailure: []string{manifestDefaults.Project.HalfpipeFilePath},
+		Parallel:               false,
+		Retries:                0,
+	}
+
+	man = manifestDefaults.Update(man)
+
+	actual := manifestDefaults.Update(man)
+
+	assert.Equal(t, expectedDCTask.SaveArtifactsOnFailure, actual.Tasks[0].(manifest.DockerCompose).SaveArtifactsOnFailure)
+}
+
+func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
+
+	manifestDefaults := Defaults{
+		Project: project.Data{
+			HalfpipeFilePath: ".halfpipe.io.yaml",
+		},
+	}
+
+	task1 := manifest.Run{
+		Script: "./blah",
+		Docker: manifest.Docker{
+			Image: "Blah",
+		},
+		SaveArtifactsOnFailure: []string{".halfpipe.io.yaml"},
+	}
+
+	task2 := manifest.Run{
+		Script: "./blah",
+		Docker: manifest.Docker{
+			Image: "Blah",
+		},
+		SaveArtifactsOnFailure: []string{"build.sh", "gradle.file"},
+	}
+
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2}}
+
+	expectedRunTask := manifest.Run{
+		Script:                 "./blah",
+		Docker:                 manifest.Docker{Image: "Blah"},
+		SaveArtifactsOnFailure: []string{manifestDefaults.Project.HalfpipeFilePath},
+	}
+
+	expectedRunTask2 := manifest.Run{
+		Script:                 "./blah",
+		Docker:                 manifest.Docker{Image: "Blah"},
+		SaveArtifactsOnFailure: []string{"build.sh", "gradle.file", manifestDefaults.Project.HalfpipeFilePath},
+	}
+
+	actual := manifestDefaults.Update(man)
+
+	assert.Equal(t, expectedRunTask.SaveArtifactsOnFailure, actual.Tasks[0].(manifest.Run).SaveArtifactsOnFailure)
+	assert.Equal(t, expectedRunTask2.SaveArtifactsOnFailure, actual.Tasks[1].(manifest.Run).SaveArtifactsOnFailure)
+}
+
 func TestDeployCfTaskWithPrePromote(t *testing.T) {
 	task := manifest.DeployCF{
 		Org:      "org",
@@ -146,7 +219,9 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 				Script: "./blah",
 				Docker: manifest.Docker{
 					Image: config.DockerRegistry + "runImage",
-				}},
+				},
+				SaveArtifactsOnFailure: []string{".halfpipe.io"}},
+
 			manifest.DockerPush{
 				Image: config.DockerRegistry + "runImage",
 			}},
@@ -172,6 +247,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 					"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 					"ARTIFACTORY_URL":      "((artifactory.url))",
 				},
+				SaveArtifactsOnFailure: []string{".halfpipe.io"},
 			},
 			manifest.DockerPush{
 				Image:    config.DockerRegistry + "runImage",

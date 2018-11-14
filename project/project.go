@@ -1,6 +1,7 @@
 package project
 
 import (
+	"github.com/springernature/halfpipe/linters/filechecker"
 	"path/filepath"
 
 	"os/exec"
@@ -13,9 +14,10 @@ import (
 )
 
 type Data struct {
-	BasePath string
-	RootName string
-	GitURI   string
+	BasePath         string
+	RootName         string
+	GitURI           string
+	HalfpipeFilePath string
 }
 
 type Project interface {
@@ -87,8 +89,15 @@ func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 		return
 	}
 
+	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
+	if e != nil {
+		err = e
+		return
+	}
+
 	p.GitURI = origin
 	p.BasePath = basePath
 	p.RootName = rootName
+	p.HalfpipeFilePath = halfpipeFilePath
 	return
 }
