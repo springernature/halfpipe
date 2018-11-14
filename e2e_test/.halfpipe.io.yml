@@ -69,6 +69,8 @@ tasks:
     vars:
       A: "blah"
     save_artifacts: ["build"]
+    save_artifacts_on_failure:
+      - docker-compose.yml
 
   - type: run
     name: restore artifact in pre promote
