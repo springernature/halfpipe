@@ -170,6 +170,11 @@ type DeployCF struct {
 }
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {
+	for _, task := range r.PrePromote {
+		if task.SavesArtifactsOnFailure() {
+			return true
+		}
+	}
 	return false
 }
 
