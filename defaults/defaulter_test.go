@@ -158,7 +158,6 @@ func TestDockerComposeTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 
 	man = manifestDefaults.Update(man)
 
-
 	actual := manifestDefaults.Update(man)
 
 	assert.Equal(t, expectedDCTask.SaveArtifactsOnFailure, actual.Tasks[0].(manifest.DockerCompose).SaveArtifactsOnFailure)
@@ -172,17 +171,12 @@ func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 		},
 	}
 
-	task1 := manifest.DockerCompose{
-		Name:                   "",
-		Command:                "",
-		ManualTrigger:          false,
-		Vars:                   nil,
-		Service:                "",
-		SaveArtifacts:          nil,
-		RestoreArtifacts:       false,
-		SaveArtifactsOnFailure: nil,
-		Parallel:               false,
-		Retries:                0,
+	task1 := manifest.Run{
+		Script: "./blah",
+		Docker: manifest.Docker{
+			Image: "Blah",
+		},
+		SaveArtifactsOnFailure: []string{".halfpipe.io.yaml"},
 	}
 
 	task2 := manifest.Run{
@@ -190,18 +184,10 @@ func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 		Docker: manifest.Docker{
 			Image: "Blah",
 		},
-		SaveArtifactsOnFailure: []string{".halfpipe.io.yml"},
-	}
-
-	task3 := manifest.Run{
-		Script: "./blah",
-		Docker: manifest.Docker{
-			Image: "Blah",
-		},
 		SaveArtifactsOnFailure: []string{"build.sh", "gradle.file"},
 	}
 
-	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2, task3}}
+	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2}}
 
 	expectedRunTask := manifest.Run{
 		Script:                 "./blah",
@@ -218,8 +204,7 @@ func TestRunTaskSaveArtifactsOnFailureDefault(t *testing.T) {
 	actual := manifestDefaults.Update(man)
 
 	assert.Equal(t, expectedRunTask.SaveArtifactsOnFailure, actual.Tasks[0].(manifest.Run).SaveArtifactsOnFailure)
-	assert.Equal(t, task2.SaveArtifactsOnFailure, actual.Tasks[1].(manifest.Run).SaveArtifactsOnFailure)
-	assert.Equal(t, expectedRunTask2.SaveArtifactsOnFailure, actual.Tasks[2].(manifest.Run).SaveArtifactsOnFailure)
+	assert.Equal(t, expectedRunTask2.SaveArtifactsOnFailure, actual.Tasks[1].(manifest.Run).SaveArtifactsOnFailure)
 }
 
 func TestDeployCfTaskWithPrePromote(t *testing.T) {
