@@ -65,6 +65,7 @@ func lintDockerComposeService(service string, fs afero.Afero) (errs []error, war
 	}
 	err = yaml.Unmarshal(content, &compose)
 	if err != nil {
+		err = errors.NewFileError("docker-compose.yml", err.Error())
 		errs = append(errs, err)
 		return
 	}

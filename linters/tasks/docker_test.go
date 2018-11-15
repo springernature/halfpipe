@@ -161,9 +161,9 @@ func TestLintDockerComposeServiceWhenFileError(t *testing.T) {
 
 func TestLintDockerComposeServiceWhenFileIsGarbage(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile("docker-compose.yml", []byte("now valid yaml"), 0777)
+	fs.WriteFile("docker-compose.yml", []byte("not valid yaml"), 0777)
 
 	errors, _ := lintDockerComposeService("someService", fs)
 	assert.Len(t, errors, 1)
-	assert.Contains(t, errors[0].Error(), "yaml: unmarshal errors")
+	helpers.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
 }
