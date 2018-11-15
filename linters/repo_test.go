@@ -45,6 +45,7 @@ func TestRepoUriIsValidUri(t *testing.T) {
 
 	result := testRepoLinter().Lint(man)
 	assert.Empty(t, result.Errors)
+	assert.Len(t, result.Warnings, 1)
 }
 
 func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
@@ -216,7 +217,7 @@ func TestRepoWhenRepoUriIsNotSameAsRepoResolver(t *testing.T) {
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 0)
-	assert.Len(t, result.Warnings, 1)
+	assert.Len(t, result.Warnings, 2)
 }
 
 func TestPassesOnRepoUriResolverErrors(t *testing.T) {

@@ -69,6 +69,10 @@ func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 		result.AddError(errors.NewInvalidField("repo.uri", "should be a ssh git url when private_key is set"))
 	}
 
+	if strings.HasPrefix(man.Repo.URI, "https") {
+		result.AddWarning(fmt.Errorf("only public repos are supported with http(s). For private repos specify repo.uri with ssh"))
+	}
+
 	for _, glob := range append(man.Repo.WatchedPaths, man.Repo.IgnoredPaths...) {
 		if err := r.checkGlob(glob, man.Repo.BasePath); err != nil {
 			result.AddError(err)
