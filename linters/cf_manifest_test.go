@@ -1,6 +1,8 @@
 package linters
 
 import (
+	"code.cloudfoundry.org/cli/types"
+	errors2 "github.com/springernature/halfpipe/linters/errors"
 	"testing"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
@@ -238,5 +240,29 @@ func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, result.Errors, 0)
+}
+
+func TestLintsBuildpackField(t *testing.T) {
+	apps := []cfManifest.Application{
+		{
+			Name:      "My-app",
+			Routes:    []string{"route1", "route2"},
+			Buildpack: types.FilteredString{Value: "kehe"},
+		},
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{
+			},
+		},
+	}
+
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Warnings, 1)
+	assert.Equal(t, errors2.NewDeprecatedBuildpackError(), result.Warnings[0])
 	assert.Len(t, result.Errors, 0)
 }

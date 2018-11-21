@@ -62,6 +62,10 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		if err := lintRoutes(manifestPath, app); err != nil {
 			result.AddError(err)
 		}
+
+		if err := lintBuildpack(app); err != nil {
+			result.AddWarning(err)
+		}
 	}
 	return
 }
@@ -84,4 +88,11 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (err error) {
 	}
 
 	return
+}
+
+func lintBuildpack(man cfManifest.Application) (err error) {
+	if man.Buildpack.Value != "" {
+		return errors.NewDeprecatedBuildpackError()
+	}
+	return nil
 }
