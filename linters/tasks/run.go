@@ -10,7 +10,7 @@ import (
 )
 
 var WarnScriptMustExistInDockerImage = func(script string) error {
-	return fmt.Errorf("make sure '%s' is availible in the docker image you have specified", script)
+	return fmt.Errorf("make sure '%s' is available in the docker image you have specified", script)
 }
 
 var WarnMakeSureScriptIsExecutable = func(script string) error {

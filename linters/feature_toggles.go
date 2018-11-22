@@ -11,12 +11,12 @@ var ErrNonSupportedFeature = func(feature string) error {
 }
 
 type featureToggleLinter struct {
-	availibleFeatures manifest.FeatureToggles
+	availableFeatures manifest.FeatureToggles
 }
 
-func NewFeatureToggleLinter(availibleFeatures manifest.FeatureToggles) featureToggleLinter {
+func NewFeatureToggleLinter(availableFeatures manifest.FeatureToggles) featureToggleLinter {
 	return featureToggleLinter{
-		availibleFeatures: availibleFeatures,
+		availableFeatures: availableFeatures,
 	}
 }
 
@@ -33,8 +33,8 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.Lin
 }
 
 func (f featureToggleLinter) featureInAvailableFeatures(feature string) bool {
-	for _, availibleFeature := range f.availibleFeatures {
-		if feature == availibleFeature {
+	for _, availableFeature := range f.availableFeatures {
+		if feature == availableFeature {
 			return true
 		}
 	}
