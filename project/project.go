@@ -92,7 +92,7 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
-		if e == errors2.NewMissingHalfpipeFileError() && !ignoreMissingHalfpipeFile {
+		if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
 			err = e
 			return
 		}
