@@ -57,7 +57,7 @@ func (s sampleGenerator) Generate() (err error) {
 		},
 	}
 
-	proj, err := s.projectResolver.Parse(s.currentDir)
+	proj, err := s.projectResolver.Parse(s.currentDir, true)
 	if err != nil {
 		return
 	}

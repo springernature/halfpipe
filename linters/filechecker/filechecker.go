@@ -64,7 +64,7 @@ func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName st
 	}
 
 	if len(foundPaths) == 0 {
-		err = errors2.New(fmt.Sprintf("couldn't find any of the allowed %s files", config.HalfpipeFilenameOptions))
+		err = errors.NewMissingHalfpipeFileError()
 		return
 	}
 
