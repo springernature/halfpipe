@@ -254,8 +254,7 @@ func TestLintsBuildpackField(t *testing.T) {
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.DeployCF{
-			},
+			manifest.DeployCF{},
 		},
 	}
 

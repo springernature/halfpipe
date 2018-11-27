@@ -134,4 +134,5 @@ func TestDoesntErrorOutIfHalfpipeFileIsMissing(t *testing.T) {
 	project, err := pr.Parse("/project/root", true)
 
 	assert.Nil(t, err)
-	assert.Equal(t, "git@origin", project.GitURI)}
+	assert.Equal(t, "git@origin", project.GitURI)
+}

@@ -1,6 +1,6 @@
 package errors
 
-type DeprecatedBuildpackError struct {}
+type DeprecatedBuildpackError struct{}
 
 func NewDeprecatedBuildpackError() DeprecatedBuildpackError {
 	return DeprecatedBuildpackError{}
