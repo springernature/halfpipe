@@ -334,7 +334,7 @@ jobs:
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-              tag: latest
+              tag: 0.2.0
               username: _json_key
           params:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -790,7 +790,7 @@ jobs:
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: latest
+          tag: 0.2.0
           username: _json_key
       params:
         A: a
@@ -881,7 +881,7 @@ jobs:
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: latest
+          tag: 0.2.0
           username: _json_key
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
