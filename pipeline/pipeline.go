@@ -67,10 +67,8 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		ImageResource: &atc.ImageResource{
 			Type: "docker-image",
 			Source: atc.Source{
-				"repository": "eu.gcr.io/halfpipe-io/artifacttest",
-				"tag":        "latest",
-				"username":   "_json_key",
-				"password":   "((gcr.private_key))",
+				"repository": "platformengineering/gcp-resource",
+				"tag":        "stable",
 			},
 		},
 		Params: map[string]string{
@@ -80,7 +78,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 			"VERSION_FILE": "git/.git/ref",
 		},
 		Run: atc.TaskRunConfig{
-			Path: "/opt/resource/wakawaka",
+			Path: "/opt/resource/download",
 			Dir:  artifactsInDir,
 			Args: []string{"."},
 		},
