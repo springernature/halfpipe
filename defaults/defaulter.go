@@ -96,10 +96,6 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				}
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 
-				if !containsHalfpipeFile(task.SaveArtifactsOnFailure) {
-					task.SaveArtifactsOnFailure = append(task.SaveArtifactsOnFailure, d.Project.HalfpipeFilePath)
-				}
-
 				tl[i] = task
 
 			case manifest.DockerPush:
@@ -113,9 +109,6 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 			case manifest.DockerCompose:
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
-				}
-				if !containsHalfpipeFile(task.SaveArtifactsOnFailure) {
-					task.SaveArtifactsOnFailure = append(task.SaveArtifactsOnFailure, d.Project.HalfpipeFilePath)
 				}
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 				tl[i] = task
@@ -154,13 +147,4 @@ func (d Defaults) addArtifactoryCredentialsToVars(vars manifest.Vars) manifest.V
 	}
 
 	return vars
-}
-
-func containsHalfpipeFile(artifactsOnFailure []string) bool {
-	for _, val := range artifactsOnFailure {
-		if val == config.HalfpipeFile || val == config.HalfpipeFileWithYML || val == config.HalfpipeFileWithYAML {
-			return true
-		}
-	}
-	return false
 }
