@@ -43,9 +43,10 @@ func TestRenderDockerComposeTask(t *testing.T) {
 	}
 
 	expectedVars := map[string]string{
-		"VAR1":            "Value1",
-		"VAR2":            "Value2",
-		"GCR_PRIVATE_KEY": "((gcr.private_key))",
+		"VAR1":                "Value1",
+		"VAR2":                "Value2",
+		"GCR_PRIVATE_KEY":     "((gcr.private_key))",
+		"HALFPIPE_CACHE_TEAM": "",
 	}
 
 	expectedJob := atc.JobConfig{
@@ -99,9 +100,10 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	}
 
 	expectedVars := map[string]string{
-		"VAR1":            "Value 1",
-		"VAR2":            "Value 2",
-		"GCR_PRIVATE_KEY": "((gcr.private_key))",
+		"VAR1":                "Value 1",
+		"VAR2":                "Value 2",
+		"GCR_PRIVATE_KEY":     "((gcr.private_key))",
+		"HALFPIPE_CACHE_TEAM": "",
 	}
 
 	expectedJob := atc.JobConfig{

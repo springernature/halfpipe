@@ -14,7 +14,7 @@ var (
 
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 
-	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:0.2.0"
+	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable"
 
 	PrometheusGatewayURL = "prometheus-pushgateway:9091"
 

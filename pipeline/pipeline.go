@@ -480,6 +480,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 
 	// it is really just a special run job, so let's reuse that
 	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
+	vars["HALFPIPE_CACHE_TEAM"] = man.Team
 	return manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,

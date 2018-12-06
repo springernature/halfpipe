@@ -371,7 +371,7 @@ jobs:
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-              tag: 0.2.0
+              tag: stable
               username: _json_key
           params:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -848,7 +848,7 @@ jobs:
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: 0.2.0
+          tag: stable
           username: _json_key
       params:
         A: a
@@ -856,6 +856,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((gcr.private_key))
+        HALFPIPE_CACHE_TEAM: engineering-enablement
       run:
         path: docker.sh
         args:
@@ -892,7 +893,7 @@ jobs:
           export BUILD_VERSION=`cat ../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION app
+          docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -944,7 +945,7 @@ jobs:
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: 0.2.0
+          tag: stable
           username: _json_key
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
