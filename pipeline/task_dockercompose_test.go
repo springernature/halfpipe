@@ -150,7 +150,7 @@ func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
 		},
 	}
 
-	step := p.Render(man).Jobs[0].Plan[1]
+	step := p.Render(man).Jobs[0].Plan[2]
 	assert.Equal(t, "docker-compose", step.Task)
 	assert.True(t, step.Privileged)
 

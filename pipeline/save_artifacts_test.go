@@ -106,8 +106,8 @@ func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
 	assert.False(t, containsPut(artifactsName, config2))
 
 	config3, _ := renderedPipeline.Jobs.Lookup(run3)
-	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
-	assert.Contains(t, config3.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.Contains(t, config3.Plan[2].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config3.Plan[2].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config3))
 
 	config4, _ := renderedPipeline.Jobs.Lookup(dockerCompose1)
@@ -121,8 +121,8 @@ func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
 	assert.False(t, containsPut(artifactsName, config5))
 
 	config6, _ := renderedPipeline.Jobs.Lookup(dockerCompose3)
-	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
-	assert.Contains(t, config6.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+	assert.Contains(t, config6.Plan[2].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+	assert.Contains(t, config6.Plan[2].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	assert.True(t, containsPut(artifactsName, config6))
 }
 
@@ -260,14 +260,9 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 1)
-	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-
-	assert.Equal(t, artifactsName, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Get)
-	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Resource)
-	assert.Equal(t, gitDir+"/.git/ref", (*renderedPipeline.Jobs[0].Plan[0].Aggregate)[1].Params["version_file"])
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 4)
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
@@ -302,18 +297,17 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
 
 	// order of the plans is important
-	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
+	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
+	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
 
 	expectedAppPath := fmt.Sprintf("%s/%s", artifactsInDir, deployArtifactPath)
-	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
+	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
@@ -334,16 +328,15 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 	}
 
 	renderedPipeline := testPipeline().Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 3)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
 
 	// order if the plans is important
-	assert.Equal(t, artifactsResource, (*renderedPipeline.Jobs[1].Plan[0].Aggregate)[1].Resource)
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[1].Put)
-	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[1].Params["appPath"])
+	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
+	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
+	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
@@ -360,17 +353,8 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 
 	config := testPipeline().Render(man)
 
-	hasArtifactGet := func() bool {
-		for _, task := range *config.Jobs[0].Plan[0].Aggregate {
-			if task.Get == artifactsName {
-				return true
-			}
-		}
-		return false
-	}
-
-	assert.True(t, hasArtifactGet())
-	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[1].TaskConfig.Outputs[0].Name)
+	assert.Equal(t, restoreArtifactTask(man), config.Jobs[0].Plan[1])
+	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[2].TaskConfig.Outputs[0].Name)
 }
 
 func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {

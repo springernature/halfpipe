@@ -60,7 +60,49 @@ func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	cfg.Resources = append(cfg.Resources, slackResource)
 }
 
-func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool) []atc.PlanConfig {
+func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
+	config := atc.TaskConfig{
+		Platform:  "linux",
+		RootfsURI: "",
+		ImageResource: &atc.ImageResource{
+			Type: "docker-image",
+			Source: atc.Source{
+				"repository": "eu.gcr.io/halfpipe-io/artifacttest",
+				"tag":        "latest",
+				"username":   "_json_key",
+				"password":   "((gcr.private_key))",
+			},
+		},
+		Params: map[string]string{
+			"BUCKET":       "halfpipe-io-artifacts",
+			"FOLDER":       fmt.Sprintf("%s/%s", man.Team, man.Pipeline),
+			"JSON_KEY":     "((gcr.private_key))",
+			"VERSION_FILE": "git/.git/ref",
+		},
+		Run: atc.TaskRunConfig{
+			Path: "/opt/resource/wakawaka",
+			Dir:  artifactsInDir,
+			Args: []string{"."},
+		},
+		Inputs: []atc.TaskInputConfig{
+			{
+				Name: gitDir,
+			},
+		},
+		Outputs: []atc.TaskOutputConfig{
+			{
+				Name: artifactsInDir,
+			},
+		},
+	}
+
+	return atc.PlanConfig{
+		Task:       "get artifact",
+		TaskConfig: &config,
+	}
+}
+
+func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
 	initialPlan := []atc.PlanConfig{{Get: gitDir}}
 
 	if includeVersion {
@@ -71,6 +113,9 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVer
 		}
 		if man.TriggerInterval != "" {
 			initialPlan = append(initialPlan, atc.PlanConfig{Get: timerName})
+		}
+		if task != nil && task.ReadsFromArtifacts() {
+			initialPlan = append(initialPlan, restoreArtifactTask(man))
 		}
 	}
 
@@ -115,7 +160,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job.Failure = &failurePlan
 		}
 
-		job.Plan = append(p.initialPlan(&cfg, man, false), job.Plan...)
+		job.Plan = append(p.initialPlan(&cfg, man, false, nil), job.Plan...)
 		job.Plan = aggregateGets(&job)
 
 		aggregate := *job.Plan[0].Aggregate
@@ -127,7 +172,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	}
 
 	for _, t := range man.Tasks {
-		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned())
+		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned(), t)
 
 		var job *atc.JobConfig
 		var parallel bool
@@ -266,13 +311,6 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		Plan:   atc.PlanSequence{},
 	}
 
-	if task.RestoreArtifacts {
-		jobConfig.Plan = append(jobConfig.Plan, atc.PlanConfig{
-			Get:      artifactsName,
-			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
-		})
-	}
-
 	taskPath := "/bin/sh"
 	if isDockerCompose {
 		taskPath = "docker.sh"
@@ -307,15 +345,8 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	jobConfig.Plan = append(jobConfig.Plan, runPlan)
 
-	runTaskIndex := 0
-	if task.RestoreArtifacts {
-		// If we restore an artifact prior to saving the
-		// get of the artifact will be the first task in the plan.
-		runTaskIndex = 1
-	}
-
 	if len(task.SaveArtifacts) > 0 {
-		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
+		jobConfig.Plan[0].TaskConfig.Outputs = append(jobConfig.Plan[0].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 
 		artifactPut := atc.PlanConfig{
 			Put:      artifactsName,
@@ -329,7 +360,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	}
 
 	if len(task.SaveArtifactsOnFailure) > 0 {
-		jobConfig.Plan[runTaskIndex].TaskConfig.Outputs = append(jobConfig.Plan[runTaskIndex].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
+		jobConfig.Plan[0].TaskConfig.Outputs = append(jobConfig.Plan[0].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 	}
 
 	return &jobConfig
@@ -352,18 +383,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
-	}
-
-	if len(task.DeployArtifact) > 0 || strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
-		artifactGet := atc.PlanConfig{
-			Get:      artifactsName,
-			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
-			Params: atc.Params{
-				"folder":       artifactsInDir,
-				"version_file": path.Join(gitDir, ".git", "ref"),
-			},
-		}
-		job.Plan = append(job.Plan, artifactGet)
 	}
 
 	push := atc.PlanConfig{
@@ -529,10 +548,6 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 		Name:   task.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Get:      artifactsName,
-				Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
-			},
 			atc.PlanConfig{
 				Task: "Copying git repo and artifacts to a temporary build dir",
 				TaskConfig: &atc.TaskConfig{

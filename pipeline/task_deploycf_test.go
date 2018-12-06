@@ -233,7 +233,6 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -249,22 +248,22 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	//halfpipe-push
 	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
 	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, artifactsResource, (*plan[0].Aggregate)[1].Resource)
-	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
+	assert.Equal(t, restoreArtifactTask(man), plan[1])
+	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 	//pre promote 1
-	pp1 := (*(*plan[2].Aggregate)[0].Do)[0]
+	pp1 := (*(*plan[3].Aggregate)[0].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := (*(*plan[2].Aggregate)[1].Do)[0]
+	pp2 := (*(*plan[3].Aggregate)[1].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
 	//halfpipe-promote
-	assert.Equal(t, "halfpipe-promote", plan[3].Params["command"])
+	assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
 
 	//halfpipe-cleanup (ensure)
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
@@ -333,7 +332,6 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
-	artifactsResource := fmt.Sprintf("%s-%s-%s", artifactsName, man.Team, man.Pipeline)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -349,24 +347,23 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	//halfpipe-push
 	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Get)
 	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, artifactsResource, (*plan[0].Aggregate)[1].Resource)
-	assert.Equal(t, "halfpipe-push", plan[1].Params["command"])
+	assert.Equal(t, restoreArtifactTask(man), plan[1])
+	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 	//pre promote 1
-	pp1 := (*plan[2].Do)[0]
+	pp1 := (*plan[3].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	assert.Equal(t, artifactsResource, (*plan[3].Do)[0].Resource)
-	pp2 := (*plan[3].Do)[1]
+	pp2 := (*plan[4].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp2", pp2.TaskConfig.Params["PP2"])
 
 	//halfpipe-promote
-	assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
+	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
 
 	//halfpipe-cleanup (ensure)
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
@@ -397,8 +394,8 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 
 	getSteps := *plan[0].Aggregate
 	assert.Equal(t, gitDir, getSteps[0].Get)
-	assert.Equal(t, artifactsName, getSteps[1].Get)
+	assert.Equal(t, restoreArtifactTask(man), plan[1])
 
-	assert.Equal(t, path.Join(artifactsInDir, "manifest.yml"), plan[1].Params["manifestPath"])
+	assert.Equal(t, path.Join(artifactsInDir, "manifest.yml"), plan[2].Params["manifestPath"])
 
 }
