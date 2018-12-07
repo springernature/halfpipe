@@ -61,6 +61,16 @@ func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 }
 
 func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
+	JSON_KEY := "((gcr.private_key))"
+	if man.ArtifactConfig.JsonKey != "" {
+		JSON_KEY = man.ArtifactConfig.JsonKey
+	}
+
+	BUCKET := "halfpipe-io-artifacts"
+	if man.ArtifactConfig.Bucket != "" {
+		BUCKET = man.ArtifactConfig.Bucket
+	}
+
 	config := atc.TaskConfig{
 		Platform:  "linux",
 		RootfsURI: "",
@@ -72,9 +82,9 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 			},
 		},
 		Params: map[string]string{
-			"BUCKET":       "halfpipe-io-artifacts",
+			"BUCKET":       BUCKET,
 			"FOLDER":       fmt.Sprintf("%s/%s", man.Team, man.Pipeline),
-			"JSON_KEY":     "((gcr.private_key))",
+			"JSON_KEY":     JSON_KEY,
 			"VERSION_FILE": "git/.git/ref",
 		},
 		Run: atc.TaskRunConfig{

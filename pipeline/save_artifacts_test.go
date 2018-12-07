@@ -208,6 +208,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *testing.T) {
 	gitURI := "git@github.com:springernature/myRepo.git"
 
+	secondTaskName := "DoSomethingWithArtifact"
 	man := manifest.Manifest{
 		Team:     "team",
 		Pipeline: "pipeline",
@@ -223,6 +224,11 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 			manifest.Run{
 				Script:        "./build.sh",
 				SaveArtifacts: []string{"build/lib/artifact.jar"},
+			},
+			manifest.Run{
+				Name:             secondTaskName,
+				Script:           "./something.sh",
+				RestoreArtifacts: true,
 			},
 		},
 	}
@@ -244,6 +250,12 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 	assert.NotNil(t, resource)
 	assert.Equal(t, man.ArtifactConfig.Bucket, resource.Source["bucket"])
 	assert.Equal(t, man.ArtifactConfig.JsonKey, resource.Source["json_key"])
+
+	config, found := renderedPipeline.Jobs.Lookup(secondTaskName)
+	assert.True(t, found)
+	assert.Equal(t, restoreArtifactTask(man), config.Plan[1])
+	assert.Equal(t, man.ArtifactConfig.JsonKey, config.Plan[1].TaskConfig.Params["JSON_KEY"])
+	assert.Equal(t, man.ArtifactConfig.Bucket, config.Plan[1].TaskConfig.Params["BUCKET"])
 }
 
 func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
