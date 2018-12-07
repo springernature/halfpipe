@@ -311,59 +311,14 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 }
 
 func TestLintArtifactsWithPrePromote(t *testing.T) {
-	taskLinter := taskLinter{Fs: afero.Afero{},
-		lintRunTask:        func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
-		lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
-		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
-		lintArtifacts:      tasks.LintArtifacts,
-	}
-
-	t.Run("No previous saved artifact", func(t *testing.T) {
-		man := manifest.Manifest{
-			Tasks: []manifest.Task{
-				manifest.Run{},
-				manifest.DeployCF{
-					PrePromote: []manifest.Task{
-						manifest.Run{},
-						manifest.Run{RestoreArtifacts: true},
-					},
-				},
-				manifest.Run{},
-			},
-		}
-
-		result := taskLinter.Lint(man)
-
-		assert.Len(t, result.Errors, 1)
-		assert.Len(t, result.Warnings, 0)
-		assert.Equal(t, "tasks[1].pre_promote[1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
-
-	})
-
-	t.Run("A previous pre promote step have saved artifact", func(t *testing.T) {
-		man := manifest.Manifest{
-			Tasks: []manifest.Task{
-				manifest.Run{},
-				manifest.DeployCF{
-					PrePromote: []manifest.Task{
-						manifest.Run{},
-						manifest.Run{SaveArtifacts: []string{"."}},
-						manifest.Run{},
-						manifest.Run{RestoreArtifacts: true},
-					},
-				},
-				manifest.Run{},
-			},
-		}
-
-		result := taskLinter.Lint(man)
-
-		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
-
-	})
 
 	t.Run("A previous non pre promote step have saved artifact", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:        func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
+			lintArtifacts:      tasks.LintArtifacts,
+		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
 				manifest.Run{SaveArtifacts: []string{"."}},
@@ -385,30 +340,13 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 
 	})
 
-	t.Run("A previous pre promote step have saved artifact should not be reusable", func(t *testing.T) {
-		man := manifest.Manifest{
-			Tasks: []manifest.Task{
-				manifest.Run{},
-				manifest.DeployCF{
-					PrePromote: []manifest.Task{
-						manifest.Run{SaveArtifacts: []string{"."}},
-						manifest.Run{},
-						manifest.Run{RestoreArtifacts: true},
-					},
-				},
-				manifest.Run{RestoreArtifacts: true},
-			},
-		}
-
-		result := taskLinter.Lint(man)
-
-		assert.Len(t, result.Errors, 1)
-		assert.Len(t, result.Warnings, 0)
-		assert.Equal(t, "tasks[2] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
-
-	})
-
 	t.Run("A previous step haven't saved artifacts and the deploy uses a generated manifest manifest path", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:        func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
+			lintArtifacts:      tasks.LintArtifacts,
+		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
 				manifest.Run{},
@@ -424,6 +362,12 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 	})
 
 	t.Run("A previous step have saved artifacts and the deploy uses a generated manifest manifest path", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:        func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
+			lintArtifacts:      tasks.LintArtifacts,
+		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
 				manifest.Run{SaveArtifacts: []string{"."}},

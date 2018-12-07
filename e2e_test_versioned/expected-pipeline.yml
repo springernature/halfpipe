@@ -214,11 +214,28 @@ jobs:
       passed:
       - Test
       trigger: true
-    - get: artifacts
-      resource: artifacts-engineering-enablement-e2e-test
+  - task: get artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: platformengineering/gcp-resource
+          tag: stable
       params:
-        folder: artifacts
-        version_file: git/.git/ref
+        BUCKET: halfpipe-io-artifacts
+        FOLDER: engineering-enablement/e2e-test
+        JSON_KEY: ((gcr.private_key))
+        VERSION_FILE: git/.git/ref
+      run:
+        path: /opt/resource/download
+        args:
+        - .
+        dir: artifacts
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
   - put: cf halfpipe-push
     resource: CF dev-api engineering-enablement dev
     params:
@@ -264,6 +281,28 @@ jobs:
       passed:
       - deploy to cf
       trigger: true
+  - task: get artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: platformengineering/gcp-resource
+          tag: stable
+      params:
+        BUCKET: halfpipe-io-artifacts
+        FOLDER: engineering-enablement/e2e-test
+        JSON_KEY: ((gcr.private_key))
+        VERSION_FILE: git/.git/ref
+      run:
+        path: /opt/resource/download
+        args:
+        - .
+        dir: artifacts
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
@@ -278,8 +317,6 @@ jobs:
     attempts: 2
   - aggregate:
     - do:
-      - get: artifacts
-        resource: artifacts-engineering-enablement-e2e-test
       - task: run smoke-test.sh
         config:
           platform: linux
@@ -322,22 +359,6 @@ jobs:
                 echo ""
               fi
 
-              copyArtifact() {
-                ARTIFACT=$1
-                ARTIFACT_OUT_PATH=$2
-                if [ -d $ARTIFACT ] ; then
-                  mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-                  cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-                elif [ -f $ARTIFACT ] ; then
-                  ARTIFACT_DIR=$(dirname $ARTIFACT)
-                  mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-                  cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-                else
-                  echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-                  exit 1
-                fi
-              }
-
               # Copying in artifacts from previous task
               cp -r ../../artifacts/. .
 
@@ -347,8 +368,6 @@ jobs:
               ./smoke-test.sh
               EXIT_STATUS=$?
               if [ $EXIT_STATUS != 0 ] ; then
-                # Artifacts to copy in case of failure
-                copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
                 exit 1
               fi
             dir: git/e2e_test_versioned
@@ -356,8 +375,6 @@ jobs:
           - name: git
           - name: artifacts
           - name: version
-          outputs:
-          - name: artifacts-out-failure
           caches:
           - path: ../../../halfpipe-cache
         attempts: 1
@@ -452,12 +469,6 @@ jobs:
     attempts: 2
   on_failure:
     aggregate:
-    - put: artifacts-on-failure
-      resource: artifacts-engineering-enablement-e2e-test-on-failure
-      params:
-        folder: artifacts-out-failure
-        postfix: failure
-        version_file: git/.git/ref
     - put: slack-notification
       params:
         channel: '#ee-re'
@@ -482,6 +493,28 @@ jobs:
       passed:
       - deploy to cf
       trigger: true
+  - task: get artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: platformengineering/gcp-resource
+          tag: stable
+      params:
+        BUCKET: halfpipe-io-artifacts
+        FOLDER: engineering-enablement/e2e-test
+        JSON_KEY: ((gcr.private_key))
+        VERSION_FILE: git/.git/ref
+      run:
+        path: /opt/resource/download
+        args:
+        - .
+        dir: artifacts
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
   - put: cf halfpipe-push
     resource: CF snpaas qa
     params:
@@ -559,8 +592,6 @@ jobs:
             ./smoke-test.sh
             EXIT_STATUS=$?
             if [ $EXIT_STATUS != 0 ] ; then
-              # Artifacts to copy in case of failure
-              copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
               exit 1
             fi
 
@@ -572,7 +603,6 @@ jobs:
         - name: version
         outputs:
         - name: artifacts-out
-        - name: artifacts-out-failure
         caches:
         - path: ../../../halfpipe-cache
       attempts: 1
@@ -582,8 +612,6 @@ jobs:
         folder: artifacts-out
         version_file: git/.git/ref
   - do:
-    - get: artifacts
-      resource: artifacts-engineering-enablement-e2e-test
     - task: restore artifact in pre promote
       config:
         platform: linux
@@ -626,22 +654,6 @@ jobs:
               echo ""
             fi
 
-            copyArtifact() {
-              ARTIFACT=$1
-              ARTIFACT_OUT_PATH=$2
-              if [ -d $ARTIFACT ] ; then
-                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-                cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-              elif [ -f $ARTIFACT ] ; then
-                ARTIFACT_DIR=$(dirname $ARTIFACT)
-                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-                cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              else
-                echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-                exit 1
-              fi
-            }
-
             # Copying in artifacts from previous task
             cp -r ../../artifacts/. .
 
@@ -651,8 +663,6 @@ jobs:
             ./smoke-test.sh
             EXIT_STATUS=$?
             if [ $EXIT_STATUS != 0 ] ; then
-              # Artifacts to copy in case of failure
-              copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
               exit 1
             fi
           dir: git/e2e_test_versioned
@@ -660,8 +670,6 @@ jobs:
         - name: git
         - name: artifacts
         - name: version
-        outputs:
-        - name: artifacts-out-failure
         caches:
         - path: ../../../halfpipe-cache
       attempts: 1
@@ -674,12 +682,6 @@ jobs:
     attempts: 2
   on_failure:
     aggregate:
-    - put: artifacts-on-failure
-      resource: artifacts-engineering-enablement-e2e-test-on-failure
-      params:
-        folder: artifacts-out-failure
-        postfix: failure
-        version_file: git/.git/ref
     - put: slack-notification
       params:
         channel: '#ee-re'
@@ -779,49 +781,23 @@ jobs:
             echo ""
           fi
 
-          copyArtifact() {
-            ARTIFACT=$1
-            ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-            else
-              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-              exit 1
-            fi
-          }
-
           export GIT_REVISION=`cat ../.git/ref`
           export BUILD_VERSION=`cat ../../version/version`
 
           ./notify.sh
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
-            # Artifacts to copy in case of failure
-            copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
             exit 1
           fi
         dir: git/e2e_test_versioned
       inputs:
       - name: git
       - name: version
-      outputs:
-      - name: artifacts-out-failure
       caches:
       - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
-    - put: artifacts-on-failure
-      resource: artifacts-engineering-enablement-e2e-test-on-failure
-      params:
-        folder: artifacts-out-failure
-        postfix: failure
-        version_file: git/.git/ref
     - put: slack-notification
       params:
         channel: '#ee-re'
@@ -899,7 +875,6 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
             copyArtifact docker-compose.yml ../../artifacts-out-failure
-            copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
             exit 1
           fi
         dir: git/e2e_test_versioned
@@ -1038,8 +1013,28 @@ jobs:
       passed:
       - another-c-name
       trigger: true
-    - get: artifacts
-      resource: artifacts-engineering-enablement-e2e-test
+  - task: get artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: platformengineering/gcp-resource
+          tag: stable
+      params:
+        BUCKET: halfpipe-io-artifacts
+        FOLDER: engineering-enablement/e2e-test
+        JSON_KEY: ((gcr.private_key))
+        VERSION_FILE: git/.git/ref
+      run:
+        path: /opt/resource/download
+        args:
+        - .
+        dir: artifacts
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
   - task: deploy-ml-zip
     config:
       platform: linux

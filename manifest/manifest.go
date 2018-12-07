@@ -187,7 +187,16 @@ func (r DeployCF) SavesArtifacts() bool {
 }
 
 func (r DeployCF) ReadsFromArtifacts() bool {
-	return r.DeployArtifact != "" || strings.HasPrefix(r.Manifest, "../artifacts/")
+	if r.DeployArtifact != "" || strings.HasPrefix(r.Manifest, "../artifacts/") {
+		return true
+	}
+
+	for _, pp := range r.PrePromote {
+		if pp.ReadsFromArtifacts() {
+			return true
+		}
+	}
+	return false
 }
 
 func (r DeployCF) GetAttempts() int {

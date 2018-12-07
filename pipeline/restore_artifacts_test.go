@@ -33,7 +33,6 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 	assert.Equal(t, "git", getArtifact.TaskConfig.Inputs[0].Name)
 	assert.Equal(t, artifactsInDir, getArtifact.TaskConfig.Outputs[0].Name)
 
-
 	assert.Contains(t, renderedPipeline.Jobs[0].Plan[2].TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsInDir})
 }
 

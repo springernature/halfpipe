@@ -105,6 +105,9 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVer
 
 	if includeVersion {
 		initialPlan = append(initialPlan, atc.PlanConfig{Get: versionName})
+		if task != nil && task.ReadsFromArtifacts() {
+			initialPlan = append(initialPlan, restoreArtifactTask(man))
+		}
 	} else {
 		if man.CronTrigger != "" {
 			initialPlan = append(initialPlan, atc.PlanConfig{Get: cronName})
@@ -581,11 +584,13 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				}},
 		},
 	}
+
+	putIndex := 1
 	if len(task.Vars) > 0 {
-		job.Plan[2].Params["build_args"] = convertVars(task.Vars)
+		job.Plan[putIndex].Params["build_args"] = convertVars(task.Vars)
 	}
 	if man.FeatureToggles.Versioned() {
-		job.Plan[2].Params["tag_file"] = "version/number"
+		job.Plan[putIndex].Params["tag_file"] = "version/number"
 	}
 	return &job
 }

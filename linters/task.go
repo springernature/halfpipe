@@ -50,7 +50,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 		return
 	}
 
-	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{})
+	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{}, true)
 	sortErrors(errs)
 	sortErrors(warnings)
 
@@ -60,7 +60,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	return
 }
 
-func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task) (rE []error, rW []error) {
+func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task, lintArtifact bool) (rE []error, rW []error) {
 	for index, t := range ts {
 		previousTasks = append(previousTasks, ts[:index]...)
 
@@ -89,7 +89,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 					warnings = append(warnings, prePromotePrefixer(w)...)
 				}
 
-				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, previousTasks)
+				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, previousTasks, false)
 				errs = append(errs, subErrors...)
 				warnings = append(warnings, subWarnings...)
 			}
@@ -111,8 +111,10 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}
 
-		artifactErr, _ := linter.lintArtifacts(t, previousTasks)
-		errs = append(errs, artifactErr...)
+		if t.ReadsFromArtifacts() && lintArtifact {
+			artifactErr, _ := linter.lintArtifacts(t, previousTasks)
+			errs = append(errs, artifactErr...)
+		}
 
 		rE = append(rE, prefixErrors(errs)...)
 		rW = append(rW, prefixErrors(warnings)...)

@@ -300,8 +300,8 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVar(t *testing.T
 	assert.Contains(t, cIT.Plan[1].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../version/version`")
 
 	deployMLZip, _ := config.Jobs.Lookup("deployMLZip")
-	assert.Contains(t, deployMLZip.Plan[1].TaskConfig.Inputs, expectedInput)
-	assert.Contains(t, deployMLZip.Plan[1].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../version/version`")
+	assert.Contains(t, deployMLZip.Plan[2].TaskConfig.Inputs, expectedInput)
+	assert.Contains(t, deployMLZip.Plan[2].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../version/version`")
 
 	deployMLModules, _ := config.Jobs.Lookup("deployMLModules")
 	assert.Contains(t, deployMLModules.Plan[1].TaskConfig.Inputs, expectedInput)
@@ -376,8 +376,8 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 	assert.Contains(t, cIT.Plan[1].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../../../version/version`")
 
 	deployMLZip, _ := config.Jobs.Lookup("deployMLZip")
-	assert.Contains(t, deployMLZip.Plan[1].TaskConfig.Inputs, expectedInput)
-	assert.Contains(t, deployMLZip.Plan[1].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../../../version/version`")
+	assert.Contains(t, deployMLZip.Plan[2].TaskConfig.Inputs, expectedInput)
+	assert.Contains(t, deployMLZip.Plan[2].TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../../../version/version`")
 
 	deployMLModules, _ := config.Jobs.Lookup("deployMLModules")
 	assert.Contains(t, deployMLModules.Plan[1].TaskConfig.Inputs, expectedInput)
