@@ -5,23 +5,25 @@ resources:
   type: git
   source:
     branch: master
+    paths:
+    - e2e/versioned
     private_key: ((github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: slack-notification
   type: slack-notification
   source:
     url: https://hooks.slack.com/services/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
-- name: artifacts-engineering-enablement-e2e-test
+- name: artifacts-engineering-enablement-test
   type: gcp-resource
   source:
     bucket: halfpipe-io-artifacts
-    folder: engineering-enablement/e2e-test
+    folder: engineering-enablement/test
     json_key: ((gcr.private_key))
-- name: artifacts-engineering-enablement-e2e-test-on-failure
+- name: artifacts-engineering-enablement-test-on-failure
   type: gcp-resource
   source:
     bucket: halfpipe-io-artifacts
-    folder: engineering-enablement/e2e-test
+    folder: engineering-enablement/test
     json_key: ((gcr.private_key))
 - name: version
   type: semver
@@ -29,7 +31,7 @@ resources:
     bucket: halfpipe-io-semver
     driver: gcs
     json_key: ((gcr.private_key))
-    key: engineering-enablement-e2e-test
+    key: engineering-enablement-test
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
@@ -160,21 +162,21 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
-          ./test.sh
+          ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact .halfpipe.io.yml ../../artifacts-out-failure
+            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure
             exit 1
           fi
 
           # Artifacts to copy from task
-          copyArtifact target/distribution ../../artifacts-out
-          copyArtifact README.md ../../artifacts-out
-        dir: git/e2e_test_versioned
+          copyArtifact target/distribution ../../../artifacts-out
+          copyArtifact README.md ../../../artifacts-out
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: version
@@ -185,14 +187,14 @@ jobs:
       - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
-    resource: artifacts-engineering-enablement-e2e-test
+    resource: artifacts-engineering-enablement-test
     params:
       folder: artifacts-out
       version_file: git/.git/ref
   on_failure:
     aggregate:
     - put: artifacts-on-failure
-      resource: artifacts-engineering-enablement-e2e-test-on-failure
+      resource: artifacts-engineering-enablement-test-on-failure
       params:
         folder: artifacts-out-failure
         postfix: failure
@@ -224,7 +226,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: engineering-enablement/e2e-test
+        FOLDER: engineering-enablement/test
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -242,7 +244,7 @@ jobs:
       appPath: artifacts/target/distribution/artifact.zip
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -250,7 +252,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -267,7 +269,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       timeout: 5m
     attempts: 2
 - name: deploy to staging
@@ -291,7 +293,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: engineering-enablement/e2e-test
+        FOLDER: engineering-enablement/test
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -306,10 +308,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
-      appPath: git/e2e_test_versioned
+      appPath: git/e2e/versioned
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -360,17 +362,17 @@ jobs:
               fi
 
               # Copying in artifacts from previous task
-              cp -r ../../artifacts/. .
+              cp -r ../../../artifacts/. .
 
-              export GIT_REVISION=`cat ../.git/ref`
-              export BUILD_VERSION=`cat ../../version/version`
+              export GIT_REVISION=`cat ../../.git/ref`
+              export BUILD_VERSION=`cat ../../../version/version`
 
               ./smoke-test.sh
               EXIT_STATUS=$?
               if [ $EXIT_STATUS != 0 ] ; then
                 exit 1
               fi
-            dir: git/e2e_test_versioned
+            dir: git/e2e/versioned
           inputs:
           - name: git
           - name: artifacts
@@ -402,8 +404,8 @@ jobs:
             DOCKER_COMPOSE_SERVICE: ""
             GCR_PRIVATE_KEY: ((gcr.private_key))
             PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
-            PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
-            PROVIDER_NAME: e2e-test
+            PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
+            PROVIDER_NAME: test
           run:
             path: docker.sh
             args:
@@ -420,8 +422,8 @@ jobs:
                 echo ""
               fi
 
-              export GIT_REVISION=`cat ../.git/ref`
-              export BUILD_VERSION=`cat ../../version/version`
+              export GIT_REVISION=`cat ../../.git/ref`
+              export BUILD_VERSION=`cat ../../../version/version`
 
               \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
@@ -453,7 +455,7 @@ jobs:
               if [ $EXIT_STATUS != 0 ] ; then
                 exit 1
               fi
-            dir: git/e2e_test_versioned
+            dir: git/e2e/versioned
           inputs:
           - name: git
           - name: version
@@ -464,7 +466,7 @@ jobs:
     resource: CF live pe staging
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: live.cf.private.springer.com
     attempts: 2
   on_failure:
@@ -480,7 +482,7 @@ jobs:
     resource: CF live pe staging
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
     attempts: 2
 - name: deploy to qa
   serial: true
@@ -503,7 +505,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: engineering-enablement/e2e-test
+        FOLDER: engineering-enablement/test
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -518,10 +520,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas qa
     params:
-      appPath: git/e2e_test_versioned
+      appPath: git/e2e/versioned
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: springernature.app
       vars:
         A: "0.1"
@@ -586,8 +588,8 @@ jobs:
               fi
             }
 
-            export GIT_REVISION=`cat ../.git/ref`
-            export BUILD_VERSION=`cat ../../version/version`
+            export GIT_REVISION=`cat ../../.git/ref`
+            export BUILD_VERSION=`cat ../../../version/version`
 
             ./smoke-test.sh
             EXIT_STATUS=$?
@@ -596,8 +598,8 @@ jobs:
             fi
 
             # Artifacts to copy from task
-            copyArtifact build ../../artifacts-out
-          dir: git/e2e_test_versioned
+            copyArtifact build ../../../artifacts-out
+          dir: git/e2e/versioned
         inputs:
         - name: git
         - name: version
@@ -607,7 +609,7 @@ jobs:
         - path: ../../../halfpipe-cache
       attempts: 1
     - put: artifacts
-      resource: artifacts-engineering-enablement-e2e-test
+      resource: artifacts-engineering-enablement-test
       params:
         folder: artifacts-out
         version_file: git/.git/ref
@@ -655,17 +657,17 @@ jobs:
             fi
 
             # Copying in artifacts from previous task
-            cp -r ../../artifacts/. .
+            cp -r ../../../artifacts/. .
 
-            export GIT_REVISION=`cat ../.git/ref`
-            export BUILD_VERSION=`cat ../../version/version`
+            export GIT_REVISION=`cat ../../.git/ref`
+            export BUILD_VERSION=`cat ../../../version/version`
 
             ./smoke-test.sh
             EXIT_STATUS=$?
             if [ $EXIT_STATUS != 0 ] ; then
               exit 1
             fi
-          dir: git/e2e_test_versioned
+          dir: git/e2e/versioned
         inputs:
         - name: git
         - name: artifacts
@@ -677,7 +679,7 @@ jobs:
     resource: CF snpaas qa
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
       testDomain: springernature.app
     attempts: 2
   on_failure:
@@ -693,7 +695,7 @@ jobs:
     resource: CF snpaas qa
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e_test_versioned/manifest.yml
+      manifestPath: git/e2e/versioned/manifest.yml
     attempts: 2
 - name: push to docker registry
   serial: true
@@ -710,7 +712,7 @@ jobs:
       trigger: true
   - put: Docker Registry
     params:
-      build: git/e2e_test_versioned
+      build: git/e2e/versioned
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -781,15 +783,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./notify.sh
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e_test_versioned
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: version
@@ -865,8 +867,8 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM app
@@ -874,10 +876,10 @@ jobs:
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact docker-compose.yml ../../artifacts-out-failure
+            copyArtifact docker-compose.yml ../../../artifacts-out-failure
             exit 1
           fi
-        dir: git/e2e_test_versioned
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: version
@@ -889,7 +891,7 @@ jobs:
   on_failure:
     aggregate:
     - put: artifacts-on-failure
-      resource: artifacts-engineering-enablement-e2e-test-on-failure
+      resource: artifacts-engineering-enablement-test-on-failure
       params:
         folder: artifacts-out-failure
         postfix: failure
@@ -936,8 +938,8 @@ jobs:
         K: value
         K1: value1
         PROVIDER_HOST: p-host
-        PROVIDER_HOST_KEY: E2E_TEST_DEPLOYED_HOST
-        PROVIDER_NAME: e2e-test
+        PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
+        PROVIDER_NAME: test
       run:
         path: docker.sh
         args:
@@ -954,8 +956,8 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
@@ -987,7 +989,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e_test_versioned
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: version
@@ -1023,7 +1025,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: engineering-enablement/e2e-test
+        FOLDER: engineering-enablement/test
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -1046,7 +1048,7 @@ jobs:
           tag: latest
           username: _json_key
       params:
-        APP_NAME: e2e-test
+        APP_NAME: test
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
       run:
@@ -1076,17 +1078,17 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../artifacts/. .
+          cp -r ../../../artifacts/. .
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e_test_versioned
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: artifacts
@@ -1156,15 +1158,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../.git/ref`
-          export BUILD_VERSION=`cat ../../version/version`
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           /ml-deploy/deploy-ml-modules
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e_test_versioned
+        dir: git/e2e/versioned
       inputs:
       - name: git
       - name: version

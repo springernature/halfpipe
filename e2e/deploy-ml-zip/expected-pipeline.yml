@@ -1,0 +1,195 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    paths:
+    - e2e/deploy-ml-zip
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: artifacts-test-test
+  type: gcp-resource
+  source:
+    bucket: halfpipe-io-artifacts
+    folder: test/test
+    json_key: ((gcr.private_key))
+resource_types:
+- name: gcp-resource
+  type: docker-image
+  source:
+    repository: platformengineering/gcp-resource
+    tag: stable
+jobs:
+- name: create zip for ml task
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      trigger: true
+  - task: create zip for ml task
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |-
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+            if [ -d $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
+              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
+            elif [ -f $ARTIFACT ] ; then
+              ARTIFACT_DIR=$(dirname $ARTIFACT)
+              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact ml.zip ../../../artifacts-out
+        dir: git/e2e/deploy-ml-zip
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+  - put: artifacts
+    resource: artifacts-test-test
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+- name: deploy-ml-zip
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      passed:
+      - create zip for ml task
+      trigger: true
+  - task: get artifact
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: platformengineering/gcp-resource
+          tag: stable
+      params:
+        BUCKET: halfpipe-io-artifacts
+        FOLDER: test/test
+        JSON_KEY: ((gcr.private_key))
+        VERSION_FILE: git/.git/ref
+      run:
+        path: /opt/resource/download
+        args:
+        - .
+        dir: artifacts
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+  - task: deploy-ml-zip
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+      params:
+        APP_NAME: test
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. .
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          /ml-deploy/deploy-local-zip
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/deploy-ml-zip
+      inputs:
+      - name: git
+      - name: artifacts
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+

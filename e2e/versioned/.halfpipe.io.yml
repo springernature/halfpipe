@@ -1,5 +1,8 @@
 team: engineering-enablement
-pipeline: e2e-test
+pipeline: test
+repo:
+  watched_paths:
+    - e2e/versioned
 
 slack_channel: "#ee-re"
 
@@ -9,7 +12,7 @@ feature_toggles:
 tasks:
 - type: run
   name: Test
-  script: test.sh
+  script: a
   save_artifacts:
   - target/distribution
   - README.md

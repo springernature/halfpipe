@@ -1,0 +1,37 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    paths:
+    - e2e/docker-push
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: Docker Registry
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+resource_types: []
+jobs:
+- name: push to docker registry
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      trigger: true
+  - put: Docker Registry
+    params:
+      build: git/e2e/docker-push
+      build_args:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+      tag_as_latest: true
+    attempts: 1
+

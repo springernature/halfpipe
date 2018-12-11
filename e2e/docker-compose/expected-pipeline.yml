@@ -1,0 +1,68 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    paths:
+    - e2e/docker-compose
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+resource_types: []
+jobs:
+- name: test
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      trigger: true
+  - task: test
+    privileged: true
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        GCR_PRIVATE_KEY: ((gcr.private_key))
+        HALFPIPE_CACHE_TEAM: test
+      run:
+        path: docker.sh
+        args:
+        - -c
+        - |
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+          docker-compose run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e GIT_REVISION -e HALFPIPE_CACHE_TEAM app
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/docker-compose
+      inputs:
+      - name: git
+      caches:
+      - path: ../../../halfpipe-cache
+    attempts: 1
+

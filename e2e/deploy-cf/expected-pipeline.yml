@@ -1,0 +1,117 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    paths:
+    - e2e/deploy-cf
+    private_key: ((github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: CF dev-api test dev
+  type: cf-resource
+  source:
+    api: dev-api
+    org: test
+    password: very-secret
+    prometheusGatewayURL: prometheus-pushgateway:9091
+    space: dev
+    username: michiel
+resource_types:
+- name: cf-resource
+  type: docker-image
+  source:
+    repository: platformengineering/cf-resource
+    tag: stable
+jobs:
+- name: deploy to cf
+  serial: true
+  plan:
+  - aggregate:
+    - get: git
+      trigger: true
+  - put: cf halfpipe-push
+    resource: CF dev-api test dev
+    params:
+      appPath: git/e2e/deploy-cf
+      command: halfpipe-push
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    attempts: 2
+  - aggregate:
+    - do:
+      - task: pre promote step
+        config:
+          platform: linux
+          image_resource:
+            type: docker-image
+            source:
+              password: ((gcr.private_key))
+              repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+              tag: latest
+              username: _json_key
+          params:
+            A: blah
+            ARTIFACTORY_PASSWORD: ((artifactory.password))
+            ARTIFACTORY_URL: ((artifactory.url))
+            ARTIFACTORY_USERNAME: ((artifactory.username))
+            TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.some.random.domain.com
+          run:
+            path: /bin/sh
+            args:
+            - -c
+            - |
+              which bash > /dev/null
+              if [ $? != 0 ]; then
+                echo "WARNING: Bash is not present in the docker image"
+                echo "If your script depends on bash you will get a strange error message like:"
+                echo "  sh: yourscript.sh: command not found"
+                echo "To fix, make sure your docker image contains bash!"
+                echo ""
+                echo ""
+              fi
+
+              if [ -e /etc/alpine-release ]
+              then
+                echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+                echo "There is a known issue where DNS resolving does not work as expected"
+                echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+                echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+                echo "we recommend debian:stretch-slim as an alternative"
+                echo ""
+                echo ""
+              fi
+
+              export GIT_REVISION=`cat ../../.git/ref`
+
+              ./smoke-test.sh
+              EXIT_STATUS=$?
+              if [ $EXIT_STATUS != 0 ] ; then
+                exit 1
+              fi
+            dir: git/e2e/deploy-cf
+          inputs:
+          - name: git
+          caches:
+          - path: ../../../halfpipe-cache
+        attempts: 1
+  - put: cf halfpipe-promote
+    resource: CF dev-api test dev
+    params:
+      command: halfpipe-promote
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    attempts: 2
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF dev-api test dev
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      timeout: 5m
+    attempts: 2
+

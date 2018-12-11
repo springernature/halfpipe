@@ -13,13 +13,13 @@ if [ "${1-}" = "ci" ]; then
     go_opts="-mod=readonly"
 fi
 
-echo [1/6] fmt
+echo [1/5] fmt
 go fmt ./...
 
-echo [2/6] test
+echo [2/5] test
 go test $go_opts -cover ./...
 
-echo [3/6] lint
+echo [3/5] lint
 # gometalinter not happy with 1.11
 # if command -v gometalinter > /dev/null; then
 #     gometalinter --fast \
@@ -32,22 +32,13 @@ echo [3/6] lint
 #     echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
 # fi
 
-echo [4/6] build
+echo [4/5] build
 CONF_PKG="github.com/springernature/halfpipe/config"
 LDFLAGS="-X ${CONF_PKG}.DocHost=docs.halfpipe.io"
 LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-echo [5/6] e2e test
-if ! e2e=$(cd e2e_test; ./test.sh 2>&1); then
-    echo "${e2e}"
-    exit 1
-fi
-
-echo [6/6] e2e test versioned
-if ! e2e=$(cd e2e_test_versioned; ./test.sh 2>&1); then
-    echo "${e2e}"
-    exit 1
-fi
+echo [5/5] e2e test
+cd e2e; ./test.sh
 
 echo Finished!

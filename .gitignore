@@ -1,9 +1,8 @@
 /halfpipe_*
 /halfpipe
 .idea
-/e2e_test/pipeline.yml
-/e2e_test_versioned/pipeline.yml
 .DS_Store
 vendor
 
-
+e2e/*/pipeline.yml
+e2e/init/.halfpipe.io
