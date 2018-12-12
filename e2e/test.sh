@@ -12,7 +12,9 @@ do
         else
             ../../halfpipe 1> pipeline.yml 2> /dev/null
             diff -w pipeline.yml expected-pipeline.yml
-            command -v fly >/dev/null && fly validate-pipeline -c pipeline.yml > /dev/null
+            if [ "${1-}" != "ci" ]; then
+                command -v fly >/dev/null && fly validate-pipeline -c pipeline.yml > /dev/null
+            fi
         fi
     )
 done

@@ -39,6 +39,6 @@ LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
 echo [5/5] e2e test
-cd e2e; ./test.sh
+cd e2e; ./test.sh "${1-}"
 
 echo Finished!
