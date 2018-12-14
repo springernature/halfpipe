@@ -160,7 +160,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: CHANGE-ME/halfpipe-e2e-artifacts
+        FOLDER: change-me/halfpipe-e2e-artifacts
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -245,7 +245,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: CHANGE-ME/halfpipe-e2e-artifacts
+        FOLDER: change-me/halfpipe-e2e-artifacts
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -362,7 +362,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: CHANGE-ME/halfpipe-e2e-artifacts
+        FOLDER: change-me/halfpipe-e2e-artifacts
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -422,7 +422,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: CHANGE-ME/halfpipe-e2e-artifacts
+        FOLDER: change-me/halfpipe-e2e-artifacts
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -533,7 +533,7 @@ jobs:
           tag: stable
       params:
         BUCKET: halfpipe-io-artifacts
-        FOLDER: CHANGE-ME/halfpipe-e2e-artifacts
+        FOLDER: change-me/halfpipe-e2e-artifacts
         JSON_KEY: ((gcr.private_key))
         VERSION_FILE: git/.git/ref
       run:

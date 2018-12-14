@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"path/filepath"
@@ -61,6 +62,14 @@ func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 }
 
 func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
+	// This function is used in pipeline.artifactResource for some reason to lowercase
+	// and remove chars that are not part of the regex in the folder in the config..
+	// So we must reuse it.
+	filter := func(str string) string {
+		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
+		return reg.ReplaceAllString(strings.ToLower(str), "")
+	}
+
 	JSON_KEY := "((gcr.private_key))"
 	if man.ArtifactConfig.JsonKey != "" {
 		JSON_KEY = man.ArtifactConfig.JsonKey
@@ -83,7 +92,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		},
 		Params: map[string]string{
 			"BUCKET":       BUCKET,
-			"FOLDER":       fmt.Sprintf("%s/%s", man.Team, man.Pipeline),
+			"FOLDER":       path.Join(filter(man.Team), filter(man.Pipeline)),
 			"JSON_KEY":     JSON_KEY,
 			"VERSION_FILE": "git/.git/ref",
 		},

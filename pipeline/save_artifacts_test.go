@@ -369,6 +369,43 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[2].TaskConfig.Outputs[0].Name)
 }
 
+func TestRenderGetHasTheSameConfigOptionsInTheRestoreAsInTheResourceConfig(t *testing.T) {
+	restoreArtifactTaskName := "Restore Artifact"
+
+	man := manifest.Manifest{
+		Team:     "Proteus_PWG_performance_metrics",
+		Pipeline: "proteus-services",
+
+		Tasks: []manifest.Task{
+			manifest.Run{
+				Name: "SaveArtifactName",
+				SaveArtifacts: []string{
+					".",
+				},
+			},
+			manifest.Run{
+				Name:             restoreArtifactTaskName,
+				RestoreArtifacts: true,
+			},
+		},
+	}
+
+	config := testPipeline().Render(man)
+
+	artifactConfig, foundResourceConfig := config.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
+	assert.True(t, foundResourceConfig)
+
+	restoreJob, foundJobConfig := config.Jobs.Lookup(restoreArtifactTaskName)
+	assert.True(t, foundJobConfig)
+
+	assert.Equal(t, restoreArtifactTask(man), restoreJob.Plan[1])
+	restoreArtifactTask := restoreJob.Plan[1]
+
+	assert.Equal(t, artifactConfig.Source["bucket"], restoreArtifactTask.TaskConfig.Params["BUCKET"])
+	assert.Equal(t, artifactConfig.Source["json_key"], restoreArtifactTask.TaskConfig.Params["JSON_KEY"])
+	assert.Equal(t, artifactConfig.Source["folder"], restoreArtifactTask.TaskConfig.Params["FOLDER"])
+}
+
 func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	jarOutputFolder := "build/jars"
 	testReportsFolder := "build/test-reports"
