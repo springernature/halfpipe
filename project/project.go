@@ -83,6 +83,8 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 	if err != nil {
 		return
 	}
+	// win -> unix path
+	basePath = strings.Replace(basePath, `\`, "/", -1)
 
 	origin, e := c.OriginURL()
 	if e != nil {

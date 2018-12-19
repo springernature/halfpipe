@@ -634,13 +634,19 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
-	gitRefPath, _ = filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
+	p, _ := filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
+	gitRefPath = windowsToLinuxPath(p)
 	return
 }
 
 func pathToVersionFile(basePath string) (gitRefPath string) {
-	gitRefPath, _ = filepath.Rel(basePath, path.Join("..", "version", "version"))
+	p, _ := filepath.Rel(basePath, path.Join("..", "version", "version"))
+	gitRefPath = windowsToLinuxPath(p)
 	return
+}
+
+func windowsToLinuxPath(path string) (unixPath string) {
+	return strings.Replace(path, `\`, "/", -1)
 }
 
 func dockerComposeScript(service string, vars map[string]string, containerCommand string, versioningEnabled bool) string {
