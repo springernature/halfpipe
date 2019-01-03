@@ -97,6 +97,7 @@ jobs:
           - name: git
           caches:
           - path: ../../../var/halfpipe/cache
+          - path: ../../../halfpipe-cache
         attempts: 1
   - put: cf halfpipe-promote
     resource: CF dev-api test dev

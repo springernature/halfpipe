@@ -185,6 +185,7 @@ jobs:
       - name: artifacts-out-failure
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
     resource: artifacts-engineering-enablement-test
@@ -379,6 +380,7 @@ jobs:
           - name: version
           caches:
           - path: ../../../var/halfpipe/cache
+          - path: ../../../halfpipe-cache
         attempts: 1
     - do:
       - task: c-name
@@ -461,6 +463,7 @@ jobs:
           - name: version
           caches:
           - path: ../../../var/halfpipe/cache
+          - path: ../../../halfpipe-cache
         attempts: 1
   - put: cf halfpipe-promote
     resource: CF live pe staging
@@ -607,6 +610,7 @@ jobs:
         - name: artifacts-out
         caches:
         - path: ../../../var/halfpipe/cache
+        - path: ../../../halfpipe-cache
       attempts: 1
     - put: artifacts
       resource: artifacts-engineering-enablement-test
@@ -674,6 +678,7 @@ jobs:
         - name: version
         caches:
         - path: ../../../var/halfpipe/cache
+        - path: ../../../halfpipe-cache
       attempts: 1
   - put: cf halfpipe-promote
     resource: CF snpaas qa
@@ -797,6 +802,7 @@ jobs:
       - name: version
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
@@ -887,6 +893,7 @@ jobs:
       - name: artifacts-out-failure
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
@@ -995,6 +1002,7 @@ jobs:
       - name: version
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
@@ -1095,6 +1103,7 @@ jobs:
       - name: version
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
@@ -1172,6 +1181,7 @@ jobs:
       - name: version
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:

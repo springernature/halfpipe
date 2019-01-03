@@ -99,6 +99,7 @@ jobs:
       - name: artifacts-out
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
     resource: artifacts-test-test
@@ -191,5 +192,6 @@ jobs:
       - name: artifacts
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 

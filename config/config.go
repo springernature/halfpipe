@@ -22,6 +22,7 @@ var (
 
 	CacheDirs = []atc.CacheConfig{
 		{Path: "../../../var/halfpipe/cache"},
+		{Path: "../../../halfpipe-cache"}, // deprecated and should be removed after a while
 	}
 )
 

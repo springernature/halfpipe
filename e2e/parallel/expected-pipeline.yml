@@ -67,6 +67,7 @@ jobs:
       - name: git
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 - name: test parallel 1
   serial: true
@@ -126,6 +127,7 @@ jobs:
       - name: git
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 - name: test parallel 2
   serial: true
@@ -185,6 +187,7 @@ jobs:
       - name: git
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 - name: after parallel
   serial: true
@@ -245,5 +248,6 @@ jobs:
       - name: git
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 

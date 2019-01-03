@@ -114,7 +114,7 @@ jobs:
         - -ec
         - |
           export ROOT=`pwd`
-          export GOPATH=/halfpipe-cache/go
+          export GOPATH=/var/halfpipe/cache/go
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"

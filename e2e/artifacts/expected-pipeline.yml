@@ -128,6 +128,7 @@ jobs:
       - name: artifacts-out-failure
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   - put: artifacts
     resource: artifacts-CHANGE-ME-halfpipe-e2e-artifacts
@@ -226,6 +227,7 @@ jobs:
       - name: artifacts
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 - name: deploy to staging
   serial: true
@@ -329,6 +331,7 @@ jobs:
           - name: artifacts
           caches:
           - path: ../../../var/halfpipe/cache
+          - path: ../../../halfpipe-cache
         attempts: 1
   - put: cf halfpipe-promote
     resource: CF live pe staging
@@ -506,6 +509,7 @@ jobs:
       - name: artifacts-out-failure
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
   on_failure:
     aggregate:
@@ -601,5 +605,6 @@ jobs:
       - name: artifacts
       caches:
       - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
     attempts: 1
 
