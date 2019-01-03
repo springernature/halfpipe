@@ -68,13 +68,13 @@ jobs:
         args:
         - -ec
         - |
-          export GOPATH=/halfpipe-cache/go
+          export GOPATH=/var/halfpipe/cache/go
           cd halfpipe
           ./build.sh ci
       inputs:
       - name: halfpipe
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
 
 - name: Bump Major
   plan:
@@ -135,7 +135,7 @@ jobs:
       outputs:
       - name: binaries
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
 
   - put: halfpipe
     params:

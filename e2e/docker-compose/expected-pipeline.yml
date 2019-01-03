@@ -63,6 +63,6 @@ jobs:
       inputs:
       - name: git
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
 

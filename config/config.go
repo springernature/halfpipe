@@ -21,7 +21,7 @@ var (
 	ConcourseHost = "https://concourse.halfpipe.io"
 
 	CacheDirs = []atc.CacheConfig{
-		{Path: "../../../halfpipe-cache"},
+		{Path: "../../../var/halfpipe/cache"},
 	}
 )
 

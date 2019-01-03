@@ -184,7 +184,7 @@ jobs:
       - name: artifacts-out
       - name: artifacts-out-failure
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   - put: artifacts
     resource: artifacts-engineering-enablement-test
@@ -378,7 +378,7 @@ jobs:
           - name: artifacts
           - name: version
           caches:
-          - path: ../../../halfpipe-cache
+          - path: ../../../var/halfpipe/cache
         attempts: 1
     - do:
       - task: c-name
@@ -460,7 +460,7 @@ jobs:
           - name: git
           - name: version
           caches:
-          - path: ../../../halfpipe-cache
+          - path: ../../../var/halfpipe/cache
         attempts: 1
   - put: cf halfpipe-promote
     resource: CF live pe staging
@@ -606,7 +606,7 @@ jobs:
         outputs:
         - name: artifacts-out
         caches:
-        - path: ../../../halfpipe-cache
+        - path: ../../../var/halfpipe/cache
       attempts: 1
     - put: artifacts
       resource: artifacts-engineering-enablement-test
@@ -673,7 +673,7 @@ jobs:
         - name: artifacts
         - name: version
         caches:
-        - path: ../../../halfpipe-cache
+        - path: ../../../var/halfpipe/cache
       attempts: 1
   - put: cf halfpipe-promote
     resource: CF snpaas qa
@@ -796,7 +796,7 @@ jobs:
       - name: git
       - name: version
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   on_failure:
     aggregate:
@@ -886,7 +886,7 @@ jobs:
       outputs:
       - name: artifacts-out-failure
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   on_failure:
     aggregate:
@@ -994,7 +994,7 @@ jobs:
       - name: git
       - name: version
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   on_failure:
     aggregate:
@@ -1094,7 +1094,7 @@ jobs:
       - name: artifacts
       - name: version
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   on_failure:
     aggregate:
@@ -1171,7 +1171,7 @@ jobs:
       - name: git
       - name: version
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   on_failure:
     aggregate:

@@ -98,7 +98,7 @@ jobs:
       outputs:
       - name: artifacts-out
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
   - put: artifacts
     resource: artifacts-test-test
@@ -190,6 +190,6 @@ jobs:
       - name: git
       - name: artifacts
       caches:
-      - path: ../../../halfpipe-cache
+      - path: ../../../var/halfpipe/cache
     attempts: 1
 
