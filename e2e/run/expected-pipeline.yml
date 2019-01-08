@@ -17,6 +17,8 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+      params:
+        depth: 1
   - task: test
     config:
       platform: linux

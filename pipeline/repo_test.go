@@ -136,3 +136,23 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 	}
 	assert.Equal(t, expected, testPipeline().Render(man))
 }
+
+func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
+	taskName := "runTask"
+	man := manifest.Manifest{
+		Repo: manifest.Repo{
+			Shallow: true,
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{
+				Name: taskName,
+			},
+		},
+	}
+
+	rendered := testPipeline().Render(man)
+
+	task, _ := rendered.Jobs.Lookup(taskName)
+	assert.Equal(t, "git", (*task.Plan[0].Aggregate)[0].Get)
+	assert.Equal(t, 1, (*task.Plan[0].Aggregate)[0].Params["depth"])
+}

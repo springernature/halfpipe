@@ -17,6 +17,8 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+      params:
+        depth: 1
   - task: test
     config:
       platform: linux
@@ -77,6 +79,8 @@ jobs:
       passed:
       - test
       trigger: true
+      params:
+        depth: 1
   - task: test parallel 1
     config:
       platform: linux
@@ -137,6 +141,8 @@ jobs:
       passed:
       - test
       trigger: true
+      params:
+        depth: 1
   - task: test parallel 2
     config:
       platform: linux
@@ -198,6 +204,8 @@ jobs:
       - test parallel 1
       - test parallel 2
       trigger: true
+      params:
+        depth: 1
   - task: after parallel
     config:
       platform: linux

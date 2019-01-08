@@ -120,7 +120,14 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
-	initialPlan := []atc.PlanConfig{{Get: gitDir}}
+	gitClone := atc.PlanConfig{Get: gitDir}
+	if man.Repo.Shallow {
+		gitClone.Params = map[string]interface{}{
+			"depth": 1,
+		}
+	}
+
+	initialPlan := []atc.PlanConfig{gitClone}
 
 	if includeVersion {
 		initialPlan = append(initialPlan, atc.PlanConfig{Get: versionName})
