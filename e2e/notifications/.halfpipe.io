@@ -1,5 +1,6 @@
 team: CHANGE-ME
 pipeline: halfpipe-e2e-notifications
+slack_channel: "#yo"
 repo:
   watched_paths:
   - e2e/notifications

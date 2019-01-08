@@ -35,7 +35,10 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult
 	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JsonKey == "") ||
 		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JsonKey != "") {
 		result.AddError(errors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
+	}
 
+	if manifest.Tasks.NotifiesOnSuccess() && manifest.SlackChannel == "" {
+		result.AddError(errors.NewInvalidField("slack_channel", "must be defined if a task uses `notify_on_success`"))
 	}
 
 	return

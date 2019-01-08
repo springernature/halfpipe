@@ -159,7 +159,7 @@ func (p pipeline) addCfResourceType(cfg *atc.Config) {
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
 
-	if man.SlackChannel != "" {
+	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
 		p.addSlackResourceTypeAndResource(&cfg)
 	}
 
@@ -182,7 +182,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	if man.FeatureToggles.Versioned() {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
 		job := p.versionUpdateJob(man)
-		if man.SlackChannel != "" {
+		if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
 			failurePlan := slackOnFailurePlan(man.SlackChannel)
 			job.Failure = &failurePlan
 		}
@@ -247,17 +247,26 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			parallel = task.Parallel
 		}
 
-		if t.SavesArtifactsOnFailure() || man.SlackChannel != "" {
+		if t.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
 			sequence := atc.PlanSequence{}
 
 			if t.SavesArtifactsOnFailure() {
 				sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
 			}
-			if man.SlackChannel != "" {
+			if man.NotifiesOnFailure() {
 				sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
 			}
 
 			job.Failure = &atc.PlanConfig{
+				Aggregate: &sequence,
+			}
+		}
+
+		if t.NotifiesOnSuccess() {
+			sequence := atc.PlanSequence{
+				slackOnSuccessPlan(man.SlackChannel),
+			}
+			job.Success = &atc.PlanConfig{
 				Aggregate: &sequence,
 			}
 		}

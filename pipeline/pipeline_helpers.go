@@ -109,3 +109,15 @@ func slackOnFailurePlan(channel string) atc.PlanConfig {
 		},
 	}
 }
+
+func slackOnSuccessPlan(channel string) atc.PlanConfig {
+	return atc.PlanConfig{
+		Put: slackResourceName,
+		Params: atc.Params{
+			"channel":  channel,
+			"username": "Halfpipe",
+			"icon_url": "https://concourse.halfpipe.io/public/images/favicon.png",
+			"text":     "Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded",
+		},
+	}
+}

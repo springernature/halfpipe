@@ -4,12 +4,22 @@ import "strings"
 
 type TaskList []Task
 
+func (taskList TaskList) NotifiesOnSuccess() bool {
+	for _, task := range taskList {
+		if task.NotifiesOnSuccess() {
+			return true
+		}
+	}
+	return false
+}
+
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
 	SavesArtifacts() bool
 	SavesArtifactsOnFailure() bool
 	IsManualTrigger() bool
+	NotifiesOnSuccess() bool
 }
 
 type Manifest struct {
@@ -22,6 +32,10 @@ type Manifest struct {
 	ArtifactConfig  ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
 	FeatureToggles  FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Tasks           TaskList
+}
+
+func (m Manifest) NotifiesOnFailure() bool {
+	return m.SlackChannel != ""
 }
 
 type ArtifactConfig struct {
@@ -65,6 +79,10 @@ type Run struct {
 	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
+func (r Run) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
+}
+
 func (r Run) SavesArtifactsOnFailure() bool {
 	return len(r.SaveArtifactsOnFailure) > 0
 }
@@ -97,6 +115,10 @@ type DockerPush struct {
 	Parallel         bool `yaml:"parallel,omitempty"`
 	Retries          int  `yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DockerPush) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
 }
 
 func (r DockerPush) SavesArtifactsOnFailure() bool {
@@ -132,6 +154,10 @@ type DockerCompose struct {
 	Parallel               bool     `yaml:"parallel,omitempty"`
 	Retries                int      `yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DockerCompose) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
 }
 
 func (r DockerCompose) SavesArtifactsOnFailure() bool {
@@ -172,6 +198,10 @@ type DeployCF struct {
 	Timeout         string
 	Retries         int  `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DeployCF) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess || r.PrePromote.NotifiesOnSuccess()
 }
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {
@@ -222,6 +252,10 @@ type ConsumerIntegrationTest struct {
 	NotifyOnSuccess      bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
+func (r ConsumerIntegrationTest) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
+}
+
 func (r ConsumerIntegrationTest) SavesArtifactsOnFailure() bool {
 	return false
 }
@@ -243,16 +277,20 @@ func (r ConsumerIntegrationTest) GetAttempts() int {
 }
 
 type DeployMLZip struct {
-	Type          string
-	Name          string
-	Parallel      bool     `yaml:"parallel,omitempty"`
-	DeployZip     string   `json:"deploy_zip"`
-	AppName       string   `json:"app_name"`
-	AppVersion    string   `json:"app_version"`
-	Targets       []string `secretAllowed:"true"`
-	ManualTrigger bool     `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries       int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Type            string
+	Name            string
+	Parallel        bool     `yaml:"parallel,omitempty"`
+	DeployZip       string   `json:"deploy_zip"`
+	AppName         string   `json:"app_name"`
+	AppVersion      string   `json:"app_version"`
+	Targets         []string `secretAllowed:"true"`
+	ManualTrigger   bool     `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries         int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DeployMLZip) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
 }
 
 func (r DeployMLZip) SavesArtifactsOnFailure() bool {
@@ -285,7 +323,11 @@ type DeployMLModules struct {
 	Targets          []string `secretAllowed:"true"`
 	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Retries          int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess  bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DeployMLModules) NotifiesOnSuccess() bool {
+	return r.NotifyOnSuccess
 }
 
 func (r DeployMLModules) SavesArtifactsOnFailure() bool {

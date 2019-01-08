@@ -90,3 +90,79 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	assert.True(t, result2.HasErrors())
 	assertInvalidFieldInErrors(t, "artifact_config", result2.Errors)
 }
+
+func TestNotifyOnSuccess(t *testing.T) {
+	t.Run("when its a top level task", func(t *testing.T) {
+		t.Run("and slack channel is not set it gives an error", func(t *testing.T) {
+			man := manifest.Manifest{
+				Team:     "team",
+				Pipeline: "pipeline",
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.DockerCompose{NotifyOnSuccess: true},
+					manifest.Run{},
+				},
+			}
+
+			result := NewTopLevelLinter().Lint(man)
+			assertInvalidFieldInErrors(t, "slack_channel", result.Errors)
+		})
+
+		t.Run("and slack channel is set it gives no error", func(t *testing.T) {
+			man := manifest.Manifest{
+				Team:         "team",
+				Pipeline:     "pipeline",
+				SlackChannel: "#meehp",
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.DockerCompose{NotifyOnSuccess: true},
+					manifest.Run{},
+				},
+			}
+
+			result := NewTopLevelLinter().Lint(man)
+			assert.Len(t, result.Errors, 0)
+		})
+	})
+
+	t.Run("when its a pre promote task", func(t *testing.T) {
+		t.Run("and slack channel is not set it gives an error", func(t *testing.T) {
+			man := manifest.Manifest{
+				Team:     "team",
+				Pipeline: "pipeline",
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.DeployCF{
+						PrePromote: manifest.TaskList{
+							manifest.DockerCompose{NotifyOnSuccess: true},
+						},
+					},
+					manifest.Run{},
+				},
+			}
+
+			result := NewTopLevelLinter().Lint(man)
+			assertInvalidFieldInErrors(t, "slack_channel", result.Errors)
+		})
+
+		t.Run("and slack channel is set it gives no error", func(t *testing.T) {
+			man := manifest.Manifest{
+				Team:         "team",
+				Pipeline:     "pipeline",
+				SlackChannel: "#meehp",
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.DeployCF{
+						PrePromote: manifest.TaskList{
+							manifest.DockerCompose{NotifyOnSuccess: true},
+						},
+					},
+					manifest.Run{},
+				},
+			}
+
+			result := NewTopLevelLinter().Lint(man)
+			assert.Len(t, result.Errors, 0)
+		})
+	})
+}
