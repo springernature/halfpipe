@@ -105,7 +105,7 @@ jobs:
     - put: slack-notification
       params:
         channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon.png
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
         text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
         username: Halfpipe
 - name: task2
@@ -281,7 +281,7 @@ jobs:
     - put: slack-notification
       params:
         channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon.png
+        icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
         text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
         username: Halfpipe
 

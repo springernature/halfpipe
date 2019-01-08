@@ -116,7 +116,7 @@ func slackOnSuccessPlan(channel string) atc.PlanConfig {
 		Params: atc.Params{
 			"channel":  channel,
 			"username": "Halfpipe",
-			"icon_url": "https://concourse.halfpipe.io/public/images/favicon.png",
+			"icon_url": "https://concourse.halfpipe.io/public/images/favicon-succeeded.png",
 			"text":     "Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded",
 		},
 	}
