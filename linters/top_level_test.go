@@ -9,7 +9,7 @@ import (
 
 func TestAllMissing(t *testing.T) {
 	man := manifest.Manifest{}
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 2)
 }
 
@@ -17,7 +17,7 @@ func TestTeamIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
 
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "team", result.Errors[0])
 }
@@ -27,7 +27,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Pipeline = "yolo"
 	man.Team = "yoLo"
 
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Warnings, 1)
 	assert.Len(t, result.Errors, 0)
 	assertInvalidField(t, "team", result.Warnings[0])
@@ -37,7 +37,7 @@ func TestPipelineIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
 
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
 	assertMissingField(t, "pipeline", result.Errors[0])
 }
@@ -47,7 +47,7 @@ func TestPipelineIsValid(t *testing.T) {
 	man.Team = "yolo"
 	man.Pipeline = "Something with spaces"
 
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.True(t, result.HasErrors())
 }
 
@@ -61,7 +61,7 @@ func TestHappyPath(t *testing.T) {
 		},
 	}
 
-	result := manifestLinter{}.Lint(man)
+	result := topLevelLinter{}.Lint(man)
 	assert.False(t, result.HasErrors())
 }
 
@@ -74,7 +74,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 		},
 	}
 
-	result := manifestLinter{}.Lint(missingJsonKey)
+	result := topLevelLinter{}.Lint(missingJsonKey)
 	assert.True(t, result.HasErrors())
 	assertInvalidFieldInErrors(t, "artifact_config", result.Errors)
 
@@ -86,7 +86,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 		},
 	}
 
-	result2 := manifestLinter{}.Lint(missingBucket)
+	result2 := topLevelLinter{}.Lint(missingBucket)
 	assert.True(t, result2.HasErrors())
 	assertInvalidFieldInErrors(t, "artifact_config", result2.Errors)
 }

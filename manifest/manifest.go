@@ -62,6 +62,7 @@ type Run struct {
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	Parallel               bool     `yaml:"parallel,omitempty"`
 	Retries                int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r Run) SavesArtifactsOnFailure() bool {
@@ -95,6 +96,7 @@ type DockerPush struct {
 	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts"`
 	Parallel         bool `yaml:"parallel,omitempty"`
 	Retries          int  `yaml:"retries,omitempty"`
+	NotifyOnSuccess  bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DockerPush) SavesArtifactsOnFailure() bool {
@@ -129,6 +131,7 @@ type DockerCompose struct {
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	Parallel               bool     `yaml:"parallel,omitempty"`
 	Retries                int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DockerCompose) SavesArtifactsOnFailure() bool {
@@ -152,22 +155,23 @@ func (r DockerCompose) GetAttempts() int {
 }
 
 type DeployCF struct {
-	Type           string
-	Name           string
-	ManualTrigger  bool   `json:"manual_trigger" yaml:"manual_trigger"`
-	API            string `secretAllowed:"true"`
-	Space          string `secretAllowed:"true"`
-	Org            string `secretAllowed:"true"`
-	Username       string `secretAllowed:"true"`
-	Password       string `secretAllowed:"true"`
-	Manifest       string
-	TestDomain     string   `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
-	Vars           Vars     `secretAllowed:"true"`
-	DeployArtifact string   `json:"deploy_artifact"`
-	PrePromote     TaskList `json:"pre_promote"`
-	Parallel       bool     `yaml:"parallel,omitempty"`
-	Timeout        string
-	Retries        int `yaml:"retries,omitempty"`
+	Type            string
+	Name            string
+	ManualTrigger   bool   `json:"manual_trigger" yaml:"manual_trigger"`
+	API             string `secretAllowed:"true"`
+	Space           string `secretAllowed:"true"`
+	Org             string `secretAllowed:"true"`
+	Username        string `secretAllowed:"true"`
+	Password        string `secretAllowed:"true"`
+	Manifest        string
+	TestDomain      string   `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
+	Vars            Vars     `secretAllowed:"true"`
+	DeployArtifact  string   `json:"deploy_artifact"`
+	PrePromote      TaskList `json:"pre_promote"`
+	Parallel        bool     `yaml:"parallel,omitempty"`
+	Timeout         string
+	Retries         int  `yaml:"retries,omitempty"`
+	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {
@@ -215,6 +219,7 @@ type ConsumerIntegrationTest struct {
 	Parallel             bool   `yaml:"parallel,omitempty"`
 	Vars                 Vars   `secretAllowed:"true"`
 	Retries              int    `yaml:"retries,omitempty"`
+	NotifyOnSuccess      bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r ConsumerIntegrationTest) SavesArtifactsOnFailure() bool {
@@ -247,6 +252,7 @@ type DeployMLZip struct {
 	Targets       []string `secretAllowed:"true"`
 	ManualTrigger bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Retries       int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DeployMLZip) SavesArtifactsOnFailure() bool {
@@ -279,6 +285,7 @@ type DeployMLModules struct {
 	Targets          []string `secretAllowed:"true"`
 	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
 	Retries          int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DeployMLModules) SavesArtifactsOnFailure() bool {

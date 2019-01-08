@@ -58,7 +58,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			CurrentDir: currentDir,
 			Defaulter:  defaults.NewDefaulter(projectData),
 			Linters: []linters.Linter{
-				linters.NewTeamLinter(),
+				linters.NewTopLevelLinter(),
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
 				linters.NewSecretsLinter(man.NewSecretValidator()),
 				linters.NewTasksLinter(fs, runtime.GOOS),

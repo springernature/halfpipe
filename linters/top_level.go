@@ -8,14 +8,14 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-type manifestLinter struct{}
+type topLevelLinter struct{}
 
-func NewTeamLinter() manifestLinter {
-	return manifestLinter{}
+func NewTopLevelLinter() topLevelLinter {
+	return topLevelLinter{}
 }
 
-func (manifestLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Manifest"
+func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+	result.Linter = "Top level fields"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/"
 
 	if manifest.Team == "" {
