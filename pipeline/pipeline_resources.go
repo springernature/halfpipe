@@ -228,9 +228,10 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
+
 func (p pipeline) versionUpdateJob(manifest manifest.Manifest) atc.JobConfig {
 	return atc.JobConfig{
-		Name: "update version",
+		Name: updateJobName,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Put: versionName,

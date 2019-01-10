@@ -82,9 +82,9 @@ func TestShouldAddAVersionJobAsFirstJobIfFeatureToggleIsEnabled(t *testing.T) {
 
 	cfg := testPipeline().Render(man)
 
-	_, found := cfg.Jobs.Lookup("update version")
+	_, found := cfg.Jobs.Lookup(updateJobName)
 	assert.True(t, found)
-	assert.Equal(t, "update version", cfg.Jobs[0].Name)
+	assert.Equal(t, updateJobName, cfg.Jobs[0].Name)
 }
 
 func TestGetShouldNotContainGetOnVersionIfFeatureToggleIsNotEnabled(t *testing.T) {
@@ -155,7 +155,7 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 
 	cfg := testPipeline().Render(man)
 
-	updateConfig, found := cfg.Jobs.Lookup("update version")
+	updateConfig, found := cfg.Jobs.Lookup(updateJobName)
 	assert.True(t, found)
 	for _, get := range *updateConfig.Plan[0].Aggregate {
 		assert.True(t, get.Trigger)
@@ -169,7 +169,7 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 		} else {
 			assert.False(t, get.Trigger)
 		}
-		assert.Equal(t, []string{"update version"}, get.Passed)
+		assert.Equal(t, []string{updateJobName}, get.Passed)
 	}
 
 	secondTask, found := cfg.Jobs.Lookup(secondJob)
@@ -209,7 +209,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 	var cronFound bool
 	var triggerIntervalFound bool
 	var versionFound bool
-	updateVersionConfig, found := cfg.Jobs.Lookup("update version")
+	updateVersionConfig, found := cfg.Jobs.Lookup(updateJobName)
 	assert.True(t, found)
 	for _, get := range *updateVersionConfig.Plan[0].Aggregate {
 		if get.Get == cronName {
@@ -238,7 +238,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 		}
 		assert.NotContains(t, cronName, get.Get)
 		assert.NotContains(t, "timer ", get.Get)
-		assert.Equal(t, []string{"update version"}, get.Passed)
+		assert.Equal(t, []string{updateJobName}, get.Passed)
 	}
 
 	secondTask, found := cfg.Jobs.Lookup(secondJob)

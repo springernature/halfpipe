@@ -151,8 +151,8 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitDir, Passed: []string{"update version"}},
-					atc.PlanConfig{Get: versionName, Passed: []string{"update version"}, Trigger: true},
+					atc.PlanConfig{Get: gitDir, Passed: []string{updateJobName}},
+					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
 				},
 			},
 			atc.PlanConfig{
@@ -212,8 +212,8 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitDir, Passed: []string{"update version"}},
-					atc.PlanConfig{Get: versionName, Passed: []string{"update version"}, Trigger: true},
+					atc.PlanConfig{Get: gitDir, Passed: []string{updateJobName}},
+					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
 				},
 			},
 			restoreArtifactTask(man),

@@ -53,6 +53,8 @@ const versionName = "version"
 const cronName = "cron"
 const timerName = "timer"
 
+const updateJobName = "update version"
+
 func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()
 	cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
