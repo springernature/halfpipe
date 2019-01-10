@@ -34,7 +34,7 @@ func TestRenderRunTask(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
 			atc.PlanConfig{
 				Attempts:   3,
 				Task:       "run yolo.sh",
@@ -58,7 +58,7 @@ func TestRenderRunTask(t *testing.T) {
 						Args: runScriptArgs(runTask, manifest.Manifest{}, true),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
+						{Name: gitName},
 					},
 					Caches: config.CacheDirs,
 				}},
@@ -89,7 +89,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",
@@ -115,7 +115,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 						Args: runScriptArgs(runTask, manifest.Manifest{}, true),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
+						{Name: gitName},
 					},
 					Caches: config.CacheDirs,
 				}},
@@ -148,7 +148,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",
@@ -172,7 +172,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 						Args: runScriptArgs(runTask, man, true),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
+						{Name: gitName},
 					},
 					Caches: config.CacheDirs,
 				}},

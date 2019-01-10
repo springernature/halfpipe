@@ -39,7 +39,7 @@ func TestCronTriggerNotSet(t *testing.T) {
 
 	//should be 2 items in the plan: get git + task
 	assert.Len(t, plan, 2)
-	assert.Equal(t, gitDir, (*plan[0].Aggregate)[0].Name())
+	assert.Equal(t, gitName, (*plan[0].Aggregate)[0].Name())
 	assert.True(t, (*plan[0].Aggregate)[0].Trigger)
 	assert.Equal(t, "run run.sh", plan[1].Task)
 }
@@ -76,14 +76,14 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	t1Aggregate := *t1[0].Aggregate
 
 	assert.Len(t, t1, 2)
-	assert.Equal(t, gitDir, t1Aggregate[0].Name())
+	assert.Equal(t, gitName, t1Aggregate[0].Name())
 	assert.Equal(t, cronName, t1Aggregate[1].Name())
 	assert.True(t, t1Aggregate[1].Trigger)
 
 	t2 := config.Jobs[1].Plan
 	t2Aggregate := *t2[0].Aggregate
 	assert.Len(t, t2, 2)
-	assert.Equal(t, gitDir, t2Aggregate[0].Name())
+	assert.Equal(t, gitName, t2Aggregate[0].Name())
 	assert.Equal(t, []string{t1[1].Task}, t2Aggregate[0].Passed)
 
 	assert.Equal(t, cronName, t2Aggregate[1].Name())
@@ -107,14 +107,14 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	firstAggregate := *first[0].Aggregate
 
 	assert.Len(t, first, 2)
-	assert.Equal(t, gitDir, firstAggregate[0].Name())
+	assert.Equal(t, gitName, firstAggregate[0].Name())
 	assert.Equal(t, cronName, firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
 	p1Aggregate := *p1[0].Aggregate
 	assert.Len(t, p1, 2)
-	assert.Equal(t, gitDir, p1Aggregate[0].Name())
+	assert.Equal(t, gitName, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
 	assert.Equal(t, cronName, p1Aggregate[1].Name())
@@ -123,7 +123,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	p2 := config.Jobs[2].Plan
 	p2Aggregate := *p2[0].Aggregate
 	assert.Len(t, p2, 2)
-	assert.Equal(t, gitDir, p2Aggregate[0].Name())
+	assert.Equal(t, gitName, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
 	assert.Equal(t, cronName, p2Aggregate[1].Name())
@@ -132,7 +132,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	last := config.Jobs[3].Plan
 	lastAggregate := *last[0].Aggregate
 	assert.Len(t, last, 2)
-	assert.Equal(t, gitDir, lastAggregate[0].Name())
+	assert.Equal(t, gitName, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastAggregate[0].Passed)
 
 	assert.Equal(t, cronName, lastAggregate[1].Name())
@@ -157,14 +157,14 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	firstAggregate := *first[0].Aggregate
 
 	assert.Len(t, first, 3)
-	assert.Equal(t, gitDir, firstAggregate[0].Name())
+	assert.Equal(t, gitName, firstAggregate[0].Name())
 	assert.Equal(t, cronName, firstAggregate[1].Name())
 	assert.True(t, firstAggregate[1].Trigger)
 
 	p1 := config.Jobs[1].Plan
 	p1Aggregate := *p1[0].Aggregate
 	assert.Len(t, p1, 2)
-	assert.Equal(t, gitDir, p1Aggregate[0].Name())
+	assert.Equal(t, gitName, p1Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p1Aggregate[0].Passed)
 
 	assert.Equal(t, cronName, p1Aggregate[1].Name())
@@ -173,7 +173,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	p2 := config.Jobs[2].Plan
 	p2Aggregate := *p2[0].Aggregate
 	assert.Len(t, p2, 3)
-	assert.Equal(t, gitDir, p2Aggregate[0].Name())
+	assert.Equal(t, gitName, p2Aggregate[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2Aggregate[0].Passed)
 
 	assert.Equal(t, cronName, p2Aggregate[1].Name())
@@ -183,7 +183,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	last := config.Jobs[3].Plan
 	lastAggregate := *last[0].Aggregate
 	assert.Len(t, last, 3)
-	assert.Equal(t, gitDir, lastAggregate[0].Name())
+	assert.Equal(t, gitName, lastAggregate[0].Name())
 	assert.Equal(t, []string{p1[1].Task, p2[2].Task}, lastAggregate[0].Passed)
 
 	assert.Equal(t, cronName, lastAggregate[1].Name())

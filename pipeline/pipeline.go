@@ -43,6 +43,7 @@ const artifactsInDir = "artifacts"
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
+const gitName = "git"
 const gitDir = "git"
 
 const dockerPushResourceName = "Docker Registry"
@@ -54,6 +55,7 @@ const cronName = "cron"
 const timerName = "timer"
 
 const updateJobName = "update version"
+const updatePipelineName = "update pipeline"
 
 func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()
@@ -105,7 +107,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		},
 		Inputs: []atc.TaskInputConfig{
 			{
-				Name: gitDir,
+				Name: gitName,
 			},
 		},
 		Outputs: []atc.TaskOutputConfig{
@@ -122,7 +124,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 }
 
 func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
-	gitClone := atc.PlanConfig{Get: gitDir}
+	gitClone := atc.PlanConfig{Get: gitName}
 	if man.Repo.Shallow {
 		gitClone.Params = map[string]interface{}{
 			"depth": 1,
@@ -306,7 +308,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	aggregate := *job.Plan[0].Aggregate
 	for i, get := range aggregate {
-		if get.Name() == gitDir ||
+		if get.Name() == gitName ||
 			get.Name() == versionName ||
 			get.Name() == timerName ||
 			get.Name() == cronName {
@@ -368,7 +370,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 				Args: runScriptArgs(task, man, !isDockerCompose),
 			},
 			Inputs: []atc.TaskInputConfig{
-				{Name: gitDir},
+				{Name: gitName},
 			},
 			Caches: config.CacheDirs,
 		}}

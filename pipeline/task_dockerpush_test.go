@@ -44,7 +44,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "Docker Registry",
@@ -96,7 +96,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "Docker Registry",
@@ -151,7 +151,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitDir, Passed: []string{updateJobName}},
+					atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
 					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
 				},
 			},
@@ -212,7 +212,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitDir, Passed: []string{updateJobName}},
+					atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
 					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
 				},
 			},
@@ -235,7 +235,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
+						{Name: gitName},
 						{Name: artifactsName},
 					},
 					Outputs: []atc.TaskOutputConfig{

@@ -72,7 +72,7 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 	}
 
 	expectedResourceNames := []string{
-		gitDir,
+		gitName,
 		"CF api.foo.bar ee dev",
 		"CF api.foo.bar ee dev (1)",
 		"CF dev org-dev space-dev",
