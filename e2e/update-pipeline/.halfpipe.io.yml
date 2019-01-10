@@ -2,12 +2,12 @@ team: engineering-enablement
 pipeline: test
 repo:
   watched_paths:
-    - e2e/auto-update
+    - e2e/update-pipeline
 
 slack_channel: "#ee-re"
 
 feature_toggles:
-- auto-update
+- update-pipeline
 
 tasks:
 - type: run

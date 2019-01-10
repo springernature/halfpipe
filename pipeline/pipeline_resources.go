@@ -228,17 +228,47 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
-
-func (p pipeline) versionUpdateJob(manifest manifest.Manifest) atc.JobConfig {
-	return atc.JobConfig{
+func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
+	job := atc.JobConfig{
 		Name: updateJobName,
-		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Put: versionName,
-				Params: atc.Params{
-					"bump": "minor",
-				},
-			},
-		},
 	}
+
+	if manifest.FeatureToggles.UpdatePipeline() {
+		job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
+	}
+
+	job.Plan = append(job.Plan, atc.PlanConfig{
+		Put: versionName,
+		Params: atc.Params{
+			"bump": "minor",
+		},
+	})
+
+	return job
+}
+
+func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
+	return atc.PlanConfig{
+		Task: updatePipelineName,
+		TaskConfig: &atc.TaskConfig{
+			Platform: "linux",
+			Params: map[string]string{
+				"CONCOURSE_PASSWORD": "((concourse.password))",
+				"CONCOURSE_TEAM":     "((concourse.team))",
+				"CONCOURSE_USERNAME": "((concourse.username))",
+				"PIPELINE_NAME":      man.Pipeline,
+			},
+			ImageResource: p.imageResource(manifest.Docker{
+				Image:    "eu.gcr.io/halfpipe-io/halfpipe-auto-update",
+				Username: "_json_key",
+				Password: "((gcr.private_key))",
+			}),
+			Run: atc.TaskRunConfig{
+				Path: "/bin/update-pipeline",
+				Dir:  path.Join(gitDir, man.Repo.BasePath),
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitName},
+			},
+		}}
 }

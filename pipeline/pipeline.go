@@ -185,7 +185,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	if man.FeatureToggles.Versioned() {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
-		job := p.versionUpdateJob(man)
+		job := p.updateJob(man)
 		if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
 			failurePlan := slackOnFailurePlan(man.SlackChannel)
 			job.Failure = &failurePlan

@@ -6,7 +6,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/auto-update
+    - e2e/update-pipeline
     private_key: ((github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: slack-notification
@@ -87,6 +87,26 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+  - task: update pipeline
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: _json_key
+      params:
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_USERNAME: ((concourse.username))
+        PIPELINE_NAME: test
+      run:
+        path: /bin/update-pipeline
+        dir: git/e2e/update-pipeline
+      inputs:
+        - name: git
   - put: version
     params:
       bump: minor
@@ -176,7 +196,7 @@ jobs:
           # Artifacts to copy from task
           copyArtifact target/distribution ../../../artifacts-out
           copyArtifact README.md ../../../artifacts-out
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -245,7 +265,7 @@ jobs:
       appPath: artifacts/target/distribution/artifact.zip
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -253,7 +273,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     attempts: 2
@@ -270,7 +290,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
     attempts: 2
 - name: deploy to staging
@@ -309,10 +329,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
-      appPath: git/e2e/auto-update
+      appPath: git/e2e/update-pipeline
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: live.cf.private.springer.com
       vars:
         A: "0.1"
@@ -373,7 +393,7 @@ jobs:
               if [ $EXIT_STATUS != 0 ] ; then
                 exit 1
               fi
-            dir: git/e2e/auto-update
+            dir: git/e2e/update-pipeline
           inputs:
           - name: git
           - name: artifacts
@@ -457,7 +477,7 @@ jobs:
               if [ $EXIT_STATUS != 0 ] ; then
                 exit 1
               fi
-            dir: git/e2e/auto-update
+            dir: git/e2e/update-pipeline
           inputs:
           - name: git
           - name: version
@@ -469,7 +489,7 @@ jobs:
     resource: CF live pe staging
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: live.cf.private.springer.com
     attempts: 2
   on_failure:
@@ -485,7 +505,7 @@ jobs:
     resource: CF live pe staging
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
     attempts: 2
 - name: deploy to qa
   serial: true
@@ -523,10 +543,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas qa
     params:
-      appPath: git/e2e/auto-update
+      appPath: git/e2e/update-pipeline
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
       vars:
         A: "0.1"
@@ -602,7 +622,7 @@ jobs:
 
             # Artifacts to copy from task
             copyArtifact build ../../../artifacts-out
-          dir: git/e2e/auto-update
+          dir: git/e2e/update-pipeline
         inputs:
         - name: git
         - name: version
@@ -671,7 +691,7 @@ jobs:
             if [ $EXIT_STATUS != 0 ] ; then
               exit 1
             fi
-          dir: git/e2e/auto-update
+          dir: git/e2e/update-pipeline
         inputs:
         - name: git
         - name: artifacts
@@ -684,7 +704,7 @@ jobs:
     resource: CF snpaas qa
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
     attempts: 2
   on_failure:
@@ -700,7 +720,7 @@ jobs:
     resource: CF snpaas qa
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/auto-update/manifest.yml
+      manifestPath: git/e2e/update-pipeline/manifest.yml
     attempts: 2
 - name: push to docker registry
   serial: true
@@ -717,7 +737,7 @@ jobs:
       trigger: true
   - put: Docker Registry
     params:
-      build: git/e2e/auto-update
+      build: git/e2e/update-pipeline
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -796,7 +816,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -885,7 +905,7 @@ jobs:
             copyArtifact docker-compose.yml ../../../artifacts-out-failure
             exit 1
           fi
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -996,7 +1016,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -1096,7 +1116,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: artifacts
@@ -1175,7 +1195,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/auto-update
+        dir: git/e2e/update-pipeline
       inputs:
       - name: git
       - name: version
