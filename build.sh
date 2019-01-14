@@ -35,7 +35,7 @@ if command -v golint > /dev/null; then
         grep -v 'returns unexported type' \
     || true
 else
-    echo "golint not installed. to install: go get -u golang.org/x/lint/golint"
+    echo "golint not installed. to install: GO111MODULE=off go get -u golang.org/x/lint/golint"
 fi
 
 echo Finished!
