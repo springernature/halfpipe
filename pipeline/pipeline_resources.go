@@ -88,13 +88,13 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 	}
 
 	bucket := "halfpipe-io-artifacts"
-	json_key := "((gcr.private_key))"
+	jsonKey := "((gcr.private_key))"
 
 	if artifactConfig.Bucket != "" {
 		bucket = artifactConfig.Bucket
 	}
-	if artifactConfig.JsonKey != "" {
-		json_key = artifactConfig.JsonKey
+	if artifactConfig.JSONKey != "" {
+		jsonKey = artifactConfig.JSONKey
 	}
 
 	return atc.ResourceConfig{
@@ -103,7 +103,7 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 		Source: atc.Source{
 			"bucket":   bucket,
 			"folder":   path.Join(filter(team), filter(pipeline)),
-			"json_key": json_key,
+			"json_key": jsonKey,
 		},
 	}
 }
@@ -222,7 +222,7 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 			"driver":   "gcs",
 			"key":      key,
 			"bucket":   config.VersionBucket,
-			"json_key": config.VersionJsonKey,
+			"json_key": config.VersionJSONKey,
 		},
 	}
 }

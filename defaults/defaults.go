@@ -21,12 +21,12 @@ var DefaultValues = Defaults{
 	CfUsernameSnPaas:     "((cloudfoundry.username-snpaas))",
 	CfPasswordSnPaas:     "((cloudfoundry.password-snpaas))",
 	CfOrgSnPaas:          "((cloudfoundry.org-snpaas))",
-	CfApiSnPaas:          "((cloudfoundry.api-snpaas))",
+	CfAPISnPaas:          "((cloudfoundry.api-snpaas))",
 	DockerUsername:       "_json_key",
 	DockerPassword:       "((gcr.private_key))",
 	DockerComposeService: "app",
 
 	ArtifactoryUsername: "((artifactory.username))",
 	ArtifactoryPassword: "((artifactory.password))",
-	ArtifactoryUrl:      "((artifactory.url))",
+	ArtifactoryURL:      "((artifactory.url))",
 }

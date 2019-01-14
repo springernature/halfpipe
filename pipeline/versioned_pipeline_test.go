@@ -37,7 +37,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 	source := resource.Source
 	assert.Equal(t, "gcs", source["driver"])
 	assert.Equal(t, config.VersionBucket, source["bucket"])
-	assert.Equal(t, config.VersionJsonKey, source["json_key"])
+	assert.Equal(t, config.VersionJSONKey, source["json_key"])
 	assert.Equal(t, team+"-"+pipeline, source["key"])
 
 	branch := "branch"
@@ -60,7 +60,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 	sourceWithBranch := resourceWithBranch.Source
 	assert.Equal(t, "gcs", sourceWithBranch["driver"])
 	assert.Equal(t, config.VersionBucket, sourceWithBranch["bucket"])
-	assert.Equal(t, config.VersionJsonKey, sourceWithBranch["json_key"])
+	assert.Equal(t, config.VersionJSONKey, sourceWithBranch["json_key"])
 	assert.Equal(t, team+"-"+pipeline+"-"+branch, sourceWithBranch["key"])
 
 }
@@ -314,7 +314,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVar(t *testing.T
 			for _, a := range *plan.Aggregate {
 				if a.Do != nil {
 					for _, prePromoteTask := range *a.Do {
-						foundPrePromoteTasks += 1
+						foundPrePromoteTasks++
 						assert.Contains(t, prePromoteTask.TaskConfig.Inputs, expectedInput)
 						assert.Contains(t, prePromoteTask.TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../version/version`")
 
@@ -390,7 +390,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 			for _, a := range *plan.Aggregate {
 				if a.Do != nil {
 					for _, prePromoteTask := range *a.Do {
-						foundPrePromoteTasks += 1
+						foundPrePromoteTasks++
 						assert.Contains(t, prePromoteTask.TaskConfig.Inputs, expectedInput)
 						assert.Contains(t, prePromoteTask.TaskConfig.Run.Args[1], "export BUILD_VERSION=`cat ../../../version/version`")
 

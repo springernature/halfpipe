@@ -5,9 +5,9 @@ import (
 	"github.com/concourse/atc"
 )
 
+// These fields will be populated in build
+// go build -ldflags "-X config.version=..."
 var (
-	// These fields will be populated in build
-	// go build -ldflags "-X config.version=..."
 	Version = "0.0.0-DEV"
 
 	SlackWebhook = "Set your slack webhook here"
@@ -49,4 +49,4 @@ func GetVersion() (semver.Version, error) {
 }
 
 const VersionBucket = "halfpipe-io-semver"
-const VersionJsonKey = "((gcr.private_key))"
+const VersionJSONKey = "((gcr.private_key))"

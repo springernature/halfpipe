@@ -20,7 +20,7 @@ type repoLinter struct {
 	Fs              afero.Afero
 	WorkingDir      string
 	branchResolver  project.GitBranchResolver
-	repoUriResolver func() (string, error)
+	repoURIResolver func() (string, error)
 }
 
 func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver) repoLinter {
@@ -28,7 +28,7 @@ func NewRepoLinter(fs afero.Afero, workingDir string, branchResolver project.Git
 		Fs:              fs,
 		WorkingDir:      workingDir,
 		branchResolver:  branchResolver,
-		repoUriResolver: gitconfig.OriginURL,
+		repoURIResolver: gitconfig.OriginURL,
 	}
 }
 
@@ -95,7 +95,7 @@ func (r repoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 		}
 	}
 
-	if resolvedRepoURI, err := r.repoUriResolver(); err != nil {
+	if resolvedRepoURI, err := r.repoURIResolver(); err != nil {
 		result.AddError(err)
 	} else {
 		if resolvedRepoURI != man.Repo.URI {

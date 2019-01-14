@@ -46,16 +46,16 @@ func (builds Builds) GetErrored() (erroredBuilds Builds) {
 }
 
 func (builds Builds) IsLatest(build Build) bool {
-	highestIdForBuild := 0
+	highestIDForBuild := 0
 	for _, b := range builds {
 		if b.PipelineName == build.PipelineName && b.JobName == build.JobName {
-			if b.ID > highestIdForBuild {
-				highestIdForBuild = b.ID
+			if b.ID > highestIDForBuild {
+				highestIDForBuild = b.ID
 			}
 		}
 	}
 
-	return build.ID >= highestIdForBuild
+	return build.ID >= highestIDForBuild
 }
 
 func GetBuilds(team string, count string) (builds Builds, err error) {

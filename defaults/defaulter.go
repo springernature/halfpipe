@@ -17,7 +17,7 @@ type Defaults struct {
 	CfUsernameSnPaas     string
 	CfPasswordSnPaas     string
 	CfOrgSnPaas          string
-	CfApiSnPaas          string
+	CfAPISnPaas          string
 	CfManifest           string
 	CfTestDomains        map[string]string
 	DockerUsername       string
@@ -26,7 +26,7 @@ type Defaults struct {
 	DockerComposeService string
 	ArtifactoryUsername  string
 	ArtifactoryPassword  string
-	ArtifactoryUrl       string
+	ArtifactoryURL       string
 }
 
 func NewDefaulter(project project.Data) Defaults {
@@ -53,7 +53,7 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		for i, t := range task {
 			switch task := t.(type) {
 			case manifest.DeployCF:
-				if task.API == d.CfApiSnPaas {
+				if task.API == d.CfAPISnPaas {
 					if task.Org == "" {
 						task.Org = d.CfOrgSnPaas
 					}
@@ -143,7 +143,7 @@ func (d Defaults) addArtifactoryCredentialsToVars(vars manifest.Vars) manifest.V
 	}
 
 	if _, found := vars["ARTIFACTORY_URL"]; !found {
-		vars["ARTIFACTORY_URL"] = d.ArtifactoryUrl
+		vars["ARTIFACTORY_URL"] = d.ArtifactoryURL
 	}
 
 	return vars

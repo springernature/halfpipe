@@ -383,7 +383,7 @@ func TestArtifactConfig(t *testing.T) {
 	man := manifest.Manifest{
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "((superSecret.bucket))",
-			JsonKey: "((superSecret.JsonKey))",
+			JSONKey: "((superSecret.JSONKey))",
 		},
 	}
 

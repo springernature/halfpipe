@@ -40,7 +40,7 @@ func (m Manifest) NotifiesOnFailure() bool {
 
 type ArtifactConfig struct {
 	Bucket  string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true"`
-	JsonKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
+	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
 }
 
 type Repo struct {

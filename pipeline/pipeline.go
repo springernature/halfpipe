@@ -74,9 +74,9 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		return reg.ReplaceAllString(strings.ToLower(str), "")
 	}
 
-	JSON_KEY := "((gcr.private_key))"
-	if man.ArtifactConfig.JsonKey != "" {
-		JSON_KEY = man.ArtifactConfig.JsonKey
+	jsonKey := "((gcr.private_key))"
+	if man.ArtifactConfig.JSONKey != "" {
+		jsonKey = man.ArtifactConfig.JSONKey
 	}
 
 	BUCKET := "halfpipe-io-artifacts"
@@ -97,7 +97,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		Params: map[string]string{
 			"BUCKET":       BUCKET,
 			"FOLDER":       path.Join(filter(man.Team), filter(man.Pipeline)),
-			"JSON_KEY":     JSON_KEY,
+			"JSON_KEY":     jsonKey,
 			"VERSION_FILE": "git/.git/ref",
 		},
 		Run: atc.TaskRunConfig{

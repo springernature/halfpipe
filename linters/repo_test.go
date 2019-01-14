@@ -16,7 +16,7 @@ func testRepoLinter() repoLinter {
 		branchResolver: func() (branch string, err error) {
 			return "master", nil
 		},
-		repoUriResolver: func() (string, error) {
+		repoURIResolver: func() (string, error) {
 			return "https://github.com/springernature/halfpipe.git", nil
 		},
 	}
@@ -211,7 +211,7 @@ func TestRepoWhenRepoUriIsNotSameAsRepoResolver(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	linter := testRepoLinter()
-	linter.repoUriResolver = func() (string, error) {
+	linter.repoURIResolver = func() (string, error) {
 		return "git@github.com:springernature/someRandomRepo.git", nil
 	}
 
@@ -228,7 +228,7 @@ func TestPassesOnRepoUriResolverErrors(t *testing.T) {
 	linter.branchResolver = func() (branch string, err error) {
 		return "master", nil
 	}
-	linter.repoUriResolver = func() (string, error) {
+	linter.repoURIResolver = func() (string, error) {
 		return "", expectedError
 	}
 

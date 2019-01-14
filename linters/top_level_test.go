@@ -57,7 +57,7 @@ func TestHappyPath(t *testing.T) {
 		Pipeline: "alles-gut",
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "someBucket",
-			JsonKey: "someKey",
+			JSONKey: "someKey",
 		},
 	}
 
@@ -66,7 +66,7 @@ func TestHappyPath(t *testing.T) {
 }
 
 func TestMissingFieldInArtifactConfig(t *testing.T) {
-	missingJsonKey := manifest.Manifest{
+	missingJSONKey := manifest.Manifest{
 		Team:     "team",
 		Pipeline: "pipeline",
 		ArtifactConfig: manifest.ArtifactConfig{
@@ -74,7 +74,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 		},
 	}
 
-	result := topLevelLinter{}.Lint(missingJsonKey)
+	result := topLevelLinter{}.Lint(missingJSONKey)
 	assert.True(t, result.HasErrors())
 	assertInvalidFieldInErrors(t, "artifact_config", result.Errors)
 
@@ -82,7 +82,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 		Team:     "team",
 		Pipeline: "pipeline",
 		ArtifactConfig: manifest.ArtifactConfig{
-			JsonKey: "notEmpty",
+			JSONKey: "notEmpty",
 		},
 	}
 

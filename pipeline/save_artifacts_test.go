@@ -214,7 +214,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 		Pipeline: "pipeline",
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "((override.Bucket))",
-			JsonKey: "((override.JsonKey))",
+			JSONKey: "((override.JSONKey))",
 		},
 		Repo: manifest.Repo{
 			URI:      gitURI,
@@ -249,12 +249,12 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
 	assert.Equal(t, man.ArtifactConfig.Bucket, resource.Source["bucket"])
-	assert.Equal(t, man.ArtifactConfig.JsonKey, resource.Source["json_key"])
+	assert.Equal(t, man.ArtifactConfig.JSONKey, resource.Source["json_key"])
 
 	config, found := renderedPipeline.Jobs.Lookup(secondTaskName)
 	assert.True(t, found)
 	assert.Equal(t, restoreArtifactTask(man), config.Plan[1])
-	assert.Equal(t, man.ArtifactConfig.JsonKey, config.Plan[1].TaskConfig.Params["JSON_KEY"])
+	assert.Equal(t, man.ArtifactConfig.JSONKey, config.Plan[1].TaskConfig.Params["JSON_KEY"])
 	assert.Equal(t, man.ArtifactConfig.Bucket, config.Plan[1].TaskConfig.Params["BUCKET"])
 }
 

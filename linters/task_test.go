@@ -76,42 +76,42 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 		},
 		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			calledLintRunTask = true
-			calledLintRunTaskNum += 1
+			calledLintRunTaskNum++
 			return
 		},
 		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
 			calledLintDeployCFTask = true
-			calledLintDeployCFTaskNum += 1
+			calledLintDeployCFTaskNum++
 			return
 		},
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
 			calledLintPrePromoteTasks = true
-			calledLintPrePromoteTasksNum += 1
+			calledLintPrePromoteTasksNum++
 			return
 		},
 		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
 			calledLintDockerPushTask = true
-			calledLintDockerPushTaskNum += 1
+			calledLintDockerPushTaskNum++
 			return
 		},
 		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
 			calledLintDockerComposeTask = true
-			calledLintDockerComposeTaskNum += 1
+			calledLintDockerComposeTaskNum++
 			return
 		},
 		lintConsumerIntegrationTestTask: func(cit manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
 			calledLintConsumerIntegrationTestTask = true
-			calledLintConsumerIntegrationTestTaskNum += 1
+			calledLintConsumerIntegrationTestTaskNum++
 			return
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
 			calledLintDeployMLZipTask = true
-			calledLintDeployMLZipTaskNum += 1
+			calledLintDeployMLZipTaskNum++
 			return
 		},
 		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) {
 			calledLintDeployMLModulesTask = true
-			calledLintDeployMLModulesTaskNum += 1
+			calledLintDeployMLModulesTaskNum++
 			return
 		},
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {

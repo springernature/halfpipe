@@ -140,7 +140,7 @@ tasks:
 		},
 		ArtifactConfig: ArtifactConfig{
 			Bucket:  "myBucket",
-			JsonKey: "((some.jsonKey))",
+			JSONKey: "((some.jsonKey))",
 		},
 		SlackChannel:    "#ee-activity",
 		TriggerInterval: "4h",

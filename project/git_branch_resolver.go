@@ -28,6 +28,7 @@ If the above check are untrue we can assume that we are on a developer machine a
 `git rev-parse --abbrev-ref HEAD` should work.
 
 */
+
 type GitBranchResolver func() (branch string, err error)
 
 func gitIsOnPath() error {

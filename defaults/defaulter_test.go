@@ -42,7 +42,7 @@ func TestCFDeployDefaults(t *testing.T) {
 		CfUsername:  "((cloudfoundry.username))",
 		CfPassword:  "((cloudfoundry.password))",
 		CfManifest:  "manifest.yml",
-		CfApiSnPaas: "((snpaas-api))",
+		CfAPISnPaas: "((snpaas-api))",
 	}
 
 	task1 := manifest.DeployCF{}
@@ -76,7 +76,7 @@ func TestCFDeployDefaultsForSNPaaS(t *testing.T) {
 		CfUsernameSnPaas: "u",
 		CfPasswordSnPaas: "p",
 		CfOrgSnPaas:      "o",
-		CfApiSnPaas:      "a",
+		CfAPISnPaas:      "a",
 	}
 
 	task := manifest.DeployCF{
@@ -344,33 +344,33 @@ func TestSetsArtifactoryUsernameAndPassword(t *testing.T) {
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[0].(manifest.Run).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[0].(manifest.Run).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[0].(manifest.Run).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[0].(manifest.Run).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[1].(manifest.DockerCompose).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[1].(manifest.DockerCompose).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[1].(manifest.DockerCompose).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[1].(manifest.DockerCompose).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[2].(manifest.DockerPush).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[2].(manifest.DockerPush).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[2].(manifest.DockerPush).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[2].(manifest.DockerPush).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].(manifest.Run).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].(manifest.Run).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].(manifest.Run).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].(manifest.Run).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].(manifest.DockerPush).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].(manifest.DockerPush).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].(manifest.DockerPush).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].(manifest.DockerPush).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].(manifest.DockerCompose).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].(manifest.DockerCompose).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].(manifest.DockerCompose).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].(manifest.DockerCompose).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, otherUsername, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, otherPassword, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[4].(manifest.Run).Vars["ARTIFACTORY_URL"])
 
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_PASSWORD"])
-	assert.Equal(t, DefaultValues.ArtifactoryUrl, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_URL"])
+	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_URL"])
 }

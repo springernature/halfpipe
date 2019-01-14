@@ -32,8 +32,8 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult
 		result.AddError(errors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
 	}
 
-	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JsonKey == "") ||
-		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JsonKey != "") {
+	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JSONKey == "") ||
+		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JSONKey != "") {
 		result.AddError(errors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
 	}
 
