@@ -38,7 +38,6 @@ resources:
     api: dev-api
     org: engineering-enablement
     password: very-secret
-    prometheusGatewayURL: prometheus-pushgateway:9091
     space: dev
     username: michiel
 - name: CF live pe staging
@@ -47,7 +46,6 @@ resources:
     api: ((cloudfoundry.api-live))
     org: pe
     password: very-secret
-    prometheusGatewayURL: prometheus-pushgateway:9091
     space: staging
     username: michiel
 - name: CF snpaas qa
@@ -56,7 +54,6 @@ resources:
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
     password: ((cloudfoundry.password-snpaas))
-    prometheusGatewayURL: prometheus-pushgateway:9091
     space: qa
     username: ((cloudfoundry.username-snpaas))
 - name: Docker Registry
