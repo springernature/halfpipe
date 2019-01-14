@@ -20,17 +20,11 @@ echo [2/5] test
 go test $go_opts -cover ./...
 
 echo [3/5] lint
-# gometalinter not happy with 1.11
-# if command -v gometalinter > /dev/null; then
-#     gometalinter --fast \
-#         --disable=gocyclo \
-#         --exclude='should have comment' \
-#         --exclude='comment on exported' \
-#         --exclude='returns unexported type' \
-#         ./... || true
-# else
-#     echo "not installed. to install: go get -u github.com/alecthomas/gometalinter && gometalinter --install"
-# fi
+if command -v golint > /dev/null; then
+    golint ./... | grep -v 'should have comment or be unexported' || true
+else
+    echo "golint not installed. to install: go get -u golang.org/x/lint/golint"
+fi
 
 echo [4/5] build
 CONF_PKG="github.com/springernature/halfpipe/config"
