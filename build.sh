@@ -21,7 +21,10 @@ go test $go_opts -cover ./...
 
 echo [3/5] lint
 if command -v golint > /dev/null; then
-    golint ./... | grep -v 'should have comment or be unexported' || true
+    golint ./... |
+        grep -v 'should have comment or be unexported' |
+        grep -v 'returns unexported type' \
+    || true
 else
     echo "golint not installed. to install: go get -u golang.org/x/lint/golint"
 fi
