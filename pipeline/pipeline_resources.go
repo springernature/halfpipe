@@ -159,12 +159,11 @@ func halfpipeCfDeployResourceType(name string) atc.ResourceType {
 
 func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	sources := atc.Source{
-		"api":                  deployCF.API,
-		"org":                  deployCF.Org,
-		"space":                deployCF.Space,
-		"username":             deployCF.Username,
-		"password":             deployCF.Password,
-		"prometheusGatewayURL": config.PrometheusGatewayURL,
+		"api":      deployCF.API,
+		"org":      deployCF.Org,
+		"space":    deployCF.Space,
+		"username": deployCF.Username,
+		"password": deployCF.Password,
 	}
 
 	return atc.ResourceConfig{

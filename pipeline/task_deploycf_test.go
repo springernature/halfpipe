@@ -11,7 +11,6 @@ import (
 	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/atc"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -63,12 +62,11 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: deployCFResourceName(taskDeployDev),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":                  devAPI,
-			"space":                "dev",
-			"org":                  "springer",
-			"password":             "supersecret",
-			"prometheusGatewayURL": config.PrometheusGatewayURL,
-			"username":             "rob",
+			"api":      devAPI,
+			"space":    "dev",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
 		},
 	}
 
@@ -122,12 +120,11 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: deployCFResourceName(taskDeployLive),
 		Type: "cf-resource",
 		Source: atc.Source{
-			"api":                  liveAPI,
-			"space":                "prod",
-			"org":                  "springer",
-			"password":             "supersecret",
-			"prometheusGatewayURL": config.PrometheusGatewayURL,
-			"username":             "rob",
+			"api":      liveAPI,
+			"space":    "prod",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
 		},
 	}
 

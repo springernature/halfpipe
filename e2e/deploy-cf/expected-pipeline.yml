@@ -15,7 +15,6 @@ resources:
     api: dev-api
     org: test
     password: very-secret
-    prometheusGatewayURL: prometheus-pushgateway:9091
     space: dev
     username: michiel
 resource_types:

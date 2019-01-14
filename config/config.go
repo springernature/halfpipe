@@ -16,8 +16,6 @@ var (
 
 	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable"
 
-	PrometheusGatewayURL = "prometheus-pushgateway:9091"
-
 	ConcourseHost = "https://concourse.halfpipe.io"
 
 	CacheDirs = []atc.CacheConfig{

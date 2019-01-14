@@ -27,7 +27,6 @@ resources:
     api: ((cloudfoundry.api-live))
     org: pe
     password: very-secret
-    prometheusGatewayURL: prometheus-pushgateway:9091
     space: staging
     username: michiel
 - name: Docker Registry
