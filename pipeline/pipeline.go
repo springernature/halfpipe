@@ -54,8 +54,8 @@ const versionName = "version"
 const cronName = "cron"
 const timerName = "timer"
 
-const updateJobName = "update version"
-const updatePipelineName = "update pipeline"
+const updateJobName = "update"
+const updatePipelineName = "halfpipe update"
 
 func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()

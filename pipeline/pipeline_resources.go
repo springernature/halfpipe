@@ -230,18 +230,17 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
 	job := atc.JobConfig{
 		Name: updateJobName,
+		Plan: []atc.PlanConfig{{
+			Put: versionName,
+			Params: atc.Params{
+				"bump": "minor",
+			},
+		}},
 	}
 
 	if manifest.FeatureToggles.UpdatePipeline() {
 		job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
 	}
-
-	job.Plan = append(job.Plan, atc.PlanConfig{
-		Put: versionName,
-		Params: atc.Params{
-			"bump": "minor",
-		},
-	})
 
 	return job
 }
@@ -268,6 +267,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitName},
+				{Name: versionName},
 			},
 		}}
 }

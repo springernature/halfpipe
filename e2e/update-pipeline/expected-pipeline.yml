@@ -82,12 +82,15 @@ resource_types:
     repository: platformengineering/cf-resource
     tag: stable
 jobs:
-- name: update version
+- name: update
   plan:
   - aggregate:
     - get: git
       trigger: true
-  - task: update pipeline
+  - put: version
+    params:
+      bump: minor
+  - task: halfpipe update
     config:
       platform: linux
       image_resource:
@@ -107,9 +110,7 @@ jobs:
         dir: git/e2e/update-pipeline
       inputs:
         - name: git
-  - put: version
-    params:
-      bump: minor
+        - name: version
   on_failure:
     put: slack-notification
     params:
@@ -123,10 +124,10 @@ jobs:
   - aggregate:
     - get: git
       passed:
-      - update version
+      - update
     - get: version
       passed:
-      - update version
+      - update
       trigger: true
   - task: Test
     config:
