@@ -18,8 +18,7 @@ func TestCronTriggerWithIntervalTrigger(t *testing.T) {
 	man.CronTrigger = "*/10 * * * *"
 	man.TriggerInterval = "10m"
 
-	result := testTriggerLinter().Lint(man)
-	assert.True(t, result.HasErrors())
+	assert.True(t, testTriggerLinter().Lint(man).HasErrors())
 }
 
 func TestCronTriggerOnly(t *testing.T) {
@@ -28,8 +27,7 @@ func TestCronTriggerOnly(t *testing.T) {
 	man.Pipeline = "alles-gut"
 	man.CronTrigger = "*/10 * * * *"
 
-	result := testTriggerLinter().Lint(man)
-	assert.False(t, result.HasErrors())
+	assert.False(t, testTriggerLinter().Lint(man).HasErrors())
 }
 
 func TestInvalidCronTrigger(t *testing.T) {
@@ -38,8 +36,17 @@ func TestInvalidCronTrigger(t *testing.T) {
 	man.Pipeline = "alles-gut"
 	man.CronTrigger = "*/99 * * * *"
 
-	result := testTriggerLinter().Lint(man)
-	assert.True(t, result.HasErrors())
+	assert.True(t, testTriggerLinter().Lint(man).HasErrors())
+}
+
+func TestCronTriggerWithSecondsShouldHaveError(t *testing.T) {
+	man := manifest.Manifest{}
+	man.Team = "yolo"
+	man.Pipeline = "alles-gut"
+	// 6 parts means there is seconds.
+	man.CronTrigger = "* * * * * *"
+
+	assert.True(t, testTriggerLinter().Lint(man).HasErrors())
 }
 
 func TestIntervalTriggerTriggerOnly(t *testing.T) {
@@ -48,6 +55,5 @@ func TestIntervalTriggerTriggerOnly(t *testing.T) {
 	man.Pipeline = "alles-gut"
 	man.TriggerInterval = "10m"
 
-	result := testTriggerLinter().Lint(man)
-	assert.True(t, result.HasWarnings())
+	assert.True(t, testTriggerLinter().Lint(man).HasWarnings())
 }

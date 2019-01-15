@@ -6,6 +6,7 @@ import (
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
+	"regexp"
 )
 
 type triggerLinter struct{}
@@ -28,6 +29,11 @@ func (triggerLinter) Lint(manifest manifest.Manifest) (result result.LintResult)
 		_, err := cronexpr.Parse(manifest.CronTrigger)
 		if err != nil {
 			result.AddError(errors.NewInvalidField("cron_trigger", fmt.Sprintf("%s is not a valid cron expression", manifest.CronTrigger)))
+		}
+
+		spacer := regexp.MustCompile(`\S+`)
+		if len(spacer.FindAllStringIndex(manifest.CronTrigger, -1)) == 6 {
+			result.AddError(errors.NewInvalidField("cron_trigger", "seconds in cron expression is not supported"))
 		}
 	}
 
