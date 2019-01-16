@@ -56,6 +56,7 @@ const timerName = "timer"
 
 const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
+const updateTaskAttempts = 2
 
 func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
 	slackResourceType := p.slackResourceType()

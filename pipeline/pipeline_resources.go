@@ -235,6 +235,7 @@ func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
 			Params: atc.Params{
 				"bump": "minor",
 			},
+			Attempts: updateTaskAttempts,
 		}},
 	}
 
@@ -247,7 +248,8 @@ func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
 
 func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 	return atc.PlanConfig{
-		Task: updatePipelineName,
+		Task:     updatePipelineName,
+		Attempts: updateTaskAttempts,
 		TaskConfig: &atc.TaskConfig{
 			Platform: "linux",
 			Params: map[string]string{

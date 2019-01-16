@@ -87,6 +87,7 @@ jobs:
   - put: version
     params:
       bump: minor
+    attempts: 2
   - task: halfpipe update
     config:
       platform: linux
@@ -108,6 +109,7 @@ jobs:
       inputs:
         - name: git
         - name: version
+    attempts: 2
   on_failure:
     put: slack-notification
     params:

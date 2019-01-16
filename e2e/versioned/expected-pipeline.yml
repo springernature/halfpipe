@@ -87,6 +87,7 @@ jobs:
   - put: version
     params:
       bump: minor
+    attempts: 2
   on_failure:
     put: slack-notification
     params:
