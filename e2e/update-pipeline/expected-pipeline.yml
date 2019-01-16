@@ -425,6 +425,7 @@ jobs:
             CONSUMER_SCRIPT: /var/c-script
             DOCKER_COMPOSE_SERVICE: ""
             GCR_PRIVATE_KEY: ((gcr.private_key))
+            GIT_CLONE_OPTIONS: ""
             PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
             PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
             PROVIDER_NAME: test
@@ -459,7 +460,7 @@ jobs:
               REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
               # clone consumer into "consumer-repo" dir
-              GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
+              GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
               cd consumer-repo/${CONSUMER_PATH}
 
               # checkout revision
@@ -962,6 +963,7 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((gcr.private_key))
+        GIT_CLONE_OPTIONS: ""
         K: value
         K1: value1
         PROVIDER_HOST: p-host
@@ -998,7 +1000,7 @@ jobs:
           REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
           # clone consumer into "consumer-repo" dir
-          GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
+          GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
           cd consumer-repo/${CONSUMER_PATH}
 
           # checkout revision

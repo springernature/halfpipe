@@ -40,6 +40,7 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
+			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 		},
 	}
 
@@ -75,7 +76,7 @@ set -x
 REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
 
 # clone consumer into "consumer-repo" dir
-GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${CONSUMER_GIT_URI} consumer-repo
+GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
 cd consumer-repo/${CONSUMER_PATH}
 
 # checkout revision

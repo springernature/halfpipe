@@ -105,6 +105,7 @@ tasks:
   consumer_host: cdc-host
   script: cdc-script
   parallel: true
+  git_clone_options: --depth 100
 - type: deploy-ml-zip
   name: deploy ml zip
   app_name: app-name
@@ -228,11 +229,12 @@ tasks:
 				Service: "asdf",
 			},
 			ConsumerIntegrationTest{
-				Name:         "cdc-name",
-				Consumer:     "cdc-consumer",
-				ConsumerHost: "cdc-host",
-				Parallel:     true,
-				Script:       "cdc-script",
+				Name:            "cdc-name",
+				Consumer:        "cdc-consumer",
+				ConsumerHost:    "cdc-host",
+				GitCloneOptions: "--depth 100",
+				Parallel:        true,
+				Script:          "cdc-script",
 			},
 			DeployMLZip{
 				Name:       "deploy ml zip",

@@ -52,6 +52,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 		"PROVIDER_HOST":          buildTestRoute("test-name", "cf-space", ""),
 		"DOCKER_COMPOSE_SERVICE": dockerComposeService,
 		"GCR_PRIVATE_KEY":        "((gcr.private_key))",
+		"GIT_CLONE_OPTIONS":      "",
 		"blah":                   "value",
 		"blah1":                  "value1",
 	}
@@ -144,6 +145,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		"PROVIDER_HOST":          "p-host",
 		"DOCKER_COMPOSE_SERVICE": "",
 		"GCR_PRIVATE_KEY":        "((gcr.private_key))",
+		"GIT_CLONE_OPTIONS":      "",
 	}
 
 	expectedJob := atc.JobConfig{
