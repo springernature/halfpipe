@@ -533,24 +533,22 @@ func buildTestRoute(appName, space, testDomain string) string {
 }
 
 func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
-	vars := task.Vars
-	if vars == nil {
-		vars = make(map[string]string)
+	if task.Vars == nil {
+		task.Vars = make(map[string]string)
 	}
+	task.Vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
+	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
-	// it is really just a special run job, so let's reuse that
-	vars["GCR_PRIVATE_KEY"] = "((gcr.private_key))"
-	vars["HALFPIPE_CACHE_TEAM"] = man.Team
 	return manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
-		Script:  dockerComposeScript(task.Service, vars, task.Command, man.FeatureToggles.Versioned()),
+		Script:  dockerComposeScript(task, man.FeatureToggles.Versioned()),
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((gcr.private_key))",
 		},
-		Vars:                   vars,
+		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,
 		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
@@ -670,9 +668,9 @@ func windowsToLinuxPath(path string) (unixPath string) {
 	return strings.Replace(path, `\`, "/", -1)
 }
 
-func dockerComposeScript(service string, vars map[string]string, containerCommand string, versioningEnabled bool) string {
+func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) string {
 	envStrings := []string{"-e GIT_REVISION"}
-	for key := range vars {
+	for key := range task.Vars {
 		if key == "GCR_PRIVATE_KEY" {
 			continue
 		}
@@ -685,9 +683,9 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 
 	cacheVolumeFlag := fmt.Sprintf("-v %s:%s", config.SharedCacheDir, config.SharedCacheDir)
 
-	composeCommand := fmt.Sprintf("docker-compose run %s %s %s", strings.Join(envStrings, " "), cacheVolumeFlag, service)
-	if containerCommand != "" {
-		composeCommand = fmt.Sprintf("%s %s", composeCommand, containerCommand)
+	composeCommand := fmt.Sprintf("docker-compose run %s %s %s", strings.Join(envStrings, " "), cacheVolumeFlag, task.Service)
+	if task.Command != "" {
+		composeCommand = fmt.Sprintf("%s %s", composeCommand, task.Command)
 	}
 
 	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
