@@ -683,7 +683,12 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 
 	cacheVolumeFlag := fmt.Sprintf("-v %s:%s", config.SharedCacheDir, config.SharedCacheDir)
 
-	composeCommand := fmt.Sprintf("docker-compose run %s %s %s", strings.Join(envStrings, " "), cacheVolumeFlag, task.Service)
+	composeFileOption := ""
+	if task.ComposeFile != "" {
+		composeFileOption = "-f " + task.ComposeFile
+	}
+
+	composeCommand := fmt.Sprintf("docker-compose %s run %s %s %s", composeFileOption, strings.Join(envStrings, " "), cacheVolumeFlag, task.Service)
 	if task.Command != "" {
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, task.Command)
 	}

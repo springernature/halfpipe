@@ -154,16 +154,16 @@ func TestDockerComposeRetries(t *testing.T) {
 func TestLintDockerComposeServiceWhenFileError(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors, _ := lintDockerComposeService("someService", fs)
+	errors, _ := lintDockerComposeService("someService", "../bar.yml", fs)
 	assert.Len(t, errors, 1)
-	assert.Equal(t, "open docker-compose.yml: file does not exist", errors[0].Error())
+	assert.Equal(t, "open ../bar.yml: file does not exist", errors[0].Error())
 }
 
 func TestLintDockerComposeServiceWhenFileIsGarbage(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile("docker-compose.yml", []byte("not valid yaml"), 0777)
+	fs.WriteFile("foo.yml", []byte("not valid yaml"), 0777)
 
-	errors, _ := lintDockerComposeService("someService", fs)
+	errors, _ := lintDockerComposeService("someService", "foo.yml", fs)
 	assert.Len(t, errors, 1)
-	helpers.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
+	helpers.AssertFileErrorInErrors(t, "foo.yml", errors)
 }

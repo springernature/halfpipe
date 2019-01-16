@@ -56,6 +56,7 @@ tasks:
   - test_reports
 - type: docker-compose
   name: docker compose task
+  compose_file: ../compose-file.yml
   vars:
     FOO: fOo
     BAR: "1"
@@ -173,7 +174,8 @@ tasks:
 				},
 			},
 			DockerCompose{
-				Name: "docker compose task",
+				Name:        "docker compose task",
+				ComposeFile: "../compose-file.yml",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

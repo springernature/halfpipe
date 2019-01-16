@@ -42,19 +42,24 @@ func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []er
 		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if err := filechecker.CheckFile(fs, "docker-compose.yml", false); err != nil {
+	composeFile := "docker-compose.yml"
+	if dc.ComposeFile != "" {
+		composeFile = dc.ComposeFile
+	}
+
+	if err := filechecker.CheckFile(fs, composeFile, false); err != nil {
 		errs = append(errs, err)
 		return
 	}
 
-	e, w := lintDockerComposeService(dc.Service, fs)
+	e, w := lintDockerComposeService(dc.Service, composeFile, fs)
 	errs = append(errs, e...)
 	warnings = append(warnings, w...)
 	return
 }
 
-func lintDockerComposeService(service string, fs afero.Afero) (errs []error, warnings []error) {
-	content, err := fs.ReadFile("docker-compose.yml")
+func lintDockerComposeService(service string, composeFile string, fs afero.Afero) (errs []error, warnings []error) {
+	content, err := fs.ReadFile(composeFile)
 	if err != nil {
 		errs = append(errs, err)
 		return
@@ -65,7 +70,7 @@ func lintDockerComposeService(service string, fs afero.Afero) (errs []error, war
 	}
 	err = yaml.Unmarshal(content, &compose)
 	if err != nil {
-		err = errors.NewFileError("docker-compose.yml", err.Error())
+		err = errors.NewFileError(composeFile, err.Error())
 		errs = append(errs, err)
 		return
 	}
@@ -85,6 +90,6 @@ func lintDockerComposeService(service string, fs afero.Afero) (errs []error, war
 		return
 	}
 
-	errs = append(errs, errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in docker-compose.yml", service)))
+	errs = append(errs, errors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in %s", service, composeFile)))
 	return
 }

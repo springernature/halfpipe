@@ -148,6 +148,7 @@ type DockerCompose struct {
 	ManualTrigger          bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars                   Vars `secretAllowed:"true"`
 	Service                string
+	ComposeFile            string   `json:"compose_file"`
 	SaveArtifacts          []string `json:"save_artifacts"`
 	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
