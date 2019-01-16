@@ -22,6 +22,8 @@ var (
 		{Path: "../../../var/halfpipe/cache"},
 		{Path: "../../../halfpipe-cache"}, // deprecated and should be removed after a while
 	}
+
+	SharedCacheDir = "/var/halfpipe/shared-cache"
 )
 
 var DevVersion = semver.Version{

@@ -683,7 +683,9 @@ func dockerComposeScript(service string, vars map[string]string, containerComman
 	}
 	sort.Strings(envStrings)
 
-	composeCommand := fmt.Sprintf("docker-compose run %s %s", strings.Join(envStrings, " "), service)
+	cacheVolumeFlag := fmt.Sprintf("-v %s:%s", config.SharedCacheDir, config.SharedCacheDir)
+
+	composeCommand := fmt.Sprintf("docker-compose run %s %s %s", strings.Join(envStrings, " "), cacheVolumeFlag, service)
 	if containerCommand != "" {
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, containerCommand)
 	}
