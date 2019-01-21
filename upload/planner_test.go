@@ -297,6 +297,24 @@ func TestReturnsAPlanWithSecurityQuestionIfNotOnMaster(t *testing.T) {
 	assert.Equal(t, "# Security question", plan[0].Printable)
 }
 
+func TestReturnsAPlanWithoutSecurityQuestionIfNotOnMasterAndNonInteractiveSet(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	file, _ := fs.Create("pipeline.yml")
+	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
+	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
+
+	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
+		return file, nil
+	}, true, "a-branch", osResolver, envResolver, "")
+	plan, err := planner.Plan()
+
+	assert.NoError(t, err)
+	assert.Len(t, plan, 2)
+	assert.NotEqual(t, "# Security question", plan[0].Printable)
+	assert.NotEqual(t, "# Security question", plan[1].Printable)
+}
+
 func TestCanOverrideTheApi(t *testing.T) {
 	concourseEndpoint := "https://someRandom.location.com"
 	envResolver := func(envVar string) string {
