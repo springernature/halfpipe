@@ -256,7 +256,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 				"CONCOURSE_PASSWORD": "((concourse.password))",
 				"CONCOURSE_TEAM":     "((concourse.team))",
 				"CONCOURSE_USERNAME": "((concourse.username))",
-				"PIPELINE_NAME":      man.Pipeline,
+				"PIPELINE_NAME":      man.PipelineName(),
 			},
 			ImageResource: p.imageResource(manifest.Docker{
 				Image:    "eu.gcr.io/halfpipe-io/halfpipe-auto-update",

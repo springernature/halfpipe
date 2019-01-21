@@ -30,3 +30,12 @@ func TestRepo_UriFormats(t *testing.T) {
 		assert.Equal(t, test.Public, repo.IsPublic(), test.Name, i)
 	}
 }
+
+func TestPipelineNameOnMaster(t *testing.T) {
+	assert.Equal(t, "some-pipeline-name", Manifest{Pipeline: "some-pipeline-name"}.PipelineName())
+	assert.Equal(t, "some-pipeline-name", Manifest{Pipeline: "some-pipeline-name", Repo: Repo{Branch: "master"}}.PipelineName())
+}
+
+func TestPipelineNameOnBranch(t *testing.T) {
+	assert.Equal(t, "some-pipeline-name-some-branch", Manifest{Pipeline: "some-pipeline-name", Repo: Repo{Branch: "some-branch"}}.PipelineName())
+}

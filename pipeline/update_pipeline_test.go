@@ -62,3 +62,21 @@ func TestUpdatePipelinePlan(t *testing.T) {
 
 	assert.Equal(t, updatePipeline, pipeline.updatePipelineTask(man))
 }
+
+func TestUpdateThePipelineNameIsBasedOnBranch(t *testing.T) {
+	man := manifest.Manifest{
+		Pipeline: "some-pipeline",
+		FeatureToggles: manifest.FeatureToggles{
+			manifest.FeatureUpdatePipeline,
+		},
+	}
+
+	p := testPipeline()
+
+	//master
+	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
+
+	//branch
+	man.Repo.Branch = "some-branch"
+	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
+}

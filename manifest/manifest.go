@@ -1,6 +1,9 @@
 package manifest
 
-import "strings"
+import (
+	"fmt"
+	"strings"
+)
 
 type TaskList []Task
 
@@ -36,6 +39,14 @@ type Manifest struct {
 
 func (m Manifest) NotifiesOnFailure() bool {
 	return m.SlackChannel != ""
+}
+
+func (m Manifest) PipelineName() (pipelineName string) {
+	pipelineName = m.Pipeline
+	if m.Repo.Branch != "" && m.Repo.Branch != "master" {
+		pipelineName = fmt.Sprintf("%s-%s", m.Pipeline, m.Repo.Branch)
+	}
+	return
 }
 
 type ArtifactConfig struct {
