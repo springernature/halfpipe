@@ -681,14 +681,25 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	}
 	sort.Strings(envStrings)
 
-	cacheVolumeFlag := fmt.Sprintf("-v %s:%s", config.SharedCacheDir, config.SharedCacheDir)
+	cacheVolumeFlags := []string{}
+	for _, cacheVolume := range config.DockerComposeCacheDirs {
+		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
+	}
 
 	composeFileOption := ""
 	if task.ComposeFile != "" {
 		composeFileOption = "-f " + task.ComposeFile
 	}
+	envOption := strings.Join(envStrings, " ")
+	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
-	composeCommand := fmt.Sprintf("docker-compose %s run %s %s %s", composeFileOption, strings.Join(envStrings, " "), cacheVolumeFlag, task.Service)
+	composeCommand := fmt.Sprintf("docker-compose %s run %s %s %s",
+		composeFileOption,
+		envOption,
+		volumeOption,
+		task.Service,
+	)
+
 	if task.Command != "" {
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, task.Command)
 	}
