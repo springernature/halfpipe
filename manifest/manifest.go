@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 )
 
@@ -42,9 +43,14 @@ func (m Manifest) NotifiesOnFailure() bool {
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {
+	re := regexp.MustCompile(`[^A-Za-z0-9\-]`)
+	sanitize := func(s string) string {
+		return re.ReplaceAllString(strings.TrimSpace(s), "_")
+	}
+
 	pipelineName = m.Pipeline
 	if m.Repo.Branch != "" && m.Repo.Branch != "master" {
-		pipelineName = fmt.Sprintf("%s-%s", m.Pipeline, m.Repo.Branch)
+		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(m.Repo.Branch))
 	}
 	return
 }
