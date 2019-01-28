@@ -30,6 +30,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 5m
   - put: cf halfpipe-push
     resource: CF dev-api test dev
     params:
@@ -39,6 +40,7 @@ jobs:
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
+    timeout: 5m
     attempts: 2
   - aggregate:
     - do:
@@ -98,6 +100,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
         attempts: 1
+    timeout: 5m
   - put: cf halfpipe-promote
     resource: CF dev-api test dev
     params:
@@ -105,6 +108,7 @@ jobs:
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
+    timeout: 5m
     attempts: 2
   ensure:
     put: cf halfpipe-cleanup
@@ -113,5 +117,6 @@ jobs:
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
+    timeout: 5m
     attempts: 2
 

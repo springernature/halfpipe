@@ -29,4 +29,6 @@ var DefaultValues = Defaults{
 	ArtifactoryUsername: "((artifactory.username))",
 	ArtifactoryPassword: "((artifactory.password))",
 	ArtifactoryURL:      "((artifactory.url))",
+
+	Timeout: "1h",
 }

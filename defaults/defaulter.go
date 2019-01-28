@@ -27,6 +27,7 @@ type Defaults struct {
 	ArtifactoryUsername  string
 	ArtifactoryPassword  string
 	ArtifactoryURL       string
+	Timeout              string
 }
 
 func NewDefaulter(project project.Data) Defaults {
@@ -87,6 +88,10 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					}
 				}
 
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
 
 			case manifest.Run:
@@ -96,6 +101,10 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				}
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
 
 			case manifest.DockerPush:
@@ -103,19 +112,49 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Username = d.DockerUsername
 					task.Password = d.DockerPassword
 				}
+
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
+
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
 
 			case manifest.DockerCompose:
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
 				}
+
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
+
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
+
 			case manifest.ConsumerIntegrationTest:
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
+
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
-			default:
+
+			case manifest.DeployMLModules:
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
+				tl[i] = task
+
+			case manifest.DeployMLZip:
+				if task.GetTimeout() == "" {
+					task.Timeout = d.Timeout
+				}
+
 				tl[i] = task
 			}
 		}

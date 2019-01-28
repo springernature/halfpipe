@@ -9,6 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 	"sort"
 	"strings"
+	"time"
 )
 
 type taskLinter struct {
@@ -114,6 +115,13 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		if t.ReadsFromArtifacts() && lintArtifact {
 			artifactErr, _ := linter.lintArtifacts(t, previousTasks)
 			errs = append(errs, artifactErr...)
+		}
+
+		if t.GetTimeout() != "" {
+			_, err := time.ParseDuration(t.GetTimeout())
+			if err != nil {
+				errs = append(errs, errors.NewInvalidField("timeout", err.Error()))
+			}
 		}
 
 		rE = append(rE, prefixErrors(errs)...)

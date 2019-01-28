@@ -74,11 +74,6 @@ func TestCfPushRetries(t *testing.T) {
 	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
-func TestLintsTheTimeoutInDeployTask(t *testing.T) {
-	errors, _ := LintDeployCFTask(manifest.DeployCF{Timeout: "notAValidDuration"}, afero.Afero{Fs: afero.NewMemMapFs()})
-	helpers.AssertInvalidFieldInErrors(t, "timeout", errors)
-}
-
 func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("manifest.yml", []byte("foo"), 0777)

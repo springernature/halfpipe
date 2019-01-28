@@ -382,3 +382,48 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 	})
 
 }
+
+func TestLintTimeout(t *testing.T) {
+	taskLinter := taskLinter{
+		lintRunTask:           func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+		lintDeployCFTask:      func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
+		LintPrePromoteTask:    func(task manifest.Task) (errs []error, warnings []error) { return },
+		lintDockerPushTask:    func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) { return },
+		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) { return },
+		lintConsumerIntegrationTestTask: func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
+			return
+		},
+		lintDeployMLZipTask:     func(task manifest.DeployMLZip) (errs []error, warnings []error) { return },
+		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) { return },
+		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+			return
+		},
+	}
+
+	badTime := "immaBadTime"
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{Timeout: badTime},
+			manifest.DeployCF{
+				PrePromote: []manifest.Task{
+					manifest.Run{
+						Timeout: badTime,
+					},
+				},
+				Timeout: badTime,
+			},
+			manifest.DockerPush{
+				Timeout: badTime,
+			},
+		},
+	}
+
+	result := taskLinter.Lint(man)
+
+	assert.Len(t, result.Errors, 4)
+	assert.Equal(t, "tasks[0] Invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[0].Error())
+	assert.Equal(t, "tasks[1] Invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[1].Error())
+	assert.Equal(t, "tasks[1].pre_promote[0] Invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[2].Error())
+	assert.Equal(t, "tasks[2] Invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[3].Error())
+}

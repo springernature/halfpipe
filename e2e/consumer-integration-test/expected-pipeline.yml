@@ -17,6 +17,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - task: another-c-name
     privileged: true
     config:
@@ -99,5 +100,6 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 

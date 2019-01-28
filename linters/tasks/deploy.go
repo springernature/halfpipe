@@ -7,7 +7,6 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
-	"time"
 )
 
 func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
@@ -24,13 +23,6 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warni
 		_, found := defaults.DefaultValues.CfTestDomains[cf.API]
 		if cf.API != "" && !found {
 			errs = append(errs, errors.NewMissingField("testDomain"))
-		}
-	}
-
-	if cf.Timeout != "" {
-		_, err := time.ParseDuration(cf.Timeout)
-		if err != nil {
-			errs = append(errs, errors.NewInvalidField("timeout", err.Error()))
 		}
 	}
 

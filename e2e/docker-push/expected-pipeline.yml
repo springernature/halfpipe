@@ -23,6 +23,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - put: Docker Registry
     params:
       build: git/e2e/docker-push
@@ -33,5 +34,6 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
       tag_as_latest: true
+    timeout: 1h
     attempts: 1
 

@@ -53,6 +53,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - task: create-artifact
     config:
       platform: linux
@@ -128,12 +129,14 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
   - put: artifacts
     resource: artifacts-CHANGE-ME-halfpipe-e2e-artifacts
     params:
       folder: artifacts-out
       version_file: git/.git/ref
+    timeout: 1h
   on_failure:
     aggregate:
     - put: artifacts-on-failure
@@ -150,6 +153,7 @@ jobs:
       passed:
       - create-artifact
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -172,6 +176,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - task: read-artifact
     config:
       platform: linux
@@ -227,6 +232,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 - name: deploy to staging
   serial: true
@@ -236,6 +242,7 @@ jobs:
       passed:
       - read-artifact
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -258,6 +265,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
@@ -266,9 +274,11 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/artifacts/manifest.yml
       testDomain: live.cf.private.springer.com
+      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
+    timeout: 1h
     attempts: 2
   - aggregate:
     - do:
@@ -332,12 +342,15 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
         attempts: 1
+    timeout: 1h
   - put: cf halfpipe-promote
     resource: CF live pe staging
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/artifacts/manifest.yml
       testDomain: live.cf.private.springer.com
+      timeout: 1h
+    timeout: 1h
     attempts: 2
   ensure:
     put: cf halfpipe-cleanup
@@ -345,6 +358,8 @@ jobs:
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/artifacts/manifest.yml
+      timeout: 1h
+    timeout: 1h
     attempts: 2
 - name: push to docker registry
   serial: true
@@ -354,6 +369,7 @@ jobs:
       passed:
       - deploy to staging
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -376,6 +392,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - task: Copying git repo and artifacts to a temporary build dir
     config:
       platform: linux
@@ -395,6 +412,7 @@ jobs:
       - name: artifacts
       outputs:
       - name: docker_build
+    timeout: 1h
   - put: Docker Registry
     params:
       build: docker_build/e2e/artifacts
@@ -405,6 +423,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
       tag_as_latest: true
+    timeout: 1h
     attempts: 1
 - name: docker-compose
   serial: true
@@ -414,6 +433,7 @@ jobs:
       passed:
       - push to docker registry
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -436,6 +456,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - task: docker-compose
     privileged: true
     config:
@@ -509,6 +530,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
   on_failure:
     aggregate:
@@ -526,6 +548,7 @@ jobs:
       passed:
       - docker-compose
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -548,6 +571,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - task: deploy-ml-zip
     config:
       platform: linux
@@ -605,5 +629,6 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 

@@ -299,11 +299,22 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		addPassedJobsToGets(job, passedJobNames)
 		configureTriggerOnGets(job, t.IsManualTrigger(), man.FeatureToggles.Versioned())
+		addTimeout(job, t.GetTimeout())
 
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 
 	return
+}
+
+func addTimeout(job *atc.JobConfig, timeout string) {
+	for i := range job.Plan {
+		job.Plan[i].Timeout = timeout
+	}
+
+	if job.Ensure != nil {
+		job.Ensure.Timeout = timeout
+	}
 }
 
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {

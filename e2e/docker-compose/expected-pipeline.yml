@@ -17,6 +17,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - task: test
     privileged: true
     config:
@@ -65,6 +66,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 - name: custom
   serial: true
@@ -74,6 +76,7 @@ jobs:
       passed:
       - test
       trigger: true
+    timeout: 1h
   - task: custom
     privileged: true
     config:
@@ -124,5 +127,6 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 

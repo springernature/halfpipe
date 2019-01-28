@@ -175,6 +175,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 					"ARTIFACTORY_URL":      "((artifactory.url))",
 				},
 				SaveArtifactsOnFailure: []string{".halfpipe.io"},
+				Timeout:                DefaultValues.Timeout,
 			},
 			manifest.DockerPush{
 				Image:    config.DockerRegistry + "runImage",
@@ -185,8 +186,10 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 					"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 					"ARTIFACTORY_URL":      "((artifactory.url))",
 				},
+				Timeout: DefaultValues.Timeout,
 			},
 		},
+		Timeout: DefaultValues.Timeout,
 	}
 
 	expected := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{expectedTask}}
@@ -217,6 +220,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 				"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 				"ARTIFACTORY_URL":      "((artifactory.url))",
 			},
+			Timeout: DefaultValues.Timeout,
 		},
 		manifest.DockerPush{
 			Image: imageInAnotherRegistry,
@@ -225,6 +229,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 				"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 				"ARTIFACTORY_URL":      "((artifactory.url))",
 			},
+			Timeout: DefaultValues.Timeout,
 		},
 	}
 
@@ -373,4 +378,45 @@ func TestSetsArtifactoryUsernameAndPassword(t *testing.T) {
 	assert.Equal(t, DefaultValues.ArtifactoryUsername, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_USERNAME"])
 	assert.Equal(t, DefaultValues.ArtifactoryPassword, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_PASSWORD"])
 	assert.Equal(t, DefaultValues.ArtifactoryURL, updated.Tasks[5].(manifest.ConsumerIntegrationTest).Vars["ARTIFACTORY_URL"])
+}
+
+func TestSetsTimeout(t *testing.T) {
+	timeout := "5m"
+
+	man := manifest.Manifest{
+		Tasks: manifest.TaskList{
+			manifest.Run{},
+			manifest.DockerCompose{Timeout: timeout},
+			manifest.DockerPush{},
+			manifest.DeployCF{
+				PrePromote: manifest.TaskList{
+					manifest.Run{},
+					manifest.DockerPush{},
+					manifest.DockerCompose{Timeout: timeout},
+				},
+			},
+			manifest.Run{},
+			manifest.ConsumerIntegrationTest{},
+			manifest.DeployMLModules{},
+			manifest.DeployMLZip{},
+		},
+	}
+
+	updated := DefaultValues.Update(man)
+
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[0].GetTimeout())
+	assert.Equal(t, timeout, updated.Tasks[1].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[2].GetTimeout())
+
+	// CF with prepromote
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].GetTimeout())
+	assert.Equal(t, timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].GetTimeout())
+
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[4].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[5].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[6].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[7].GetTimeout())
+
 }

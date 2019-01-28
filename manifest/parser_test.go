@@ -73,6 +73,7 @@ tasks:
   vars:
     FOO: fOo
     BAR: "1"
+  timeout: 1h
 - type: deploy-cf
   name: deploy cf task
   api: cf.api
@@ -197,6 +198,7 @@ tasks:
 					"FOO": "fOo",
 					"BAR": "1",
 				},
+				Timeout: "1h",
 			},
 			DeployCF{
 				Name:       "deploy cf task",

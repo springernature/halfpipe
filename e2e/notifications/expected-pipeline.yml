@@ -39,6 +39,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - task: task1
     config:
       platform: linux
@@ -90,6 +91,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
   on_failure:
     aggregate:
@@ -115,6 +117,7 @@ jobs:
       passed:
       - task1
       trigger: true
+    timeout: 1h
   - task: task2
     config:
       platform: linux
@@ -166,6 +169,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
   on_failure:
     aggregate:
@@ -183,6 +187,7 @@ jobs:
       passed:
       - task2
       trigger: true
+    timeout: 1h
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
@@ -191,9 +196,11 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/notifications/manifest.yml
       testDomain: live.cf.private.springer.com
+      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
+    timeout: 1h
     attempts: 2
   - aggregate:
     - do:
@@ -253,12 +260,15 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
         attempts: 1
+    timeout: 1h
   - put: cf halfpipe-promote
     resource: CF live pe staging
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/notifications/manifest.yml
       testDomain: live.cf.private.springer.com
+      timeout: 1h
+    timeout: 1h
     attempts: 2
   on_failure:
     aggregate:
@@ -274,6 +284,8 @@ jobs:
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/notifications/manifest.yml
+      timeout: 1h
+    timeout: 1h
     attempts: 2
   on_success:
     aggregate:

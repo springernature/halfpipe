@@ -28,6 +28,7 @@ jobs:
   - aggregate:
     - get: git
       trigger: true
+    timeout: 1h
   - task: create zip for ml task
     config:
       platform: linux
@@ -100,12 +101,14 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
   - put: artifacts
     resource: artifacts-test-test
     params:
       folder: artifacts-out
       version_file: git/.git/ref
+    timeout: 1h
 - name: deploy-ml-zip
   serial: true
   plan:
@@ -114,6 +117,7 @@ jobs:
       passed:
       - create zip for ml task
       trigger: true
+    timeout: 1h
   - task: get artifact
     config:
       platform: linux
@@ -136,6 +140,7 @@ jobs:
       - name: git
       outputs:
       - name: artifacts
+    timeout: 1h
   - task: deploy-ml-zip
     config:
       platform: linux
@@ -193,5 +198,6 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 

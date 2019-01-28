@@ -35,6 +35,8 @@ func TestRendersCfDeploy(t *testing.T) {
 			"VAR2": "value2",
 		},
 	}
+
+	timeout := "5m"
 	taskDeployLive := manifest.DeployCF{
 		API:        liveAPI,
 		Space:      "prod",
@@ -43,7 +45,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Username:   "rob",
 		Password:   "supersecret",
 		Manifest:   "manifest-live.yml",
-		Timeout:    "5m",
+		Timeout:    timeout,
 	}
 
 	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
@@ -133,7 +135,10 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   "deploy-cf (1)",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}}},
+			atc.PlanConfig{
+				Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}},
+				Timeout:   timeout,
+			},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
 				Attempts: 2,
@@ -146,6 +151,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 					"timeout":      "5m",
 				},
+				Timeout: timeout,
 			},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-promote",
@@ -157,6 +163,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": liveManifest,
 					"timeout":      "5m",
 				},
+				Timeout: timeout,
 			},
 		},
 		Ensure: &atc.PlanConfig{
@@ -168,6 +175,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"manifestPath": liveManifest,
 				"timeout":      "5m",
 			},
+			Timeout: timeout,
 		},
 	}
 

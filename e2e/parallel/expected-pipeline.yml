@@ -19,6 +19,7 @@ jobs:
       trigger: true
       params:
         depth: 1
+    timeout: 1h
   - task: test
     config:
       platform: linux
@@ -70,6 +71,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 - name: test parallel 1
   serial: true
@@ -81,6 +83,7 @@ jobs:
       trigger: true
       params:
         depth: 1
+    timeout: 1h
   - task: test parallel 1
     config:
       platform: linux
@@ -132,6 +135,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 - name: test parallel 2
   serial: true
@@ -143,6 +147,7 @@ jobs:
       trigger: true
       params:
         depth: 1
+    timeout: 1h
   - task: test parallel 2
     config:
       platform: linux
@@ -194,6 +199,7 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 - name: after parallel
   serial: true
@@ -206,6 +212,7 @@ jobs:
       trigger: true
       params:
         depth: 1
+    timeout: 1h
   - task: after parallel
     config:
       platform: linux
@@ -257,5 +264,6 @@ jobs:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
+    timeout: 1h
     attempts: 1
 
