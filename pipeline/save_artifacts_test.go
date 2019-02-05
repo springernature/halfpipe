@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/config"
 	"strings"
 	"testing"
 
@@ -283,9 +284,9 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
 	assert.NotNil(t, resource)
-	assert.Equal(t, "halfpipe-io-artifacts", resource.Source["bucket"])
+	assert.Equal(t, config.ArtifactsBucket, resource.Source["bucket"])
 	assert.Equal(t, path.Join(man.Team, man.Pipeline), resource.Source["folder"])
-	assert.Equal(t, "((gcr.private_key))", resource.Source["json_key"])
+	assert.Equal(t, config.ArtifactsJSONKey, resource.Source["json_key"])
 }
 
 func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {

@@ -12,9 +12,9 @@ resources:
 - name: artifacts-test-test
   type: gcp-resource
   source:
-    bucket: halfpipe-io-artifacts
+    bucket: ((halfpipe-artifacts.bucket))
     folder: test/test
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-artifacts.private_key))
 resource_types:
 - name: gcp-resource
   type: docker-image
@@ -127,9 +127,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: test/test
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download

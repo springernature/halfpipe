@@ -16,21 +16,21 @@ resources:
 - name: artifacts-engineering-enablement-test
   type: gcp-resource
   source:
-    bucket: halfpipe-io-artifacts
+    bucket: ((halfpipe-artifacts.bucket))
     folder: engineering-enablement/test
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-artifacts.private_key))
 - name: artifacts-engineering-enablement-test-on-failure
   type: gcp-resource
   source:
-    bucket: halfpipe-io-artifacts
+    bucket: ((halfpipe-artifacts.bucket))
     folder: engineering-enablement/test
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-artifacts.private_key))
 - name: version
   type: semver
   source:
-    bucket: halfpipe-io-semver
+    bucket: ((halfpipe-semver.bucket))
     driver: gcs
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-semver.private_key))
     key: engineering-enablement-test
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
@@ -228,9 +228,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: engineering-enablement/test
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -300,9 +300,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: engineering-enablement/test
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -524,9 +524,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: engineering-enablement/test
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -1068,9 +1068,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: engineering-enablement/test
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download

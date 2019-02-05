@@ -75,12 +75,12 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		return reg.ReplaceAllString(strings.ToLower(str), "")
 	}
 
-	jsonKey := "((gcr.private_key))"
+	jsonKey := config.ArtifactsJSONKey
 	if man.ArtifactConfig.JSONKey != "" {
 		jsonKey = man.ArtifactConfig.JSONKey
 	}
 
-	BUCKET := "halfpipe-io-artifacts"
+	BUCKET := config.ArtifactsBucket
 	if man.ArtifactConfig.Bucket != "" {
 		BUCKET = man.ArtifactConfig.Bucket
 	}

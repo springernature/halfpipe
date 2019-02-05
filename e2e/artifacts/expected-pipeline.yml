@@ -12,15 +12,15 @@ resources:
 - name: artifacts-CHANGE-ME-halfpipe-e2e-artifacts
   type: gcp-resource
   source:
-    bucket: halfpipe-io-artifacts
+    bucket: ((halfpipe-artifacts.bucket))
     folder: change-me/halfpipe-e2e-artifacts
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-artifacts.private_key))
 - name: artifacts-CHANGE-ME-halfpipe-e2e-artifacts-on-failure
   type: gcp-resource
   source:
-    bucket: halfpipe-io-artifacts
+    bucket: ((halfpipe-artifacts.bucket))
     folder: change-me/halfpipe-e2e-artifacts
-    json_key: ((gcr.private_key))
+    json_key: ((halfpipe-artifacts.private_key))
 - name: CF live pe staging
   type: cf-resource
   source:
@@ -163,9 +163,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -252,9 +252,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -379,9 +379,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -443,9 +443,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download
@@ -558,9 +558,9 @@ jobs:
           repository: platformengineering/gcp-resource
           tag: stable
       params:
-        BUCKET: halfpipe-io-artifacts
+        BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
-        JSON_KEY: ((gcr.private_key))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
         path: /opt/resource/download

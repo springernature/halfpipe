@@ -87,8 +87,8 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 		return reg.ReplaceAllString(strings.ToLower(str), "")
 	}
 
-	bucket := "halfpipe-io-artifacts"
-	jsonKey := "((gcr.private_key))"
+	bucket := config.ArtifactsBucket
+	jsonKey := config.ArtifactsJSONKey
 
 	if artifactConfig.Bucket != "" {
 		bucket = artifactConfig.Bucket
