@@ -12,11 +12,11 @@ Yeah, it takes a small YAML schema and renders a complete Concourse pipeline for
 
 [All documentation and further information can be found here](https://docs.halfpipe.io)
 
-## Ah! Thats cool, can I use it in my company?
+## Ah! That's cool, can I use it in my company?
 
 In theory yes, but there is some Springer Nature specific stuff in here. With that said nothing is stopping us from extracting those bits, submit a issue! :)
 
-## How to I test and build?
+## How do I test and build?
 
 Halfpipe is built with Go 1.11
 
