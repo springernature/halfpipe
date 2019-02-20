@@ -178,12 +178,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		p.addTriggerResource(&cfg, man)
 	}
 
-	var parallelTasks []string
-	var taskBeforeParallelTasks string
-	if len(cfg.Jobs) > 0 {
-		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
-	}
-
 	if man.FeatureToggles.Versioned() {
 		cfg.Resources = append(cfg.Resources, p.versionResource(man))
 		job := p.updateJob(man)
@@ -201,6 +195,12 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		}
 
 		cfg.Jobs = append(cfg.Jobs, job)
+	}
+
+	var parallelTasks []string
+	var taskBeforeParallelTasks string
+	if len(cfg.Jobs) > 0 {
+		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
 	}
 
 	for _, t := range man.Tasks {

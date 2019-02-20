@@ -4,13 +4,11 @@ repo:
   shallow: true
   watched_paths:
   - e2e/parallel
-tasks:
-- type: run
-  name: test
-  script: ./a
-  docker:
-    image: alpine:test
 
+feature_toggles:
+- update-pipeline
+
+tasks:
 - type: run
   name: test parallel 1
   script: ./a
