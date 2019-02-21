@@ -118,7 +118,9 @@ jobs:
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
-          export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=((slack.webhook))"
+          if ! [[ -z "${SLACK_WEBHOOK:-}" ]]; then
+              export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=${SLACK_WEBHOOK}"
+          fi
           echo "LDFLAGS=${LDFLAGS}"
 
           # Build binaries
