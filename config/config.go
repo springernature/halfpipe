@@ -10,7 +10,7 @@ import (
 var (
 	Version = "0.0.0-DEV"
 
-	SlackWebhook = "Set your slack webhook here"
+	SlackWebhook = "((slack.webhook))"
 
 	DockerRegistry = "eu.gcr.io/halfpipe-io/"
 

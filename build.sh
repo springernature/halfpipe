@@ -22,7 +22,9 @@ go test $go_opts -cover ./...
 echo [3/5] build
 CONF_PKG="github.com/springernature/halfpipe/config"
 LDFLAGS="-X ${CONF_PKG}.DocHost=docs.halfpipe.io"
-LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
+if ! [[ -z "${SLACK_WEBHOOK:-}" ]]; then
+    LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=${SLACK_WEBHOOK}"
+fi
 go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
 echo [4/5] e2e test

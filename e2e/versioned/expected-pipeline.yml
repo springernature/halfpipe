@@ -12,7 +12,7 @@ resources:
 - name: slack-notification
   type: slack-notification
   source:
-    url: https://hooks.slack.com/services/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
+    url: ((slack.webhook))
 - name: artifacts-engineering-enablement-test
   type: gcp-resource
   source:
