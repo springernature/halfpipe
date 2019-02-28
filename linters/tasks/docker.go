@@ -30,7 +30,11 @@ func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []erro
 		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if err := filechecker.CheckFile(fs, "Dockerfile", false); err != nil {
+	if docker.DockerfilePath == "" {
+		errs = append(errs, errors.NewInvalidField("dockerfile_path", "must not be empty"))
+	}
+
+	if err := filechecker.CheckFile(fs, docker.DockerfilePath, false); err != nil {
 		errs = append(errs, err)
 	}
 

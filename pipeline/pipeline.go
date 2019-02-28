@@ -580,6 +580,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 				Put:      resourceName,
 				Params: atc.Params{
 					"build":         path.Join(gitDir, man.Repo.BasePath),
+					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -629,6 +630,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				Put:      resourceName,
 				Params: atc.Params{
 					"build":         path.Join(dockerBuildTmpDir, man.Repo.BasePath),
+					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},

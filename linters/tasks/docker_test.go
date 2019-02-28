@@ -31,36 +31,114 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 }
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	t.Run("When DockerfilePath is just Dockerfile", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	task := manifest.DockerPush{
-		Username: "asd",
-		Password: "asd",
-		Image:    "image",
-	}
+		task := manifest.DockerPush{
+			Username:       "asd",
+			Password:       "asd",
+			Image:          "user/image",
+			DockerfilePath: "Dockerfile",
+		}
 
-	errors, _ := LintDockerPushTask(task, fs)
+		errors, _ := LintDockerPushTask(task, fs)
 
-	helpers.AssertFileErrorInErrors(t, "Dockerfile", errors)
+		helpers.AssertFileErrorInErrors(t, "Dockerfile", errors)
+	})
+
+	t.Run("When DockerfilePath is in a different folder", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+		task := manifest.DockerPush{
+			Username:       "asd",
+			Password:       "asd",
+			Image:          "user/image",
+			DockerfilePath: "dockerfiles/Dockerfile",
+		}
+
+		errors, _ := LintDockerPushTask(task, fs)
+
+		helpers.AssertFileErrorInErrors(t, "dockerfiles/Dockerfile", errors)
+	})
+
+	t.Run("When DockerfilePath is in a different folder upwards", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+		task := manifest.DockerPush{
+			Username:       "asd",
+			Password:       "asd",
+			Image:          "user/image",
+			DockerfilePath: "../dockerfiles/Dockerfile",
+		}
+
+		errors, _ := LintDockerPushTask(task, fs)
+
+		helpers.AssertFileErrorInErrors(t, "../dockerfiles/Dockerfile", errors)
+	})
 }
 
 func TestDockerPushTaskWithCorrectData(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
-	task := manifest.DockerPush{
-		Username: "asd",
-		Password: "asd",
-		Image:    "asd/asd",
-		Vars: map[string]string{
-			"A": "a",
-			"B": "b",
-		},
-	}
+	t.Run("When DockerfilePath is just Dockerfile", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
-	errors, warnings := LintDockerPushTask(task, fs)
-	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
+		task := manifest.DockerPush{
+			Username: "asd",
+			Password: "asd",
+			Image:    "asd/asd",
+			Vars: map[string]string{
+				"A": "a",
+				"B": "b",
+			},
+			DockerfilePath: "Dockerfile",
+		}
+
+		errors, warnings := LintDockerPushTask(task, fs)
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("When DockerfilePath is in a different path", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("dockerfile/Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Username: "asd",
+			Password: "asd",
+			Image:    "asd/asd",
+			Vars: map[string]string{
+				"A": "a",
+				"B": "b",
+			},
+			DockerfilePath: "dockerfile/Dockerfile",
+		}
+
+		errors, warnings := LintDockerPushTask(task, fs)
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("When DockerfilePath is in a different folder upwards", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("../dockerfile/Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Username: "asd",
+			Password: "asd",
+			Image:    "asd/asd",
+			Vars: map[string]string{
+				"A": "a",
+				"B": "b",
+			},
+			DockerfilePath: "../dockerfile/Dockerfile",
+		}
+
+		errors, warnings := LintDockerPushTask(task, fs)
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
 }
 
 func TestDockerPushRetries(t *testing.T) {
@@ -75,6 +153,7 @@ func TestDockerPushRetries(t *testing.T) {
 			"A": "a",
 			"B": "b",
 		},
+		DockerfilePath: "Dockerfile",
 	}
 
 	task.Retries = -1

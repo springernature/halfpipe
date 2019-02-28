@@ -27,6 +27,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 				"A": "a",
 				"B": "b",
 			},
+			DockerfilePath: "Dockerfile",
 		},
 	}
 
@@ -49,7 +50,8 @@ func TestRenderDockerPushTask(t *testing.T) {
 				Attempts: 1,
 				Put:      "Docker Registry",
 				Params: atc.Params{
-					"build": gitDir,
+					"build":      gitDir,
+					"dockerfile": path.Join(gitDir, "Dockerfile"),
 					"build_args": map[string]interface{}{
 						"A": "a",
 						"B": "b",
@@ -76,9 +78,10 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
 		manifest.DockerPush{
-			Username: username,
-			Password: password,
-			Image:    repo,
+			Username:       username,
+			Password:       password,
+			Image:          repo,
+			DockerfilePath: "dockerfile/Dockerfile",
 		},
 	}
 
@@ -102,6 +105,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 				Put:      "Docker Registry",
 				Params: atc.Params{
 					"build":         gitDir + "/" + basePath,
+					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -129,9 +133,10 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
 		manifest.DockerPush{
-			Username: username,
-			Password: password,
-			Image:    repo,
+			Username:       username,
+			Password:       password,
+			Image:          repo,
+			DockerfilePath: "Dockerfile",
 		},
 	}
 
@@ -161,6 +166,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         gitDir + "/" + basePath,
+					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -192,6 +198,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			Password:         password,
 			Image:            repo,
 			RestoreArtifacts: true,
+			DockerfilePath:   "Dockerfile",
 		},
 	}
 
@@ -249,6 +256,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         dockerBuildTmpDir + "/" + basePath,
+					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},

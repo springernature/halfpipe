@@ -113,6 +113,10 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Password = d.DockerPassword
 				}
 
+				if task.DockerfilePath == "" {
+					task.DockerfilePath = "Dockerfile"
+				}
+
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 
 				if task.GetTimeout() == "" {

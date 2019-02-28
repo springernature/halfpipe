@@ -186,7 +186,8 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 					"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 					"ARTIFACTORY_URL":      "((artifactory.url))",
 				},
-				Timeout: DefaultValues.Timeout,
+				Timeout:        DefaultValues.Timeout,
+				DockerfilePath: "Dockerfile",
 			},
 		},
 		Timeout: DefaultValues.Timeout,
@@ -220,7 +221,8 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 				"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 				"ARTIFACTORY_URL":      "((artifactory.url))",
 			},
-			Timeout: DefaultValues.Timeout,
+			Timeout:        DefaultValues.Timeout,
+			DockerfilePath: "Dockerfile",
 		},
 		manifest.DockerPush{
 			Image: imageInAnotherRegistry,
@@ -229,7 +231,8 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 				"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 				"ARTIFACTORY_URL":      "((artifactory.url))",
 			},
-			Timeout: DefaultValues.Timeout,
+			Timeout:        DefaultValues.Timeout,
+			DockerfilePath: "Dockerfile",
 		},
 	}
 

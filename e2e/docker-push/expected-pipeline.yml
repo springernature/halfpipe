@@ -33,6 +33,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+      dockerfile: git/e2e/docker-push/Dockerfile
       tag_as_latest: true
     timeout: 1h
     attempts: 1

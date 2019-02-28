@@ -422,6 +422,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+      dockerfile: docker_build/e2e/artifacts/Dockerfile
       tag_as_latest: true
     timeout: 1h
     attempts: 1

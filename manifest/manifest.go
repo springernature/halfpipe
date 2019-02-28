@@ -139,6 +139,7 @@ type DockerPush struct {
 	Retries          int    `yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Timeout          string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerfilePath   string `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
 }
 
 func (r DockerPush) GetTimeout() string {
