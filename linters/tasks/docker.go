@@ -7,6 +7,7 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"os"
 	"regexp"
 )
 
@@ -36,6 +37,19 @@ func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []erro
 
 	if err := filechecker.CheckFile(fs, docker.DockerfilePath, false); err != nil {
 		errs = append(errs, err)
+	}
+
+	if docker.BuildPath != "" {
+		isDir, err := fs.IsDir(docker.BuildPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				errs = append(errs, errors.NewInvalidField("build_path", fmt.Sprintf("'%s' does not exist", docker.BuildPath)))
+			} else {
+				errs = append(errs, err)
+			}
+		} else if !isDir {
+			errs = append(errs, errors.NewInvalidField("build_path", fmt.Sprintf("'%s' must be a directory but is a file ", docker.BuildPath)))
+		}
 	}
 
 	return
