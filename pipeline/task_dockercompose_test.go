@@ -4,14 +4,14 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 var dockerComposeImageResource = atc.ImageResource{
-	Type: "docker-image",
+	Type: "registry-image",
 	Source: atc.Source{
 		"repository": strings.Split(config.DockerComposeImage, ":")[0],
 		"tag":        strings.Split(config.DockerComposeImage, ":")[1],

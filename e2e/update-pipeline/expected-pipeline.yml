@@ -64,17 +64,17 @@ resources:
     username: rob
 resource_types:
 - name: slack-notification
-  type: docker-image
+  type: registry-image
   source:
     repository: cfcommunity/slack-notification-resource
     tag: v1.4.2
 - name: gcp-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: platformengineering/gcp-resource
     tag: stable
 - name: cf-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: platformengineering/cf-resource
     tag: stable
@@ -92,7 +92,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
@@ -133,7 +133,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: node
           tag: 9.5.0-alpine
@@ -245,7 +245,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -317,7 +317,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -356,7 +356,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
@@ -420,7 +420,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
@@ -541,7 +541,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -579,7 +579,7 @@ jobs:
       config:
         platform: linux
         image_resource:
-          type: docker-image
+          type: registry-image
           source:
             password: ((gcr.private_key))
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
@@ -665,7 +665,7 @@ jobs:
       config:
         platform: linux
         image_resource:
-          type: docker-image
+          type: registry-image
           source:
             password: ((gcr.private_key))
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
@@ -802,7 +802,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: blah
           repository: busy
@@ -882,7 +882,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
@@ -981,7 +981,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
@@ -1086,7 +1086,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -1109,7 +1109,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
@@ -1190,7 +1190,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy

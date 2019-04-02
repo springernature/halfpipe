@@ -18,7 +18,7 @@ func TestCronTriggerResourceTypeSet(t *testing.T) {
 
 	config := testPipeline().Render(man)
 	resourceTypes := config.ResourceTypes
-	assert.Equal(t, "docker-image", resourceTypes[0].Type)
+	assert.Equal(t, "registry-image", resourceTypes[0].Type)
 	assert.Equal(t, "cron-resource", resourceTypes[0].Name)
 }
 

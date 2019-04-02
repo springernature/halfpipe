@@ -19,7 +19,7 @@ resources:
     username: michiel
 resource_types:
 - name: cf-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: platformengineering/cf-resource
     tag: stable
@@ -48,7 +48,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly

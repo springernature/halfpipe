@@ -13,7 +13,7 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	boshTemplate "github.com/cloudfoundry/bosh-cli/director/template"
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -89,7 +89,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		Platform:  "linux",
 		RootfsURI: "",
 		ImageResource: &atc.ImageResource{
-			Type: "docker-image",
+			Type: "registry-image",
 			Source: atc.Source{
 				"repository": "platformengineering/gcp-resource",
 				"tag":        "stable",

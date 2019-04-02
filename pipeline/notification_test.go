@@ -25,7 +25,7 @@ func TestRendersSlackResourceWithoutOnFailureTask(t *testing.T) {
 	assert.Equal(t, slackResourceName, resource.Name)
 	assert.Equal(t, config.SlackWebhook, resource.Source["url"])
 	assert.Equal(t, "slack-notification", resource.Type)
-	assert.Equal(t, "docker-image", resourceType.Type)
+	assert.Equal(t, "registry-image", resourceType.Type)
 	assert.Equal(t, "cfcommunity/slack-notification-resource", resourceType.Source["repository"])
 	assert.Equal(t, "slack-notification", resourceType.Name)
 }

@@ -1,7 +1,7 @@
 package halfpipe
 
 import (
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"

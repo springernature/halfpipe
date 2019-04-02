@@ -37,12 +37,12 @@ resources:
     username: rob
 resource_types:
 - name: gcp-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: platformengineering/gcp-resource
     tag: stable
 - name: cf-resource
-  type: docker-image
+  type: registry-image
   source:
     repository: platformengineering/cf-resource
     tag: stable
@@ -58,7 +58,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: alpine
           tag: latest
@@ -158,7 +158,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -181,7 +181,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: alpine
           tag: latest
@@ -247,7 +247,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -286,7 +286,7 @@ jobs:
         config:
           platform: linux
           image_resource:
-            type: docker-image
+            type: registry-image
             source:
               password: ((gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
@@ -374,7 +374,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -439,7 +439,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -463,7 +463,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
@@ -554,7 +554,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           repository: platformengineering/gcp-resource
           tag: stable
@@ -577,7 +577,7 @@ jobs:
     config:
       platform: linux
       image_resource:
-        type: docker-image
+        type: registry-image
         source:
           password: ((gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy

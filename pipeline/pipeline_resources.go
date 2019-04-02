@@ -8,7 +8,7 @@ import (
 	"path"
 
 	"fmt"
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -52,7 +52,7 @@ const slackResourceName = "slack-notification"
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: slackResourceName,
-		Type: "docker-image",
+		Type: "registry-image",
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
 			"tag":        "v1.4.2",
@@ -73,7 +73,7 @@ func (p pipeline) slackResource() atc.ResourceConfig {
 func (p pipeline) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: artifactsResourceName,
-		Type: "docker-image",
+		Type: "registry-image",
 		Source: atc.Source{
 			"repository": "platformengineering/gcp-resource",
 			"tag":        "stable",
@@ -136,12 +136,12 @@ func (p pipeline) cronResource(expression string) atc.ResourceConfig {
 
 func cronResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "cron-resource",
-		Type: "docker-image",
+		Name:                 "cron-resource",
+		Type:                 "registry-image",
+		UniqueVersionHistory: true,
 		Source: atc.Source{
-			"repository":       "cftoolsmiths/cron-resource",
-			"tag":              "v0.3",
-			"fire_immediately": true,
+			"repository": "cftoolsmiths/cron-resource",
+			"tag":        "v0.3",
 		},
 	}
 }
@@ -149,7 +149,7 @@ func cronResourceType() atc.ResourceType {
 func halfpipeCfDeployResourceType(name string) atc.ResourceType {
 	return atc.ResourceType{
 		Name: name,
-		Type: "docker-image",
+		Type: "registry-image",
 		Source: atc.Source{
 			"repository": "platformengineering/cf-resource",
 			"tag":        "stable",
@@ -204,7 +204,7 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	}
 
 	return &atc.ImageResource{
-		Type:   "docker-image",
+		Type:   "registry-image",
 		Source: source,
 	}
 }

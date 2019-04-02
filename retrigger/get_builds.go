@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"os"
 	"os/exec"
 	"strings"

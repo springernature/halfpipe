@@ -9,7 +9,7 @@ import (
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/cloudfoundry/bosh-cli/director/template"
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
@@ -53,7 +53,7 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	expectedResourceType := atc.ResourceType{
 		Name: "cf-resource",
-		Type: "docker-image",
+		Type: "registry-image",
 		Source: atc.Source{
 			"repository": "platformengineering/cf-resource",
 			"tag":        "stable",

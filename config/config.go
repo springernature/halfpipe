@@ -2,7 +2,7 @@ package config
 
 import (
 	"github.com/blang/semver"
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 )
 
 // These fields will be populated in build

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/concourse/atc"
+	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
@@ -46,7 +46,7 @@ func TestRenderRunTask(t *testing.T) {
 						"VAR2": "Value2",
 					},
 					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
+						Type: "registry-image",
 						Source: atc.Source{
 							"repository": "imagename",
 							"tag":        "TAG",
@@ -101,7 +101,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 						"VAR2": "Value2",
 					},
 					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
+						Type: "registry-image",
 						Source: atc.Source{
 							"repository": "imagename",
 							"tag":        "TAG",
@@ -160,7 +160,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 						"VAR2": "Value2",
 					},
 					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
+						Type: "registry-image",
 						Source: atc.Source{
 							"repository": "imagename",
 							"tag":        "TAG",
