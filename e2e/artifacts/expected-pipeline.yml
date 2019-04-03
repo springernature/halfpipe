@@ -39,8 +39,10 @@ resource_types:
 - name: gcp-resource
   type: registry-image
   source:
-    repository: platformengineering/gcp-resource
+    password: ((gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/gcp-resource
     tag: stable
+    username: _json_key
 - name: cf-resource
   type: registry-image
   source:
@@ -160,8 +162,10 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: platformengineering/gcp-resource
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
+          username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
@@ -249,8 +253,10 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: platformengineering/gcp-resource
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
+          username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
@@ -376,8 +382,10 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: platformengineering/gcp-resource
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
+          username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
@@ -441,8 +449,10 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: platformengineering/gcp-resource
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
+          username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts
@@ -556,8 +566,10 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          repository: platformengineering/gcp-resource
+          password: ((gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
+          username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: change-me/halfpipe-e2e-artifacts

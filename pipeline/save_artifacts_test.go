@@ -244,7 +244,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
-	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
+	assert.Equal(t, "eu.gcr.io/halfpipe-io/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))
@@ -279,7 +279,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
-	assert.Equal(t, "platformengineering/gcp-resource", resourceType.Source["repository"])
+	assert.Equal(t, "eu.gcr.io/halfpipe-io/gcp-resource", resourceType.Source["repository"])
 	assert.NotEmpty(t, resourceType.Source["tag"])
 
 	resource, _ := renderedPipeline.Resources.Lookup(GenerateArtifactsResourceName(man.Team, man.Pipeline))

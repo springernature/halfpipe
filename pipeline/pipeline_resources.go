@@ -75,8 +75,10 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 		Name: artifactsResourceName,
 		Type: "registry-image",
 		Source: atc.Source{
-			"repository": "platformengineering/gcp-resource",
+			"repository": "eu.gcr.io/halfpipe-io/gcp-resource",
 			"tag":        "stable",
+			"password":   "((gcr.private_key))",
+			"username":   "_json_key",
 		},
 	}
 }
