@@ -78,8 +78,10 @@ resource_types:
 - name: cf-resource
   type: registry-image
   source:
-    repository: platformengineering/cf-resource
+    password: ((gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource
     tag: stable
+    username: _json_key
 jobs:
 - name: update
   plan:

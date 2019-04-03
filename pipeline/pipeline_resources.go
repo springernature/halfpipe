@@ -153,8 +153,10 @@ func halfpipeCfDeployResourceType(name string) atc.ResourceType {
 		Name: name,
 		Type: "registry-image",
 		Source: atc.Source{
-			"repository": "platformengineering/cf-resource",
+			"repository": "eu.gcr.io/halfpipe-io/cf-resource",
 			"tag":        "stable",
+			"password":   "((gcr.private_key))",
+			"username":   "_json_key",
 		},
 	}
 }

@@ -55,8 +55,10 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: "cf-resource",
 		Type: "registry-image",
 		Source: atc.Source{
-			"repository": "platformengineering/cf-resource",
+			"repository": "eu.gcr.io/halfpipe-io/cf-resource",
 			"tag":        "stable",
+			"password":   "((gcr.private_key))",
+			"username":   "_json_key",
 		},
 	}
 
