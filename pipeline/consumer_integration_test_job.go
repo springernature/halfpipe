@@ -70,7 +70,7 @@ func consumerIntegrationTestScript(vars manifest.Vars) string {
 echo "${CONSUMER_GIT_KEY}" > .gitkey
 chmod 600 .gitkey
 
-set -x
+set -ex
 
 # get current revision of consumer
 REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
