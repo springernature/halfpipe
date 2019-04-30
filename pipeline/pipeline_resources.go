@@ -233,7 +233,8 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 
 func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
 	job := atc.JobConfig{
-		Name: updateJobName,
+		Name:   updateJobName,
+		Serial: true,
 		Plan: []atc.PlanConfig{{
 			Put: versionName,
 			Params: atc.Params{

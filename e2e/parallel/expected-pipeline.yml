@@ -19,6 +19,7 @@ resources:
 resource_types: []
 jobs:
   - name: update
+    serial: true
     plan:
       - aggregate:
           - get: git

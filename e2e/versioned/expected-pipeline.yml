@@ -84,6 +84,7 @@ resource_types:
     username: _json_key
 jobs:
 - name: update
+  serial: true
   plan:
   - aggregate:
     - get: git
