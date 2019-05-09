@@ -15,6 +15,7 @@ tasks:
 
 - type: deploy-ml-zip
   deploy_zip: target/xquery.zip
+  use_build_version: true
   targets:
   - ml.dev.springer-sbm.com
 

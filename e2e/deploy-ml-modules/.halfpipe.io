@@ -10,6 +10,7 @@ tasks:
   ml_modules_version: "2.1425"
   app_name: my-app
   app_version: v1
+  use_build_version: false
   targets:
   - ml.dev.springer-sbm.com
   - ml.qa1.springer-sbm.com

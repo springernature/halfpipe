@@ -159,6 +159,7 @@ jobs:
         APP_NAME: test
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
+        USE_BUILD_VERSION: "true"
       run:
         path: /bin/sh
         args:

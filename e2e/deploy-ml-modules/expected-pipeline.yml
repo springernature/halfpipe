@@ -35,6 +35,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         MARKLOGIC_HOST: ml.dev.springer-sbm.com,ml.qa1.springer-sbm.com
         ML_MODULES_VERSION: "2.1425"
+        USE_BUILD_VERSION: "false"
       run:
         path: /bin/sh
         args:

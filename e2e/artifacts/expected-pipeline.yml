@@ -601,6 +601,7 @@ jobs:
         APP_NAME: halfpipe-e2e-artifacts
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
+        USE_BUILD_VERSION: "false"
       run:
         path: /bin/sh
         args:

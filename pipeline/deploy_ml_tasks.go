@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/springernature/halfpipe/manifest"
@@ -22,6 +23,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 			"ARTIFACTORY_USERNAME": "((artifactory.username))",
 			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
+			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
 		Parallel:      mlTask.Parallel,
 		ManualTrigger: mlTask.ManualTrigger,
@@ -44,9 +46,10 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 			Password: "((gcr.private_key))",
 		},
 		Vars: manifest.Vars{
-			"MARKLOGIC_HOST": strings.Join(mlTask.Targets, ","),
-			"APP_NAME":       defaultValue(mlTask.AppName, man.Pipeline),
-			"DEPLOY_ZIP":     mlTask.DeployZip,
+			"MARKLOGIC_HOST":    strings.Join(mlTask.Targets, ","),
+			"APP_NAME":          defaultValue(mlTask.AppName, man.Pipeline),
+			"DEPLOY_ZIP":        mlTask.DeployZip,
+			"USE_BUILD_VERSION": fmt.Sprint(mlTask.UseBuildVersion),
 		},
 		Parallel:         mlTask.Parallel,
 		ManualTrigger:    mlTask.ManualTrigger,

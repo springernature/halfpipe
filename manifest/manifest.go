@@ -334,6 +334,7 @@ type DeployMLZip struct {
 	Retries         int      `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Timeout         string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	UseBuildVersion bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
 func (r DeployMLZip) GetTimeout() string {
@@ -376,6 +377,7 @@ type DeployMLModules struct {
 	Retries          int      `yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Timeout          string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	UseBuildVersion  bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
 func (r DeployMLModules) GetTimeout() string {

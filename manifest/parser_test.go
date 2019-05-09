@@ -113,6 +113,7 @@ tasks:
   app_name: app-name
   app_version: app-version
   deploy_zip: deploy-zip
+  use_build_version: true
   targets:
   - target1
   - target2
@@ -241,12 +242,13 @@ tasks:
 				Script:          "cdc-script",
 			},
 			DeployMLZip{
-				Name:       "deploy ml zip",
-				Parallel:   false,
-				DeployZip:  "deploy-zip",
-				AppName:    "app-name",
-				AppVersion: "app-version",
-				Targets:    []string{"target1", "target2"},
+				Name:            "deploy ml zip",
+				Parallel:        false,
+				DeployZip:       "deploy-zip",
+				AppName:         "app-name",
+				AppVersion:      "app-version",
+				Targets:         []string{"target1", "target2"},
+				UseBuildVersion: true,
 			},
 			DeployMLModules{
 				Parallel:         false,
@@ -254,6 +256,7 @@ tasks:
 				AppName:          "app-name",
 				AppVersion:       "app-version",
 				Targets:          []string{"target1", "target2"},
+				UseBuildVersion:  false,
 			},
 		},
 	}

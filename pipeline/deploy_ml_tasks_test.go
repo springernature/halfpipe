@@ -9,13 +9,14 @@ import (
 
 func TestConvertDeployMLZipToRunTask(t *testing.T) {
 	deployMl := manifest.DeployMLZip{
-		Name:          "foobar",
-		Parallel:      true,
-		DeployZip:     "d-artifact",
-		AppName:       "a-name",
-		AppVersion:    "a-version",
-		Targets:       []string{"blah", "blah1"},
-		ManualTrigger: true,
+		Name:            "foobar",
+		Parallel:        true,
+		DeployZip:       "d-artifact",
+		AppName:         "a-name",
+		AppVersion:      "a-version",
+		Targets:         []string{"blah", "blah1"},
+		ManualTrigger:   true,
+		UseBuildVersion: true,
 	}
 
 	man := manifest.Manifest{}
@@ -31,10 +32,11 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 			Password: "((gcr.private_key))",
 		},
 		Vars: manifest.Vars{
-			"MARKLOGIC_HOST": "blah,blah1",
-			"APP_NAME":       "a-name",
-			"APP_VERSION":    "a-version",
-			"DEPLOY_ZIP":     "d-artifact",
+			"MARKLOGIC_HOST":    "blah,blah1",
+			"APP_NAME":          "a-name",
+			"APP_VERSION":       "a-version",
+			"DEPLOY_ZIP":        "d-artifact",
+			"USE_BUILD_VERSION": "true",
 		},
 		RestoreArtifacts: true,
 		Parallel:         true,
@@ -75,6 +77,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 			"APP_NAME":             "a-name",
 			"APP_VERSION":          "a-version",
 			"ML_MODULES_VERSION":   "1.2345",
+			"USE_BUILD_VERSION":    "false",
 		},
 		RestoreArtifacts: false,
 		Parallel:         true,
