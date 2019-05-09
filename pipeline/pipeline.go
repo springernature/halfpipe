@@ -457,6 +457,11 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	if task.Timeout != "" {
 		push.Params["timeout"] = task.Timeout
 	}
+
+	if man.FeatureToggles.Versioned() {
+		push.Params["buildVersionPath"] = path.Join("version", "version")
+	}
+
 	job.Plan = append(job.Plan, push)
 
 	// saveArtifactInPP and restoreArtifactInPP are needed to make sure we don't run pre-promote tasks in parallel when the first task saves an artifact and the second restores it.

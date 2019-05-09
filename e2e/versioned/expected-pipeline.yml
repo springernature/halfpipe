@@ -253,6 +253,7 @@ jobs:
     resource: CF dev-api engineering-enablement dev
     params:
       appPath: artifacts/target/distribution/artifact.zip
+      buildVersionPath: version/version
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/versioned/manifest.yml
@@ -327,6 +328,7 @@ jobs:
     resource: CF live pe staging
     params:
       appPath: git/e2e/versioned
+      buildVersionPath: version/version
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/versioned/manifest.yml
@@ -553,6 +555,7 @@ jobs:
     resource: CF snpaas qa
     params:
       appPath: git/e2e/versioned
+      buildVersionPath: version/version
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/versioned/manifest.yml

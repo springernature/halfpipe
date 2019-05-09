@@ -406,3 +406,30 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 	assert.Equal(t, path.Join(artifactsInDir, "manifest.yml"), plan[2].Params["manifestPath"])
 
 }
+
+func TestSetsBuildVersionPathParamForVersionedPipelines(t *testing.T) {
+	task := manifest.DeployCF{
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		Username:   "user",
+		Password:   "password",
+		TestDomain: "test.domain",
+		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsInDir),
+	}
+
+	man := manifest.Manifest{
+		Repo:  manifest.Repo{URI: "git@github.com:foo/reponame"},
+		Tasks: []manifest.Task{task},
+	}
+
+	//unversioned
+	buildVersionPath := testPipeline().Render(man).Jobs[0].Plan[2].Params["buildVersionPath"]
+	assert.Nil(t, buildVersionPath)
+
+	//versioned
+	man.FeatureToggles = append(man.FeatureToggles, "update-pipeline")
+	buildVersionPath = testPipeline().Render(man).Jobs[1].Plan[2].Params["buildVersionPath"]
+	assert.Equal(t, path.Join("version", "version"), buildVersionPath)
+
+}
