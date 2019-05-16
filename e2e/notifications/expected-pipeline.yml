@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/notifications
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: slack-notification
   type: slack-notification
@@ -30,7 +30,7 @@ resource_types:
 - name: cf-resource
   type: registry-image
   source:
-    password: ((gcr.private_key))
+    password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/cf-resource
     tag: stable
     username: _json_key
@@ -212,7 +212,7 @@ jobs:
           image_resource:
             type: registry-image
             source:
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
               tag: latest
               username: _json_key

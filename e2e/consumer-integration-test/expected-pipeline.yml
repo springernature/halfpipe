@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/consumer-integration-test
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 resource_types: []
 jobs:
@@ -25,7 +25,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -33,13 +33,13 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-        CONSUMER_GIT_KEY: ((github.private_key))
+        CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
-        GCR_PRIVATE_KEY: ((gcr.private_key))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         GIT_CLONE_OPTIONS: --depth 100
         K: value
         K1: value1

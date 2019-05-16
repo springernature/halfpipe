@@ -12,7 +12,7 @@ resources:
   type: git
   source:
     branch: master
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: version
   type: semver
@@ -20,7 +20,7 @@ resources:
     branch: version
     driver: git
     file: version
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: artifactory-darwin
   type: artifactory

@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/docker-push-paths
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: Docker Registry
   type: docker-image

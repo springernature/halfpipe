@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/docker-compose
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 resource_types: []
 jobs:
@@ -25,7 +25,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -33,7 +33,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-        GCR_PRIVATE_KEY: ((gcr.private_key))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: test
       run:
         path: docker.sh
@@ -84,7 +84,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -94,7 +94,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: bar
         F: foo
-        GCR_PRIVATE_KEY: ((gcr.private_key))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: test
       run:
         path: docker.sh

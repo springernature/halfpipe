@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/versioned
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: slack-notification
   type: slack-notification
@@ -71,14 +71,14 @@ resource_types:
 - name: gcp-resource
   type: registry-image
   source:
-    password: ((gcr.private_key))
+    password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/gcp-resource
     tag: stable
     username: _json_key
 - name: cf-resource
   type: registry-image
   source:
-    password: ((gcr.private_key))
+    password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/cf-resource
     tag: stable
     username: _json_key
@@ -230,7 +230,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
@@ -305,7 +305,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
@@ -347,7 +347,7 @@ jobs:
           image_resource:
             type: registry-image
             source:
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-fly
               tag: latest
               username: _json_key
@@ -411,7 +411,7 @@ jobs:
           image_resource:
             type: registry-image
             source:
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
               tag: stable
               username: _json_key
@@ -419,13 +419,13 @@ jobs:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
             ARTIFACTORY_URL: ((artifactory.url))
             ARTIFACTORY_USERNAME: ((artifactory.username))
-            CONSUMER_GIT_KEY: ((github.private_key))
+            CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
             CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
             CONSUMER_HOST: c-host
             CONSUMER_PATH: ""
             CONSUMER_SCRIPT: /var/c-script
             DOCKER_COMPOSE_SERVICE: ""
-            GCR_PRIVATE_KEY: ((gcr.private_key))
+            GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
             GIT_CLONE_OPTIONS: ""
             PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
             PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
@@ -532,7 +532,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
@@ -573,7 +573,7 @@ jobs:
         image_resource:
           type: registry-image
           source:
-            password: ((gcr.private_key))
+            password: ((halfpipe-gcr.private_key))
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
             username: _json_key
@@ -659,7 +659,7 @@ jobs:
         image_resource:
           type: registry-image
           source:
-            password: ((gcr.private_key))
+            password: ((halfpipe-gcr.private_key))
             repository: eu.gcr.io/halfpipe-io/halfpipe-fly
             tag: latest
             username: _json_key
@@ -876,7 +876,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -885,7 +885,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-        GCR_PRIVATE_KEY: ((gcr.private_key))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: engineering-enablement
       run:
         path: docker.sh
@@ -975,7 +975,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -983,13 +983,13 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-        CONSUMER_GIT_KEY: ((github.private_key))
+        CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
         CONSUMER_PATH: ""
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
-        GCR_PRIVATE_KEY: ((gcr.private_key))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         GIT_CLONE_OPTIONS: ""
         K: value
         K1: value1
@@ -1080,7 +1080,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
@@ -1105,7 +1105,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
@@ -1187,7 +1187,7 @@ jobs:
       image_resource:
         type: registry-image
         source:
-          password: ((gcr.private_key))
+          password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key

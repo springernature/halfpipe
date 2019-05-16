@@ -1,7 +1,7 @@
 package defaults
 
 var DefaultValues = Defaults{
-	RepoPrivateKey: "((github.private_key))",
+	RepoPrivateKey: "((halfpipe-github.private_key))",
 	CfUsername:     "((cloudfoundry.username))",
 	CfPassword:     "((cloudfoundry.password))",
 	CfManifest:     "manifest.yml",
@@ -23,7 +23,7 @@ var DefaultValues = Defaults{
 	CfOrgSnPaas:          "((cloudfoundry.org-snpaas))",
 	CfAPISnPaas:          "((cloudfoundry.api-snpaas))",
 	DockerUsername:       "_json_key",
-	DockerPassword:       "((gcr.private_key))",
+	DockerPassword:       " ((halfpipe-gcr.private_key))",
 	DockerComposeService: "app",
 
 	ArtifactoryUsername: "((artifactory.username))",

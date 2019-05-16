@@ -16,7 +16,7 @@ var dockerComposeImageResource = atc.ImageResource{
 		"repository": strings.Split(config.DockerComposeImage, ":")[0],
 		"tag":        strings.Split(config.DockerComposeImage, ":")[1],
 		"username":   "_json_key",
-		"password":   "((gcr.private_key))",
+		"password":   " ((halfpipe-gcr.private_key))",
 	},
 }
 
@@ -45,7 +45,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 	expectedVars := map[string]string{
 		"VAR1":                "Value1",
 		"VAR2":                "Value2",
-		"GCR_PRIVATE_KEY":     "((gcr.private_key))",
+		"GCR_PRIVATE_KEY":     " ((halfpipe-gcr.private_key))",
 		"HALFPIPE_CACHE_TEAM": "",
 	}
 
@@ -102,7 +102,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	expectedVars := map[string]string{
 		"VAR1":                "Value 1",
 		"VAR2":                "Value 2",
-		"GCR_PRIVATE_KEY":     "((gcr.private_key))",
+		"GCR_PRIVATE_KEY":     " ((halfpipe-gcr.private_key))",
 		"HALFPIPE_CACHE_TEAM": "",
 	}
 

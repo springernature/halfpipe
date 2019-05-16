@@ -27,19 +27,19 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
-			Password: "((gcr.private_key))",
+			Password: " ((halfpipe-gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,
 			"CONSUMER_SCRIPT":        task.Script,
-			"CONSUMER_GIT_KEY":       "((github.private_key))",
+			"CONSUMER_GIT_KEY":       "((halfpipe-github.private_key))",
 			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
-			"GCR_PRIVATE_KEY":        "((gcr.private_key))",
+			"GCR_PRIVATE_KEY":        " ((halfpipe-gcr.private_key))",
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 		},
 	}

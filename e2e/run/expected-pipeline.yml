@@ -7,7 +7,7 @@ resources:
     branch: master
     paths:
     - e2e/run
-    private_key: ((github.private_key))
+    private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 resource_types: []
 jobs:

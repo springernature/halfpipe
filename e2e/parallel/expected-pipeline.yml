@@ -7,7 +7,7 @@ resources:
       branch: master
       paths:
         - e2e/parallel
-      private_key: ((github.private_key))
+      private_key: ((halfpipe-github.private_key))
       uri: git@github.com:springernature/halfpipe.git
   - name: version
     type: semver
@@ -36,7 +36,7 @@ jobs:
           image_resource:
         type: registry-image
             source:
-              password: ((gcr.private_key))
+              password: ((halfpipe-gcr.private_key))
               repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
               tag: latest
               username: _json_key

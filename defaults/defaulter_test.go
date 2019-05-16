@@ -10,7 +10,7 @@ import (
 )
 
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((github.private_key))"}
+	manifestDefaults := Defaults{RepoPrivateKey: "((halfpipe-github.private_key))"}
 
 	man := manifest.Manifest{}
 	man = manifestDefaults.Update(man)
@@ -19,7 +19,7 @@ func TestRepoDefaultsForPublicRepo(t *testing.T) {
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 	manifestDefaults := Defaults{
-		RepoPrivateKey: "((github.private_key))",
+		RepoPrivateKey: "((halfpipe-github.private_key))",
 		Project: project.Data{
 			GitURI: "ssh@github.com:private/repo",
 		},
@@ -103,7 +103,7 @@ func TestRunTaskDockerDefault(t *testing.T) {
 
 	manifestDefaults := Defaults{
 		DockerUsername: "_json_key",
-		DockerPassword: "((gcr.private_key))",
+		DockerPassword: " ((halfpipe-gcr.private_key))",
 	}
 
 	task1 := manifest.Run{
