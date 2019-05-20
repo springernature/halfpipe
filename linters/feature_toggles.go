@@ -7,6 +7,9 @@ import (
 )
 
 var ErrNonSupportedFeature = func(feature string) error {
+	if feature == "versioned" {
+		return fmt.Errorf("feature '%s' is no longer supported. The same functionality is included in the 'update-pipeline' feature", feature)
+	}
 	return fmt.Errorf("feature '%s' is not supported", feature)
 }
 
