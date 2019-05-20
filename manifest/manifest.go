@@ -84,6 +84,10 @@ type Docker struct {
 
 type ParallelGroup string
 
+func (t ParallelGroup) IsSet() bool {
+	return t != "" && t != "false"
+}
+
 type Run struct {
 	Type                   string
 	Name                   string

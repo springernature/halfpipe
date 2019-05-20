@@ -201,6 +201,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	var parallelTasks []string
 	var taskBeforeParallelTasks string
+	var parallelGroupName manifest.ParallelGroup
+	var previousParallelTaskNames []string
 	if len(cfg.Jobs) > 0 {
 		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
 	}
@@ -282,13 +284,28 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		job.Plan = aggregateGets(job)
 
 		var passedJobNames []string
-		if parallel != "" {
-			parallelTasks = append(parallelTasks, job.Name)
-			if taskBeforeParallelTasks != "" {
-				passedJobNames = []string{taskBeforeParallelTasks}
+
+		if parallel.IsSet() {
+			if parallelGroupName == "" || parallelGroupName == parallel {
+				parallelGroupName = parallel
+				parallelTasks = append(parallelTasks, job.Name)
+
+				if taskBeforeParallelTasks != "" {
+					passedJobNames = []string{taskBeforeParallelTasks}
+					if previousParallelTaskNames != nil {
+						passedJobNames = previousParallelTaskNames
+					}
+				}
+			} else {
+				parallelGroupName = parallel
+				previousParallelTaskNames = parallelTasks
+				passedJobNames = previousParallelTaskNames
+				parallelTasks = []string{job.Name}
 			}
 		} else {
+			parallelGroupName = ""
 			taskBeforeParallelTasks = job.Name
+			previousParallelTaskNames = nil
 			if len(parallelTasks) > 0 {
 				passedJobNames = parallelTasks
 				parallelTasks = []string{}
@@ -298,6 +315,23 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 				}
 			}
 		}
+
+		//if parallel.IsSet() {
+		//	parallelTasks = append(parallelTasks, job.Name)
+		//	if taskBeforeParallelTasks != "" {
+		//		passedJobNames = []string{taskBeforeParallelTasks}
+		//	}
+		//} else {
+		//	taskBeforeParallelTasks = job.Name
+		//	if len(parallelTasks) > 0 {
+		//		passedJobNames = parallelTasks
+		//		parallelTasks = []string{}
+		//	} else {
+		//		if len(cfg.Jobs) > 0 {
+		//			passedJobNames = append(passedJobNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
+		//		}
+		//	}
+		//}
 
 		addPassedJobsToGets(job, passedJobNames)
 		configureTriggerOnGets(job, t.IsManualTrigger(), man.FeatureToggles.Versioned())
