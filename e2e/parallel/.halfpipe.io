@@ -59,6 +59,20 @@ tasks:
   parallel: blah
 
 - type: run
+  name: test parallel 7
+  script: ./a
+  docker:
+    image: alpine:test
+  parallel: blah
+
+- type: run
+  name: one group
+  script: ./a
+  docker:
+    image: alpine:test
+  parallel: only
+
+- type: run
   name: after parallel
   script: ./a
   docker:
