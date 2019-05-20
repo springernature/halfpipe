@@ -24,7 +24,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 		Team:     team,
 		Pipeline: pipeline,
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 	}
 
@@ -45,7 +45,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 		Team:     team,
 		Pipeline: pipeline,
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 		Repo: manifest.Repo{
 			Branch: branch,
@@ -76,7 +76,7 @@ func TestShouldNotAddAVersionJobAIfFeatureToggleIsNotEnabled(t *testing.T) {
 func TestShouldAddAVersionJobAsFirstJobIfFeatureToggleIsEnabled(t *testing.T) {
 	man := manifest.Manifest{
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 	}
 
@@ -111,7 +111,7 @@ func TestGetShouldContainGetOnVersionIfFeatureToggleIsEnabled(t *testing.T) {
 	jobName := "run"
 	man := manifest.Manifest{
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 
 		Tasks: manifest.TaskList{
@@ -140,7 +140,7 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 	secondJob := "run2"
 	man := manifest.Manifest{
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 
 		Tasks: manifest.TaskList{
@@ -192,7 +192,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 		TriggerInterval: "12h",
 
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 		Tasks: manifest.TaskList{
 			manifest.Run{
@@ -260,7 +260,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVar(t *testing.T
 	// As they are inputs in the aggregate the put containers will have them mapped..
 	man := manifest.Manifest{
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 
 		Tasks: manifest.TaskList{
@@ -336,7 +336,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 			BasePath: "apps/app1",
 		},
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 
 		Tasks: manifest.TaskList{

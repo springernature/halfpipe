@@ -124,7 +124,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 			BasePath: basePath,
 		},
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 	}
 
@@ -185,7 +185,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			BasePath: basePath,
 		},
 		FeatureToggles: manifest.FeatureToggles{
-			manifest.FeatureVersioned,
+			manifest.FeatureUpdatePipeline,
 		},
 	}
 

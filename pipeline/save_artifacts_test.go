@@ -607,7 +607,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			Team:     team,
 			Pipeline: pipeline,
 			FeatureToggles: []string{
-				manifest.FeatureVersioned,
+				manifest.FeatureUpdatePipeline,
 			},
 			Repo: manifest.Repo{
 				BasePath: "yeah/yeah",

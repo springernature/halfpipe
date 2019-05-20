@@ -2,11 +2,9 @@ package manifest
 
 type FeatureToggles []string
 
-const FeatureVersioned = "versioned"
 const FeatureUpdatePipeline = "update-pipeline"
 
 var AvailableFeatureToggles = FeatureToggles{
-	FeatureVersioned,
 	FeatureUpdatePipeline,
 }
 
@@ -20,7 +18,7 @@ func (f FeatureToggles) contains(aFeature string) bool {
 }
 
 func (f FeatureToggles) Versioned() bool {
-	return f.contains(FeatureVersioned) || f.contains(FeatureUpdatePipeline)
+	return f.UpdatePipeline()
 }
 
 func (f FeatureToggles) UpdatePipeline() bool {
