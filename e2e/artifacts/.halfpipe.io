@@ -1,4 +1,4 @@
-team: CHANGE-ME
+team: test
 pipeline: halfpipe-e2e-artifacts
 repo:
   watched_paths:

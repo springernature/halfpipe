@@ -9,17 +9,17 @@ resources:
     - e2e/artifacts
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: artifacts-CHANGE-ME-halfpipe-e2e-artifacts
+- name: artifacts-test-halfpipe-e2e-artifacts
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: change-me/halfpipe-e2e-artifacts
+    folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
-- name: artifacts-CHANGE-ME-halfpipe-e2e-artifacts-on-failure
+- name: artifacts-test-halfpipe-e2e-artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: change-me/halfpipe-e2e-artifacts
+    folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
 - name: CF live pe staging
   type: cf-resource
@@ -136,7 +136,7 @@ jobs:
     timeout: 1h
     attempts: 1
   - put: artifacts
-    resource: artifacts-CHANGE-ME-halfpipe-e2e-artifacts
+    resource: artifacts-test-halfpipe-e2e-artifacts
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -144,7 +144,7 @@ jobs:
   on_failure:
     aggregate:
     - put: artifacts-on-failure
-      resource: artifacts-CHANGE-ME-halfpipe-e2e-artifacts-on-failure
+      resource: artifacts-test-halfpipe-e2e-artifacts-on-failure
       params:
         folder: artifacts-out-failure
         postfix: failure
@@ -170,7 +170,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: change-me/halfpipe-e2e-artifacts
+        FOLDER: test/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -261,7 +261,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: change-me/halfpipe-e2e-artifacts
+        FOLDER: test/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -390,7 +390,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: change-me/halfpipe-e2e-artifacts
+        FOLDER: test/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -457,7 +457,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: change-me/halfpipe-e2e-artifacts
+        FOLDER: test/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -487,7 +487,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: CHANGE-ME
+        HALFPIPE_CACHE_TEAM: test
       run:
         path: docker.sh
         args:
@@ -548,7 +548,7 @@ jobs:
   on_failure:
     aggregate:
     - put: artifacts-on-failure
-      resource: artifacts-CHANGE-ME-halfpipe-e2e-artifacts-on-failure
+      resource: artifacts-test-halfpipe-e2e-artifacts-on-failure
       params:
         folder: artifacts-out-failure
         postfix: failure
@@ -574,7 +574,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: change-me/halfpipe-e2e-artifacts
+        FOLDER: test/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:

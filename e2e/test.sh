@@ -10,7 +10,7 @@ do
         if [[ -f test.sh ]]; then
             ./test.sh
         else
-            ../../halfpipe 1> pipeline.yml 2> /dev/null
+            ../../halfpipe 1> pipeline.yml
             diff -w pipeline.yml expected-pipeline.yml
             if [ "${1-}" != "ci" ]; then
                 command -v fly >/dev/null && fly validate-pipeline -c pipeline.yml > /dev/null
