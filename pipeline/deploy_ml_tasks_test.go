@@ -29,7 +29,7 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
-			Password: " ((halfpipe-gcr.private_key))",
+			Password: "((halfpipe-gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":    "blah,blah1",
@@ -68,7 +68,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
-			Password: " ((halfpipe-gcr.private_key))",
+			Password: "((halfpipe-gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"ARTIFACTORY_USERNAME": "((artifactory.username))",

@@ -15,7 +15,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
-			Password: " ((halfpipe-gcr.private_key))",
+			Password: "((halfpipe-gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
@@ -43,7 +43,7 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
 			Username: "_json_key",
-			Password: " ((halfpipe-gcr.private_key))",
+			Password: "((halfpipe-gcr.private_key))",
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":    strings.Join(mlTask.Targets, ","),

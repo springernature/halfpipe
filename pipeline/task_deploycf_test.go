@@ -57,7 +57,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Source: atc.Source{
 			"repository": "eu.gcr.io/halfpipe-io/cf-resource",
 			"tag":        "stable",
-			"password":   " ((halfpipe-gcr.private_key))",
+			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
 	}

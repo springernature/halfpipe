@@ -77,7 +77,7 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": "eu.gcr.io/halfpipe-io/gcp-resource",
 			"tag":        "stable",
-			"password":   " ((halfpipe-gcr.private_key))",
+			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
 	}
@@ -155,7 +155,7 @@ func halfpipeCfDeployResourceType(name string) atc.ResourceType {
 		Source: atc.Source{
 			"repository": "eu.gcr.io/halfpipe-io/cf-resource",
 			"tag":        "stable",
-			"password":   " ((halfpipe-gcr.private_key))",
+			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
 	}
@@ -266,7 +266,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 			ImageResource: p.imageResource(manifest.Docker{
 				Image:    "eu.gcr.io/halfpipe-io/halfpipe-auto-update",
 				Username: "_json_key",
-				Password: " ((halfpipe-gcr.private_key))",
+				Password: "((halfpipe-gcr.private_key))",
 			}),
 			Run: atc.TaskRunConfig{
 				Path: "/bin/update-pipeline",

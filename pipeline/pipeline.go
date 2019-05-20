@@ -93,7 +93,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 			Source: atc.Source{
 				"repository": "eu.gcr.io/halfpipe-io/gcp-resource",
 				"tag":        "stable",
-				"password":   " ((halfpipe-gcr.private_key))",
+				"password":   "((halfpipe-gcr.private_key))",
 				"username":   "_json_key",
 			},
 		},
@@ -554,7 +554,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 	if task.Vars == nil {
 		task.Vars = make(map[string]string)
 	}
-	task.Vars["GCR_PRIVATE_KEY"] = " ((halfpipe-gcr.private_key))"
+	task.Vars["GCR_PRIVATE_KEY"] = "((halfpipe-gcr.private_key))"
 	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
 	return manifest.Run{
@@ -564,7 +564,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 		Docker: manifest.Docker{
 			Image:    config.DockerComposeImage,
 			Username: "_json_key",
-			Password: " ((halfpipe-gcr.private_key))",
+			Password: "((halfpipe-gcr.private_key))",
 		},
 		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,

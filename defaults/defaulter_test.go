@@ -103,7 +103,7 @@ func TestRunTaskDockerDefault(t *testing.T) {
 
 	manifestDefaults := Defaults{
 		DockerUsername: "_json_key",
-		DockerPassword: " ((halfpipe-gcr.private_key))",
+		DockerPassword: "((halfpipe-gcr.private_key))",
 	}
 
 	task1 := manifest.Run{
