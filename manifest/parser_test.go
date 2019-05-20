@@ -238,12 +238,11 @@ tasks:
 				Consumer:        "cdc-consumer",
 				ConsumerHost:    "cdc-host",
 				GitCloneOptions: "--depth 100",
-				Parallel:        true,
+				Parallel:        "true",
 				Script:          "cdc-script",
 			},
 			DeployMLZip{
 				Name:            "deploy ml zip",
-				Parallel:        false,
 				DeployZip:       "deploy-zip",
 				AppName:         "app-name",
 				AppVersion:      "app-version",
@@ -251,7 +250,6 @@ tasks:
 				UseBuildVersion: true,
 			},
 			DeployMLModules{
-				Parallel:         false,
 				MLModulesVersion: "ml-modules-version",
 				AppName:          "app-name",
 				AppVersion:       "app-version",

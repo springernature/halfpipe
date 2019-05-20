@@ -10,7 +10,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 	var task manifest.Task
 	task = manifest.Run{
 		ManualTrigger: true,
-		Parallel:      true,
+		Parallel:      "true",
 	}
 	errors, _ := LintPrePromoteTask(task)
 	helpers.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
@@ -18,7 +18,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 
 	task = manifest.DockerCompose{
 		ManualTrigger: true,
-		Parallel:      true,
+		Parallel:      "true",
 	}
 	errors, _ = LintPrePromoteTask(task)
 	helpers.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
@@ -26,14 +26,14 @@ func TestLintPrePromoteTasks(t *testing.T) {
 
 	task = manifest.DeployCF{
 		ManualTrigger: true,
-		Parallel:      true,
+		Parallel:      "true",
 	}
 	errors, _ = LintPrePromoteTask(task)
 	helpers.AssertInvalidFieldInErrors(t, "type", errors)
 
 	task = manifest.DockerPush{
 		ManualTrigger: true,
-		Parallel:      true,
+		Parallel:      "true",
 	}
 	errors, _ = LintPrePromoteTask(task)
 	helpers.AssertInvalidFieldInErrors(t, "type", errors)

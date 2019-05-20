@@ -209,7 +209,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned(), t)
 
 		var job *atc.JobConfig
-		var parallel bool
+		var parallel manifest.ParallelGroup
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
@@ -282,7 +282,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		job.Plan = aggregateGets(job)
 
 		var passedJobNames []string
-		if parallel {
+		if parallel != "" {
 			parallelTasks = append(parallelTasks, job.Name)
 			if taskBeforeParallelTasks != "" {
 				passedJobNames = []string{taskBeforeParallelTasks}

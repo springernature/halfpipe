@@ -96,8 +96,8 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 		CronTrigger: "*/10 * * * *",
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "first.sh"},
-			manifest.Run{Script: "p1.sh", Parallel: true},
-			manifest.Run{Script: "p2.sh", Parallel: true},
+			manifest.Run{Script: "p1.sh", Parallel: "true"},
+			manifest.Run{Script: "p2.sh", Parallel: "true"},
 			manifest.Run{Script: "last.sh"},
 		},
 	}
@@ -145,8 +145,8 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 		CronTrigger: "*/10 * * * *",
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "first.sh", SaveArtifacts: []string{"something"}},
-			manifest.Run{Script: "p1.sh", Parallel: true},
-			manifest.Run{Script: "p2.sh", Parallel: true, RestoreArtifacts: true},
+			manifest.Run{Script: "p1.sh", Parallel: "true"},
+			manifest.Run{Script: "p2.sh", Parallel: "true", RestoreArtifacts: true},
 			manifest.Run{Script: "last.sh", RestoreArtifacts: true},
 		},
 	}

@@ -115,7 +115,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			}
 		}
 
-	case reflect.TypeOf(true), reflect.TypeOf(0):
+	case reflect.TypeOf(true), reflect.TypeOf(0), reflect.TypeOf(ParallelGroup("blah")):
 		// Stuff that we don't care about as they cannot contain secrets.
 		return
 

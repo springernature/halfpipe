@@ -24,6 +24,20 @@ tasks:
   parallel: true
 
 - type: run
+  name: test parallel 3
+  script: ./a
+  docker:
+    image: alpine:test
+  parallel: blah
+
+- type: run
+  name: test parallel 4
+  script: ./a
+  docker:
+    image: alpine:test
+  parallel: blah
+
+- type: run
   name: after parallel
   script: ./a
   docker:

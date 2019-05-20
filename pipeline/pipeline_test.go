@@ -49,13 +49,13 @@ func TestRenderWithParallelTasks(t *testing.T) {
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "Build", Script: "asd.sh"},
 
-			manifest.DeployCF{Name: "Deploy", Parallel: true},
-			manifest.DockerPush{Name: "Push", Parallel: true},
+			manifest.DeployCF{Name: "Deploy", Parallel: "true"},
+			manifest.DockerPush{Name: "Push", Parallel: "true"},
 
 			manifest.Run{Name: "Smoke Test", Script: "asd.sh"},
 
-			manifest.DeployCF{Name: "Deploy 2", Parallel: true},
-			manifest.DockerPush{Name: "Push 2", Parallel: true},
+			manifest.DeployCF{Name: "Deploy 2", Parallel: "true"},
+			manifest.DockerPush{Name: "Push 2", Parallel: "true"},
 
 			manifest.Run{Name: "Smoke Test 2", Script: "asd.sh"},
 		},
@@ -79,8 +79,8 @@ func TestRenderWithParallelTasks(t *testing.T) {
 func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: true},
-			manifest.DeployCF{Name: "Deploy", Parallel: true},
+			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: "true"},
+			manifest.DeployCF{Name: "Deploy", Parallel: "true"},
 
 			manifest.DockerPush{Name: "Push"},
 		},

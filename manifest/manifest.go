@@ -82,20 +82,22 @@ type Docker struct {
 	Password string `yaml:"password,omitempty" secretAllowed:"true"`
 }
 
+type ParallelGroup string
+
 type Run struct {
 	Type                   string
 	Name                   string
 	ManualTrigger          bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script                 string
 	Docker                 Docker
-	Vars                   Vars     `yaml:"vars,omitempty" secretAllowed:"true"`
-	SaveArtifacts          []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
-	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
-	Parallel               bool     `yaml:"parallel,omitempty"`
-	Retries                int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	Parallel               ParallelGroup `yaml:"parallel,omitempty"`
+	Retries                int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 func (r Run) GetTimeout() string {
@@ -133,14 +135,14 @@ type DockerPush struct {
 	Username         string `secretAllowed:"true"`
 	Password         string `secretAllowed:"true"`
 	Image            string
-	Vars             Vars   `secretAllowed:"true"`
-	RestoreArtifacts bool   `json:"restore_artifacts" yaml:"restore_artifacts"`
-	Parallel         bool   `yaml:"parallel,omitempty"`
-	Retries          int    `yaml:"retries,omitempty"`
-	NotifyOnSuccess  bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout          string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	DockerfilePath   string `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
-	BuildPath        string `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+	Vars             Vars          `secretAllowed:"true"`
+	RestoreArtifacts bool          `json:"restore_artifacts" yaml:"restore_artifacts"`
+	Parallel         ParallelGroup `yaml:"parallel,omitempty"`
+	Retries          int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
+	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 }
 
 func (r DockerPush) GetTimeout() string {
@@ -178,14 +180,14 @@ type DockerCompose struct {
 	ManualTrigger          bool `json:"manual_trigger" yaml:"manual_trigger"`
 	Vars                   Vars `secretAllowed:"true"`
 	Service                string
-	ComposeFile            string   `json:"compose_file"`
-	SaveArtifacts          []string `json:"save_artifacts"`
-	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts"`
-	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
-	Parallel               bool     `yaml:"parallel,omitempty"`
-	Retries                int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	ComposeFile            string        `json:"compose_file"`
+	SaveArtifacts          []string      `json:"save_artifacts"`
+	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts"`
+	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	Parallel               ParallelGroup `yaml:"parallel,omitempty"`
+	Retries                int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 func (r DockerCompose) GetTimeout() string {
@@ -226,14 +228,14 @@ type DeployCF struct {
 	Username        string `secretAllowed:"true"`
 	Password        string `secretAllowed:"true"`
 	Manifest        string
-	TestDomain      string   `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
-	Vars            Vars     `secretAllowed:"true"`
-	DeployArtifact  string   `json:"deploy_artifact"`
-	PrePromote      TaskList `json:"pre_promote"`
-	Parallel        bool     `yaml:"parallel,omitempty"`
-	Timeout         string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Retries         int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	TestDomain      string        `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
+	Vars            Vars          `secretAllowed:"true"`
+	DeployArtifact  string        `json:"deploy_artifact"`
+	PrePromote      TaskList      `json:"pre_promote"`
+	Parallel        ParallelGroup `yaml:"parallel,omitempty"`
+	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Retries         int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
 func (r DeployCF) GetTimeout() string {
@@ -286,12 +288,12 @@ type ConsumerIntegrationTest struct {
 	GitCloneOptions      string `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
 	ProviderHost         string `json:"provider_host" yaml:"provider_host"`
 	Script               string
-	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service"`
-	Parallel             bool   `yaml:"parallel,omitempty"`
-	Vars                 Vars   `secretAllowed:"true"`
-	Retries              int    `yaml:"retries,omitempty"`
-	NotifyOnSuccess      bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout              string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerComposeService string        `json:"docker_compose_service" yaml:"docker_compose_service"`
+	Parallel             ParallelGroup `yaml:"parallel,omitempty"`
+	Vars                 Vars          `secretAllowed:"true"`
+	Retries              int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess      bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout              string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 func (r ConsumerIntegrationTest) GetTimeout() string {
@@ -325,16 +327,16 @@ func (r ConsumerIntegrationTest) GetAttempts() int {
 type DeployMLZip struct {
 	Type            string
 	Name            string
-	Parallel        bool     `yaml:"parallel,omitempty"`
-	DeployZip       string   `json:"deploy_zip"`
-	AppName         string   `json:"app_name"`
-	AppVersion      string   `json:"app_version"`
-	Targets         []string `secretAllowed:"true"`
-	ManualTrigger   bool     `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries         int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout         string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	UseBuildVersion bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+	Parallel        ParallelGroup `yaml:"parallel,omitempty"`
+	DeployZip       string        `json:"deploy_zip"`
+	AppName         string        `json:"app_name"`
+	AppVersion      string        `json:"app_version"`
+	Targets         []string      `secretAllowed:"true"`
+	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries         int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	UseBuildVersion bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
 func (r DeployMLZip) GetTimeout() string {
@@ -368,16 +370,16 @@ func (r DeployMLZip) ReadsFromArtifacts() bool {
 type DeployMLModules struct {
 	Type             string
 	Name             string
-	Parallel         bool     `yaml:"parallel,omitempty"`
-	MLModulesVersion string   `json:"ml_modules_version"`
-	AppName          string   `json:"app_name"`
-	AppVersion       string   `json:"app_version"`
-	Targets          []string `secretAllowed:"true"`
-	ManualTrigger    bool     `json:"manual_trigger" yaml:"manual_trigger"`
-	Retries          int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess  bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout          string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	UseBuildVersion  bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+	Parallel         ParallelGroup `yaml:"parallel,omitempty"`
+	MLModulesVersion string        `json:"ml_modules_version"`
+	AppName          string        `json:"app_name"`
+	AppVersion       string        `json:"app_version"`
+	Targets          []string      `secretAllowed:"true"`
+	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger"`
+	Retries          int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	UseBuildVersion  bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
 func (r DeployMLModules) GetTimeout() string {

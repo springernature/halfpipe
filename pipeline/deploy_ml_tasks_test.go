@@ -10,7 +10,7 @@ import (
 func TestConvertDeployMLZipToRunTask(t *testing.T) {
 	deployMl := manifest.DeployMLZip{
 		Name:            "foobar",
-		Parallel:        true,
+		Parallel:        "true",
 		DeployZip:       "d-artifact",
 		AppName:         "a-name",
 		AppVersion:      "a-version",
@@ -39,7 +39,7 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 			"USE_BUILD_VERSION": "true",
 		},
 		RestoreArtifacts: true,
-		Parallel:         true,
+		Parallel:         "true",
 	}
 
 	actual := ConvertDeployMLZipToRunTask(deployMl, man)
@@ -50,7 +50,7 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 	deployMl := manifest.DeployMLModules{
 		Name:             "foobar",
-		Parallel:         true,
+		Parallel:         "true",
 		MLModulesVersion: "1.2345",
 		AppName:          "a-name",
 		AppVersion:       "a-version",
@@ -80,7 +80,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 			"USE_BUILD_VERSION":    "false",
 		},
 		RestoreArtifacts: false,
-		Parallel:         true,
+		Parallel:         "true",
 	}
 
 	actual := ConvertDeployMLModulesToRunTask(deployMl, man)

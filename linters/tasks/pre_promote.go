@@ -7,7 +7,7 @@ import (
 
 func LintPrePromoteTask(task manifest.Task) (errs []error, warnings []error) {
 	var manualTrigger bool
-	var parallel bool
+	var parallel manifest.ParallelGroup
 	switch t := task.(type) {
 
 	case manifest.Run:
@@ -25,7 +25,7 @@ func LintPrePromoteTask(task manifest.Task) (errs []error, warnings []error) {
 	if manualTrigger {
 		errs = append(errs, errors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 	}
-	if parallel {
+	if parallel != "" {
 		errs = append(errs, errors.NewInvalidField("parallel", "You are not allowed to set this inside a pre promote task"))
 	}
 
