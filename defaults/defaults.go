@@ -23,7 +23,7 @@ var DefaultValues = Defaults{
 	CfOrgSnPaas:          "((cloudfoundry.org-snpaas))",
 	CfAPISnPaas:          "((cloudfoundry.api-snpaas))",
 	DockerUsername:       "_json_key",
-	DockerPassword:       " ((halfpipe-gcr.private_key))",
+	DockerPassword:       "((halfpipe-gcr.private_key))",
 	DockerComposeService: "app",
 
 	ArtifactoryUsername: "((artifactory.username))",
