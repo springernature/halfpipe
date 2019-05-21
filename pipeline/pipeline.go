@@ -200,28 +200,27 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	}
 
 	var parallelTasks []string
-	var taskBeforeParallelTasks string
-	var parallelGroupName manifest.ParallelGroup
-	var previousParallelTaskNames []string
+	var currentParallelGroup manifest.ParallelGroup
+	var previousTaskNames []string
 	if len(cfg.Jobs) > 0 {
-		taskBeforeParallelTasks = cfg.Jobs[len(cfg.Jobs)-1].Name
+		previousTaskNames = append(previousTaskNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
 	}
 
 	for _, t := range man.Tasks {
 		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned(), t)
 
 		var job *atc.JobConfig
-		var parallel manifest.ParallelGroup
+		var taskParallelGroup manifest.ParallelGroup
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			job = p.runJob(task, man, false)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
 			job = p.dockerComposeJob(task, man)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
@@ -229,31 +228,31 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			job = p.deployCFJob(task, resourceName, man, &cfg)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.ConsumerIntegrationTest:
 			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
 			job = p.consumerIntegrationTestJob(task, man)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.DeployMLZip:
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-zip")
 			runTask := ConvertDeployMLZipToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 
 		case manifest.DeployMLModules:
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-modules")
 			runTask := ConvertDeployMLModulesToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			parallel = task.Parallel
+			taskParallelGroup = task.Parallel
 		}
 
 		if t.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -283,57 +282,29 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		job.Plan = append(initialPlan, job.Plan...)
 		job.Plan = aggregateGets(job)
 
-		var passedJobNames []string
-
-		if parallel.IsSet() {
-			if parallelGroupName == "" || parallelGroupName == parallel {
-				parallelGroupName = parallel
+		if taskParallelGroup.IsSet() {
+			// parallel group is set
+			if currentParallelGroup == "" || currentParallelGroup == taskParallelGroup {
+				currentParallelGroup = taskParallelGroup
 				parallelTasks = append(parallelTasks, job.Name)
-
-				if taskBeforeParallelTasks != "" {
-					passedJobNames = []string{taskBeforeParallelTasks}
-					if previousParallelTaskNames != nil {
-						passedJobNames = previousParallelTaskNames
-					}
-				}
 			} else {
-				parallelGroupName = parallel
-				previousParallelTaskNames = parallelTasks
-				passedJobNames = previousParallelTaskNames
+				// new parallel group name, right after other parallel group
+				currentParallelGroup = taskParallelGroup
+				previousTaskNames = parallelTasks
 				parallelTasks = []string{job.Name}
 			}
+			addPassedJobsToGets(job, previousTaskNames)
 		} else {
-			parallelGroupName = ""
-			taskBeforeParallelTasks = job.Name
-			previousParallelTaskNames = nil
+			// parallel group is not set
+			currentParallelGroup = ""
 			if len(parallelTasks) > 0 {
-				passedJobNames = parallelTasks
+				previousTaskNames = parallelTasks
 				parallelTasks = []string{}
-			} else {
-				if len(cfg.Jobs) > 0 {
-					passedJobNames = append(passedJobNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
-				}
 			}
+			addPassedJobsToGets(job, previousTaskNames)
+			previousTaskNames = []string{job.Name}
 		}
 
-		//if parallel.IsSet() {
-		//	parallelTasks = append(parallelTasks, job.Name)
-		//	if taskBeforeParallelTasks != "" {
-		//		passedJobNames = []string{taskBeforeParallelTasks}
-		//	}
-		//} else {
-		//	taskBeforeParallelTasks = job.Name
-		//	if len(parallelTasks) > 0 {
-		//		passedJobNames = parallelTasks
-		//		parallelTasks = []string{}
-		//	} else {
-		//		if len(cfg.Jobs) > 0 {
-		//			passedJobNames = append(passedJobNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
-		//		}
-		//	}
-		//}
-
-		addPassedJobsToGets(job, passedJobNames)
 		configureTriggerOnGets(job, t.IsManualTrigger(), man.FeatureToggles.Versioned())
 		addTimeout(job, t.GetTimeout())
 
