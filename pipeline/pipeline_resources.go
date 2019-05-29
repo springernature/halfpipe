@@ -263,6 +263,8 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 				"CONCOURSE_TEAM":     "((concourse.team))",
 				"CONCOURSE_USERNAME": "((concourse.username))",
 				"PIPELINE_NAME":      man.PipelineName(),
+				"HALFPIPE_DOMAIN":    config.Domain,
+				"HALFPIPE_PROJECT":   config.Project,
 			},
 			ImageResource: p.imageResource(manifest.Docker{
 				Image:    config.DockerRegistry + "halfpipe-auto-update",

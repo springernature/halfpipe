@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/blang/semver"
 	"github.com/concourse/concourse/atc"
+	"os"
 )
 
 // These fields will be populated in build
@@ -10,11 +11,13 @@ import (
 var (
 	Version = "0.0.0-DEV"
 
-	Domain = "halfpipe.io"
-
-	Project = "halfpipe-io"
-
 	SlackWebhook = "Set your slack webhook here"
+)
+
+var (
+	Domain = getEnv("HALFPIPE_DOMAIN", "halfpipe.io")
+
+	Project = getEnv("HALFPIPE_PROJECT", "halfpipe-io")
 
 	DockerRegistry = "eu.gcr.io/" + Project + "/"
 
@@ -55,6 +58,14 @@ func GetVersion() (semver.Version, error) {
 		return semver.Version{}, err
 	}
 	return version, nil
+}
+
+func getEnv(key string, defaultVal string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+
+	return defaultVal
 }
 
 const VersionBucket = "((halfpipe-semver.bucket))"
