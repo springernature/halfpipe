@@ -25,7 +25,7 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 		Name:    task.Name,
 		Script:  consumerIntegrationTestScript(task.Vars),
 		Docker: manifest.Docker{
-			Image:    config.DockerComposeImage,
+			Image:    config.DockerRegistry + config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

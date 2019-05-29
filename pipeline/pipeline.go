@@ -91,7 +91,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		ImageResource: &atc.ImageResource{
 			Type: "registry-image",
 			Source: atc.Source{
-				"repository": "eu.gcr.io/" + config.Project + "/gcp-resource",
+				"repository": config.DockerRegistry + "gcp-resource",
 				"tag":        "stable",
 				"password":   "((halfpipe-gcr.private_key))",
 				"username":   "_json_key",
@@ -567,7 +567,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 		Name:    task.Name,
 		Script:  dockerComposeScript(task, man.FeatureToggles.Versioned()),
 		Docker: manifest.Docker{
-			Image:    config.DockerComposeImage,
+			Image:    config.DockerRegistry + config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

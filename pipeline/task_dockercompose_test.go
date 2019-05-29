@@ -13,7 +13,7 @@ import (
 var dockerComposeImageResource = atc.ImageResource{
 	Type: "registry-image",
 	Source: atc.Source{
-		"repository": strings.Split(config.DockerComposeImage, ":")[0],
+		"repository": config.DockerRegistry + strings.Split(config.DockerComposeImage, ":")[0],
 		"tag":        strings.Split(config.DockerComposeImage, ":")[1],
 		"username":   "_json_key",
 		"password":   "((halfpipe-gcr.private_key))",

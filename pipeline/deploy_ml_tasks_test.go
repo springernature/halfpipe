@@ -28,7 +28,7 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 		ManualTrigger: true,
 		Script:        "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/" + config.Project + "/halfpipe-ml-deploy",
+			Image:    config.DockerRegistry + "halfpipe-ml-deploy",
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
@@ -67,7 +67,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		ManualTrigger: true,
 		Script:        "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/" + config.Project + "/halfpipe-ml-deploy",
+			Image:    config.DockerRegistry + "halfpipe-ml-deploy",
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
