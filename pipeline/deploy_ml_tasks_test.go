@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"github.com/springernature/halfpipe/config"
 	"testing"
 
 	"github.com/springernature/halfpipe/manifest"
@@ -27,7 +28,7 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 		ManualTrigger: true,
 		Script:        "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
+			Image:    "eu.gcr.io/" + config.Project + "/halfpipe-ml-deploy",
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
@@ -66,7 +67,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		ManualTrigger: true,
 		Script:        "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/halfpipe-ml-deploy",
+			Image:    "eu.gcr.io/" + config.Project + "/halfpipe-ml-deploy",
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

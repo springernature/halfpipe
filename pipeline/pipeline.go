@@ -91,7 +91,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		ImageResource: &atc.ImageResource{
 			Type: "registry-image",
 			Source: atc.Source{
-				"repository": "eu.gcr.io/halfpipe-io/gcp-resource",
+				"repository": "eu.gcr.io/" + config.Project + "/gcp-resource",
 				"tag":        "stable",
 				"password":   "((halfpipe-gcr.private_key))",
 				"username":   "_json_key",
