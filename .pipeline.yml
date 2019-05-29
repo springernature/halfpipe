@@ -121,6 +121,13 @@ jobs:
           export LDFLAGS="${LDFLAGS} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
           echo "LDFLAGS=${LDFLAGS}"
 
+          # Build LDFLAGS for halfpipe-test.io
+          export LDFLAGS_TEST="-X ${CONF_PKG}.Version=${VERSION}"
+          export LDFLAGS_TEST="${LDFLAGS_TEST} -X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
+          export LDFLAGS_TEST="${LDFLAGS_TEST} -X ${CONF_PKG}.Domain=halfpipe-test.io"
+          export LDFLAGS_TEST="${LDFLAGS_TEST} -X ${CONF_PKG}.Project=halfpipe-test2"
+          echo "LDFLAGS_TEST=${LDFLAGS_TEST}"
+
           # Build binaries
           cd halfpipe
           go mod download
@@ -128,7 +135,10 @@ jobs:
           CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
+          # Build binary for halfpipe-test.io
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o test_halfpipe_darwin_$VERSION -ldflags "${LDFLAGS_TEST}" cmd/halfpipe.go
+
+          cp halfpipe_darwin_$VERSION test_halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
       inputs:
       - name: halfpipe
       - name: version

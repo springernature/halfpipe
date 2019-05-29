@@ -10,13 +10,17 @@ import (
 var (
 	Version = "0.0.0-DEV"
 
+	Domain = "halfpipe.io"
+
+	Project = "halfpipe-io"
+
 	SlackWebhook = "Set your slack webhook here"
 
-	DockerRegistry = "eu.gcr.io/halfpipe-io/"
+	DockerRegistry = "eu.gcr.io/" + Project + "/"
 
-	DockerComposeImage = "eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable"
+	DockerComposeImage = DockerRegistry + "halfpipe-docker-compose:stable"
 
-	ConcourseHost = "https://concourse.halfpipe.io"
+	ConcourseHost = "https://concourse." + Domain
 
 	CacheDirs = []atc.CacheConfig{
 		{Path: "../../../var/halfpipe/cache"},
