@@ -43,6 +43,7 @@ jobs:
           params:
             CONCOURSE_PASSWORD: ((concourse.password))
             CONCOURSE_TEAM: ((concourse.team))
+            CONCOURSE_URL: ((concourse.url))
             CONCOURSE_USERNAME: ((concourse.username))
             PIPELINE_NAME: test
           run:

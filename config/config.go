@@ -20,7 +20,7 @@ var (
 
 	DockerComposeImage = DockerRegistry + "halfpipe-docker-compose:stable"
 
-	ConcourseHost = "https://concourse." + Domain
+	ConcourseURL = "https://concourse." + Domain
 
 	CacheDirs = []atc.CacheConfig{
 		{Path: "../../../var/halfpipe/cache"},

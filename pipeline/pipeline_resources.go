@@ -258,6 +258,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 		TaskConfig: &atc.TaskConfig{
 			Platform: "linux",
 			Params: map[string]string{
+				"CONCOURSE_URL":      "((concourse.url))",
 				"CONCOURSE_PASSWORD": "((concourse.password))",
 				"CONCOURSE_TEAM":     "((concourse.team))",
 				"CONCOURSE_USERNAME": "((concourse.username))",

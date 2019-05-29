@@ -176,14 +176,14 @@ func (p planner) Plan() (plan Plan, err error) {
 		return
 	}
 
-	concourseOverrideHost := p.envResolver("CONCOURSE_HOST")
-	if target, ok := targets.Targets[man.Team]; !ok || concourseOverrideHost != "" && target.API != concourseOverrideHost {
-		host := config.ConcourseHost
-		if concourseOverrideHost != "" {
-			host = concourseOverrideHost
+	concourseOverrideURL := p.envResolver("CONCOURSE_URL")
+	if target, ok := targets.Targets[man.Team]; !ok || concourseOverrideURL != "" && target.API != concourseOverrideURL {
+		url := config.ConcourseURL
+		if concourseOverrideURL != "" {
+			url = concourseOverrideURL
 		}
 
-		cmd, loginError := p.loginCommand(man.Team, host)
+		cmd, loginError := p.loginCommand(man.Team, url)
 		if loginError != nil {
 			err = loginError
 			return
