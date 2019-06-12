@@ -35,13 +35,13 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	config := testPipeline().Render(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
-	assert.Equal(t, (*config.Jobs[0].Plan[0].Aggregate)[0].Trigger, true)
+	assert.Equal(t, (config.Jobs[0].Plan[0].InParallel.Steps)[0].Trigger, true)
 
-	assert.Equal(t, (*config.Jobs[1].Plan[0].Aggregate)[0].Passed[0], config.Jobs[0].Name)
-	assert.Equal(t, (*config.Jobs[1].Plan[0].Aggregate)[0].Trigger, false)
+	assert.Equal(t, (config.Jobs[1].Plan[0].InParallel.Steps)[0].Passed[0], config.Jobs[0].Name)
+	assert.Equal(t, (config.Jobs[1].Plan[0].InParallel.Steps)[0].Trigger, false)
 
-	assert.Equal(t, (*config.Jobs[2].Plan[0].Aggregate)[0].Passed[0], config.Jobs[1].Name)
-	assert.Equal(t, (*config.Jobs[2].Plan[0].Aggregate)[0].Trigger, true)
+	assert.Equal(t, (config.Jobs[2].Plan[0].InParallel.Steps)[0].Passed[0], config.Jobs[1].Name)
+	assert.Equal(t, (config.Jobs[2].Plan[0].InParallel.Steps)[0].Trigger, true)
 }
 
 func TestRenderWithParallelTasks(t *testing.T) {
@@ -62,17 +62,17 @@ func TestRenderWithParallelTasks(t *testing.T) {
 	}
 	config := testPipeline().Render(man)
 
-	assert.Nil(t, (*config.Jobs[0].Plan[0].Aggregate)[0].Passed)
+	assert.Nil(t, (config.Jobs[0].Plan[0].InParallel.Steps)[0].Passed)
 
-	assert.Equal(t, "Build", (*config.Jobs[1].Plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "Build", (*config.Jobs[2].Plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, "Build", (config.Jobs[1].Plan[0].InParallel.Steps)[0].Passed[0])
+	assert.Equal(t, "Build", (config.Jobs[2].Plan[0].InParallel.Steps)[0].Passed[0])
 
-	assert.Equal(t, []string{"Deploy", "Push"}, (*config.Jobs[3].Plan[0].Aggregate)[0].Passed)
+	assert.Equal(t, []string{"Deploy", "Push"}, (config.Jobs[3].Plan[0].InParallel.Steps)[0].Passed)
 
-	assert.Equal(t, "Smoke Test", (*config.Jobs[4].Plan[0].Aggregate)[0].Passed[0])
-	assert.Equal(t, "Smoke Test", (*config.Jobs[5].Plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, "Smoke Test", (config.Jobs[4].Plan[0].InParallel.Steps)[0].Passed[0])
+	assert.Equal(t, "Smoke Test", (config.Jobs[5].Plan[0].InParallel.Steps)[0].Passed[0])
 
-	assert.Equal(t, []string{"Deploy 2", "Push 2"}, (*config.Jobs[6].Plan[0].Aggregate)[0].Passed)
+	assert.Equal(t, []string{"Deploy 2", "Push 2"}, (config.Jobs[6].Plan[0].InParallel.Steps)[0].Passed)
 
 }
 
@@ -90,7 +90,7 @@ func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	assert.Nil(t, config.Jobs[1].Plan[0].Passed)
 
-	assert.Equal(t, []string{"Build", "Deploy"}, (*config.Jobs[2].Plan[0].Aggregate)[0].Passed)
+	assert.Equal(t, []string{"Build", "Deploy"}, (config.Jobs[2].Plan[0].InParallel.Steps)[0].Passed)
 
 }
 

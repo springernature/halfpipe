@@ -41,8 +41,8 @@ func TestRendersSlackOnFailurePlan(t *testing.T) {
 	}
 	pipeline := testPipeline().Render(man)
 
-	channel := (*pipeline.Jobs[0].Failure.Aggregate)[0].Params["channel"]
-	channel1 := (*pipeline.Jobs[1].Failure.Aggregate)[0].Params["channel"]
+	channel := (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Params["channel"]
+	channel1 := (pipeline.Jobs[1].Failure.InParallel.Steps)[0].Params["channel"]
 
 	assert.Equal(t, slackChannel, channel)
 	assert.Equal(t, slackChannel, channel1)
@@ -61,12 +61,12 @@ func TestRendersSlackOnFailurePlanWithArtifactOnFailure(t *testing.T) {
 	}
 	pipeline := testPipeline().Render(man)
 
-	assert.Equal(t, slackResourceName, (*pipeline.Jobs[0].Failure.Aggregate)[0].Put)
-	assert.Equal(t, slackChannel, (*pipeline.Jobs[0].Failure.Aggregate)[0].Params["channel"])
+	assert.Equal(t, slackResourceName, (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Put)
+	assert.Equal(t, slackChannel, (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Params["channel"])
 
-	assert.Equal(t, artifactsOnFailureName, (*pipeline.Jobs[1].Failure.Aggregate)[0].Put)
-	assert.Equal(t, slackResourceName, (*pipeline.Jobs[1].Failure.Aggregate)[1].Put)
-	assert.Equal(t, slackChannel, (*pipeline.Jobs[1].Failure.Aggregate)[1].Params["channel"])
+	assert.Equal(t, artifactsOnFailureName, (pipeline.Jobs[1].Failure.InParallel.Steps)[0].Put)
+	assert.Equal(t, slackResourceName, (pipeline.Jobs[1].Failure.InParallel.Steps)[1].Put)
+	assert.Equal(t, slackChannel, (pipeline.Jobs[1].Failure.InParallel.Steps)[1].Params["channel"])
 }
 
 func TestDoesntRenderWhenNotSet(t *testing.T) {
@@ -100,13 +100,13 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 		pipeline := testPipeline().Render(man)
 
 		firstTask, _ := pipeline.Jobs.Lookup(taskName1)
-		assert.Equal(t, (*firstTask.Success.Aggregate)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
 
 		secondTask, _ := pipeline.Jobs.Lookup(taskName2)
 		assert.Nil(t, secondTask.Success)
 
 		thirdTask, _ := pipeline.Jobs.Lookup(taskName3)
-		assert.Equal(t, (*thirdTask.Success.Aggregate)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
 	})
 
 	t.Run("pre promote task", func(t *testing.T) {
@@ -127,13 +127,13 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 		pipeline := testPipeline().Render(man)
 
 		firstTask, _ := pipeline.Jobs.Lookup(taskName1)
-		assert.Equal(t, (*firstTask.Success.Aggregate)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
 
 		secondTask, _ := pipeline.Jobs.Lookup(taskName2)
 		assert.Nil(t, secondTask.Success)
 
 		thirdTask, _ := pipeline.Jobs.Lookup(taskName3)
-		assert.Equal(t, (*thirdTask.Success.Aggregate)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
 	})
 
 }

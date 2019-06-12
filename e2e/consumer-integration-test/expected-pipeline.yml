@@ -14,9 +14,10 @@ jobs:
 - name: another-c-name
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - task: another-c-name
     privileged: true

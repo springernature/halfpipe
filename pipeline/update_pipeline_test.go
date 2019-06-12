@@ -34,10 +34,10 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	//should be 3 things in plan
 	assert.Equal(t, 3, len(updateJob.Plan))
 
-	//1. aggregate containing get "git"
-	aggregate := updateJob.Plan[0].Aggregate
-	assert.Equal(t, 1, len(*aggregate))
-	assert.Equal(t, gitName, (*aggregate)[0].Name())
+	//1. inParallel containing get "git"
+	inParallel := *updateJob.Plan[0].InParallel
+	assert.Equal(t, 1, len(inParallel.Steps))
+	assert.Equal(t, gitName, (inParallel.Steps)[0].Name())
 
 	//2. put "version"
 	assert.Equal(t, updateJob.Plan[1].Name(), versionName)

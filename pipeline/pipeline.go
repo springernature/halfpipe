@@ -189,11 +189,11 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		}
 
 		job.Plan = append(p.initialPlan(&cfg, man, false, nil), job.Plan...)
-		job.Plan = aggregateGets(&job)
+		job.Plan = inParallelGets(&job)
 
-		aggregate := *job.Plan[0].Aggregate
-		for i := range aggregate {
-			aggregate[i].Trigger = true
+		inParallel := *job.Plan[0].InParallel
+		for i := range inParallel.Steps {
+			inParallel.Steps[i].Trigger = true
 		}
 
 		cfg.Jobs = append(cfg.Jobs, job)
@@ -266,7 +266,9 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			}
 
 			job.Failure = &atc.PlanConfig{
-				Aggregate: &sequence,
+				InParallel: &atc.InParallelConfig{
+					Steps: sequence,
+				},
 			}
 		}
 
@@ -275,12 +277,14 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 				slackOnSuccessPlan(man.SlackChannel),
 			}
 			job.Success = &atc.PlanConfig{
-				Aggregate: &sequence,
+				InParallel: &atc.InParallelConfig{
+					Steps: sequence,
+				},
 			}
 		}
 
 		job.Plan = append(initialPlan, job.Plan...)
-		job.Plan = aggregateGets(job)
+		job.Plan = inParallelGets(job)
 
 		if taskParallelGroup.IsSet() {
 			// parallel group is set
@@ -325,29 +329,29 @@ func addTimeout(job *atc.JobConfig, timeout string) {
 }
 
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
-	aggregate := *job.Plan[0].Aggregate
-	for i, get := range aggregate {
+	inParallel := *job.Plan[0].InParallel
+	for i, get := range inParallel.Steps {
 		if get.Name() == gitName ||
 			get.Name() == versionName ||
 			get.Name() == timerName ||
 			get.Name() == cronName {
-			aggregate[i].Passed = passedJobs
+			inParallel.Steps[i].Passed = passedJobs
 		}
 	}
 }
 
 func configureTriggerOnGets(job *atc.JobConfig, manualTrigger bool, versioningEnabled bool) {
-	aggregate := *job.Plan[0].Aggregate
-	for i, get := range aggregate {
+	inParallel := *job.Plan[0].InParallel
+	for i, get := range inParallel.Steps {
 		if get.Get == versionName && !manualTrigger {
-			aggregate[i].Trigger = true
+			inParallel.Steps[i].Trigger = true
 		} else if get.Get != artifactsName {
-			aggregate[i].Trigger = !manualTrigger && !versioningEnabled
+			inParallel.Steps[i].Trigger = !manualTrigger && !versioningEnabled
 		}
 	}
 }
 
-func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
+func inParallelGets(job *atc.JobConfig) atc.PlanSequence {
 	var numberOfGets int
 	for i, plan := range job.Plan {
 		if plan.Get == "" {
@@ -357,8 +361,12 @@ func aggregateGets(job *atc.JobConfig) atc.PlanSequence {
 	}
 
 	sequence := job.Plan[:numberOfGets]
-	aggregatePlan := atc.PlanSequence{atc.PlanConfig{Aggregate: &sequence}}
-	job.Plan = append(aggregatePlan, job.Plan[numberOfGets:]...)
+	inParallelPlan := atc.PlanSequence{atc.PlanConfig{
+		InParallel: &atc.InParallelConfig{
+			Steps: sequence,
+		},
+	}}
+	job.Plan = append(inParallelPlan, job.Plan[numberOfGets:]...)
 
 	return job.Plan
 }
@@ -513,8 +521,13 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	}
 
 	if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
-		aggregateJob := atc.PlanConfig{Aggregate: &prePromoteTasks}
-		job.Plan = append(job.Plan, aggregateJob)
+		inParallelJob := atc.PlanConfig{
+			InParallel: &atc.InParallelConfig{
+				Steps: prePromoteTasks,
+			},
+		}
+
+		job.Plan = append(job.Plan, inParallelJob)
 	} else if len(prePromoteTasks) > 0 {
 		job.Plan = append(job.Plan, prePromoteTasks...)
 	}

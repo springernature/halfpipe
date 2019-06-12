@@ -27,9 +27,10 @@ jobs:
 - name: create zip for ml task
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - task: create zip for ml task
     config:
@@ -114,11 +115,12 @@ jobs:
 - name: deploy-ml-zip
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      passed:
-      - create zip for ml task
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - create zip for ml task
+        trigger: true
     timeout: 1h
   - task: get artifact
     config:

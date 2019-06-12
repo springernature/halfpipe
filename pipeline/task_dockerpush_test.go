@@ -45,7 +45,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "Docker Registry",
@@ -99,7 +99,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "Docker Registry",
@@ -154,12 +154,10 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
-					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
-				},
-			},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
+				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
+				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true}},
+			}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "Docker Registry",
@@ -217,12 +215,10 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{
-				Aggregate: &atc.PlanSequence{
-					atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
-					atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true},
-				},
-			},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
+				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
+				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true}},
+			}},
 			restoreArtifactTask(man),
 			atc.PlanConfig{
 				Task: "Copying git repo and artifacts to a temporary build dir",

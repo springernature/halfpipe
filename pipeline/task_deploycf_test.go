@@ -85,7 +85,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   "deploy-cf",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
 				Attempts: 2,
@@ -139,8 +139,10 @@ func TestRendersCfDeploy(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}},
-				Timeout:   timeout,
+				InParallel: &atc.InParallelConfig{
+					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}},
+				},
+				Timeout: timeout,
 			},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
@@ -254,19 +256,19 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	plan := deployJob.Plan
 
 	//halfpipe-push
-	assert.Equal(t, gitName, (*plan[0].Aggregate)[0].Get)
-	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Get)
+	assert.Equal(t, cfg.Jobs[0].Name, (plan[0].InParallel.Steps)[0].Passed[0])
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
 	//pre promote 1
-	pp1 := (*(*plan[3].Aggregate)[0].Do)[0]
+	pp1 := (*(plan[3].InParallel.Steps)[0].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := (*(*plan[3].Aggregate)[1].Do)[0]
+	pp2 := (*(plan[3].InParallel.Steps)[1].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
@@ -279,7 +281,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	//docker-compose after
 	dockerComposeAfter := cfg.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
-	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
+	assert.Equal(t, []string{deployJob.Name}, (dockerComposeAfter.Plan[0].InParallel.Steps)[0].Passed)
 }
 
 func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) {
@@ -353,8 +355,8 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	plan := deployJob.Plan
 
 	//halfpipe-push
-	assert.Equal(t, gitName, (*plan[0].Aggregate)[0].Get)
-	assert.Equal(t, cfg.Jobs[0].Name, (*plan[0].Aggregate)[0].Passed[0])
+	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Get)
+	assert.Equal(t, cfg.Jobs[0].Name, (plan[0].InParallel.Steps)[0].Passed[0])
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
@@ -379,7 +381,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	//docker-compose after
 	dockerComposeAfter := cfg.Jobs[2]
 	assert.Equal(t, dockerComposeTaskAfter.Name, dockerComposeAfter.Name)
-	assert.Equal(t, []string{deployJob.Name}, (*dockerComposeAfter.Plan[0].Aggregate)[0].Passed)
+	assert.Equal(t, []string{deployJob.Name}, (dockerComposeAfter.Plan[0].InParallel.Steps)[0].Passed)
 }
 
 func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
@@ -400,7 +402,7 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 
 	plan := testPipeline().Render(man).Jobs[0].Plan
 
-	getSteps := *plan[0].Aggregate
+	getSteps := plan[0].InParallel.Steps
 	assert.Equal(t, gitName, getSteps[0].Get)
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 
