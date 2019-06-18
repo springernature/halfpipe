@@ -14,9 +14,10 @@ jobs:
 - name: test
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - task: test
     privileged: true
@@ -71,11 +72,12 @@ jobs:
 - name: custom
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      passed:
-      - test
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - test
+        trigger: true
     timeout: 1h
   - task: custom
     privileged: true

@@ -53,7 +53,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "docker-compose",
@@ -110,7 +110,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{Aggregate: &atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "docker-compose",

@@ -14,11 +14,12 @@ jobs:
 - name: test
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
-      params:
-        depth: 1
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
+        params:
+          depth: 1
     timeout: 1h
   - task: test
     config:

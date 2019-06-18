@@ -26,9 +26,10 @@ jobs:
 - name: push to docker registry
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - put: Docker Registry
     params:
@@ -44,11 +45,12 @@ jobs:
 - name: push to docker registry again
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      passed:
-      - push to docker registry
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - push to docker registry
+        trigger: true
     timeout: 1h
   - put: Docker Registry (1)
     params:

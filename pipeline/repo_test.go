@@ -147,6 +147,6 @@ func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
 	rendered := testPipeline().Render(man)
 
 	task, _ := rendered.Jobs.Lookup(taskName)
-	assert.Equal(t, "git", (*task.Plan[0].Aggregate)[0].Get)
-	assert.Equal(t, 1, (*task.Plan[0].Aggregate)[0].Params["depth"])
+	assert.Equal(t, "git", (task.Plan[0].InParallel.Steps)[0].Get)
+	assert.Equal(t, 1, (task.Plan[0].InParallel.Steps)[0].Params["depth"])
 }

@@ -151,7 +151,7 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 	config, _ := renderedPipeline.Jobs.Lookup(name)
 	assert.Contains(t, config.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 
-	failurePlan := (*config.Failure.Aggregate)[0]
+	failurePlan := (config.Failure.InParallel.Steps)[0]
 
 	assert.Equal(t, artifactsOnFailureName, failurePlan.Put)
 	assert.Equal(t, GenerateArtifactsOnFailureResourceName(team, pipeline), failurePlan.Resource)
@@ -452,8 +452,8 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 		},
 	}, config.Jobs[0].Plan[2])
 
-	failureAggregate := config.Jobs[0].Failure.Aggregate
-	assert.Equal(t, saveArtifactOnFailurePlan(team, pipeline), (*failureAggregate)[0])
+	failureInParallel := config.Jobs[0].Failure.InParallel.Steps
+	assert.Equal(t, saveArtifactOnFailurePlan(team, pipeline), (failureInParallel)[0])
 
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))

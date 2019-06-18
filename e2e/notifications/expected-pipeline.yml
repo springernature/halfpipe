@@ -38,9 +38,10 @@ jobs:
 - name: task1
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - task: task1
     config:
@@ -96,29 +97,32 @@ jobs:
     timeout: 1h
     attempts: 1
   on_failure:
-    aggregate:
-    - put: slack-notification
-      params:
-        channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-        username: Halfpipe
+    in_parallel:
+      steps:
+      - put: slack-notification
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          username: Halfpipe
   on_success:
-    aggregate:
-    - put: slack-notification
-      params:
-        channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-        text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
-        username: Halfpipe
+    in_parallel:
+      steps:
+      - put: slack-notification
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
+          username: Halfpipe
 - name: task2
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      passed:
-      - task1
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - task1
+        trigger: true
     timeout: 1h
   - task: task2
     config:
@@ -174,21 +178,23 @@ jobs:
     timeout: 1h
     attempts: 1
   on_failure:
-    aggregate:
-    - put: slack-notification
-      params:
-        channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-        username: Halfpipe
+    in_parallel:
+      steps:
+      - put: slack-notification
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          username: Halfpipe
 - name: deploy to staging
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      passed:
-      - task2
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - task2
+        trigger: true
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF live pe staging
@@ -204,64 +210,65 @@ jobs:
         B: "false"
     timeout: 1h
     attempts: 2
-  - aggregate:
-    - do:
-      - task: run a
-        config:
-          platform: linux
-          image_resource:
-            type: registry-image
-            source:
-              password: ((halfpipe-gcr.private_key))
-              repository: eu.gcr.io/halfpipe-io/halfpipe-fly
-              tag: latest
-              username: _json_key
-          params:
-            A: blah
-            ARTIFACTORY_PASSWORD: ((artifactory.password))
-            ARTIFACTORY_URL: ((artifactory.url))
-            ARTIFACTORY_USERNAME: ((artifactory.username))
-            TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
-          run:
-            path: /bin/sh
-            args:
-            - -c
-            - |
-              which bash > /dev/null
-              if [ $? != 0 ]; then
-                echo "WARNING: Bash is not present in the docker image"
-                echo "If your script depends on bash you will get a strange error message like:"
-                echo "  sh: yourscript.sh: command not found"
-                echo "To fix, make sure your docker image contains bash!"
-                echo ""
-                echo ""
-              fi
+  - in_parallel:
+      steps:
+      - do:
+        - task: run a
+          config:
+            platform: linux
+            image_resource:
+              type: registry-image
+              source:
+                password: ((halfpipe-gcr.private_key))
+                repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+                tag: latest
+                username: _json_key
+            params:
+              A: blah
+              ARTIFACTORY_PASSWORD: ((artifactory.password))
+              ARTIFACTORY_URL: ((artifactory.url))
+              ARTIFACTORY_USERNAME: ((artifactory.username))
+              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+            run:
+              path: /bin/sh
+              args:
+              - -c
+              - |
+                which bash > /dev/null
+                if [ $? != 0 ]; then
+                  echo "WARNING: Bash is not present in the docker image"
+                  echo "If your script depends on bash you will get a strange error message like:"
+                  echo "  sh: yourscript.sh: command not found"
+                  echo "To fix, make sure your docker image contains bash!"
+                  echo ""
+                  echo ""
+                fi
 
-              if [ -e /etc/alpine-release ]
-              then
-                echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-                echo "There is a known issue where DNS resolving does not work as expected"
-                echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-                echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-                echo "we recommend debian:stretch-slim as an alternative"
-                echo ""
-                echo ""
-              fi
+                if [ -e /etc/alpine-release ]
+                then
+                  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+                  echo "There is a known issue where DNS resolving does not work as expected"
+                  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+                  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+                  echo "we recommend debian:stretch-slim as an alternative"
+                  echo ""
+                  echo ""
+                fi
 
-              export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../.git/ref`
 
-              ./a
-              EXIT_STATUS=$?
-              if [ $EXIT_STATUS != 0 ] ; then
-                exit 1
-              fi
-            dir: git/e2e/notifications
-          inputs:
-          - name: git
-          caches:
-          - path: ../../../var/halfpipe/cache
-          - path: ../../../halfpipe-cache
-        attempts: 1
+                ./a
+                EXIT_STATUS=$?
+                if [ $EXIT_STATUS != 0 ] ; then
+                  exit 1
+                fi
+              dir: git/e2e/notifications
+            inputs:
+            - name: git
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
+          attempts: 1
     timeout: 1h
   - put: cf halfpipe-promote
     resource: CF live pe staging
@@ -273,13 +280,14 @@ jobs:
     timeout: 1h
     attempts: 2
   on_failure:
-    aggregate:
-    - put: slack-notification
-      params:
-        channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-        text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-        username: Halfpipe
+    in_parallel:
+      steps:
+      - put: slack-notification
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF live pe staging
@@ -290,11 +298,12 @@ jobs:
     timeout: 1h
     attempts: 2
   on_success:
-    aggregate:
-    - put: slack-notification
-      params:
-        channel: '#yo'
-        icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-        text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
-        username: Halfpipe
+    in_parallel:
+      steps:
+      - put: slack-notification
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
+          username: Halfpipe
 

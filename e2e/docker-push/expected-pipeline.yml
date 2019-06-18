@@ -20,9 +20,10 @@ jobs:
 - name: push to docker registry
   serial: true
   plan:
-  - aggregate:
-    - get: git
-      trigger: true
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
     timeout: 1h
   - put: Docker Registry
     params:
