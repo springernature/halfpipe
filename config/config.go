@@ -10,8 +10,6 @@ import (
 // go build -ldflags "-X config.version=..."
 var (
 	Version = "0.0.0-DEV"
-
-	SlackWebhook = "Set your slack webhook here"
 )
 
 var (
@@ -73,3 +71,5 @@ const VersionJSONKey = "((halfpipe-semver.private_key))"
 
 const ArtifactsBucket = "((halfpipe-artifacts.bucket))"
 const ArtifactsJSONKey = "((halfpipe-artifacts.private_key))"
+
+const SlackWebhook = "((halfpipe-slack.webhook))"

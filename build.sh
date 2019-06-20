@@ -20,9 +20,7 @@ echo [2/5] test
 go test $go_opts -cover ./...
 
 echo [3/5] build
-CONF_PKG="github.com/springernature/halfpipe/config"
-LDFLAGS="-X ${CONF_PKG}.SlackWebhook=https://hooks.slack.com/services/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"
-go build $go_opts -ldflags "${LDFLAGS}" cmd/halfpipe.go
+go build $go_opts cmd/halfpipe.go
 
 echo [4/5] e2e test
 cd e2e; ./test.sh "${1-}"; cd - > /dev/null
