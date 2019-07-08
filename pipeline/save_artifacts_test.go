@@ -275,7 +275,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	renderedPipeline := testPipeline().Render(man)
 
 	assert.Len(t, renderedPipeline.Jobs, 1)
-	assert.Len(t, renderedPipeline.Jobs[0].Plan, 4)
+	assert.Len(t, renderedPipeline.Jobs[0].Plan, 5)
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
@@ -313,7 +313,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order of the plans is important
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
@@ -344,7 +344,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
-	assert.Len(t, renderedPipeline.Jobs[1].Plan, 4)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	// order if the plans is important
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])

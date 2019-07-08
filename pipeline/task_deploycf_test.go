@@ -100,6 +100,15 @@ func TestRendersCfDeploy(t *testing.T) {
 				},
 			},
 			atc.PlanConfig{
+				Put:      "cf halfpipe-check",
+				Attempts: 2,
+				Resource: expectedDevResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-check",
+					"manifestPath": manifestPath,
+				},
+			},
+			atc.PlanConfig{
 				Put:      "cf halfpipe-promote",
 				Attempts: 2,
 				Resource: expectedDevResource.Name,
@@ -154,6 +163,17 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
 					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"timeout":      "5m",
+				},
+				Timeout: timeout,
+			},
+			atc.PlanConfig{
+				Put:      "cf halfpipe-check",
+				Attempts: 2,
+				Resource: expectedLiveResource.Name,
+				Params: atc.Params{
+					"command":      "halfpipe-check",
+					"manifestPath": liveManifest,
 					"timeout":      "5m",
 				},
 				Timeout: timeout,
@@ -272,8 +292,11 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 
+	//halfpipe-check
+	assert.Equal(t, "halfpipe-check", plan[4].Params["command"])
+
 	//halfpipe-promote
-	assert.Equal(t, "halfpipe-promote", plan[4].Params["command"])
+	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
 
 	//halfpipe-cleanup (ensure)
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])
@@ -373,7 +396,10 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	assert.Equal(t, "pp2", pp2.TaskConfig.Params["PP2"])
 
 	//halfpipe-promote
-	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
+	assert.Equal(t, "halfpipe-check", plan[5].Params["command"])
+
+	//halfpipe-promote
+	assert.Equal(t, "halfpipe-promote", plan[6].Params["command"])
 
 	//halfpipe-cleanup (ensure)
 	assert.Equal(t, "halfpipe-cleanup", deployJob.Ensure.Params["command"])

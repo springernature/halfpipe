@@ -532,6 +532,20 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 		job.Plan = append(job.Plan, prePromoteTasks...)
 	}
 
+	check := atc.PlanConfig{
+		Put:      "cf halfpipe-check",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-check",
+			"manifestPath": manifestPath,
+		},
+	}
+	if task.Timeout != "" {
+		check.Params["timeout"] = task.Timeout
+	}
+	job.Plan = append(job.Plan, check)
+
 	promote := atc.PlanConfig{
 		Put:      "cf halfpipe-promote",
 		Attempts: task.GetAttempts(),

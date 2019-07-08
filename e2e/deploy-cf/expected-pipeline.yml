@@ -105,6 +105,14 @@ jobs:
             - path: ../../../halfpipe-cache
           attempts: 1
     timeout: 5m
+  - put: cf halfpipe-check
+    resource: CF dev-api test dev
+    params:
+      command: halfpipe-check
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
   - put: cf halfpipe-promote
     resource: CF dev-api test dev
     params:

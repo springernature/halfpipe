@@ -356,6 +356,14 @@ jobs:
             - path: ../../../halfpipe-cache
           attempts: 1
     timeout: 1h
+  - put: cf halfpipe-check
+    resource: CF live pe staging
+    params:
+      command: halfpipe-check
+      manifestPath: git/e2e/artifacts/manifest.yml
+      timeout: 1h
+    timeout: 1h
+    attempts: 2
   - put: cf halfpipe-promote
     resource: CF live pe staging
     params:
