@@ -77,7 +77,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 		}}
 
 	job := p.Render(man).Jobs[0]
-	assert.Equal(t, expectedPlan, (*(job.Plan[2].InParallel.Steps)[0].Do)[0])
+	assert.Equal(t, expectedPlan, (*(job.Plan[3].InParallel.Steps)[0].Do)[0])
 }
 
 func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
@@ -109,7 +109,7 @@ func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
 	}
 
 	job := p.Render(man).Jobs[0]
-	assert.Equal(t, "p-host", (*(job.Plan[2].InParallel.Steps)[0].Do)[0].TaskConfig.Params["PROVIDER_HOST"])
+	assert.Equal(t, "p-host", (*(job.Plan[3].InParallel.Steps)[0].Do)[0].TaskConfig.Params["PROVIDER_HOST"])
 }
 
 func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {

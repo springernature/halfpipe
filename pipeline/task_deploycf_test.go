@@ -281,19 +281,19 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
+	//halfpipe-check
+	assert.Equal(t, "halfpipe-check", plan[3].Params["command"])
+
 	//pre promote 1
-	pp1 := (*(plan[3].InParallel.Steps)[0].Do)[0]
+	pp1 := (*(plan[4].InParallel.Steps)[0].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := (*(plan[3].InParallel.Steps)[1].Do)[0]
+	pp2 := (*(plan[4].InParallel.Steps)[1].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
-
-	//halfpipe-check
-	assert.Equal(t, "halfpipe-check", plan[4].Params["command"])
 
 	//halfpipe-promote
 	assert.Equal(t, "halfpipe-promote", plan[5].Params["command"])
@@ -383,20 +383,20 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
 
+	//halfpipe-check
+	assert.Equal(t, "halfpipe-check", plan[3].Params["command"])
+
 	//pre promote 1
-	pp1 := (*plan[3].Do)[0]
+	pp1 := (*plan[4].Do)[0]
 	assert.Equal(t, "pp1", pp1.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp1.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp1", pp1.TaskConfig.Params["PP1"])
 
 	//pre promote 2
-	pp2 := (*plan[4].Do)[0]
+	pp2 := (*plan[5].Do)[0]
 	assert.Equal(t, "pp2", pp2.Task)
 	assert.Equal(t, "app-cf-space-CANDIDATE.test.domain.com", pp2.TaskConfig.Params["TEST_ROUTE"])
 	assert.Equal(t, "pp2", pp2.TaskConfig.Params["PP2"])
-
-	//halfpipe-promote
-	assert.Equal(t, "halfpipe-check", plan[5].Params["command"])
 
 	//halfpipe-promote
 	assert.Equal(t, "halfpipe-promote", plan[6].Params["command"])

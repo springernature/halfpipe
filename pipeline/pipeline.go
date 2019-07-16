@@ -477,6 +477,20 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	job.Plan = append(job.Plan, push)
 
+	check := atc.PlanConfig{
+		Put:      "cf halfpipe-check",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-check",
+			"manifestPath": manifestPath,
+		},
+	}
+	if task.Timeout != "" {
+		check.Params["timeout"] = task.Timeout
+	}
+	job.Plan = append(job.Plan, check)
+
 	// saveArtifactInPP and restoreArtifactInPP are needed to make sure we don't run pre-promote tasks in parallel when the first task saves an artifact and the second restores it.
 	var prePromoteTasks atc.PlanSequence
 	var saveArtifactInPP bool
@@ -531,20 +545,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 	} else if len(prePromoteTasks) > 0 {
 		job.Plan = append(job.Plan, prePromoteTasks...)
 	}
-
-	check := atc.PlanConfig{
-		Put:      "cf halfpipe-check",
-		Attempts: task.GetAttempts(),
-		Resource: resourceName,
-		Params: atc.Params{
-			"command":      "halfpipe-check",
-			"manifestPath": manifestPath,
-		},
-	}
-	if task.Timeout != "" {
-		check.Params["timeout"] = task.Timeout
-	}
-	job.Plan = append(job.Plan, check)
 
 	promote := atc.PlanConfig{
 		Put:      "cf halfpipe-promote",
