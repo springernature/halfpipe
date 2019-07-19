@@ -177,6 +177,8 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 
 func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	basePath := "subapp/sub2"
+	buildPath := "build/path"
+
 	man := manifest.Manifest{
 		Repo: manifest.Repo{
 			URI:      "git@github.com:/springernature/foo.git",
@@ -197,6 +199,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			Image:            repo,
 			RestoreArtifacts: true,
 			DockerfilePath:   "Dockerfile",
+			BuildPath:        buildPath,
 		},
 	}
 
@@ -251,7 +254,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 				Put:      "Docker Registry",
 				Params: atc.Params{
 					"tag_file":      "version/number",
-					"build":         dockerBuildTmpDir + "/" + basePath,
+					"build":         dockerBuildTmpDir + "/" + basePath + "/" + buildPath,
 					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
