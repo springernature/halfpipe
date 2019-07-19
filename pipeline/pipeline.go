@@ -668,7 +668,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				Attempts: task.GetAttempts(),
 				Put:      resourceName,
 				Params: atc.Params{
-					"build":         path.Join(dockerBuildTmpDir, man.Repo.BasePath),
+					"build":         path.Join(dockerBuildTmpDir, man.Repo.BasePath, task.BuildPath),
 					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
