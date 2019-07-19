@@ -67,7 +67,7 @@ func GetBuilds(team string, count string) (builds Builds, err error) {
 	stdoutBuffer := bytes.Buffer{}
 	cmd := exec.Cmd{
 		Path:   flyPath,
-		Args:   []string{"fly", "-t", team, "builds", "-t", team, "-c", count, "--json"},
+		Args:   []string{"fly", "-t", team, "builds", "-n", team, "-c", count, "--json"},
 		Stderr: os.Stderr,
 		Stdout: &stdoutBuffer,
 	}
