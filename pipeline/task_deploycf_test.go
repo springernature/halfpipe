@@ -73,6 +73,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			"password": "supersecret",
 			"username": "rob",
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	manifestPath := path.Join(gitDir, "manifest-dev.yml")
@@ -140,6 +141,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			"password": "supersecret",
 			"username": "rob",
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	liveManifest := path.Join(gitDir, "manifest-live.yml")

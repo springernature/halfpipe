@@ -22,6 +22,7 @@ resources:
     password: very-secret
     space: staging
     username: michiel
+  check_every: 24h
 resource_types:
 - name: slack-notification
   type: registry-image

@@ -175,9 +175,10 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 	}
 
 	return atc.ResourceConfig{
-		Name:   resourceName,
-		Type:   "cf-resource",
-		Source: sources,
+		Name:       resourceName,
+		Type:       "cf-resource",
+		Source:     sources,
+		CheckEvery: longResourceCheckInterval,
 	}
 }
 

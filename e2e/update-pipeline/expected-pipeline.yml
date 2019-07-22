@@ -36,6 +36,7 @@ resources:
     password: very-secret
     space: dev
     username: michiel
+  check_every: 24h
 - name: CF live pe staging
   type: cf-resource
   source:
@@ -44,6 +45,7 @@ resources:
     password: very-secret
     space: staging
     username: michiel
+  check_every: 24h
 - name: CF snpaas qa
   type: cf-resource
   source:
@@ -52,6 +54,7 @@ resources:
     password: ((cloudfoundry.password-snpaas))
     space: qa
     username: ((cloudfoundry.username-snpaas))
+  check_every: 24h
 - name: Docker Registry
   type: docker-image
   source:

@@ -29,6 +29,7 @@ resources:
     password: very-secret
     space: staging
     username: michiel
+  check_every: 24h
 - name: Docker Registry
   type: docker-image
   source:
