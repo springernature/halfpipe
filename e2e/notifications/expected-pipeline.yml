@@ -103,7 +103,7 @@ jobs:
         params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
   on_success:
     in_parallel:
@@ -112,7 +112,8 @@ jobs:
         params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
+            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
 - name: task2
   serial: true
@@ -184,7 +185,7 @@ jobs:
         params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
 - name: deploy to staging
   serial: true
@@ -294,7 +295,7 @@ jobs:
         params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: The pipeline `$BUILD_PIPELINE_NAME` failed at `$BUILD_JOB_NAME`. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
@@ -312,6 +313,7 @@ jobs:
         params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, Task `$BUILD_JOB_NAME` succeeded
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
+            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
 
