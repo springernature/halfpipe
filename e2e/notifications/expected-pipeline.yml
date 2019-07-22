@@ -13,6 +13,7 @@ resources:
   type: slack-notification
   source:
     url: ((halfpipe-slack.webhook))
+  check_every: 24h
 - name: CF live pe staging
   type: cf-resource
   source:
@@ -27,6 +28,7 @@ resource_types:
   source:
     repository: cfcommunity/slack-notification-resource
     tag: v1.4.2
+  check_every: 24h
 - name: cf-resource
   type: registry-image
   source:

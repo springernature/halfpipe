@@ -13,6 +13,8 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
+const longResourceCheckInterval = "24h"
+
 func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": repo.URI,
@@ -51,8 +53,9 @@ const slackResourceName = "slack-notification"
 
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: slackResourceName,
-		Type: "registry-image",
+		Name:       slackResourceName,
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
 			"tag":        "v1.4.2",
@@ -62,8 +65,9 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 
 func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: slackResourceName,
-		Type: slackResourceName,
+		Name:       slackResourceName,
+		Type:       slackResourceName,
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"url": config.SlackWebhook,
 		},
