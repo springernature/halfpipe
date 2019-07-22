@@ -4,8 +4,6 @@ repo:
   watched_paths:
     - e2e/update-pipeline
 
-slack_channel: "#ee-re"
-
 feature_toggles:
 - update-pipeline
 

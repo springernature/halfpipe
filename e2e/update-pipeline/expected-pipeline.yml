@@ -9,10 +9,6 @@ resources:
     - e2e/update-pipeline
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: slack-notification
-  type: slack-notification
-  source:
-    url: ((halfpipe-slack.webhook))
 - name: artifacts-engineering-enablement-test
   type: gcp-resource
   source:
@@ -63,11 +59,6 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
 resource_types:
-- name: slack-notification
-  type: registry-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: v1.4.2
 - name: gcp-resource
   type: registry-image
   source:
@@ -119,13 +110,6 @@ jobs:
       - name: git
       - name: version
     attempts: 2
-  on_failure:
-    put: slack-notification
-    params:
-      channel: '#ee-re'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-      username: Halfpipe
 - name: Test
   serial: true
   plan:
@@ -234,12 +218,6 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: deploy to cf
   serial: true
   plan:
@@ -307,15 +285,6 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
@@ -545,15 +514,6 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF live pe staging
@@ -783,15 +743,6 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
     resource: CF snpaas qa
@@ -830,15 +781,6 @@ jobs:
       tag_file: version/number
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: run notify.sh
   serial: true
   plan:
@@ -911,15 +853,6 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: docker-compose
   serial: true
   plan:
@@ -1015,12 +948,6 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: another-c-name
   serial: true
   plan:
@@ -1120,15 +1047,6 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: deploy-ml-zip
   serial: true
   plan:
@@ -1229,15 +1147,6 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 - name: Deploy ml-modules artifact
   serial: true
   plan:
@@ -1312,13 +1221,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack-notification
-        params:
-          channel: '#ee-re'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
 
