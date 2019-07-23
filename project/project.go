@@ -92,6 +92,11 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		return
 	}
 
+	//ensure origin url ends with .git
+	if !strings.HasSuffix(origin, ".git") {
+		origin += ".git"
+	}
+
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
 		if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
