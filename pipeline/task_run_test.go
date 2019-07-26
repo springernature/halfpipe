@@ -21,6 +21,7 @@ func TestRenderRunTask(t *testing.T) {
 			Username: "",
 			Password: "",
 		},
+		Privileged: true,
 		Vars: manifest.Vars{
 			"VAR1": "Value1",
 			"VAR2": "Value2",
@@ -38,7 +39,7 @@ func TestRenderRunTask(t *testing.T) {
 			atc.PlanConfig{
 				Attempts:   3,
 				Task:       "run yolo.sh",
-				Privileged: false,
+				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
 					Params: map[string]string{

@@ -46,6 +46,7 @@ tasks:
     image: golang:latest
     username: user
     password: pass
+  privileged: true
   vars:
     FOO: fOo
     BAR: "1"
@@ -163,6 +164,7 @@ tasks:
 					Username: "user",
 					Password: "pass",
 				},
+				Privileged: true,
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

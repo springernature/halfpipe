@@ -386,7 +386,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	runPlan := atc.PlanConfig{
 		Attempts:   task.GetAttempts(),
 		Task:       task.Name,
-		Privileged: isDockerCompose,
+		Privileged: task.Privileged,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        task.Vars,
@@ -598,6 +598,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
+		Privileged:             true,
 		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,
 		RestoreArtifacts:       task.RestoreArtifacts,

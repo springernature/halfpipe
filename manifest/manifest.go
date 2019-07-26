@@ -94,6 +94,7 @@ type Run struct {
 	ManualTrigger          bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Script                 string
 	Docker                 Docker
+	Privileged             bool          `yaml:"privileged,omitempty"`
 	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`

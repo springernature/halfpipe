@@ -29,6 +29,7 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
+		Privileged: true,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,

@@ -8,5 +8,6 @@ tasks:
 - type: run
   name: test
   script: ./a
+  privileged: false
   docker:
     image: alpine:test
