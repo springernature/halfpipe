@@ -436,7 +436,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 
 	appPath := path.Join(gitDir, man.Repo.BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsInDir, task.DeployArtifact)
+		appPath = path.Join(artifactsInDir, man.Repo.BasePath, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -690,21 +690,36 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
 	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
-		artifactPath += "../"
+		artifactPath = path.Join(artifactPath, "../")
 	}
 
-	artifactPath += artifactsDir
+	artifactPath = path.Join(artifactPath, artifactsDir)
+	return
+}
+
+func fullPathToArtifactsDir(repoName string, basePath string, artifactsDir string, artifactPath string) (fullArtifactPath string) {
+	fullArtifactPath = path.Join(pathToArtifactsDir(repoName, basePath, artifactsDir), basePath)
+
+	if subfolderPath := path.Dir(artifactPath); subfolderPath != "." {
+		fullArtifactPath = path.Join(fullArtifactPath, subfolderPath)
+	}
+
+	return
+}
+
+func relativePathToRepoRoot(repoName string, basePath string) (relativePath string) {
+	relativePath, _ = filepath.Rel(path.Join(repoName, basePath), repoName)
 	return
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
-	p, _ := filepath.Rel(path.Join(repoName, basePath), path.Join(repoName, ".git", "ref"))
+	p := path.Join(relativePathToRepoRoot(repoName, basePath), ".git", "ref")
 	gitRefPath = windowsToLinuxPath(p)
 	return
 }
 
-func pathToVersionFile(basePath string) (gitRefPath string) {
-	p, _ := filepath.Rel(basePath, path.Join("..", "version", "version"))
+func pathToVersionFile(repoName string, basePath string) (gitRefPath string) {
+	p := path.Join(relativePathToRepoRoot(repoName, basePath), path.Join("..", "version", "version"))
 	gitRefPath = windowsToLinuxPath(p)
 	return
 }
@@ -834,16 +849,13 @@ fi
 		out = append(out, `copyArtifact() {
   ARTIFACT=$1
   ARTIFACT_OUT_PATH=$2
-  if [ -d $ARTIFACT ] ; then
-    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-    cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-  elif [ -f $ARTIFACT ] ; then
-    ARTIFACT_DIR=$(dirname $ARTIFACT)
-    mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-    cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+  if [ -e $ARTIFACT ] ; then
+    mkdir -p $ARTIFACT_OUT_PATH
+    cp -r $ARTIFACT $ARTIFACT_OUT_PATH
   else
-    echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-    exit 1
+   echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+   exit 1
   fi
 }
 `)
@@ -851,7 +863,7 @@ fi
 
 	if task.RestoreArtifacts {
 		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
-		out = append(out, fmt.Sprintf("cp -r %s/. .\n", pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir)))
+		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), relativePathToRepoRoot(gitDir, man.Repo.BasePath)))
 	}
 
 	out = append(out,
@@ -860,7 +872,7 @@ fi
 
 	if man.FeatureToggles.Versioned() {
 		out = append(out,
-			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(man.Repo.BasePath)),
+			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, man.Repo.BasePath)),
 		)
 	}
 
@@ -870,26 +882,26 @@ EXIT_STATUS=$?
 if [ $EXIT_STATUS != 0 ] ; then
 %s
 fi
-`, script, onErrorScript(task.SaveArtifactsOnFailure, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDirOnFailure)))
+`, script, onErrorScript(task.SaveArtifactsOnFailure, man.Repo.BasePath))
 	out = append(out, scriptCall)
 
 	if len(task.SaveArtifacts) != 0 {
 		out = append(out, "# Artifacts to copy from task")
 	}
 	for _, artifactPath := range task.SaveArtifacts {
-		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir)))
-		//out = append(out, copyArtifactScript(artifactPath, artifactsOutPath))
+		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir, artifactPath)))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }
 
-func onErrorScript(artifactPaths []string, saveArtifactsOnFailurePath string) string {
+func onErrorScript(artifactPaths []string, basePath string) string {
 	var returnScript []string
 	if len(artifactPaths) != 0 {
 		returnScript = append(returnScript, "  # Artifacts to copy in case of failure")
 	}
 	for _, artifactPath := range artifactPaths {
-		returnScript = append(returnScript, fmt.Sprintf("  copyArtifact %s %s", artifactPath, saveArtifactsOnFailurePath))
+		returnScript = append(returnScript, fmt.Sprintf("  copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, basePath, artifactsOutDirOnFailure, artifactPath)))
+
 	}
 	returnScript = append(returnScript, "  exit 1")
 	return strings.Join(returnScript, "\n")

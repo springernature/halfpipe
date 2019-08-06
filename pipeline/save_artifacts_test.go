@@ -319,7 +319,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
 
-	expectedAppPath := fmt.Sprintf("%s/%s", artifactsInDir, deployArtifactPath)
+	expectedAppPath := fmt.Sprintf("%s/%s/%s", artifactsInDir, man.Repo.BasePath, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
@@ -634,6 +634,32 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 
 		_, foundVersion := config.Resources.Lookup(versionName)
 		assert.True(t, foundVersion)
+	})
+
+}
+
+func TestFullPathToArtifactDir(t *testing.T) {
+	t.Run("when in root", func(t *testing.T) {
+		t.Run("when saving artifact in current dir", func(t *testing.T) {
+			assert.Equal(t, "../artifacts-out", fullPathToArtifactsDir(gitDir, "", artifactsOutDir, "file"))
+			assert.Equal(t, "../artifacts-out/subFolder", fullPathToArtifactsDir(gitDir, "", artifactsOutDir, "subFolder/file"))
+			assert.Equal(t, "../artifacts-out/subFolder1/subFolder2", fullPathToArtifactsDir(gitDir, "", artifactsOutDir, "subFolder1/subFolder2/file"))
+		})
+	})
+
+	t.Run("when in a sub app", func(t *testing.T) {
+		t.Run("when saving artifact in current dir", func(t *testing.T) {
+			assert.Equal(t, "../../artifacts-out/subApp", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "file"))
+			assert.Equal(t, "../../artifacts-out/subApp/subFolder", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "subFolder/file"))
+			assert.Equal(t, "../../artifacts-out/subApp/subFolder1/subFolder2", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "subFolder1/subFolder2/file"))
+		})
+
+		t.Run("when saving artifact from parent dir", func(t *testing.T) {
+			assert.Equal(t, "../../artifacts-out", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "../file"))
+			assert.Equal(t, "../../artifacts-out/parentFolder", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "../parentFolder/file"))
+			assert.Equal(t, "../../artifacts-out/parentFolder/subFolder1/subFolder2", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "../parentFolder/subFolder1/subFolder2/file"))
+			assert.Equal(t, "../../artifacts-out/parentFolder/subFolder1/subFolder2", fullPathToArtifactsDir(gitDir, "subApp", artifactsOutDir, "../parentFolder/subFolder1/subFolder2/subFolder3/../file"))
+		})
 	})
 
 }

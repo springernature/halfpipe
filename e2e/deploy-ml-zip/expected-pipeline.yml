@@ -73,13 +73,10 @@ jobs:
           copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
             else
               echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
               exit 1
@@ -95,7 +92,7 @@ jobs:
           fi
 
           # Artifacts to copy from task
-          copyArtifact ml.zip ../../../artifacts-out
+          copyArtifact ml.zip ../../../artifacts-out/e2e/deploy-ml-zip
         dir: git/e2e/deploy-ml-zip
       inputs:
       - name: git
@@ -189,7 +186,7 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. .
+          cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
 

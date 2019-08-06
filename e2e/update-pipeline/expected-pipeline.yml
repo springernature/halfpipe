@@ -167,13 +167,10 @@ jobs:
           copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
             else
               echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
               exit 1
@@ -187,13 +184,13 @@ jobs:
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure
+            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure/e2e/update-pipeline
             exit 1
           fi
 
           # Artifacts to copy from task
-          copyArtifact target/distribution ../../../artifacts-out
-          copyArtifact README.md ../../../artifacts-out
+          copyArtifact target/distribution ../../../artifacts-out/e2e/update-pipeline/target
+          copyArtifact README.md ../../../artifacts-out/e2e/update-pipeline
         dir: git/e2e/update-pipeline
       inputs:
       - name: git
@@ -262,7 +259,7 @@ jobs:
   - put: cf halfpipe-push
     resource: CF dev-api engineering-enablement dev
     params:
-      appPath: artifacts/target/distribution/artifact.zip
+      appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
       command: halfpipe-push
       gitRefPath: git/.git/ref
@@ -404,7 +401,7 @@ jobs:
                 fi
 
                 # Copying in artifacts from previous task
-                cp -r ../../../artifacts/. .
+                cp -r ../../../artifacts/. ../..
 
                 export GIT_REVISION=`cat ../../.git/ref`
                 export BUILD_VERSION=`cat ../../../version/version`
@@ -633,16 +630,13 @@ jobs:
             copyArtifact() {
               ARTIFACT=$1
               ARTIFACT_OUT_PATH=$2
-              if [ -d $ARTIFACT ] ; then
-                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-                cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-              elif [ -f $ARTIFACT ] ; then
-                ARTIFACT_DIR=$(dirname $ARTIFACT)
-                mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-                cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+              if [ -e $ARTIFACT ] ; then
+               mkdir -p $ARTIFACT_OUT_PATH
+                cp -r $ARTIFACT $ARTIFACT_OUT_PATH
               else
                 echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-                exit 1
+               exit 1
               fi
             }
 
@@ -656,7 +650,7 @@ jobs:
             fi
 
             # Artifacts to copy from task
-            copyArtifact build ../../../artifacts-out
+            copyArtifact build ../../../artifacts-out/e2e/update-pipeline
           dir: git/e2e/update-pipeline
         inputs:
         - name: git
@@ -717,7 +711,7 @@ jobs:
             fi
 
             # Copying in artifacts from previous task
-            cp -r ../../../artifacts/. .
+            cp -r ../../../artifacts/. ../..
 
             export GIT_REVISION=`cat ../../.git/ref`
             export BUILD_VERSION=`cat ../../../version/version`
@@ -906,13 +900,10 @@ jobs:
           copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
             else
               echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
               exit 1
@@ -928,7 +919,7 @@ jobs:
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact docker-compose.yml ../../../artifacts-out-failure
+            copyArtifact docker-compose.yml ../../../artifacts-out-failure/e2e/update-pipeline
             exit 1
           fi
         dir: git/e2e/update-pipeline
@@ -1130,7 +1121,7 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. .
+          cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`

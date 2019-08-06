@@ -12,9 +12,11 @@ tasks:
   docker:
     image: alpine
   save_artifacts:
-  - artifact
+  - someFile
+  - ../parentDir/someFile2
   save_artifacts_on_failure:
   - .halfpipe.io.yml
+  - ../../.halfpipe.io.yml
 
 - type: run
   name: read-artifact

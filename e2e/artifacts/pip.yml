@@ -96,23 +96,18 @@ jobs:
             echo ""
           fi
 
-          copyArtifact() {
+copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
             else
               echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
               exit 1
             fi
-          }
-
-          export GIT_REVISION=`cat ../../.git/ref`
+          }export GIT_REVISION=`cat ../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
@@ -504,23 +499,18 @@ jobs:
             echo ""
           fi
 
-          copyArtifact() {
+copyArtifact() {
             ARTIFACT=$1
             ARTIFACT_OUT_PATH=$2
-            if [ -d $ARTIFACT ] ; then
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT
-              cp -r $ARTIFACT/. $ARTIFACT_OUT_PATH/$ARTIFACT/
-            elif [ -f $ARTIFACT ] ; then
-              ARTIFACT_DIR=$(dirname $ARTIFACT)
-              mkdir -p $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
-              cp $ARTIFACT $ARTIFACT_OUT_PATH/$ARTIFACT_DIR
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
             else
               echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
               exit 1
             fi
-          }
-
-          # Copying in artifacts from previous task
+          }# Copying in artifacts from previous task
           cp -r ../../../artifacts/. .
 
           export GIT_REVISION=`cat ../../.git/ref`
