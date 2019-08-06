@@ -210,17 +210,14 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned(), t)
 
 		var job *atc.JobConfig
-		var taskParallelGroup manifest.ParallelGroup
 		switch task := t.(type) {
 		case manifest.Run:
 			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
 			job = p.runJob(task, man, false)
-			taskParallelGroup = task.Parallel
 
 		case manifest.DockerCompose:
 			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
 			job = p.dockerComposeJob(task, man)
-			taskParallelGroup = task.Parallel
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
@@ -228,31 +225,26 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
 			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
 			job = p.deployCFJob(task, resourceName, man, &cfg)
-			taskParallelGroup = task.Parallel
 
 		case manifest.DockerPush:
 			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)
-			taskParallelGroup = task.Parallel
 
 		case manifest.ConsumerIntegrationTest:
 			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
 			job = p.consumerIntegrationTestJob(task, man)
-			taskParallelGroup = task.Parallel
 
 		case manifest.DeployMLZip:
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-zip")
 			runTask := ConvertDeployMLZipToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			taskParallelGroup = task.Parallel
 
 		case manifest.DeployMLModules:
 			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-modules")
 			runTask := ConvertDeployMLModulesToRunTask(task, man)
 			job = p.runJob(runTask, man, false)
-			taskParallelGroup = task.Parallel
 		}
 
 		if t.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -286,14 +278,14 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		job.Plan = append(initialPlan, job.Plan...)
 		job.Plan = inParallelGets(job)
 
-		if taskParallelGroup.IsSet() {
+		if t.GetParallelGroup().IsSet() {
 			// parallel group is set
-			if currentParallelGroup == "" || currentParallelGroup == taskParallelGroup {
-				currentParallelGroup = taskParallelGroup
+			if currentParallelGroup == "" || currentParallelGroup == t.GetParallelGroup() {
+				currentParallelGroup = t.GetParallelGroup()
 				parallelTasks = append(parallelTasks, job.Name)
 			} else {
 				// new parallel group name, right after other parallel group
-				currentParallelGroup = taskParallelGroup
+				currentParallelGroup = t.GetParallelGroup()
 				previousTaskNames = parallelTasks
 				parallelTasks = []string{job.Name}
 			}
