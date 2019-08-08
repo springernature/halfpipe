@@ -36,6 +36,12 @@ func deployCFResourceName(task manifest.DeployCF) string {
 	return name
 }
 
+func dockerPushResourceName(task manifest.DockerPush) string {
+	imageName := task.Image
+	parts := strings.Split(imageName, "/")
+	return parts[len(parts)-1]
+}
+
 func uniqueName(cfg *atc.Config, name string, defaultName string) string {
 	if name == "" {
 		name = defaultName

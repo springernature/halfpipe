@@ -43,13 +43,13 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
 			manifest.DeployCF{API: "https://api.foo.bar", Org: "ee", Space: "dev"},
 			manifest.DeployCF{API: "((cloudfoundry.api-dev))", Org: "((cloudfoundry.org-dev))", Space: "((cloudfoundry.space-dev))"},
-			manifest.DockerPush{},
-			manifest.DockerPush{},
-			manifest.DockerPush{},
+			manifest.DockerPush{Image: "something/abc"},
+			manifest.DockerPush{Image: "registry.io/parth/yo"},
+			manifest.DockerPush{Image: "registry.io/parth/yo:stable"},
 			manifest.DeployCF{Name: "deploy to dev"},
 			manifest.DeployCF{Name: "deploy to dev"},
-			manifest.DockerPush{Name: "push to docker hub"},
-			manifest.DockerPush{Name: "push to docker hub"},
+			manifest.DockerPush{Image: "a/b", Name: "push to docker hub"},
+			manifest.DockerPush{Image: "c/d", Name: "push to docker hub"},
 		},
 	}
 	config := testPipeline().Render(man)
@@ -76,13 +76,13 @@ func TestGeneratesUniqueNamesForJobsAndResources(t *testing.T) {
 		"CF api.foo.bar ee dev",
 		"CF api.foo.bar ee dev (1)",
 		"CF dev org-dev space-dev",
-		"Docker Registry",
-		"Docker Registry (1)",
-		"Docker Registry (2)",
+		"abc",
+		"yo",
+		"yo:stable",
 		"CF   ",
 		"CF    (1)",
-		"Docker Registry (3)",
-		"Docker Registry (4)",
+		"b",
+		"d",
 	}
 
 	assert.Len(t, config.Jobs, len(expectedJobNames))

@@ -46,7 +46,6 @@ const artifactsOutDirOnFailure = "artifacts-out-failure"
 const gitName = "git"
 const gitDir = "git"
 
-const dockerPushResourceName = "Docker Registry"
 const dockerBuildTmpDir = "docker_build"
 
 const versionName = "version"
@@ -227,7 +226,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			job = p.deployCFJob(task, resourceName, man, &cfg)
 
 		case manifest.DockerPush:
-			resourceName := uniqueName(&cfg, dockerPushResourceName, "")
+			resourceName := dockerPushResourceName(task)
 			task.Name = uniqueName(&cfg, task.Name, "docker-push")
 			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
 			job = p.dockerPushJob(task, resourceName, man)

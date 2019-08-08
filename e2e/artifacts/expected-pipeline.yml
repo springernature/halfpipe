@@ -30,7 +30,7 @@ resources:
     space: staging
     username: michiel
   check_every: 24h
-- name: Docker Registry
+- name: halfpipe-fly
   type: docker-image
   source:
     password: verysecret
@@ -437,7 +437,7 @@ jobs:
       outputs:
       - name: docker_build
     timeout: 1h
-  - put: Docker Registry
+  - put: halfpipe-fly
     params:
       build: docker_build/e2e/artifacts
       build_args:

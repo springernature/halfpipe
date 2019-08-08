@@ -32,7 +32,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: "Docker Registry",
+		Name: "halfpipe-cli",
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -48,7 +48,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts: 1,
-				Put:      "Docker Registry",
+				Put:      "halfpipe-cli",
 				Params: atc.Params{
 					"build":      gitDir,
 					"dockerfile": path.Join(gitDir, "Dockerfile"),
@@ -86,7 +86,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: "Docker Registry",
+		Name: "halfpipe-cli",
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -102,7 +102,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
 			atc.PlanConfig{
 				Attempts: 1,
-				Put:      "Docker Registry",
+				Put:      "halfpipe-cli",
 				Params: atc.Params{
 					"build":         gitDir + "/" + basePath,
 					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
@@ -141,7 +141,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: "Docker Registry",
+		Name: "halfpipe-cli",
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -160,7 +160,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 			}},
 			atc.PlanConfig{
 				Attempts: 1,
-				Put:      "Docker Registry",
+				Put:      "halfpipe-cli",
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         gitDir + "/" + basePath,
@@ -192,19 +192,20 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	username := "halfpipe"
 	password := "secret"
 	repo := "halfpipe/halfpipe-cli"
+	dockerPush := manifest.DockerPush{
+		Username:         username,
+		Password:         password,
+		Image:            repo,
+		RestoreArtifacts: true,
+		DockerfilePath:   "Dockerfile",
+		BuildPath:        buildPath,
+	}
 	man.Tasks = []manifest.Task{
-		manifest.DockerPush{
-			Username:         username,
-			Password:         password,
-			Image:            repo,
-			RestoreArtifacts: true,
-			DockerfilePath:   "Dockerfile",
-			BuildPath:        buildPath,
-		},
+		dockerPush,
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: "Docker Registry",
+		Name: dockerPushResourceName(dockerPush),
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -251,7 +252,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			},
 			atc.PlanConfig{
 				Attempts: 1,
-				Put:      "Docker Registry",
+				Put:      dockerPushResourceName(dockerPush),
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         dockerBuildTmpDir + "/" + basePath + "/" + buildPath,
@@ -262,7 +263,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	dockerResource, found := testPipeline().Render(man).Resources.Lookup(dockerPushResourceName)
+	dockerResource, found := testPipeline().Render(man).Resources.Lookup(dockerPushResourceName(dockerPush))
 	assert.True(t, found)
 	assert.Equal(t, expectedResource, dockerResource)
 

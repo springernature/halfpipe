@@ -17,5 +17,5 @@ tasks:
   name: push to docker registry again
   username: rob
   password: verysecret
-  image: springerplatformengineering/halfpipe-fly
+  image: springerplatformengineering/halfpipe
   dockerfile_path: dockerfiles/Dockerfile

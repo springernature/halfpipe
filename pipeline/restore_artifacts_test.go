@@ -68,6 +68,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerPush{
+				Image:            "somethigs/halfpipe-cli",
 				RestoreArtifacts: true,
 			},
 		},
@@ -80,7 +81,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
 	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build")
 
-	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[3].Put)
+	assert.Equal(t, "halfpipe-cli", renderedPipeline.Jobs[0].Plan[3].Put)
 	assert.Equal(t, dockerBuildTmpDir, renderedPipeline.Jobs[0].Plan[3].Params["build"])
 
 	// Mono repo
@@ -93,6 +94,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerPush{
+				Image:            "something/halfpipe-cli",
 				RestoreArtifacts: true,
 			},
 		},
@@ -105,7 +107,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
 	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build/some/random/path")
 
-	assert.Equal(t, dockerPushResourceName, renderedPipeline.Jobs[0].Plan[3].Put)
+	assert.Equal(t, "halfpipe-cli", renderedPipeline.Jobs[0].Plan[3].Put)
 	assert.Equal(t, path.Join(dockerBuildTmpDir, man.Repo.BasePath), renderedPipeline.Jobs[0].Plan[3].Params["build"])
 }
 

@@ -55,7 +55,7 @@ resources:
     space: qa
     username: ((cloudfoundry.username-snpaas))
   check_every: 24h
-- name: Docker Registry
+- name: halfpipe-fly
   type: docker-image
   source:
     password: verysecret
@@ -764,7 +764,7 @@ jobs:
         - deploy to qa
         trigger: true
     timeout: 1h
-  - put: Docker Registry
+  - put: halfpipe-fly
     params:
       build: git/e2e/update-pipeline
       build_args:

@@ -9,17 +9,17 @@ resources:
     - e2e/docker-push-paths
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: Docker Registry
+- name: halfpipe-fly
   type: docker-image
   source:
     password: verysecret
     repository: springerplatformengineering/halfpipe-fly
     username: rob
-- name: Docker Registry (1)
+- name: halfpipe
   type: docker-image
   source:
     password: verysecret
-    repository: springerplatformengineering/halfpipe-fly
+    repository: springerplatformengineering/halfpipe
     username: rob
 resource_types: []
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - get: git
         trigger: true
     timeout: 1h
-  - put: Docker Registry
+  - put: halfpipe-fly
     params:
       build: git/e2e/docker-push-paths/some/build/dir
       build_args:
@@ -52,7 +52,7 @@ jobs:
         - push to docker registry
         trigger: true
     timeout: 1h
-  - put: Docker Registry (1)
+  - put: halfpipe
     params:
       build: git/e2e/docker-push-paths
       build_args:
