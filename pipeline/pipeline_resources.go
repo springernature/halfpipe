@@ -49,7 +49,7 @@ func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
 	}
 }
 
-const slackResourceName = "slack-notification"
+const slackResourceName = "slack"
 
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
