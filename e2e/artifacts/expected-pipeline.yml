@@ -428,7 +428,7 @@ jobs:
         - -c
         - |-
           cp -r git/. docker_build
-          cp -r artifacts/. docker_build/e2e/artifacts
+          cp -r artifacts/. docker_build
       inputs:
       - name: git
       - name: artifacts

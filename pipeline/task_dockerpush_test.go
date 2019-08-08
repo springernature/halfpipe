@@ -238,7 +238,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 						Path: "/bin/sh",
 						Args: []string{"-c", strings.Join([]string{
 							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, path.Join(dockerBuildTmpDir, man.Repo.BasePath)),
+							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, dockerBuildTmpDir),
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{

@@ -105,7 +105,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 
 	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r git/. docker_build")
-	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build/some/random/path")
+	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build")
 
 	assert.Equal(t, "halfpipe-cli", renderedPipeline.Jobs[0].Plan[3].Put)
 	assert.Equal(t, path.Join(dockerBuildTmpDir, man.Repo.BasePath), renderedPipeline.Jobs[0].Plan[3].Params["build"])
