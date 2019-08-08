@@ -220,9 +220,11 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 		case manifest.DeployCF:
 			p.addCfResourceType(&cfg)
-			resourceName := uniqueName(&cfg, deployCFResourceName(task), "")
+			resourceName := deployCFResourceName(task)
 			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
-			cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
+			if _, exists := cfg.Resources.Lookup(resourceName); !exists {
+				cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
+			}
 			job = p.deployCFJob(task, resourceName, man, &cfg)
 
 		case manifest.DockerPush:

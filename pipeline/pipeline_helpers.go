@@ -22,18 +22,21 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 	return out
 }
 
-func deployCFResourceName(task manifest.DeployCF) string {
+func deployCFResourceName(task manifest.DeployCF) (name string) {
 	// if url remove the scheme
 	api := strings.Replace(task.API, "https://", "", -1)
 	api = strings.Replace(api, "http://", "", -1)
+	api = strings.Replace(api, "((cloudfoundry.api-", "", -1)
+	api = strings.Replace(api, "))", "", -1)
+	name = fmt.Sprintf("CF %s", api)
 
-	// tidy up secrets a bit
-	name := fmt.Sprintf("CF %s %s %s", api, task.Org, task.Space)
-	name = strings.Replace(name, "((cloudfoundry.", "", -1)
-	name = strings.Replace(name, "))", "", -1)
-	name = strings.Replace(name, "api-", "", -1)
-	name = strings.Replace(name, " org-snpaas", "", -1)
-	return name
+	if org := strings.Replace(task.Org, "((cloudfoundry.org-snpaas))", "", -1); org != "" {
+		name = fmt.Sprintf("%s %s", name, org)
+	}
+
+	name = fmt.Sprintf(fmt.Sprintf("%s %s", name, task.Space))
+	name = strings.TrimSpace(name)
+	return
 }
 
 func dockerPushResourceName(task manifest.DockerPush) string {
