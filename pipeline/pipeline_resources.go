@@ -104,7 +104,7 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 	}
 
 	return atc.ResourceConfig{
-		Name: GenerateArtifactsResourceName(team, pipeline),
+		Name: artifactsName,
 		Type: artifactsResourceName,
 		Source: atc.Source{
 			"bucket":   bucket,
@@ -116,7 +116,7 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 
 func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
 	config := p.artifactResource(team, pipeline, artifactConfig)
-	config.Name = GenerateArtifactsOnFailureResourceName(team, pipeline)
+	config.Name = artifactsOnFailureName
 	return config
 }
 

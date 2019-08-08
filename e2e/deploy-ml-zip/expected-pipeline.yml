@@ -9,7 +9,7 @@ resources:
     - e2e/deploy-ml-zip
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: artifacts-test-test
+- name: artifacts
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
@@ -104,7 +104,6 @@ jobs:
     timeout: 1h
     attempts: 1
   - put: artifacts
-    resource: artifacts-test-test
     params:
       folder: artifacts-out
       version_file: git/.git/ref

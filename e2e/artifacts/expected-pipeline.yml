@@ -9,13 +9,13 @@ resources:
     - e2e/artifacts
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: artifacts-test-halfpipe-e2e-artifacts
+- name: artifacts
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
-- name: artifacts-test-halfpipe-e2e-artifacts-on-failure
+- name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
@@ -137,7 +137,6 @@ jobs:
     timeout: 1h
     attempts: 1
   - put: artifacts
-    resource: artifacts-test-halfpipe-e2e-artifacts
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -146,7 +145,6 @@ jobs:
     in_parallel:
       steps:
       - put: artifacts-on-failure
-        resource: artifacts-test-halfpipe-e2e-artifacts-on-failure
         params:
           folder: artifacts-out-failure
           postfix: failure
@@ -561,7 +559,6 @@ jobs:
     in_parallel:
       steps:
       - put: artifacts-on-failure
-        resource: artifacts-test-halfpipe-e2e-artifacts-on-failure
         params:
           folder: artifacts-out-failure
           postfix: failure

@@ -86,19 +86,9 @@ func ToString(pipeline atc.Config) (string, error) {
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
-func GenerateArtifactsResourceName(team string, pipeline string) string {
-	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
-	return fmt.Sprintf("artifacts-%s", postfix)
-}
-
-func GenerateArtifactsOnFailureResourceName(team string, pipeline string) string {
-	postfix := strings.Replace(path.Join(team, pipeline), "/", "-", -1)
-	return fmt.Sprintf("artifacts-%s-on-failure", postfix)
-}
 func saveArtifactOnFailurePlan(team, pipeline string) atc.PlanConfig {
 	return atc.PlanConfig{
-		Put:      artifactsOnFailureName,
-		Resource: GenerateArtifactsOnFailureResourceName(team, pipeline),
+		Put: artifactsOnFailureName,
 		Params: atc.Params{
 			"folder":       artifactsOutDirOnFailure,
 			"version_file": path.Join(gitDir, ".git", "ref"),

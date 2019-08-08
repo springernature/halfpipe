@@ -409,8 +409,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		jobConfig.Plan[0].TaskConfig.Outputs = append(jobConfig.Plan[0].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 
 		artifactPut := atc.PlanConfig{
-			Put:      artifactsName,
-			Resource: GenerateArtifactsResourceName(man.Team, man.Pipeline),
+			Put: artifactsName,
 			Params: atc.Params{
 				"folder":       artifactsOutDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
