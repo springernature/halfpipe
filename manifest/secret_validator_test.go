@@ -11,24 +11,21 @@ var secretValidator = manifest.NewSecretValidator()
 func TestTopLevelManifest(t *testing.T) {
 
 	bad := manifest.Manifest{
-		Team:            "something ((secret.stuff))",
-		Pipeline:        "((kehe.kehu))",
-		SlackChannel:    "((asdf.dsa))",
-		TriggerInterval: "((my.secret))",
+		Team:         "something ((secret.stuff))",
+		Pipeline:     "((kehe.kehu))",
+		SlackChannel: "((asdf.dsa))",
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 4)
+	assert.Len(t, errors, 3)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("team"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("pipeline"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("slack_channel"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("trigger_interval"))
 
 	good := manifest.Manifest{
-		Team:            "a",
-		Pipeline:        "b",
-		SlackChannel:    "c",
-		TriggerInterval: "d",
+		Team:         "a",
+		Pipeline:     "b",
+		SlackChannel: "c",
 	}
 
 	assert.Empty(t, secretValidator.Validate(good))

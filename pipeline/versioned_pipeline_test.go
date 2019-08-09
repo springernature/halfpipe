@@ -184,12 +184,11 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 	}
 }
 
-func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing.T) {
+func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 	firstJob := "run"
 	secondJob := "run2"
 	man := manifest.Manifest{
-		CronTrigger:     "* * * * *",
-		TriggerInterval: "12h",
+		CronTrigger: "* * * * *",
 
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
@@ -207,16 +206,12 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 	cfg := testPipeline().Render(man)
 
 	var cronFound bool
-	var triggerIntervalFound bool
 	var versionFound bool
 	updateVersionConfig, found := cfg.Jobs.Lookup(updateJobName)
 	assert.True(t, found)
 	for _, get := range updateVersionConfig.Plan[0].InParallel.Steps {
 		if get.Get == cronName {
 			cronFound = true
-		}
-		if get.Get == timerName {
-			triggerIntervalFound = true
 		}
 		if get.Get == versionName {
 			versionFound = true
@@ -225,7 +220,6 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 	}
 
 	assert.True(t, cronFound)
-	assert.True(t, triggerIntervalFound)
 	assert.False(t, versionFound)
 
 	firstTask, found := cfg.Jobs.Lookup(firstJob)
@@ -237,7 +231,6 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 			assert.False(t, get.Trigger)
 		}
 		assert.NotContains(t, cronName, get.Get)
-		assert.NotContains(t, "timer ", get.Get)
 		assert.Equal(t, []string{updateJobName}, get.Passed)
 	}
 
@@ -250,7 +243,6 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheTimerAndCronTrigger(t *testing
 			assert.False(t, get.Trigger)
 		}
 		assert.NotContains(t, cronName, get.Get)
-		assert.NotContains(t, "timer ", get.Get)
 		assert.Equal(t, []string{firstJob}, get.Passed)
 	}
 }

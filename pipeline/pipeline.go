@@ -51,7 +51,6 @@ const dockerBuildTmpDir = "docker_build"
 const versionName = "version"
 
 const cronName = "cron"
-const timerName = "timer"
 
 const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
@@ -144,9 +143,6 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVer
 		if man.CronTrigger != "" {
 			initialPlan = append(initialPlan, atc.PlanConfig{Get: cronName})
 		}
-		if man.TriggerInterval != "" {
-			initialPlan = append(initialPlan, atc.PlanConfig{Get: timerName})
-		}
 		if task != nil && task.ReadsFromArtifacts() {
 			initialPlan = append(initialPlan, restoreArtifactTask(man))
 		}
@@ -173,10 +169,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 
 	if man.CronTrigger != "" {
 		p.addCronResource(&cfg, man)
-	}
-
-	if man.TriggerInterval != "" {
-		p.addTriggerResource(&cfg, man)
 	}
 
 	if man.FeatureToggles.Versioned() {
@@ -326,7 +318,6 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	for i, get := range inParallel.Steps {
 		if get.Name() == gitName ||
 			get.Name() == versionName ||
-			get.Name() == timerName ||
 			get.Name() == cronName {
 			inParallel.Steps[i].Passed = passedJobs
 		}
@@ -803,12 +794,6 @@ func (p pipeline) addCronResource(cfg *atc.Config, man manifest.Manifest) {
 	if man.CronTrigger != "" {
 		cfg.ResourceTypes = append(cfg.ResourceTypes, cronResourceType())
 		cfg.Resources = append(cfg.Resources, p.cronResource(man.CronTrigger))
-	}
-}
-
-func (p pipeline) addTriggerResource(cfg *atc.Config, man manifest.Manifest) {
-	if man.TriggerInterval != "" {
-		cfg.Resources = append(cfg.Resources, p.timerResource(man.TriggerInterval))
 	}
 }
 

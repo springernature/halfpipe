@@ -29,7 +29,6 @@ repo:
   - README.md
   git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
-trigger_interval: 4h
 artifact_config:
   bucket: myBucket
   json_key: ((some.jsonKey))
@@ -147,9 +146,8 @@ tasks:
 			Bucket:  "myBucket",
 			JSONKey: "((some.jsonKey))",
 		},
-		SlackChannel:    "#ee-activity",
-		TriggerInterval: "4h",
-		CronTrigger:     "*/10 * * * *",
+		SlackChannel: "#ee-activity",
+		CronTrigger:  "*/10 * * * *",
 		FeatureToggles: FeatureToggles{
 			"feature1",
 			"feature2",

@@ -121,14 +121,6 @@ func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfi
 	return config
 }
 
-func (p pipeline) timerResource(interval string) atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name:   timerName,
-		Type:   "time",
-		Source: atc.Source{"interval": interval},
-	}
-}
-
 func (p pipeline) cronResource(expression string) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       cronName,

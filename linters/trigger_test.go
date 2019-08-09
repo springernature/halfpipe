@@ -11,17 +11,7 @@ func testTriggerLinter() triggerLinter {
 	return triggerLinter{}
 }
 
-func TestCronTriggerWithIntervalTrigger(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Team = "yolo"
-	man.Pipeline = "alles-gut"
-	man.CronTrigger = "*/10 * * * *"
-	man.TriggerInterval = "10m"
-
-	assert.True(t, testTriggerLinter().Lint(man).HasErrors())
-}
-
-func TestCronTriggerOnly(t *testing.T) {
+func TestCronTrigger(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
 	man.Pipeline = "alles-gut"
@@ -47,13 +37,4 @@ func TestCronTriggerWithSecondsShouldHaveError(t *testing.T) {
 	man.CronTrigger = "* * * * * *"
 
 	assert.True(t, testTriggerLinter().Lint(man).HasErrors())
-}
-
-func TestIntervalTriggerTriggerOnly(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Team = "yolo"
-	man.Pipeline = "alles-gut"
-	man.TriggerInterval = "10m"
-
-	assert.True(t, testTriggerLinter().Lint(man).HasWarnings())
 }

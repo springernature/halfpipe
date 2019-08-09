@@ -37,15 +37,14 @@ type Task interface {
 }
 
 type Manifest struct {
-	Team            string
-	Pipeline        string
-	SlackChannel    string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	TriggerInterval string         `json:"trigger_interval" yaml:"trigger_interval,omitempty"`
-	CronTrigger     string         `json:"cron_trigger" yaml:"cron_trigger,omitempty"`
-	Repo            Repo           `yaml:"repo,omitempty"`
-	ArtifactConfig  ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
-	FeatureToggles  FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
-	Tasks           TaskList
+	Team           string
+	Pipeline       string
+	SlackChannel   string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	CronTrigger    string         `json:"cron_trigger" yaml:"cron_trigger,omitempty"`
+	Repo           Repo           `yaml:"repo,omitempty"`
+	ArtifactConfig ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
+	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
+	Tasks          TaskList
 }
 
 func (m Manifest) NotifiesOnFailure() bool {

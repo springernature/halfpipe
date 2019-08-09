@@ -16,14 +16,8 @@ func NewTriggerLinter() triggerLinter {
 }
 
 func (triggerLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Timer Trigger Linter"
-	result.DocsURL = "https://docs.halfpipe.io/manifest/#trigger-interval-deprecated , https://docs.halfpipe.io/manifest/#cron-trigger"
-
-	if manifest.TriggerInterval != "" && manifest.CronTrigger != "" {
-		result.AddError(errors.NewInvalidField("trigger_interval", "please remove trigger_interval if you use cron_trigger"))
-	} else if manifest.TriggerInterval != "" {
-		result.AddWarning(errors.NewInvalidField("trigger_interval", "this field is deprecated, please use 'cron_trigger' instead"))
-	}
+	result.Linter = "Cron Trigger Linter"
+	result.DocsURL = "https://docs.halfpipe.io/manifest/#cron-trigger"
 
 	if manifest.CronTrigger != "" {
 		_, err := cronexpr.Parse(manifest.CronTrigger)
