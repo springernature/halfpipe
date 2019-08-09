@@ -15,6 +15,7 @@ resources:
     bucket: ((halfpipe-artifacts.bucket))
     folder: test/test
     json_key: ((halfpipe-artifacts.private_key))
+  check_every: 24h
 resource_types:
 - name: gcp-resource
   type: registry-image

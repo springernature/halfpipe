@@ -104,8 +104,9 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 	}
 
 	return atc.ResourceConfig{
-		Name: artifactsName,
-		Type: artifactsResourceName,
+		Name:       artifactsName,
+		Type:       artifactsResourceName,
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"bucket":   bucket,
 			"folder":   path.Join(filter(team), filter(pipeline)),

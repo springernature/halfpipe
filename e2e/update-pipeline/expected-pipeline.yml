@@ -15,12 +15,14 @@ resources:
     bucket: ((halfpipe-artifacts.bucket))
     folder: engineering-enablement/test
     json_key: ((halfpipe-artifacts.private_key))
+  check_every: 24h
 - name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: engineering-enablement/test
     json_key: ((halfpipe-artifacts.private_key))
+  check_every: 24h
 - name: version
   type: semver
   source:

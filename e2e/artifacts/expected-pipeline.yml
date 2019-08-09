@@ -15,12 +15,14 @@ resources:
     bucket: ((halfpipe-artifacts.bucket))
     folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
+  check_every: 24h
 - name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
+  check_every: 24h
 - name: CF live pe staging
   type: cf-resource
   source:
