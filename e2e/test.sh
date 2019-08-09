@@ -11,7 +11,7 @@ do
             ./test.sh
         else
             ../../halfpipe 1> pipeline.yml
-            diff -w pipeline.yml expected-pipeline.yml
+            diff pipeline.yml expected-pipeline.yml
             if [ "${1-}" != "ci" ]; then
                 command -v fly >/dev/null && fly validate-pipeline -c pipeline.yml > /dev/null
             fi

@@ -854,8 +854,8 @@ fi
     mkdir -p $ARTIFACT_OUT_PATH
     cp -r $ARTIFACT $ARTIFACT_OUT_PATH
   else
-   echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-   exit 1
+    echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+    exit 1
   fi
 }
 `)

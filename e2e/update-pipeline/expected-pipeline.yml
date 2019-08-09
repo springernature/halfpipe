@@ -630,11 +630,11 @@ jobs:
               ARTIFACT_OUT_PATH=$2
 
               if [ -e $ARTIFACT ] ; then
-               mkdir -p $ARTIFACT_OUT_PATH
+                mkdir -p $ARTIFACT_OUT_PATH
                 cp -r $ARTIFACT $ARTIFACT_OUT_PATH
               else
                 echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-               exit 1
+                exit 1
               fi
             }
 
