@@ -39,6 +39,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 			"password":   password,
 			"repository": repo,
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	expectedJobConfig := atc.JobConfig{
@@ -93,6 +94,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 			"password":   password,
 			"repository": repo,
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	expectedJobConfig := atc.JobConfig{
@@ -148,6 +150,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 			"password":   password,
 			"repository": repo,
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	expectedJobConfig := atc.JobConfig{
@@ -212,6 +215,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			"password":   password,
 			"repository": repo,
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 
 	jobName := "docker-push"

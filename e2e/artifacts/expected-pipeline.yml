@@ -38,6 +38,7 @@ resources:
     password: verysecret
     repository: springerplatformengineering/halfpipe-fly
     username: rob
+  check_every: 24h
 resource_types:
 - name: gcp-resource
   type: registry-image

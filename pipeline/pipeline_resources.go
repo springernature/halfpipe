@@ -193,6 +193,7 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush, resourceName st
 			"password":   docker.Password,
 			"repository": docker.Image,
 		},
+		CheckEvery: longResourceCheckInterval,
 	}
 }
 

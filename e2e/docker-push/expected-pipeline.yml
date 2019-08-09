@@ -15,6 +15,7 @@ resources:
     password: verysecret
     repository: springerplatformengineering/halfpipe-fly
     username: rob
+  check_every: 24h
 resource_types: []
 jobs:
 - name: push to docker registry
