@@ -59,6 +59,7 @@ func TestCronTriggerSetAddsResource(t *testing.T) {
 	assert.Equal(t, cronName, resources[1].Name)
 	assert.Equal(t, "cron-resource", resources[1].Type)
 	assert.Equal(t, man.CronTrigger, resources[1].Source["expression"])
+	assert.Equal(t, "1m", resources[1].CheckEvery)
 }
 
 func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {

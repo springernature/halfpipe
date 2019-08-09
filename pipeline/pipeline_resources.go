@@ -130,8 +130,9 @@ func (p pipeline) timerResource(interval string) atc.ResourceConfig {
 
 func (p pipeline) cronResource(expression string) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: cronName,
-		Type: "cron-resource",
+		Name:       cronName,
+		Type:       "cron-resource",
+		CheckEvery: "1m",
 		Source: atc.Source{
 			"expression":       expression,
 			"location":         "UTC",
