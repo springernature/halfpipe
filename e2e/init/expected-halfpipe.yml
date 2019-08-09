@@ -3,6 +3,8 @@ pipeline: halfpipe-e2e-init
 repo:
   watched_paths:
   - e2e/init
+feature_toggles:
+  - update-pipeline
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI

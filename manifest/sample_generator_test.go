@@ -55,6 +55,8 @@ func TestWritesSample(t *testing.T) {
 
 	expected := `team: CHANGE-ME
 pipeline: myApp
+feature_toggles:
+- update-pipeline
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
@@ -86,6 +88,8 @@ pipeline: myApp-subApp
 repo:
   watched_paths:
   - subApp
+feature_toggles:
+- update-pipeline
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
@@ -117,6 +121,8 @@ pipeline: myApp-subFolder-subApp
 repo:
   watched_paths:
   - subFolder/subApp
+feature_toggles:
+- update-pipeline
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
