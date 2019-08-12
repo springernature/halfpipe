@@ -73,8 +73,12 @@ jobs:
 
           set -ex
 
-          # get current revision of consumer
-          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision')
+          # get current revision of consumer, revert to HEAD if not found
+          REVISION=$(curl "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
+          if [ "${REVISION}" == "" ]; then
+            echo "Error fetching version of consumer from ${CONSUMER_HOST}/internal/version - using HEAD instead."
+            REVISION=HEAD
+          fi
 
           # clone consumer into "consumer-repo" dir
           GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
