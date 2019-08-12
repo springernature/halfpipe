@@ -244,9 +244,7 @@ func (p pipeline) updateJobConfig(manifest manifest.Manifest) atc.JobConfig {
 		}},
 	}
 
-	if manifest.FeatureToggles.UpdatePipeline() {
-		job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
-	}
+	job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
 
 	return job
 }

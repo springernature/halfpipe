@@ -136,6 +136,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	password := "secret"
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
+		manifest.Update{},
 		manifest.DockerPush{
 			Name:           "docker-push",
 			Username:       username,
@@ -170,7 +171,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         gitDir + "/" + basePath,
-					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
+					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -208,6 +209,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		BuildPath:        buildPath,
 	}
 	man.Tasks = []manifest.Task{
+		manifest.Update{},
 		dockerPush,
 	}
 
@@ -264,7 +266,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         dockerBuildTmpDir + "/" + basePath + "/" + buildPath,
-					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
+					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},

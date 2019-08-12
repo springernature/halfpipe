@@ -118,6 +118,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 	case reflect.TypeOf(true), reflect.TypeOf(0), reflect.TypeOf(ParallelGroup("blah")):
 		// Stuff that we don't care about as they cannot contain secrets.
 		return
+	case reflect.TypeOf(Update{}):
+		return
 
 	default:
 		panic(fmt.Sprintf("Not implemented for %s", v.Type()))

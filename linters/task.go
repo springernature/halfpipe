@@ -108,6 +108,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 			errs, warnings = linter.lintDeployMLZipTask(task)
 		case manifest.DeployMLModules:
 			errs, warnings = linter.lintDeployMLModulesTask(task)
+		case manifest.Update:
 		default:
 			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}

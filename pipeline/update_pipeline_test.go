@@ -11,6 +11,9 @@ func TestShouldAddUpdateJobAsFirstJob(t *testing.T) {
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
 		},
+		Tasks: manifest.TaskList{
+			manifest.Update{},
+		},
 	}
 
 	cfg := testPipeline().Render(man)
@@ -24,6 +27,9 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	man := manifest.Manifest{
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
+		},
+		Tasks: manifest.TaskList{
+			manifest.Update{},
 		},
 	}
 
@@ -52,6 +58,9 @@ func TestUpdatePipelinePlan(t *testing.T) {
 		Pipeline: "some-name",
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
+		},
+		Tasks: manifest.TaskList{
+			manifest.Update{},
 		},
 	}
 

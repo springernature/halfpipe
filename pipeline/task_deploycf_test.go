@@ -452,17 +452,18 @@ func TestSetsBuildVersionPathParamForVersionedPipelines(t *testing.T) {
 	}
 
 	man := manifest.Manifest{
-		Repo:  manifest.Repo{URI: "git@github.com:foo/reponame"},
-		Tasks: []manifest.Task{task},
+		Repo: manifest.Repo{URI: "git@github.com:foo/reponame"},
+		Tasks: []manifest.Task{
+			manifest.Update{},
+			task,
+		},
+		FeatureToggles: manifest.FeatureToggles{manifest.FeatureUpdatePipeline},
 	}
 
 	//unversioned
-	buildVersionPath := testPipeline().Render(man).Jobs[0].Plan[2].Params["buildVersionPath"]
-	assert.Nil(t, buildVersionPath)
-
-	//versioned
+	rendered := testPipeline().Render(man)
 	man.FeatureToggles = append(man.FeatureToggles, "update-pipeline")
-	buildVersionPath = testPipeline().Render(man).Jobs[1].Plan[2].Params["buildVersionPath"]
+	buildVersionPath := rendered.Jobs[1].Plan[2].Params["buildVersionPath"]
 	assert.Equal(t, path.Join("version", "version"), buildVersionPath)
 
 }

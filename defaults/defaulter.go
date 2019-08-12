@@ -195,9 +195,16 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 				}
 
 				tl[i] = task
+			case manifest.Update:
+				task.Timeout = d.Timeout
+				tl[i] = task
 			}
 		}
 		return
+	}
+
+	if man.FeatureToggles.UpdatePipeline() {
+		man.Tasks = append(manifest.TaskList{manifest.Update{}}, man.Tasks...)
 	}
 
 	taskList := taskSwitcher(man.Tasks)

@@ -255,6 +255,9 @@ func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobC
 	case manifest.DeployMLModules:
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
 		job = p.runJob(runTask, man, false)
+	case manifest.Update:
+		updateJob := p.updateJob(man)
+		return &updateJob
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -298,10 +301,6 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
 
-	if man.FeatureToggles.Versioned() {
-		cfg.Jobs = append(cfg.Jobs, p.updateJob(man))
-	}
-
 	var parallelTasks []string
 	var currentParallelGroup manifest.ParallelGroup
 	var previousTaskNames []string
@@ -335,7 +334,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			previousTaskNames = []string{job.Name}
 		}
 
-		configureTriggerOnGets(job, task.IsManualTrigger(), man.FeatureToggles.Versioned())
+		configureTriggerOnGets(job, task, man.FeatureToggles.Versioned())
 
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
@@ -364,13 +363,20 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	}
 }
 
-func configureTriggerOnGets(job *atc.JobConfig, manualTrigger bool, versioningEnabled bool) {
+func configureTriggerOnGets(job *atc.JobConfig, task manifest.Task, versioningEnabled bool) {
 	inParallel := *job.Plan[0].InParallel
-	for i, get := range inParallel.Steps {
-		if get.Get == versionName && !manualTrigger {
+	switch task.(type) {
+	case manifest.Update:
+		for i := range inParallel.Steps {
 			inParallel.Steps[i].Trigger = true
-		} else if get.Get != artifactsName {
-			inParallel.Steps[i].Trigger = !manualTrigger && !versioningEnabled
+		}
+	default:
+		for i, get := range inParallel.Steps {
+			if get.Get == versionName && !task.IsManualTrigger() {
+				inParallel.Steps[i].Trigger = true
+			} else {
+				inParallel.Steps[i].Trigger = !task.IsManualTrigger() && !versioningEnabled
+			}
 		}
 	}
 }

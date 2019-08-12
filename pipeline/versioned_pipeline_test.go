@@ -78,6 +78,9 @@ func TestShouldAddAVersionJobAsFirstJobIfFeatureToggleIsEnabled(t *testing.T) {
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
 		},
+		Tasks: manifest.TaskList{
+			manifest.Update{},
+		},
 	}
 
 	cfg := testPipeline().Render(man)
@@ -144,6 +147,7 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 		},
 
 		Tasks: manifest.TaskList{
+			manifest.Update{},
 			manifest.Run{
 				Name: firstJob,
 			},
@@ -194,6 +198,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 			manifest.FeatureUpdatePipeline,
 		},
 		Tasks: manifest.TaskList{
+			manifest.Update{},
 			manifest.Run{
 				Name: firstJob,
 			},

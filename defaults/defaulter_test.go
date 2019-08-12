@@ -476,3 +476,36 @@ func TestSetsNames(t *testing.T) {
 		assert.Equal(t, wantedName, updatedName)
 	}
 }
+
+func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {
+	man := manifest.Manifest{
+		Repo:           manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
+		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
+		Tasks: []manifest.Task{
+			manifest.Run{Script: "asd.sh"},
+		},
+	}
+
+	expected := manifest.Manifest{
+		Repo:           manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
+		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
+		Tasks: []manifest.Task{
+			manifest.Update{
+				Timeout: "1h",
+			},
+			manifest.Run{
+				Name:   "run asd.sh",
+				Script: "asd.sh",
+				Vars: map[string]string{
+					"ARTIFACTORY_USERNAME": "((artifactory.username))",
+					"ARTIFACTORY_PASSWORD": "((artifactory.password))",
+					"ARTIFACTORY_URL":      "((artifactory.url))",
+				},
+				Timeout: "1h",
+			},
+		},
+	}
+
+	updated := DefaultValues.Update(man)
+	assert.Equal(t, expected, updated)
+}
