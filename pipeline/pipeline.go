@@ -227,9 +227,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	return
 }
 
-func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest) (jobs []*atc.JobConfig) {
-	var job *atc.JobConfig
-
+func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
 	initialPlan := p.initialPlan(man, man.FeatureToggles.Versioned(), task)
 
 	switch task := task.(type) {
@@ -258,11 +256,6 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest) (jobs []
 	case manifest.Update:
 		initialPlan = p.initialPlan(man, false, task)
 		job = p.updateJobConfig(man)
-	case manifest.Parallel:
-		for _, subTask := range task.Tasks {
-			jobs = append(jobs, p.taskToJobs(subTask, man)...)
-		}
-		return
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -298,8 +291,8 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest) (jobs []
 
 	configureTriggerOnGets(job, task, man.FeatureToggles.Versioned())
 	addTimeout(job, task.GetTimeout())
+	addPassedJobsToGets(job, previousTaskNames)
 
-	jobs = append(jobs, job)
 	return
 }
 
@@ -328,9 +321,13 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
 
 	for i, task := range man.Tasks {
-		for _, job := range p.taskToJobs(task, man) {
-			addPassedJobsToGets(job, p.previousTaskNames(i, man.Tasks))
-			cfg.Jobs = append(cfg.Jobs, *job)
+		switch task := task.(type) {
+		case manifest.Parallel:
+			for _, subTask := range task.Tasks {
+				cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(subTask, man, p.previousTaskNames(i, man.Tasks)))
+			}
+		default:
+			cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(task, man, p.previousTaskNames(i, man.Tasks)))
 		}
 	}
 
