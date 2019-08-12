@@ -30,22 +30,27 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
 			manifest.Run{},
-			manifest.DeployCF{
-				PrePromote: []manifest.Task{
-					manifest.Run{},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+
 					manifest.DeployCF{
 						PrePromote: []manifest.Task{
 							manifest.Run{},
+							manifest.DeployCF{
+								PrePromote: []manifest.Task{
+									manifest.Run{},
+								},
+							},
+							manifest.DockerPush{},
+							manifest.DockerCompose{},
+							manifest.ConsumerIntegrationTest{},
+							manifest.DeployMLZip{},
+							manifest.DeployMLModules{},
 						},
 					},
 					manifest.DockerPush{},
-					manifest.DockerCompose{},
-					manifest.ConsumerIntegrationTest{},
-					manifest.DeployMLZip{},
-					manifest.DeployMLModules{},
 				},
 			},
-			manifest.DockerPush{},
 			manifest.DockerCompose{},
 			manifest.ConsumerIntegrationTest{},
 			manifest.DeployMLZip{},
@@ -69,6 +74,8 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	calledLintDeployMLModulesTaskNum := 0
 	calledLintPrePromoteTasks := false
 	calledLintPrePromoteTasksNum := 0
+	calledLintParallelTasks := false
+	calledLintParallelTasksNum := 0
 
 	taskLinter := taskLinter{
 		Fs: afero.Afero{
@@ -117,9 +124,16 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
 			return
 		},
+		lintParallel: func(parallelTask manifest.Parallel) (errs []error, warnings []error) {
+			calledLintParallelTasks = true
+			calledLintParallelTasksNum++
+			return
+		},
 	}
 
-	taskLinter.Lint(man)
+	result := taskLinter.Lint(man)
+	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, result.Errors, 0)
 
 	assert.True(t, calledLintRunTask)
 	assert.Equal(t, 3, calledLintRunTaskNum)
@@ -144,6 +158,10 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 
 	assert.True(t, calledLintDeployMLModulesTask)
 	assert.Equal(t, 2, calledLintDeployMLModulesTaskNum)
+
+	assert.True(t, calledLintParallelTasks)
+	assert.Equal(t, 1, calledLintParallelTasksNum)
+
 }
 
 func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
@@ -307,6 +325,102 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushWarn),
 		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
+	}, errorsToStrings(result.Warnings))
+}
+
+func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.DeployCF{
+						PrePromote: []manifest.Task{
+							manifest.Run{},
+							manifest.DockerPush{},
+						},
+					},
+				},
+			},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.DeployMLZip{},
+					manifest.DeployMLModules{},
+				},
+			},
+		},
+	}
+
+	runErr1 := errors.New("runErr1")
+	runErr2 := errors.New("runErr2")
+	runWarn1 := errors.New("runWarn1")
+
+	prePromoteErr := errors.New("prePromoteErr")
+	prePromoteWarn := errors.New("prePromoteWarn")
+
+	dockerPushErr := errors.New("dockerPushErr")
+	dockerPushWarn := errors.New("dockerPushWarn")
+
+	deployMlZipErr := errors.New("deployMlZipErr")
+
+	deployMlModulesWarn := errors.New("deployMlModulesWarn")
+	taskLinter := taskLinter{
+		Fs: afero.Afero{
+			Fs: nil,
+		},
+		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
+			return []error{runErr1, runErr2}, []error{runWarn1}
+		},
+		lintDeployCFTask: func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) {
+			return
+		},
+		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
+			return []error{prePromoteErr}, []error{prePromoteWarn}
+		},
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
+			return []error{dockerPushErr}, []error{dockerPushWarn}
+		},
+		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
+			return []error{deployMlZipErr}, []error{}
+		},
+		lintDeployMLModulesTask: func(task manifest.DeployMLModules) (errs []error, warnings []error) {
+			return []error{}, []error{deployMlModulesWarn}
+
+		},
+		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+			return
+		},
+		lintParallel: func(parallelTask manifest.Parallel) (errs []error, warnings []error) {
+			return
+		},
+	}
+
+	result := taskLinter.Lint(man)
+
+	errorsToStrings := func(errs []error) (out []string) {
+		for _, e := range errs {
+			out = append(out, e.Error())
+		}
+		return
+	}
+
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0][0] %s", runErr1),
+		fmt.Sprintf("tasks[0][0] %s", runErr2),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", prePromoteErr),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runErr1),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runErr2),
+		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", prePromoteErr),
+		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushErr),
+		fmt.Sprintf("tasks[1][0] %s", deployMlZipErr),
+	}, errorsToStrings(result.Errors))
+	assert.Equal(t, []string{
+		fmt.Sprintf("tasks[0][0] %s", runWarn1),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushWarn),
+		fmt.Sprintf("tasks[1][1] %s", deployMlModulesWarn),
 	}, errorsToStrings(result.Warnings))
 }
 

@@ -67,9 +67,11 @@ func (t *TaskList) UnmarshalJSON(b []byte) error {
 
 	// loop through and use the Type field to unmarshal into the correct type of Task
 	for i, typedObject := range objectsWithType {
-		if err := unmarshalTask(t, i, rawTasks[i], typedObject.Type); err != nil {
+		task, err := unmarshalTask(i, rawTasks[i], typedObject.Type)
+		if err != nil {
 			return err
 		}
+		*t = append(*t, task)
 	}
 	return nil
 }
@@ -84,7 +86,7 @@ func (t *ParallelGroup) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func unmarshalTask(taskList *TaskList, taskIndex int, rawTask json.RawMessage, taskType string) error {
+func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (task Task, err error) {
 
 	unmarshal := func(rawTask json.RawMessage, t Task, index int) error {
 		decoder := json.NewDecoder(bytes.NewReader(rawTask))
@@ -100,55 +102,62 @@ func unmarshalTask(taskList *TaskList, taskIndex int, rawTask json.RawMessage, t
 	case "run":
 		t := Run{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "deploy-cf":
 		t := DeployCF{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "docker-push":
 		t := DockerPush{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "docker-compose":
 		t := DockerCompose{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "consumer-integration-test":
 		t := ConsumerIntegrationTest{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "deploy-ml-zip":
 		t := DeployMLZip{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
 	case "deploy-ml-modules":
 		t := DeployMLModules{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return err
+			return nil, err
 		}
 		t.Type = ""
-		*taskList = append(*taskList, t)
+		task = t
+	case "parallel":
+		t := Parallel{}
+		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		task = t
 	default:
-		return errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test'", taskIndex, taskType))
+		err = errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel'", taskIndex, taskType))
 	}
 
-	return nil
+	return
 }

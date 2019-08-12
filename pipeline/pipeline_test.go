@@ -27,9 +27,9 @@ func testPipeline() pipeline {
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.Run{Script: "asd.sh"},
-			manifest.DeployCF{ManualTrigger: true},
-			manifest.DockerPush{},
+			manifest.Run{Name: "t1", Script: "asd.sh"},
+			manifest.DeployCF{Name: "t2", ManualTrigger: true},
+			manifest.DockerPush{Name: "t3"},
 		},
 	}
 	config := testPipeline().Render(man)
@@ -49,14 +49,19 @@ func TestRenderWithParallelTasks(t *testing.T) {
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "Build", Script: "asd.sh"},
 
-			manifest.DeployCF{Name: "Deploy", Parallel: "true"},
-			manifest.DockerPush{Name: "Push", Parallel: "true"},
-
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.DeployCF{Name: "Deploy"},
+					manifest.DockerPush{Name: "Push"},
+				},
+			},
 			manifest.Run{Name: "Smoke Test", Script: "asd.sh"},
-
-			manifest.DeployCF{Name: "Deploy 2", Parallel: "true"},
-			manifest.DockerPush{Name: "Push 2", Parallel: "true"},
-
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.DeployCF{Name: "Deploy 2"},
+					manifest.DockerPush{Name: "Push 2"},
+				},
+			},
 			manifest.Run{Name: "Smoke Test 2", Script: "asd.sh"},
 		},
 	}
@@ -79,8 +84,12 @@ func TestRenderWithParallelTasks(t *testing.T) {
 func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.Run{Name: "Build", Script: "asd.sh", Parallel: "true"},
-			manifest.DeployCF{Name: "Deploy", Parallel: "true"},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{Name: "Build", Script: "asd.sh"},
+					manifest.DeployCF{Name: "Deploy"},
+				},
+			},
 
 			manifest.DockerPush{Name: "Push"},
 		},

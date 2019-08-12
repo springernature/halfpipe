@@ -399,14 +399,18 @@ func TestSetsTimeout(t *testing.T) {
 			manifest.Run{},
 			manifest.DockerCompose{Timeout: timeout},
 			manifest.DockerPush{},
-			manifest.DeployCF{
-				PrePromote: manifest.TaskList{
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.DeployCF{
+						PrePromote: manifest.TaskList{
+							manifest.Run{},
+							manifest.DockerPush{},
+							manifest.DockerCompose{Timeout: timeout},
+						},
+					},
 					manifest.Run{},
-					manifest.DockerPush{},
-					manifest.DockerCompose{Timeout: timeout},
 				},
 			},
-			manifest.Run{},
 			manifest.ConsumerIntegrationTest{},
 			manifest.DeployMLModules{},
 			manifest.DeployMLZip{},
@@ -420,15 +424,16 @@ func TestSetsTimeout(t *testing.T) {
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[2].GetTimeout())
 
 	// CF with prepromote
-	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].GetTimeout())
-	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[0].GetTimeout())
-	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[1].GetTimeout())
-	assert.Equal(t, timeout, updated.Tasks[3].(manifest.DeployCF).PrePromote[2].GetTimeout())
+	cfTask := (updated.Tasks[3].(manifest.Parallel).Tasks[0]).(manifest.DeployCF)
+	assert.Equal(t, DefaultValues.Timeout, cfTask.GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, cfTask.PrePromote[0].GetTimeout())
+	assert.Equal(t, DefaultValues.Timeout, cfTask.PrePromote[1].GetTimeout())
+	assert.Equal(t, timeout, cfTask.PrePromote[2].GetTimeout())
 
-	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[4].GetTimeout())
+	runTask := (updated.Tasks[3].(manifest.Parallel).Tasks[1]).(manifest.Run)
+	assert.Equal(t, DefaultValues.Timeout, runTask.GetTimeout())
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[5].GetTimeout())
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[6].GetTimeout())
-	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[7].GetTimeout())
 }
 
 func TestSetsNames(t *testing.T) {
@@ -436,7 +441,13 @@ func TestSetsNames(t *testing.T) {
 		Repo: manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "asd.sh"},
-			manifest.Run{Script: "asd.sh"},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{Script: "asd.sh"},
+					manifest.Run{Name: "test", Script: "asd.sh"},
+					manifest.Run{Name: "test", Script: "asd.sh"},
+				},
+			},
 			manifest.Run{Name: "test", Script: "asd.sh"},
 			manifest.Run{Name: "test", Script: "fgh.sh"},
 			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
@@ -459,6 +470,8 @@ func TestSetsNames(t *testing.T) {
 		"run asd.sh (1)",
 		"test",
 		"test (1)",
+		"test (2)",
+		"test (3)",
 		"deploy-cf",
 		"deploy-cf (1)",
 		"deploy-cf (2)",
@@ -471,10 +484,20 @@ func TestSetsNames(t *testing.T) {
 		"push to docker hub (1)",
 	}
 
-	for i, wantedName := range expectedJobNames {
-		updatedName := updated.Tasks[i].GetName()
-		assert.Equal(t, wantedName, updatedName)
+	actualJobNames := []string{}
+	for _, job := range updated.Tasks {
+		switch job := job.(type) {
+		case manifest.Parallel:
+			for _, pJob := range job.Tasks {
+				actualJobNames = append(actualJobNames, pJob.GetName())
+			}
+		default:
+			actualJobNames = append(actualJobNames, job.GetName())
+		}
 	}
+
+	assert.Len(t, expectedJobNames, len(actualJobNames))
+	assert.Equal(t, expectedJobNames, actualJobNames)
 }
 
 func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {

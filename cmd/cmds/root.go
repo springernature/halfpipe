@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/parallel"
 	"os"
 
 	"code.cloudfoundry.org/cli/util/manifest"
@@ -57,6 +58,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			Fs:         fs,
 			CurrentDir: currentDir,
 			Defaulter:  defaults.NewDefaulter(projectData),
+			Merger:     parallel.NewParallelMerger(),
 			Linters: []linters.Linter{
 				linters.NewTopLevelLinter(),
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),

@@ -26,7 +26,6 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
 			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
-		Parallel:      mlTask.Parallel,
 		ManualTrigger: mlTask.ManualTrigger,
 	}
 
@@ -52,7 +51,6 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 			"DEPLOY_ZIP":        mlTask.DeployZip,
 			"USE_BUILD_VERSION": fmt.Sprint(mlTask.UseBuildVersion),
 		},
-		Parallel:         mlTask.Parallel,
 		ManualTrigger:    mlTask.ManualTrigger,
 		RestoreArtifacts: true,
 	}

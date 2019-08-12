@@ -387,3 +387,39 @@ func TestArtifactConfig(t *testing.T) {
 	errs := secretValidator.Validate(man)
 	assert.Len(t, errs, 0)
 }
+
+func TestBadKeysInParallel(t *testing.T) {
+	bad := manifest.Manifest{
+		Tasks: manifest.TaskList{
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{
+						Docker: manifest.Docker{
+							Password: "((a))",
+						},
+						Vars: map[string]string{
+							"secret": "((a.b.c))",
+						},
+					},
+					manifest.DeployCF{
+						API: "((this_is_a_invalid$secret.@with_special_chars))",
+						PrePromote: manifest.TaskList{
+							manifest.DockerCompose{
+								Vars: map[string]string{
+									"SuperSecret": "((this_is_a_invalid$secret.@with_special_chars))",
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+
+	errors := secretValidator.Validate(bad)
+	assert.Len(t, errors, 4)
+	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[0][0].docker.password"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[0][0].vars[secret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].api"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].pre_promote[0].vars[SuperSecret]"))
+}

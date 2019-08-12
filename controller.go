@@ -8,6 +8,7 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/pipeline"
 	"path"
 )
@@ -16,6 +17,7 @@ type Controller struct {
 	Fs               afero.Afero
 	CurrentDir       string
 	Defaulter        defaults.Defaults
+	Merger           parallel.Merger
 	Linters          []linters.Linter
 	Renderer         pipeline.Renderer
 	HalfpipeFilePath string
@@ -45,6 +47,7 @@ func (c Controller) Process() (config atc.Config, results result.LintResults) {
 	}
 
 	man = c.Defaulter.Update(man)
+	man.Tasks = c.Merger.MergeParallelTasks(man.Tasks)
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(man))

@@ -148,6 +148,13 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 		switch task := task.(type) {
 		case manifest.DockerPush:
 			resourceConfigs = append(resourceConfigs, p.dockerPushResource(task))
+		case manifest.Parallel:
+			for _, subTask := range task.Tasks {
+				switch subTask := subTask.(type) {
+				case manifest.DockerPush:
+					resourceConfigs = append(resourceConfigs, p.dockerPushResource(subTask))
+				}
+			}
 		}
 	}
 
@@ -161,6 +168,16 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.Res
 			resourceName := deployCFResourceName(task)
 			if _, found := resourceConfigs.Lookup(resourceName); !found {
 				resourceConfigs = append(resourceConfigs, p.deployCFResource(task, resourceName))
+			}
+		case manifest.Parallel:
+			for _, subTask := range task.Tasks {
+				switch subTask := subTask.(type) {
+				case manifest.DeployCF:
+					resourceName := deployCFResourceName(subTask)
+					if _, found := resourceConfigs.Lookup(resourceName); !found {
+						resourceConfigs = append(resourceConfigs, p.deployCFResource(subTask, resourceName))
+					}
+				}
 			}
 		}
 	}
@@ -210,7 +227,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	return
 }
 
-func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest) (jobs []*atc.JobConfig) {
 	var job *atc.JobConfig
 
 	initialPlan := p.initialPlan(man, man.FeatureToggles.Versioned(), task)
@@ -241,6 +258,11 @@ func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobC
 	case manifest.Update:
 		initialPlan = p.initialPlan(man, false, task)
 		job = p.updateJobConfig(man)
+	case manifest.Parallel:
+		for _, subTask := range task.Tasks {
+			jobs = append(jobs, p.taskToJobs(subTask, man)...)
+		}
+		return
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -274,9 +296,30 @@ func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobC
 	job.Plan = append(initialPlan, job.Plan...)
 	job.Plan = inParallelGets(job)
 
+	configureTriggerOnGets(job, task, man.FeatureToggles.Versioned())
 	addTimeout(job, task.GetTimeout())
 
-	return job
+	jobs = append(jobs, job)
+	return
+}
+
+func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
+	switch task := task.(type) {
+	case manifest.Parallel:
+		for _, subTask := range task.Tasks {
+			taskNames = append(taskNames, p.taskNamesFromTask(subTask)...)
+		}
+	default:
+		taskNames = append(taskNames, task.GetName())
+	}
+	return
+}
+
+func (p pipeline) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
+	if currentIndex == 0 {
+		return []string{}
+	}
+	return p.taskNamesFromTask(taskList[currentIndex-1])
 }
 
 func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
@@ -284,42 +327,11 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
 
-	var parallelTasks []string
-	var currentParallelGroup manifest.ParallelGroup
-	var previousTaskNames []string
-	if len(cfg.Jobs) > 0 {
-		previousTaskNames = append(previousTaskNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
-	}
-
-	for _, task := range man.Tasks {
-		job := p.taskToJob(task, man)
-
-		if task.GetParallelGroup().IsSet() {
-			// parallel group is set
-			if currentParallelGroup == "" || currentParallelGroup == task.GetParallelGroup() {
-				currentParallelGroup = task.GetParallelGroup()
-				parallelTasks = append(parallelTasks, job.Name)
-			} else {
-				// new parallel group name, right after other parallel group
-				currentParallelGroup = task.GetParallelGroup()
-				previousTaskNames = parallelTasks
-				parallelTasks = []string{job.Name}
-			}
-			addPassedJobsToGets(job, previousTaskNames)
-		} else {
-			// parallel group is not set
-			currentParallelGroup = ""
-			if len(parallelTasks) > 0 {
-				previousTaskNames = parallelTasks
-				parallelTasks = []string{}
-			}
-			addPassedJobsToGets(job, previousTaskNames)
-			previousTaskNames = []string{job.Name}
+	for i, task := range man.Tasks {
+		for _, job := range p.taskToJobs(task, man) {
+			addPassedJobsToGets(job, p.previousTaskNames(i, man.Tasks))
+			cfg.Jobs = append(cfg.Jobs, *job)
 		}
-
-		configureTriggerOnGets(job, task, man.FeatureToggles.Versioned())
-
-		cfg.Jobs = append(cfg.Jobs, *job)
 	}
 
 	return
@@ -336,12 +348,14 @@ func addTimeout(job *atc.JobConfig, timeout string) {
 }
 
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
-	inParallel := *job.Plan[0].InParallel
-	for i, get := range inParallel.Steps {
-		if get.Name() == gitName ||
-			get.Name() == versionName ||
-			get.Name() == cronName {
-			inParallel.Steps[i].Passed = passedJobs
+	if len(passedJobs) > 0 {
+		inParallel := *job.Plan[0].InParallel
+		for i, get := range inParallel.Steps {
+			if get.Name() == gitName ||
+				get.Name() == versionName ||
+				get.Name() == cronName {
+				inParallel.Steps[i].Passed = passedJobs
+			}
 		}
 	}
 }

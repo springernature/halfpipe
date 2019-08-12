@@ -40,7 +40,6 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 			"USE_BUILD_VERSION": "true",
 		},
 		RestoreArtifacts: true,
-		Parallel:         "true",
 	}
 
 	actual := ConvertDeployMLZipToRunTask(deployMl, man)
@@ -81,7 +80,6 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 			"USE_BUILD_VERSION":    "false",
 		},
 		RestoreArtifacts: false,
-		Parallel:         "true",
 	}
 
 	actual := ConvertDeployMLModulesToRunTask(deployMl, man)

@@ -124,6 +124,12 @@ tasks:
   targets:
   - target1
   - target2
+- type: parallel
+  tasks:
+  - type: run
+    name: pr1
+  - type: run
+    name: pr2
 `)
 
 	expected := Manifest{
@@ -255,6 +261,12 @@ tasks:
 				AppVersion:       "app-version",
 				Targets:          []string{"target1", "target2"},
 				UseBuildVersion:  false,
+			},
+			Parallel{
+				Tasks: TaskList{
+					Run{Name: "pr1"},
+					Run{Name: "pr2"},
+				},
 			},
 		},
 	}

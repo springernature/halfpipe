@@ -23,6 +23,7 @@ type taskLinter struct {
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error)
+	lintParallel                    func(parallelTask manifest.Parallel) (errs []error, warnings []error)
 	os                              string
 }
 
@@ -38,6 +39,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintDeployMLZipTask:             tasks.LintDeployMLZipTask,
 		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
 		lintArtifacts:                   tasks.LintArtifacts,
+		lintParallel:                    tasks.LintParallelTask,
 		os:                              os,
 	}
 }
@@ -74,6 +76,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 
 		prefixErrors := prefixErrorsWithIndex(taskID)
 
+		lintTimeout := true
+
 		var errs []error
 		var warnings []error
 		switch task := t.(type) {
@@ -109,6 +113,12 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		case manifest.DeployMLModules:
 			errs, warnings = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
+		case manifest.Parallel:
+			errs, warnings = linter.lintParallel(task)
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, false)
+			errs = append(errs, subErrors...)
+			warnings = append(warnings, subWarnings...)
+			lintTimeout = false
 		default:
 			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}
@@ -118,7 +128,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 			errs = append(errs, artifactErr...)
 		}
 
-		if t.GetTimeout() != "" {
+		if lintTimeout && t.GetTimeout() != "" {
 			_, err := time.ParseDuration(t.GetTimeout())
 			if err != nil {
 				errs = append(errs, errors.NewInvalidField("timeout", err.Error()))
