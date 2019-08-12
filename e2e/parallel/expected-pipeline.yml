@@ -27,9 +27,11 @@ jobs:
         trigger: true
         params:
           depth: 1
+    timeout: 1h
   - put: version
     params:
       bump: minor
+    timeout: 1h
     attempts: 2
   - task: halfpipe update
     config:
@@ -55,6 +57,7 @@ jobs:
       inputs:
       - name: git
       - name: version
+    timeout: 1h
     attempts: 2
 - name: test parallel 1
   serial: true

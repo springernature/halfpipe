@@ -87,9 +87,11 @@ jobs:
       steps:
       - get: git
         trigger: true
+    timeout: 1h
   - put: version
     params:
       bump: minor
+    timeout: 1h
     attempts: 2
   - task: halfpipe update
     config:
@@ -115,6 +117,7 @@ jobs:
       inputs:
       - name: git
       - name: version
+    timeout: 1h
     attempts: 2
 - name: Test
   serial: true

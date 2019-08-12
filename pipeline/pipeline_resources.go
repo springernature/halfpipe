@@ -231,7 +231,7 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
-func (p pipeline) updateJobConfig(manifest manifest.Manifest) atc.JobConfig {
+func (p pipeline) updateJobConfig(manifest manifest.Manifest) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   updateJobName,
 		Serial: true,
@@ -246,7 +246,7 @@ func (p pipeline) updateJobConfig(manifest manifest.Manifest) atc.JobConfig {
 
 	job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
 
-	return job
+	return &job
 }
 
 func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {

@@ -210,23 +210,6 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	return
 }
 
-func (p pipeline) updateJob(man manifest.Manifest) (job atc.JobConfig) {
-	job = p.updateJobConfig(man)
-	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
-		failurePlan := slackOnFailurePlan(man.SlackChannel)
-		job.Failure = &failurePlan
-	}
-
-	job.Plan = append(p.initialPlan(man, false, nil), job.Plan...)
-	job.Plan = inParallelGets(&job)
-
-	inParallel := *job.Plan[0].InParallel
-	for i := range inParallel.Steps {
-		inParallel.Steps[i].Trigger = true
-	}
-	return
-}
-
 func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobConfig {
 	var job *atc.JobConfig
 
@@ -256,8 +239,8 @@ func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobC
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
 		job = p.runJob(runTask, man, false)
 	case manifest.Update:
-		updateJob := p.updateJob(man)
-		return &updateJob
+		initialPlan = p.initialPlan(man, false, task)
+		job = p.updateJobConfig(man)
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
