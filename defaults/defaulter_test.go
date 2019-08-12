@@ -47,6 +47,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	task1 := manifest.DeployCF{}
 	task2 := manifest.DeployCF{
+		Name:     "deploy to org space",
 		Org:      "org",
 		Space:    "space",
 		Username: "user",
@@ -57,6 +58,7 @@ func TestCFDeployDefaults(t *testing.T) {
 	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task1, task2}}
 
 	expectedTask1 := manifest.DeployCF{
+		Name:     "deploy-cf",
 		Org:      "ee",
 		Username: manifestDefaults.CfUsername,
 		Password: manifestDefaults.CfPassword,
@@ -86,6 +88,7 @@ func TestCFDeployDefaultsForSNPaaS(t *testing.T) {
 	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task}}
 
 	expectedTask := manifest.DeployCF{
+		Name:     "deploy-cf",
 		API:      "a",
 		Org:      manifestDefaults.CfOrgSnPaas,
 		Username: manifestDefaults.CfUsernameSnPaas,
@@ -156,6 +159,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 
 	man := manifest.Manifest{Team: "ee", Tasks: []manifest.Task{task}}
 	expectedTask := manifest.DeployCF{
+		Name:     "deploy-cf",
 		Org:      "org",
 		Space:    "space",
 		Username: "user",
@@ -163,6 +167,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 		Manifest: "man.yml",
 		PrePromote: []manifest.Task{
 			manifest.Run{
+				Name:   "run blah",
 				Script: "./blah",
 				Docker: manifest.Docker{
 					Image:    config.DockerRegistry + "runImage",
@@ -178,6 +183,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 				Timeout:                DefaultValues.Timeout,
 			},
 			manifest.DockerPush{
+				Name:     "docker-push",
 				Image:    config.DockerRegistry + "runImage",
 				Username: DefaultValues.DockerUsername,
 				Password: DefaultValues.DockerPassword,
@@ -213,6 +219,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 
 	expectedTasks := manifest.TaskList{
 		manifest.DockerPush{
+			Name:     "docker-push",
 			Username: DefaultValues.DockerUsername,
 			Password: DefaultValues.DockerPassword,
 			Image:    imageInHalfpipeRegistry,
@@ -225,6 +232,7 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		},
 		manifest.DockerPush{
+			Name:  "docker-push (1)",
 			Image: imageInAnotherRegistry,
 			Vars: map[string]string{
 				"ARTIFACTORY_USERNAME": "((artifactory.username))",
@@ -421,5 +429,50 @@ func TestSetsTimeout(t *testing.T) {
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[5].GetTimeout())
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[6].GetTimeout())
 	assert.Equal(t, DefaultValues.Timeout, updated.Tasks[7].GetTimeout())
+}
 
+func TestSetsNames(t *testing.T) {
+	man := manifest.Manifest{
+		Repo: manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
+		Tasks: []manifest.Task{
+			manifest.Run{Script: "asd.sh"},
+			manifest.Run{Script: "asd.sh"},
+			manifest.Run{Name: "test", Script: "asd.sh"},
+			manifest.Run{Name: "test", Script: "fgh.sh"},
+			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
+			manifest.DeployCF{API: "https://api.foo.bar", Org: "ee", Space: "dev"},
+			manifest.DeployCF{API: "((cloudfoundry.api-dev))", Org: "((cloudfoundry.org-dev))", Space: "((cloudfoundry.space-dev))"},
+			manifest.DockerPush{Image: "something/abc"},
+			manifest.DockerPush{Image: "registry.io/parth/yo"},
+			manifest.DockerPush{Image: "registry.io/parth/yo:stable"},
+			manifest.DeployCF{Name: "deploy to dev"},
+			manifest.DeployCF{Name: "deploy to dev"},
+			manifest.DockerPush{Image: "a/b", Name: "push to docker hub"},
+			manifest.DockerPush{Image: "c/d", Name: "push to docker hub"},
+		},
+	}
+
+	updated := DefaultValues.Update(man)
+
+	expectedJobNames := []string{
+		"run asd.sh",
+		"run asd.sh (1)",
+		"test",
+		"test (1)",
+		"deploy-cf",
+		"deploy-cf (1)",
+		"deploy-cf (2)",
+		"docker-push",
+		"docker-push (1)",
+		"docker-push (2)",
+		"deploy to dev",
+		"deploy to dev (1)",
+		"push to docker hub",
+		"push to docker hub (1)",
+	}
+
+	for i, wantedName := range expectedJobNames {
+		updatedName := updated.Tasks[i].GetName()
+		assert.Equal(t, wantedName, updatedName)
+	}
 }

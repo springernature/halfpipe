@@ -56,14 +56,6 @@ const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
 const updateTaskAttempts = 2
 
-func (p pipeline) addSlackResourceTypeAndResource(cfg *atc.Config) {
-	slackResourceType := p.slackResourceType()
-	cfg.ResourceTypes = append(cfg.ResourceTypes, slackResourceType)
-
-	slackResource := p.slackResource()
-	cfg.Resources = append(cfg.Resources, slackResource)
-}
-
 func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	// This function is used in pipeline.artifactResource for some reason to lowercase
 	// and remove chars that are not part of the regex in the folder in the config..
@@ -124,7 +116,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	}
 }
 
-func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
+func (p pipeline) initialPlan(man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
 	gitClone := atc.PlanConfig{Get: gitName}
 	if man.Repo.Shallow {
 		gitClone.Params = map[string]interface{}{
@@ -151,43 +143,163 @@ func (p pipeline) initialPlan(cfg *atc.Config, man manifest.Manifest, includeVer
 	return initialPlan
 }
 
-func (p pipeline) addCfResourceType(cfg *atc.Config) {
-	resTypeName := "cf-resource"
-	if _, exists := cfg.ResourceTypes.Lookup(resTypeName); !exists {
-		cfg.ResourceTypes = append(cfg.ResourceTypes, halfpipeCfDeployResourceType(resTypeName))
+func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
+	for _, task := range tasks {
+		switch task := task.(type) {
+		case manifest.DockerPush:
+			resourceConfigs = append(resourceConfigs, p.dockerPushResource(task))
+		}
 	}
+
+	return
 }
 
-func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
-	cfg.Resources = append(cfg.Resources, p.gitResource(man.Repo))
-
-	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
-		p.addSlackResourceTypeAndResource(&cfg)
+func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+	for _, task := range tasks {
+		switch task := task.(type) {
+		case manifest.DeployCF:
+			resourceName := deployCFResourceName(task)
+			if _, found := resourceConfigs.Lookup(resourceName); !found {
+				resourceConfigs = append(resourceConfigs, p.deployCFResource(task, resourceName))
+			}
+		}
 	}
 
-	p.addArtifactResource(&cfg, man)
+	if len(resourceConfigs) > 0 {
+		resourceType = append(resourceType, halfpipeCfDeployResourceType())
+	}
+
+	return
+}
+
+func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+
+	resourceConfigs = append(resourceConfigs, p.gitResource(man.Repo))
+
+	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
+		resourceTypes = append(resourceTypes, p.slackResourceType())
+		resourceConfigs = append(resourceConfigs, p.slackResource())
+	}
+
+	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {
+		resourceTypes = append(resourceTypes, p.gcpResourceType())
+
+		if man.Tasks.SavesArtifacts() {
+			resourceConfigs = append(resourceConfigs, p.artifactResource(man.Team, man.Pipeline, man.ArtifactConfig))
+		}
+		if man.Tasks.SavesArtifactsOnFailure() {
+			resourceConfigs = append(resourceConfigs, p.artifactResourceOnFailure(man.Team, man.Pipeline, man.ArtifactConfig))
+		}
+	}
 
 	if man.CronTrigger != "" {
-		p.addCronResource(&cfg, man)
+		resourceTypes = append(resourceTypes, cronResourceType())
+		resourceConfigs = append(resourceConfigs, p.cronResource(man.CronTrigger))
 	}
 
 	if man.FeatureToggles.Versioned() {
-		cfg.Resources = append(cfg.Resources, p.versionResource(man))
-		job := p.updateJob(man)
-		if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
-			failurePlan := slackOnFailurePlan(man.SlackChannel)
-			job.Failure = &failurePlan
+		resourceConfigs = append(resourceConfigs, p.versionResource(man))
+	}
+
+	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
+
+	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks)
+	resourceTypes = append(resourceTypes, cfResourceTypes...)
+	resourceConfigs = append(resourceConfigs, cfResources...)
+
+	return
+}
+
+func (p pipeline) updateJob(man manifest.Manifest) (job atc.JobConfig) {
+	job = p.updateJobConfig(man)
+	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
+		failurePlan := slackOnFailurePlan(man.SlackChannel)
+		job.Failure = &failurePlan
+	}
+
+	job.Plan = append(p.initialPlan(man, false, nil), job.Plan...)
+	job.Plan = inParallelGets(&job)
+
+	inParallel := *job.Plan[0].InParallel
+	for i := range inParallel.Steps {
+		inParallel.Steps[i].Trigger = true
+	}
+	return
+}
+
+func (p pipeline) taskToJob(task manifest.Task, man manifest.Manifest) *atc.JobConfig {
+	var job *atc.JobConfig
+
+	initialPlan := p.initialPlan(man, man.FeatureToggles.Versioned(), task)
+
+	switch task := task.(type) {
+	case manifest.Run:
+		job = p.runJob(task, man, false)
+
+	case manifest.DockerCompose:
+		job = p.dockerComposeJob(task, man)
+
+	case manifest.DeployCF:
+		job = p.deployCFJob(task, man)
+
+	case manifest.DockerPush:
+		job = p.dockerPushJob(task, man)
+
+	case manifest.ConsumerIntegrationTest:
+		job = p.consumerIntegrationTestJob(task, man)
+
+	case manifest.DeployMLZip:
+		runTask := ConvertDeployMLZipToRunTask(task, man)
+		job = p.runJob(runTask, man, false)
+
+	case manifest.DeployMLModules:
+		runTask := ConvertDeployMLModulesToRunTask(task, man)
+		job = p.runJob(runTask, man, false)
+	}
+
+	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
+		sequence := atc.PlanSequence{}
+
+		if task.SavesArtifactsOnFailure() {
+			sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
+		}
+		if man.NotifiesOnFailure() {
+			sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
 		}
 
-		job.Plan = append(p.initialPlan(&cfg, man, false, nil), job.Plan...)
-		job.Plan = inParallelGets(&job)
-
-		inParallel := *job.Plan[0].InParallel
-		for i := range inParallel.Steps {
-			inParallel.Steps[i].Trigger = true
+		job.Failure = &atc.PlanConfig{
+			InParallel: &atc.InParallelConfig{
+				Steps: sequence,
+			},
 		}
+	}
 
-		cfg.Jobs = append(cfg.Jobs, job)
+	if task.NotifiesOnSuccess() {
+		sequence := atc.PlanSequence{
+			slackOnSuccessPlan(man.SlackChannel),
+		}
+		job.Success = &atc.PlanConfig{
+			InParallel: &atc.InParallelConfig{
+				Steps: sequence,
+			},
+		}
+	}
+
+	job.Plan = append(initialPlan, job.Plan...)
+	job.Plan = inParallelGets(job)
+
+	addTimeout(job, task.GetTimeout())
+
+	return job
+}
+
+func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+	resourceTypes, resourceConfigs := p.resourceConfigs(man)
+	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
+	cfg.Resources = append(cfg.Resources, resourceConfigs...)
+
+	if man.FeatureToggles.Versioned() {
+		cfg.Jobs = append(cfg.Jobs, p.updateJob(man))
 	}
 
 	var parallelTasks []string
@@ -197,88 +309,17 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		previousTaskNames = append(previousTaskNames, cfg.Jobs[len(cfg.Jobs)-1].Name)
 	}
 
-	for _, t := range man.Tasks {
-		initialPlan := p.initialPlan(&cfg, man, man.FeatureToggles.Versioned(), t)
+	for _, task := range man.Tasks {
+		job := p.taskToJob(task, man)
 
-		var job *atc.JobConfig
-		switch task := t.(type) {
-		case manifest.Run:
-			task.Name = uniqueName(&cfg, task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)))
-			job = p.runJob(task, man, false)
-
-		case manifest.DockerCompose:
-			task.Name = uniqueName(&cfg, task.Name, "docker-compose")
-			job = p.dockerComposeJob(task, man)
-
-		case manifest.DeployCF:
-			p.addCfResourceType(&cfg)
-			resourceName := deployCFResourceName(task)
-			task.Name = uniqueName(&cfg, task.Name, "deploy-cf")
-			if _, exists := cfg.Resources.Lookup(resourceName); !exists {
-				cfg.Resources = append(cfg.Resources, p.deployCFResource(task, resourceName))
-			}
-			job = p.deployCFJob(task, resourceName, man, &cfg)
-
-		case manifest.DockerPush:
-			resourceName := dockerPushResourceName(task)
-			task.Name = uniqueName(&cfg, task.Name, "docker-push")
-			cfg.Resources = append(cfg.Resources, p.dockerPushResource(task, resourceName))
-			job = p.dockerPushJob(task, resourceName, man)
-
-		case manifest.ConsumerIntegrationTest:
-			task.Name = uniqueName(&cfg, task.Name, "consumer-integration-test")
-			job = p.consumerIntegrationTestJob(task, man)
-
-		case manifest.DeployMLZip:
-			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-zip")
-			runTask := ConvertDeployMLZipToRunTask(task, man)
-			job = p.runJob(runTask, man, false)
-
-		case manifest.DeployMLModules:
-			task.Name = uniqueName(&cfg, task.Name, "deploy-ml-modules")
-			runTask := ConvertDeployMLModulesToRunTask(task, man)
-			job = p.runJob(runTask, man, false)
-		}
-
-		if t.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
-			sequence := atc.PlanSequence{}
-
-			if t.SavesArtifactsOnFailure() {
-				sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
-			}
-			if man.NotifiesOnFailure() {
-				sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
-			}
-
-			job.Failure = &atc.PlanConfig{
-				InParallel: &atc.InParallelConfig{
-					Steps: sequence,
-				},
-			}
-		}
-
-		if t.NotifiesOnSuccess() {
-			sequence := atc.PlanSequence{
-				slackOnSuccessPlan(man.SlackChannel),
-			}
-			job.Success = &atc.PlanConfig{
-				InParallel: &atc.InParallelConfig{
-					Steps: sequence,
-				},
-			}
-		}
-
-		job.Plan = append(initialPlan, job.Plan...)
-		job.Plan = inParallelGets(job)
-
-		if t.GetParallelGroup().IsSet() {
+		if task.GetParallelGroup().IsSet() {
 			// parallel group is set
-			if currentParallelGroup == "" || currentParallelGroup == t.GetParallelGroup() {
-				currentParallelGroup = t.GetParallelGroup()
+			if currentParallelGroup == "" || currentParallelGroup == task.GetParallelGroup() {
+				currentParallelGroup = task.GetParallelGroup()
 				parallelTasks = append(parallelTasks, job.Name)
 			} else {
 				// new parallel group name, right after other parallel group
-				currentParallelGroup = t.GetParallelGroup()
+				currentParallelGroup = task.GetParallelGroup()
 				previousTaskNames = parallelTasks
 				parallelTasks = []string{job.Name}
 			}
@@ -294,8 +335,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 			previousTaskNames = []string{job.Name}
 		}
 
-		configureTriggerOnGets(job, t.IsManualTrigger(), man.FeatureToggles.Versioned())
-		addTimeout(job, t.GetTimeout())
+		configureTriggerOnGets(job, task.IsManualTrigger(), man.FeatureToggles.Versioned())
 
 		cfg.Jobs = append(cfg.Jobs, *job)
 	}
@@ -416,7 +456,8 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man manifest.Manifest, cfg *atc.Config) *atc.JobConfig {
+func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *atc.JobConfig {
+	resourceName := deployCFResourceName(task)
 	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
 
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
@@ -491,7 +532,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppTask.Name = uniqueName(cfg, ppTask.Name, fmt.Sprintf("run %s", strings.Replace(ppTask.Script, "./", "", 1)))
 			ppJob = p.runJob(ppTask, man, false)
 			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
 			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
@@ -501,13 +541,11 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, resourceName string, man m
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppTask.Name = uniqueName(cfg, ppTask.Name, "docker-compose")
 			ppJob = p.dockerComposeJob(ppTask, man)
 			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
 			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
 
 		case manifest.ConsumerIntegrationTest:
-			ppTask.Name = uniqueName(cfg, ppTask.Name, "consumer-integration-test")
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
@@ -669,7 +707,8 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 	return &job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) *atc.JobConfig {
+	resourceName := dockerPushResourceName(task)
 	if task.RestoreArtifacts {
 		return dockerPushJobWithRestoreArtifacts(task, resourceName, man)
 	}
@@ -760,40 +799,8 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 `, composeCommand)
 }
 
-func (p pipeline) addArtifactResource(cfg *atc.Config, man manifest.Manifest) {
-	var savesArtifacts bool
-	var savesArtifactsOnFailure bool
-	var restoresArtifacts bool
-
-	for _, task := range man.Tasks {
-		if task.SavesArtifacts() {
-			savesArtifacts = true
-		}
-		if task.SavesArtifactsOnFailure() {
-			savesArtifactsOnFailure = true
-		}
-		if task.ReadsFromArtifacts() {
-			restoresArtifacts = true
-		}
-	}
-
-	if savesArtifacts || restoresArtifacts || savesArtifactsOnFailure {
-		cfg.ResourceTypes = append(cfg.ResourceTypes, p.gcpResourceType())
-	}
-
-	if savesArtifacts || restoresArtifacts {
-		cfg.Resources = append(cfg.Resources, p.artifactResource(man.Team, man.Pipeline, man.ArtifactConfig))
-	}
-
-	if savesArtifactsOnFailure {
-		cfg.Resources = append(cfg.Resources, p.artifactResourceOnFailure(man.Team, man.Pipeline, man.ArtifactConfig))
-	}
-}
-
 func (p pipeline) addCronResource(cfg *atc.Config, man manifest.Manifest) {
 	if man.CronTrigger != "" {
-		cfg.ResourceTypes = append(cfg.ResourceTypes, cronResourceType())
-		cfg.Resources = append(cfg.Resources, p.cronResource(man.CronTrigger))
 	}
 }
 

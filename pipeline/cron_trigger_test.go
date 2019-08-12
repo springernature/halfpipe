@@ -26,7 +26,7 @@ func TestCronTriggerNotSet(t *testing.T) {
 	man := manifest.Manifest{
 		Repo: manifest.Repo{URI: gitDir},
 		Tasks: []manifest.Task{
-			manifest.Run{Script: "run.sh"},
+			manifest.Run{Name: "blah", Script: "run.sh"},
 		},
 	}
 	config := testPipeline().Render(man)
@@ -41,7 +41,7 @@ func TestCronTriggerNotSet(t *testing.T) {
 	assert.Len(t, plan, 2)
 	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Name())
 	assert.True(t, (plan[0].InParallel.Steps)[0].Trigger)
-	assert.Equal(t, "run run.sh", plan[1].Task)
+	assert.Equal(t, "blah", plan[1].Task)
 }
 
 func TestCronTriggerSetAddsResource(t *testing.T) {

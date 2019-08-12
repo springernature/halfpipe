@@ -23,6 +23,10 @@ type Run struct {
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r Run) GetName() string {
+	return r.Name
+}
+
 func (r Run) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

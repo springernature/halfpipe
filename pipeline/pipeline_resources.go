@@ -146,9 +146,9 @@ func cronResourceType() atc.ResourceType {
 	}
 }
 
-func halfpipeCfDeployResourceType(name string) atc.ResourceType {
+func halfpipeCfDeployResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: name,
+		Name: "cf-resource",
 		Type: "registry-image",
 		Source: atc.Source{
 			"repository": config.DockerRegistry + "cf-resource",
@@ -176,9 +176,9 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 	}
 }
 
-func (p pipeline) dockerPushResource(docker manifest.DockerPush, resourceName string) atc.ResourceConfig {
+func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: resourceName,
+		Name: dockerPushResourceName(docker),
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   docker.Username,
@@ -231,7 +231,7 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
-func (p pipeline) updateJob(manifest manifest.Manifest) atc.JobConfig {
+func (p pipeline) updateJobConfig(manifest manifest.Manifest) atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   updateJobName,
 		Serial: true,

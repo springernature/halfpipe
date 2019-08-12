@@ -20,6 +20,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
 		manifest.DockerPush{
+			Name:     "docker-push",
 			Username: username,
 			Password: password,
 			Image:    repo,
@@ -79,6 +80,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
 		manifest.DockerPush{
+			Name:           "docker-push",
 			Username:       username,
 			Password:       password,
 			Image:          repo,
@@ -135,6 +137,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	repo := "halfpipe/halfpipe-cli"
 	man.Tasks = []manifest.Task{
 		manifest.DockerPush{
+			Name:           "docker-push",
 			Username:       username,
 			Password:       password,
 			Image:          repo,
@@ -196,6 +199,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	password := "secret"
 	repo := "halfpipe/halfpipe-cli"
 	dockerPush := manifest.DockerPush{
+		Name:             "docker-push",
 		Username:         username,
 		Password:         password,
 		Image:            repo,

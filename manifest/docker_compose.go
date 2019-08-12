@@ -17,6 +17,10 @@ type DockerCompose struct {
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r DockerCompose) GetName() string {
+	return r.Name
+}
+
 func (r DockerCompose) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

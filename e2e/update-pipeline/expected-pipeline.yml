@@ -30,6 +30,13 @@ resources:
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
     key: engineering-enablement-test
+- name: halfpipe-fly
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  check_every: 24h
 - name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
@@ -56,13 +63,6 @@ resources:
     password: ((cloudfoundry.password-snpaas))
     space: qa
     username: ((cloudfoundry.username-snpaas))
-  check_every: 24h
-- name: halfpipe-fly
-  type: docker-image
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe-fly
-    username: rob
   check_every: 24h
 resource_types:
 - name: gcp-resource

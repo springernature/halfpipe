@@ -25,7 +25,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 
 	service := "asdf"
 	dockerComposeTask := manifest.DockerCompose{
-		Name:    "",
+		Name:    "docker-compose",
 		Service: service,
 		Vars: manifest.Vars{
 			"VAR1": "Value1",
@@ -81,7 +81,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	p := testPipeline()
 
 	dockerComposeTask := manifest.DockerCompose{
-		Name:    "",
+		Name:    "docker-compose",
 		Service: "app",
 		Command: "/usr/bin/a-command",
 		Vars: manifest.Vars{
@@ -144,7 +144,7 @@ func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
-				Name:             "",
+				Name:             "docker-compose",
 				RestoreArtifacts: true,
 			},
 		},

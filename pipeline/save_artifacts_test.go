@@ -264,6 +264,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	man.Repo.URI = gitURI
 	man.Repo.BasePath = "apps/subapp1"
 	man.Tasks = []manifest.Task{
+		manifest.Run{SaveArtifacts: []string{"path/to/artifact"}},
 		manifest.DeployCF{
 			DeployArtifact: "build/lib/artifact.jar",
 		},
@@ -271,8 +272,8 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 
-	assert.Len(t, renderedPipeline.Jobs, 1)
-	assert.Len(t, renderedPipeline.Jobs[0].Plan, 5)
+	assert.Len(t, renderedPipeline.Jobs, 2)
+	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
 
 	resourceType, _ := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.NotNil(t, resourceType)
@@ -493,6 +494,9 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 				BasePath: "yeah/yeah",
 			},
 			Tasks: []manifest.Task{
+				manifest.Run{
+					SaveArtifacts: []string{"path/to/artifact"},
+				},
 				manifest.Run{
 					RestoreArtifacts: true,
 					Script:           "\\make ; ls -al",

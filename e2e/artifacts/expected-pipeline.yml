@@ -23,6 +23,13 @@ resources:
     folder: test/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
+- name: halfpipe-fly
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  check_every: 24h
 - name: CF live pe staging
   type: cf-resource
   source:
@@ -31,13 +38,6 @@ resources:
     password: very-secret
     space: staging
     username: michiel
-  check_every: 24h
-- name: halfpipe-fly
-  type: docker-image
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe-fly
-    username: rob
   check_every: 24h
 resource_types:
 - name: gcp-resource

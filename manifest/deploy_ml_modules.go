@@ -15,6 +15,10 @@ type DeployMLModules struct {
 	UseBuildVersion  bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLModules) GetName() string {
+	return r.Name
+}
+
 func (r DeployMLModules) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

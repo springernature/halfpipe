@@ -15,6 +15,10 @@ type DeployMLZip struct {
 	UseBuildVersion bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLZip) GetName() string {
+	return r.Name
+}
+
 func (r DeployMLZip) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

@@ -17,6 +17,10 @@ type DockerPush struct {
 	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 }
 
+func (r DockerPush) GetName() string {
+	return r.Name
+}
+
 func (r DockerPush) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

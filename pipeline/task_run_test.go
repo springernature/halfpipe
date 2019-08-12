@@ -15,6 +15,7 @@ func TestRenderRunTask(t *testing.T) {
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	runTask := manifest.Run{
 		Retries: 2,
+		Name:    "run yolo.sh",
 		Script:  "./yolo.sh",
 		Docker: manifest.Docker{
 			Image:    "imagename:TAG",
@@ -71,6 +72,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	runTask := manifest.Run{
+		Name:   "run yolo.sh",
 		Script: "./yolo.sh",
 		Docker: manifest.Docker{
 			Image:    "imagename:TAG",
@@ -132,6 +134,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 	man.Repo.BasePath = basePath
 
 	runTask := manifest.Run{
+		Name:   "run yolo.sh",
 		Script: "./yolo.sh",
 		Docker: manifest.Docker{
 			Image: "imagename:TAG",

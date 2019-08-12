@@ -45,32 +45,6 @@ func dockerPushResourceName(task manifest.DockerPush) string {
 	return parts[len(parts)-1]
 }
 
-func uniqueName(cfg *atc.Config, name string, defaultName string) string {
-	if name == "" {
-		name = defaultName
-	}
-	return getUniqueName(name, cfg, 0)
-}
-
-func getUniqueName(name string, config *atc.Config, counter int) string {
-	candidate := strings.Replace(name, "/", "_", -1) //avoid bug in atc web interface
-	if counter > 0 {
-		candidate = fmt.Sprintf("%s (%v)", name, counter)
-	}
-
-	for _, job := range config.Jobs {
-		if job.Name == candidate {
-			return getUniqueName(name, config, counter+1)
-		}
-	}
-	for _, res := range config.Resources {
-		if res.Name == candidate {
-			return getUniqueName(name, config, counter+1)
-		}
-	}
-	return candidate
-}
-
 // convert string to uppercase and replace non A-Z 0-9 with underscores
 func toEnvironmentKey(s string) string {
 	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")

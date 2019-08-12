@@ -19,6 +19,24 @@ func (tl TaskList) NotifiesOnSuccess() bool {
 	return false
 }
 
+func (tl TaskList) SavesArtifacts() bool {
+	for _, task := range tl {
+		if task.SavesArtifacts() {
+			return true
+		}
+	}
+	return false
+}
+
+func (tl TaskList) SavesArtifactsOnFailure() bool {
+	for _, task := range tl {
+		if task.SavesArtifactsOnFailure() {
+			return true
+		}
+	}
+	return false
+}
+
 type ParallelGroup string
 
 func (t ParallelGroup) IsSet() bool {
@@ -34,6 +52,7 @@ type Task interface {
 	NotifiesOnSuccess() bool
 	GetTimeout() string
 	GetParallelGroup() ParallelGroup
+	GetName() string
 }
 
 type Manifest struct {

@@ -24,6 +24,7 @@ func TestRendersCfDeploy(t *testing.T) {
 	devTestDomain := "test.dev.com"
 
 	taskDeployDev := manifest.DeployCF{
+		Name:       "Deploy to dev",
 		API:        devAPI,
 		Space:      "dev",
 		Org:        "springer",
@@ -39,6 +40,7 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	timeout := "5m"
 	taskDeployLive := manifest.DeployCF{
+		Name:       "Deploy to live",
 		API:        liveAPI,
 		Space:      "prod",
 		Org:        "springer",
@@ -83,7 +85,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		"VAR2": "value2",
 	}
 	expectedDevJob := atc.JobConfig{
-		Name:   "deploy-cf",
+		Name:   taskDeployDev.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true}}}},
@@ -146,12 +148,12 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	liveManifest := path.Join(gitDir, "manifest-live.yml")
 	expectedLiveJob := atc.JobConfig{
-		Name:   "deploy-cf (1)",
+		Name:   taskDeployLive.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{
-					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{"deploy-cf"}}},
+					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Passed: []string{taskDeployDev.Name}}},
 				},
 				Timeout: timeout,
 			},

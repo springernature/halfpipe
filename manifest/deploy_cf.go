@@ -22,6 +22,10 @@ type DeployCF struct {
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 }
 
+func (r DeployCF) GetName() string {
+	return r.Name
+}
+
 func (r DeployCF) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }

@@ -16,6 +16,10 @@ type ConsumerIntegrationTest struct {
 	Timeout              string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r ConsumerIntegrationTest) GetName() string {
+	return r.Name
+}
+
 func (r ConsumerIntegrationTest) GetParallelGroup() ParallelGroup {
 	return r.Parallel
 }
