@@ -484,7 +484,7 @@ func TestSetsNames(t *testing.T) {
 		"push to docker hub (1)",
 	}
 
-	actualJobNames := []string{}
+	var actualJobNames []string
 	for _, job := range updated.Tasks {
 		switch job := job.(type) {
 		case manifest.Parallel:

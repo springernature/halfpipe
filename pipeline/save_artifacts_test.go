@@ -450,7 +450,7 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	}, config.Jobs[0].Plan[2])
 
 	failureInParallel := config.Jobs[0].Failure.InParallel.Steps
-	assert.Equal(t, saveArtifactOnFailurePlan(team, pipeline), (failureInParallel)[0])
+	assert.Equal(t, saveArtifactOnFailurePlan(), (failureInParallel)[0])
 
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
 	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))

@@ -6,7 +6,6 @@ import (
 	"path"
 	"testing"
 
-	"github.com/onsi/gomega/gbytes"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/stretchr/testify/assert"
@@ -33,10 +32,6 @@ targets:
     api: https://concourse.domain.io`, team)
 
 var homedir = "/home/my-user"
-
-var stdin = gbytes.NewBuffer()
-var stdout = gbytes.NewBuffer()
-var stderr = gbytes.NewBuffer()
 
 var pathResolver = func(path string) (string, error) {
 	return path, nil

@@ -43,7 +43,6 @@ var (
 	ErrGitNotFound        = errors.New("looks like you don't have git installed")
 	ErrNoOriginConfigured = errors.New("looks like you don't have a remote origin configured")
 	ErrNotInRepo          = errors.New("looks like you are not executing halfpipe from within a git repo")
-	ErrBranchIsEmpty      = errors.New("looks like you are not on a branch?! This should never happen :o")
 	ErrNoCommits          = errors.New("looks like you are executing halfpipe in a repo without commits, this is not supported")
 )
 

@@ -54,7 +54,7 @@ func TestCheckReturnsNilWhenCurrentVersionIsUpToDate(t *testing.T) {
 }
 
 func TestPassesOnErrorFromReleaseResolver(t *testing.T) {
-	releaseError := errors.New("Noooes")
+	releaseError := errors.New("noooes")
 
 	syncer := NewSyncer(semver.Version{Major: 1}, releaseResolverDouble(Release{}, releaseError))
 
@@ -83,7 +83,7 @@ func TestUpdateErrorsOutIfTryingToUpdateDevRelease(t *testing.T) {
 }
 
 func TestUpdateErrorsOutIfWeFailToDownload(t *testing.T) {
-	httpError := errors.New("Shiet")
+	httpError := errors.New("shiet")
 	syncer := NewSyncer(semver.Version{Major: 1}, releaseResolverDouble(Release{Version: semver.Version{Major: 2}}, nil))
 
 	syncer.os = "osx"

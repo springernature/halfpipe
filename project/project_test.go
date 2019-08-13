@@ -8,12 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var mockBranchResolver = func(b string, e error) GitBranchResolver {
-	return func() (branch string, err error) {
-		return b, e
-	}
-}
-
 func testProjectResolver() projectResolver {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	pr := NewProjectResolver(fs)

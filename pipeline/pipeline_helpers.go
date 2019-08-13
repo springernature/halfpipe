@@ -60,7 +60,7 @@ func ToString(pipeline atc.Config) (string, error) {
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
-func saveArtifactOnFailurePlan(team, pipeline string) atc.PlanConfig {
+func saveArtifactOnFailurePlan() atc.PlanConfig {
 	return atc.PlanConfig{
 		Put: artifactsOnFailureName,
 		Params: atc.Params{

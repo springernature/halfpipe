@@ -262,7 +262,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		sequence := atc.PlanSequence{}
 
 		if task.SavesArtifactsOnFailure() {
-			sequence = append(sequence, saveArtifactOnFailurePlan(man.Team, man.Pipeline))
+			sequence = append(sequence, saveArtifactOnFailurePlan())
 		}
 		if man.NotifiesOnFailure() {
 			sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
@@ -771,7 +771,7 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	}
 	sort.Strings(envStrings)
 
-	cacheVolumeFlags := []string{}
+	var cacheVolumeFlags []string
 	for _, cacheVolume := range config.DockerComposeCacheDirs {
 		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
 	}

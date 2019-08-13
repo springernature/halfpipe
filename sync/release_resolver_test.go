@@ -27,7 +27,7 @@ func TestReleaseResolverCallsOutToTheCorrectUrl(t *testing.T) {
 }
 
 func TestReleaseResolverReturnsTheErrorFromHttpGetter(t *testing.T) {
-	exptectedError := errors.New("Blurgh")
+	exptectedError := errors.New("blurgh")
 	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
 		err = exptectedError
 		return

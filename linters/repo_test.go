@@ -194,7 +194,7 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnMaster(t *testing.T) {
 }
 
 func TestRepoWhenBranchResolverReturnsError(t *testing.T) {
-	expectedError := errors.New("Meeh")
+	expectedError := errors.New("meeh")
 	man := manifest.Manifest{}
 	man.Repo.URI = "https://github.com/springernature/halfpipe.git"
 	linter := testRepoLinter()
