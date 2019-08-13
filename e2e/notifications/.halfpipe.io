@@ -21,7 +21,6 @@ tasks:
 
 - type: deploy-cf
   name: deploy to staging
-  parallel: true
   api: ((cloudfoundry.api-live))
   org: pe
   space: staging
