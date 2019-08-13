@@ -158,6 +158,8 @@ jobs:
         APP_NAME: test
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
+        MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))
+        MARKLOGIC_USERNAME: ((halfpipe-ml-deploy.username))
         USE_BUILD_VERSION: "true"
       run:
         path: /bin/sh
