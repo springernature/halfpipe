@@ -56,7 +56,10 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(ConsumerIntegrationTest{}),
 		reflect.TypeOf(DeployMLZip{}),
 		reflect.TypeOf(DeployMLModules{}),
-		reflect.TypeOf(ArtifactConfig{}):
+		reflect.TypeOf(ArtifactConfig{}),
+		reflect.TypeOf(Git{}),
+		reflect.TypeOf(Cron{}):
+
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
 			name := v.Type().Field(i).Name
@@ -75,6 +78,11 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 
 	case reflect.TypeOf(TaskList{}):
 		for i, elem := range v.Interface().(TaskList) {
+			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
+			s.validate(elem, realFieldName, secretTag, errs)
+		}
+	case reflect.TypeOf(TriggerList{}):
+		for i, elem := range v.Interface().(TriggerList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs)
 		}

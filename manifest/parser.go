@@ -73,6 +73,37 @@ func (t *TaskList) UnmarshalJSON(b []byte) error {
 		}
 		*t = append(*t, task)
 	}
+
+	return nil
+}
+
+func (t *TriggerList) UnmarshalJSON(b []byte) error {
+	// first get a raw array
+	var rawTrigger []json.RawMessage
+	if err := json.Unmarshal(b, &rawTrigger); err != nil {
+		return err
+	}
+
+	// then just read the type field
+	var objectsWithType []objectWithType
+	if err := json.Unmarshal(b, &objectsWithType); err != nil {
+		return err
+	}
+
+	// should have 2 arrays the same length..
+	if len(rawTrigger) != len(objectsWithType) {
+		return fmt.Errorf("error parsing trigger")
+	}
+
+	// loop through and use the Type field to unmarshal into the correct type of Task
+	for i, typedObject := range objectsWithType {
+		trigger, err := unmarshalTrigger(i, rawTrigger[i], typedObject.Type)
+		if err != nil {
+			return err
+		}
+		*t = append(*t, trigger)
+	}
+
 	return nil
 }
 
@@ -157,6 +188,40 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 	default:
 		err = errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel'", taskIndex, taskType))
+	}
+
+	return
+}
+
+func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType string) (trigger Trigger, err error) {
+
+	unmarshal := func(rawTrigger json.RawMessage, t Trigger, index int) error {
+		decoder := json.NewDecoder(bytes.NewReader(rawTrigger))
+		decoder.DisallowUnknownFields()
+		if jsonErr := decoder.Decode(t); jsonErr != nil {
+			return errors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
+		}
+		return nil
+	}
+
+	// unmarshal into the correct type of Task
+	switch triggerType {
+	case "git":
+		t := Git{}
+		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		trigger = t
+	case "cron":
+		t := Cron{}
+		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		trigger = t
+	default:
+		err = errors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron'", triggerIndex, triggerType))
 	}
 
 	return

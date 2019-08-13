@@ -10,17 +10,19 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/triggers"
 	"path"
 )
 
 type Controller struct {
-	Fs               afero.Afero
-	CurrentDir       string
-	Defaulter        defaults.Defaults
-	Merger           parallel.Merger
-	Linters          []linters.Linter
-	Renderer         pipeline.Renderer
-	HalfpipeFilePath string
+	Fs                afero.Afero
+	CurrentDir        string
+	Defaulter         defaults.Defaults
+	Merger            parallel.Merger
+	TriggerTranslator triggers.Translator
+	Linters           []linters.Linter
+	Renderer          pipeline.Renderer
+	HalfpipeFilePath  string
 }
 
 func (c Controller) getManifest() (man manifest.Manifest, errors []error) {
@@ -56,6 +58,7 @@ func (c Controller) Process() (config atc.Config, results result.LintResults) {
 	if results.HasErrors() {
 		return
 	}
+	man = c.TriggerTranslator.Translate(man)
 
 	config = c.Renderer.Render(man)
 	return

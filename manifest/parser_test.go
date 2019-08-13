@@ -33,6 +33,19 @@ artifact_config:
   bucket: myBucket
   json_key: ((some.jsonKey))
 cron_trigger: "*/10 * * * *"
+triggers:
+- type: git
+  uri: git@github.com:..
+  private_key: private-key
+  watched_paths:
+  - watched/dir1
+  - watched/dir2
+  ignored_paths:
+  - ignored/dir1/**
+  - README.md
+  git_crypt_key: git-crypt-key
+- type: cron
+  trigger: "*/10 * * * *"
 feature_toggles:
 - feature1
 - feature2
@@ -158,6 +171,24 @@ tasks:
 			"feature1",
 			"feature2",
 			"featureXYZ",
+		},
+		Triggers: TriggerList{
+			Git{
+				URI:        "git@github.com:..",
+				PrivateKey: "private-key",
+				WatchedPaths: []string{
+					"watched/dir1",
+					"watched/dir2",
+				},
+				IgnoredPaths: []string{
+					"ignored/dir1/**",
+					"README.md",
+				},
+				GitCryptKey: "git-crypt-key",
+			},
+			Cron{
+				Trigger: "*/10 * * * *",
+			},
 		},
 		Tasks: []Task{
 			Run{

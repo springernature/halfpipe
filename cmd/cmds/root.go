@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/parallel"
+	"github.com/springernature/halfpipe/triggers"
 	"os"
 
 	"code.cloudfoundry.org/cli/util/manifest"
@@ -55,17 +56,18 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		}
 
 		ctrl := halfpipe.Controller{
-			Fs:         fs,
-			CurrentDir: currentDir,
-			Defaulter:  defaults.NewDefaulter(projectData),
-			Merger:     parallel.NewParallelMerger(),
+			Fs:                fs,
+			CurrentDir:        currentDir,
+			Defaulter:         defaults.NewDefaulter(projectData),
+			Merger:            parallel.NewParallelMerger(),
+			TriggerTranslator: triggers.NewTriggersTranslator(),
 			Linters: []linters.Linter{
 				linters.NewTopLevelLinter(),
 				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
 				linters.NewSecretsLinter(man.NewSecretValidator()),
 				linters.NewTasksLinter(fs, runtime.GOOS),
 				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
-				linters.NewTriggerLinter(),
+				linters.NewCronTriggerLinter(),
 				linters.NewFeatureToggleLinter(man.AvailableFeatureToggles),
 			},
 			Renderer:         pipeline.NewPipeline(manifest.ReadAndInterpolateManifest, fs),

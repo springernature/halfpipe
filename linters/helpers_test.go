@@ -46,6 +46,20 @@ func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
 }
 
+func assertFileErrorInErrors(t *testing.T, glob string, errs []error) {
+	t.Helper()
+
+	for _, err := range errs {
+		mf, ok := err.(errors.FileError)
+		if ok {
+			if strings.Contains(mf.Path, glob) {
+				return
+			}
+		}
+	}
+	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", glob, errs))
+}
+
 func assertTooManyAppsError(t *testing.T, name string, err error) {
 	t.Helper()
 

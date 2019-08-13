@@ -49,10 +49,28 @@ func TestRepo(t *testing.T) {
 			GitCryptKey: "((allowed.yo))",
 			Branch:      "((not.allowed))",
 		},
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:        "((not.allowed))",
+				BasePath:   "((not.allowed))",
+				PrivateKey: "((allowed.yo))",
+				WatchedPaths: []string{
+					"ok",
+					"((not.allowed))",
+				},
+				IgnoredPaths: []string{
+					"ok",
+					"okAgain",
+					"((not.allowed))",
+				},
+				GitCryptKey: "((allowed.yo))",
+				Branch:      "((not.allowed))",
+			},
+		},
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 5)
+	assert.Len(t, errors, 10)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.uri"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.basePath"))
 	assert.NotContains(t, errors, manifest.UnsupportedSecretError("repo.private_key"))
@@ -60,6 +78,14 @@ func TestRepo(t *testing.T) {
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.ignored_paths[2]"))
 	assert.NotContains(t, errors, manifest.UnsupportedSecretError("repo.git_crypt_key"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.branch"))
+
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].uri"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].basePath"))
+	assert.NotContains(t, errors, manifest.UnsupportedSecretError("triggers[0].private_key"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].watched_paths[1]"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].ignored_paths[2]"))
+	assert.NotContains(t, errors, manifest.UnsupportedSecretError("triggers[0].git_crypt_key"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].branch"))
 
 	good := manifest.Manifest{
 		Repo: manifest.Repo{
@@ -70,6 +96,17 @@ func TestRepo(t *testing.T) {
 			IgnoredPaths: []string{"d", "e"},
 			GitCryptKey:  "((super.allowed))",
 			Branch:       "master",
+		},
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:          "Kehe",
+				BasePath:     "Kehu,",
+				PrivateKey:   "((super.allowed))",
+				WatchedPaths: []string{"a", "b"},
+				IgnoredPaths: []string{"d", "e"},
+				GitCryptKey:  "((super.allowed))",
+				Branch:       "master",
+			},
 		},
 	}
 
