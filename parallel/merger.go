@@ -11,25 +11,37 @@ func NewParallelMerger() Merger {
 
 func (Merger) MergeParallelTasks(tasks manifest.TaskList) (mergedTasks manifest.TaskList) {
 	tmpParallel := manifest.Parallel{}
-	tmpParallelName := ""
+	previousParallelName := ""
+
 	for _, task := range tasks {
+		if _, isParallelTask := task.(manifest.Parallel); isParallelTask {
+			if len(tmpParallel.Tasks) > 0 {
+				mergedTasks = append(mergedTasks, tmpParallel)
+			}
+			tmpParallel = manifest.Parallel{}
+			previousParallelName = ""
+
+			mergedTasks = append(mergedTasks, task)
+			continue
+		}
 		if task.GetParallelGroup().IsSet() {
 			currentParallelName := string(task.GetParallelGroup())
-			if tmpParallelName != currentParallelName {
+			if previousParallelName != currentParallelName {
 				if len(tmpParallel.Tasks) > 0 {
 					mergedTasks = append(mergedTasks, tmpParallel)
 				}
 				tmpParallel = manifest.Parallel{}
-				tmpParallelName = currentParallelName
+				previousParallelName = currentParallelName
 			}
 
 			tmpParallel.Tasks = append(tmpParallel.Tasks, task)
 		} else {
 			if len(tmpParallel.Tasks) > 0 {
 				mergedTasks = append(mergedTasks, tmpParallel)
-				tmpParallel = manifest.Parallel{}
-				tmpParallelName = ""
 			}
+			tmpParallel = manifest.Parallel{}
+			previousParallelName = ""
+
 			mergedTasks = append(mergedTasks, task)
 		}
 	}

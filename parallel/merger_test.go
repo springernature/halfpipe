@@ -175,3 +175,55 @@ func TestWithNamedParallelGroups(t *testing.T) {
 		assert.Equal(t, expected, NewParallelMerger().MergeParallelTasks(input))
 	})
 }
+
+func TestWithMixedParallelGroups(t *testing.T) {
+	input := manifest.TaskList{
+		manifest.Run{Name: "t1"},
+		manifest.Run{Name: "t2", Parallel: "p1"},
+		manifest.Run{Name: "t3", Parallel: "p1"},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t4", Parallel: "p2"},
+				manifest.Run{Name: "t5", Parallel: "true"},
+			},
+		},
+		manifest.Run{Name: "t6", Parallel: "p3"},
+		manifest.Run{Name: "t7", Parallel: "p4"},
+		manifest.Run{Name: "t8", Parallel: "true"},
+		manifest.Run{Name: "t9", Parallel: "true"},
+	}
+
+	expected := manifest.TaskList{
+		manifest.Run{Name: "t1"},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t2", Parallel: "p1"},
+				manifest.Run{Name: "t3", Parallel: "p1"},
+			},
+		},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t4", Parallel: "p2"},
+				manifest.Run{Name: "t5", Parallel: "true"},
+			},
+		},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t6", Parallel: "p3"},
+			},
+		},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t7", Parallel: "p4"},
+			},
+		},
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: "t8", Parallel: "true"},
+				manifest.Run{Name: "t9", Parallel: "true"},
+			},
+		},
+	}
+
+	assert.Equal(t, expected, NewParallelMerger().MergeParallelTasks(input))
+}
