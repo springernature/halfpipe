@@ -44,26 +44,25 @@ tasks:
     image: alpine:test
   parallel: false
 
-- type: run
-  name: test parallel 5
-  script: ./a
-  docker:
-    image: alpine:test
-  parallel: blah
+- type: parallel
+  tasks:
+  - type: run
+    name: test parallel 5
+    script: ./a
+    docker:
+      image: alpine:test
 
-- type: run
-  name: test parallel 6
-  script: ./a
-  docker:
-    image: alpine:test
-  parallel: blah
+  - type: run
+    name: test parallel 6
+    script: ./a
+    docker:
+      image: alpine:test
 
-- type: run
-  name: test parallel 7
-  script: ./a
-  docker:
-    image: alpine:test
-  parallel: blah
+  - type: run
+    name: test parallel 7
+    script: ./a
+    docker:
+      image: alpine:test
 
 - type: run
   name: one group
