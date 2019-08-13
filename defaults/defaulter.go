@@ -60,17 +60,7 @@ func (d Defaults) uniqueName(name string, defaultName string, previousNames []st
 	return d.getUniqueName(name, previousNames, 0)
 }
 
-func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
-	man.Repo.BasePath = d.Project.BasePath
-
-	if man.Repo.URI == "" {
-		man.Repo.URI = d.Project.GitURI
-	}
-
-	if man.Repo.URI != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
-		man.Repo.PrivateKey = d.RepoPrivateKey
-	}
-
+func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (updated manifest.TaskList) {
 	var previousNames []string
 
 	var taskSwitcher func(tasks manifest.TaskList) manifest.TaskList
@@ -107,7 +97,7 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 					task.Manifest = d.CfManifest
 				}
 				if task.PrePromote != nil {
-					task.PrePromote = taskSwitcher(task.PrePromote)
+					task.PrePromote = d.updateTasks(task.PrePromote, man)
 				}
 				if task.TestDomain == "" {
 					if domain, ok := d.CfTestDomains[task.API]; ok {
@@ -218,13 +208,26 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		}
 		return
 	}
+	updated = taskSwitcher(tasks)
+	return
+}
+
+func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
+	man.Repo.BasePath = d.Project.BasePath
+
+	if man.Repo.URI == "" {
+		man.Repo.URI = d.Project.GitURI
+	}
+
+	if man.Repo.URI != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
+		man.Repo.PrivateKey = d.RepoPrivateKey
+	}
 
 	if man.FeatureToggles.UpdatePipeline() {
 		man.Tasks = append(manifest.TaskList{manifest.Update{}}, man.Tasks...)
 	}
 
-	taskList := taskSwitcher(man.Tasks)
-	man.Tasks = taskList
+	man.Tasks = d.updateTasks(man.Tasks, man)
 
 	return man
 

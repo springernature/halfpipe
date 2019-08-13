@@ -29,13 +29,13 @@ func TestWithTrueParallelGroups(t *testing.T) {
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "p1", Parallel: "true"},
+					manifest.Run{Name: "p1"},
 				},
 			},
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "p2", Parallel: "true"},
+					manifest.Run{Name: "p2"},
 				},
 			},
 		}
@@ -57,15 +57,15 @@ func TestWithTrueParallelGroups(t *testing.T) {
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t1-p", Parallel: "true"},
-					manifest.Run{Name: "t2-p", Parallel: "true"},
+					manifest.Run{Name: "t1-p"},
+					manifest.Run{Name: "t2-p"},
 				},
 			},
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t3-p", Parallel: "true"},
-					manifest.Run{Name: "t3-p", Parallel: "true"},
+					manifest.Run{Name: "t3-p"},
+					manifest.Run{Name: "t3-p"},
 				},
 			},
 		}
@@ -86,14 +86,14 @@ func TestWithNamedParallelGroups(t *testing.T) {
 		expected := manifest.TaskList{
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "p1", Parallel: "p1"},
+					manifest.Run{Name: "p1"},
 				},
 			},
 			manifest.Run{},
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "p2", Parallel: "p2"},
+					manifest.Run{Name: "p2"},
 				},
 			},
 		}
@@ -116,15 +116,15 @@ func TestWithNamedParallelGroups(t *testing.T) {
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t1", Parallel: "p1"},
-					manifest.Run{Name: "t2", Parallel: "p1"},
+					manifest.Run{Name: "t1"},
+					manifest.Run{Name: "t2"},
 				},
 			},
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t3", Parallel: "p2"},
-					manifest.Run{Name: "t4", Parallel: "p2"},
+					manifest.Run{Name: "t3"},
+					manifest.Run{Name: "t4"},
 				},
 			},
 			manifest.Run{},
@@ -149,25 +149,25 @@ func TestWithNamedParallelGroups(t *testing.T) {
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t1", Parallel: "p1"},
-					manifest.Run{Name: "t2", Parallel: "p1"},
+					manifest.Run{Name: "t1"},
+					manifest.Run{Name: "t2"},
 				},
 			},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t3", Parallel: "p2"},
-					manifest.Run{Name: "t4", Parallel: "p2"},
+					manifest.Run{Name: "t3"},
+					manifest.Run{Name: "t4"},
 				},
 			},
 			manifest.Run{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t5", Parallel: "p3"},
+					manifest.Run{Name: "t5"},
 				},
 			},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Run{Name: "t6", Parallel: "p4"},
+					manifest.Run{Name: "t6"},
 				},
 			},
 		}
@@ -197,8 +197,8 @@ func TestWithMixedParallelGroups(t *testing.T) {
 		manifest.Run{Name: "t1"},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: "t2", Parallel: "p1"},
-				manifest.Run{Name: "t3", Parallel: "p1"},
+				manifest.Run{Name: "t2"},
+				manifest.Run{Name: "t3"},
 			},
 		},
 		manifest.Parallel{
@@ -209,18 +209,18 @@ func TestWithMixedParallelGroups(t *testing.T) {
 		},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: "t6", Parallel: "p3"},
+				manifest.Run{Name: "t6"},
 			},
 		},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: "t7", Parallel: "p4"},
+				manifest.Run{Name: "t7"},
 			},
 		},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: "t8", Parallel: "true"},
-				manifest.Run{Name: "t9", Parallel: "true"},
+				manifest.Run{Name: "t8"},
+				manifest.Run{Name: "t9"},
 			},
 		},
 	}

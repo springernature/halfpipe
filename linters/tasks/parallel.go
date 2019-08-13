@@ -10,7 +10,12 @@ func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []
 		switch task.(type) {
 		case manifest.Parallel:
 			errs = append(errs, errors.NewInvalidField("type", "You are not allowed to use 'parallel' task inside a 'parallel' task"))
+		default:
+			if string(task.GetParallelGroup()) != "" {
+				warnings = append(warnings, errors.NewInvalidField("parallel", "Please dont use 'parallel' field inside a 'parallel' task!"))
+			}
 		}
 	}
+
 	return
 }

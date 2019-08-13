@@ -448,56 +448,100 @@ func TestSetsNames(t *testing.T) {
 					manifest.Run{Name: "test", Script: "asd.sh"},
 				},
 			},
+			manifest.Run{Script: "asd.sh"},
 			manifest.Run{Name: "test", Script: "asd.sh"},
 			manifest.Run{Name: "test", Script: "fgh.sh"},
-			manifest.DeployCF{API: "api.foo.bar", Org: "ee", Space: "dev"},
-			manifest.DeployCF{API: "https://api.foo.bar", Org: "ee", Space: "dev"},
-			manifest.DeployCF{API: "((cloudfoundry.api-dev))", Org: "((cloudfoundry.org-dev))", Space: "((cloudfoundry.space-dev))"},
-			manifest.DockerPush{Image: "something/abc"},
-			manifest.DockerPush{Image: "registry.io/parth/yo"},
-			manifest.DockerPush{Image: "registry.io/parth/yo:stable"},
+			manifest.DeployCF{
+				Name: "deploy-cf",
+				PrePromote: manifest.TaskList{
+					manifest.Run{Name: "test", Script: "asd.sh"},
+					manifest.Run{Script: "asd.sh"},
+					manifest.Run{Name: "test", Script: "asd.sh"},
+					manifest.Run{Script: "asd.sh"},
+				},
+			},
+			manifest.DeployCF{
+				Name: "deploy-cf",
+				PrePromote: manifest.TaskList{
+					manifest.Run{Name: "test", Script: "asd.sh"},
+					manifest.Run{Script: "asd.sh"},
+					manifest.Run{Name: "test", Script: "asd.sh"},
+					manifest.Run{Script: "asd.sh"},
+				},
+			},
+			manifest.DeployCF{},
+			manifest.DockerPush{},
+			manifest.DockerPush{},
+			manifest.DockerPush{},
 			manifest.DeployCF{Name: "deploy to dev"},
 			manifest.DeployCF{Name: "deploy to dev"},
-			manifest.DockerPush{Image: "a/b", Name: "push to docker hub"},
-			manifest.DockerPush{Image: "c/d", Name: "push to docker hub"},
+			manifest.DockerPush{Name: "push to docker hub"},
+			manifest.DockerPush{Name: "push to docker hub"},
+		},
+	}
+
+	expededWithoutAllTheOtherFields := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "run asd.sh"},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{Name: "run asd.sh (1)"},
+					manifest.Run{Name: "test"},
+					manifest.Run{Name: "test (1)"},
+				},
+			},
+			manifest.Run{Name: "run asd.sh (2)"},
+			manifest.Run{Name: "test (2)"},
+			manifest.Run{Name: "test (3)"},
+			manifest.DeployCF{
+				Name: "deploy-cf",
+				PrePromote: manifest.TaskList{
+					manifest.Run{Name: "test"},
+					manifest.Run{Name: "run asd.sh"},
+					manifest.Run{Name: "test (1)"},
+					manifest.Run{Name: "run asd.sh (1)"},
+				},
+			},
+			manifest.DeployCF{
+				Name: "deploy-cf (1)",
+				PrePromote: manifest.TaskList{
+					manifest.Run{Name: "test"},
+					manifest.Run{Name: "run asd.sh"},
+					manifest.Run{Name: "test (1)"},
+					manifest.Run{Name: "run asd.sh (1)"},
+				},
+			},
+			manifest.DeployCF{Name: "deploy-cf (2)"},
+			manifest.DockerPush{Name: "docker-push"},
+			manifest.DockerPush{Name: "docker-push (1)"},
+			manifest.DockerPush{Name: "docker-push (2)"},
+			manifest.DeployCF{Name: "deploy to dev"},
+			manifest.DeployCF{Name: "deploy to dev (1)"},
+			manifest.DockerPush{Name: "push to docker hub"},
+			manifest.DockerPush{Name: "push to docker hub (1)"},
 		},
 	}
 
 	updated := DefaultValues.Update(man)
 
-	expectedJobNames := []string{
-		"run asd.sh",
-		"run asd.sh (1)",
-		"test",
-		"test (1)",
-		"test (2)",
-		"test (3)",
-		"deploy-cf",
-		"deploy-cf (1)",
-		"deploy-cf (2)",
-		"docker-push",
-		"docker-push (1)",
-		"docker-push (2)",
-		"deploy to dev",
-		"deploy to dev (1)",
-		"push to docker hub",
-		"push to docker hub (1)",
-	}
-
-	var actualJobNames []string
-	for _, job := range updated.Tasks {
-		switch job := job.(type) {
-		case manifest.Parallel:
-			for _, pJob := range job.Tasks {
-				actualJobNames = append(actualJobNames, pJob.GetName())
+	assert.Len(t, expededWithoutAllTheOtherFields.Tasks, len(updated.Tasks))
+	for i, updatedTask := range updated.Tasks {
+		if updateParallelTask, isParallelTask := updatedTask.(manifest.Parallel); isParallelTask {
+			expectedParallelTask := expededWithoutAllTheOtherFields.Tasks[i].(manifest.Parallel)
+			for pi, pTask := range updateParallelTask.Tasks {
+				assert.Equal(t, expectedParallelTask.Tasks[pi].GetName(), pTask.GetName())
 			}
-		default:
-			actualJobNames = append(actualJobNames, job.GetName())
+		} else {
+			assert.Equal(t, expededWithoutAllTheOtherFields.Tasks[i].GetName(), updatedTask.GetName())
+			if updatedDeployCf, isDeployCf := updatedTask.(manifest.DeployCF); isDeployCf {
+				expectedDeployCf := expededWithoutAllTheOtherFields.Tasks[i].(manifest.DeployCF)
+				for ppi, ppTask := range updatedDeployCf.PrePromote {
+					assert.Equal(t, expectedDeployCf.PrePromote[ppi].GetName(), ppTask.GetName())
+				}
+			}
 		}
 	}
-
-	assert.Len(t, expectedJobNames, len(actualJobNames))
-	assert.Equal(t, expectedJobNames, actualJobNames)
+	//assert.Equal(t, expectedJobNames, actualJobNames)
 }
 
 func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {
