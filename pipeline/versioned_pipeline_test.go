@@ -44,11 +44,13 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 	manWithBranch := manifest.Manifest{
 		Team:     team,
 		Pipeline: pipeline,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				Branch: branch,
+			},
+		},
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
-		},
-		Repo: manifest.Repo{
-			Branch: branch,
 		},
 	}
 
@@ -62,7 +64,6 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 	assert.Equal(t, config.VersionBucket, sourceWithBranch["bucket"])
 	assert.Equal(t, config.VersionJSONKey, sourceWithBranch["json_key"])
 	assert.Equal(t, team+"-"+pipeline+"-"+branch, sourceWithBranch["key"])
-
 }
 
 func TestShouldNotAddAVersionJobAIfFeatureToggleIsNotEnabled(t *testing.T) {
@@ -192,10 +193,12 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 	firstJob := "run"
 	secondJob := "run2"
 	man := manifest.Manifest{
-		CronTrigger: "* * * * *",
-
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
+		},
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+			manifest.Cron{Trigger: "* * * * *"},
 		},
 		Tasks: manifest.TaskList{
 			manifest.Update{},
@@ -329,10 +332,14 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 	// We don't need to care about docker-push and deploy-cf.
 	// As they are inputs in the inParallel the put containers will have them mapped..
 
+	basePath := "apps/app1"
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			BasePath: "apps/app1",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
 		},
+
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
 		},

@@ -51,7 +51,13 @@ func TestRendersCfDeploy(t *testing.T) {
 		Timeout:    timeout,
 	}
 
-	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: "git@github.com:foo/reponame",
+			},
+		},
+	}
 	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
 
 	expectedResourceType := atc.ResourceType{
@@ -251,7 +257,13 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 		},
 	}
 
-	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: "git@github:org/repo-name",
+			},
+		},
+	}
 	man.Team = "myteam"
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
@@ -353,7 +365,11 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 		},
 	}
 
-	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github:org/repo-name"}}
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+	}
 	man.Team = "myteam"
 	man.Pipeline = "mypipeline"
 	man.Tasks = []manifest.Task{dockerComposeTaskBefore, deployCfTask, dockerComposeTaskAfter}
@@ -426,7 +442,9 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 	}
 
 	man := manifest.Manifest{
-		Repo:  manifest.Repo{URI: "git@github.com:foo/reponame"},
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
 		Tasks: []manifest.Task{taskDeploy},
 	}
 
@@ -452,7 +470,6 @@ func TestSetsBuildVersionPathParamForVersionedPipelines(t *testing.T) {
 	}
 
 	man := manifest.Manifest{
-		Repo: manifest.Repo{URI: "git@github.com:foo/reponame"},
 		Tasks: []manifest.Task{
 			manifest.Update{},
 			task,

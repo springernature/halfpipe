@@ -25,6 +25,9 @@ func TestShouldAddUpdateJobAsFirstJob(t *testing.T) {
 
 func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
 		},
@@ -86,6 +89,17 @@ func TestUpdateThePipelineNameIsBasedOnBranch(t *testing.T) {
 	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
 
 	//branch
-	man.Repo.Branch = "some-branch"
+	man = manifest.Manifest{
+		Pipeline: "some-pipeline",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				Branch: "some-branch",
+			},
+		},
+		FeatureToggles: manifest.FeatureToggles{
+			manifest.FeatureUpdatePipeline,
+		},
+	}
+
 	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
 }

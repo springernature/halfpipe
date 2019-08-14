@@ -116,31 +116,37 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	}
 }
 
-func (p pipeline) initialPlan(man manifest.Manifest, includeVersion bool, task manifest.Task) []atc.PlanConfig {
-	gitClone := atc.PlanConfig{Get: gitName}
-	if man.Repo.Shallow {
-		gitClone.Params = map[string]interface{}{
-			"depth": 1,
+func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.PlanConfig {
+	_, isUpdateTask := task.(manifest.Update)
+	versioningEnabled := man.FeatureToggles.Versioned()
+
+	var plan []atc.PlanConfig
+	for _, trigger := range man.Triggers {
+		switch trigger := trigger.(type) {
+		case manifest.Git:
+			gitClone := atc.PlanConfig{Get: trigger.GetTriggerName()}
+			if trigger.Shallow {
+				gitClone.Params = map[string]interface{}{
+					"depth": 1,
+				}
+			}
+			plan = append(plan, gitClone)
+		case manifest.Cron:
+			if isUpdateTask || !versioningEnabled {
+				plan = append(plan, atc.PlanConfig{Get: trigger.GetTriggerName()})
+			}
 		}
 	}
 
-	initialPlan := []atc.PlanConfig{gitClone}
-
-	if includeVersion {
-		initialPlan = append(initialPlan, atc.PlanConfig{Get: versionName})
-		if task != nil && task.ReadsFromArtifacts() {
-			initialPlan = append(initialPlan, restoreArtifactTask(man))
-		}
-	} else {
-		if man.CronTrigger != "" {
-			initialPlan = append(initialPlan, atc.PlanConfig{Get: cronName})
-		}
-		if task != nil && task.ReadsFromArtifacts() {
-			initialPlan = append(initialPlan, restoreArtifactTask(man))
-		}
+	if !isUpdateTask && man.FeatureToggles.Versioned() {
+		plan = append(plan, atc.PlanConfig{Get: versionName})
 	}
 
-	return initialPlan
+	if task.ReadsFromArtifacts() {
+		plan = append(plan, restoreArtifactTask(man))
+	}
+
+	return plan
 }
 
 func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
@@ -190,8 +196,15 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.Res
 }
 
 func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
-
-	resourceConfigs = append(resourceConfigs, p.gitResource(man.Repo))
+	for _, trigger := range man.Triggers {
+		switch trigger := trigger.(type) {
+		case manifest.Git:
+			resourceConfigs = append(resourceConfigs, p.gitResource(trigger))
+		case manifest.Cron:
+			resourceTypes = append(resourceTypes, cronResourceType())
+			resourceConfigs = append(resourceConfigs, p.cronResource(trigger))
+		}
+	}
 
 	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
 		resourceTypes = append(resourceTypes, p.slackResourceType())
@@ -209,11 +222,6 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		}
 	}
 
-	if man.CronTrigger != "" {
-		resourceTypes = append(resourceTypes, cronResourceType())
-		resourceConfigs = append(resourceConfigs, p.cronResource(man.CronTrigger))
-	}
-
 	if man.FeatureToggles.Versioned() {
 		resourceConfigs = append(resourceConfigs, p.versionResource(man))
 	}
@@ -228,7 +236,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 }
 
 func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
-	initialPlan := p.initialPlan(man, man.FeatureToggles.Versioned(), task)
+	initialPlan := p.initialPlan(man, task)
 
 	switch task := task.(type) {
 	case manifest.Run:
@@ -254,7 +262,6 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
 		job = p.runJob(runTask, man, false)
 	case manifest.Update:
-		initialPlan = p.initialPlan(man, false, task)
 		job = p.updateJobConfig(man)
 	}
 
@@ -417,7 +424,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			ImageResource: p.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
-				Dir:  path.Join(gitDir, man.Repo.BasePath),
+				Dir:  path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath),
 				Args: runScriptArgs(task, man, !isDockerCompose),
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -458,7 +465,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *atc.JobConfig {
 	resourceName := deployCFResourceName(task)
-	manifestPath := path.Join(gitDir, man.Repo.BasePath, task.Manifest)
+	manifestPath := path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.Manifest)
 
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		manifestPath = strings.TrimPrefix(task.Manifest, "../")
@@ -466,9 +473,9 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *at
 
 	vars := convertVars(task.Vars)
 
-	appPath := path.Join(gitDir, man.Repo.BasePath)
+	appPath := path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsInDir, man.Repo.BasePath, task.DeployArtifact)
+		appPath = path.Join(artifactsInDir, man.Triggers.GetGitTrigger().BasePath, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -640,8 +647,8 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 				Attempts: task.GetAttempts(),
 				Put:      resourceName,
 				Params: atc.Params{
-					"build":         path.Join(gitDir, man.Repo.BasePath, task.BuildPath),
-					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, task.DockerfilePath),
+					"build":         path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.BuildPath),
+					"dockerfile":    path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -690,8 +697,8 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				Attempts: task.GetAttempts(),
 				Put:      resourceName,
 				Params: atc.Params{
-					"build":         path.Join(dockerBuildTmpDir, man.Repo.BasePath, task.BuildPath),
-					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, task.DockerfilePath),
+					"build":         path.Join(dockerBuildTmpDir, man.Triggers.GetGitTrigger().BasePath, task.BuildPath),
+					"dockerfile":    path.Join(dockerBuildTmpDir, man.Triggers.GetGitTrigger().BasePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -855,16 +862,16 @@ fi
 
 	if task.RestoreArtifacts {
 		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
-		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsInDir), relativePathToRepoRoot(gitDir, man.Repo.BasePath)))
+		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, man.Triggers.GetGitTrigger().BasePath, artifactsInDir), relativePathToRepoRoot(gitDir, man.Triggers.GetGitTrigger().BasePath)))
 	}
 
 	out = append(out,
-		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, man.Repo.BasePath)),
+		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, man.Triggers.GetGitTrigger().BasePath)),
 	)
 
 	if man.FeatureToggles.Versioned() {
 		out = append(out,
-			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, man.Repo.BasePath)),
+			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, man.Triggers.GetGitTrigger().BasePath)),
 		)
 	}
 
@@ -874,14 +881,14 @@ EXIT_STATUS=$?
 if [ $EXIT_STATUS != 0 ] ; then
 %s
 fi
-`, script, onErrorScript(task.SaveArtifactsOnFailure, man.Repo.BasePath))
+`, script, onErrorScript(task.SaveArtifactsOnFailure, man.Triggers.GetGitTrigger().BasePath))
 	out = append(out, scriptCall)
 
 	if len(task.SaveArtifacts) != 0 {
 		out = append(out, "# Artifacts to copy from task")
 	}
 	for _, artifactPath := range task.SaveArtifacts {
-		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, man.Repo.BasePath, artifactsOutDir, artifactPath)))
+		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, man.Triggers.GetGitTrigger().BasePath, artifactsOutDir, artifactPath)))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }

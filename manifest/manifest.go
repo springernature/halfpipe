@@ -60,6 +60,16 @@ type Trigger interface {
 }
 type TriggerList []Trigger
 
+func (t TriggerList) GetGitTrigger() Git {
+	for _, trigger := range t {
+		switch trigger := trigger.(type) {
+		case Git:
+			return trigger
+		}
+	}
+	return Git{}
+}
+
 type Manifest struct {
 	Team           string
 	Pipeline       string
@@ -83,9 +93,12 @@ func (m Manifest) PipelineName() (pipelineName string) {
 	}
 
 	pipelineName = m.Pipeline
-	if m.Repo.Branch != "" && m.Repo.Branch != "master" {
-		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(m.Repo.Branch))
+	gitTrigger := m.Triggers.GetGitTrigger()
+
+	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" {
+		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(gitTrigger.Branch))
 	}
+
 	return
 }
 

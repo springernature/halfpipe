@@ -15,35 +15,35 @@ import (
 
 const longResourceCheckInterval = "24h"
 
-func (p pipeline) gitResource(repo manifest.Repo) atc.ResourceConfig {
+func (p pipeline) gitResource(trigger manifest.Git) atc.ResourceConfig {
 	sources := atc.Source{
-		"uri": repo.URI,
+		"uri": trigger.URI,
 	}
 
-	if repo.PrivateKey != "" {
-		sources["private_key"] = repo.PrivateKey
+	if trigger.PrivateKey != "" {
+		sources["private_key"] = trigger.PrivateKey
 	}
 
-	if len(repo.WatchedPaths) > 0 {
-		sources["paths"] = repo.WatchedPaths
+	if len(trigger.WatchedPaths) > 0 {
+		sources["paths"] = trigger.WatchedPaths
 	}
 
-	if len(repo.IgnoredPaths) > 0 {
-		sources["ignore_paths"] = repo.IgnoredPaths
+	if len(trigger.IgnoredPaths) > 0 {
+		sources["ignore_paths"] = trigger.IgnoredPaths
 	}
 
-	if repo.GitCryptKey != "" {
-		sources["git_crypt_key"] = repo.GitCryptKey
+	if trigger.GitCryptKey != "" {
+		sources["git_crypt_key"] = trigger.GitCryptKey
 	}
 
-	if repo.Branch == "" {
+	if trigger.Branch == "" {
 		sources["branch"] = "master"
 	} else {
-		sources["branch"] = repo.Branch
+		sources["branch"] = trigger.Branch
 	}
 
 	return atc.ResourceConfig{
-		Name:   gitName,
+		Name:   trigger.GetTriggerName(),
 		Type:   "git",
 		Source: sources,
 	}
@@ -121,13 +121,13 @@ func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfi
 	return config
 }
 
-func (p pipeline) cronResource(expression string) atc.ResourceConfig {
+func (p pipeline) cronResource(trigger manifest.Cron) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       cronName,
 		Type:       "cron-resource",
 		CheckEvery: "1m",
 		Source: atc.Source{
-			"expression":       expression,
+			"expression":       trigger.Trigger,
 			"location":         "UTC",
 			"fire_immediately": true,
 		},
@@ -215,8 +215,9 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 
 func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
 	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.Pipeline)
-	if manifest.Repo.Branch != "" && manifest.Repo.Branch != "master" {
-		key = fmt.Sprintf("%s-%s", key, manifest.Repo.Branch)
+	gitTrigger := manifest.Triggers.GetGitTrigger()
+	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" {
+		key = fmt.Sprintf("%s-%s", key, gitTrigger.Branch)
 	}
 
 	return atc.ResourceConfig{
@@ -271,7 +272,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 			}),
 			Run: atc.TaskRunConfig{
 				Path: "/bin/update-pipeline",
-				Dir:  path.Join(gitDir, man.Repo.BasePath),
+				Dir:  path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitName},

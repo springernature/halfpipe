@@ -33,7 +33,7 @@ func TestRendersSlackResourceWithoutOnFailureTask(t *testing.T) {
 func TestRendersSlackOnFailurePlan(t *testing.T) {
 	slackChannel := "#ee-re"
 
-	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
+	man := manifest.Manifest{}
 	man.SlackChannel = slackChannel
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{},
@@ -51,7 +51,7 @@ func TestRendersSlackOnFailurePlan(t *testing.T) {
 func TestRendersSlackOnFailurePlanWithArtifactOnFailure(t *testing.T) {
 	slackChannel := "#ee-re"
 
-	man := manifest.Manifest{Repo: manifest.Repo{URI: "git@github.com:foo/reponame"}}
+	man := manifest.Manifest{}
 	man.SlackChannel = slackChannel
 	man.Tasks = []manifest.Task{
 		manifest.DeployCF{},

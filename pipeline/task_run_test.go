@@ -11,8 +11,6 @@ import (
 )
 
 func TestRenderRunTask(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	runTask := manifest.Run{
 		Retries: 2,
 		Name:    "run yolo.sh",
@@ -28,8 +26,14 @@ func TestRenderRunTask(t *testing.T) {
 			"VAR2": "Value2",
 		},
 	}
-	man.Tasks = []manifest.Task{
-		runTask,
+
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+		Tasks: []manifest.Task{
+			runTask,
+		},
 	}
 
 	expected := atc.JobConfig{
@@ -68,9 +72,13 @@ func TestRenderRunTask(t *testing.T) {
 
 	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
 }
+
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "git@github.com:/springernature/foo.git"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+	}
 	runTask := manifest.Run{
 		Name:   "run yolo.sh",
 		Script: "./yolo.sh",
@@ -128,10 +136,15 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 }
 
 func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
-	man := manifest.Manifest{}
 	basePath := "subapp"
-	man.Repo.URI = "git@github.com:/springernature/foo.git"
-	man.Repo.BasePath = basePath
+
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
+		},
+	}
 
 	runTask := manifest.Run{
 		Name:   "run yolo.sh",

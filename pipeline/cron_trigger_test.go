@@ -9,22 +9,26 @@ import (
 
 func TestCronTriggerResourceTypeSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:        manifest.Repo{URI: gitDir},
-		CronTrigger: "*/10 * * * *",
+		Triggers: manifest.TriggerList{
+			manifest.Cron{
+				Trigger: "*/10 * * * *",
+			},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
 		},
 	}
 
 	config := testPipeline().Render(man)
-	resourceTypes := config.ResourceTypes
-	assert.Equal(t, "registry-image", resourceTypes[0].Type)
-	assert.Equal(t, "cron-resource", resourceTypes[0].Name)
+	_, found := config.ResourceTypes.Lookup("cron-resource")
+	assert.True(t, found)
 }
 
 func TestCronTriggerNotSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo: manifest.Repo{URI: gitDir},
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "blah", Script: "run.sh"},
 		},
@@ -46,26 +50,32 @@ func TestCronTriggerNotSet(t *testing.T) {
 
 func TestCronTriggerSetAddsResource(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:        manifest.Repo{URI: gitDir},
-		CronTrigger: "*/10 * * * *",
+		Triggers: manifest.TriggerList{
+			manifest.Cron{
+				Trigger: "*/10 * * * *",
+			},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "run.sh"},
 		},
 	}
 
 	config := testPipeline().Render(man)
-	resources := config.Resources
-	assert.Equal(t, "git", resources[0].Type)
-	assert.Equal(t, cronName, resources[1].Name)
-	assert.Equal(t, "cron-resource", resources[1].Type)
-	assert.Equal(t, man.CronTrigger, resources[1].Source["expression"])
-	assert.Equal(t, "1m", resources[1].CheckEvery)
+	resource, found := config.Resources.Lookup(manifest.Cron{}.GetTriggerName())
+	assert.True(t, found)
+	assert.Equal(t, cronName, resource.Name)
+	assert.Equal(t, "cron-resource", resource.Type)
+	assert.Equal(t, man.Triggers[0].(manifest.Cron).Trigger, resource.Source["expression"])
+	assert.Equal(t, "1m", resource.CheckEvery)
 }
 
 func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:        manifest.Repo{URI: gitDir},
-		CronTrigger: "*/10 * * * *",
+		Triggers: manifest.TriggerList{
+			manifest.Cron{
+				Trigger: "*/10 * * * *",
+			},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "s1.sh"},
 			manifest.Run{Script: "s2.sh"},
@@ -77,24 +87,24 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	t1InParallel := t1[0].InParallel.Steps
 
 	assert.Len(t, t1, 2)
-	assert.Equal(t, gitName, t1InParallel[0].Name())
-	assert.Equal(t, cronName, t1InParallel[1].Name())
-	assert.True(t, t1InParallel[1].Trigger)
+	assert.Equal(t, cronName, t1InParallel[0].Name())
+	assert.True(t, t1InParallel[0].Trigger)
 
 	t2 := config.Jobs[1].Plan
 	t2InParallel := t2[0].InParallel.Steps
 	assert.Len(t, t2, 2)
-	assert.Equal(t, gitName, t2InParallel[0].Name())
-	assert.Equal(t, []string{t1[1].Task}, t2InParallel[0].Passed)
 
-	assert.Equal(t, cronName, t2InParallel[1].Name())
-	assert.Equal(t, []string{t1[1].Task}, t2InParallel[1].Passed)
+	assert.Equal(t, cronName, t2InParallel[0].Name())
+	assert.Equal(t, []string{t1[1].Task}, t2InParallel[0].Passed)
 }
 
 func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:        manifest.Repo{URI: gitDir},
-		CronTrigger: "*/10 * * * *",
+		Triggers: manifest.TriggerList{
+			manifest.Cron{
+				Trigger: "*/10 * * * *",
+			},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "first.sh"},
 			manifest.Parallel{
@@ -112,42 +122,38 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	firstInParallel := first[0].InParallel.Steps
 
 	assert.Len(t, first, 2)
-	assert.Equal(t, gitName, firstInParallel[0].Name())
-	assert.Equal(t, cronName, firstInParallel[1].Name())
-	assert.True(t, firstInParallel[1].Trigger)
+	assert.Equal(t, cronName, firstInParallel[0].Name())
+	assert.True(t, firstInParallel[0].Trigger)
 
 	p1 := config.Jobs[1].Plan
 	p1InParallel := p1[0].InParallel.Steps
 	assert.Len(t, p1, 2)
-	assert.Equal(t, gitName, p1InParallel[0].Name())
-	assert.Equal(t, []string{first[1].Task}, p1InParallel[0].Passed)
 
-	assert.Equal(t, cronName, p1InParallel[1].Name())
-	assert.Equal(t, []string{first[1].Task}, p1InParallel[1].Passed)
+	assert.Equal(t, cronName, p1InParallel[0].Name())
+	assert.Equal(t, []string{first[1].Task}, p1InParallel[0].Passed)
 
 	p2 := config.Jobs[2].Plan
 	p2InParallel := p2[0].InParallel.Steps
 	assert.Len(t, p2, 2)
-	assert.Equal(t, gitName, p2InParallel[0].Name())
-	assert.Equal(t, []string{first[1].Task}, p2InParallel[0].Passed)
 
-	assert.Equal(t, cronName, p2InParallel[1].Name())
-	assert.Equal(t, []string{first[1].Task}, p2InParallel[1].Passed)
+	assert.Equal(t, cronName, p2InParallel[0].Name())
+	assert.Equal(t, []string{first[1].Task}, p2InParallel[0].Passed)
 
 	last := config.Jobs[3].Plan
 	lastInParallel := last[0].InParallel.Steps
 	assert.Len(t, last, 2)
-	assert.Equal(t, gitName, lastInParallel[0].Name())
-	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastInParallel[0].Passed)
 
-	assert.Equal(t, cronName, lastInParallel[1].Name())
-	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastInParallel[1].Passed)
+	assert.Equal(t, cronName, lastInParallel[0].Name())
+	assert.Equal(t, []string{p1[1].Task, p2[1].Task}, lastInParallel[0].Passed)
 }
 
 func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:        manifest.Repo{URI: gitDir},
-		CronTrigger: "*/10 * * * *",
+		Triggers: manifest.TriggerList{
+			manifest.Cron{
+				Trigger: "*/10 * * * *",
+			},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "first.sh", SaveArtifacts: []string{"something"}},
 			manifest.Parallel{
@@ -166,37 +172,33 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	firstInParallel := first[0].InParallel.Steps
 
 	assert.Len(t, first, 3)
-	assert.Equal(t, gitName, firstInParallel[0].Name())
-	assert.Equal(t, cronName, firstInParallel[1].Name())
-	assert.True(t, firstInParallel[1].Trigger)
+	assert.Equal(t, cronName, firstInParallel[0].Name())
+	assert.True(t, firstInParallel[0].Trigger)
 
 	p1 := config.Jobs[1].Plan
 	p1InParallel := p1[0].InParallel.Steps
 	assert.Len(t, p1, 2)
-	assert.Equal(t, gitName, p1InParallel[0].Name())
-	assert.Equal(t, []string{first[1].Task}, p1InParallel[0].Passed)
 
-	assert.Equal(t, cronName, p1InParallel[1].Name())
-	assert.Equal(t, []string{first[1].Task}, p1InParallel[1].Passed)
+	assert.Equal(t, cronName, p1InParallel[0].Name())
+	assert.Equal(t, []string{first[1].Task}, p1InParallel[0].Passed)
 
 	p2 := config.Jobs[2].Plan
 	p2InParallel := p2[0].InParallel.Steps
 	assert.Len(t, p2, 3)
-	assert.Equal(t, gitName, p2InParallel[0].Name())
+
+	assert.Equal(t, cronName, p2InParallel[0].Name())
 	assert.Equal(t, []string{first[1].Task}, p2InParallel[0].Passed)
 
-	assert.Equal(t, cronName, p2InParallel[1].Name())
-	assert.Equal(t, []string{first[1].Task}, p2InParallel[1].Passed)
+	assert.Equal(t, cronName, p2InParallel[0].Name())
+	assert.Equal(t, []string{first[1].Task}, p2InParallel[0].Passed)
 	assert.Equal(t, restoreArtifactTask(man), p2[1])
 
 	last := config.Jobs[3].Plan
 	lastInParallel := last[0].InParallel.Steps
 	assert.Len(t, last, 3)
-	assert.Equal(t, gitName, lastInParallel[0].Name())
-	assert.Equal(t, []string{p1[1].Task, p2[2].Task}, lastInParallel[0].Passed)
 
-	assert.Equal(t, cronName, lastInParallel[1].Name())
-	assert.Equal(t, []string{p1[1].Task, p2[2].Task}, lastInParallel[1].Passed)
+	assert.Equal(t, cronName, lastInParallel[0].Name())
+	assert.Equal(t, []string{p1[1].Task, p2[2].Task}, lastInParallel[0].Passed)
 
 	// Artifacts should not have any passed.
 	assert.Equal(t, restoreArtifactTask(man), last[1])

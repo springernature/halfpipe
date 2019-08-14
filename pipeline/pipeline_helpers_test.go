@@ -11,8 +11,13 @@ import (
 )
 
 func TestToString(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "repo.git"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: "repo.git",
+			},
+		},
+	}
 
 	actual, err := ToString(testPipeline().Render(man))
 	expected := "uri: repo.git"
@@ -22,8 +27,13 @@ func TestToString(t *testing.T) {
 }
 
 func TestToStringVersionComment(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "repo.git"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: "repo.git",
+			},
+		},
+	}
 	con.Version = "0.0.1-yolo"
 
 	actual, err := ToString(testPipeline().Render(man))

@@ -45,5 +45,12 @@ func TestPipelineNameShouldSanitizeDodgyCharactersInRepoAndBranchName(t *testing
 }
 
 func actualName(repoName, branchName string) string {
-	return Manifest{Pipeline: repoName, Repo: Repo{Branch: branchName}}.PipelineName()
+	return Manifest{
+		Pipeline: repoName,
+		Triggers: TriggerList{
+			Git{
+				Branch: branchName,
+			},
+		},
+	}.PipelineName()
 }

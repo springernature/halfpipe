@@ -15,10 +15,7 @@ import (
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
-	name := "yolo"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
 	runTask := manifest.Run{
 		Script:        "./build.sh",
 		SaveArtifacts: []string{"build/lib"},
@@ -34,9 +31,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 }
 
 func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
-	gitURI := "git@github.com:springernature/yolo.git"
 	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
 
 	run1 := "run1"
 	run2 := "run2"
@@ -128,9 +123,7 @@ func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
 }
 
 func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
-	gitURI := "git@github.com:springernature/yolo.git"
 	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
 
 	name := "name"
 
@@ -160,9 +153,7 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 }
 
 func TestRendersPipelineFailureOutputHasResourceDef(t *testing.T) {
-	gitURI := "git@github.com:springernature/yolo.git"
 	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
 
 	name := "name"
 
@@ -186,17 +177,20 @@ func TestRendersPipelineFailureOutputHasResourceDef(t *testing.T) {
 
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
-	name := "yolo"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
-	man.Repo.BasePath = "apps/subapp1"
+	basePath := "apps/subapp1"
 	runTask := manifest.Run{
 		Script:        "./build.sh",
 		SaveArtifacts: []string{"build/lib"},
 	}
-	man.Tasks = []manifest.Task{
-		runTask,
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
+		},
+		Tasks: []manifest.Task{
+			runTask,
+		},
 	}
 
 	renderedPipeline := testPipeline().Render(man)
@@ -206,8 +200,6 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 }
 
 func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *testing.T) {
-	gitURI := "git@github.com:springernature/myRepo.git"
-
 	secondTaskName := "DoSomethingWithArtifact"
 	man := manifest.Manifest{
 		Team:     "team",
@@ -215,10 +207,6 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "((override.Bucket))",
 			JSONKey: "((override.JSONKey))",
-		},
-		Repo: manifest.Repo{
-			URI:      gitURI,
-			BasePath: "apps/subapp1",
 		},
 		Tasks: []manifest.Task{
 			manifest.Run{
@@ -257,16 +245,20 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 }
 
 func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
-	gitURI := "git@github.com:springernature/myRepo.git"
-	man := manifest.Manifest{}
-	man.Team = "team"
-	man.Pipeline = "pipeline"
-	man.Repo.URI = gitURI
-	man.Repo.BasePath = "apps/subapp1"
-	man.Tasks = []manifest.Task{
-		manifest.Run{SaveArtifacts: []string{"path/to/artifact"}},
-		manifest.DeployCF{
-			DeployArtifact: "build/lib/artifact.jar",
+	basePath := "apps/subapp1"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{
+				SaveArtifacts: []string{"path/to/artifact"},
+			},
+			manifest.DeployCF{
+				DeployArtifact: "build/lib/artifact.jar",
+			},
 		},
 	}
 
@@ -290,11 +282,15 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	repoName := "yolo"
 	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", repoName)
-	man := manifest.Manifest{}
-	man.Team = "team"
-	man.Pipeline = "pipeline"
-	man.Repo.URI = gitURI
-	man.Repo.BasePath = "apps/subapp1"
+	basePath := "apps/subapp1"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      gitURI,
+				BasePath: basePath,
+			},
+		},
+	}
 
 	deployArtifactPath := "build/lib/artifact.jar"
 	man.Tasks = []manifest.Task{
@@ -317,17 +313,14 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
 	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
 
-	expectedAppPath := fmt.Sprintf("%s/%s/%s", artifactsInDir, man.Repo.BasePath, deployArtifactPath)
+	expectedAppPath := fmt.Sprintf("%s/%s/%s", artifactsInDir, basePath, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 
 func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
-	name := "yolo"
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", name)
 	man := manifest.Manifest{}
 	man.Team = "team"
 	man.Pipeline = "pipeline"
-	man.Repo.URI = gitURI
 	man.Tasks = []manifest.Task{
 		manifest.Run{
 			Script:        "./build.sh",
@@ -414,9 +407,6 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	man := manifest.Manifest{
 		Team:     team,
 		Pipeline: pipeline,
-		Repo: manifest.Repo{
-			BasePath: "yeah/yeah",
-		},
 		Tasks: []manifest.Task{
 			manifest.Run{
 				Script: "\\make ; ls -al",
@@ -464,9 +454,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		man := manifest.Manifest{
 			Team:     team,
 			Pipeline: pipeline,
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
-			},
 			Tasks: []manifest.Task{
 				manifest.Run{
 					Script: "\\make ; ls -al",
@@ -490,9 +477,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		man := manifest.Manifest{
 			Team:     team,
 			Pipeline: pipeline,
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
-			},
 			Tasks: []manifest.Task{
 				manifest.Run{
 					SaveArtifacts: []string{"path/to/artifact"},
@@ -519,9 +503,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		man := manifest.Manifest{
 			Team:     team,
 			Pipeline: pipeline,
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
-			},
 			Tasks: []manifest.Task{
 				manifest.Run{
 					Script: "\\make ; ls -al",
@@ -547,9 +528,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		man := manifest.Manifest{
 			Team:     team,
 			Pipeline: pipeline,
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
-			},
 			Tasks: []manifest.Task{
 				manifest.Run{
 					Script: "\\make ; ls -al",
@@ -575,9 +553,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 		man := manifest.Manifest{
 			Team:     team,
 			Pipeline: pipeline,
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
-			},
 			Tasks: []manifest.Task{
 				manifest.Run{
 					Script: "\\make ; ls -al",
@@ -608,9 +583,6 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			Pipeline: pipeline,
 			FeatureToggles: []string{
 				manifest.FeatureUpdatePipeline,
-			},
-			Repo: manifest.Repo{
-				BasePath: "yeah/yeah",
 			},
 			Tasks: []manifest.Task{
 				manifest.Run{

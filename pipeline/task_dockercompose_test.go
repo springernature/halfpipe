@@ -33,9 +33,11 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		},
 	}
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:      "git@git:user/repo",
-			BasePath: "base.path",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      "git@git:user/repo",
+				BasePath: "base.path",
+			},
 		},
 		Tasks: []manifest.Task{
 			dockerComposeTask,
@@ -90,9 +92,11 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 		},
 	}
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:      "git@git:user/repo",
-			BasePath: "base.path",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      "git@git:user/repo",
+				BasePath: "base.path",
+			},
 		},
 		Tasks: []manifest.Task{
 			dockerComposeTask,
@@ -138,10 +142,6 @@ func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
 	p := testPipeline()
 
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:      "git@git:user/repo",
-			BasePath: "base.path",
-		},
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
 				Name:             "docker-compose",

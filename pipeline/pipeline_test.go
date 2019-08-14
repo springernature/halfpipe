@@ -26,6 +26,9 @@ func testPipeline() pipeline {
 
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "t1", Script: "asd.sh"},
 			manifest.DeployCF{Name: "t2", ManualTrigger: true},
@@ -46,6 +49,10 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 
 func TestRenderWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "Build", Script: "asd.sh"},
 
@@ -83,6 +90,10 @@ func TestRenderWithParallelTasks(t *testing.T) {
 
 func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+
 		Tasks: []manifest.Task{
 			manifest.Parallel{
 				Tasks: manifest.TaskList{

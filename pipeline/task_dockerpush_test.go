@@ -12,8 +12,11 @@ import (
 )
 
 func TestRenderDockerPushTask(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "git@github.com:/springernature/foo.git"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{},
+		},
+	}
 
 	username := "halfpipe"
 	password := "secret"
@@ -70,10 +73,15 @@ func TestRenderDockerPushTask(t *testing.T) {
 }
 
 func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Repo.URI = "git@github.com:/springernature/foo.git"
 	basePath := "subapp/sub2"
-	man.Repo.BasePath = basePath
+
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
+		},
+	}
 
 	username := "halfpipe"
 	password := "secret"
@@ -109,7 +117,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 				Put:      "halfpipe-cli",
 				Params: atc.Params{
 					"build":         gitDir + "/" + basePath,
-					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
+					"dockerfile":    path.Join(gitDir, basePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -123,9 +131,11 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 func TestRenderDockerPushWithVersioning(t *testing.T) {
 	basePath := "subapp/sub2"
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:      "git@github.com:/springernature/foo.git",
-			BasePath: basePath,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      "git@github.com:/springernature/foo.git",
+				BasePath: basePath,
+			},
 		},
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
@@ -171,7 +181,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         gitDir + "/" + basePath,
-					"dockerfile":    path.Join(gitDir, man.Repo.BasePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
+					"dockerfile":    path.Join(gitDir, basePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -187,9 +197,11 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	buildPath := "build/path"
 
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:      "git@github.com:/springernature/foo.git",
-			BasePath: basePath,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      "git@github.com:/springernature/foo.git",
+				BasePath: basePath,
+			},
 		},
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
@@ -266,7 +278,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         dockerBuildTmpDir + "/" + basePath + "/" + buildPath,
-					"dockerfile":    path.Join(dockerBuildTmpDir, man.Repo.BasePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
+					"dockerfile":    path.Join(dockerBuildTmpDir, basePath, man.Tasks[1].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},

@@ -16,7 +16,7 @@ func NewCronTriggerLinter() cronTriggerLinter {
 	return cronTriggerLinter{}
 }
 
-func (r cronTriggerLinter) lintOnlyOneCronTrigger(man manifest.Manifest) error {
+func (c cronTriggerLinter) lintOnlyOneCronTrigger(man manifest.Manifest) error {
 	numCronTriggers := 0
 	var cronTrigger manifest.Trigger
 

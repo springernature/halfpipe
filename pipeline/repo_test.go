@@ -11,8 +11,13 @@ import (
 func TestRendersHttpGitResource(t *testing.T) {
 	gitURI := "git@github.com:springernature/repo.git"
 
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: gitURI,
+			},
+		},
+	}
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -33,9 +38,14 @@ func TestRendersSshGitResource(t *testing.T) {
 	gitURI := "git@github.com:springernature/repo.git/"
 	privateKey := "blurgh"
 
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
-	man.Repo.PrivateKey = privateKey
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:        gitURI,
+				PrivateKey: privateKey,
+			},
+		},
+	}
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -56,15 +66,19 @@ func TestRendersSshGitResource(t *testing.T) {
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 	gitURI := "git@github.com:springernature/repo.git/"
 	privateKey := "blurgh"
-
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
-	man.Repo.PrivateKey = privateKey
-
 	watches := []string{"watch1", "watch2"}
 	ignores := []string{"ignore1", "ignore2"}
-	man.Repo.WatchedPaths = watches
-	man.Repo.IgnoredPaths = ignores
+
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:          gitURI,
+				PrivateKey:   privateKey,
+				WatchedPaths: watches,
+				IgnoredPaths: ignores,
+			},
+		},
+	}
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -88,9 +102,14 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	gitURI := "git@github.com:springernature/repo.git"
 	gitCrypt := "AABBFF66"
 
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
-	man.Repo.GitCryptKey = gitCrypt
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:         gitURI,
+				GitCryptKey: gitCrypt,
+			},
+		},
+	}
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -112,9 +131,14 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 	gitURI := "git@github.com:springernature/repo.git"
 	branch := "master"
 
-	man := manifest.Manifest{}
-	man.Repo.URI = gitURI
-	man.Repo.Branch = branch
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:    gitURI,
+				Branch: branch,
+			},
+		},
+	}
 
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -134,8 +158,10 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
 	taskName := "runTask"
 	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			Shallow: true,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				Shallow: true,
+			},
 		},
 		Tasks: []manifest.Task{
 			manifest.Run{

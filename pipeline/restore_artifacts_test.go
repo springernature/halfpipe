@@ -12,13 +12,9 @@ import (
 )
 
 func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", "yolo")
 	man := manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI: gitURI,
-		},
 		Tasks: []manifest.Task{
 			manifest.Run{
 				Script:           "./build.sh",
@@ -37,13 +33,9 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 }
 
 func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", "yolo")
 	man := manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI: gitURI,
-		},
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
 				RestoreArtifacts: true,
@@ -63,8 +55,10 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 	man := manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI: gitURI,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: gitURI,
+			},
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerPush{
@@ -85,12 +79,14 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 	assert.Equal(t, dockerBuildTmpDir, renderedPipeline.Jobs[0].Plan[3].Params["build"])
 
 	// Mono repo
+	basePath := "some/random/path"
 	man = manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI:      gitURI,
-			BasePath: "some/random/path",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				BasePath: basePath,
+			},
 		},
 		Tasks: []manifest.Task{
 			manifest.DockerPush{
@@ -108,7 +104,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 	assert.Contains(t, runtTaskArgs, "cp -r artifacts/. docker_build")
 
 	assert.Equal(t, "halfpipe-cli", renderedPipeline.Jobs[0].Plan[3].Put)
-	assert.Equal(t, path.Join(dockerBuildTmpDir, man.Repo.BasePath), renderedPipeline.Jobs[0].Plan[3].Params["build"])
+	assert.Equal(t, path.Join(dockerBuildTmpDir, basePath), renderedPipeline.Jobs[0].Plan[3].Params["build"])
 }
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *testing.T) {
@@ -117,8 +113,10 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 	man := manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI: gitURI,
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI: gitURI,
+			},
 		},
 		Tasks: []manifest.Task{
 			manifest.Run{
@@ -137,9 +135,11 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 	man = manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI:      gitURI,
-			BasePath: "some/subfolder",
+		Triggers: manifest.TriggerList{
+			manifest.Git{
+				URI:      gitURI,
+				BasePath: "some/subfolder",
+			},
 		},
 		Tasks: []manifest.Task{
 			manifest.Run{
@@ -157,13 +157,9 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompose(t *testing.T) {
 
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", "yolo")
 	man := manifest.Manifest{
 		Team:     "kehe",
 		Pipeline: "Yolo",
-		Repo: manifest.Repo{
-			URI: gitURI,
-		},
 		Tasks: []manifest.Task{
 			manifest.DockerCompose{
 				RestoreArtifacts: true,
