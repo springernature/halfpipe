@@ -72,7 +72,7 @@ func TestUpdatePipelinePlan(t *testing.T) {
 	updateJob, _ := cfg.Jobs.Lookup(updateJobName)
 	updatePipeline := updateJob.Plan[2]
 
-	assert.Equal(t, updatePipeline, pipeline.updatePipelineTask(man))
+	assert.Equal(t, updatePipeline, pipeline.updatePipelineTask(man, man.Triggers.GetGitTrigger().BasePath))
 }
 
 func TestUpdateThePipelineNameIsBasedOnBranch(t *testing.T) {
@@ -86,7 +86,7 @@ func TestUpdateThePipelineNameIsBasedOnBranch(t *testing.T) {
 	p := testPipeline()
 
 	//master
-	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
+	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man, man.Triggers.GetGitTrigger().BasePath).TaskConfig.Params["PIPELINE_NAME"])
 
 	//branch
 	man = manifest.Manifest{
@@ -101,5 +101,5 @@ func TestUpdateThePipelineNameIsBasedOnBranch(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man).TaskConfig.Params["PIPELINE_NAME"])
+	assert.Equal(t, man.PipelineName(), p.updatePipelineTask(man, man.Triggers.GetGitTrigger().BasePath).TaskConfig.Params["PIPELINE_NAME"])
 }

@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"path"
 	"testing"
 
 	"github.com/concourse/concourse/atc"
@@ -69,8 +70,8 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			ImageResource: &dockerComposeImageResource,
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
-				Dir:  gitDir + "/base.path",
-				Args: runScriptArgs(consumerIntegrationTestToRunTask(cit, man), man, false),
+				Dir:  path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath),
+				Args: runScriptArgs(consumerIntegrationTestToRunTask(cit, man), man, false, man.Triggers.GetGitTrigger().BasePath),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -178,7 +179,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(consumerIntegrationTestToRunTask(cit, man), man, false),
+						Args: runScriptArgs(consumerIntegrationTestToRunTask(cit, man), man, false, man.Triggers.GetGitTrigger().BasePath),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitDir},

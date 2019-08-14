@@ -237,32 +237,33 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
 	initialPlan := p.initialPlan(man, task)
+	basePath := man.Triggers.GetGitTrigger().BasePath
 
 	switch task := task.(type) {
 	case manifest.Run:
-		job = p.runJob(task, man, false)
+		job = p.runJob(task, man, false, basePath)
 
 	case manifest.DockerCompose:
-		job = p.dockerComposeJob(task, man)
+		job = p.dockerComposeJob(task, man, basePath)
 
 	case manifest.DeployCF:
-		job = p.deployCFJob(task, man)
+		job = p.deployCFJob(task, man, basePath)
 
 	case manifest.DockerPush:
-		job = p.dockerPushJob(task, man)
+		job = p.dockerPushJob(task, man, basePath)
 
 	case manifest.ConsumerIntegrationTest:
-		job = p.consumerIntegrationTestJob(task, man)
+		job = p.consumerIntegrationTestJob(task, man, basePath)
 
 	case manifest.DeployMLZip:
 		runTask := ConvertDeployMLZipToRunTask(task, man)
-		job = p.runJob(runTask, man, false)
+		job = p.runJob(runTask, man, false, basePath)
 
 	case manifest.DeployMLModules:
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
-		job = p.runJob(runTask, man, false)
+		job = p.runJob(runTask, man, false, basePath)
 	case manifest.Update:
-		job = p.updateJobConfig(man)
+		job = p.updateJobConfig(man, basePath)
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -402,7 +403,7 @@ func inParallelGets(job *atc.JobConfig) atc.PlanSequence {
 	return job.Plan
 }
 
-func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool) *atc.JobConfig {
+func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -424,8 +425,8 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			ImageResource: p.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
-				Dir:  path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath),
-				Args: runScriptArgs(task, man, !isDockerCompose),
+				Dir:  path.Join(gitDir, basePath),
+				Args: runScriptArgs(task, man, !isDockerCompose, basePath),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitName},
@@ -463,9 +464,9 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
 	resourceName := deployCFResourceName(task)
-	manifestPath := path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.Manifest)
+	manifestPath := path.Join(gitDir, basePath, task.Manifest)
 
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		manifestPath = strings.TrimPrefix(task.Manifest, "../")
@@ -473,9 +474,9 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *at
 
 	vars := convertVars(task.Vars)
 
-	appPath := path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath)
+	appPath := path.Join(gitDir, basePath)
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsInDir, man.Triggers.GetGitTrigger().BasePath, task.DeployArtifact)
+		appPath = path.Join(artifactsInDir, basePath, task.DeployArtifact)
 	}
 
 	job := atc.JobConfig{
@@ -539,7 +540,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *at
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.runJob(ppTask, man, false)
+			ppJob = p.runJob(ppTask, man, false, basePath)
 			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
 			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
 
@@ -548,7 +549,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *at
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.dockerComposeJob(ppTask, man)
+			ppJob = p.dockerComposeJob(ppTask, man, basePath)
 			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
 			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
 
@@ -556,7 +557,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest) *at
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			ppJob = p.consumerIntegrationTestJob(ppTask, man)
+			ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
 		}
 		planConfig := atc.PlanConfig{Do: &ppJob.Plan}
 		prePromoteTasks = append(prePromoteTasks, planConfig)
@@ -634,11 +635,11 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 	}
 }
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) *atc.JobConfig {
-	return p.runJob(dockerComposeToRunTask(task, man), man, true)
+func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) *atc.JobConfig {
+	return p.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
 }
 
-func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -647,8 +648,8 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 				Attempts: task.GetAttempts(),
 				Put:      resourceName,
 				Params: atc.Params{
-					"build":         path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.BuildPath),
-					"dockerfile":    path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath, task.DockerfilePath),
+					"build":         path.Join(gitDir, basePath, task.BuildPath),
+					"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -662,7 +663,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 	return &job
 }
 
-func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest) *atc.JobConfig {
+func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.Name,
 		Serial: true,
@@ -697,8 +698,8 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 				Attempts: task.GetAttempts(),
 				Put:      resourceName,
 				Params: atc.Params{
-					"build":         path.Join(dockerBuildTmpDir, man.Triggers.GetGitTrigger().BasePath, task.BuildPath),
-					"dockerfile":    path.Join(dockerBuildTmpDir, man.Triggers.GetGitTrigger().BasePath, task.DockerfilePath),
+					"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
+					"dockerfile":    path.Join(dockerBuildTmpDir, basePath, task.DockerfilePath),
 					"tag_as_latest": true,
 				}},
 		},
@@ -714,12 +715,12 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 	return &job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) *atc.JobConfig {
+func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest, basePath string) *atc.JobConfig {
 	resourceName := dockerPushResourceName(task)
 	if task.RestoreArtifacts {
-		return dockerPushJobWithRestoreArtifacts(task, resourceName, man)
+		return dockerPushJobWithRestoreArtifacts(task, resourceName, man, basePath)
 	}
-	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man)
+	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man, basePath)
 }
 
 func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {
@@ -811,7 +812,7 @@ func (p pipeline) addCronResource(cfg *atc.Config, man manifest.Manifest) {
 	}
 }
 
-func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool) []string {
+func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, basePath string) []string {
 
 	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
@@ -862,16 +863,16 @@ fi
 
 	if task.RestoreArtifacts {
 		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
-		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, man.Triggers.GetGitTrigger().BasePath, artifactsInDir), relativePathToRepoRoot(gitDir, man.Triggers.GetGitTrigger().BasePath)))
+		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, basePath, artifactsInDir), relativePathToRepoRoot(gitDir, basePath)))
 	}
 
 	out = append(out,
-		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, man.Triggers.GetGitTrigger().BasePath)),
+		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, basePath)),
 	)
 
 	if man.FeatureToggles.Versioned() {
 		out = append(out,
-			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, man.Triggers.GetGitTrigger().BasePath)),
+			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, basePath)),
 		)
 	}
 
@@ -881,14 +882,14 @@ EXIT_STATUS=$?
 if [ $EXIT_STATUS != 0 ] ; then
 %s
 fi
-`, script, onErrorScript(task.SaveArtifactsOnFailure, man.Triggers.GetGitTrigger().BasePath))
+`, script, onErrorScript(task.SaveArtifactsOnFailure, basePath))
 	out = append(out, scriptCall)
 
 	if len(task.SaveArtifacts) != 0 {
 		out = append(out, "# Artifacts to copy from task")
 	}
 	for _, artifactPath := range task.SaveArtifacts {
-		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, man.Triggers.GetGitTrigger().BasePath, artifactsOutDir, artifactPath)))
+		out = append(out, fmt.Sprintf("copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, basePath, artifactsOutDir, artifactPath)))
 	}
 	return []string{"-c", strings.Join(out, "\n")}
 }

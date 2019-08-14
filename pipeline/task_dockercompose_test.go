@@ -67,7 +67,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false),
+						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false, man.Triggers.GetGitTrigger().BasePath),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitName},
@@ -126,7 +126,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 					Run: atc.TaskRunConfig{
 						Path: "docker.sh",
 						Dir:  gitDir + "/base.path",
-						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false),
+						Args: runScriptArgs(dockerComposeToRunTask(dockerComposeTask, man), man, false, man.Triggers.GetGitTrigger().BasePath),
 					},
 					Inputs: []atc.TaskInputConfig{
 						{Name: gitName},

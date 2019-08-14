@@ -232,7 +232,7 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
-func (p pipeline) updateJobConfig(manifest manifest.Manifest) *atc.JobConfig {
+func (p pipeline) updateJobConfig(manifest manifest.Manifest, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   updateJobName,
 		Serial: true,
@@ -245,12 +245,12 @@ func (p pipeline) updateJobConfig(manifest manifest.Manifest) *atc.JobConfig {
 		}},
 	}
 
-	job.Plan = append(job.Plan, p.updatePipelineTask(manifest))
+	job.Plan = append(job.Plan, p.updatePipelineTask(manifest, basePath))
 
 	return &job
 }
 
-func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
+func (p pipeline) updatePipelineTask(man manifest.Manifest, basePath string) atc.PlanConfig {
 	return atc.PlanConfig{
 		Task:     updatePipelineName,
 		Attempts: updateTaskAttempts,
@@ -272,7 +272,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest) atc.PlanConfig {
 			}),
 			Run: atc.TaskRunConfig{
 				Path: "/bin/update-pipeline",
-				Dir:  path.Join(gitDir, man.Triggers.GetGitTrigger().BasePath),
+				Dir:  path.Join(gitDir, basePath),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitName},
