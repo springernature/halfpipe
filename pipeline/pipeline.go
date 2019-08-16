@@ -89,7 +89,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		},
 		Params: map[string]string{
 			"BUCKET":       BUCKET,
-			"FOLDER":       path.Join(filter(man.Team), filter(man.Pipeline)),
+			"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
 			"JSON_KEY":     jsonKey,
 			"VERSION_FILE": "git/.git/ref",
 		},
