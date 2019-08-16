@@ -108,51 +108,78 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 }
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *testing.T) {
-	// Single app repo
-	gitURI := fmt.Sprintf("git@github.com:springernature/%s.git", "yolo")
-	man := manifest.Manifest{
-		Team:     "kehe",
-		Pipeline: "Yolo",
-		Triggers: manifest.TriggerList{
-			manifest.Git{
-				URI: gitURI,
+	t.Run("single app repo", func(t *testing.T) {
+		man := manifest.Manifest{
+			Team:     "kehe",
+			Pipeline: "Yolo",
+			Triggers: manifest.TriggerList{
+				manifest.Git{},
 			},
-		},
-		Tasks: []manifest.Task{
-			manifest.Run{
-				Script:           "./build.sh",
-				RestoreArtifacts: true,
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script:           "./build.sh",
+					RestoreArtifacts: true,
+				},
 			},
-		},
-	}
+		}
 
-	renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().Render(man)
 
-	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
-	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
+		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
+		assert.Equal(t, "kehe/yolo", restoreTaskParams["FOLDER"])
+		assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")
+	})
 
-	// Monorepo
-	man = manifest.Manifest{
-		Team:     "kehe",
-		Pipeline: "Yolo",
-		Triggers: manifest.TriggerList{
-			manifest.Git{
-				URI:      gitURI,
-				BasePath: "some/subfolder",
+	t.Run("mono repo", func(t *testing.T) {
+		man := manifest.Manifest{
+			Team:     "kehe",
+			Pipeline: "Yolo",
+			Triggers: manifest.TriggerList{
+				manifest.Git{BasePath: "some/subfolder"},
 			},
-		},
-		Tasks: []manifest.Task{
-			manifest.Run{
-				Script:           "./build.sh",
-				RestoreArtifacts: true,
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script:           "./build.sh",
+					RestoreArtifacts: true,
+				},
 			},
-		},
-	}
+		}
 
-	renderedPipeline = testPipeline().Render(man)
+		renderedPipeline := testPipeline().Render(man)
 
-	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
-	assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/. .")
+		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
+		assert.Equal(t, "kehe/yolo", restoreTaskParams["FOLDER"])
+		assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/. .")
+	})
+
+	t.Run("one a branch", func(t *testing.T) {
+		man := manifest.Manifest{
+			Team:     "kehe",
+			Pipeline: "Yolo",
+			Triggers: manifest.TriggerList{
+				manifest.Git{
+					BasePath: "some/subfolder",
+					Branch:   "im-a-branch",
+				},
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script:           "./build.sh",
+					RestoreArtifacts: true,
+				},
+			},
+		}
+
+		renderedPipeline := testPipeline().Render(man)
+
+		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
+		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
+		assert.Equal(t, "kehe/yolo-im-a-branch", restoreTaskParams["FOLDER"])
+		assert.Contains(t, runtTaskArgs, "cp -r ../../../artifacts/. .")
+	})
+
 }
 
 func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompose(t *testing.T) {
