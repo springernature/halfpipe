@@ -13,6 +13,51 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestAddsResourceIfWeSaveArtifacts(t *testing.T) {
+	t.Run("on master", func(t *testing.T) {
+
+		man := manifest.Manifest{
+			Team:     "myTeam",
+			Pipeline: "myPipeline",
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script:        "./build.sh",
+					SaveArtifacts: []string{"build/lib"},
+				},
+			},
+		}
+
+		renderedPipeline := testPipeline().Render(man)
+		resource, found := renderedPipeline.Resources.Lookup(artifactsName)
+		assert.True(t, found)
+		assert.Equal(t, "myteam/mypipeline", resource.Source["folder"])
+	})
+
+	t.Run("on branch", func(t *testing.T) {
+
+		man := manifest.Manifest{
+			Team:     "myTeam",
+			Pipeline: "myPipeline",
+			Triggers: manifest.TriggerList{
+				manifest.Git{
+					Branch: "MyBrAnCh",
+				},
+			},
+			Tasks: []manifest.Task{
+				manifest.Run{
+					Script:        "./build.sh",
+					SaveArtifacts: []string{"build/lib"},
+				},
+			},
+		}
+
+		renderedPipeline := testPipeline().Render(man)
+		resource, found := renderedPipeline.Resources.Lookup(artifactsName)
+		assert.True(t, found)
+		assert.Equal(t, "myteam/mypipeline-mybranch", resource.Source["folder"])
+	})
+}
+
 func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) {
 	// Without any save artifact there should not be a copy and a output
 	man := manifest.Manifest{}

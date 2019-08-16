@@ -87,7 +87,7 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
+func (p pipeline) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 	filter := func(str string) string {
 		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
 		return reg.ReplaceAllString(strings.ToLower(str), "")
@@ -96,11 +96,11 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 	bucket := config.ArtifactsBucket
 	jsonKey := config.ArtifactsJSONKey
 
-	if artifactConfig.Bucket != "" {
-		bucket = artifactConfig.Bucket
+	if man.ArtifactConfig.Bucket != "" {
+		bucket = man.ArtifactConfig.Bucket
 	}
-	if artifactConfig.JSONKey != "" {
-		jsonKey = artifactConfig.JSONKey
+	if man.ArtifactConfig.JSONKey != "" {
+		jsonKey = man.ArtifactConfig.JSONKey
 	}
 
 	return atc.ResourceConfig{
@@ -109,14 +109,14 @@ func (p pipeline) artifactResource(team, pipeline string, artifactConfig manifes
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"bucket":   bucket,
-			"folder":   path.Join(filter(team), filter(pipeline)),
+			"folder":   path.Join(filter(man.Team), filter(man.PipelineName())),
 			"json_key": jsonKey,
 		},
 	}
 }
 
-func (p pipeline) artifactResourceOnFailure(team, pipeline string, artifactConfig manifest.ArtifactConfig) atc.ResourceConfig {
-	config := p.artifactResource(team, pipeline, artifactConfig)
+func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceConfig {
+	config := p.artifactResource(man)
 	config.Name = artifactsOnFailureName
 	return config
 }

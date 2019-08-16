@@ -215,10 +215,10 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		resourceTypes = append(resourceTypes, p.gcpResourceType())
 
 		if man.Tasks.SavesArtifacts() {
-			resourceConfigs = append(resourceConfigs, p.artifactResource(man.Team, man.Pipeline, man.ArtifactConfig))
+			resourceConfigs = append(resourceConfigs, p.artifactResource(man))
 		}
 		if man.Tasks.SavesArtifactsOnFailure() {
-			resourceConfigs = append(resourceConfigs, p.artifactResourceOnFailure(man.Team, man.Pipeline, man.ArtifactConfig))
+			resourceConfigs = append(resourceConfigs, p.artifactResourceOnFailure(man))
 		}
 	}
 
