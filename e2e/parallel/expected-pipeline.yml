@@ -75,6 +75,7 @@ jobs:
         passed:
         - update
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 1
     config:
@@ -146,6 +147,7 @@ jobs:
         passed:
         - update
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 2
     config:
@@ -219,6 +221,7 @@ jobs:
         - test parallel 1
         - test parallel 2
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 3
     config:
@@ -292,6 +295,7 @@ jobs:
         - test parallel 1
         - test parallel 2
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 4
     config:
@@ -365,6 +369,7 @@ jobs:
         - test parallel 3
         - test parallel 4
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: not parallel
     config:
@@ -436,6 +441,7 @@ jobs:
         passed:
         - not parallel
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 5
     config:
@@ -507,6 +513,7 @@ jobs:
         passed:
         - not parallel
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 6
     config:
@@ -578,6 +585,7 @@ jobs:
         passed:
         - not parallel
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test parallel 7
     config:
@@ -653,6 +661,7 @@ jobs:
         - test parallel 6
         - test parallel 7
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: one group
     config:
@@ -724,6 +733,7 @@ jobs:
         passed:
         - one group
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: after parallel
     config:

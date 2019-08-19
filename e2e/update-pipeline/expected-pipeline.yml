@@ -133,6 +133,7 @@ jobs:
         passed:
         - update
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: Test
     config:
@@ -237,6 +238,7 @@ jobs:
         passed:
         - Test
         trigger: true
+        attempts: 2
     timeout: 5m
   - task: get artifact
     config:
@@ -315,6 +317,7 @@ jobs:
         passed:
         - deploy to cf
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -550,6 +553,7 @@ jobs:
         passed:
         - deploy to cf
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -779,6 +783,7 @@ jobs:
         - deploy to staging
         - deploy to qa
         trigger: true
+        attempts: 2
     timeout: 1h
   - put: halfpipe-fly
     params:
@@ -807,6 +812,7 @@ jobs:
         passed:
         - push to docker registry
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: run notify.sh
     config:
@@ -880,6 +886,7 @@ jobs:
         passed:
         - run notify.sh
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: docker-compose
     privileged: true
@@ -972,6 +979,7 @@ jobs:
         passed:
         - docker-compose
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: another-c-name
     privileged: true
@@ -1076,6 +1084,7 @@ jobs:
         passed:
         - another-c-name
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -1180,6 +1189,7 @@ jobs:
         passed:
         - deploy-ml-zip
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: Deploy ml-modules artifact
     config:

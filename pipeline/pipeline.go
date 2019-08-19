@@ -51,6 +51,7 @@ const gitGetAttempts = 2
 const dockerBuildTmpDir = "docker_build"
 
 const versionName = "version"
+const versionGetAttempts = 2
 
 const cronName = "cron"
 const cronGetAttempts = 2
@@ -149,7 +150,10 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 	}
 
 	if !isUpdateTask && man.FeatureToggles.Versioned() {
-		plan = append(plan, atc.PlanConfig{Get: versionName})
+		plan = append(plan, atc.PlanConfig{
+			Get:      versionName,
+			Attempts: versionGetAttempts,
+		})
 	}
 
 	if task.ReadsFromArtifacts() {
