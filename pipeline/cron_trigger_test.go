@@ -95,6 +95,7 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	assert.Len(t, t2, 2)
 
 	assert.Equal(t, cronName, t2InParallel[0].Name())
+	assert.Equal(t, cronGetAttempts, t2InParallel[0].Attempts)
 	assert.Equal(t, []string{t1[1].Task}, t2InParallel[0].Passed)
 }
 

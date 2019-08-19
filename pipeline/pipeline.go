@@ -53,6 +53,7 @@ const dockerBuildTmpDir = "docker_build"
 const versionName = "version"
 
 const cronName = "cron"
+const cronGetAttempts = 2
 
 const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
@@ -139,7 +140,10 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 			plan = append(plan, gitClone)
 		case manifest.Cron:
 			if isUpdateTask || !versioningEnabled {
-				plan = append(plan, atc.PlanConfig{Get: trigger.GetTriggerName()})
+				plan = append(plan, atc.PlanConfig{
+					Get:      trigger.GetTriggerName(),
+					Attempts: cronGetAttempts,
+				})
 			}
 		}
 	}
