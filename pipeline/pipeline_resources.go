@@ -233,21 +233,19 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 }
 
 func (p pipeline) updateJobConfig(manifest manifest.Manifest, basePath string) *atc.JobConfig {
-	job := atc.JobConfig{
+	return &atc.JobConfig{
 		Name:   updateJobName,
 		Serial: true,
-		Plan: []atc.PlanConfig{{
-			Put: versionName,
-			Params: atc.Params{
-				"bump": "minor",
-			},
-			Attempts: updateTaskAttempts,
-		}},
+		Plan: []atc.PlanConfig{
+			p.updatePipelineTask(manifest, basePath),
+			{
+				Put: versionName,
+				Params: atc.Params{
+					"bump": "minor",
+				},
+				Attempts: updateTaskAttempts,
+			}},
 	}
-
-	job.Plan = append(job.Plan, p.updatePipelineTask(manifest, basePath))
-
-	return &job
 }
 
 func (p pipeline) updatePipelineTask(man manifest.Manifest, basePath string) atc.PlanConfig {
@@ -271,12 +269,11 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest, basePath string) atc
 				Password: "((halfpipe-gcr.private_key))",
 			}),
 			Run: atc.TaskRunConfig{
-				Path: "/bin/update-pipeline",
+				Path: "update-pipeline",
 				Dir:  path.Join(gitDir, basePath),
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitName},
-				{Name: versionName},
 			},
 		}}
 }

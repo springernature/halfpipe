@@ -89,11 +89,6 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - put: version
-    params:
-      bump: minor
-    timeout: 1h
-    attempts: 2
   - task: halfpipe update
     config:
       platform: linux
@@ -113,11 +108,15 @@ jobs:
         HALFPIPE_PROJECT: halfpipe-io
         PIPELINE_NAME: test
       run:
-        path: /bin/update-pipeline
+        path: update-pipeline
         dir: git/e2e/update-pipeline
       inputs:
       - name: git
-      - name: version
+    timeout: 1h
+    attempts: 2
+  - put: version
+    params:
+      bump: minor
     timeout: 1h
     attempts: 2
 - name: Test

@@ -48,11 +48,11 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	assert.Equal(t, 1, len(inParallel.Steps))
 	assert.Equal(t, gitName, (inParallel.Steps)[0].Name())
 
-	//2. put "version"
-	assert.Equal(t, updateJob.Plan[1].Name(), versionName)
+	//2. task "update pipeline"
+	assert.Equal(t, updateJob.Plan[1].Name(), updatePipelineName)
 
-	//3. task "update pipeline"
-	assert.Equal(t, updateJob.Plan[2].Name(), updatePipelineName)
+	//3. put "version"
+	assert.Equal(t, updateJob.Plan[2].Name(), versionName)
 
 }
 
@@ -70,7 +70,7 @@ func TestUpdatePipelinePlan(t *testing.T) {
 	pipeline := testPipeline()
 	cfg := pipeline.Render(man)
 	updateJob, _ := cfg.Jobs.Lookup(updateJobName)
-	updatePipeline := updateJob.Plan[2]
+	updatePipeline := updateJob.Plan[1]
 
 	assert.Equal(t, updatePipeline, pipeline.updatePipelineTask(man, man.Triggers.GetGitTrigger().BasePath))
 }
