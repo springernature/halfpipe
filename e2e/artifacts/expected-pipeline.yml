@@ -62,6 +62,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: create-artifact
     config:
@@ -161,6 +162,7 @@ jobs:
         passed:
         - create-artifact
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -254,6 +256,7 @@ jobs:
         passed:
         - read-artifact
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -394,6 +397,7 @@ jobs:
         passed:
         - deploy to staging
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -463,6 +467,7 @@ jobs:
         passed:
         - push to docker registry
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:
@@ -579,6 +584,7 @@ jobs:
         passed:
         - docker-compose
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: get artifact
     config:

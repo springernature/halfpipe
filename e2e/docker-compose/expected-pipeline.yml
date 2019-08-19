@@ -18,6 +18,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: test
     privileged: true
@@ -78,6 +79,7 @@ jobs:
         passed:
         - test
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: custom
     privileged: true

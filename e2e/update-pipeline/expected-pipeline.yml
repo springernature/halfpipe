@@ -87,6 +87,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - put: version
     params:
@@ -127,6 +128,7 @@ jobs:
       - get: git
         passed:
         - update
+        attempts: 2
       - get: version
         passed:
         - update
@@ -230,6 +232,7 @@ jobs:
       - get: git
         passed:
         - Test
+        attempts: 2
       - get: version
         passed:
         - Test
@@ -307,6 +310,7 @@ jobs:
       - get: git
         passed:
         - deploy to cf
+        attempts: 2
       - get: version
         passed:
         - deploy to cf
@@ -541,6 +545,7 @@ jobs:
       - get: git
         passed:
         - deploy to cf
+        attempts: 2
       - get: version
         passed:
         - deploy to cf
@@ -768,6 +773,7 @@ jobs:
         passed:
         - deploy to staging
         - deploy to qa
+        attempts: 2
       - get: version
         passed:
         - deploy to staging
@@ -796,6 +802,7 @@ jobs:
       - get: git
         passed:
         - push to docker registry
+        attempts: 2
       - get: version
         passed:
         - push to docker registry
@@ -868,6 +875,7 @@ jobs:
       - get: git
         passed:
         - run notify.sh
+        attempts: 2
       - get: version
         passed:
         - run notify.sh
@@ -959,6 +967,7 @@ jobs:
       - get: git
         passed:
         - docker-compose
+        attempts: 2
       - get: version
         passed:
         - docker-compose
@@ -1062,6 +1071,7 @@ jobs:
       - get: git
         passed:
         - another-c-name
+        attempts: 2
       - get: version
         passed:
         - another-c-name
@@ -1165,6 +1175,7 @@ jobs:
       - get: git
         passed:
         - deploy-ml-zip
+        attempts: 2
       - get: version
         passed:
         - deploy-ml-zip

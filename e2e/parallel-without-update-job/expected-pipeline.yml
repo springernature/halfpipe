@@ -20,6 +20,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 1
     config:
@@ -83,6 +84,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 2
     config:
@@ -149,6 +151,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 3
     config:
@@ -215,6 +218,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 4
     config:
@@ -281,6 +285,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: not parallel
     config:
@@ -346,6 +351,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 5
     config:
@@ -411,6 +417,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 6
     config:
@@ -476,6 +483,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test parallel 7
     config:
@@ -543,6 +551,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: one group
     config:
@@ -608,6 +617,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: after parallel
     config:

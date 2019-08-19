@@ -32,6 +32,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - put: halfpipe-fly
     params:
@@ -53,6 +54,7 @@ jobs:
         passed:
         - push to docker registry
         trigger: true
+        attempts: 2
     timeout: 1h
   - put: halfpipe
     params:

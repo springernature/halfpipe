@@ -39,12 +39,14 @@ const artifactsResourceName = "gcp-resource"
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
 const artifactsInDir = "artifacts"
+const artifactGetAttempts = 2
 
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
 const gitName = "git"
 const gitDir = "git"
+const gitGetAttempts = 2
 
 const dockerBuildTmpDir = "docker_build"
 
@@ -113,7 +115,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	return atc.PlanConfig{
 		Task:       "get artifact",
 		TaskConfig: &config,
-		Attempts:   2,
+		Attempts:   artifactGetAttempts,
 	}
 }
 
@@ -125,7 +127,10 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.Git:
-			gitClone := atc.PlanConfig{Get: trigger.GetTriggerName()}
+			gitClone := atc.PlanConfig{
+				Get:      trigger.GetTriggerName(),
+				Attempts: gitGetAttempts,
+			}
 			if trigger.Shallow {
 				gitClone.Params = map[string]interface{}{
 					"depth": 1,

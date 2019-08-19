@@ -50,7 +50,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -111,7 +111,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -172,7 +172,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
+				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}, Attempts: gitGetAttempts},
 				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true}},
 			}},
 			atc.PlanConfig{
@@ -242,7 +242,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}},
+				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}, Attempts: gitGetAttempts},
 				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true}},
 			}},
 			restoreArtifactTask(man),

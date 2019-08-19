@@ -45,6 +45,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: task1
     config:
@@ -127,6 +128,7 @@ jobs:
         passed:
         - task1
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: task2
     config:
@@ -199,6 +201,7 @@ jobs:
         passed:
         - task2
         trigger: true
+        attempts: 2
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF live pe staging

@@ -27,6 +27,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - put: version
     params:
@@ -69,6 +70,7 @@ jobs:
         - update
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - update
@@ -139,6 +141,7 @@ jobs:
         - update
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - update
@@ -210,6 +213,7 @@ jobs:
         - test parallel 2
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - test parallel 1
@@ -282,6 +286,7 @@ jobs:
         - test parallel 2
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - test parallel 1
@@ -354,6 +359,7 @@ jobs:
         - test parallel 4
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - test parallel 3
@@ -425,6 +431,7 @@ jobs:
         - not parallel
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - not parallel
@@ -495,6 +502,7 @@ jobs:
         - not parallel
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - not parallel
@@ -565,6 +573,7 @@ jobs:
         - not parallel
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - not parallel
@@ -637,6 +646,7 @@ jobs:
         - test parallel 7
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - test parallel 5
@@ -709,6 +719,7 @@ jobs:
         - one group
         params:
           depth: 1
+        attempts: 2
       - get: version
         passed:
         - one group

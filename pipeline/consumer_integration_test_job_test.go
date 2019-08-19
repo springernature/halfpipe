@@ -163,8 +163,9 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 				InParallel: &atc.InParallelConfig{
 					Steps: atc.PlanSequence{
 						atc.PlanConfig{
-							Get:     gitName,
-							Trigger: true,
+							Get:      gitName,
+							Trigger:  true,
+							Attempts: gitGetAttempts,
 						}},
 				},
 			},

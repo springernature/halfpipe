@@ -18,6 +18,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 1h
   - task: Deploy ml-modules artifact
     config:

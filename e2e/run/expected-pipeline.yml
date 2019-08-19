@@ -20,6 +20,7 @@ jobs:
         trigger: true
         params:
           depth: 1
+        attempts: 2
     timeout: 1h
   - task: test
     config:

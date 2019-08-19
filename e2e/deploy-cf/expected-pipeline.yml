@@ -34,6 +34,7 @@ jobs:
       steps:
       - get: git
         trigger: true
+        attempts: 2
     timeout: 5m
   - put: cf halfpipe-push
     resource: CF dev-api test dev
