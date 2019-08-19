@@ -145,6 +145,7 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
     timeout: 1h
+    attempts: 2
   on_failure:
     in_parallel:
       steps:
@@ -153,6 +154,7 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
+        attempts: 2
 - name: read-artifact
   serial: true
   plan:
@@ -575,6 +577,7 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
+        attempts: 2
 - name: deploy-ml-zip
   serial: true
   plan:

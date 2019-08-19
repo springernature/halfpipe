@@ -217,6 +217,7 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
     timeout: 1h
+    attempts: 2
   on_failure:
     in_parallel:
       steps:
@@ -225,6 +226,7 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
+        attempts: 2
 - name: deploy to cf
   serial: true
   plan:
@@ -685,6 +687,7 @@ jobs:
       params:
         folder: artifacts-out
         version_file: git/.git/ref
+      attempts: 2
     timeout: 1h
   - do:
     - task: restore artifact in pre promote
@@ -966,6 +969,7 @@ jobs:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
+        attempts: 2
 - name: another-c-name
   serial: true
   plan:

@@ -110,6 +110,7 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
     timeout: 1h
+    attempts: 2
 - name: deploy-ml-zip
   serial: true
   plan:

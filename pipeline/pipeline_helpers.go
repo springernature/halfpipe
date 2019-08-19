@@ -68,5 +68,6 @@ func saveArtifactOnFailurePlan() atc.PlanConfig {
 			"version_file": path.Join(gitDir, ".git", "ref"),
 			"postfix":      "failure",
 		},
+		Attempts: artifactsPutAttempts,
 	}
 }

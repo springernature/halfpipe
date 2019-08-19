@@ -39,7 +39,8 @@ const artifactsResourceName = "gcp-resource"
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
 const artifactsInDir = "artifacts"
-const artifactGetAttempts = 2
+const artifactsGetAttempts = 2
+const artifactsPutAttempts = 2
 
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
@@ -117,7 +118,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	return atc.PlanConfig{
 		Task:       "get artifact",
 		TaskConfig: &config,
-		Attempts:   artifactGetAttempts,
+		Attempts:   artifactsGetAttempts,
 	}
 }
 
@@ -467,6 +468,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 				"folder":       artifactsOutDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
+			Attempts: artifactsPutAttempts,
 		}
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
 	}
