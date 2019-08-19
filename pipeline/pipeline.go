@@ -113,6 +113,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	return atc.PlanConfig{
 		Task:       "get artifact",
 		TaskConfig: &config,
+		Attempts:   2,
 	}
 }
 

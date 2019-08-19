@@ -187,6 +187,7 @@ jobs:
       outputs:
       - name: artifacts
     timeout: 1h
+    attempts: 2
   - task: read-artifact
     config:
       platform: linux
@@ -279,6 +280,7 @@ jobs:
       outputs:
       - name: artifacts
     timeout: 1h
+    attempts: 2
   - put: cf halfpipe-push
     resource: CF live pe staging
     params:
@@ -418,6 +420,7 @@ jobs:
       outputs:
       - name: artifacts
     timeout: 1h
+    attempts: 2
   - task: Copying git repo and artifacts to a temporary build dir
     config:
       platform: linux
@@ -486,6 +489,7 @@ jobs:
       outputs:
       - name: artifacts
     timeout: 1h
+    attempts: 2
   - task: docker-compose
     privileged: true
     config:
@@ -601,6 +605,7 @@ jobs:
       outputs:
       - name: artifacts
     timeout: 1h
+    attempts: 2
   - task: deploy-ml-zip
     config:
       platform: linux
