@@ -56,7 +56,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		Team:     "kehe",
 		Pipeline: "Yolo",
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: gitURI,
 			},
 		},
@@ -84,7 +84,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		Team:     "kehe",
 		Pipeline: "Yolo",
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},
@@ -113,7 +113,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			Team:     "kehe",
 			Pipeline: "Yolo",
 			Triggers: manifest.TriggerList{
-				manifest.Git{},
+				manifest.GitTrigger{},
 			},
 			Tasks: []manifest.Task{
 				manifest.Run{
@@ -136,7 +136,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			Team:     "kehe",
 			Pipeline: "Yolo",
 			Triggers: manifest.TriggerList{
-				manifest.Git{BasePath: "some/subfolder"},
+				manifest.GitTrigger{BasePath: "some/subfolder"},
 			},
 			Tasks: []manifest.Task{
 				manifest.Run{
@@ -159,7 +159,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			Team:     "kehe",
 			Pipeline: "Yolo",
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					BasePath: "some/subfolder",
 					Branch:   "im-a-branch",
 				},

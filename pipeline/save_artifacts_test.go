@@ -39,7 +39,7 @@ func TestAddsResourceIfWeSaveArtifacts(t *testing.T) {
 			Team:     "myTeam",
 			Pipeline: "myPipeline",
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					Branch: "MyBrAnCh",
 				},
 			},
@@ -229,7 +229,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 	}
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},
@@ -293,7 +293,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 	basePath := "apps/subapp1"
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},
@@ -330,7 +330,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 	basePath := "apps/subapp1"
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      gitURI,
 				BasePath: basePath,
 			},

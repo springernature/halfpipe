@@ -60,14 +60,14 @@ type Trigger interface {
 }
 type TriggerList []Trigger
 
-func (t TriggerList) GetGitTrigger() Git {
+func (t TriggerList) GetGitTrigger() GitTrigger {
 	for _, trigger := range t {
 		switch trigger := trigger.(type) {
-		case Git:
+		case GitTrigger:
 			return trigger
 		}
 	}
-	return Git{}
+	return GitTrigger{}
 }
 
 type Manifest struct {

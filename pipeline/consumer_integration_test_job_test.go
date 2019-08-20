@@ -26,7 +26,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@git:user/repo",
 				BasePath: "base.path",
 			},
@@ -89,7 +89,7 @@ func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@git:user/repo",
 				BasePath: "base.path",
 			},
@@ -131,7 +131,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 	man := manifest.Manifest{
 		Pipeline: "p-name",
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@git:user/repo",
 				BasePath: "base.path",
 			},

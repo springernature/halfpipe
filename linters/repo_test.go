@@ -44,8 +44,8 @@ func TestRepInvalidUri(t *testing.T) {
 	t.Run("trigger", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Cron{},
-				manifest.Git{
+				manifest.CronTrigger{},
+				manifest.GitTrigger{
 					URI: "goo",
 				},
 			},
@@ -70,7 +70,7 @@ func TestRepoUriIsValidUri(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -98,7 +98,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "git@github.com:springernature/halfpipe.git",
 				},
 			},
@@ -109,7 +109,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 
 		man = manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:        "git@github.com:springernature/halfpipe.git",
 					PrivateKey: "someKey",
 				},
@@ -145,7 +145,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:          "https://github.com/springernature/halfpipe.git",
 					BasePath:     "",
 					WatchedPaths: []string{"watches/there", "watches/no-there/**"},
@@ -161,8 +161,8 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 2)
-		assertFileErrorInErrors(t, man.Triggers[0].(manifest.Git).WatchedPaths[1], result.Errors)
-		assertFileErrorInErrors(t, man.Triggers[0].(manifest.Git).IgnoredPaths[1], result.Errors)
+		assertFileErrorInErrors(t, man.Triggers[0].(manifest.GitTrigger).WatchedPaths[1], result.Errors)
+		assertFileErrorInErrors(t, man.Triggers[0].(manifest.GitTrigger).IgnoredPaths[1], result.Errors)
 	})
 
 }
@@ -192,7 +192,7 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:          "https://github.com/springernature/halfpipe.git",
 					BasePath:     "project-name",
 					WatchedPaths: []string{"watches/there", "watches/no-there/**"},
@@ -208,8 +208,8 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 2)
-		assertFileErrorInErrors(t, man.Triggers[0].(manifest.Git).WatchedPaths[1], result.Errors)
-		assertFileErrorInErrors(t, man.Triggers[0].(manifest.Git).IgnoredPaths[1], result.Errors)
+		assertFileErrorInErrors(t, man.Triggers[0].(manifest.GitTrigger).WatchedPaths[1], result.Errors)
+		assertFileErrorInErrors(t, man.Triggers[0].(manifest.GitTrigger).IgnoredPaths[1], result.Errors)
 	})
 }
 
@@ -226,7 +226,7 @@ func TestRepoHasValidGitCryptKey(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:         "https://github.com/springernature/halfpipe.git",
 					GitCryptKey: "((gitcrypt.key))",
 				},
@@ -252,7 +252,7 @@ func TestRepoHasInvalidGitCryptKey(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:         "https://github.com/springernature/halfpipe.git",
 					GitCryptKey: "CLEARTEXTKEY_BADASS",
 				},
@@ -279,7 +279,7 @@ func TestRepoWithPublicUrlAndPrivateKey(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:        "https://github.com/springernature/halfpipe.git",
 					PrivateKey: "my_private_key",
 				},
@@ -304,7 +304,7 @@ func TestRepoWhenBranchIsNotSetButOnMaster(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -333,7 +333,7 @@ func TestRepoWhenBranchIsNotSetAndOnNonMasterBranch(t *testing.T) {
 		currentBranch := "myBranch"
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -369,7 +369,7 @@ func TestRepoWhenBranchIsSetAndOnNonMasterBranch(t *testing.T) {
 		currentBranch := "myBranch"
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:    "https://github.com/springernature/halfpipe.git",
 					Branch: currentBranch,
 				},
@@ -406,7 +406,7 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnY(t *testing.T) {
 		currentBranch := "Y"
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:    "https://github.com/springernature/halfpipe.git",
 					Branch: "x",
 				},
@@ -444,7 +444,7 @@ func TestRepoWhenBranchIsSetToBranchXButYouAreOnMaster(t *testing.T) {
 		currentBranch := "master"
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI:    "https://github.com/springernature/halfpipe.git",
 					Branch: "x",
 				},
@@ -481,7 +481,7 @@ func TestRepoWhenBranchResolverReturnsError(t *testing.T) {
 		expectedError := errors.New("meeh")
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -515,7 +515,7 @@ func TestRepoWhenRepoUriIsNotSameAsRepoResolver(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -554,7 +554,7 @@ func TestPassesOnRepoUriResolverErrors(t *testing.T) {
 		expectedError := errors.New("mehp")
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{
+				manifest.GitTrigger{
 					URI: "https://github.com/springernature/halfpipe.git",
 				},
 			},
@@ -580,10 +580,10 @@ func TestOnlyAllowedOneGitTrigger(t *testing.T) {
 			URI: "https://github.com/springernature/halfpipe.git",
 		},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "https://github.com/springernature/halfpipe.git",
 			},
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "https://github.com/springernature/halfpipe-other.git",
 			},
 		},
@@ -600,7 +600,7 @@ func TestOnlyAllowsEitherRepoOrGitTrigger(t *testing.T) {
 			URI: "https://github.com/springernature/halfpipe.git",
 		},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "https://github.com/springernature/halfpipe.git",
 			},
 		},

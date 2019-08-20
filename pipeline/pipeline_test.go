@@ -27,7 +27,7 @@ func testPipeline() pipeline {
 func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 		Tasks: []manifest.Task{
 			manifest.Run{Name: "t1", Script: "asd.sh"},
@@ -50,7 +50,7 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 func TestRenderWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 
 		Tasks: []manifest.Task{
@@ -91,7 +91,7 @@ func TestRenderWithParallelTasks(t *testing.T) {
 func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 
 		Tasks: []manifest.Task{

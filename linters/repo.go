@@ -53,7 +53,7 @@ func (r repoLinter) lintOnlyOneGitTrigger(man manifest.Manifest) error {
 
 	for _, trigger := range man.Triggers {
 		switch trigger.(type) {
-		case manifest.Git:
+		case manifest.GitTrigger:
 			gitTrigger = trigger
 			numGitTriggers++
 		}
@@ -63,7 +63,7 @@ func (r repoLinter) lintOnlyOneGitTrigger(man manifest.Manifest) error {
 		return errors.NewInvalidField("triggers", "You are only allowed one git trigger")
 	}
 
-	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) && numGitTriggers != 0 && !reflect.DeepEqual(gitTrigger, manifest.Git{}) {
+	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) && numGitTriggers != 0 && !reflect.DeepEqual(gitTrigger, manifest.GitTrigger{}) {
 		return errors.NewInvalidField("repo/triggers", "You are only allowed to configure git with either repo or triggers")
 	}
 
@@ -81,7 +81,7 @@ func (r repoLinter) getValues(man manifest.Manifest) (URI, PrivateKey, Branch, B
 	// trigger we find will be the correct one
 	for index, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
-		case manifest.Git:
+		case manifest.GitTrigger:
 			return trigger.URI, trigger.PrivateKey, trigger.Branch, trigger.BasePath, trigger.GitCryptKey, fmt.Sprintf("triggers[%d]", index), trigger.WatchedPaths, trigger.IgnoredPaths
 		}
 	}

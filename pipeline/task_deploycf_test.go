@@ -53,7 +53,7 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "git@github.com:foo/reponame",
 			},
 		},
@@ -259,7 +259,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "git@github:org/repo-name",
 			},
 		},
@@ -367,7 +367,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 	}
 	man.Team = "myteam"
@@ -443,7 +443,7 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 		Tasks: []manifest.Task{taskDeploy},
 	}

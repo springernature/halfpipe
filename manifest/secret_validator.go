@@ -57,8 +57,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(DeployMLZip{}),
 		reflect.TypeOf(DeployMLModules{}),
 		reflect.TypeOf(ArtifactConfig{}),
-		reflect.TypeOf(Git{}),
-		reflect.TypeOf(Cron{}):
+		reflect.TypeOf(GitTrigger{}),
+		reflect.TypeOf(CronTrigger{}):
 
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)

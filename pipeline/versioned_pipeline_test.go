@@ -45,7 +45,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 		Team:     team,
 		Pipeline: pipeline,
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				Branch: branch,
 			},
 		},
@@ -197,8 +197,8 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 			manifest.FeatureUpdatePipeline,
 		},
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
-			manifest.Cron{Trigger: "* * * * *"},
+			manifest.GitTrigger{},
+			manifest.CronTrigger{Trigger: "* * * * *"},
 		},
 		Tasks: manifest.TaskList{
 			manifest.Update{},
@@ -335,7 +335,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 	basePath := "apps/app1"
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},

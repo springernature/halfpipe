@@ -50,7 +50,7 @@ func TestRepo(t *testing.T) {
 			Branch:      "((not.allowed))",
 		},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:        "((not.allowed))",
 				BasePath:   "((not.allowed))",
 				PrivateKey: "((allowed.yo))",
@@ -98,7 +98,7 @@ func TestRepo(t *testing.T) {
 			Branch:       "master",
 		},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:          "Kehe",
 				BasePath:     "Kehu,",
 				PrivateKey:   "((super.allowed))",

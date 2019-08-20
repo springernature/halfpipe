@@ -34,7 +34,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 	}
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@git:user/repo",
 				BasePath: "base.path",
 			},
@@ -93,7 +93,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	}
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@git:user/repo",
 				BasePath: "base.path",
 			},

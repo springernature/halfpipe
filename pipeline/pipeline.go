@@ -129,7 +129,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 	var plan []atc.PlanConfig
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
-		case manifest.Git:
+		case manifest.GitTrigger:
 			gitClone := atc.PlanConfig{
 				Get:      trigger.GetTriggerName(),
 				Attempts: gitGetAttempts,
@@ -140,7 +140,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 				}
 			}
 			plan = append(plan, gitClone)
-		case manifest.Cron:
+		case manifest.CronTrigger:
 			if isUpdateTask || !versioningEnabled {
 				plan = append(plan, atc.PlanConfig{
 					Get:      trigger.GetTriggerName(),
@@ -213,9 +213,9 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.Res
 func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
-		case manifest.Git:
+		case manifest.GitTrigger:
 			resourceConfigs = append(resourceConfigs, p.gitResource(trigger))
-		case manifest.Cron:
+		case manifest.CronTrigger:
 			resourceTypes = append(resourceTypes, cronResourceType())
 			resourceConfigs = append(resourceConfigs, p.cronResource(trigger))
 		}

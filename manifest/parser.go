@@ -207,14 +207,21 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 	// unmarshal into the correct type of Task
 	switch triggerType {
 	case "git":
-		t := Git{}
+		t := GitTrigger{}
 		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
 			return nil, err
 		}
 		t.Type = ""
 		trigger = t
 	case "cron":
-		t := Cron{}
+		t := CronTrigger{}
+		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		trigger = t
+	case "docker":
+		t := DockerTrigger{}
 		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
 			return nil, err
 		}

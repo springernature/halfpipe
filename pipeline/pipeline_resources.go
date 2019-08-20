@@ -15,7 +15,7 @@ import (
 
 const longResourceCheckInterval = "24h"
 
-func (p pipeline) gitResource(trigger manifest.Git) atc.ResourceConfig {
+func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": trigger.URI,
 	}
@@ -121,7 +121,7 @@ func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceC
 	return config
 }
 
-func (p pipeline) cronResource(trigger manifest.Cron) atc.ResourceConfig {
+func (p pipeline) cronResource(trigger manifest.CronTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       cronName,
 		Type:       "cron-resource",

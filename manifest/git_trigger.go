@@ -1,6 +1,6 @@
 package manifest
 
-type Git struct {
+type GitTrigger struct {
 	Type         string
 	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
 	BasePath     string   `json:"-" yaml:"-"` //don't auto unmarshal
@@ -12,6 +12,6 @@ type Git struct {
 	Shallow      bool     `json:"shallow,omitempty" yaml:"shallow,omitempty"`
 }
 
-func (Git) GetTriggerName() string {
+func (GitTrigger) GetTriggerName() string {
 	return "git"
 }

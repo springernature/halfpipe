@@ -22,7 +22,7 @@ func (c cronTriggerLinter) lintOnlyOneCronTrigger(man manifest.Manifest) error {
 
 	for _, trigger := range man.Triggers {
 		switch trigger.(type) {
-		case manifest.Cron:
+		case manifest.CronTrigger:
 			cronTrigger = trigger
 			numCronTriggers++
 		}
@@ -32,7 +32,7 @@ func (c cronTriggerLinter) lintOnlyOneCronTrigger(man manifest.Manifest) error {
 		return errors.NewInvalidField("triggers", "You are only allowed one cron trigger")
 	}
 
-	if man.CronTrigger != "" && numCronTriggers != 0 && !reflect.DeepEqual(cronTrigger, manifest.Cron{}) {
+	if man.CronTrigger != "" && numCronTriggers != 0 && !reflect.DeepEqual(cronTrigger, manifest.CronTrigger{}) {
 		return errors.NewInvalidField("cron_trigger/triggers", "You are only allowed to configure cron with either cron_trigger or triggers")
 	}
 
@@ -49,7 +49,7 @@ func (c cronTriggerLinter) getValues(man manifest.Manifest) (CronTrigger, field 
 	// trigger we find will be the correct one
 	for index, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
-		case manifest.Cron:
+		case manifest.CronTrigger:
 			return trigger.Trigger, fmt.Sprintf("triggers[%d].trigger", index)
 		}
 	}
@@ -57,7 +57,7 @@ func (c cronTriggerLinter) getValues(man manifest.Manifest) (CronTrigger, field 
 }
 
 func (c cronTriggerLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Cron Trigger Linter"
+	result.Linter = "CronTrigger Trigger Linter"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/#cron-trigger"
 
 	if err := c.lintOnlyOneCronTrigger(manifest); err != nil {

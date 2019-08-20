@@ -23,7 +23,7 @@ func TestTranslatesRepo(t *testing.T) {
 	expectedManifest := manifest.Manifest{
 		Repo: manifest.Repo{},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:          man.Repo.URI,
 				BasePath:     man.Repo.BasePath,
 				PrivateKey:   man.Repo.PrivateKey,
@@ -46,7 +46,7 @@ func TestTranslatesCron(t *testing.T) {
 	expectedManifest := manifest.Manifest{
 		CronTrigger: "",
 		Triggers: manifest.TriggerList{
-			manifest.Cron{
+			manifest.CronTrigger{
 				Trigger: man.CronTrigger,
 			},
 		},
@@ -73,7 +73,7 @@ func TestTranslatesBothGitAndCron(t *testing.T) {
 	expectedManifest := manifest.Manifest{
 		Repo: manifest.Repo{},
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:          man.Repo.URI,
 				BasePath:     man.Repo.BasePath,
 				PrivateKey:   man.Repo.PrivateKey,
@@ -83,7 +83,7 @@ func TestTranslatesBothGitAndCron(t *testing.T) {
 				Branch:       man.Repo.Branch,
 				Shallow:      man.Repo.Shallow,
 			},
-			manifest.Cron{
+			manifest.CronTrigger{
 				Trigger: man.CronTrigger,
 			},
 		},

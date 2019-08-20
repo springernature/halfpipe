@@ -18,7 +18,7 @@ func TestCronTrigger(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Cron{
+				manifest.CronTrigger{
 					Trigger: "*/10 * * * *",
 				},
 			},
@@ -40,8 +40,8 @@ func TestInvalidCronTrigger(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Git{},
-				manifest.Cron{
+				manifest.GitTrigger{},
+				manifest.CronTrigger{
 					Trigger: "*/99 * * * *",
 				},
 			},
@@ -64,7 +64,7 @@ func TestCronTriggerWithSecondsShouldHaveError(t *testing.T) {
 	t.Run("triggers", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
-				manifest.Cron{
+				manifest.CronTrigger{
 					Trigger: "* * * * * *",
 				},
 			},
@@ -78,8 +78,8 @@ func TestCronTriggerWithSecondsShouldHaveError(t *testing.T) {
 func TestOnlyAllowedOneCronTrigger(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Cron{},
-			manifest.Cron{},
+			manifest.CronTrigger{},
+			manifest.CronTrigger{},
 		},
 	}
 
@@ -92,7 +92,7 @@ func TestOnlyAllowsEitherCronTriggerOrCron(t *testing.T) {
 	man := manifest.Manifest{
 		CronTrigger: "asdf",
 		Triggers: manifest.TriggerList{
-			manifest.Cron{
+			manifest.CronTrigger{
 				Trigger: "asdf",
 			},
 		},

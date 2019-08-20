@@ -48,7 +48,7 @@ func actualName(repoName, branchName string) string {
 	return Manifest{
 		Pipeline: repoName,
 		Triggers: TriggerList{
-			Git{
+			GitTrigger{
 				Branch: branchName,
 			},
 		},

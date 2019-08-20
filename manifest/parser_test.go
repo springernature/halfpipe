@@ -46,6 +46,8 @@ triggers:
   git_crypt_key: git-crypt-key
 - type: cron
   trigger: "*/10 * * * *"
+- type: docker
+  image: ubuntu
 feature_toggles:
 - feature1
 - feature2
@@ -173,7 +175,7 @@ tasks:
 			"featureXYZ",
 		},
 		Triggers: TriggerList{
-			Git{
+			GitTrigger{
 				URI:        "git@github.com:..",
 				PrivateKey: "private-key",
 				WatchedPaths: []string{
@@ -186,8 +188,11 @@ tasks:
 				},
 				GitCryptKey: "git-crypt-key",
 			},
-			Cron{
+			CronTrigger{
 				Trigger: "*/10 * * * *",
+			},
+			DockerTrigger{
+				Image: "ubuntu",
 			},
 		},
 		Tasks: []Task{

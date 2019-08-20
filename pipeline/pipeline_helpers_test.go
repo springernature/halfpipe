@@ -13,7 +13,7 @@ import (
 func TestToString(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "repo.git",
 			},
 		},
@@ -29,7 +29,7 @@ func TestToString(t *testing.T) {
 func TestToStringVersionComment(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: "repo.git",
 			},
 		},

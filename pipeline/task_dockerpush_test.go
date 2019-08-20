@@ -14,7 +14,7 @@ import (
 func TestRenderDockerPushTask(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 	}
 
@@ -77,7 +77,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},
@@ -132,7 +132,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	basePath := "subapp/sub2"
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@github.com:/springernature/foo.git",
 				BasePath: basePath,
 			},
@@ -198,7 +198,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:      "git@github.com:/springernature/foo.git",
 				BasePath: basePath,
 			},

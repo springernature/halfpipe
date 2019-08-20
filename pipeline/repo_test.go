@@ -13,7 +13,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI: gitURI,
 			},
 		},
@@ -40,7 +40,7 @@ func TestRendersSshGitResource(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:        gitURI,
 				PrivateKey: privateKey,
 			},
@@ -71,7 +71,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:          gitURI,
 				PrivateKey:   privateKey,
 				WatchedPaths: watches,
@@ -104,7 +104,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:         gitURI,
 				GitCryptKey: gitCrypt,
 			},
@@ -133,7 +133,7 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				URI:    gitURI,
 				Branch: branch,
 			},
@@ -159,7 +159,7 @@ func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
 	taskName := "runTask"
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				Shallow: true,
 			},
 		},

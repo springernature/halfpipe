@@ -29,7 +29,7 @@ func TestRenderRunTask(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 		Tasks: []manifest.Task{
 			runTask,
@@ -76,7 +76,7 @@ func TestRenderRunTask(t *testing.T) {
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{},
+			manifest.GitTrigger{},
 		},
 	}
 	runTask := manifest.Run{
@@ -140,7 +140,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.Git{
+			manifest.GitTrigger{
 				BasePath: basePath,
 			},
 		},

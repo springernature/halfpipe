@@ -12,8 +12,8 @@ func NewTriggersTranslator() Translator {
 	return Translator{}
 }
 
-func (Translator) repoToGitTrigger(repo manifest.Repo) manifest.Git {
-	return manifest.Git{
+func (Translator) repoToGitTrigger(repo manifest.Repo) manifest.GitTrigger {
+	return manifest.GitTrigger{
 		URI:          repo.URI,
 		BasePath:     repo.BasePath,
 		PrivateKey:   repo.PrivateKey,
@@ -25,8 +25,8 @@ func (Translator) repoToGitTrigger(repo manifest.Repo) manifest.Git {
 	}
 }
 
-func (Translator) cronTriggerToCronTriggerType(cronTrigger string) manifest.Cron {
-	return manifest.Cron{
+func (Translator) cronTriggerToCronTriggerType(cronTrigger string) manifest.CronTrigger {
+	return manifest.CronTrigger{
 		Trigger: cronTrigger,
 	}
 }

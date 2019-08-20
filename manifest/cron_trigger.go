@@ -1,10 +1,10 @@
 package manifest
 
-type Cron struct {
+type CronTrigger struct {
 	Type    string
 	Trigger string `json:"trigger,omitempty" yaml:"trigger,omitempty"`
 }
 
-func (Cron) GetTriggerName() string {
+func (CronTrigger) GetTriggerName() string {
 	return "cron"
 }
