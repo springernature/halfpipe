@@ -121,13 +121,13 @@ func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceC
 	return config
 }
 
-func (p pipeline) cronResource(trigger manifest.CronTrigger) atc.ResourceConfig {
+func (p pipeline) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       cronName,
 		Type:       "cron-resource",
 		CheckEvery: "1m",
 		Source: atc.Source{
-			"expression":       trigger.Trigger,
+			"expression":       trigger.Cron,
 			"location":         "UTC",
 			"fire_immediately": true,
 		},

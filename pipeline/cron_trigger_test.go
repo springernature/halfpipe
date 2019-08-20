@@ -10,8 +10,8 @@ import (
 func TestCronTriggerResourceTypeSet(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "*/10 * * * *",
+			manifest.TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 		},
 		Tasks: []manifest.Task{
@@ -51,8 +51,8 @@ func TestCronTriggerNotSet(t *testing.T) {
 func TestCronTriggerSetAddsResource(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "*/10 * * * *",
+			manifest.TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 		},
 		Tasks: []manifest.Task{
@@ -61,19 +61,19 @@ func TestCronTriggerSetAddsResource(t *testing.T) {
 	}
 
 	config := testPipeline().Render(man)
-	resource, found := config.Resources.Lookup(manifest.CronTrigger{}.GetTriggerName())
+	resource, found := config.Resources.Lookup(manifest.TimerTrigger{}.GetTriggerName())
 	assert.True(t, found)
 	assert.Equal(t, cronName, resource.Name)
 	assert.Equal(t, "cron-resource", resource.Type)
-	assert.Equal(t, man.Triggers[0].(manifest.CronTrigger).Trigger, resource.Source["expression"])
+	assert.Equal(t, man.Triggers[0].(manifest.TimerTrigger).Cron, resource.Source["expression"])
 	assert.Equal(t, "1m", resource.CheckEvery)
 }
 
 func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "*/10 * * * *",
+			manifest.TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 		},
 		Tasks: []manifest.Task{
@@ -102,8 +102,8 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "*/10 * * * *",
+			manifest.TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 		},
 		Tasks: []manifest.Task{
@@ -151,8 +151,8 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "*/10 * * * *",
+			manifest.TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 		},
 		Tasks: []manifest.Task{

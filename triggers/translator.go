@@ -25,9 +25,9 @@ func (Translator) repoToGitTrigger(repo manifest.Repo) manifest.GitTrigger {
 	}
 }
 
-func (Translator) cronTriggerToCronTriggerType(cronTrigger string) manifest.CronTrigger {
-	return manifest.CronTrigger{
-		Trigger: cronTrigger,
+func (Translator) cronTriggerToCronTriggerType(cronTrigger string) manifest.TimerTrigger {
+	return manifest.TimerTrigger{
+		Cron: cronTrigger,
 	}
 }
 
@@ -36,7 +36,7 @@ func (t Translator) numTriggers(triggers manifest.TriggerList) (numGitTriggers, 
 		switch trigger.(type) {
 		case manifest.GitTrigger:
 			numGitTriggers++
-		case manifest.CronTrigger:
+		case manifest.TimerTrigger:
 			numCronTriggers++
 		}
 	}

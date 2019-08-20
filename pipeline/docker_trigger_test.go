@@ -65,8 +65,8 @@ func TestDockerTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 //func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 //	man := manifest.Manifest{
 //		Triggers: manifest.TriggerList{
-//			manifest.CronTrigger{
-//				Trigger: "*/10 * * * *",
+//			manifest.TimerTrigger{
+//				Cron: "*/10 * * * *",
 //			},
 //		},
 //		Tasks: []manifest.Task{
@@ -87,7 +87,7 @@ func TestDockerTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 //
 //	assert.Len(t, first, 2)
 //	assert.Equal(t, cronName, firstInParallel[0].Name())
-//	assert.True(t, firstInParallel[0].Trigger)
+//	assert.True(t, firstInParallel[0].Cron)
 //
 //	p1 := config.Jobs[1].Plan
 //	p1InParallel := p1[0].InParallel.Steps
@@ -114,8 +114,8 @@ func TestDockerTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 //func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 //	man := manifest.Manifest{
 //		Triggers: manifest.TriggerList{
-//			manifest.CronTrigger{
-//				Trigger: "*/10 * * * *",
+//			manifest.TimerTrigger{
+//				Cron: "*/10 * * * *",
 //			},
 //		},
 //		Tasks: []manifest.Task{
@@ -137,7 +137,7 @@ func TestDockerTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 //
 //	assert.Len(t, first, 3)
 //	assert.Equal(t, cronName, firstInParallel[0].Name())
-//	assert.True(t, firstInParallel[0].Trigger)
+//	assert.True(t, firstInParallel[0].Cron)
 //
 //	p1 := config.Jobs[1].Plan
 //	p1InParallel := p1[0].InParallel.Steps

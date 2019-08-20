@@ -9,7 +9,7 @@ import (
 
 func TestOnlyCronTriggerDefined(t *testing.T) {
 	t.Run("valid trigger", func(t *testing.T) {
-		trigger := manifest.CronTrigger{Trigger: "*/10 * * * *"}
+		trigger := manifest.TimerTrigger{Cron: "*/10 * * * *"}
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				trigger,
@@ -21,7 +21,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 	})
 
 	t.Run("empty trigger", func(t *testing.T) {
-		trigger := manifest.CronTrigger{}
+		trigger := manifest.TimerTrigger{}
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				trigger,
@@ -34,7 +34,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 	})
 
 	t.Run("bad trigger", func(t *testing.T) {
-		trigger := manifest.CronTrigger{Trigger: "*/99 * * * *"}
+		trigger := manifest.TimerTrigger{Cron: "*/99 * * * *"}
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				trigger,
@@ -48,7 +48,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 
 	t.Run("with seconds in trigger", func(t *testing.T) {
 		// 6 parts means there is seconds.
-		trigger := manifest.CronTrigger{Trigger: "* * * * * *"}
+		trigger := manifest.TimerTrigger{Cron: "* * * * * *"}
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				trigger,
@@ -62,12 +62,12 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 }
 
 func TestBothCronTriggerDefined(t *testing.T) {
-	// In the merger we dont do anything if both cron_trigger and a CronTrigger{} is defined.
+	// In the merger we dont do anything if both cron_trigger and a TimerTrigger{} is defined.
 	// Lets catch that here
 
-	trigger := manifest.CronTrigger{Trigger: "* * * * * *"}
+	trigger := manifest.TimerTrigger{Cron: "* * * * * *"}
 	man := manifest.Manifest{
-		CronTrigger: trigger.Trigger,
+		CronTrigger: trigger.Cron,
 		Triggers: manifest.TriggerList{
 			trigger,
 		},

@@ -142,7 +142,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 				}
 			}
 			plan = append(plan, gitClone)
-		case manifest.CronTrigger:
+		case manifest.TimerTrigger:
 			if isUpdateTask || !versioningEnabled {
 				plan = append(plan, atc.PlanConfig{
 					Get:      trigger.GetTriggerName(),
@@ -230,7 +230,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
 			resourceConfigs = append(resourceConfigs, p.gitResource(trigger))
-		case manifest.CronTrigger:
+		case manifest.TimerTrigger:
 			resourceTypes = append(resourceTypes, cronResourceType())
 			resourceConfigs = append(resourceConfigs, p.cronResource(trigger))
 		case manifest.DockerTrigger:

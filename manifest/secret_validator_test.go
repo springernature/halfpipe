@@ -66,8 +66,8 @@ func TestRepo(t *testing.T) {
 				GitCryptKey: "((allowed.yo))",
 				Branch:      "((not.allowed))",
 			},
-			manifest.CronTrigger{
-				Trigger: "((not.allowed))",
+			manifest.TimerTrigger{
+				Cron: "((not.allowed))",
 			},
 			manifest.DockerTrigger{
 				Image: "((not.allowed))",
@@ -93,7 +93,7 @@ func TestRepo(t *testing.T) {
 	assert.NotContains(t, errors, manifest.UnsupportedSecretError("triggers[0].git_crypt_key"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].branch"))
 
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[1].trigger"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[1].cron"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[2].image"))
 
 	good := manifest.Manifest{

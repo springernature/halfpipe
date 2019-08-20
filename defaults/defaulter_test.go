@@ -100,7 +100,7 @@ func TestTriggers(t *testing.T) {
 		t.Run("does not do anything when the image is not from our registry", func(t *testing.T) {
 			man := manifest.Manifest{
 				Triggers: manifest.TriggerList{
-					manifest.CronTrigger{},
+					manifest.TimerTrigger{},
 					manifest.DockerTrigger{
 						Image: "ubuntu",
 					},
@@ -118,7 +118,7 @@ func TestTriggers(t *testing.T) {
 			image := path.Join(config.DockerRegistry, "ubuntu")
 			man := manifest.Manifest{
 				Triggers: manifest.TriggerList{
-					manifest.CronTrigger{},
+					manifest.TimerTrigger{},
 					manifest.DockerTrigger{
 						Image: image,
 					},

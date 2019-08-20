@@ -44,8 +44,8 @@ triggers:
   - ignored/dir1/**
   - README.md
   git_crypt_key: git-crypt-key
-- type: cron
-  trigger: "*/10 * * * *"
+- type: timer
+  cron: "*/10 * * * *"
 - type: docker
   image: ubuntu
   username: userName
@@ -190,8 +190,8 @@ tasks:
 				},
 				GitCryptKey: "git-crypt-key",
 			},
-			CronTrigger{
-				Trigger: "*/10 * * * *",
+			TimerTrigger{
+				Cron: "*/10 * * * *",
 			},
 			DockerTrigger{
 				Image:    "ubuntu",

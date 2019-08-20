@@ -198,7 +198,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 		},
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{},
-			manifest.CronTrigger{Trigger: "* * * * *"},
+			manifest.TimerTrigger{Cron: "* * * * *"},
 		},
 		Tasks: manifest.TaskList{
 			manifest.Update{},

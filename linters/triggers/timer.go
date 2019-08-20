@@ -8,9 +8,9 @@ import (
 	"regexp"
 )
 
-//func getValues(man manifest.Manifest) (CronTrigger) {
-//	if man.CronTrigger != "" {
-//		return man.CronTrigger
+//func getValues(man manifest.Manifest) (TimerTrigger) {
+//	if man.TimerTrigger != "" {
+//		return man.TimerTrigger
 //	}
 //	// The first thing we do in the linter is to make sure that we use
 //	// either cron_trigger or manifest.triggers for cron and that there
@@ -18,32 +18,32 @@ import (
 //	// trigger we find will be the correct one
 //	for index, trigger := range man.Triggers {
 //		switch trigger := trigger.(type) {
-//		case manifest.CronTrigger:
-//			return trigger.Trigger
+//		case manifest.TimerTrigger:
+//			return trigger.Cron
 //		}
 //	}
 //	return
 //}
 
-func LintCronTrigger(man manifest.Manifest, cron manifest.CronTrigger) (errs []error, warnings []error) {
+func LintCronTrigger(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error) {
 	/*
 		in the trigger translator we do the following
-		only cron_trigger: x defined -> CronTrigger{x}
-		cron_trigger: x defined and CronTrigger{y} -> cron_trigger:x, CronTrigger{y}
-		only CronTrigger{y} defined  -> CronTrigger{y}
+		only cron_trigger: x defined -> TimerTrigger{x}
+		cron_trigger: x defined and TimerTrigger{y} -> cron_trigger:x, TimerTrigger{y}
+		only TimerTrigger{y} defined  -> TimerTrigger{y}
 	*/
 	if man.CronTrigger != "" {
 		errs = append(errs, errors.NewInvalidField("cron_trigger", "looks like both top level field 'cron_trigger' and a cron trigger is defined. Please remove 'cron_trigger'!"))
 		return
 	}
 
-	_, err := cronexpr.Parse(cron.Trigger)
+	_, err := cronexpr.Parse(cron.Cron)
 	if err != nil {
-		errs = append(errs, errors.NewInvalidField("trigger", fmt.Sprintf("'%s' is not a valid cron expression", cron.Trigger)))
+		errs = append(errs, errors.NewInvalidField("trigger", fmt.Sprintf("'%s' is not a valid cron expression", cron.Cron)))
 	}
 
 	spacer := regexp.MustCompile(`\S+`)
-	if len(spacer.FindAllStringIndex(cron.Trigger, -1)) == 6 {
+	if len(spacer.FindAllStringIndex(cron.Cron, -1)) == 6 {
 		errs = append(errs, errors.NewInvalidField("trigger", "seconds in cron expression is not supported"))
 	}
 

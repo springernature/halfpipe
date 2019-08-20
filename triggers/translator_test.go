@@ -44,8 +44,8 @@ func TestTranslatesCron(t *testing.T) {
 
 	expectedManifest := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: man.CronTrigger,
+			manifest.TimerTrigger{
+				Cron: man.CronTrigger,
 			},
 		},
 	}
@@ -80,8 +80,8 @@ func TestTranslatesBothGitAndCron(t *testing.T) {
 				Branch:       man.Repo.Branch,
 				Shallow:      man.Repo.Shallow,
 			},
-			manifest.CronTrigger{
-				Trigger: man.CronTrigger,
+			manifest.TimerTrigger{
+				Cron: man.CronTrigger,
 			},
 		},
 	}
@@ -119,8 +119,8 @@ func TestDontDoAnythingIfBothCronTriggersDefined(t *testing.T) {
 	man := manifest.Manifest{
 		CronTrigger: "something",
 		Triggers: manifest.TriggerList{
-			manifest.CronTrigger{
-				Trigger: "somethingElse",
+			manifest.TimerTrigger{
+				Cron: "somethingElse",
 			},
 		},
 	}

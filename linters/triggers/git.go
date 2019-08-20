@@ -30,8 +30,8 @@ func LintGitTrigger(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afe
 	/*
 		in the trigger translator we do the following
 		only repo: x defined -> GitTrigger{x}
-		repo: x defined and GitTrigger{y} -> repo:x, CronTrigger{y}
-		only GitTrigger{y} defined  -> CronTrigger{y}
+		repo: x defined and GitTrigger{y} -> repo:x, TimerTrigger{y}
+		only GitTrigger{y} defined  -> TimerTrigger{y}
 	*/
 	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) {
 		errs = append(errs, errors.NewInvalidField("repo", "looks like both top level field 'repo' and a git trigger is defined. Please migrate 'repo' settings to the trigger and remove the key!"))

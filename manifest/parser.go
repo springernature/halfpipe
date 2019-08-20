@@ -213,8 +213,8 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		}
 		t.Type = ""
 		trigger = t
-	case "cron":
-		t := CronTrigger{}
+	case "timer":
+		t := TimerTrigger{}
 		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
 			return nil, err
 		}

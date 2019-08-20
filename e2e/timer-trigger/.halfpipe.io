@@ -2,8 +2,8 @@ team: test
 pipeline: test
 
 triggers:
-- type: cron
-  trigger: "* * * * *"
+- type: timer
+  cron: "* * * * *"
 
 tasks:
 - type: docker-push
