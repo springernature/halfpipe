@@ -31,17 +31,31 @@ func (Translator) cronTriggerToCronTriggerType(cronTrigger string) manifest.Cron
 	}
 }
 
+func (t Translator) numTriggers(triggers manifest.TriggerList) (numGitTriggers, numCronTriggers int) {
+	for _, trigger := range triggers {
+		switch trigger.(type) {
+		case manifest.GitTrigger:
+			numGitTriggers++
+		case manifest.CronTrigger:
+			numCronTriggers++
+		}
+	}
+	return
+}
+
 func (t Translator) Translate(man manifest.Manifest) manifest.Manifest {
 	updatedManifest := man
 
-	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) {
-		updatedManifest.Triggers = append(updatedManifest.Triggers, t.repoToGitTrigger(man.Repo))
+	numGitTriggers, numCronTriggers := t.numTriggers(man.Triggers)
+
+	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) && numGitTriggers == 0 {
 		updatedManifest.Repo = manifest.Repo{}
+		updatedManifest.Triggers = append(updatedManifest.Triggers, t.repoToGitTrigger(man.Repo))
 	}
 
-	if man.CronTrigger != "" {
-		updatedManifest.Triggers = append(updatedManifest.Triggers, t.cronTriggerToCronTriggerType(man.CronTrigger))
+	if man.CronTrigger != "" && numCronTriggers == 0 {
 		updatedManifest.CronTrigger = ""
+		updatedManifest.Triggers = append(updatedManifest.Triggers, t.cronTriggerToCronTriggerType(man.CronTrigger))
 	}
 
 	return updatedManifest

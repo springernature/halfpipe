@@ -1,5 +1,7 @@
 package manifest
 
+import "strings"
+
 type GitTrigger struct {
 	Type         string
 	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
@@ -14,4 +16,8 @@ type GitTrigger struct {
 
 func (GitTrigger) GetTriggerName() string {
 	return "git"
+}
+
+func (git GitTrigger) IsPublic() bool {
+	return len(git.URI) > 4 && strings.HasPrefix(git.URI, "http")
 }

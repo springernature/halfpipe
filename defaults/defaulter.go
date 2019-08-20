@@ -212,16 +212,44 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 	return
 }
 
+func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
+	// Here the triggers.Translator repo to GitTrigger have already been run.
+	// We assume that the translated trigger is the first occurance
+	var gitTrigger manifest.GitTrigger
+	var gitTriggerIndex int
+	var found bool
+	for i, trigger := range man.Triggers {
+		switch trigger := trigger.(type) {
+		case manifest.GitTrigger:
+			found = true
+			gitTriggerIndex = i
+			gitTrigger = trigger
+			break
+		}
+	}
+
+	updatedManifest := man
+	gitTrigger.BasePath = d.Project.BasePath
+
+	if gitTrigger.URI == "" {
+		gitTrigger.URI = d.Project.GitURI
+	}
+
+	if gitTrigger.URI != "" && !gitTrigger.IsPublic() && gitTrigger.PrivateKey == "" {
+		gitTrigger.PrivateKey = d.RepoPrivateKey
+	}
+
+	if found {
+		updatedManifest.Triggers[gitTriggerIndex] = gitTrigger
+	} else {
+		updatedManifest.Triggers = append(updatedManifest.Triggers, gitTrigger)
+	}
+
+	return updatedManifest
+}
+
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
-	man.Repo.BasePath = d.Project.BasePath
-
-	if man.Repo.URI == "" {
-		man.Repo.URI = d.Project.GitURI
-	}
-
-	if man.Repo.URI != "" && !man.Repo.IsPublic() && man.Repo.PrivateKey == "" {
-		man.Repo.PrivateKey = d.RepoPrivateKey
-	}
+	man = d.updateGitTriggerWithDefaults(man)
 
 	if man.FeatureToggles.UpdatePipeline() {
 		man.Tasks = append(manifest.TaskList{manifest.Update{}}, man.Tasks...)

@@ -46,6 +46,20 @@ func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	assert.Fail(t, fmt.Sprintf("Could not find invalid field error for '%s' in %s", name, errs))
 }
 
+func assertTriggerErrorInErrors(t *testing.T, name string, errs []error) {
+	t.Helper()
+
+	for _, err := range errs {
+		mf, ok := err.(errors.TriggerError)
+		if ok {
+			if mf.TriggerName == name {
+				return
+			}
+		}
+	}
+	assert.Fail(t, fmt.Sprintf("Could not find TriggerError error for '%s' in %s", name, errs))
+}
+
 func assertFileErrorInErrors(t *testing.T, glob string, errs []error) {
 	t.Helper()
 

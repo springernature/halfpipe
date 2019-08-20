@@ -30,6 +30,7 @@ If the above check are untrue we can assume that we are on a developer machine a
 */
 
 type GitBranchResolver func() (branch string, err error)
+type RepoURIResolver func() (string, error)
 
 func gitIsOnPath() error {
 	if _, e := exec.LookPath("git"); e != nil {

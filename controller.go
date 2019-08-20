@@ -48,8 +48,10 @@ func (c Controller) Process() (config atc.Config, results result.LintResults) {
 		return
 	}
 
-	man = c.Defaulter.Update(man)
 	man.Tasks = c.Merger.MergeParallelTasks(man.Tasks)
+	man = c.TriggerTranslator.Translate(man)
+
+	man = c.Defaulter.Update(man)
 
 	for _, linter := range c.Linters {
 		results = append(results, linter.Lint(man))
@@ -58,7 +60,6 @@ func (c Controller) Process() (config atc.Config, results result.LintResults) {
 	if results.HasErrors() {
 		return
 	}
-	man = c.TriggerTranslator.Translate(man)
 
 	config = c.Renderer.Render(man)
 	return

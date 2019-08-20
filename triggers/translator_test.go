@@ -21,7 +21,6 @@ func TestTranslatesRepo(t *testing.T) {
 	}
 
 	expectedManifest := manifest.Manifest{
-		Repo: manifest.Repo{},
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:          man.Repo.URI,
@@ -44,7 +43,6 @@ func TestTranslatesCron(t *testing.T) {
 	}
 
 	expectedManifest := manifest.Manifest{
-		CronTrigger: "",
 		Triggers: manifest.TriggerList{
 			manifest.CronTrigger{
 				Trigger: man.CronTrigger,
@@ -71,7 +69,6 @@ func TestTranslatesBothGitAndCron(t *testing.T) {
 	}
 
 	expectedManifest := manifest.Manifest{
-		Repo: manifest.Repo{},
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:          man.Repo.URI,
@@ -88,5 +85,46 @@ func TestTranslatesBothGitAndCron(t *testing.T) {
 			},
 		},
 	}
+	assert.Equal(t, expectedManifest, NewTriggersTranslator().Translate(man))
+}
+
+func TestDontDoAnythingIfBothGitTriggerAndRepoDefined(t *testing.T) {
+	// We are catching this later in the linters
+
+	man := manifest.Manifest{
+		Repo: manifest.Repo{
+			URI:          "a",
+			BasePath:     "b",
+			PrivateKey:   "c",
+			WatchedPaths: []string{"a", "b", "c"},
+			IgnoredPaths: []string{"d", "e", "f"},
+			GitCryptKey:  "g",
+			Branch:       "h",
+			Shallow:      true,
+		},
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				URI: "somethingElse",
+			},
+		},
+	}
+
+	expectedManifest := man
+	assert.Equal(t, expectedManifest, NewTriggersTranslator().Translate(man))
+}
+
+func TestDontDoAnythingIfBothCronTriggersDefined(t *testing.T) {
+	// We are catching this later in the linters
+
+	man := manifest.Manifest{
+		CronTrigger: "something",
+		Triggers: manifest.TriggerList{
+			manifest.CronTrigger{
+				Trigger: "somethingElse",
+			},
+		},
+	}
+
+	expectedManifest := man
 	assert.Equal(t, expectedManifest, NewTriggersTranslator().Translate(man))
 }

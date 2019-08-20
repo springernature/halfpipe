@@ -66,11 +66,17 @@ func TestRepo(t *testing.T) {
 				GitCryptKey: "((allowed.yo))",
 				Branch:      "((not.allowed))",
 			},
+			manifest.CronTrigger{
+				Trigger: "((not.allowed))",
+			},
+			manifest.DockerTrigger{
+				Image: "((not.allowed))",
+			},
 		},
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 10)
+	assert.Len(t, errors, 12)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.uri"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.basePath"))
 	assert.NotContains(t, errors, manifest.UnsupportedSecretError("repo.private_key"))
@@ -86,6 +92,9 @@ func TestRepo(t *testing.T) {
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].ignored_paths[2]"))
 	assert.NotContains(t, errors, manifest.UnsupportedSecretError("triggers[0].git_crypt_key"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].branch"))
+
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[1].trigger"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[2].image"))
 
 	good := manifest.Manifest{
 		Repo: manifest.Repo{

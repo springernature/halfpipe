@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/triggers"
+	"github.com/tcnksm/go-gitconfig"
 	"os"
 
 	"code.cloudfoundry.org/cli/util/manifest"
@@ -63,11 +64,10 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			TriggerTranslator: triggers.NewTriggersTranslator(),
 			Linters: []linters.Linter{
 				linters.NewTopLevelLinter(),
-				linters.NewRepoLinter(fs, currentDir, project.BranchResolver),
+				linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),
 				linters.NewSecretsLinter(man.NewSecretValidator()),
 				linters.NewTasksLinter(fs, runtime.GOOS),
 				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
-				linters.NewCronTriggerLinter(),
 				linters.NewFeatureToggleLinter(man.AvailableFeatureToggles),
 			},
 			Renderer:         pipeline.NewPipeline(manifest.ReadAndInterpolateManifest, fs),

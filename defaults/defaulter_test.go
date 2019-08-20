@@ -12,9 +12,13 @@ import (
 func TestRepoDefaultsForPublicRepo(t *testing.T) {
 	manifestDefaults := Defaults{RepoPrivateKey: "((halfpipe-github.private_key))"}
 
-	man := manifest.Manifest{}
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{},
+		},
+	}
 	man = manifestDefaults.Update(man)
-	assert.Empty(t, man.Repo.PrivateKey)
+	assert.Equal(t, "", man.Triggers[0].(manifest.GitTrigger).PrivateKey)
 }
 
 func TestRepoDefaultsForPrivateRepo(t *testing.T) {
@@ -25,15 +29,29 @@ func TestRepoDefaultsForPrivateRepo(t *testing.T) {
 		},
 	}
 
-	man := manifest.Manifest{}
-	man = manifestDefaults.Update(man)
-	assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Repo.PrivateKey)
+	t.Run("no private key set", func(t *testing.T) {
+		man := manifest.Manifest{
+			Triggers: manifest.TriggerList{
+				manifest.GitTrigger{},
+			},
+		}
+		man = manifestDefaults.Update(man)
+		assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+	})
 
-	//doesn't replace existing value
-	man.Repo.PrivateKey = "foo"
+	t.Run("private key set", func(t *testing.T) {
+		//doesn't replace existing value
+		man := manifest.Manifest{
+			Triggers: manifest.TriggerList{
+				manifest.GitTrigger{
+					PrivateKey: "foo",
+				},
+			},
+		}
 
-	man = manifestDefaults.Update(man)
-	assert.Equal(t, "foo", man.Repo.PrivateKey)
+		man = manifestDefaults.Update(man)
+		assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+	})
 }
 
 func TestCFDeployDefaults(t *testing.T) {
@@ -69,7 +87,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	actual := manifestDefaults.Update(man)
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected.Tasks, actual.Tasks)
 }
 
 func TestCFDeployDefaultsForSNPaaS(t *testing.T) {
@@ -99,7 +117,7 @@ func TestCFDeployDefaultsForSNPaaS(t *testing.T) {
 
 	actual := manifestDefaults.Update(man)
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected.Tasks, actual.Tasks)
 }
 
 func TestRunTaskDockerDefault(t *testing.T) {
@@ -203,7 +221,7 @@ func TestDeployCfTaskWithPrePromote(t *testing.T) {
 
 	actual := DefaultValues.Update(man)
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected.Tasks, actual.Tasks)
 }
 
 func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
@@ -252,12 +270,17 @@ func TestSetsProjectValues(t *testing.T) {
 	manifestDefaults := Defaults{
 		Project: pro,
 	}
-	man := manifest.Manifest{}
 
-	man = manifestDefaults.Update(man)
+	expectedManifest := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				URI:      "bar",
+				BasePath: "foo",
+			},
+		},
+	}
 
-	assert.Equal(t, "bar", man.Repo.URI)
-	assert.Equal(t, "foo", man.Repo.BasePath)
+	assert.Equal(t, expectedManifest.Triggers, manifestDefaults.Update(manifest.Manifest{}).Triggers)
 }
 
 func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
@@ -265,13 +288,18 @@ func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
 	manifestDefaults := Defaults{
 		Project: pro,
 	}
-	man := manifest.Manifest{}
-	man.Repo.URI = "git@github.com/foo/bar"
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				URI: "git@github.com/foo/bar",
+			},
+		},
+	}
 
 	man = manifestDefaults.Update(man)
 
-	assert.Equal(t, "git@github.com/foo/bar", man.Repo.URI)
-	assert.Equal(t, pro.BasePath, man.Repo.BasePath)
+	assert.Equal(t, "git@github.com/foo/bar", man.Triggers[0].(manifest.GitTrigger).URI)
+	assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).BasePath)
 }
 
 func TestSetsDefaultDockerComposeService(t *testing.T) {
@@ -546,33 +574,28 @@ func TestSetsNames(t *testing.T) {
 
 func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {
 	man := manifest.Manifest{
-		Repo:           manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
 		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
-		Tasks: []manifest.Task{
+		Tasks: manifest.TaskList{
 			manifest.Run{Script: "asd.sh"},
 		},
 	}
 
-	expected := manifest.Manifest{
-		Repo:           manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
-		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
-		Tasks: []manifest.Task{
-			manifest.Update{
-				Timeout: "1h",
+	expected := manifest.TaskList{
+		manifest.Update{
+			Timeout: "1h",
+		},
+		manifest.Run{
+			Name:   "run asd.sh",
+			Script: "asd.sh",
+			Vars: map[string]string{
+				"ARTIFACTORY_USERNAME": "((artifactory.username))",
+				"ARTIFACTORY_PASSWORD": "((artifactory.password))",
+				"ARTIFACTORY_URL":      "((artifactory.url))",
 			},
-			manifest.Run{
-				Name:   "run asd.sh",
-				Script: "asd.sh",
-				Vars: map[string]string{
-					"ARTIFACTORY_USERNAME": "((artifactory.username))",
-					"ARTIFACTORY_PASSWORD": "((artifactory.password))",
-					"ARTIFACTORY_URL":      "((artifactory.url))",
-				},
-				Timeout: "1h",
-			},
+			Timeout: "1h",
 		},
 	}
 
 	updated := DefaultValues.Update(man)
-	assert.Equal(t, expected, updated)
+	assert.Equal(t, expected, updated.Tasks)
 }
