@@ -42,7 +42,7 @@ func (s sampleGenerator) Generate() (err error) {
 		return
 	}
 
-	manifest := Manifest{
+	man := Manifest{
 		Team: "CHANGE-ME",
 
 		Tasks: []Task{
@@ -63,13 +63,16 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 
 	if proj.BasePath != "" {
-		manifest.Repo.WatchedPaths = append(manifest.Repo.WatchedPaths, proj.BasePath)
+		man.Triggers = append(man.Triggers, GitTrigger{
+			Type:         "git",
+			WatchedPaths: []string{proj.BasePath},
+		})
 	}
-	manifest.Pipeline = createPipelineName(proj)
+	man.Pipeline = createPipelineName(proj)
 
-	manifest.FeatureToggles = FeatureToggles{FeatureUpdatePipeline}
+	man.FeatureToggles = FeatureToggles{FeatureUpdatePipeline}
 
-	out, err := yaml.Marshal(manifest)
+	out, err := yaml.Marshal(man)
 	if err != nil {
 		return
 	}

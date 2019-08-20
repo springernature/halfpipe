@@ -1,11 +1,12 @@
 team: test
 pipeline: halfpipe-e2e-artifacts
-repo:
+
+triggers:
+- type: git
   watched_paths:
   - e2e/artifacts
 
 tasks:
-
 - type: run
   name: create-artifact
   script: ./a

@@ -1,7 +1,9 @@
 team: test
 pipeline: halfpipe-e2e-notifications
 slack_channel: "#yo"
-repo:
+
+triggers:
+- type: git
   watched_paths:
   - e2e/notifications
 

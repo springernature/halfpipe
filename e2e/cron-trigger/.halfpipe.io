@@ -2,9 +2,8 @@ team: test
 pipeline: test
 
 triggers:
-- type: git
-  watched_paths:
-  - e2e/docker-push
+- type: cron
+  trigger: "* * * * *"
 
 tasks:
 - type: docker-push

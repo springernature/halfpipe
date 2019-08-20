@@ -1,6 +1,8 @@
 team: test
 pipeline: test
-repo:
+
+triggers:
+- type: git
   shallow: true
   watched_paths:
   - e2e/run

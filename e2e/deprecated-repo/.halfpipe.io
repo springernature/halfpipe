@@ -1,8 +1,8 @@
 team: test
 pipeline: test
 
-triggers:
-- type: git
+repo:
+  private_key: kehe
   watched_paths:
   - e2e/docker-push
 

@@ -1,8 +1,10 @@
 team: engineering-enablement
 pipeline: test
-repo:
+
+triggers:
+- type: git
   watched_paths:
-    - e2e/update-pipeline
+  - e2e/update-pipeline
 
 feature_toggles:
 - update-pipeline

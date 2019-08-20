@@ -1,6 +1,8 @@
 team: test
 pipeline: test
-repo:
+
+triggers:
+- type: git
   watched_paths:
   - e2e/docker-compose
 

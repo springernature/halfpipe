@@ -85,11 +85,12 @@ func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 
 	expected := `team: CHANGE-ME
 pipeline: myApp-subApp
-repo:
-  watched_paths:
-  - subApp
 feature_toggles:
 - update-pipeline
+triggers:
+- type: git
+  watched_paths:
+  - subApp
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
@@ -97,7 +98,7 @@ tasks:
   docker:
     image: CHANGE-ME:tag
 `
-	assert.Equal(t, string(bytes), expected)
+	assert.Equal(t, expected, string(bytes))
 }
 
 func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
@@ -118,11 +119,12 @@ func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 
 	expected := `team: CHANGE-ME
 pipeline: myApp-subFolder-subApp
-repo:
-  watched_paths:
-  - subFolder/subApp
 feature_toggles:
 - update-pipeline
+triggers:
+- type: git
+  watched_paths:
+  - subFolder/subApp
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI

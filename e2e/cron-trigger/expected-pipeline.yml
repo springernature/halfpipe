@@ -1,0 +1,57 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+groups: []
+resources:
+- name: cron
+  type: cron-resource
+  source:
+    expression: '* * * * *'
+    fire_immediately: true
+    location: UTC
+  check_every: 1m
+- name: git
+  type: git
+  source:
+    branch: master
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: halfpipe-fly
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  check_every: 24h
+resource_types:
+- name: cron-resource
+  type: registry-image
+  source:
+    repository: cftoolsmiths/cron-resource
+    tag: v0.3
+  unique_version_history: true
+jobs:
+- name: push to docker registry
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: cron
+        trigger: true
+        attempts: 2
+      - get: git
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - put: halfpipe-fly
+    params:
+      build: git/e2e/cron-trigger
+      build_args:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+      dockerfile: git/e2e/cron-trigger/Dockerfile
+      tag_as_latest: true
+    timeout: 1h
+    attempts: 1
+
