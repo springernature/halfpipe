@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [ "${1-}" = "github" ]; then
+    git checkout master
+fi
+
+
 go version | grep -q 'go1.12' || (
     go version
     echo error: go1.12 required
