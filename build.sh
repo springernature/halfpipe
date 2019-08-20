@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "${1-}" = "github" ]; then
-    git checkout master
-fi
-
-
 go version | grep -q 'go1.12' || (
     go version
     echo error: go1.12 required
@@ -28,7 +23,11 @@ echo [3/5] build
 go build $go_opts cmd/halfpipe.go
 
 echo [4/5] e2e test
-cd e2e; ./test.sh "${1-}"; cd - > /dev/null
+if [ "${1-}" = "github" ]; then
+    echo "skipping in github build"
+else
+    cd e2e; ./test.sh "${1-}"; cd - > /dev/null
+fi
 
 echo [5/5] lint
 if command -v golint > /dev/null; then
