@@ -1,6 +1,7 @@
 package defaults
 
 import (
+	"path"
 	"testing"
 
 	"github.com/springernature/halfpipe/config"
@@ -9,48 +10,129 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestRepoDefaultsForPublicRepo(t *testing.T) {
-	manifestDefaults := Defaults{RepoPrivateKey: "((halfpipe-github.private_key))"}
+func TestTriggers(t *testing.T) {
+	t.Run("GitTrigger", func(t *testing.T) {
+		t.Run("does nothing when URI is not set", func(t *testing.T) {
+			manifestDefaults := Defaults{RepoPrivateKey: "((halfpipe-github.private_key))"}
 
-	man := manifest.Manifest{
-		Triggers: manifest.TriggerList{
-			manifest.GitTrigger{},
-		},
-	}
-	man = manifestDefaults.Update(man)
-	assert.Equal(t, "", man.Triggers[0].(manifest.GitTrigger).PrivateKey)
-}
+			trigger := manifest.GitTrigger{}
+			man := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					trigger,
+				},
+			}
+			man = manifestDefaults.Update(man)
+			assert.Equal(t, trigger, man.Triggers[0])
+		})
 
-func TestRepoDefaultsForPrivateRepo(t *testing.T) {
-	manifestDefaults := Defaults{
-		RepoPrivateKey: "((halfpipe-github.private_key))",
-		Project: project.Data{
-			GitURI: "ssh@github.com:private/repo",
-		},
-	}
+		t.Run("private repos", func(t *testing.T) {
+			manifestDefaults := Defaults{
+				RepoPrivateKey: "((halfpipe-github.private_key))",
+				Project: project.Data{
+					GitURI: "ssh@github.com:private/repo",
+				},
+			}
 
-	t.Run("no private key set", func(t *testing.T) {
-		man := manifest.Manifest{
-			Triggers: manifest.TriggerList{
-				manifest.GitTrigger{},
-			},
-		}
-		man = manifestDefaults.Update(man)
-		assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			t.Run("no private key set", func(t *testing.T) {
+				man := manifest.Manifest{
+					Triggers: manifest.TriggerList{
+						manifest.GitTrigger{},
+					},
+				}
+				man = manifestDefaults.Update(man)
+				assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			})
+
+			t.Run("private key set", func(t *testing.T) {
+				//doesn't replace existing value
+				man := manifest.Manifest{
+					Triggers: manifest.TriggerList{
+						manifest.GitTrigger{
+							PrivateKey: "foo",
+						},
+					},
+				}
+
+				man = manifestDefaults.Update(man)
+				assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			})
+		})
+
+		t.Run("project values", func(t *testing.T) {
+			pro := project.Data{BasePath: "foo", GitURI: "bar"}
+			manifestDefaults := Defaults{
+				Project: pro,
+			}
+
+			expectedManifest := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					manifest.GitTrigger{
+						URI:      "bar",
+						BasePath: "foo",
+					},
+				},
+			}
+
+			assert.Equal(t, expectedManifest.Triggers, manifestDefaults.Update(manifest.Manifest{}).Triggers)
+		})
+
+		t.Run("does not overwrite URI when set", func(t *testing.T) {
+			pro := project.Data{BasePath: "foo", GitURI: "bar"}
+			manifestDefaults := Defaults{
+				Project: pro,
+			}
+			man := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					manifest.GitTrigger{
+						URI: "git@github.com/foo/bar",
+					},
+				},
+			}
+
+			man = manifestDefaults.Update(man)
+
+			assert.Equal(t, "git@github.com/foo/bar", man.Triggers[0].(manifest.GitTrigger).URI)
+			assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).BasePath)
+		})
 	})
 
-	t.Run("private key set", func(t *testing.T) {
-		//doesn't replace existing value
-		man := manifest.Manifest{
-			Triggers: manifest.TriggerList{
-				manifest.GitTrigger{
-					PrivateKey: "foo",
+	t.Run("DockerTrigger", func(t *testing.T) {
+		t.Run("does not do anything when the image is not from our registry", func(t *testing.T) {
+			man := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					manifest.CronTrigger{},
+					manifest.DockerTrigger{
+						Image: "ubuntu",
+					},
 				},
-			},
-		}
+			}
 
-		man = manifestDefaults.Update(man)
-		assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			manifestDefaults := Defaults{DockerUsername: "meehp0", DockerPassword: "maahp"}
+			assert.Equal(t, man.Triggers[1], manifestDefaults.Update(man).Triggers[1])
+		})
+
+		t.Run("sets the username and password if not set when using private registry", func(t *testing.T) {
+
+			manifestDefaults := Defaults{DockerUsername: "meehp0", DockerPassword: "maahp"}
+
+			image := path.Join(config.DockerRegistry, "ubuntu")
+			man := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					manifest.CronTrigger{},
+					manifest.DockerTrigger{
+						Image: image,
+					},
+				},
+			}
+
+			expectedTrigger := manifest.DockerTrigger{
+				Image:    image,
+				Username: manifestDefaults.DockerUsername,
+				Password: manifestDefaults.DockerPassword,
+			}
+
+			assert.Equal(t, expectedTrigger, manifestDefaults.Update(man).Triggers[1])
+		})
 	})
 }
 
@@ -263,43 +345,6 @@ func TestDockerPushDefaultWhenImageIsInHalfpipeRegistry(t *testing.T) {
 	}
 
 	assert.Equal(t, expectedTasks, actual.Tasks)
-}
-
-func TestSetsProjectValues(t *testing.T) {
-	pro := project.Data{BasePath: "foo", GitURI: "bar"}
-	manifestDefaults := Defaults{
-		Project: pro,
-	}
-
-	expectedManifest := manifest.Manifest{
-		Triggers: manifest.TriggerList{
-			manifest.GitTrigger{
-				URI:      "bar",
-				BasePath: "foo",
-			},
-		},
-	}
-
-	assert.Equal(t, expectedManifest.Triggers, manifestDefaults.Update(manifest.Manifest{}).Triggers)
-}
-
-func TestDoesNotSetProjectValuesWhenManifestRepoUriIsSet(t *testing.T) {
-	pro := project.Data{BasePath: "foo", GitURI: "bar"}
-	manifestDefaults := Defaults{
-		Project: pro,
-	}
-	man := manifest.Manifest{
-		Triggers: manifest.TriggerList{
-			manifest.GitTrigger{
-				URI: "git@github.com/foo/bar",
-			},
-		},
-	}
-
-	man = manifestDefaults.Update(man)
-
-	assert.Equal(t, "git@github.com/foo/bar", man.Triggers[0].(manifest.GitTrigger).URI)
-	assert.Equal(t, "foo", man.Triggers[0].(manifest.GitTrigger).BasePath)
 }
 
 func TestSetsDefaultDockerComposeService(t *testing.T) {
@@ -569,7 +614,6 @@ func TestSetsNames(t *testing.T) {
 			}
 		}
 	}
-	//assert.Equal(t, expectedJobNames, actualJobNames)
 }
 
 func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {

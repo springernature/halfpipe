@@ -48,6 +48,8 @@ triggers:
   trigger: "*/10 * * * *"
 - type: docker
   image: ubuntu
+  username: userName
+  password: password
 feature_toggles:
 - feature1
 - feature2
@@ -192,7 +194,9 @@ tasks:
 				Trigger: "*/10 * * * *",
 			},
 			DockerTrigger{
-				Image: "ubuntu",
+				Image:    "ubuntu",
+				Username: "userName",
+				Password: "password",
 			},
 		},
 		Tasks: []Task{

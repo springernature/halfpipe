@@ -178,7 +178,7 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 
 func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: dockerPushResourceName(docker),
+		Name: dockerResourceName(docker.Image),
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   docker.Username,
@@ -187,6 +187,23 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceCon
 		},
 		CheckEvery: longResourceCheckInterval,
 	}
+}
+
+func (p pipeline) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
+	config := atc.ResourceConfig{
+		Name: dockerResourceName(trigger.Image),
+		Type: "docker-image",
+		Source: atc.Source{
+			"repository": trigger.Image,
+		},
+	}
+
+	if trigger.Username != "" && trigger.Password != "" {
+		config.Source["username"] = trigger.Username
+		config.Source["password"] = trigger.Password
+	}
+
+	return config
 }
 
 func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {

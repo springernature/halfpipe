@@ -248,7 +248,42 @@ func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.M
 	return updatedManifest
 }
 
+func (d Defaults) updateDockerTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
+	// We assume that the first docker trigger we find is the right one as we lint later that we only have trigger.
+	updatedManifest := man
+
+	var dockerTrigger manifest.DockerTrigger
+	var dockerTriggerIndex int
+	var found bool
+	for i, trigger := range man.Triggers {
+		switch trigger := trigger.(type) {
+		case manifest.DockerTrigger:
+			found = true
+			dockerTriggerIndex = i
+			dockerTrigger = trigger
+			break
+		}
+	}
+
+	if found {
+		if strings.HasPrefix(dockerTrigger.Image, config.DockerRegistry) {
+			dockerTrigger.Username = d.DockerUsername
+			dockerTrigger.Password = d.DockerPassword
+			updatedManifest.Triggers[dockerTriggerIndex] = dockerTrigger
+		}
+	}
+
+	return updatedManifest
+}
+
+func (d Defaults) updateTriggersWithDefaults(man manifest.Manifest) manifest.Manifest {
+	man = d.updateGitTriggerWithDefaults(man)
+	man = d.updateDockerTriggerWithDefaults(man)
+	return man
+}
+
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
+	man = d.updateTriggersWithDefaults(man)
 	man = d.updateGitTriggerWithDefaults(man)
 
 	if man.FeatureToggles.UpdatePipeline() {

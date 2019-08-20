@@ -39,8 +39,7 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 	return
 }
 
-func dockerPushResourceName(task manifest.DockerPush) string {
-	imageName := task.Image
+func dockerResourceName(imageName string) string {
 	parts := strings.Split(imageName, "/")
 	return parts[len(parts)-1]
 }

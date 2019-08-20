@@ -116,6 +116,11 @@ func TestRepo(t *testing.T) {
 				GitCryptKey:  "((super.allowed))",
 				Branch:       "master",
 			},
+			manifest.DockerTrigger{
+				Image:    "someImage",
+				Username: "((super.allowed))",
+				Password: "((super.allowed))",
+			},
 		},
 	}
 

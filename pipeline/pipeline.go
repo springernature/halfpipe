@@ -57,6 +57,8 @@ const versionGetAttempts = 2
 const cronName = "cron"
 const cronGetAttempts = 2
 
+const dockerImageGetAttempts = 2
+
 const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
 const updateTaskAttempts = 2
@@ -147,6 +149,19 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 					Attempts: cronGetAttempts,
 				})
 			}
+		case manifest.DockerTrigger:
+			if isUpdateTask || !versioningEnabled {
+				dockerTrigger := atc.PlanConfig{
+					Get:      trigger.GetTriggerName(),
+					Attempts: dockerImageGetAttempts,
+					Params: map[string]interface{}{
+						"skip_download": true,
+					},
+				}
+
+				plan = append(plan, dockerTrigger)
+
+			}
 		}
 	}
 
@@ -218,6 +233,8 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		case manifest.CronTrigger:
 			resourceTypes = append(resourceTypes, cronResourceType())
 			resourceConfigs = append(resourceConfigs, p.cronResource(trigger))
+		case manifest.DockerTrigger:
+			resourceConfigs = append(resourceConfigs, p.dockerTriggerResource(trigger))
 		}
 	}
 
@@ -370,12 +387,8 @@ func addTimeout(job *atc.JobConfig, timeout string) {
 func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	if len(passedJobs) > 0 {
 		inParallel := *job.Plan[0].InParallel
-		for i, get := range inParallel.Steps {
-			if get.Name() == gitName ||
-				get.Name() == versionName ||
-				get.Name() == cronName {
-				inParallel.Steps[i].Passed = passedJobs
-			}
+		for i := range inParallel.Steps {
+			inParallel.Steps[i].Passed = passedJobs
 		}
 	}
 }
@@ -732,7 +745,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 }
 
 func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest, basePath string) *atc.JobConfig {
-	resourceName := dockerPushResourceName(task)
+	resourceName := dockerResourceName(task.Image)
 	if task.RestoreArtifacts {
 		return dockerPushJobWithRestoreArtifacts(task, resourceName, man, basePath)
 	}
