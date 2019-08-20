@@ -27,15 +27,13 @@ func TestReleaseResolverCallsOutToTheCorrectUrl(t *testing.T) {
 }
 
 func TestReleaseResolverReturnsTheErrorFromHttpGetter(t *testing.T) {
-	exptectedError := errors.New("blurgh")
+	expectedError := errors.New("blurgh")
 	fakeHTTPGetter := func(url string) (resp *http.Response, err error) {
-		err = exptectedError
-		return
+		return resp, expectedError
 	}
 
 	_, err := ResolveLatestVersionFromArtifactory("darwin", fakeHTTPGetter)
-
-	assert.Equal(t, exptectedError, err)
+	assert.Equal(t, wrapArtifactoryError(expectedError), err)
 }
 
 func TestGivesTheCorrectRelease(t *testing.T) {

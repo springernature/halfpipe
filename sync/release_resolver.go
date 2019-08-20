@@ -58,23 +58,27 @@ type Release struct {
 
 type HTTPGetter func(url string) (resp *http.Response, err error)
 
-var ResolveLatestVersionFromArtifactory = func(os string, httpGetter HTTPGetter) (release Release, err error) {
+func wrapArtifactoryError(err error) error {
+	return fmt.Errorf("error getting latest version from Artifactory. %s", err)
+}
+
+func ResolveLatestVersionFromArtifactory(os string, httpGetter HTTPGetter) (release Release, err error) {
 	url := fmt.Sprintf("https://springernature.jfrog.io/springernature/api/search/artifact?name=halfpipe_%s", os)
 	resp, err := httpGetter(url)
 	if err != nil {
-		return
+		return release, wrapArtifactoryError(err)
 	}
 
 	defer resp.Body.Close()
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return
+		return release, wrapArtifactoryError(err)
 	}
 
 	var r results
 	err = json.Unmarshal(body, &r)
 	if err != nil {
-		return
+		return release, wrapArtifactoryError(err)
 	}
 
 	release = r.GetLatest()
