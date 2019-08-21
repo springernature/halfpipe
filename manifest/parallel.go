@@ -2,7 +2,12 @@ package manifest
 
 type Parallel struct {
 	Type  string
-	Tasks TaskList
+	Tasks TaskList `yaml:"tasks,omitempty"`
+}
+
+func (p Parallel) MarshalYAML() (interface{}, error) {
+	p.Type = "parallel"
+	return p, nil
 }
 
 func (p Parallel) ReadsFromArtifacts() bool {
@@ -15,7 +20,7 @@ func (p Parallel) ReadsFromArtifacts() bool {
 }
 
 func (Parallel) GetAttempts() int {
-	panic("implement me")
+	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (p Parallel) SavesArtifacts() bool {
@@ -37,7 +42,7 @@ func (p Parallel) SavesArtifactsOnFailure() bool {
 }
 
 func (Parallel) IsManualTrigger() bool {
-	panic("implement me")
+	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (p Parallel) NotifiesOnSuccess() bool {
@@ -50,11 +55,11 @@ func (p Parallel) NotifiesOnSuccess() bool {
 }
 
 func (Parallel) GetTimeout() string {
-	panic("implement me")
+	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetParallelGroup() ParallelGroup {
-	panic("implement me")
+	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetName() string {

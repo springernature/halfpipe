@@ -9,6 +9,11 @@ type DockerTrigger struct {
 	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
 }
 
+func (d DockerTrigger) MarshalYAML() (interface{}, error) {
+	d.Type = "docker"
+	return d, nil
+}
+
 func (d DockerTrigger) GetTriggerName() string {
 	imageName := d.Image
 	parts := strings.Split(imageName, "/")

@@ -8,10 +8,10 @@ type Docker struct {
 
 type Run struct {
 	Type                   string
-	Name                   string
-	ManualTrigger          bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Script                 string
-	Docker                 Docker
+	Name                   string        `yaml:"name,omitempty"`
+	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Script                 string        `yaml:"script,omitempty"`
+	Docker                 Docker        `yaml:"docker,omitempty"`
 	Privileged             bool          `yaml:"privileged,omitempty"`
 	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
@@ -21,6 +21,11 @@ type Run struct {
 	Retries                int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+}
+
+func (r Run) MarshalYAML() (interface{}, error) {
+	r.Type = "run"
+	return r, nil
 }
 
 func (r Run) GetName() string {

@@ -53,11 +53,14 @@ type Task interface {
 	GetTimeout() string
 	GetParallelGroup() ParallelGroup
 	GetName() string
+	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 
 type Trigger interface {
 	GetTriggerName() string
+	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
+
 type TriggerList []Trigger
 
 func (t TriggerList) GetGitTrigger() GitTrigger {
@@ -71,15 +74,15 @@ func (t TriggerList) GetGitTrigger() GitTrigger {
 }
 
 type Manifest struct {
-	Team           string
-	Pipeline       string
+	Team           string         `yaml:"team,omitempty"`
+	Pipeline       string         `yaml:"pipeline,omitempty"`
 	SlackChannel   string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
 	CronTrigger    string         `json:"cron_trigger" yaml:"cron_trigger,omitempty"`
 	Repo           Repo           `yaml:"repo,omitempty"`
 	ArtifactConfig ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
-	Tasks          TaskList
+	Tasks          TaskList       `yaml:"tasks,omitempty"`
 }
 
 func (m Manifest) NotifiesOnFailure() bool {

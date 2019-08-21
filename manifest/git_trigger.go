@@ -14,6 +14,11 @@ type GitTrigger struct {
 	Shallow      bool     `json:"shallow,omitempty" yaml:"shallow,omitempty"`
 }
 
+func (git GitTrigger) MarshalYAML() (interface{}, error) {
+	git.Type = "git"
+	return git, nil
+}
+
 func (GitTrigger) GetTriggerName() string {
 	return "git"
 }

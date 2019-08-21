@@ -4,22 +4,27 @@ import "strings"
 
 type DeployCF struct {
 	Type            string
-	Name            string
-	ManualTrigger   bool   `json:"manual_trigger" yaml:"manual_trigger"`
-	API             string `secretAllowed:"true"`
-	Space           string `secretAllowed:"true"`
-	Org             string `secretAllowed:"true"`
-	Username        string `secretAllowed:"true"`
-	Password        string `secretAllowed:"true"`
-	Manifest        string
-	TestDomain      string        `json:"test_domain" yaml:"test_domain" secretAllowed:"true"`
-	Vars            Vars          `secretAllowed:"true"`
-	DeployArtifact  string        `json:"deploy_artifact"`
-	PrePromote      TaskList      `json:"pre_promote"`
+	Name            string        `yaml:"name,omitempty"`
+	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	API             string        `yaml:"api,omitempty" secretAllowed:"true"`
+	Space           string        `yaml:"space,omitempty" secretAllowed:"true"`
+	Org             string        `yaml:"org,omitempty" secretAllowed:"true"`
+	Username        string        `yaml:"username,omitempty" secretAllowed:"true"`
+	Password        string        `yaml:"password,omitempty" secretAllowed:"true"`
+	Manifest        string        `yaml:"manifest,omitempty"`
+	TestDomain      string        `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
+	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	DeployArtifact  string        `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
+	PrePromote      TaskList      `json:"pre_promote" yaml:"pre_promote,omitempty"`
 	Parallel        ParallelGroup `yaml:"parallel,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Retries         int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+}
+
+func (r DeployCF) MarshalYAML() (interface{}, error) {
+	r.Type = "deploy-cf"
+	return r, nil
 }
 
 func (r DeployCF) GetName() string {
