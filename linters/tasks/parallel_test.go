@@ -60,7 +60,7 @@ func TestWarningIfParallelOnlyContainsOneItem(t *testing.T) {
 	helpers.AssertInvalidFieldInErrors(t, "tasks", warns)
 }
 
-func TestErrorIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
+func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		task := manifest.Parallel{
 			Tasks: manifest.TaskList{
@@ -87,13 +87,13 @@ func TestErrorIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 		}
 
 		errs, warns := LintParallelTask(task)
-		assert.Len(t, errs, 1)
-		assert.Len(t, warns, 0)
-		helpers.AssertInvalidFieldInErrors(t, "tasks", errs)
+		assert.Len(t, errs, 0)
+		assert.Len(t, warns, 1)
+		helpers.AssertInvalidFieldInErrors(t, "tasks", warns)
 	})
 }
 
-func TestErrorIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
+func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 	t.Run("ok", func(t *testing.T) {
 		task := manifest.Parallel{
 			Tasks: manifest.TaskList{
@@ -120,8 +120,8 @@ func TestErrorIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) 
 		}
 
 		errs, warns := LintParallelTask(task)
-		assert.Len(t, errs, 1)
-		assert.Len(t, warns, 0)
-		helpers.AssertInvalidFieldInErrors(t, "tasks", errs)
+		assert.Len(t, errs, 0)
+		assert.Len(t, warns, 1)
+		helpers.AssertInvalidFieldInErrors(t, "tasks", warns)
 	})
 }

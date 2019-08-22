@@ -37,11 +37,11 @@ func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []
 	}
 
 	if numSavedArtifacts > 1 {
-		errs = append(errs, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts"))
+		warnings = append(warnings, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts without ending up in weird race conditions"))
 	}
 
 	if numSavedArtifactsOnFailure > 1 {
-		errs = append(errs, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts on failure"))
+		warnings = append(warnings, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts on failure without ending up in weird race conditions"))
 	}
 
 	return
