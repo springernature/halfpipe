@@ -48,7 +48,7 @@ var migrateCmd = &cobra.Command{
 
 		controller := createController(projectData, fs, currentDir)
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
-		_, migratedYaml, results, err, migrated := migrator.Migrate(man)
+		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
 		printErrAndResultAndExitOnError(err, results)
 
 		if migrated {

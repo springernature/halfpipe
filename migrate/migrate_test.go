@@ -51,7 +51,7 @@ func TestHappyPath(t *testing.T) {
 
 		m := NewMigrator(mockController, parseFunc, renderFunc)
 
-		migrated, _, lintResult, err, updated := m.Migrate(man)
+		migrated, _, lintResult, updated, err := m.Migrate(man)
 		assert.False(t, lintResult.HasErrors())
 		assert.False(t, updated)
 		assert.NoError(t, err)
@@ -61,11 +61,11 @@ func TestHappyPath(t *testing.T) {
 
 	t.Run("migrated", func(t *testing.T) {
 		uri := "blah"
-		cron_trigger := "blug"
+		cronTrigger := "blug"
 		name1 := "asd"
 		name2 := "420"
 		man := manifest.Manifest{
-			CronTrigger: cron_trigger,
+			CronTrigger: cronTrigger,
 			Repo: manifest.Repo{
 				URI: uri,
 			},
@@ -78,7 +78,7 @@ func TestHappyPath(t *testing.T) {
 		expectedMan := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				manifest.GitTrigger{URI: uri},
-				manifest.TimerTrigger{Cron: cron_trigger},
+				manifest.TimerTrigger{Cron: cronTrigger},
 			},
 			Tasks: manifest.TaskList{
 				manifest.Parallel{
@@ -107,7 +107,7 @@ func TestHappyPath(t *testing.T) {
 
 		m := NewMigrator(mockController, parseFunc, renderFunc)
 
-		migrated, _, lintResult, err, updated := m.Migrate(man)
+		migrated, _, lintResult, updated, err := m.Migrate(man)
 		assert.False(t, lintResult.HasErrors())
 		assert.True(t, updated)
 		assert.NoError(t, err)
@@ -142,12 +142,12 @@ func TestWhenFailingToLintOriginalManifest(t *testing.T) {
 	m := NewMigrator(mockController, parseFunc, renderFunc)
 
 	man := manifest.Manifest{}
-	migrated, _, lintResult, err, updated := m.Migrate(man)
+	migrated, _, lintResult, updated, err := m.Migrate(man)
 
 	assert.False(t, updated)
 	assert.Equal(t, man, migrated)
 	assert.Equal(t, lintResults, lintResult)
-	assert.Equal(t, LintingOriginalManifestErr, err)
+	assert.Equal(t, ErrLintingOriginalManifest, err)
 }
 
 func TestWhenFailingLintTheMigratedManifest(t *testing.T) {
@@ -185,12 +185,12 @@ func TestWhenFailingLintTheMigratedManifest(t *testing.T) {
 		CronTrigger: "some_trigger",
 	}
 
-	migrated, _, lintResult, err, updated := m.Migrate(man)
+	migrated, _, lintResult, updated, err := m.Migrate(man)
 
 	assert.False(t, updated)
 	assert.Equal(t, man, migrated)
 	assert.Equal(t, lintResults, lintResult)
-	assert.Equal(t, LintingMigratedManifestErr, err)
+	assert.Equal(t, ErrLintingMigratedManifest, err)
 }
 
 func TestWhenFailingToRenderMigratedManifestToYaml(t *testing.T) {
@@ -224,7 +224,7 @@ func TestWhenFailingToRenderMigratedManifestToYaml(t *testing.T) {
 		},
 	}
 
-	migrated, _, lintResult, err, updated := m.Migrate(man)
+	migrated, _, lintResult, updated, err := m.Migrate(man)
 	assert.False(t, updated)
 	assert.Equal(t, manifest.Manifest{}, migrated)
 	assert.Equal(t, result.LintResults(nil), lintResult)
@@ -259,7 +259,7 @@ func TestWhenFailingToRParseMigratedManifestYaml(t *testing.T) {
 		CronTrigger: "some_trigger",
 	}
 
-	migrated, _, lintResult, err, updated := m.Migrate(man)
+	migrated, _, lintResult, updated, err := m.Migrate(man)
 	assert.False(t, updated)
 	assert.Equal(t, manifest.Manifest{}, migrated)
 	assert.Equal(t, result.LintResults(nil), lintResult)
@@ -299,7 +299,7 @@ func TestWhenMigratedManifestIsNotTheSameAsTheParsedMigratedYaml(t *testing.T) {
 		},
 	}
 
-	migrated, _, lintResult, err, updated := m.Migrate(man)
+	migrated, _, lintResult, updated, err := m.Migrate(man)
 	fmt.Println(err)
 	assert.False(t, updated)
 	assert.Equal(t, manifest.Manifest{}, migrated)

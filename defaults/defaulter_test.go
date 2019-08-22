@@ -667,7 +667,7 @@ func TestDoesntUpdateTheInputManifestInPlace(t *testing.T) {
 			manifest.DeployCF{
 				PrePromote: manifest.TaskList{
 					manifest.Run{
-						Vars: map[string]string {
+						Vars: map[string]string{
 							"A": "B",
 						},
 					},
@@ -685,7 +685,6 @@ func TestDoesntUpdateTheInputManifestInPlace(t *testing.T) {
 					"A": "B",
 				},
 			},
-
 		},
 	}
 

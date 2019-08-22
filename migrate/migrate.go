@@ -32,8 +32,8 @@ type migrator struct {
 	renderFunc RenderFunc
 }
 
-var LintingOriginalManifestErr = errors.New("linting original manifest failed")
-var LintingMigratedManifestErr = errors.New("linting migrated manifest failed")
+var ErrLintingOriginalManifest = errors.New("linting original manifest failed")
+var ErrLintingMigratedManifest = errors.New("linting migrated manifest failed")
 
 var FailedToRenderMigratedManifestToYamlErr = func(err error, man manifest.Manifest) error {
 	return fmt.Errorf("%s: \n%+v", err, man)
@@ -58,11 +58,11 @@ parsedMigratedManifestYaml:
 	return errors.New(errStr)
 }
 
-func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults result.LintResults, err error, migrated bool) {
+func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults result.LintResults, migrated bool, err error) {
 	// Checking that the original manifest is ok
 	_, lintResults = m.controller.Process(man)
 	if lintResults.HasErrors() {
-		err = LintingOriginalManifestErr
+		err = ErrLintingOriginalManifest
 		return
 	}
 
@@ -82,7 +82,7 @@ func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Mani
 	_, lintResults = m.controller.Process(tmpMigratedManifest)
 	if lintResults.HasErrors() {
 		migratedManifest = man
-		err = LintingMigratedManifestErr
+		err = ErrLintingMigratedManifest
 		return
 	}
 

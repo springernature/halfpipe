@@ -6,11 +6,22 @@ import (
 )
 
 func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []error) {
+	var numSavedArtifacts int
+	var numSavedArtifactsOnFailure int
 	for _, task := range parallelTask.Tasks {
 		switch task.(type) {
 		case manifest.Parallel:
 			errs = append(errs, errors.NewInvalidField("type", "You are not allowed to use 'parallel' task inside a 'parallel' task"))
 		default:
+
+			if task.SavesArtifacts() {
+				numSavedArtifacts++
+			}
+
+			if task.SavesArtifactsOnFailure() {
+				numSavedArtifactsOnFailure++
+			}
+
 			if string(task.GetParallelGroup()) != "" {
 				warnings = append(warnings, errors.NewInvalidField("parallel", "Please dont use 'parallel' field inside a 'parallel' task!"))
 			}
@@ -23,6 +34,14 @@ func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []
 
 	if len(parallelTask.Tasks) == 1 {
 		warnings = append(warnings, errors.NewInvalidField("tasks", "It seems unnecessary to have a single parallel task"))
+	}
+
+	if numSavedArtifacts > 1 {
+		errs = append(errs, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts"))
+	}
+
+	if numSavedArtifactsOnFailure > 1 {
+		errs = append(errs, errors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts on failure"))
 	}
 
 	return
