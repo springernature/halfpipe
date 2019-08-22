@@ -643,3 +643,31 @@ func TestAddsAUpdateTaskIfUpdateFeatureIsSet(t *testing.T) {
 	updated := DefaultValues.Update(man)
 	assert.Equal(t, expected, updated.Tasks)
 }
+
+func TestDoesntUpdateTheInputManifestInPlace(t *testing.T) {
+	manifestDefaults := Defaults{
+		RepoPrivateKey: "((halfpipe-github.private_key))",
+		Project: project.Data{
+			GitURI: "ssh@github.com:private/repo",
+		},
+		DockerUsername: "asdasd",
+		DockerPassword: "asdasd",
+	}
+
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+				manifest.GitTrigger{
+					URI: "ssh@github.com:private/repo",
+				},
+				manifest.DockerTrigger{
+					Image:    path.Join(config.DockerRegistry, "myImageName"),
+				},
+		},
+		Tasks: manifest.TaskList{
+			manifest.DeployCF{},
+		},
+	}
+
+	updatedMan := manifestDefaults.Update(man)
+	assert.NotEqual(t, man, updatedMan)
+}

@@ -215,65 +215,61 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
 	// Here the triggers.Translator repo to GitTrigger have already been run.
 	// We assume that the translated trigger is the first occurance
-	var gitTrigger manifest.GitTrigger
-	var gitTriggerIndex int
-	var found bool
-	for i, trigger := range man.Triggers {
+	updateGitTrigger := func(t manifest.GitTrigger) manifest.Trigger {
+		t.BasePath = d.Project.BasePath
+
+		if t.URI == "" {
+			t.URI = d.Project.GitURI
+		}
+
+		if t.URI != "" && !t.IsPublic() && t.PrivateKey == "" {
+			t.PrivateKey = d.RepoPrivateKey
+		}
+		return t
+	}
+
+	var updatedTriggers manifest.TriggerList
+	var gitTriggerFound bool
+
+	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			found = true
-			gitTriggerIndex = i
-			gitTrigger = trigger
-			break
+			gitTriggerFound = true
+			updatedTriggers = append(updatedTriggers, updateGitTrigger(trigger))
+		default:
+			updatedTriggers = append(updatedTriggers, trigger)
 		}
 	}
 
-	updatedManifest := man
-	gitTrigger.BasePath = d.Project.BasePath
-
-	if gitTrigger.URI == "" {
-		gitTrigger.URI = d.Project.GitURI
+	if !gitTriggerFound {
+		man.Triggers = updatedTriggers
+		updatedTriggers = append(updatedTriggers, updateGitTrigger(manifest.GitTrigger{}))
 	}
 
-	if gitTrigger.URI != "" && !gitTrigger.IsPublic() && gitTrigger.PrivateKey == "" {
-		gitTrigger.PrivateKey = d.RepoPrivateKey
-	}
+	man.Triggers = updatedTriggers
 
-	if found {
-		updatedManifest.Triggers[gitTriggerIndex] = gitTrigger
-	} else {
-		updatedManifest.Triggers = append(updatedManifest.Triggers, gitTrigger)
-	}
-
-	return updatedManifest
+	return man
 }
 
 func (d Defaults) updateDockerTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
 	// We assume that the first docker trigger we find is the right one as we lint later that we only have trigger.
-	updatedManifest := man
 
-	var dockerTrigger manifest.DockerTrigger
-	var dockerTriggerIndex int
-	var found bool
-	for i, trigger := range man.Triggers {
+	var updatedTriggers manifest.TriggerList
+	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.DockerTrigger:
-			found = true
-			dockerTriggerIndex = i
-			dockerTrigger = trigger
-			break
+			if strings.HasPrefix(trigger.Image, config.DockerRegistry) {
+				trigger.Username = d.DockerUsername
+				trigger.Password = d.DockerPassword
+			}
+			updatedTriggers = append(updatedTriggers, trigger)
+		default:
+			updatedTriggers = append(updatedTriggers, trigger)
 		}
 	}
 
-	if found {
-		if strings.HasPrefix(dockerTrigger.Image, config.DockerRegistry) {
-			dockerTrigger.Username = d.DockerUsername
-			dockerTrigger.Password = d.DockerPassword
-			updatedManifest.Triggers[dockerTriggerIndex] = dockerTrigger
-		}
-	}
-
-	return updatedManifest
+	man.Triggers = updatedTriggers
+	return man
 }
 
 func (d Defaults) updateTriggersWithDefaults(man manifest.Manifest) manifest.Manifest {
@@ -284,7 +280,6 @@ func (d Defaults) updateTriggersWithDefaults(man manifest.Manifest) manifest.Man
 
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 	man = d.updateTriggersWithDefaults(man)
-	man = d.updateGitTriggerWithDefaults(man)
 
 	if man.FeatureToggles.UpdatePipeline() {
 		man.Tasks = append(manifest.TaskList{manifest.Update{}}, man.Tasks...)
