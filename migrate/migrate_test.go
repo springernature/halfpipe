@@ -1,130 +1,309 @@
 package migrate
 
 import (
+	"fmt"
+	"github.com/concourse/concourse/atc"
+	"github.com/pkg/errors"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-func TestTriggers(t *testing.T) {
-	t.Run("cron trigger", func(t *testing.T) {
-		t.Run("when there is no cron trigger, dont do anything", func(t *testing.T) {
-			man := manifest.Manifest{}
-
-			assert.Equal(t, man, Migrate(man))
-		})
-
-		t.Run("when there is a cron trigger, convert it", func(t *testing.T) {
-			cron := "* * * * *"
-			man := manifest.Manifest{
-				CronTrigger: cron,
-			}
-
-			expected := manifest.Manifest{
-				Triggers: manifest.TriggerList{
-					manifest.TimerTrigger{
-						Cron: cron,
-					},
-				},
-			}
-
-			assert.Equal(t, expected, Migrate(man))
-		})
-
-		t.Run("when both cron and timer defined, dont do anything as this will be caught in linter", func(t *testing.T) {
-			man := manifest.Manifest{
-				CronTrigger: "* * * * *",
-				Triggers: manifest.TriggerList{
-					manifest.TimerTrigger{
-						Cron: "wakawakaHazza",
-					},
-				},
-			}
-
-			assert.Equal(t, man, Migrate(man))
-		})
-	})
-	t.Run("git trigger", func(t *testing.T) {
-		t.Run("when there is no git trigger, dont do anything", func(t *testing.T) {
-			man := manifest.Manifest{}
-
-			assert.Equal(t, man, Migrate(man))
-		})
-
-		t.Run("when there is no cron trigger, dont do anything", func(t *testing.T) {
-			uri := "blurgh"
-			man := manifest.Manifest{
-				Repo: manifest.Repo{
-					URI: uri,
-				},
-			}
-
-			expected := manifest.Manifest{
-				Triggers: manifest.TriggerList{
-					manifest.GitTrigger{
-						URI: uri,
-					},
-				},
-			}
-
-			assert.Equal(t, expected, Migrate(man))
-		})
-
-		t.Run("when both cron and timer defined, dont do anything as this will be caught in linter", func(t *testing.T) {
-			man := manifest.Manifest{
-				Repo: manifest.Repo{
-					URI: "blurgh",
-				},
-				Triggers: manifest.TriggerList{
-					manifest.GitTrigger{
-						URI: "wakawakaHazza",
-					},
-				},
-			}
-
-			assert.Equal(t, man, Migrate(man))
-		})
-
-	})
+type MockController struct {
+	processFunc func(man manifest.Manifest) (config atc.Config, results result.LintResults)
 }
 
-func TestParallelMerger(t *testing.T) {
-	t.Run("no groups", func(t *testing.T) {
+func (m MockController) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+	return m.processFunc(man)
+}
+
+func TestHappyPath(t *testing.T) {
+	t.Run("not migrated", func(t *testing.T) {
 		man := manifest.Manifest{
-			Tasks: manifest.TaskList{
-				manifest.Run{},
-				manifest.Run{},
+			Triggers: manifest.TriggerList{
+				manifest.GitTrigger{},
+				manifest.TimerTrigger{},
 			},
-		}
-
-		assert.Equal(t, man, Migrate(man))
-	})
-
-	t.Run("groups", func(t *testing.T) {
-		// No need to test to much as this is tested properly in the parallel.Merger
-		man := manifest.Manifest{
 			Tasks: manifest.TaskList{
-				manifest.Run{},
-				manifest.Run{Parallel: "asdf"},
-				manifest.Run{Parallel: "asdf"},
-				manifest.Run{},
-			},
-		}
-
-		expected := manifest.Manifest{
-			Tasks: manifest.TaskList{
-				manifest.Run{},
 				manifest.Parallel{
 					Tasks: manifest.TaskList{
 						manifest.Run{},
 						manifest.Run{},
 					},
 				},
-				manifest.Run{},
 			},
 		}
 
-		assert.Equal(t, expected, Migrate(man))
+		mockController := MockController{
+			processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+				return
+			},
+		}
+
+		parseFunc := func(manifestYaml string) (man manifest.Manifest, errs []error) {
+			return
+		}
+
+		renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+			return
+		}
+
+		m := NewMigrator(mockController, parseFunc, renderFunc)
+
+		migrated, _, lintResult, err, updated := m.Migrate(man)
+		assert.False(t, lintResult.HasErrors())
+		assert.False(t, updated)
+		assert.NoError(t, err)
+		assert.Equal(t, man, migrated)
 
 	})
+
+	t.Run("migrated", func(t *testing.T) {
+		uri := "blah"
+		cron_trigger := "blug"
+		name1 := "asd"
+		name2 := "420"
+		man := manifest.Manifest{
+			CronTrigger: cron_trigger,
+			Repo: manifest.Repo{
+				URI: uri,
+			},
+			Tasks: manifest.TaskList{
+				manifest.Run{Name: name1, Parallel: "true"},
+				manifest.Run{Name: name2, Parallel: "true"},
+			},
+		}
+
+		expectedMan := manifest.Manifest{
+			Triggers: manifest.TriggerList{
+				manifest.GitTrigger{URI: uri},
+				manifest.TimerTrigger{Cron: cron_trigger},
+			},
+			Tasks: manifest.TaskList{
+				manifest.Parallel{
+					Tasks: manifest.TaskList{
+						manifest.Run{Name: name1},
+						manifest.Run{Name: name2},
+					},
+				},
+			},
+		}
+
+		mockController := MockController{
+			processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+				return
+			},
+		}
+
+		parseFunc := func(manifestYaml string) (man manifest.Manifest, errs []error) {
+			man = expectedMan
+			return
+		}
+
+		renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+			return
+		}
+
+		m := NewMigrator(mockController, parseFunc, renderFunc)
+
+		migrated, _, lintResult, err, updated := m.Migrate(man)
+		assert.False(t, lintResult.HasErrors())
+		assert.True(t, updated)
+		assert.NoError(t, err)
+		assert.Equal(t, expectedMan, migrated)
+
+	})
+
+}
+
+func TestWhenFailingToLintOriginalManifest(t *testing.T) {
+
+	lintResults := result.LintResults{
+		result.LintResult{
+			Errors: []error{errors.New("Some error")},
+		},
+	}
+
+	mockController := MockController{
+		processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+			results = lintResults
+			return
+		},
+	}
+	parseFunc := func(manifestYaml string) (man manifest.Manifest, errs []error) {
+		return
+	}
+
+	renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+		return
+	}
+
+	m := NewMigrator(mockController, parseFunc, renderFunc)
+
+	man := manifest.Manifest{}
+	migrated, _, lintResult, err, updated := m.Migrate(man)
+
+	assert.False(t, updated)
+	assert.Equal(t, man, migrated)
+	assert.Equal(t, lintResults, lintResult)
+	assert.Equal(t, LintingOriginalManifestErr, err)
+}
+
+func TestWhenFailingLintTheMigratedManifest(t *testing.T) {
+
+	lintResults := result.LintResults{
+		result.LintResult{
+			Errors: []error{errors.New("Some error")},
+		},
+	}
+
+	var callCount int
+	mockController := MockController{
+		processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+			callCount++
+
+			// Second call will be with the updated manifest
+			if callCount == 2 {
+				results = lintResults
+			}
+			return
+		},
+	}
+
+	parseFunc := func(manifestYaml string) (i manifest.Manifest, i2 []error) {
+		return
+	}
+
+	renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+		return
+	}
+
+	m := NewMigrator(mockController, parseFunc, renderFunc)
+
+	man := manifest.Manifest{
+		CronTrigger: "some_trigger",
+	}
+
+	migrated, _, lintResult, err, updated := m.Migrate(man)
+
+	assert.False(t, updated)
+	assert.Equal(t, man, migrated)
+	assert.Equal(t, lintResults, lintResult)
+	assert.Equal(t, LintingMigratedManifestErr, err)
+}
+
+func TestWhenFailingToRenderMigratedManifestToYaml(t *testing.T) {
+	mockController := MockController{
+		processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+			return
+		},
+	}
+
+	parseFunc := func(manifestYaml string) (i manifest.Manifest, i2 []error) {
+		return
+	}
+
+	expectedErr := errors.New("blurgh")
+	renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+		err = expectedErr
+		return
+	}
+
+	m := NewMigrator(mockController, parseFunc, renderFunc)
+
+	man := manifest.Manifest{
+		CronTrigger: "some_trigger",
+	}
+
+	updatedManifest := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.TimerTrigger{
+				Cron: "some_trigger",
+			},
+		},
+	}
+
+	migrated, _, lintResult, err, updated := m.Migrate(man)
+	assert.False(t, updated)
+	assert.Equal(t, manifest.Manifest{}, migrated)
+	assert.Equal(t, result.LintResults(nil), lintResult)
+	assert.Equal(t, FailedToRenderMigratedManifestToYamlErr(expectedErr, updatedManifest), err)
+}
+
+func TestWhenFailingToRParseMigratedManifestYaml(t *testing.T) {
+	mockController := MockController{
+		processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+			return
+		},
+	}
+
+	expectedErr := []error{errors.New("blurgh")}
+	parseFunc := func(manifestYaml string) (i manifest.Manifest, errs []error) {
+		errs = expectedErr
+		return
+	}
+
+	expectedManifestYaml := `triggers:
+- type: timer
+  cron: some_trigger
+`
+	renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+		y = []byte(expectedManifestYaml)
+		return
+	}
+
+	m := NewMigrator(mockController, parseFunc, renderFunc)
+
+	man := manifest.Manifest{
+		CronTrigger: "some_trigger",
+	}
+
+	migrated, _, lintResult, err, updated := m.Migrate(man)
+	assert.False(t, updated)
+	assert.Equal(t, manifest.Manifest{}, migrated)
+	assert.Equal(t, result.LintResults(nil), lintResult)
+	assert.Equal(t, FailedToParseMigratedManifestYamlErr(expectedErr, expectedManifestYaml), err)
+}
+
+func TestWhenMigratedManifestIsNotTheSameAsTheParsedMigratedYaml(t *testing.T) {
+	mockController := MockController{
+		processFunc: func(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+			return
+		},
+	}
+
+	someRandomManifest := manifest.Manifest{
+		Pipeline: "wryyyyy",
+	}
+	parseFunc := func(manifestYaml string) (i manifest.Manifest, errs []error) {
+		i = someRandomManifest
+		return
+	}
+
+	renderFunc := func(manifest manifest.Manifest) (y []byte, err error) {
+		return
+	}
+
+	m := NewMigrator(mockController, parseFunc, renderFunc)
+
+	man := manifest.Manifest{
+		CronTrigger: "some_trigger",
+	}
+
+	updatedManifest := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.TimerTrigger{
+				Cron: "some_trigger",
+			},
+		},
+	}
+
+	migrated, _, lintResult, err, updated := m.Migrate(man)
+	fmt.Println(err)
+	assert.False(t, updated)
+	assert.Equal(t, manifest.Manifest{}, migrated)
+	assert.Equal(t, result.LintResults(nil), lintResult)
+	assert.Equal(t, ParsedMigratedManifestAndMigratedManifestIsNotTheSameErr(updatedManifest, someRandomManifest), err)
+
 }

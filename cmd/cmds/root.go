@@ -51,12 +51,22 @@ func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manif
 	return
 }
 
-func printResultAndExitOnError(lintResults result.LintResults) {
-	if lintResults.HasErrors() || lintResults.HasWarnings() {
+func printErrAndResultAndExitOnError(err error, lintResults result.LintResults) {
+	if lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
 		printErr(fmt.Errorf(lintResults.Error()))
-		if lintResults.HasErrors() {
-			os.Exit(1)
+		return
+	}
+
+	if err != nil || lintResults.HasErrors() {
+		if err != nil {
+			printErr(err)
 		}
+
+		if lintResults.HasErrors() {
+			printErr(fmt.Errorf(lintResults.Error()))
+		}
+
+		os.Exit(1)
 	}
 }
 
@@ -104,11 +114,11 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 
 		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 		if len(manErrors) > 0 {
-			printResultAndExitOnError(result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
+			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
 		}
 
 		pipelineConfig, lintResults := createController(projectData, fs, currentDir).Process(man)
-		printResultAndExitOnError(lintResults)
+		printErrAndResultAndExitOnError(nil, lintResults)
 
 		pipelineString, renderError := pipeline.ToString(pipelineConfig)
 		if renderError != nil {
