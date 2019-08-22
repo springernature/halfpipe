@@ -2,7 +2,7 @@ package manifest
 
 type DeployMLZip struct {
 	Type            string
-	Name            string `yaml:"name,omitempty"`
+	Name            string        `yaml:"name,omitempty"`
 	Parallel        ParallelGroup `yaml:"parallel,omitempty"`
 	DeployZip       string        `json:"deploy_zip" yaml:"deploy_zip,omitempty"`
 	AppName         string        `json:"app_name" yaml:"app_name,omitempty"`

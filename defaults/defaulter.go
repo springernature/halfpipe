@@ -60,13 +60,15 @@ func (d Defaults) uniqueName(name string, defaultName string, previousNames []st
 	return d.getUniqueName(name, previousNames, 0)
 }
 
-func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (updated manifest.TaskList) {
+func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) manifest.TaskList {
 	var previousNames []string
 
 	var taskSwitcher func(tasks manifest.TaskList) manifest.TaskList
-	taskSwitcher = func(tasks manifest.TaskList) (tl manifest.TaskList) {
-		tl = make(manifest.TaskList, len(tasks))
-		for i, task := range tasks {
+	taskSwitcher = func(tasks manifest.TaskList) manifest.TaskList {
+
+		var updatedTasks manifest.TaskList
+
+		for _, task := range tasks {
 			switch task := task.(type) {
 			case manifest.DeployCF:
 				task.Name = d.uniqueName(task.Name, "deploy-cf", previousNames)
@@ -109,7 +111,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Run:
 				task.Name = d.uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)), previousNames)
@@ -125,7 +127,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerPush:
 				task.Name = d.uniqueName(task.Name, "docker-push", previousNames)
@@ -146,7 +148,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerCompose:
 				task.Name = d.uniqueName(task.Name, "docker-compose", previousNames)
@@ -162,7 +164,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.ConsumerIntegrationTest:
 				task.Name = d.uniqueName(task.Name, "consumer-integration-test", previousNames)
@@ -174,7 +176,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLModules:
 				task.Name = d.uniqueName(task.Name, "deploy-ml-modules", previousNames)
@@ -184,7 +186,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLZip:
 				task.Name = d.uniqueName(task.Name, "deploy-ml-zip", previousNames)
@@ -194,22 +196,21 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) (u
 					task.Timeout = d.Timeout
 				}
 
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Update:
 				previousNames = append(previousNames, task.GetName())
 				task.Timeout = d.Timeout
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Parallel:
 				task.Tasks = taskSwitcher(task.Tasks)
-				tl[i] = task
+				updatedTasks = append(updatedTasks, task)
 			}
 		}
-		return
+		return updatedTasks
 	}
-	updated = taskSwitcher(tasks)
-	return
+	return taskSwitcher(tasks)
 }
 
 func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
@@ -279,34 +280,35 @@ func (d Defaults) updateTriggersWithDefaults(man manifest.Manifest) manifest.Man
 }
 
 func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
-	man = d.updateTriggersWithDefaults(man)
+	updated := d.updateTriggersWithDefaults(man)
 
-	if man.FeatureToggles.UpdatePipeline() {
-		man.Tasks = append(manifest.TaskList{manifest.Update{}}, man.Tasks...)
+	if updated.FeatureToggles.UpdatePipeline() {
+		updated.Tasks = append(manifest.TaskList{manifest.Update{}}, updated.Tasks...)
 	}
 
-	man.Tasks = d.updateTasks(man.Tasks, man)
+	updated.Tasks = d.updateTasks(updated.Tasks, updated)
 
-	return man
+	return updated
 
 }
 
 func (d Defaults) addArtifactoryCredentialsToVars(vars manifest.Vars) manifest.Vars {
-	if len(vars) == 0 {
-		vars = make(map[string]string)
+	updatedVars := map[string]string{}
+	for key, value := range vars {
+		updatedVars[key] = value
 	}
 
-	if _, found := vars["ARTIFACTORY_USERNAME"]; !found {
-		vars["ARTIFACTORY_USERNAME"] = d.ArtifactoryUsername
+	if _, found := updatedVars["ARTIFACTORY_USERNAME"]; !found {
+		updatedVars["ARTIFACTORY_USERNAME"] = d.ArtifactoryUsername
 	}
 
-	if _, found := vars["ARTIFACTORY_PASSWORD"]; !found {
-		vars["ARTIFACTORY_PASSWORD"] = d.ArtifactoryPassword
+	if _, found := updatedVars["ARTIFACTORY_PASSWORD"]; !found {
+		updatedVars["ARTIFACTORY_PASSWORD"] = d.ArtifactoryPassword
 	}
 
-	if _, found := vars["ARTIFACTORY_URL"]; !found {
-		vars["ARTIFACTORY_URL"] = d.ArtifactoryURL
+	if _, found := updatedVars["ARTIFACTORY_URL"]; !found {
+		updatedVars["ARTIFACTORY_URL"] = d.ArtifactoryURL
 	}
 
-	return vars
+	return updatedVars
 }

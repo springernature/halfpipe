@@ -115,7 +115,7 @@ func TestParallelMerger(t *testing.T) {
 			Tasks: manifest.TaskList{
 				manifest.Run{},
 				manifest.Parallel{
-					Tasks:manifest.TaskList{
+					Tasks: manifest.TaskList{
 						manifest.Run{},
 						manifest.Run{},
 					},

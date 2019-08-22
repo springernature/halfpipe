@@ -31,7 +31,7 @@ func TestTheOnlyFieldThatShouldBeRenderedIsTypeIfAllTheOthersAreEmpty(t *testing
 					Run{},
 					DeployCF{},
 					DeployCF{
-						PrePromote:TaskList{
+						PrePromote: TaskList{
 							Run{},
 						},
 					},

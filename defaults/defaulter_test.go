@@ -656,18 +656,45 @@ func TestDoesntUpdateTheInputManifestInPlace(t *testing.T) {
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
-				manifest.GitTrigger{
-					URI: "ssh@github.com:private/repo",
-				},
-				manifest.DockerTrigger{
-					Image:    path.Join(config.DockerRegistry, "myImageName"),
-				},
+			manifest.GitTrigger{
+				URI: "ssh@github.com:private/repo",
+			},
+			manifest.DockerTrigger{
+				Image: path.Join(config.DockerRegistry, "myImageName"),
+			},
 		},
 		Tasks: manifest.TaskList{
-			manifest.DeployCF{},
+			manifest.DeployCF{
+				PrePromote: manifest.TaskList{
+					manifest.Run{
+						Vars: map[string]string {
+							"A": "B",
+						},
+					},
+				},
+			},
+			manifest.Run{
+				Name: "a",
+				Vars: map[string]string{
+					"A": "B",
+				},
+			},
+			manifest.Run{
+				Name: "a",
+				Vars: map[string]string{
+					"A": "B",
+				},
+			},
+
 		},
 	}
 
 	updatedMan := manifestDefaults.Update(man)
-	assert.NotEqual(t, man, updatedMan)
+	for i, updatedTrigger := range updatedMan.Triggers {
+		assert.NotEqual(t, updatedTrigger, man.Triggers[i])
+	}
+
+	for i, updatedTask := range updatedMan.Tasks {
+		assert.NotEqual(t, updatedTask, man.Tasks[i])
+	}
 }

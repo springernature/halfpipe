@@ -1,20 +1,23 @@
 package cmds
 
 import (
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
+	"github.com/springernature/halfpipe/linters/filechecker"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/triggers"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
+	"path"
 
-	"code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	man "github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
@@ -30,6 +33,49 @@ var checkVersion = func() (err error) {
 	syncer := sync.NewSyncer(currentVersion, sync.ResolveLatestVersionFromArtifactory)
 	err = syncer.Check()
 	return
+}
+
+func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manifest.Manifest, errors []error) {
+	yaml, err := filechecker.ReadFile(fs, path.Join(currentDir, halfpipeFilePath))
+	if err != nil {
+		errors = append(errors, err)
+		return
+	}
+
+	man, errs := manifest.Parse(yaml)
+	if len(errs) != 0 {
+		errors = append(errors, errs...)
+		return
+	}
+
+	return
+}
+
+func printResultAndExitOnError(lintResults result.LintResults) {
+	if lintResults.HasErrors() || lintResults.HasWarnings() {
+		printErr(fmt.Errorf(lintResults.Error()))
+		if lintResults.HasErrors() {
+			os.Exit(1)
+		}
+	}
+}
+
+func createController(projectData project.Data, fs afero.Afero, currentDir string) halfpipe.Controller {
+	return halfpipe.NewController(
+		defaults.NewDefaulter(projectData),
+		parallel.NewParallelMerger(),
+		triggers.NewTriggersTranslator(),
+		[]linters.Linter{
+			linters.NewTopLevelLinter(),
+			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),
+			linters.NewSecretsLinter(manifest.NewSecretValidator()),
+			linters.NewTasksLinter(fs, runtime.GOOS),
+			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
+			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
+		},
+		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest, fs),
+	)
+
 }
 
 var rootCmd = &cobra.Command{
@@ -56,32 +102,13 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		ctrl := halfpipe.Controller{
-			Fs:                fs,
-			CurrentDir:        currentDir,
-			Defaulter:         defaults.NewDefaulter(projectData),
-			Merger:            parallel.NewParallelMerger(),
-			TriggerTranslator: triggers.NewTriggersTranslator(),
-			Linters: []linters.Linter{
-				linters.NewTopLevelLinter(),
-				linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),
-				linters.NewSecretsLinter(man.NewSecretValidator()),
-				linters.NewTasksLinter(fs, runtime.GOOS),
-				linters.NewCfManifestLinter(manifest.ReadAndInterpolateManifest),
-				linters.NewFeatureToggleLinter(man.AvailableFeatureToggles),
-			},
-			Renderer:         pipeline.NewPipeline(manifest.ReadAndInterpolateManifest, fs),
-			HalfpipeFilePath: projectData.HalfpipeFilePath,
+		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
+		if len(manErrors) > 0 {
+			printResultAndExitOnError(result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
 		}
 
-		pipelineConfig, lintResults := ctrl.Process()
-
-		if lintResults.HasErrors() || lintResults.HasWarnings() {
-			printErr(fmt.Errorf(lintResults.Error()))
-			if lintResults.HasErrors() {
-				os.Exit(1)
-			}
-		}
+		pipelineConfig, lintResults := createController(projectData, fs, currentDir).Process(man)
+		printResultAndExitOnError(lintResults)
 
 		pipelineString, renderError := pipeline.ToString(pipelineConfig)
 		if renderError != nil {

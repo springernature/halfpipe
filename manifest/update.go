@@ -4,6 +4,10 @@ type Update struct {
 	Timeout string
 }
 
+func (u Update) MarshalYAML() (interface{}, error) {
+	panic("This should never be exposed")
+}
+
 func (Update) ReadsFromArtifacts() bool {
 	return false
 }

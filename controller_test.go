@@ -13,27 +13,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var validHalfpipeYaml = `
-team: asd
-pipeline: my-pipeline
-tasks:
-- type: docker-compose
-`
+var validHalfpipeManifest = manifest.Manifest{
+	Team:     "asdf",
+	Pipeline: "my-pipeline",
+	Tasks: manifest.TaskList{
+		manifest.DockerCompose{},
+	},
+}
 
-func testController() Controller {
+func testController() controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
-	return Controller{
-		Fs:               fs,
-		CurrentDir:       "/pwd/foo",
-		Defaulter:        defaults.DefaultValues,
-		HalfpipeFilePath: ".halfpipe.io",
+	return controller{
+		defaulter: defaults.DefaultValues,
 	}
 }
 
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -42,16 +39,15 @@ func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 			},
 		},
 	}
-	c.Renderer = FakeRenderer{Config: config}
+	c.renderer = FakeRenderer{Config: config}
 
-	_, results := c.Process()
+	_, results := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, results.Error(), 0)
 }
 
 func TestWorksForHalfpipeFile(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -60,31 +56,11 @@ func TestWorksForHalfpipeFile(t *testing.T) {
 			},
 		},
 	}
-	c.Renderer = FakeRenderer{Config: config}
+	c.renderer = FakeRenderer{Config: config}
 
-	_, results := c.Process()
+	_, results := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, results.Error(), 0)
-}
-
-func TestProcessDoesNothingWhenManifestIsEmpty(t *testing.T) {
-	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(""), 0777)
-	pipeline, results := c.Process()
-
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 1)
-	assert.IsType(t, errors.FileError{}, results[0].Errors[0])
-}
-
-func TestProcessDoesNothingWhenParserFails(t *testing.T) {
-	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte("WrYyYyYy"), 0777)
-	pipeline, results := c.Process()
-
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 1)
-	assert.IsType(t, manifest.ParseError{}, results[0].Errors[0])
 }
 
 type fakeLinter struct {
@@ -97,13 +73,12 @@ func (f fakeLinter) Lint(manifest manifest.Manifest) result.LintResult {
 
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
 	linter2 := fakeLinter{errors.NewMissingField("field")}
-	c.Linters = []linters.Linter{linter1, linter2}
+	c.linters = []linters.Linter{linter1, linter2}
 
-	pipeline, results := c.Process()
+	pipeline, results := c.Process(validHalfpipeManifest)
 
 	assert.Empty(t, pipeline)
 	assert.Len(t, results, 2)
@@ -121,7 +96,6 @@ func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
 
 func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
-	c.Fs.WriteFile("/pwd/foo/.halfpipe.io", []byte(validHalfpipeYaml), 0777)
 
 	config := atc.Config{
 		Resources: atc.ResourceConfigs{
@@ -130,9 +104,9 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 			},
 		},
 	}
-	c.Renderer = FakeRenderer{Config: config}
+	c.renderer = FakeRenderer{Config: config}
 
-	pipeline, results := c.Process()
+	pipeline, results := c.Process(validHalfpipeManifest)
 	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
 }
