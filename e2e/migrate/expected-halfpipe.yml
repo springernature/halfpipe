@@ -1,0 +1,33 @@
+team: team
+pipeline: halfpipe-e2e-migrate
+feature_toggles:
+- update-pipeline
+triggers:
+- type: git
+  watched_paths:
+  - e2e/migrate
+- type: timer
+  cron: '* * * * *'
+tasks:
+- type: run
+  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+  script: ./script
+  docker:
+    image: CHANGE-ME:tag
+- type: parallel
+  tasks:
+  - type: run
+    name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+    script: ./script
+    docker:
+      image: CHANGE-ME:tag
+  - type: run
+    name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+    script: ./script
+    docker:
+      image: CHANGE-ME:tag
+- type: run
+  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+  script: ./script
+  docker:
+    image: CHANGE-ME:tag
