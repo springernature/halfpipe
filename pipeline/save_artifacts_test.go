@@ -445,6 +445,10 @@ func TestRenderGetHasTheSameConfigOptionsInTheRestoreAsInTheResourceConfig(t *te
 
 func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	jarOutputFolder := "build/jars"
+	targetOutputFolder := "target/"
+	outputFolderCrazy := "crazy/////"
+	fileOutput := "someFile"
+	buildFolder := "build/"
 	testReportsFolder := "build/test-reports"
 
 	team := "team"
@@ -457,8 +461,12 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 				Script: "\\make ; ls -al",
 				SaveArtifacts: []string{
 					jarOutputFolder,
+					targetOutputFolder,
+					fileOutput,
+					outputFolderCrazy,
 				},
 				SaveArtifactsOnFailure: []string{
+					buildFolder,
 					testReportsFolder,
 				},
 			},
@@ -488,8 +496,14 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 	failureInParallel := config.Jobs[0].Failure.InParallel.Steps
 	assert.Equal(t, saveArtifactOnFailurePlan(), (failureInParallel)[0])
 
-	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", jarOutputFolder))
-	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), fmt.Sprintf("copyArtifact %s", testReportsFolder))
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact build/jars ../artifacts-out/build")
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact target/ ../artifacts-out")
+	assert.NotContains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact target/ ../artifacts-out/target")
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact someFile ../artifacts-out")
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact crazy///// ../artifacts-out")
+	assert.NotContains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact crazy///// ../artifacts-out/crazy")
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact build/ ../artifacts-out-failure")
+	assert.Contains(t, strings.Join(config.Jobs[0].Plan[1].TaskConfig.Run.Args, "\n"), "copyArtifact build/test-reports ../artifacts-out-failure/build")
 }
 
 func TestRenderRunWithCorrectResources(t *testing.T) {

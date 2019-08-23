@@ -765,6 +765,7 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 }
 
 func fullPathToArtifactsDir(repoName string, basePath string, artifactsDir string, artifactPath string) (fullArtifactPath string) {
+	artifactPath = strings.TrimRight(artifactPath, "/")
 	fullArtifactPath = path.Join(pathToArtifactsDir(repoName, basePath, artifactsDir), basePath)
 
 	if subfolderPath := path.Dir(artifactPath); subfolderPath != "." {
