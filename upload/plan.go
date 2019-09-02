@@ -10,6 +10,16 @@ import (
 
 type Plan []Command
 
+type capturingWriter struct {
+	writtenBytes []byte
+	writer       io.Writer
+}
+
+func (c *capturingWriter) Write(p []byte) (n int, err error) {
+	c.writtenBytes = append(c.writtenBytes, p...)
+	return c.writer.Write(p)
+}
+
 func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonInteractive bool) (err error) {
 	fmt.Fprintln(stdout, "Planned execution") // #nosec
 	for _, cmd := range p {
@@ -28,8 +38,20 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 
 	for _, cmd := range p {
 		fmt.Fprintf(stdout, "\n=== %s ===\n", cmd) // #nosec
-		if runErr := cmd.Run(stdout, stderr, stdin); runErr != nil {
-			return runErr
+
+		capturingStderr := capturingWriter{writer: stderr}
+
+		if runErr := cmd.Run(stdout, &capturingStderr, stdin); runErr != nil {
+			if cmd.ExecuteOnFailureFilter == nil {
+				return runErr
+			}
+			if cmd.ExecuteOnFailureFilter(capturingStderr.writtenBytes) {
+				for _, failureCmd := range cmd.ExecuteOnFailure {
+					if runErr := failureCmd.Run(stdout, stderr, stdin); runErr != nil {
+						return runErr
+					}
+				}
+			}
 		}
 	}
 
@@ -41,13 +63,21 @@ type Command struct {
 	Printable string
 
 	Executor func(stdout io.Writer, stdin io.Reader) error
+
+	ExecuteOnFailureFilter func(outputFromPreviousCommand []byte) bool
+	ExecuteOnFailure       Plan
 }
 
 func (c Command) String() string {
 	if c.Printable != "" {
 		return c.Printable
 	}
-	return strings.Join(c.Cmd.Args, " ")
+
+	s := strings.Join(c.Cmd.Args, " ")
+	if len(c.ExecuteOnFailure) > 0 {
+		s = fmt.Sprintf("%s || %s", s, c.ExecuteOnFailure[0].String())
+	}
+	return s
 }
 
 func (c Command) Run(stdout io.Writer, stderr io.Writer, stdin io.Reader) error {

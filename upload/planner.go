@@ -2,14 +2,15 @@ package upload
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/triggers"
+	"io/ioutil"
 	"os/exec"
-	"path/filepath"
+	"strings"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -87,37 +88,6 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 	return
 }
 
-func (p planner) getTargets() (targets Targets, err error) {
-	path := filepath.Join(p.homedir, ".flyrc")
-	exists, err := p.fs.Exists(path)
-	if err != nil || !exists {
-		return
-	}
-
-	bytes, err := p.fs.ReadFile(path)
-	if err != nil {
-		return
-	}
-
-	err = yaml.Unmarshal(bytes, &targets)
-	return
-}
-
-func (p planner) loginCommand(team string, host string) (cmd Command, err error) {
-	path, err := p.pathResolver("fly")
-	if err != nil {
-		err = ErrFlyNotInstalled(p.oSResolver())
-		return
-	}
-
-	cmd.Cmd = exec.Cmd{
-		Path: path,
-		Args: []string{"fly", "-t", team, "login", "-c", host, "-n", team},
-	}
-
-	return
-}
-
 func (p planner) lintAndRender() (cmd Command, err error) {
 	file, err := p.pipelineFile(p.fs)
 	if err != nil {
@@ -135,6 +105,36 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 		Stdout: file,
 	}
 	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
+
+	return
+}
+
+func (p planner) statusAndLogin(concourseURL, team string) (cmd Command, err error) {
+	path, err := p.pathResolver("fly")
+	if err != nil {
+		err = ErrFlyNotInstalled(p.oSResolver())
+		return
+	}
+
+	cmd = Command{
+		Cmd: exec.Cmd{
+			Path:   path,
+			Args:   []string{"fly", "-t", team, "status"},
+			Stdout: ioutil.Discard,
+		},
+		ExecuteOnFailureFilter: func(outputFromPreviousCommand []byte) bool {
+			return strings.Contains(string(outputFromPreviousCommand), "unknown target") ||
+				strings.Contains(string(outputFromPreviousCommand), "Token is expired")
+		},
+		ExecuteOnFailure: Plan{
+			{
+				Cmd: exec.Cmd{
+					Path: path,
+					Args: []string{"fly", "-t", team, "login", "-c", concourseURL, "-n", team},
+				},
+			},
+		},
+	}
 
 	return
 }
@@ -174,26 +174,16 @@ func (p planner) Plan() (plan Plan, err error) {
 	}
 	plan = append(plan, lintAndRenderCmd)
 
-	targets, err := p.getTargets()
+	concourseURL := config.ConcourseURL
+	if p.envResolver("CONCOURSE_URL") != "" {
+		concourseURL = p.envResolver("CONCOURSE_URL")
+	}
+
+	statusAndLoginCmd, err := p.statusAndLogin(concourseURL, man.Team)
 	if err != nil {
 		return
 	}
-
-	concourseOverrideURL := p.envResolver("CONCOURSE_URL")
-	if target, ok := targets.Targets[man.Team]; !ok || concourseOverrideURL != "" && target.API != concourseOverrideURL {
-		url := config.ConcourseURL
-		if concourseOverrideURL != "" {
-			url = concourseOverrideURL
-		}
-
-		cmd, loginError := p.loginCommand(man.Team, url)
-		if loginError != nil {
-			err = loginError
-			return
-		}
-
-		plan = append(plan, cmd)
-	}
+	plan = append(plan, statusAndLoginCmd)
 
 	uploadCmd, err := p.uploadCmd(man.Team, man.PipelineName())
 	if err != nil {

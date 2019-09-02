@@ -2,8 +2,7 @@ package upload
 
 import (
 	"fmt"
-	"os/exec"
-	"path"
+	"strings"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -26,11 +25,6 @@ repo:
   branch: %s
 `, team, pipeline, branch)
 
-var validFlyRc = fmt.Sprintf(`---
-targets:
-  %s:
-    api: https://concourse.domain.io`, team)
-
 var homedir = "/home/my-user"
 
 var pathResolver = func(path string) (string, error) {
@@ -49,286 +43,168 @@ var envResolver = func(envVar string) string {
 	return ""
 }
 
-func TestReturnsErrWhenHalfpipeFileDoesntExist(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
-	_, err := planner.Plan()
-
-	assert.Error(t, err)
+func planToString(plan Plan) string {
+	var parts []string
+	for _, c := range plan {
+		parts = append(parts, c.String())
+	}
+	return strings.Join(parts, "\n")
 }
 
-func TestReturnsReadableErrorWhenFlyIsNotOnPath(t *testing.T) {
-	pathResolverWithoutFly := func(path string) (string, error) {
-		if path == "fly" {
-			return "", errors.New("Some random error")
+func TestErrors(t *testing.T) {
+	t.Run("when halfpipe file doesnt exist", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
+		_, err := planner.Plan()
+
+		assert.Error(t, err)
+	})
+
+	t.Run("when fly is not on path", func(t *testing.T) {
+		pathResolverWithoutFly := func(path string) (string, error) {
+			if path == "fly" {
+				return "", errors.New("Some random error")
+			}
+			return path, nil
 		}
-		return path, nil
-	}
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
+		file, _ := fs.Create("pipeline.yml")
+		fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
 
-	planner := NewPlanner(fs, pathResolverWithoutFly, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, false, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolverWithoutFly, homedir, func(fs afero.Afero) (afero.File, error) {
+			return file, nil
+		}, false, "master", osResolver, envResolver, "")
 
-	_, err := planner.Plan()
-	assert.Equal(t, ErrFlyNotInstalled(osResolver()), err)
+		_, err := planner.Plan()
+		assert.Equal(t, ErrFlyNotInstalled(osResolver()), err)
+	})
+
+	t.Run("when manifest doesnt contain team or pipeline", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile(".halfpipe.io", []byte(""), 0777)
+
+		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
+		_, err := planner.Plan()
+
+		assert.Error(t, err)
+	})
 }
 
-func TestReturnsErrWhenHalfpipeDoesntContainTeamOrPipeline(t *testing.T) {
+func TestOnMaster(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
-	_, err := planner.Plan()
-
-	assert.Error(t, err)
-}
-
-func TestReturnsAPlanWithLogin(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
 	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
+	pipelineFile := func(fs afero.Afero) (afero.File, error) {
+		file, _ := fs.Create("pipeline.yml")
 		return file, nil
-	}, false, "master", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path:   "halfpipe",
-				Args:   []string{"halfpipe"},
-				Stdout: file,
-			},
-			Printable: "halfpipe > pipeline.yml",
-		},
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "login", "-c", "https://concourse.halfpipe.io", "-n", team},
-			},
-		},
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
-			},
-		},
 	}
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
+	t.Run("returns a plan", func(t *testing.T) {
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "master", osResolver, envResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := `halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
+
+	t.Run("returns a non-interactive plan", func(t *testing.T) {
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := `halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-interactive`
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
+
+	t.Run("returns a plan with overridden concourse api", func(t *testing.T) {
+		concourseEndpoint := "https://someRandom.location.com"
+		overriddenEnvResolver := func(envVar string) string {
+			return concourseEndpoint
+		}
+
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, overriddenEnvResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := fmt.Sprintf(`halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c %s -n my-team
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-interactive`, concourseEndpoint)
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
+
 }
 
-func TestReturnsAPlanWithoutLoginIfAlreadyLoggedIn(t *testing.T) {
+func TestOnBranch(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, false, "master", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path:   "halfpipe",
-				Args:   []string{"halfpipe"},
-				Stdout: file,
-			},
-			Printable: "halfpipe > pipeline.yml",
-		},
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds"},
-			},
-		},
-	}
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
-}
-
-func TestReturnsAPlanWithoutLoginIfAlreadyLoggedInAndWithBranch(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
 	fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
+	pipelineFile := func(fs afero.Afero) (afero.File, error) {
+		file, _ := fs.Create("pipeline.yml")
 		return file, nil
-	}, false, "master", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path:   "halfpipe",
-				Args:   []string{"halfpipe"},
-				Stdout: file,
-			},
-			Printable: "halfpipe > pipeline.yml",
-		},
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline + "-" + branch, "-c", "pipeline.yml", "--check-creds"},
-			},
-		},
 	}
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
+	t.Run("returns a plan with security question", func(t *testing.T) {
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, branch, osResolver, envResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := `# Security question
+halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
+fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-creds`
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
+
+	t.Run("returns a non interactive plan", func(t *testing.T) {
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := `halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
+fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-creds --non-interactive`
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
 }
 
-func TestReturnsAPlanWithNonInteractiveIfSpecified(t *testing.T) {
+func TestUnpause(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
+	pipelineFile := func(fs afero.Afero) (afero.File, error) {
+		file, _ := fs.Create("pipeline.yml")
 		return file, nil
-	}, true, "master", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path:   "halfpipe",
-				Args:   []string{"halfpipe"},
-				Stdout: file,
-			},
-			Printable: "halfpipe > pipeline.yml",
-		},
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "set-pipeline", "-p", pipeline, "-c", "pipeline.yml", "--check-creds", "--non-interactive"},
-			},
-		},
 	}
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
-}
+	t.Run("returns a plan on master", func(t *testing.T) {
+		fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "")
+		plan, err := planner.Unpause()
 
-func TestReturnsAUnpausePlan(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		expectedPlan := `fly -t my-team unpause-pipeline -p my-pipeline`
 
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
 
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, true, "master", osResolver, envResolver, "")
-	plan, err := planner.Unpause()
+	})
 
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "unpause-pipeline", "-p", pipeline},
-			},
-		},
-	}
+	t.Run("returns a plan on a branch", func(t *testing.T) {
+		fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
 
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
-}
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "")
+		plan, err := planner.Unpause()
 
-func TestReturnsAUnpausePlanForBranch(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		expectedPlan := `fly -t my-team unpause-pipeline -p my-pipeline-my-branch`
 
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, true, "master", osResolver, envResolver, "")
-	plan, err := planner.Unpause()
-
-	expectedPlan := Plan{
-		{
-			Cmd: exec.Cmd{
-				Path: "fly",
-				Args: []string{"fly", "-t", team, "unpause-pipeline", "-p", fmt.Sprintf("%s-%s", pipeline, branch)},
-			},
-		},
-	}
-
-	assert.Nil(t, err)
-	assert.Equal(t, expectedPlan, plan)
-}
-
-func TestReturnsAPlanWithSecurityQuestionIfNotOnMaster(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, false, "a-branch", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	assert.NoError(t, err)
-	assert.Len(t, plan, 3)
-	assert.Equal(t, "# Security question", plan[0].Printable)
-}
-
-func TestReturnsAPlanWithoutSecurityQuestionIfNotOnMasterAndNonInteractiveSet(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, true, "a-branch", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	assert.NoError(t, err)
-	assert.Len(t, plan, 2)
-	assert.NotEqual(t, "# Security question", plan[0].Printable)
-	assert.NotEqual(t, "# Security question", plan[1].Printable)
-}
-
-func TestCanOverrideTheApi(t *testing.T) {
-	concourseEndpoint := "https://someRandom.location.com"
-	envResolver := func(envVar string) string {
-		return concourseEndpoint
-	}
-
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-
-	file, _ := fs.Create("pipeline.yml")
-	fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-	fs.WriteFile(path.Join(homedir, ".flyrc"), []byte(validFlyRc), 0777)
-
-	planner := NewPlanner(fs, pathResolver, homedir, func(fs afero.Afero) (afero.File, error) {
-		return file, nil
-	}, false, "master", osResolver, envResolver, "")
-	plan, err := planner.Plan()
-
-	assert.NoError(t, err)
-	fmt.Println(plan)
-
-	assert.Equal(t, plan[1].Cmd.Args, []string{"fly", "-t", team, "login", "-c", concourseEndpoint, "-n", team})
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
 }
