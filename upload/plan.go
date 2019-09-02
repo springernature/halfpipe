@@ -42,16 +42,16 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 		capturingStderr := capturingWriter{writer: stderr}
 
 		if runErr := cmd.Run(stdout, &capturingStderr, stdin); runErr != nil {
-			if cmd.ExecuteOnFailureFilter == nil {
-				return runErr
-			}
-			if cmd.ExecuteOnFailureFilter(capturingStderr.writtenBytes) {
+			if cmd.ExecuteOnFailureFilter != nil && cmd.ExecuteOnFailureFilter(capturingStderr.writtenBytes) {
 				for _, failureCmd := range cmd.ExecuteOnFailure {
 					if runErr := failureCmd.Run(stdout, stderr, stdin); runErr != nil {
 						return runErr
 					}
 				}
+				continue
 			}
+			return runErr
+
 		}
 	}
 

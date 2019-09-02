@@ -123,8 +123,18 @@ func (p planner) statusAndLogin(concourseURL, team string) (cmd Command, err err
 			Stdout: ioutil.Discard,
 		},
 		ExecuteOnFailureFilter: func(outputFromPreviousCommand []byte) bool {
-			return strings.Contains(string(outputFromPreviousCommand), "unknown target") ||
-				strings.Contains(string(outputFromPreviousCommand), "Token is expired")
+			knownErrors := []string{
+				"unknown target",
+				"Token is expired",
+				"please login again",
+			}
+
+			for _, knownError := range knownErrors {
+				if strings.Contains(string(outputFromPreviousCommand), knownError) {
+					return true
+				}
+			}
+			return false
 		},
 		ExecuteOnFailure: Plan{
 			{
