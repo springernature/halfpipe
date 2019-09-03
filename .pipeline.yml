@@ -115,6 +115,7 @@ jobs:
         - |
           export ROOT=`pwd`
           export GOPATH=/var/halfpipe/cache/go
+          export GOPROXY=https://proxy.golang.org
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"

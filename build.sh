@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+export GOPROXY=https://proxy.golang.org
+
 go version | grep -q 'go1.12' || (
     go version
     echo error: go1.12 required
