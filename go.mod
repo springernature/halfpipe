@@ -3,9 +3,10 @@ module github.com/springernature/halfpipe
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c // indirect
 	code.cloudfoundry.org/cli v6.41.0+incompatible
+	github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v5.4.0+incompatible
-	github.com/concourse/concourse v0.0.0-20190515153108-e18850def8bd
+	github.com/concourse/concourse v0.0.0-20190828185120-600d29c30ca8
 	github.com/cppforlife/go-patch v0.0.0-20181218195656-90228d472812 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
