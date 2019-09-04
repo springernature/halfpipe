@@ -122,10 +122,9 @@ jobs:
 
           # Build binaries
           cd halfpipe
-          go mod download
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin_$VERSION -mod=vendor -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -mod=vendor -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -mod=vendor -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
           cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
       inputs:
