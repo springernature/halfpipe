@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+GOPROXY=https://goproxy.io
 
 go version | grep -q 'go1.12' || (
     go version
@@ -11,11 +12,8 @@ go version | grep -q 'go1.12' || (
 go_opts=""
 if [ "${1-}" = "ci" ]; then
     echo CI
-    go get k8s.io/client-go@v2.0.0-alpha.0.0.20171101191150-72e1c2a1ef30+incompatible # This is broken with the go proxy..
     go_opts="-mod=readonly"
 fi
-
-export GOPROXY=https://proxy.golang.org
 
 echo [1/5] fmt
 go fmt ./...
