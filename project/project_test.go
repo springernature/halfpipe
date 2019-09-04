@@ -10,9 +10,12 @@ import (
 
 func testProjectResolver() projectResolver {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	pr := NewProjectResolver(fs)
-	pr.LookPath = func(s string) (string, error) { return s, nil }
-	pr.OriginURL = func() (string, error) { return "git@origin", nil }
+	pr := projectResolver{
+		Fs:        fs,
+		LookPath:  func(s string) (string, error) { return s, nil },
+		OriginURL: func() (string, error) { return "git@origin", nil },
+	}
+
 	return pr
 }
 
@@ -21,14 +24,14 @@ func TestErrors(t *testing.T) {
 		pr := testProjectResolver()
 		pr.LookPath = func(string) (string, error) { return "", errors.New("dummy") }
 
-		_, err := pr.Parse("/project/root", false)
+		_, err := pr.Parse("/project/root")
 		assert.Equal(t, ErrGitNotFound, err)
 	})
 
 	t.Run("when not in a git repo", func(t *testing.T) {
 		pr := testProjectResolver()
 
-		_, err := pr.Parse("/project/root", false)
+		_, err := pr.Parse("/project/root")
 		assert.Equal(t, ErrNotInRepo, err)
 	})
 
@@ -37,14 +40,14 @@ func TestErrors(t *testing.T) {
 		pr.OriginURL = func() (string, error) { return "", errors.New("dummy") }
 		pr.Fs.MkdirAll("/project/root/.git", 0777)
 
-		_, err := pr.Parse("/project/root", false)
+		_, err := pr.Parse("/project/root")
 		assert.Equal(t, ErrNoOriginConfigured, err)
 	})
 
 	t.Run("when start path cannot be reached", func(t *testing.T) {
 		pr := testProjectResolver()
 
-		_, err := pr.Parse("/home/simon/src/repo", false)
+		_, err := pr.Parse("/home/simon/src/repo")
 		assert.Equal(t, ErrNotInRepo, err)
 
 	})
@@ -53,7 +56,7 @@ func TestErrors(t *testing.T) {
 		pr := testProjectResolver()
 		pr.Fs.MkdirAll("/home/simon/src/repo/a/b/c", 0777)
 
-		_, err := pr.Parse("/home/simon/src/repo/a/b/c", false)
+		_, err := pr.Parse("/home/simon/src/repo/a/b/c")
 		assert.Equal(t, ErrNotInRepo, err)
 	})
 
@@ -63,7 +66,7 @@ func TestErrors(t *testing.T) {
 		paths := []string{"", "foo", "/..", ".."}
 
 		for _, path := range paths {
-			_, err := pr.Parse(path, false)
+			_, err := pr.Parse(path)
 			assert.Equal(t, ErrNotInRepo, err)
 		}
 	})
@@ -72,7 +75,7 @@ func TestErrors(t *testing.T) {
 		pr := testProjectResolver()
 		pr.Fs.MkdirAll("/project/root/.git", 0777)
 
-		project, err := pr.Parse("/project/root", true)
+		project, err := pr.Parse("/project/root")
 
 		assert.Nil(t, err)
 		assert.Equal(t, "git@origin", project.GitURI)
@@ -83,7 +86,9 @@ func TestErrors(t *testing.T) {
 		pr.Fs.MkdirAll("/project/root/.git", 0777)
 		pr.Fs.WriteFile("/project/root/.halfpipe.io", []byte("someRandomField: true"), 0777)
 
-		_, err := pr.Parse("/project/root", false)
+		prr := pr.ShouldParseManifest()
+
+		_, err := prr.Parse("/project/root")
 
 		assert.Error(t, err)
 	})
@@ -94,7 +99,7 @@ func TestGetsGitData(t *testing.T) {
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 	pr.Fs.WriteFile("/project/root/.halfpipe.io", []byte("team: myTeam"), 0777)
 
-	project, err := pr.Parse("/project/root", false)
+	project, err := pr.Parse("/project/root")
 
 	assert.Nil(t, err)
 	assert.Equal(t, "git@origin", project.GitURI)
@@ -103,7 +108,7 @@ func TestGetsGitData(t *testing.T) {
 func TestBasePathWhenInGitRepo(t *testing.T) {
 	assertBasePath := func(t *testing.T, pr projectResolver, workingDir string, expectedBasePath string) {
 		t.Helper()
-		project, err := pr.Parse(workingDir, false)
+		project, err := pr.Parse(workingDir)
 		assert.Nil(t, err)
 		assert.Equal(t, expectedBasePath, project.BasePath)
 	}
@@ -125,7 +130,7 @@ func TestBasePathWhenInGitRepo(t *testing.T) {
 func TestRootNameWhenInGitRepo(t *testing.T) {
 	assertRootName := func(t *testing.T, pr projectResolver, workingDir string, expectedRootName string) {
 		t.Helper()
-		project, err := pr.Parse(workingDir, false)
+		project, err := pr.Parse(workingDir)
 		assert.Nil(t, err)
 		assert.Equal(t, expectedRootName, project.RootName)
 	}

@@ -26,16 +26,34 @@ type Data struct {
 }
 
 type Project interface {
-	Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p Data, err error)
+	Parse(workingDir string) (p Data, err error)
+	ShouldParseManifest() Project
+	ShouldFindManifestPath() Project
 }
 
 type projectResolver struct {
 	Fs        afero.Afero
 	LookPath  func(string) (string, error)
 	OriginURL func() (string, error)
+
+	findHalfpipeFileName bool
+	readManifest         bool
 }
 
-func NewProjectResolver(fs afero.Afero) projectResolver {
+func (c projectResolver) ShouldParseManifest() Project {
+	newResolver := c
+	newResolver.findHalfpipeFileName = true
+	newResolver.readManifest = true
+	return newResolver
+}
+
+func (c projectResolver) ShouldFindManifestPath() Project {
+	newResolver := c
+	newResolver.findHalfpipeFileName = true
+	return newResolver
+}
+
+func NewProjectResolver(fs afero.Afero) Project {
 	return projectResolver{
 		Fs:        fs,
 		LookPath:  exec.LookPath,
@@ -102,10 +120,10 @@ func (c projectResolver) pathRelativeToGit(workingDir string) (basePath string, 
 	return
 }
 
-func (c projectResolver) getHalfpipeFileName(workingDir string, ignoreMissingHalfpipeFile bool) (halfpipeFilePath string, err error) {
+func (c projectResolver) getHalfpipeFileName(workingDir string) (halfpipeFilePath string, err error) {
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
-		if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
+		if !(e == errors2.NewMissingHalfpipeFileError()) {
 			err = e
 			return
 		}
@@ -134,35 +152,38 @@ func (c projectResolver) getManifest(workingDir, halfpipeFilePath string) (man m
 	return
 }
 
-func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p Data, err error) {
+func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 
 	origin, err := c.getGitOrigin()
 	if err != nil {
 		return
 	}
+	p.GitURI = origin
 
 	basePath, rootName, err := c.pathRelativeToGit(workingDir)
 	if err != nil {
 		return
 	}
+	p.BasePath = basePath
+	p.RootName = rootName
 
-	halfpipeFilePath, err := c.getHalfpipeFileName(workingDir, ignoreMissingHalfpipeFile)
-	if err != nil {
-		return
-	}
-
-	if halfpipeFilePath != "" {
-		man, e := c.getManifest(workingDir, halfpipeFilePath)
+	if c.findHalfpipeFileName {
+		halfpipeFilePath, e := c.getHalfpipeFileName(workingDir)
 		if e != nil {
 			err = e
 			return
 		}
-		p.Manifest = man
+		p.HalfpipeFilePath = halfpipeFilePath
+
+		if c.readManifest {
+			man, e := c.getManifest(workingDir, halfpipeFilePath)
+			if e != nil {
+				err = e
+				return
+			}
+			p.Manifest = man
+		}
 	}
 
-	p.GitURI = origin
-	p.BasePath = basePath
-	p.RootName = rootName
-	p.HalfpipeFilePath = halfpipeFilePath
 	return
 }

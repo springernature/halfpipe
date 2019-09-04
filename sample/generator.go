@@ -33,14 +33,22 @@ func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, current
 }
 
 func (s sampleGenerator) Generate() (err error) {
-	exists, err := s.fs.Exists(".halfpipe.io")
+	proj, err := s.projectResolver.Parse(s.currentDir)
 	if err != nil {
 		return
 	}
 
-	if exists {
-		err = ErrHalfpipeAlreadyExists
-		return
+	if proj.HalfpipeFilePath != "" {
+		exists, e := s.fs.Exists(proj.HalfpipeFilePath)
+		if e != nil {
+			err = e
+			return
+		}
+
+		if exists {
+			err = ErrHalfpipeAlreadyExists
+			return
+		}
 	}
 
 	man := manifest.Manifest{
@@ -56,11 +64,6 @@ func (s sampleGenerator) Generate() (err error) {
 				},
 			},
 		},
-	}
-
-	proj, err := s.projectResolver.Parse(s.currentDir, true)
-	if err != nil {
-		return
 	}
 
 	if proj.BasePath != "" {

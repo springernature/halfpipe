@@ -9,24 +9,46 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type FakeProjectResolver struct {
+type fakeProjectResolver struct {
 	p   project.Data
 	err error
 }
 
-func (pr FakeProjectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p project.Data, err error) {
+func (pr fakeProjectResolver) ShouldFindManifestPath() project.Project {
+	panic("implement me")
+}
+
+func (pr fakeProjectResolver) ShouldParseManifest() project.Project {
+	panic("implement me")
+}
+
+func (pr fakeProjectResolver) Parse(workingDir string) (p project.Data, err error) {
 	return pr.p, pr.err
 }
 
 func TestFailsIfHalfpipeFileAlreadyExists(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile(".halfpipe.io", []byte(""), 777)
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{}, "/home/user/src/myApp")
+	t.Run(".halfpipe.io", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile(".halfpipe.io", []byte(""), 777)
 
-	err := sampleGenerator.Generate()
+		sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{p: project.Data{HalfpipeFilePath: ".halfpipe.io"}}, "/home/user/src/myApp")
 
-	assert.Equal(t, err, ErrHalfpipeAlreadyExists)
+		err := sampleGenerator.Generate()
+
+		assert.Equal(t, err, ErrHalfpipeAlreadyExists)
+	})
+
+	t.Run(".halfpipe.io.yaml", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile(".halfpipe.io.yaml", []byte(""), 777)
+
+		sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{p: project.Data{HalfpipeFilePath: ".halfpipe.io.yaml"}}, "/home/user/src/myApp")
+
+		err := sampleGenerator.Generate()
+
+		assert.Equal(t, err, ErrHalfpipeAlreadyExists)
+	})
 }
 
 func TestFailsIfProjectResolverErrorsOut(t *testing.T) {
@@ -34,7 +56,7 @@ func TestFailsIfProjectResolverErrorsOut(t *testing.T) {
 
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{err: expectedError}, "/home/user/src/myApp")
+	sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{err: expectedError}, "/home/user/src/myApp")
 
 	err := sampleGenerator.Generate()
 
@@ -44,7 +66,7 @@ func TestFailsIfProjectResolverErrorsOut(t *testing.T) {
 func TestWritesSample(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{RootName: "myApp"}}, "/home/user/src/myApp")
+	sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{p: project.Data{RootName: "myApp"}}, "/home/user/src/myApp")
 
 	err := sampleGenerator.Generate()
 
@@ -70,7 +92,7 @@ tasks:
 func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{
+	sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{p: project.Data{
 		BasePath: "subApp",
 		RootName: "myApp",
 		GitURI:   "",
@@ -104,7 +126,7 @@ tasks:
 func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{p: project.Data{
+	sampleGenerator := NewSampleGenerator(fs, fakeProjectResolver{p: project.Data{
 		BasePath: "subFolder/subApp",
 		RootName: "myApp",
 		GitURI:   "",

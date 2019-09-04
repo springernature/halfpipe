@@ -34,7 +34,7 @@ var migrateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false)
+		projectData, err := project.NewProjectResolver(fs).ShouldParseManifest().Parse(currentDir)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)
