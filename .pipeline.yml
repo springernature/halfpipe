@@ -62,7 +62,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.12-stretch
+          tag: 1.13-buster
       run:
         path: /bin/bash
         args:
@@ -107,7 +107,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.12-stretch
+          tag: 1.13-buster
       run:
         path: /bin/sh
         args:
@@ -118,14 +118,16 @@ jobs:
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
-          echo "LDFLAGS=${LDFLAGS}"
+          export GOPROXY="https://proxy.golang.org,https://gocenter.io,direct"
+          export CGO_ENABLED=0
+          export GOARCH=amd64
 
           # Build binaries
           cd halfpipe
           go mod download
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          CGO_ENABLED=0 GOARCH=amd64 GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
           cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_$VERSION.exe $ROOT/binaries
       inputs:

@@ -22,3 +22,5 @@ require (
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
 	gopkg.in/yaml.v2 v2.2.2
 )
+
+go 1.13
