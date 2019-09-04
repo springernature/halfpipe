@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export GOPROXY=https://goproxy.io
-
 go version | grep -q 'go1.12' || (
     go version
     echo error: go1.12 required
@@ -12,7 +10,7 @@ go version | grep -q 'go1.12' || (
 go_opts=""
 if [ "${1-}" = "ci" ]; then
     echo CI
-    go_opts="-mod=readonly"
+    go_opts="-mod=vendor"
 fi
 
 echo [1/5] fmt
