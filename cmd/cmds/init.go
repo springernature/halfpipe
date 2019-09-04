@@ -2,11 +2,11 @@ package cmds
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/sample"
 	"os"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 )
 
@@ -27,7 +27,7 @@ var initCmd = &cobra.Command{
 		fs := afero.Afero{Fs: afero.NewOsFs()}
 		projectResolver := project.NewProjectResolver(fs)
 
-		err = manifest.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
+		err = sample.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
 
 		if err != nil {
 			printErr(err)

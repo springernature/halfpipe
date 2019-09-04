@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/migrate"
 	// "github.com/springernature/halfpipe/manifest"
@@ -41,14 +40,10 @@ var migrateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
-		if len(manErrors) > 0 {
-			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
-		}
-
 		controller := createController(projectData, fs, currentDir)
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
-		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
+
+		_, migratedYaml, results, migrated, err := migrator.Migrate(projectData.Manifest)
 		printErrAndResultAndExitOnError(err, results)
 
 		if migrated {

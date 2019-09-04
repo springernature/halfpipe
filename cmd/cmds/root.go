@@ -3,24 +3,21 @@ package cmds
 import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
-	"github.com/springernature/halfpipe/linters/filechecker"
-	"github.com/springernature/halfpipe/linters/result"
-	"github.com/springernature/halfpipe/parallel"
-	"github.com/springernature/halfpipe/triggers"
-	"github.com/tcnksm/go-gitconfig"
-	"os"
-	"path"
-
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
+	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/sync"
+	"github.com/springernature/halfpipe/triggers"
+	"github.com/tcnksm/go-gitconfig"
+	"os"
 	"runtime"
 )
 
@@ -32,22 +29,6 @@ var checkVersion = func() (err error) {
 
 	syncer := sync.NewSyncer(currentVersion, sync.ResolveLatestVersionFromArtifactory)
 	err = syncer.Check()
-	return
-}
-
-func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manifest.Manifest, errors []error) {
-	yaml, err := filechecker.ReadFile(fs, path.Join(currentDir, halfpipeFilePath))
-	if err != nil {
-		errors = append(errors, err)
-		return
-	}
-
-	man, errs := manifest.Parse(yaml)
-	if len(errs) != 0 {
-		errors = append(errors, errs...)
-		return
-	}
-
 	return
 }
 
@@ -112,12 +93,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
-		if len(manErrors) > 0 {
-			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
-		}
-
-		pipelineConfig, lintResults := createController(projectData, fs, currentDir).Process(man)
+		pipelineConfig, lintResults := createController(projectData, fs, currentDir).Process(projectData.Manifest)
 		printErrAndResultAndExitOnError(nil, lintResults)
 
 		pipelineString, renderError := pipeline.ToString(pipelineConfig)

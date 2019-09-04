@@ -1,7 +1,8 @@
-package manifest
+package sample
 
 import (
 	"errors"
+	"github.com/springernature/halfpipe/manifest"
 
 	"fmt"
 	"strings"
@@ -13,7 +14,7 @@ import (
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")
 
-type SampleGenerator interface {
+type Generator interface {
 	Generate() (err error)
 }
 
@@ -23,7 +24,7 @@ type sampleGenerator struct {
 	currentDir      string
 }
 
-func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, currentDir string) SampleGenerator {
+func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, currentDir string) Generator {
 	return sampleGenerator{
 		fs:              fs,
 		projectResolver: projectResolver,
@@ -42,15 +43,15 @@ func (s sampleGenerator) Generate() (err error) {
 		return
 	}
 
-	man := Manifest{
+	man := manifest.Manifest{
 		Team: "CHANGE-ME",
 
-		Tasks: []Task{
-			Run{
+		Tasks: []manifest.Task{
+			manifest.Run{
 				Type:   "run",
 				Name:   "CHANGE-ME OPTIONAL NAME IN CONCOURSE UI",
 				Script: "./gradlew CHANGE-ME",
-				Docker: Docker{
+				Docker: manifest.Docker{
 					Image: "CHANGE-ME:tag",
 				},
 			},
@@ -63,14 +64,14 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 
 	if proj.BasePath != "" {
-		man.Triggers = append(man.Triggers, GitTrigger{
+		man.Triggers = append(man.Triggers, manifest.GitTrigger{
 			Type:         "git",
 			WatchedPaths: []string{proj.BasePath},
 		})
 	}
 	man.Pipeline = createPipelineName(proj)
 
-	man.FeatureToggles = FeatureToggles{FeatureUpdatePipeline}
+	man.FeatureToggles = manifest.FeatureToggles{manifest.FeatureUpdatePipeline}
 
 	out, err := yaml.Marshal(man)
 	if err != nil {
