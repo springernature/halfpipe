@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-GOPROXY=https://goproxy.io
+export GOPROXY=https://goproxy.io
 
 go version | grep -q 'go1.12' || (
     go version
