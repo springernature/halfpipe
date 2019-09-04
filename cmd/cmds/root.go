@@ -1,6 +1,8 @@
 package cmds
 
 import (
+	"bufio"
+	"bytes"
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
 	"github.com/spf13/afero"
@@ -17,8 +19,10 @@ import (
 	"github.com/springernature/halfpipe/sync"
 	"github.com/springernature/halfpipe/triggers"
 	"github.com/tcnksm/go-gitconfig"
+	"io"
 	"os"
 	"runtime"
+	"strings"
 )
 
 var checkVersion = func() (err error) {
@@ -69,6 +73,29 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 
 }
 
+func stdinToBuffer(stdin *os.File) io.Reader {
+	scanner := bufio.NewScanner(stdin)
+
+	fI, err := stdin.Stat()
+	if err != nil {
+		panic(err)
+	}
+
+	if fI.Size() == 0 {
+		return nil
+	}
+
+	var lines []string
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+	if err := scanner.Err(); err != nil {
+		panic(err)
+	}
+
+	return bytes.NewBufferString(strings.Join(lines, "\n"))
+}
+
 var rootCmd = &cobra.Command{
 	Use: "halfpipe",
 	Short: `halfpipe is a tool to lint and render concourse pipelines
@@ -87,7 +114,9 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			os.Exit(1)
 		}
 
-		projectData, err := project.NewProjectResolver(fs).ShouldParseManifest().Parse(currentDir)
+		projectData, err := project.NewProjectResolver(fs).
+			LookForManifestOnStdIn(stdinToBuffer(os.Stdin)).
+			Parse(currentDir)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)

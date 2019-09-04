@@ -67,6 +67,5 @@ func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName st
 		err = errors.NewMissingHalfpipeFileError()
 		return
 	}
-
 	return foundPaths[0], nil
 }

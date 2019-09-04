@@ -25,7 +25,9 @@ var initCmd = &cobra.Command{
 		}
 
 		fs := afero.Afero{Fs: afero.NewOsFs()}
-		projectResolver := project.NewProjectResolver(fs).ShouldFindManifestPath()
+		projectResolver := project.NewProjectResolver(fs).
+			ShouldFindManifestPath().
+			ShouldNotReturnErrorWhenNoHalfpipeFileFound()
 
 		err = sample.NewSampleGenerator(fs, projectResolver, currentDir).Generate()
 

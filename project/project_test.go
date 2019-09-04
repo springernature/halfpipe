@@ -1,6 +1,8 @@
 package project
 
 import (
+	"bytes"
+	"github.com/springernature/halfpipe/manifest"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -86,9 +88,17 @@ func TestErrors(t *testing.T) {
 		pr.Fs.MkdirAll("/project/root/.git", 0777)
 		pr.Fs.WriteFile("/project/root/.halfpipe.io", []byte("someRandomField: true"), 0777)
 
-		prr := pr.ShouldParseManifest()
+		_, err := pr.ShouldParseManifest().Parse("/project/root")
 
-		_, err := prr.Parse("/project/root")
+		assert.Error(t, err)
+	})
+
+	t.Run("when halfpipe manifest is not a valid manifest from stdin", func(t *testing.T) {
+		pr := testProjectResolver()
+		pr.Fs.MkdirAll("/project/root/.git", 0777)
+
+		stdin := bytes.NewBufferString(`someRandomKey: true`)
+		_, err := pr.LookForManifestOnStdIn(stdin).Parse("/project/root")
 
 		assert.Error(t, err)
 	})
@@ -147,4 +157,23 @@ func TestRootNameWhenInGitRepo(t *testing.T) {
 	assertRootName(t, pr, "/home/simon/src/repo/sub1", "repo")
 	assertRootName(t, pr, "/home/simon/src/repo/sub1/sub2", "repo")
 	assertRootName(t, pr, "/home/simon/src/repo/sub1/sub2/sub3", "repo")
+}
+
+func TestReadsFromStdin(t *testing.T) {
+	pr := testProjectResolver()
+	pr.Fs.MkdirAll("/project/root/.git", 0777)
+
+	stdInManifest := `team: myTeam
+pipeline: myPipeline`
+
+	expectedManifest := manifest.Manifest{
+		Team:     "myTeam",
+		Pipeline: "myPipeline",
+	}
+
+	stdin := bytes.NewBufferString(stdInManifest)
+	project, err := pr.LookForManifestOnStdIn(stdin).Parse("/project/root")
+
+	assert.NoError(t, err)
+	assert.Equal(t, expectedManifest, project.Manifest)
 }

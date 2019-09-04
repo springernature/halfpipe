@@ -5,6 +5,8 @@ import (
 	errors2 "github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
+	"io"
+	"io/ioutil"
 	"path"
 	"path/filepath"
 
@@ -29,6 +31,8 @@ type Project interface {
 	Parse(workingDir string) (p Data, err error)
 	ShouldParseManifest() Project
 	ShouldFindManifestPath() Project
+	ShouldNotReturnErrorWhenNoHalfpipeFileFound() Project
+	LookForManifestOnStdIn(stdin io.Reader) Project
 }
 
 type projectResolver struct {
@@ -36,8 +40,24 @@ type projectResolver struct {
 	LookPath  func(string) (string, error)
 	OriginURL func() (string, error)
 
-	findHalfpipeFileName bool
-	readManifest         bool
+	findHalfpipeFileName          bool
+	readManifest                  bool
+	ignoreIfHalfpipeFileIsMissing bool
+	stdin                         io.Reader
+}
+
+func (c projectResolver) ShouldNotReturnErrorWhenNoHalfpipeFileFound() Project {
+	newResolver := c
+	newResolver.ignoreIfHalfpipeFileIsMissing = true
+	return newResolver
+}
+
+func (c projectResolver) LookForManifestOnStdIn(stdin io.Reader) Project {
+	newResolver := c
+	newResolver.readManifest = true
+	newResolver.findHalfpipeFileName = true
+	newResolver.stdin = stdin
+	return newResolver
 }
 
 func (c projectResolver) ShouldParseManifest() Project {
@@ -123,7 +143,7 @@ func (c projectResolver) pathRelativeToGit(workingDir string) (basePath string, 
 func (c projectResolver) getHalfpipeFileName(workingDir string) (halfpipeFilePath string, err error) {
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
-		if !(e == errors2.NewMissingHalfpipeFileError()) {
+		if e == errors2.NewMissingHalfpipeFileError() {
 			err = e
 			return
 		}
@@ -133,11 +153,24 @@ func (c projectResolver) getHalfpipeFileName(workingDir string) (halfpipeFilePat
 }
 
 func (c projectResolver) getManifest(workingDir, halfpipeFilePath string) (man manifest.Manifest, err error) {
-	yaml, err := filechecker.ReadFile(c.Fs, path.Join(workingDir, halfpipeFilePath))
-	if err != nil {
-		return
+	var yaml string
+
+	if c.stdin != nil {
+		bytes, e := ioutil.ReadAll(c.stdin)
+		if e != nil {
+			err = e
+			return
+		}
+		yaml = string(bytes)
+	} else {
+		readYaml, e := filechecker.ReadFile(c.Fs, path.Join(workingDir, halfpipeFilePath))
+		if e != nil {
+			err = e
+			return
+		}
+		yaml = readYaml
 	}
-	//
+
 	man, errs := manifest.Parse(yaml)
 	if len(errs) != 0 {
 		var errStrs []string
@@ -169,20 +202,20 @@ func (c projectResolver) Parse(workingDir string) (p Data, err error) {
 
 	if c.findHalfpipeFileName {
 		halfpipeFilePath, e := c.getHalfpipeFileName(workingDir)
-		if e != nil {
+		if !c.ignoreIfHalfpipeFileIsMissing && e != nil && c.stdin == nil {
 			err = e
 			return
 		}
 		p.HalfpipeFilePath = halfpipeFilePath
+	}
 
-		if c.readManifest {
-			man, e := c.getManifest(workingDir, halfpipeFilePath)
-			if e != nil {
-				err = e
-				return
-			}
-			p.Manifest = man
+	if c.readManifest {
+		man, e := c.getManifest(workingDir, p.HalfpipeFilePath)
+		if e != nil {
+			err = e
+			return
 		}
+		p.Manifest = man
 	}
 
 	return

@@ -1,6 +1,7 @@
 package sample
 
 import (
+	"io"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -12,6 +13,14 @@ import (
 type fakeProjectResolver struct {
 	p   project.Data
 	err error
+}
+
+func (pr fakeProjectResolver) ShouldNotReturnErrorWhenNoHalfpipeFileFound() project.Project {
+	panic("implement me")
+}
+
+func (pr fakeProjectResolver) LookForManifestOnStdIn(stdin io.Reader) project.Project {
+	panic("implement me")
 }
 
 func (pr fakeProjectResolver) ShouldFindManifestPath() project.Project {
