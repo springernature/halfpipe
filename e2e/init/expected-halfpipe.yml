@@ -1,0 +1,14 @@
+team: CHANGE-ME
+pipeline: halfpipe-e2e-init
+feature_toggles:
+  - update-pipeline
+triggers:
+  - type: git
+    watched_paths:
+      - e2e/init
+tasks:
+  - type: run
+    name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
+    script: ./gradlew CHANGE-ME
+    docker:
+      image: CHANGE-ME:tag

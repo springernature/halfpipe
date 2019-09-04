@@ -2,6 +2,7 @@
 /halfpipe
 .idea
 .DS_Store
+vendor
 
 e2e/*/pipeline.yml
 e2e/init/.halfpipe.io

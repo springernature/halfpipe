@@ -10,13 +10,11 @@ go version | grep -q 'go1.12' || (
 go_opts=""
 if [ "${1-}" = "ci" ]; then
     echo CI
-    go_opts="-mod=vendor"
+    go_opts="-mod=readonly"
 fi
 
 echo [1/5] fmt
-if [ "${1-}" != "ci" ]; then
-    go fmt ./...
-fi
+go fmt ./...
 
 echo [2/5] test
 go test $go_opts -cover ./...
