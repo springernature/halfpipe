@@ -29,7 +29,7 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 	if !nonInteractive {
 		fmt.Fprint(stdout, "\nAre you sure? [y/N]: ") // #nosec
 		var input string
-		fmt.Fscan(stdin, &input) // #nosec
+		fmt.Fscanln(stdin, &input) // #nosec
 		if input != "y" {
 			err = errors.New("aborted")
 			return
