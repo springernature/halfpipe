@@ -342,6 +342,8 @@ func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 		for _, subTask := range task.Tasks {
 			taskNames = append(taskNames, p.taskNamesFromTask(subTask)...)
 		}
+	case manifest.Seq:
+		taskNames = append(taskNames, task.Tasks[len(task.Tasks)-1].GetName())
 	default:
 		taskNames = append(taskNames, task.GetName())
 	}
@@ -364,7 +366,16 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		switch task := task.(type) {
 		case manifest.Parallel:
 			for _, subTask := range task.Tasks {
-				cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(subTask, man, p.previousTaskNames(i, man.Tasks)))
+				switch subTask := subTask.(type) {
+				case manifest.Seq:
+					previousTasksName := p.previousTaskNames(i, man.Tasks)
+					for _, subTask := range subTask.Tasks {
+						cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(subTask, man, previousTasksName))
+						previousTasksName = p.taskNamesFromTask(subTask)
+					}
+				default:
+					cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(subTask, man, p.previousTaskNames(i, man.Tasks)))
+				}
 			}
 		default:
 			cfg.Jobs = append(cfg.Jobs, *p.taskToJobs(task, man, p.previousTaskNames(i, man.Tasks)))

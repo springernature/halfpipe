@@ -113,6 +113,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		case manifest.DeployMLModules:
 			errs, warnings = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
+		case manifest.Seq:
+			lintTimeout = false
 		case manifest.Parallel:
 			errs, warnings = linter.lintParallel(task)
 			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, false)

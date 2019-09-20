@@ -191,6 +191,13 @@ func TestWithMixedParallelGroups(t *testing.T) {
 		manifest.Run{Name: "t7", Parallel: "p4"},
 		manifest.Run{Name: "t8", Parallel: "true"},
 		manifest.Run{Name: "t9", Parallel: "true"},
+		manifest.Seq{
+			Tasks: manifest.TaskList{
+				manifest.Run{
+					Name: "asd",
+				},
+			},
+		},
 	}
 
 	expected := manifest.TaskList{
@@ -221,6 +228,13 @@ func TestWithMixedParallelGroups(t *testing.T) {
 			Tasks: manifest.TaskList{
 				manifest.Run{Name: "t8"},
 				manifest.Run{Name: "t9"},
+			},
+		},
+		manifest.Seq{
+			Tasks: manifest.TaskList{
+				manifest.Run{
+					Name: "asd",
+				},
 			},
 		},
 	}

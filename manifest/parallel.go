@@ -63,5 +63,5 @@ func (Parallel) GetParallelGroup() ParallelGroup {
 }
 
 func (Parallel) GetName() string {
-	return "No used"
+	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
 }

@@ -32,7 +32,7 @@ func (m Merger) removeParallelGroup(task manifest.Task) (fixed manifest.Task) {
 	case manifest.Run:
 		task.Parallel = ""
 		fixed = task
-	case manifest.Update, manifest.Parallel:
+	case manifest.Update, manifest.Parallel, manifest.Seq:
 		fixed = task
 	}
 
