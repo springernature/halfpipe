@@ -18,7 +18,7 @@ In theory yes, but there is some Springer Nature specific stuff in here. With th
 
 ## How do I test and build?
 
-Halfpipe is built with Go 1.11
+Halfpipe is built with Go
 
 ```
 ./build.sh
