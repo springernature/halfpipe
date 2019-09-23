@@ -44,6 +44,7 @@ triggers:
   - ignored/dir1/**
   - README.md
   git_crypt_key: git-crypt-key
+  manual_trigger: true
 - type: timer
   cron: "*/10 * * * *"
 - type: docker
@@ -188,7 +189,8 @@ tasks:
 					"ignored/dir1/**",
 					"README.md",
 				},
-				GitCryptKey: "git-crypt-key",
+				GitCryptKey:   "git-crypt-key",
+				ManualTrigger: true,
 			},
 			TimerTrigger{
 				Cron: "*/10 * * * *",
