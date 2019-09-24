@@ -20,7 +20,7 @@ func (p Parallel) ReadsFromArtifacts() bool {
 }
 
 func (Parallel) GetAttempts() int {
-	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
+	panic("GetAttempts should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (p Parallel) SavesArtifacts() bool {
@@ -42,7 +42,7 @@ func (p Parallel) SavesArtifactsOnFailure() bool {
 }
 
 func (Parallel) IsManualTrigger() bool {
-	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
+	panic("IsManualTrigger should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (p Parallel) NotifiesOnSuccess() bool {
@@ -55,13 +55,13 @@ func (p Parallel) NotifiesOnSuccess() bool {
 }
 
 func (Parallel) GetTimeout() string {
-	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
+	panic("GetTimeout should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetParallelGroup() ParallelGroup {
-	panic("this should never be used in the rendering for a parallel task as we only care about sub tasks")
+	panic("GetTimeout should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetName() string {
-	return "No used"
+	panic("GetTimeout should never be used in the rendering for a parallel task as we only care about sub tasks")
 }

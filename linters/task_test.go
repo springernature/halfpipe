@@ -55,6 +55,22 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			manifest.ConsumerIntegrationTest{},
 			manifest.DeployMLZip{},
 			manifest.DeployMLModules{},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Seq{
+						Tasks: manifest.TaskList{
+							manifest.Run{},
+							manifest.Run{},
+						},
+					},
+					manifest.Seq{
+						Tasks: manifest.TaskList{
+							manifest.Run{},
+							manifest.Run{},
+						},
+					},
+				},
+			},
 		},
 	}
 
@@ -76,6 +92,9 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	calledLintPrePromoteTasksNum := 0
 	calledLintParallelTasks := false
 	calledLintParallelTasksNum := 0
+	calledLintSeqTasks := false
+	var wasCalledFromParallelTask []bool
+	calledLintSeqTasksNum := 0
 
 	taskLinter := taskLinter{
 		Fs: afero.Afero{
@@ -129,6 +148,12 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintParallelTasksNum++
 			return
 		},
+		lintSeq: func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) {
+			calledLintSeqTasks = true
+			calledLintSeqTasksNum++
+			wasCalledFromParallelTask = append(wasCalledFromParallelTask, cameFromAParallel)
+			return
+		},
 	}
 
 	result := taskLinter.Lint(man)
@@ -136,7 +161,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 
 	assert.True(t, calledLintRunTask)
-	assert.Equal(t, 3, calledLintRunTaskNum)
+	assert.Equal(t, 7, calledLintRunTaskNum)
 
 	assert.True(t, calledLintDeployCFTask)
 	assert.Equal(t, 2, calledLintDeployCFTaskNum)
@@ -160,8 +185,13 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	assert.Equal(t, 2, calledLintDeployMLModulesTaskNum)
 
 	assert.True(t, calledLintParallelTasks)
-	assert.Equal(t, 1, calledLintParallelTasksNum)
+	assert.Equal(t, 2, calledLintParallelTasksNum)
 
+	assert.True(t, calledLintSeqTasks)
+	assert.Equal(t, 2, calledLintParallelTasksNum)
+	for _, called := range wasCalledFromParallelTask {
+		assert.True(t, called)
+	}
 }
 
 func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
@@ -422,6 +452,100 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushWarn),
 		fmt.Sprintf("tasks[1][1] %s", deployMlModulesWarn),
 	}, errorsToStrings(result.Warnings))
+}
+
+func TestLintArtifactsWithParallelSeq(t *testing.T) {
+
+	t.Run("no previous steps saves artifacts", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
+			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintArtifacts: tasks.LintArtifacts,
+		}
+
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.Parallel{
+					Tasks: manifest.TaskList{
+						manifest.Seq{
+							Tasks: manifest.TaskList{
+								manifest.Run{},
+								manifest.Run{RestoreArtifacts: true},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 1)
+		assert.Len(t, result.Warnings, 0)
+		assert.Equal(t, "tasks[1][0][1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
+	})
+
+	t.Run("a previous steps saves artifacts", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
+			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintArtifacts: tasks.LintArtifacts,
+		}
+
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{SaveArtifacts: []string{"something"}},
+				manifest.Parallel{
+					Tasks: manifest.TaskList{
+						manifest.Seq{
+							Tasks: manifest.TaskList{
+								manifest.Run{},
+								manifest.Run{RestoreArtifacts: true},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 0)
+		assert.Len(t, result.Warnings, 0)
+	})
+
+	t.Run("a previous steps in the sequence saves artifacts", func(t *testing.T) {
+		taskLinter := taskLinter{Fs: afero.Afero{},
+			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
+			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintArtifacts: tasks.LintArtifacts,
+		}
+
+		man := manifest.Manifest{
+			Tasks: []manifest.Task{
+				manifest.Run{},
+				manifest.Parallel{
+					Tasks: manifest.TaskList{
+						manifest.Seq{
+							Tasks: manifest.TaskList{
+								manifest.Run{SaveArtifacts: []string{"something"}},
+								manifest.Run{RestoreArtifacts: true},
+							},
+						},
+					},
+				},
+			},
+		}
+
+		result := taskLinter.Lint(man)
+
+		assert.Len(t, result.Errors, 0)
+		assert.Len(t, result.Warnings, 0)
+	})
 }
 
 func TestLintArtifactsWithPrePromote(t *testing.T) {

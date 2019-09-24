@@ -24,6 +24,7 @@ type taskLinter struct {
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error)
 	lintParallel                    func(parallelTask manifest.Parallel) (errs []error, warnings []error)
+	lintSeq                         func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error)
 	os                              string
 }
 
@@ -40,6 +41,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
 		lintArtifacts:                   tasks.LintArtifacts,
 		lintParallel:                    tasks.LintParallelTask,
+		lintSeq:                         tasks.LintSeqTask,
 		os:                              os,
 	}
 }
@@ -53,7 +55,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 		return
 	}
 
-	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{}, true)
+	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{}, true, false)
 	sortErrors(errs)
 	sortErrors(warnings)
 
@@ -63,7 +65,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	return
 }
 
-func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task, lintArtifact bool) (rE []error, rW []error) {
+func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task, lintArtifact, cameFromParallel bool) (rE []error, rW []error) {
 	for index, t := range ts {
 		previousTasks = append(previousTasks, ts[:index]...)
 
@@ -94,7 +96,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 					warnings = append(warnings, prePromotePrefixer(w)...)
 				}
 
-				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, previousTasks, false)
+				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, previousTasks, false, false)
 				errs = append(errs, subErrors...)
 				warnings = append(warnings, subWarnings...)
 			}
@@ -115,10 +117,18 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		case manifest.Update:
 		case manifest.Parallel:
 			errs, warnings = linter.lintParallel(task)
-			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, false)
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, true, true)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false
+			lintArtifact = false
+		case manifest.Seq:
+			errs, warnings = linter.lintSeq(task, cameFromParallel)
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, true, false)
+			errs = append(errs, subErrors...)
+			warnings = append(warnings, subWarnings...)
+			lintTimeout = false
+			lintArtifact = false
 		default:
 			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}

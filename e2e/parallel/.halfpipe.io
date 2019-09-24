@@ -12,68 +12,99 @@ feature_toggles:
 
 tasks:
 - type: run
-  name: test parallel 1
+  name: parallel 1 1
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine
   parallel: 1
 
 - type: run
-  name: test parallel 2
+  name: parallel 1 2
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine
   parallel: 1
 
 - type: run
-  name: test parallel 3
+  name: parallel 2 1
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine
   parallel: blah
 
 - type: run
-  name: test parallel 4
+  name: parallel 2 2
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine
   parallel: blah
 
 - type: run
   name: not parallel
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine
   parallel: false
 
 - type: parallel
   tasks:
   - type: run
-    name: test parallel 5
+    name: parallel 3 1
     script: ./a
     docker:
-      image: alpine:test
+      image: alpine
 
   - type: run
-    name: test parallel 6
+    name: parallel 3 2
     script: ./a
     docker:
-      image: alpine:test
+      image: alpine
 
   - type: run
-    name: test parallel 7
+    name: parallel 3 3
     script: ./a
     docker:
-      image: alpine:test
+      image: alpine
 
-- type: run
-  name: one group
-  script: ./a
-  docker:
-    image: alpine:test
+- type: parallel
+  tasks:
+  - type: seq
+    tasks:
+    - type: run
+      name: parallel 4 seq 1 1
+      script: ./a
+      docker:
+        image: alpine
+    - type: run
+      name: parallel 4 seq 1 2
+      script: ./a
+      docker:
+        image: alpine
+  - type: seq
+    tasks:
+    - type: run
+      name: parallel 4 seq 2 1
+      script: ./a
+      docker:
+        image: alpine
+    - type: run
+      name: parallel 4 seq 2 2
+      script: ./a
+      docker:
+        image: alpine
+    - type: run
+      name: parallel 4 seq 2 3
+      script: ./a
+      docker:
+        image: alpine
+  - type: run
+    name: parallel 4 1
+    script: ./a
+    docker:
+      image: alpine
 
 - type: run
   name: after parallel
   script: ./a
   docker:
-    image: alpine:test
+    image: alpine

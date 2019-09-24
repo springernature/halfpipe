@@ -464,13 +464,44 @@ func TestBadKeysInParallel(t *testing.T) {
 					},
 				},
 			},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Seq{
+						Tasks: manifest.TaskList{
+							manifest.Run{
+								Docker: manifest.Docker{
+									Password: "((a))",
+								},
+								Vars: map[string]string{
+									"secret": "((a.b.c))",
+								},
+							},
+							manifest.DeployCF{
+								API: "((this_is_a_invalid$secret.@with_special_chars))",
+								PrePromote: manifest.TaskList{
+									manifest.DockerCompose{
+										Vars: map[string]string{
+											"SuperSecret": "((this_is_a_invalid$secret.@with_special_chars))",
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+			},
 		},
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 4)
+	assert.Len(t, errors, 8)
 	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[0][0].docker.password"))
 	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[0][0].vars[secret]"))
 	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].api"))
 	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].pre_promote[0].vars[SuperSecret]"))
+
+	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[1][0][0].docker.password"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[1][0][0].vars[secret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].api"))
+	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].pre_promote[0].vars[SuperSecret]"))
 }

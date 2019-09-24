@@ -176,3 +176,59 @@ func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
 	assert.Equal(t, "git", (task.Plan[0].InParallel.Steps)[0].Get)
 	assert.Equal(t, 1, (task.Plan[0].InParallel.Steps)[0].Params["depth"])
 }
+
+func TestRenderWithGitTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{},
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "t1", Script: "asd.sh"},
+			manifest.DeployCF{Name: "t2", ManualTrigger: true},
+			manifest.DockerPush{Name: "t3"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, gitName, getGitStep.Name())
+	assert.True(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[0].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[2].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[1].Name, getGitStep.Passed[0])
+	assert.True(t, getGitStep.Trigger)
+}
+
+func TestRenderWithGitManualTrigger(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				ManualTrigger: true,
+			},
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "t1", Script: "asd.sh"},
+			manifest.DeployCF{Name: "t2", ManualTrigger: true},
+			manifest.DockerPush{Name: "t3"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, gitName, getGitStep.Name())
+	assert.False(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[0].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[2].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[1].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
+}

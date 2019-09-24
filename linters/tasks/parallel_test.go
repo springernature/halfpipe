@@ -23,21 +23,6 @@ func TestParallelTaskInParallelTask(t *testing.T) {
 	helpers.AssertInvalidFieldInErrors(t, "type", errs)
 }
 
-func TestWarningIfTaskInsideParallelTaskIsDefined(t *testing.T) {
-	task := manifest.Parallel{
-		Tasks: manifest.TaskList{
-			manifest.Run{},
-			manifest.DockerPush{Parallel: "true"},
-			manifest.Run{Parallel: "true"},
-		},
-	}
-
-	errs, warns := LintParallelTask(task)
-	assert.Len(t, errs, 0)
-	assert.Len(t, warns, 2)
-	helpers.AssertInvalidFieldInErrors(t, "parallel", warns)
-}
-
 func TestErrorIfParallelIsEmpty(t *testing.T) {
 	task := manifest.Parallel{
 		Tasks: manifest.TaskList{},

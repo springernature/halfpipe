@@ -32,7 +32,7 @@ func (m Merger) removeParallelGroup(task manifest.Task) (fixed manifest.Task) {
 	case manifest.Run:
 		task.Parallel = ""
 		fixed = task
-	case manifest.Update, manifest.Parallel:
+	case manifest.Update, manifest.Parallel, manifest.Seq:
 		fixed = task
 	}
 
@@ -54,6 +54,13 @@ func (m Merger) MergeParallelTasks(tasks manifest.TaskList) (mergedTasks manifes
 			mergedTasks = append(mergedTasks, m.removeParallelGroup(task))
 			continue
 		}
+
+		if _, isSeqTask := task.(manifest.Seq); isSeqTask {
+			// Humm, seq and parallel merging becomes hairy and tricky really quick.
+			// Lets just panic since this merger will soon go away!
+			panic("A seq task must be used inside a parallel task!")
+		}
+
 		if task.GetParallelGroup().IsSet() {
 			currentParallelName := string(task.GetParallelGroup())
 			if previousParallelName != currentParallelName {

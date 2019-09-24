@@ -148,6 +148,14 @@ tasks:
     name: pr1
   - type: run
     name: pr2
+- type: parallel
+  tasks:
+  - type: seq
+    tasks: 
+    - type: run
+      name: pr1
+    - type: run
+      name: pr2
 `)
 
 	expected := Manifest{
@@ -308,6 +316,16 @@ tasks:
 				Tasks: TaskList{
 					Run{Name: "pr1"},
 					Run{Name: "pr2"},
+				},
+			},
+			Parallel{
+				Tasks: TaskList{
+					Seq{
+						Tasks: TaskList{
+							Run{Name: "pr1"},
+							Run{Name: "pr2"},
+						},
+					},
 				},
 			},
 		},

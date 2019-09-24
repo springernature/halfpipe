@@ -59,7 +59,7 @@ jobs:
       bump: minor
     timeout: 1h
     attempts: 2
-- name: test parallel 1
+- name: parallel 1 1
   serial: true
   plan:
   - in_parallel:
@@ -76,14 +76,14 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 1
+  - task: parallel 1 1
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -131,7 +131,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 2
+- name: parallel 1 2
   serial: true
   plan:
   - in_parallel:
@@ -148,14 +148,14 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 2
+  - task: parallel 1 2
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -203,33 +203,33 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 3
+- name: parallel 2 1
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - test parallel 1
-        - test parallel 2
+        - parallel 1 1
+        - parallel 1 2
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - test parallel 1
-        - test parallel 2
+        - parallel 1 1
+        - parallel 1 2
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 3
+  - task: parallel 2 1
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -277,33 +277,33 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 4
+- name: parallel 2 2
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - test parallel 1
-        - test parallel 2
+        - parallel 1 1
+        - parallel 1 2
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - test parallel 1
-        - test parallel 2
+        - parallel 1 1
+        - parallel 1 2
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 4
+  - task: parallel 2 2
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -358,15 +358,15 @@ jobs:
       steps:
       - get: git
         passed:
-        - test parallel 3
-        - test parallel 4
+        - parallel 2 1
+        - parallel 2 2
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - test parallel 3
-        - test parallel 4
+        - parallel 2 1
+        - parallel 2 2
         trigger: true
         attempts: 2
     timeout: 1h
@@ -377,7 +377,7 @@ jobs:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -425,7 +425,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 5
+- name: parallel 3 1
   serial: true
   plan:
   - in_parallel:
@@ -442,14 +442,14 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 5
+  - task: parallel 3 1
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -497,7 +497,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 6
+- name: parallel 3 2
   serial: true
   plan:
   - in_parallel:
@@ -514,14 +514,14 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 6
+  - task: parallel 3 2
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -569,7 +569,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: test parallel 7
+- name: parallel 3 3
   serial: true
   plan:
   - in_parallel:
@@ -586,14 +586,14 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: test parallel 7
+  - task: parallel 3 3
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -641,35 +641,403 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: one group
+- name: parallel 4 seq 1 1
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - test parallel 5
-        - test parallel 6
-        - test parallel 7
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - test parallel 5
-        - test parallel 6
-        - test parallel 7
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: one group
+  - task: parallel 4 seq 1 1
     config:
       platform: linux
       image_resource:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/parallel
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+    timeout: 1h
+    attempts: 1
+- name: parallel 4 seq 1 2
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - parallel 4 seq 1 1
+        params:
+          depth: 1
+        attempts: 2
+      - get: version
+        passed:
+        - parallel 4 seq 1 1
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - task: parallel 4 seq 1 2
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/parallel
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+    timeout: 1h
+    attempts: 1
+- name: parallel 4 seq 2 1
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
+        params:
+          depth: 1
+        attempts: 2
+      - get: version
+        passed:
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - task: parallel 4 seq 2 1
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/parallel
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+    timeout: 1h
+    attempts: 1
+- name: parallel 4 seq 2 2
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - parallel 4 seq 2 1
+        params:
+          depth: 1
+        attempts: 2
+      - get: version
+        passed:
+        - parallel 4 seq 2 1
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - task: parallel 4 seq 2 2
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/parallel
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+    timeout: 1h
+    attempts: 1
+- name: parallel 4 seq 2 3
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - parallel 4 seq 2 2
+        params:
+          depth: 1
+        attempts: 2
+      - get: version
+        passed:
+        - parallel 4 seq 2 2
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - task: parallel 4 seq 2 3
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+          tag: latest
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      run:
+        path: /bin/sh
+        args:
+        - -c
+        - |
+          which bash > /dev/null
+          if [ $? != 0 ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:stretch-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/parallel
+      inputs:
+      - name: git
+      - name: version
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+    timeout: 1h
+    attempts: 1
+- name: parallel 4 1
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        passed:
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
+        params:
+          depth: 1
+        attempts: 2
+      - get: version
+        passed:
+        - parallel 3 1
+        - parallel 3 2
+        - parallel 3 3
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - task: parallel 4 1
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          repository: alpine
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -724,13 +1092,17 @@ jobs:
       steps:
       - get: git
         passed:
-        - one group
+        - parallel 4 seq 1 2
+        - parallel 4 seq 2 3
+        - parallel 4 1
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - one group
+        - parallel 4 seq 1 2
+        - parallel 4 seq 2 3
+        - parallel 4 1
         trigger: true
         attempts: 2
     timeout: 1h
@@ -741,7 +1113,7 @@ jobs:
         type: registry-image
         source:
           repository: alpine
-          tag: test
+          tag: latest
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
