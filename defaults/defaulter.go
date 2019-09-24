@@ -206,7 +206,7 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 			case manifest.Parallel:
 				task.Tasks = taskSwitcher(task.Tasks)
 				updatedTasks = append(updatedTasks, task)
-			case manifest.Seq:
+			case manifest.Sequence:
 				task.Tasks = taskSwitcher(task.Tasks)
 				updatedTasks = append(updatedTasks, task)
 			default:

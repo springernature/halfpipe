@@ -57,13 +57,13 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			manifest.DeployMLModules{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Seq{
+					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.Run{},
 							manifest.Run{},
 						},
 					},
-					manifest.Seq{
+					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.Run{},
 							manifest.Run{},
@@ -148,7 +148,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintParallelTasksNum++
 			return
 		},
-		lintSeq: func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) {
+		lintSequence: func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) {
 			calledLintSeqTasks = true
 			calledLintSeqTasksNum++
 			wasCalledFromParallelTask = append(wasCalledFromParallelTask, cameFromAParallel)
@@ -460,7 +460,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		taskLinter := taskLinter{Fs: afero.Afero{},
 			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
-			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
 			lintArtifacts: tasks.LintArtifacts,
 		}
 
@@ -469,7 +469,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 				manifest.Run{},
 				manifest.Parallel{
 					Tasks: manifest.TaskList{
-						manifest.Seq{
+						manifest.Sequence{
 							Tasks: manifest.TaskList{
 								manifest.Run{},
 								manifest.Run{RestoreArtifacts: true},
@@ -491,7 +491,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		taskLinter := taskLinter{Fs: afero.Afero{},
 			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
-			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
 			lintArtifacts: tasks.LintArtifacts,
 		}
 
@@ -500,7 +500,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 				manifest.Run{SaveArtifacts: []string{"something"}},
 				manifest.Parallel{
 					Tasks: manifest.TaskList{
-						manifest.Seq{
+						manifest.Sequence{
 							Tasks: manifest.TaskList{
 								manifest.Run{},
 								manifest.Run{RestoreArtifacts: true},
@@ -521,7 +521,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		taskLinter := taskLinter{Fs: afero.Afero{},
 			lintRunTask:   func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) { return },
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
-			lintSeq:       func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
 			lintArtifacts: tasks.LintArtifacts,
 		}
 
@@ -530,7 +530,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 				manifest.Run{},
 				manifest.Parallel{
 					Tasks: manifest.TaskList{
-						manifest.Seq{
+						manifest.Sequence{
 							Tasks: manifest.TaskList{
 								manifest.Run{SaveArtifacts: []string{"something"}},
 								manifest.Run{RestoreArtifacts: true},

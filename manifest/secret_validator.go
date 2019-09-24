@@ -92,8 +92,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs)
 		}
-	case reflect.TypeOf(Seq{}):
-		for i, elem := range v.Interface().(Seq).Tasks {
+	case reflect.TypeOf(Sequence{}):
+		for i, elem := range v.Interface().(Sequence).Tasks {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs)
 		}

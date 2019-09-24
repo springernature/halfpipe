@@ -24,7 +24,7 @@ type taskLinter struct {
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error)
 	lintParallel                    func(parallelTask manifest.Parallel) (errs []error, warnings []error)
-	lintSeq                         func(seqTask manifest.Seq, cameFromAParallel bool) (errs []error, warnings []error)
+	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error)
 	os                              string
 }
 
@@ -41,7 +41,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
 		lintArtifacts:                   tasks.LintArtifacts,
 		lintParallel:                    tasks.LintParallelTask,
-		lintSeq:                         tasks.LintSeqTask,
+		lintSequence:                    tasks.LintSequenceTask,
 		os:                              os,
 	}
 }
@@ -122,8 +122,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false
 			lintArtifact = false
-		case manifest.Seq:
-			errs, warnings = linter.lintSeq(task, cameFromParallel)
+		case manifest.Sequence:
+			errs, warnings = linter.lintSequence(task, cameFromParallel)
 			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, true, false)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)

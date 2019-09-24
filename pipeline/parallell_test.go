@@ -68,13 +68,13 @@ func TestRenderWithParallelAndSeqTasks(t *testing.T) {
 			},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Seq{
+					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.DeployCF{Name: "c-a-1"},
 							manifest.DockerPush{Name: "c-a-2"},
 						},
 					},
-					manifest.Seq{
+					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.DeployCF{Name: "c-b-1"},
 							manifest.DockerPush{Name: "c-b-2"},
@@ -99,11 +99,11 @@ func TestRenderWithParallelAndSeqTasks(t *testing.T) {
 	})
 
 	t.Run("second parallel", func(t *testing.T) {
-		t.Run("first seq", func(t *testing.T) {
+		t.Run("first sequence", func(t *testing.T) {
 			assert.Equal(t, []string{config.Jobs[1].Name, config.Jobs[2].Name}, getPassed(config.Jobs[3]))
 			assert.Equal(t, []string{config.Jobs[3].Name}, getPassed(config.Jobs[4]))
 		})
-		t.Run("second seq", func(t *testing.T) {
+		t.Run("second sequence", func(t *testing.T) {
 			assert.Equal(t, []string{config.Jobs[1].Name, config.Jobs[2].Name}, getPassed(config.Jobs[5]))
 			assert.Equal(t, []string{config.Jobs[5].Name}, getPassed(config.Jobs[6]))
 			assert.Equal(t, []string{config.Jobs[6].Name}, getPassed(config.Jobs[7]))

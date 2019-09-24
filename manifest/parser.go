@@ -186,8 +186,8 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		}
 		t.Type = ""
 		task = t
-	case "seq":
-		t := Seq{}
+	case "sequence":
+		t := Sequence{}
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
 			return nil, err
 		}
@@ -195,7 +195,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'seq'", taskIndex, taskType))
+		err = errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
 	}
 
 	return

@@ -68,32 +68,32 @@ tasks:
 
 - type: parallel
   tasks:
-  - type: seq
+  - type: sequence
     tasks:
     - type: run
-      name: parallel 4 seq 1 1
+      name: parallel 4 sequence 1 1
       script: ./a
       docker:
         image: alpine
     - type: run
-      name: parallel 4 seq 1 2
+      name: parallel 4 sequence 1 2
       script: ./a
       docker:
         image: alpine
-  - type: seq
+  - type: sequence
     tasks:
     - type: run
-      name: parallel 4 seq 2 1
+      name: parallel 4 sequence 2 1
       script: ./a
       docker:
         image: alpine
     - type: run
-      name: parallel 4 seq 2 2
+      name: parallel 4 sequence 2 2
       script: ./a
       docker:
         image: alpine
     - type: run
-      name: parallel 4 seq 2 3
+      name: parallel 4 sequence 2 3
       script: ./a
       docker:
         image: alpine

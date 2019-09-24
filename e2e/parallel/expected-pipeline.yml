@@ -641,7 +641,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: parallel 4 seq 1 1
+- name: parallel 4 sequence 1 1
   serial: true
   plan:
   - in_parallel:
@@ -662,7 +662,7 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: parallel 4 seq 1 1
+  - task: parallel 4 sequence 1 1
     config:
       platform: linux
       image_resource:
@@ -717,24 +717,24 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: parallel 4 seq 1 2
+- name: parallel 4 sequence 1 2
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - parallel 4 seq 1 1
+        - parallel 4 sequence 1 1
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - parallel 4 seq 1 1
+        - parallel 4 sequence 1 1
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: parallel 4 seq 1 2
+  - task: parallel 4 sequence 1 2
     config:
       platform: linux
       image_resource:
@@ -789,7 +789,7 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: parallel 4 seq 2 1
+- name: parallel 4 sequence 2 1
   serial: true
   plan:
   - in_parallel:
@@ -810,7 +810,7 @@ jobs:
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: parallel 4 seq 2 1
+  - task: parallel 4 sequence 2 1
     config:
       platform: linux
       image_resource:
@@ -865,24 +865,24 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: parallel 4 seq 2 2
+- name: parallel 4 sequence 2 2
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - parallel 4 seq 2 1
+        - parallel 4 sequence 2 1
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - parallel 4 seq 2 1
+        - parallel 4 sequence 2 1
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: parallel 4 seq 2 2
+  - task: parallel 4 sequence 2 2
     config:
       platform: linux
       image_resource:
@@ -937,24 +937,24 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-- name: parallel 4 seq 2 3
+- name: parallel 4 sequence 2 3
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
         passed:
-        - parallel 4 seq 2 2
+        - parallel 4 sequence 2 2
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - parallel 4 seq 2 2
+        - parallel 4 sequence 2 2
         trigger: true
         attempts: 2
     timeout: 1h
-  - task: parallel 4 seq 2 3
+  - task: parallel 4 sequence 2 3
     config:
       platform: linux
       image_resource:
@@ -1092,16 +1092,16 @@ jobs:
       steps:
       - get: git
         passed:
-        - parallel 4 seq 1 2
-        - parallel 4 seq 2 3
+        - parallel 4 sequence 1 2
+        - parallel 4 sequence 2 3
         - parallel 4 1
         params:
           depth: 1
         attempts: 2
       - get: version
         passed:
-        - parallel 4 seq 1 2
-        - parallel 4 seq 2 3
+        - parallel 4 sequence 1 2
+        - parallel 4 sequence 2 3
         - parallel 4 1
         trigger: true
         attempts: 2

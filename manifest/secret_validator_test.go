@@ -466,7 +466,7 @@ func TestBadKeysInParallel(t *testing.T) {
 			},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.Seq{
+					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.Run{
 								Docker: manifest.Docker{

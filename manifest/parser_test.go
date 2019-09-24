@@ -150,7 +150,7 @@ tasks:
     name: pr2
 - type: parallel
   tasks:
-  - type: seq
+  - type: sequence
     tasks: 
     - type: run
       name: pr1
@@ -320,7 +320,7 @@ tasks:
 			},
 			Parallel{
 				Tasks: TaskList{
-					Seq{
+					Sequence{
 						Tasks: TaskList{
 							Run{Name: "pr1"},
 							Run{Name: "pr2"},
