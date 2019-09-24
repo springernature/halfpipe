@@ -17,7 +17,7 @@ func init() {
 
 	uploadCmd := &cobra.Command{
 		Use:   "upload",
-		Short: "Renders a pipeline and uploads it to halfpipe",
+		Short: "Renders a pipeline and uploads it to Concourse",
 		Run: func(cmd *cobra.Command, args []string) {
 			currentUser, err := user.Current()
 			if err != nil {

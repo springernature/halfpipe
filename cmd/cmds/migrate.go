@@ -20,7 +20,7 @@ func init() {
 
 var migrateCmd = &cobra.Command{
 	Use:   "migrate",
-	Short: "migrates the halfpipe manifest to the latest schema",
+	Short: "Migrates the halfpipe manifest to the latest schema",
 	Run: func(cmd *cobra.Command, args []string) {
 		if err := checkVersion(); err != nil {
 			printErr(err)
