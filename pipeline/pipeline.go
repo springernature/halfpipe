@@ -329,7 +329,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 	job.Plan = append(initialPlan, job.Plan...)
 	job.Plan = inParallelGets(job)
 
-	configureTriggerOnGets(job, task, man.FeatureToggles.Versioned())
+	configureTriggerOnGets(job, task, man)
 	addTimeout(job, task.GetTimeout())
 	addPassedJobsToGets(job, previousTaskNames)
 
@@ -393,19 +393,32 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	}
 }
 
-func configureTriggerOnGets(job *atc.JobConfig, task manifest.Task, versioningEnabled bool) {
-	inParallel := *job.Plan[0].InParallel
+func configureTriggerOnGets(job *atc.JobConfig, task manifest.Task, man manifest.Manifest) {
+	if task.IsManualTrigger() {
+		return
+	}
+
+	gets := *job.Plan[0].InParallel
+	versioningEnabled := man.FeatureToggles.Versioned()
+	manualGitTrigger := man.Triggers.GetGitTrigger().ManualTrigger
+
 	switch task.(type) {
 	case manifest.Update:
-		for i := range inParallel.Steps {
-			inParallel.Steps[i].Trigger = true
+		for i, step := range gets.Steps {
+			if step.Get == gitName {
+				gets.Steps[i].Trigger = !manualGitTrigger
+			} else {
+				gets.Steps[i].Trigger = true
+			}
 		}
 	default:
-		for i, get := range inParallel.Steps {
-			if get.Get == versionName && !task.IsManualTrigger() {
-				inParallel.Steps[i].Trigger = true
+		for i, step := range gets.Steps {
+			if step.Get == versionName {
+				gets.Steps[i].Trigger = true
+			} else if step.Get == gitName {
+				gets.Steps[i].Trigger = !versioningEnabled && !manualGitTrigger
 			} else {
-				inParallel.Steps[i].Trigger = !task.IsManualTrigger() && !versioningEnabled
+				gets.Steps[i].Trigger = !versioningEnabled
 			}
 		}
 	}

@@ -24,7 +24,7 @@ func testPipeline() pipeline {
 	return NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 }
 
-func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
+func TestRenderWithGitTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{},
@@ -38,13 +38,46 @@ func TestRenderWithTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 	config := testPipeline().Render(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
-	assert.Equal(t, (config.Jobs[0].Plan[0].InParallel.Steps)[0].Trigger, true)
+	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, gitName, getGitStep.Name())
+	assert.True(t, getGitStep.Trigger)
 
-	assert.Equal(t, (config.Jobs[1].Plan[0].InParallel.Steps)[0].Passed[0], config.Jobs[0].Name)
-	assert.Equal(t, (config.Jobs[1].Plan[0].InParallel.Steps)[0].Trigger, false)
+	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[0].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
 
-	assert.Equal(t, (config.Jobs[2].Plan[0].InParallel.Steps)[0].Passed[0], config.Jobs[1].Name)
-	assert.Equal(t, (config.Jobs[2].Plan[0].InParallel.Steps)[0].Trigger, true)
+	getGitStep = (config.Jobs[2].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[1].Name, getGitStep.Passed[0])
+	assert.True(t, getGitStep.Trigger)
+}
+
+func TestRenderWithGitManualTrigger(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				ManualTrigger: true,
+			},
+		},
+		Tasks: []manifest.Task{
+			manifest.Run{Name: "t1", Script: "asd.sh"},
+			manifest.DeployCF{Name: "t2", ManualTrigger: true},
+			manifest.DockerPush{Name: "t3"},
+		},
+	}
+	config := testPipeline().Render(man)
+
+	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
+	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, gitName, getGitStep.Name())
+	assert.False(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[0].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
+
+	getGitStep = (config.Jobs[2].Plan[0].InParallel.Steps)[0]
+	assert.Equal(t, config.Jobs[1].Name, getGitStep.Passed[0])
+	assert.False(t, getGitStep.Trigger)
 }
 
 func TestRenderWithParallelTasks(t *testing.T) {
