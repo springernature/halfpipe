@@ -9,7 +9,6 @@ require (
 	github.com/cppforlife/go-patch v0.0.0-20181218195656-90228d472812 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
-	github.com/jinzhu/copier v0.0.0-20190625015134-976e0346caa8
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
