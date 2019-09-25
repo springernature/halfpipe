@@ -1,5 +1,4 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-groups: []
 resources:
 - name: git
   type: git
@@ -16,7 +15,6 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   check_every: 24h
-resource_types: []
 jobs:
 - name: push to docker registry
   serial: true

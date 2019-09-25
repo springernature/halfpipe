@@ -1,5 +1,4 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-groups: []
 resources:
 - name: git
   type: git
@@ -9,7 +8,6 @@ resources:
     - e2e/run
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-resource_types: []
 jobs:
 - name: test
   serial: true

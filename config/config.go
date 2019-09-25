@@ -23,7 +23,7 @@ var (
 
 	ConcourseURL = "https://concourse." + Domain
 
-	CacheDirs = []atc.CacheConfig{
+	CacheDirs = []atc.TaskCacheConfig{
 		{Path: "../../../var/halfpipe/cache"},
 		{Path: "../../../halfpipe-cache"}, // deprecated and should be removed after a while
 	}

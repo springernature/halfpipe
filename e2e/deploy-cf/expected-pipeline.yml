@@ -1,5 +1,4 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-groups: []
 resources:
 - name: git
   type: git
@@ -29,6 +28,15 @@ resource_types:
 jobs:
 - name: deploy to cf
   serial: true
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
   plan:
   - in_parallel:
       steps:
@@ -121,15 +129,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
-    timeout: 5m
-    attempts: 2
-  ensure:
-    put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
-    params:
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2

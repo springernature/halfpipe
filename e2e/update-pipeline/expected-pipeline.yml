@@ -1,5 +1,4 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-groups: []
 resources:
 - name: git
   type: git
@@ -121,6 +120,15 @@ jobs:
     attempts: 2
 - name: Test
   serial: true
+  on_failure:
+    in_parallel:
+      steps:
+      - put: artifacts-on-failure
+        params:
+          folder: artifacts-out-failure
+          postfix: failure
+          version_file: git/.git/ref
+        attempts: 2
   plan:
   - in_parallel:
       steps:
@@ -217,17 +225,17 @@ jobs:
       version_file: git/.git/ref
     timeout: 1h
     attempts: 2
-  on_failure:
-    in_parallel:
-      steps:
-      - put: artifacts-on-failure
-        params:
-          folder: artifacts-out-failure
-          postfix: failure
-          version_file: git/.git/ref
-        attempts: 2
 - name: deploy to cf
   serial: true
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e/update-pipeline/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
   plan:
   - in_parallel:
       steps:
@@ -296,17 +304,17 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
+- name: deploy to staging
+  serial: true
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
+    resource: CF live pe staging
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 5m
-    timeout: 5m
+      timeout: 1h
+    timeout: 1h
     attempts: 2
-- name: deploy to staging
-  serial: true
   plan:
   - in_parallel:
       steps:
@@ -532,17 +540,17 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
+- name: deploy to qa
+  serial: true
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF live pe staging
+    resource: CF snpaas qa
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
-- name: deploy to qa
-  serial: true
   plan:
   - in_parallel:
       steps:
@@ -761,15 +769,6 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  ensure:
-    put: cf halfpipe-cleanup
-    resource: CF snpaas qa
-    params:
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 1h
-    timeout: 1h
-    attempts: 2
 - name: push to docker registry
   serial: true
   plan:
@@ -877,6 +876,15 @@ jobs:
     attempts: 1
 - name: docker-compose
   serial: true
+  on_failure:
+    in_parallel:
+      steps:
+      - put: artifacts-on-failure
+        params:
+          folder: artifacts-out-failure
+          postfix: failure
+          version_file: git/.git/ref
+        attempts: 2
   plan:
   - in_parallel:
       steps:
@@ -960,15 +968,6 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: artifacts-on-failure
-        params:
-          folder: artifacts-out-failure
-          postfix: failure
-          version_file: git/.git/ref
-        attempts: 2
 - name: another-c-name
   serial: true
   plan:

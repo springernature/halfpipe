@@ -1,5 +1,4 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-groups: []
 resources:
 - name: git
   type: git
@@ -16,7 +15,6 @@ resources:
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
     key: engineering-enablement-halfpipe-e2e-parallel
-resource_types: []
 jobs:
 - name: update
   serial: true

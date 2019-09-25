@@ -467,13 +467,18 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		taskPath = "docker.sh"
 	}
 
+	taskEnv := make(atc.TaskEnv)
+	for key, value := range task.Vars {
+		taskEnv[key] = value
+	}
+
 	runPlan := atc.PlanConfig{
 		Attempts:   task.GetAttempts(),
 		Task:       task.Name,
 		Privileged: task.Privileged,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
-			Params:        task.Vars,
+			Params:        taskEnv,
 			ImageResource: p.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
