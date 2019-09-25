@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/simonjohansson/yaml"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/project"
-	"gopkg.in/yaml.v2"
 )
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")

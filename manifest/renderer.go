@@ -1,6 +1,6 @@
 package manifest
 
-import "gopkg.in/yaml.v2"
+import "github.com/simonjohansson/yaml"
 
 func Render(manifest Manifest) (y []byte, err error) {
 	return yaml.Marshal(manifest)

@@ -14,12 +14,12 @@ require (
 	github.com/mitchellh/mapstructure v1.1.2 // indirect
 	github.com/onsi/gomega v1.5.0
 	github.com/pkg/errors v0.8.1
+	github.com/simonjohansson/yaml v0.0.0-20190925114615-e67287cc0c1c
 	github.com/spf13/afero v1.2.0
 	github.com/spf13/cobra v0.0.3
 	github.com/stretchr/testify v1.3.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
-	gopkg.in/yaml.v2 v2.2.2
 )
 
 go 1.13

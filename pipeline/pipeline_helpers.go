@@ -9,9 +9,9 @@ import (
 	"path"
 
 	"github.com/concourse/concourse/atc"
+	"github.com/simonjohansson/yaml"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"gopkg.in/yaml.v2"
 )
 
 func convertVars(vars manifest.Vars) map[string]interface{} {
