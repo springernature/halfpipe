@@ -38,6 +38,36 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 	}
 
+	taskDeployQa := manifest.DeployCF{
+		Name:       "Deploy to qa",
+		API:        devAPI,
+		Space:      "dev",
+		Org:        "springer",
+		Username:   "rob",
+		Password:   "supersecret",
+		TestDomain: devTestDomain,
+		Manifest:   "manifest-dev.yml",
+		Vars: manifest.Vars{
+			"VAR1": "value1",
+			"VAR2": "value2",
+		},
+	}
+
+	taskDeployStaging := manifest.DeployCF{
+		Name:       "Deploy to staging",
+		API:        devAPI,
+		Space:      "dev",
+		Org:        "springer",
+		Username:   "rob",
+		Password:   "supersecret",
+		TestDomain: devTestDomain,
+		Manifest:   "manifest-dev.yml",
+		Vars: manifest.Vars{
+			"VAR1": "value1",
+			"VAR2": "value2",
+		},
+	}
+
 	timeout := "5m"
 	taskDeployLive := manifest.DeployCF{
 		Name:       "Deploy to live",
@@ -58,7 +88,24 @@ func TestRendersCfDeploy(t *testing.T) {
 			},
 		},
 	}
-	man.Tasks = []manifest.Task{taskDeployDev, taskDeployLive}
+	man.Tasks = []manifest.Task{
+		taskDeployDev,
+		manifest.Parallel{
+			Tasks: manifest.TaskList{
+				manifest.Sequence{
+					Tasks: manifest.TaskList{
+						taskDeployQa,
+					},
+				},
+				manifest.Sequence{
+					Tasks: manifest.TaskList{
+						manifest.Run{},
+						taskDeployStaging,
+					},
+				},
+			},
+		},
+		taskDeployLive}
 
 	expectedResourceType := atc.ResourceType{
 		Name: "cf-resource",
@@ -73,6 +120,32 @@ func TestRendersCfDeploy(t *testing.T) {
 
 	expectedDevResource := atc.ResourceConfig{
 		Name: deployCFResourceName(taskDeployDev),
+		Type: "cf-resource",
+		Source: atc.Source{
+			"api":      devAPI,
+			"space":    "dev",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
+		},
+		CheckEvery: longResourceCheckInterval,
+	}
+
+	expectedQAResource := atc.ResourceConfig{
+		Name: deployCFResourceName(taskDeployQa),
+		Type: "cf-resource",
+		Source: atc.Source{
+			"api":      devAPI,
+			"space":    "dev",
+			"org":      "springer",
+			"password": "supersecret",
+			"username": "rob",
+		},
+		CheckEvery: longResourceCheckInterval,
+	}
+
+	expectedStagingResource := atc.ResourceConfig{
+		Name: deployCFResourceName(taskDeployStaging),
 		Type: "cf-resource",
 		Source: atc.Source{
 			"api":      devAPI,
@@ -159,7 +232,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{
-					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts, Passed: []string{taskDeployDev.Name}}},
+					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts, Passed: []string{taskDeployQa.Name, taskDeployStaging.Name}}},
 				},
 				Timeout: timeout,
 			},
@@ -219,11 +292,33 @@ func TestRendersCfDeploy(t *testing.T) {
 	assert.Len(t, cfg.ResourceTypes, 1)
 	assert.Equal(t, expectedResourceType, cfg.ResourceTypes[0])
 
-	assert.Equal(t, expectedDevResource, cfg.Resources[1])
-	assert.Equal(t, expectedDevJob, cfg.Jobs[0])
+	// dev
+	foundDevResource, found := cfg.Resources.Lookup(expectedDevResource.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedDevResource, foundDevResource)
 
-	assert.Equal(t, expectedLiveResource, cfg.Resources[2])
-	assert.Equal(t, expectedLiveJob, cfg.Jobs[1])
+	foundDevJob, found := cfg.Jobs.Lookup(expectedDevJob.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedDevJob, foundDevJob)
+
+	// qa
+	foundQaResource, found := cfg.Resources.Lookup(expectedQAResource.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedQAResource, foundQaResource)
+
+	// staging
+	foundStagingResource, found := cfg.Resources.Lookup(expectedStagingResource.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedStagingResource, foundStagingResource)
+
+	// live
+	foundLiveResource, found := cfg.Resources.Lookup(expectedLiveResource.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedLiveResource, foundLiveResource)
+
+	foundLiveJob, found := cfg.Jobs.Lookup(expectedLiveJob.Name)
+	assert.True(t, found)
+	assert.Equal(t, expectedLiveJob, foundLiveJob)
 }
 
 func TestRenderWithPrePromoteTasks(t *testing.T) {

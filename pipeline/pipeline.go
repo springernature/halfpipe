@@ -198,28 +198,29 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 }
 
 func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+	var tmpResourceConfigs atc.ResourceConfigs
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.DeployCF:
 			resourceName := deployCFResourceName(task)
-			if _, found := resourceConfigs.Lookup(resourceName); !found {
-				resourceConfigs = append(resourceConfigs, p.deployCFResource(task, resourceName))
-			}
+			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName))
 		case manifest.Parallel:
-			for _, subTask := range task.Tasks {
-				switch subTask := subTask.(type) {
-				case manifest.DeployCF:
-					resourceName := deployCFResourceName(subTask)
-					if _, found := resourceConfigs.Lookup(resourceName); !found {
-						resourceConfigs = append(resourceConfigs, p.deployCFResource(subTask, resourceName))
-					}
-				}
-			}
+			_, configs := p.cfPushResources(task.Tasks)
+			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
+		case manifest.Sequence:
+			_, configs := p.cfPushResources(task.Tasks)
+			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
 		}
 	}
 
-	if len(resourceConfigs) > 0 {
+	if len(tmpResourceConfigs) > 0 {
 		resourceType = append(resourceType, halfpipeCfDeployResourceType())
+	}
+
+	for _, tmpResourceConfig := range tmpResourceConfigs {
+		if _, found := resourceConfigs.Lookup(tmpResourceConfig.Name); !found {
+			resourceConfigs = append(resourceConfigs, tmpResourceConfig)
+		}
 	}
 
 	return
