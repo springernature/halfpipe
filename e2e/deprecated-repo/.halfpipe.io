@@ -1,10 +1,10 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-deprecated-repo
 
 repo:
   private_key: kehe
   watched_paths:
-  - e2e/docker-push
+  - e2e/deprecated-repo
 
 tasks:
 - type: docker-push

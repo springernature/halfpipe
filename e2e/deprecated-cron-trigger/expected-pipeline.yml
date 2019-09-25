@@ -4,7 +4,7 @@ resources:
 - name: cron
   type: cron-resource
   source:
-    expression: '* * * * *'
+    expression: 10 10 * * *
     fire_immediately: true
     location: UTC
   check_every: 1m

@@ -1,5 +1,5 @@
 team: engineering-enablement
-pipeline: test
+pipeline: halfpipe-e2e-update-pipeline
 
 triggers:
 - type: git

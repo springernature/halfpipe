@@ -10,7 +10,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/docker-push
+    - e2e/docker-push-with-docker-trigger
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: halfpipe-fly

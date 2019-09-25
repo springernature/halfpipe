@@ -1,12 +1,12 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-docker-push-with-docker-trigger
 
 triggers:
 - type: docker
   image: alpine
 - type: git
   watched_paths:
-  - e2e/docker-push
+  - e2e/docker-push-with-docker-trigger
 
 tasks:
 - type: docker-push

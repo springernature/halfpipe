@@ -1,4 +1,4 @@
-team: test
+team: engineering-enablement
 pipeline: halfpipe-e2e-notifications
 slack_channel: "#yo"
 

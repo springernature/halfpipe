@@ -9,11 +9,11 @@ resources:
     - e2e/deploy-cf
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: CF dev-api test dev
+- name: CF dev-api engineering-enablement dev
   type: cf-resource
   source:
     api: dev-api
-    org: test
+    org: engineering-enablement
     password: very-secret
     space: dev
     username: michiel
@@ -37,7 +37,7 @@ jobs:
         attempts: 2
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api test dev
+    resource: CF dev-api engineering-enablement dev
     params:
       appPath: git/e2e/deploy-cf
       command: halfpipe-push
@@ -48,7 +48,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api test dev
+    resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
@@ -116,7 +116,7 @@ jobs:
           attempts: 1
     timeout: 5m
   - put: cf halfpipe-promote
-    resource: CF dev-api test dev
+    resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
@@ -126,7 +126,7 @@ jobs:
     attempts: 2
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api test dev
+    resource: CF dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml

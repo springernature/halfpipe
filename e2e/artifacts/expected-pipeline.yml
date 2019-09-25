@@ -13,14 +13,14 @@ resources:
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: test/halfpipe-e2e-artifacts
+    folder: engineering-enablement/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: test/halfpipe-e2e-artifacts
+    folder: engineering-enablement/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: halfpipe-fly
@@ -178,7 +178,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/halfpipe-e2e-artifacts
+        FOLDER: engineering-enablement/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -272,7 +272,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/halfpipe-e2e-artifacts
+        FOLDER: engineering-enablement/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -413,7 +413,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/halfpipe-e2e-artifacts
+        FOLDER: engineering-enablement/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -483,7 +483,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/halfpipe-e2e-artifacts
+        FOLDER: engineering-enablement/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -514,7 +514,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: test
+        HALFPIPE_CACHE_TEAM: engineering-enablement
       run:
         path: docker.sh
         args:
@@ -601,7 +601,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/halfpipe-e2e-artifacts
+        FOLDER: engineering-enablement/halfpipe-e2e-artifacts
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:

@@ -13,14 +13,14 @@ resources:
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: engineering-enablement/test
+    folder: engineering-enablement/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: engineering-enablement/test
+    folder: engineering-enablement/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: version
@@ -29,7 +29,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: engineering-enablement-test
+    key: engineering-enablement-halfpipe-e2e-update-pipeline
 - name: halfpipe-fly
   type: docker-image
   source:
@@ -106,7 +106,7 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: test
+        PIPELINE_NAME: halfpipe-e2e-update-pipeline
       run:
         path: update-pipeline
         dir: git/e2e/update-pipeline
@@ -253,7 +253,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/test
+        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -332,7 +332,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/test
+        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -459,8 +459,8 @@ jobs:
               GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
               GIT_CLONE_OPTIONS: ""
               PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
-              PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
-              PROVIDER_NAME: test
+              PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
+              PROVIDER_NAME: halfpipe-e2e-update-pipeline
             run:
               path: docker.sh
               args:
@@ -568,7 +568,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/test
+        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -1010,8 +1010,8 @@ jobs:
         K: value
         K1: value1
         PROVIDER_HOST: p-host
-        PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
-        PROVIDER_NAME: test
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-update-pipeline
       run:
         path: docker.sh
         args:
@@ -1101,7 +1101,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/test
+        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -1126,7 +1126,7 @@ jobs:
           tag: latest
           username: _json_key
       params:
-        APP_NAME: test
+        APP_NAME: halfpipe-e2e-update-pipeline
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
         MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))

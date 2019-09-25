@@ -1,5 +1,5 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-docker-push
 
 triggers:
 - type: git

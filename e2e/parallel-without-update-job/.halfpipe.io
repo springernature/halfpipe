@@ -1,11 +1,11 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-parallel-without-update-job
 
 triggers:
 - type: git
   shallow: true
   watched_paths:
-  - e2e/parallel
+  - e2e/parallel-without-update-job
 
 tasks:
 - type: run

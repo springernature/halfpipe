@@ -1,7 +1,7 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-deprecated-cron-trigger
 
-cron_trigger: "* * * * *"
+cron_trigger: "10 10 * * *"
 
 tasks:
 - type: docker-push

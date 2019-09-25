@@ -1,5 +1,5 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-deploy-ml-zip
 
 triggers:
 - type: git

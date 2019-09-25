@@ -13,7 +13,7 @@ resources:
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: test/test
+    folder: engineering-enablement/halfpipe-e2e-deploy-ml-zip
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 resource_types:
@@ -134,7 +134,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: test/test
+        FOLDER: engineering-enablement/halfpipe-e2e-deploy-ml-zip
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -159,7 +159,7 @@ jobs:
           tag: latest
           username: _json_key
       params:
-        APP_NAME: test
+        APP_NAME: halfpipe-e2e-deploy-ml-zip
         DEPLOY_ZIP: target/xquery.zip
         MARKLOGIC_HOST: ml.dev.springer-sbm.com
         MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))

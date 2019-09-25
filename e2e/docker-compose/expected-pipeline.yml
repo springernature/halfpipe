@@ -36,7 +36,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: test
+        HALFPIPE_CACHE_TEAM: engineering-enablement
       run:
         path: docker.sh
         args:
@@ -99,7 +99,7 @@ jobs:
         B: bar
         F: foo
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: test
+        HALFPIPE_CACHE_TEAM: engineering-enablement
       run:
         path: docker.sh
         args:

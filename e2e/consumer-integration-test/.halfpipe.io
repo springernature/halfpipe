@@ -1,5 +1,5 @@
-team: test
-pipeline: test
+team: engineering-enablement
+pipeline: halfpipe-e2e-consumer-integration-test
 
 triggers:
 - type: git

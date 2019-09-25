@@ -6,7 +6,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/parallel
+    - e2e/parallel-without-update-job
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 resource_types: []

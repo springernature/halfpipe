@@ -46,8 +46,8 @@ jobs:
         K: value
         K1: value1
         PROVIDER_HOST: p-host
-        PROVIDER_HOST_KEY: TEST_DEPLOYED_HOST
-        PROVIDER_NAME: test
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_CONSUMER_INTEGRATION_TEST_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-consumer-integration-test
       run:
         path: docker.sh
         args:
