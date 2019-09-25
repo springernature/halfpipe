@@ -118,13 +118,11 @@ jobs:
           export VERSION="$(cat version/version)"
           export CONF_PKG="github.com/springernature/halfpipe/config"
           export LDFLAGS="-X ${CONF_PKG}.Version=${VERSION}"
-          export GOPROXY="https://proxy.golang.org,https://gocenter.io,direct"
           export CGO_ENABLED=0
           export GOARCH=amd64
 
           # Build binaries
           cd halfpipe
-          # go mod download
           GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           GOOS=windows go build -o halfpipe_windows_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
