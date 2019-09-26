@@ -36,10 +36,6 @@ func (u Update) GetTimeout() string {
 	return u.Timeout
 }
 
-func (Update) GetParallelGroup() ParallelGroup {
-	return ParallelGroup("")
-}
-
 func (Update) GetName() string {
 	return "update"
 }

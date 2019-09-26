@@ -107,16 +107,6 @@ func (t *TriggerList) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (t *ParallelGroup) UnmarshalJSON(b []byte) error {
-	var rawTask json.RawMessage
-	if err := json.Unmarshal(b, &rawTask); err != nil {
-		return err
-	}
-
-	*t = ParallelGroup(rawTask)
-	return nil
-}
-
 func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (task Task, err error) {
 
 	unmarshal := func(rawTask json.RawMessage, t Task, index int) error {

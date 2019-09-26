@@ -11,7 +11,6 @@ import (
 func TestConvertDeployMLZipToRunTask(t *testing.T) {
 	deployMl := manifest.DeployMLZip{
 		Name:            "foobar",
-		Parallel:        "true",
 		DeployZip:       "d-artifact",
 		AppName:         "a-name",
 		AppVersion:      "a-version",
@@ -52,7 +51,6 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 	deployMl := manifest.DeployMLModules{
 		Name:             "foobar",
-		Parallel:         "true",
 		MLModulesVersion: "1.2345",
 		AppName:          "a-name",
 		AppVersion:       "a-version",

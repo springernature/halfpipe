@@ -6,7 +6,6 @@ import (
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/triggers"
 	"reflect"
 )
@@ -69,7 +68,6 @@ func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Mani
 	// migrating the manifest
 	tmpMigratedManifest := man
 	tmpMigratedManifest = triggers.NewTriggersTranslator().Translate(tmpMigratedManifest)
-	tmpMigratedManifest.Tasks = parallel.NewParallelMerger().MergeParallelTasks(tmpMigratedManifest.Tasks)
 
 	// if migrated and original manifest is the same
 	if reflect.DeepEqual(tmpMigratedManifest, man) {

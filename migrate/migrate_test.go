@@ -64,14 +64,20 @@ func TestHappyPath(t *testing.T) {
 		cronTrigger := "blug"
 		name1 := "asd"
 		name2 := "420"
+		name3 := "666"
 		man := manifest.Manifest{
 			CronTrigger: cronTrigger,
 			Repo: manifest.Repo{
 				URI: uri,
 			},
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: name1, Parallel: "true"},
-				manifest.Run{Name: name2, Parallel: "true"},
+				manifest.Parallel{
+					Tasks: manifest.TaskList{
+						manifest.Run{Name: name1},
+						manifest.Run{Name: name2},
+					},
+				},
+				manifest.Run{Name: name3},
 			},
 		}
 
@@ -87,6 +93,7 @@ func TestHappyPath(t *testing.T) {
 						manifest.Run{Name: name2},
 					},
 				},
+				manifest.Run{Name: name3},
 			},
 		}
 

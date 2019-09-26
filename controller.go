@@ -6,7 +6,6 @@ import (
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/parallel"
 	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/triggers"
 )
@@ -17,16 +16,14 @@ type Controller interface {
 
 type controller struct {
 	defaulter         defaults.Defaults
-	merger            parallel.Merger
 	triggerTranslator triggers.Translator
 	linters           []linters.Linter
 	renderer          pipeline.Renderer
 }
 
-func NewController(defaulter defaults.Defaults, merger parallel.Merger, triggerTranslator triggers.Translator, linters []linters.Linter, renderer pipeline.Renderer) Controller {
+func NewController(defaulter defaults.Defaults, triggerTranslator triggers.Translator, linters []linters.Linter, renderer pipeline.Renderer) Controller {
 	return controller{
 		defaulter:         defaulter,
-		merger:            merger,
 		triggerTranslator: triggerTranslator,
 		linters:           linters,
 		renderer:          renderer,
@@ -35,7 +32,6 @@ func NewController(defaulter defaults.Defaults, merger parallel.Merger, triggerT
 
 func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
 	updatedManifest := c.triggerTranslator.Translate(man)
-	updatedManifest.Tasks = c.merger.MergeParallelTasks(man.Tasks)
 
 	updatedManifest = c.defaulter.Update(updatedManifest)
 

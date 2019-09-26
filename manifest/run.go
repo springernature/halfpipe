@@ -8,19 +8,18 @@ type Docker struct {
 
 type Run struct {
 	Type                   string
-	Name                   string        `yaml:"name,omitempty"`
-	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Script                 string        `yaml:"script,omitempty"`
-	Docker                 Docker        `yaml:"docker,omitempty"`
-	Privileged             bool          `yaml:"privileged,omitempty"`
-	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
-	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
-	Parallel               ParallelGroup `yaml:"parallel,omitempty"`
-	Retries                int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Name                   string   `yaml:"name,omitempty"`
+	ManualTrigger          bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Script                 string   `yaml:"script,omitempty"`
+	Docker                 Docker   `yaml:"docker,omitempty"`
+	Privileged             bool     `yaml:"privileged,omitempty"`
+	Vars                   Vars     `yaml:"vars,omitempty" secretAllowed:"true"`
+	SaveArtifacts          []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	RestoreArtifacts       bool     `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	Retries                int      `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
 func (r Run) MarshalYAML() (interface{}, error) {
@@ -30,10 +29,6 @@ func (r Run) MarshalYAML() (interface{}, error) {
 
 func (r Run) GetName() string {
 	return r.Name
-}
-
-func (r Run) GetParallelGroup() ParallelGroup {
-	return r.Parallel
 }
 
 func (r Run) GetTimeout() string {

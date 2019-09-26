@@ -124,7 +124,6 @@ tasks:
   consumer: cdc-consumer
   consumer_host: cdc-host
   script: cdc-script
-  parallel: true
   git_clone_options: --depth 100
 - type: deploy-ml-zip
   name: deploy ml zip
@@ -294,7 +293,6 @@ tasks:
 				Consumer:        "cdc-consumer",
 				ConsumerHost:    "cdc-host",
 				GitCloneOptions: "--depth 100",
-				Parallel:        "true",
 				Script:          "cdc-script",
 			},
 			DeployMLZip{

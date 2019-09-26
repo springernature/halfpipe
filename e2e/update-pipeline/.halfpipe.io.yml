@@ -32,58 +32,58 @@ tasks:
   deploy_artifact: target/distribution/artifact.zip
   timeout: 5m
 
-- type: deploy-cf
-  name: deploy to staging
-  parallel: true
-  api: ((cloudfoundry.api-live))
-  org: pe
-  space: staging
-  username: michiel
-  password: very-secret
-  vars:
+- type: parallel
+  tasks:
+  - type: deploy-cf
+    name: deploy to staging
+    api: ((cloudfoundry.api-live))
+    org: pe
+    space: staging
+    username: michiel
+    password: very-secret
+    vars:
+        A: "0.1"
+        B: "false"
+    pre_promote:
+    - type: run
+      script: smoke-test.sh
+      docker:
+        image: eu.gcr.io/halfpipe-io/halfpipe-fly
+      vars:
+        A: "blah"
+      restore_artifacts: true
+
+    - type: consumer-integration-test
+      name: c-name
+      consumer: c-consumer
+      consumer_host: c-host
+      script: /var/c-script
+
+  - type: deploy-cf
+    name: deploy to qa
+    api: ((cloudfoundry.api-snpaas))
+    space: qa
+    vars:
       A: "0.1"
       B: "false"
-  pre_promote:
-  - type: run
-    script: smoke-test.sh
-    docker:
-      image: eu.gcr.io/halfpipe-io/halfpipe-fly
-    vars:
-      A: "blah"
-    restore_artifacts: true
+    pre_promote:
+    - type: run
+      name: save-artifact-in-pre-promote
+      script: smoke-test.sh
+      docker:
+        image: eu.gcr.io/halfpipe-io/halfpipe-fly
+      vars:
+        A: "blah"
+      save_artifacts: ["build"]
 
-  - type: consumer-integration-test
-    name: c-name
-    consumer: c-consumer
-    consumer_host: c-host
-    script: /var/c-script
-
-- type: deploy-cf
-  name: deploy to qa
-  parallel: true
-  api: ((cloudfoundry.api-snpaas))
-  space: qa
-  vars:
-    A: "0.1"
-    B: "false"
-  pre_promote:
-  - type: run
-    name: save-artifact-in-pre-promote
-    script: smoke-test.sh
-    docker:
-      image: eu.gcr.io/halfpipe-io/halfpipe-fly
-    vars:
-      A: "blah"
-    save_artifacts: ["build"]
-
-  - type: run
-    name: restore artifact in pre promote
-    script: smoke-test.sh
-    docker:
-      image: eu.gcr.io/halfpipe-io/halfpipe-fly
-    vars:
-      A: "blah"
-    restore_artifacts: true
+    - type: run
+      name: restore artifact in pre promote
+      script: smoke-test.sh
+      docker:
+        image: eu.gcr.io/halfpipe-io/halfpipe-fly
+      vars:
+        A: "blah"
+      restore_artifacts: true
 
 - type: docker-push
   name: push to docker registry

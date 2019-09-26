@@ -53,10 +53,6 @@ func (s Sequence) GetTimeout() string {
 	panic("GetTimeout should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
-func (s Sequence) GetParallelGroup() ParallelGroup {
-	panic("GetParallelGroup should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-
 func (s Sequence) GetName() string {
 	panic("GetName should never be used in the rendering for a sequence task as we only care about sub tasks")
 }

@@ -37,12 +37,6 @@ func (tl TaskList) SavesArtifactsOnFailure() bool {
 	return false
 }
 
-type ParallelGroup string
-
-func (t ParallelGroup) IsSet() bool {
-	return t != "" && t != "false"
-}
-
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
@@ -51,7 +45,6 @@ type Task interface {
 	IsManualTrigger() bool
 	NotifiesOnSuccess() bool
 	GetTimeout() string
-	GetParallelGroup() ParallelGroup
 	GetName() string
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
