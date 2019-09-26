@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"github.com/springernature/halfpipe/helpers"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -40,4 +41,44 @@ func TestCurrentTaskRequiresArtifactAndThereIsAPreviousTasksThatSavesOne(t *test
 	currentTask := manifest.DockerPush{RestoreArtifacts: true}
 	errors, _ := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{SaveArtifacts: []string{"path/to/artifact/to/save"}}, manifest.Run{}})
 	assert.Len(t, errors, 0)
+}
+
+func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
+	t.Run("run", func(t *testing.T) {
+		man := manifest.Run{
+			SaveArtifacts: []string{
+				"path/to/$BUILD_VERSION/blah",
+				"this/is/ok",
+				"this/$IS/not",
+			},
+		}
+
+		errors, _ := LintArtifacts(man, []manifest.Task{})
+		assert.Len(t, errors, 2)
+		helpers.AssertInvalidFieldInErrors(t, "save_artifact", errors)
+	})
+
+	t.Run("docker-compose", func(t *testing.T) {
+		man := manifest.DockerCompose{
+			SaveArtifacts: []string{
+				"path/to/$BUILD_VERSION/blah",
+				"this/is/ok",
+				"this/$IS/not",
+			},
+		}
+
+		errors, _ := LintArtifacts(man, []manifest.Task{})
+		assert.Len(t, errors, 2)
+		helpers.AssertInvalidFieldInErrors(t, "save_artifact", errors)
+	})
+
+	t.Run("deploy-cf", func(t *testing.T) {
+		man := manifest.DeployCF{
+			DeployArtifact: "path/to/$BUILD_VERSION/blah",
+		}
+
+		errors, _ := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
+		assert.Len(t, errors, 1)
+		helpers.AssertInvalidFieldInErrors(t, "deploy_artifact", errors)
+	})
 }
