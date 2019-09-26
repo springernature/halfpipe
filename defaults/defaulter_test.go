@@ -58,6 +58,48 @@ func TestTriggers(t *testing.T) {
 			})
 		})
 
+		t.Run("public repos", func(t *testing.T) {
+
+			t.Run("http", func(t *testing.T) {
+				manifestDefaults := Defaults{
+					RepoPrivateKey: "((halfpipe-github.private_key))",
+					Project: project.Data{
+						GitURI: "http://github.com/springernature/halfpipe.git",
+					},
+				}
+
+				man := manifest.Manifest{
+					Triggers: manifest.TriggerList{
+						manifest.GitTrigger{},
+					},
+				}
+				man = manifestDefaults.Update(man)
+
+				assert.Equal(t, "git@github.com:springernature/halfpipe.git", man.Triggers[0].(manifest.GitTrigger).URI)
+				assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			})
+
+			t.Run("https", func(t *testing.T) {
+				manifestDefaults := Defaults{
+					RepoPrivateKey: "((halfpipe-github.private_key))",
+					Project: project.Data{
+						GitURI: "https://github.com/springernature/halfpipe.git",
+					},
+				}
+
+				man := manifest.Manifest{
+					Triggers: manifest.TriggerList{
+						manifest.GitTrigger{},
+					},
+				}
+				man = manifestDefaults.Update(man)
+
+				assert.Equal(t, "git@github.com:springernature/halfpipe.git", man.Triggers[0].(manifest.GitTrigger).URI)
+				assert.Equal(t, manifestDefaults.RepoPrivateKey, man.Triggers[0].(manifest.GitTrigger).PrivateKey)
+			})
+
+		})
+
 		t.Run("project values", func(t *testing.T) {
 			pro := project.Data{BasePath: "foo", GitURI: "bar"}
 			manifestDefaults := Defaults{

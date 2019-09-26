@@ -32,6 +32,11 @@ var (
 		"/var/halfpipe/cache",
 		"/var/halfpipe/shared-cache",
 	}
+
+	RewriteGitHTTPToSSH = map[string]string{
+		"http://github.com/springernature/":  "git@github.com:springernature/",
+		"https://github.com/springernature/": "git@github.com:springernature/",
+	}
 )
 
 var DevVersion = semver.Version{

@@ -226,6 +226,12 @@ func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.M
 
 		if t.URI == "" {
 			t.URI = d.Project.GitURI
+
+			for from, to := range config.RewriteGitHTTPToSSH {
+				if strings.Contains(t.URI, from) {
+					t.URI = strings.Replace(t.URI, from, to, 1)
+				}
+			}
 		}
 
 		if t.URI != "" && !t.IsPublic() && t.PrivateKey == "" {
