@@ -2,6 +2,11 @@ xquery version "1.0-ml";
 declare namespace x="http://www.w3.org/1999/xhtml";
 declare default function namespace "local";
 
+(:
+to run:
+curl -u admin:admin -H'Content-Type:text' 'http://sl-marklogic-qa-v9-01.de.gcp.springernature.cloud:7655/ml-utils/v1/eval.xqy' -d "@gocd-pipelines.xqy"
+:)
+
 declare function server($name as xs:string) {
   let $host := $name || ".gocd.tools.engineering"
   let $html := xdmp:tidy(xdmp:http-get("http://" || $host || "/go/pipelines")[2])[2]
