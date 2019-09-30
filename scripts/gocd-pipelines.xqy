@@ -4,7 +4,7 @@ declare default function namespace "local";
 
 (:
 to run:
-curl -u admin:admin -H'Content-Type:text' 'http://sl-marklogic-qa-v9-01.de.gcp.springernature.cloud:7655/ml-utils/v1/eval.xqy' -d "@gocd-pipelines.xqy"
+curl -H'Content-Type:text' 'http://ml-utils-qa.springernature.app/ml-utils/v1/eval.xqy' -d "@scripts/gocd-pipelines.xqy"
 :)
 
 declare function server($name as xs:string) {
