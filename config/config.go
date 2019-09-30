@@ -9,7 +9,8 @@ import (
 // These fields will be populated in build
 // go build -ldflags "-X config.version=..."
 var (
-	Version = "0.0.0-DEV"
+	Version     = "0.0.0-DEV"
+	CheckBranch = "true"
 )
 
 var (

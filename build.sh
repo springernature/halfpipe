@@ -7,7 +7,9 @@ go version | grep -q 'go1.13' || (
     exit 1
 )
 
+CONF_PKG="github.com/springernature/halfpipe/config"
 go_opts=""
+
 if [ "${1-}" = "ci" ]; then
     echo CI
     go_opts="-mod=readonly"
@@ -20,7 +22,7 @@ echo [2/5] test
 go test $go_opts -cover ./...
 
 echo [3/5] build
-go build $go_opts cmd/halfpipe.go
+go build $go_opts -ldflags "-X ${CONF_PKG}.CheckBranch=false" cmd/halfpipe.go
 
 echo [4/5] e2e test
 if [ "${1-}" = "github" ]; then

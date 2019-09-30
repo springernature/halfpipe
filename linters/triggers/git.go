@@ -3,6 +3,7 @@ package triggers
 import (
 	"fmt"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
@@ -75,12 +76,14 @@ func LintGitTrigger(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afe
 		errs = append(errs, err)
 	} else {
 
-		if currentBranch != "master" && git.Branch == "" {
-			errs = append(errs, errors.NewInvalidField("branch", "must be set if you are executing halfpipe from a non master branch"))
-		}
+		if config.CheckBranch == "true" {
+			if currentBranch != "master" && git.Branch == "" {
+				errs = append(errs, errors.NewInvalidField("branch", "must be set if you are executing halfpipe from a non master branch"))
+			}
 
-		if git.Branch != currentBranch && git.Branch != "" {
-			errs = append(errs, errors.NewInvalidField("branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, git.Branch)))
+			if git.Branch != currentBranch && git.Branch != "" {
+				errs = append(errs, errors.NewInvalidField("branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, git.Branch)))
+			}
 		}
 	}
 
