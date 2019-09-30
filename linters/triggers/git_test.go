@@ -20,30 +20,10 @@ var defaultRepoURIResolver = func(uri string) func() (string, error) {
 	}
 }
 
-func TestBothRepoAndGitTriggerDefined(t *testing.T) {
-	// In the merger we dont do anything if both repo and a GitTrigger{} is defined.
-	// Lets catch that here
-
-	trigger := manifest.GitTrigger{Shallow: true}
-	man := manifest.Manifest{
-		Repo: manifest.Repo{
-			BasePath: "someBasePath",
-		},
-		Triggers: manifest.TriggerList{
-			trigger,
-		},
-	}
-
-	errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
-	assert.Len(t, errs, 1)
-	helpers.AssertInvalidFieldInErrors(t, "repo", errs)
-}
-
 func TestUriIsEmpty(t *testing.T) {
 	trigger := manifest.GitTrigger{}
-	man := manifest.Manifest{}
 
-	errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
 	helpers.AssertMissingFieldInErrors(t, "uri", errs)
@@ -53,9 +33,8 @@ func TestInvalidUri(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI: "goo",
 	}
-	man := manifest.Manifest{}
 
-	errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
 	helpers.AssertInvalidFieldInErrors(t, "uri", errs)
@@ -65,9 +44,8 @@ func TestUriIsValidHttpsUri(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI: "https://github.com/springernature/halfpipe.git",
 	}
-	man := manifest.Manifest{}
 
-	errs, warns := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, warns := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 0)
 	assert.Len(t, warns, 1)
@@ -78,9 +56,8 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI: "git@github.com:springernature/halfpipe.git",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
 		helpers.AssertMissingFieldInErrors(t, "private_key", errs)
@@ -91,9 +68,8 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 			URI:        "git@github.com:springernature/halfpipe.git",
 			PrivateKey: "kehe",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 0)
 	})
@@ -105,7 +81,6 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 		WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 		IgnoredPaths: []string{"c/*", "d"},
 	}
-	man := manifest.Manifest{}
 
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	workingDir := "/repo"
@@ -113,7 +88,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 	fs.Mkdir(path.Join(workingDir, "watches/there"), 0777)
 	fs.Mkdir(path.Join(workingDir, "c/d/e/f/g/h"), 0777)
 
-	errs, _ := LintGitTrigger(man, trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 	assert.Len(t, errs, 2)
 	helpers.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
 	helpers.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
@@ -126,14 +101,13 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 		WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 		IgnoredPaths: []string{"c/*", "d"},
 	}
-	man := manifest.Manifest{}
 
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	workingDir := "/home/projects/repo-project-name/project-name"
 	fs.Mkdir("/home/projects/repo-project-name/watches/there", 0777)
 	fs.Mkdir("/home/projects/repo-project-name/c/d/e/f/g/h", 0777)
 
-	errs, _ := LintGitTrigger(man, trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 	assert.Len(t, errs, 2)
 	helpers.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
 	helpers.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
@@ -146,9 +120,8 @@ func TestHasValidGitCryptKey(t *testing.T) {
 			PrivateKey:  "kehe",
 			GitCryptKey: "((gitcrypt.key))",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 0)
 	})
@@ -159,9 +132,8 @@ func TestHasValidGitCryptKey(t *testing.T) {
 			PrivateKey:  "kehe",
 			GitCryptKey: "CLEARTEXTKEY_BADASS",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
 		helpers.AssertInvalidFieldInErrors(t, "git_crypt_key", errs)
@@ -174,9 +146,8 @@ func TestPublicUrIAndPrivateKey(t *testing.T) {
 		URI:        "https://github.com/springernature/halfpipe.git",
 		PrivateKey: "kehe",
 	}
-	man := manifest.Manifest{}
 
-	errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
 	helpers.AssertInvalidFieldInErrors(t, "uri", errs)
@@ -190,9 +161,8 @@ func TestBranch(t *testing.T) {
 			URI:    "https://github.com/springernature/halfpipe.git",
 			Branch: currentBranch,
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", func() (branch string, err error) {
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
 		}, defaultRepoURIResolver(trigger.URI))
 
@@ -204,9 +174,8 @@ func TestBranch(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI: "https://github.com/springernature/halfpipe.git",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", func() (branch string, err error) {
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
 		}, defaultRepoURIResolver(trigger.URI))
 
@@ -220,9 +189,8 @@ func TestBranch(t *testing.T) {
 			URI:    "https://github.com/springernature/halfpipe.git",
 			Branch: "someRandomBranch",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", func() (branch string, err error) {
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
 		}, defaultRepoURIResolver(trigger.URI))
 
@@ -236,9 +204,8 @@ func TestBranch(t *testing.T) {
 			URI:    "https://github.com/springernature/halfpipe.git",
 			Branch: "someRandomBranch",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", func() (branch string, err error) {
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
 		}, defaultRepoURIResolver(trigger.URI))
 
@@ -252,9 +219,8 @@ func TestBranch(t *testing.T) {
 			URI:    "https://github.com/springernature/halfpipe.git",
 			Branch: "someRandomBranch",
 		}
-		man := manifest.Manifest{}
 
-		errs, _ := LintGitTrigger(man, trigger, afero.Afero{}, "", func() (branch string, err error) {
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return "", expectedError
 		}, defaultRepoURIResolver(trigger.URI))
 
@@ -270,9 +236,7 @@ func TestRepoResolver(t *testing.T) {
 			PrivateKey: "asdf",
 		}
 
-		man := manifest.Manifest{}
-
-		errs, warnings := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
+		errs, warnings := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
 			return "git@github.com:springernature/someRandomRepo.git", nil
 		})
 
@@ -287,9 +251,7 @@ func TestRepoResolver(t *testing.T) {
 			PrivateKey: "asdf",
 		}
 
-		man := manifest.Manifest{}
-
-		errs, warnings := LintGitTrigger(man, trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
+		errs, warnings := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
 			return "", expectedError
 		})
 

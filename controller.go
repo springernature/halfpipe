@@ -7,7 +7,6 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
-	"github.com/springernature/halfpipe/triggers"
 )
 
 type Controller interface {
@@ -15,25 +14,21 @@ type Controller interface {
 }
 
 type controller struct {
-	defaulter         defaults.Defaults
-	triggerTranslator triggers.Translator
-	linters           []linters.Linter
-	renderer          pipeline.Renderer
+	defaulter defaults.Defaults
+	linters   []linters.Linter
+	renderer  pipeline.Renderer
 }
 
-func NewController(defaulter defaults.Defaults, triggerTranslator triggers.Translator, linters []linters.Linter, renderer pipeline.Renderer) Controller {
+func NewController(defaulter defaults.Defaults, linters []linters.Linter, renderer pipeline.Renderer) Controller {
 	return controller{
-		defaulter:         defaulter,
-		triggerTranslator: triggerTranslator,
-		linters:           linters,
-		renderer:          renderer,
+		defaulter: defaulter,
+		linters:   linters,
+		renderer:  renderer,
 	}
 }
 
 func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
-	updatedManifest := c.triggerTranslator.Translate(man)
-
-	updatedManifest = c.defaulter.Update(updatedManifest)
+	updatedManifest := c.defaulter.Update(man)
 
 	for _, linter := range c.linters {
 		results = append(results, linter.Lint(updatedManifest))

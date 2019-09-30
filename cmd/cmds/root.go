@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/result"
-	"github.com/springernature/halfpipe/triggers"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
 	"path"
@@ -72,7 +71,6 @@ func printErrAndResultAndExitOnError(err error, lintResults result.LintResults) 
 func createController(projectData project.Data, fs afero.Afero, currentDir string) halfpipe.Controller {
 	return halfpipe.NewController(
 		defaults.NewDefaulter(projectData),
-		triggers.NewTriggersTranslator(),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
 			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),

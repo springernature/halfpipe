@@ -2,17 +2,18 @@ team: team
 pipeline: halfpipe-e2e-migrate
 feature_toggles:
 - update-pipeline
-repo:
+triggers:
+- type: git
   watched_paths:
   - e2e/migrate
-cron_trigger: "* * * * *"
+- type: timer
+  cron: '* * * * *'
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
   script: ./script
   docker:
     image: CHANGE-ME:tag
-
 - type: parallel
   tasks:
   - type: run
@@ -25,7 +26,6 @@ tasks:
     script: ./script
     docker:
       image: CHANGE-ME:tag
-
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
   script: ./script

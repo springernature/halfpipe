@@ -867,11 +867,6 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 `, composeCommand)
 }
 
-func (p pipeline) addCronResource(cfg *atc.Config, man manifest.Manifest) {
-	if man.CronTrigger != "" {
-	}
-}
-
 func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, basePath string) []string {
 
 	script := task.Script

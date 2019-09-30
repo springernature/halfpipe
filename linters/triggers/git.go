@@ -8,7 +8,6 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 	"path/filepath"
-	"reflect"
 	"regexp"
 	"strings"
 )
@@ -27,18 +26,7 @@ func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
 	return nil
 }
 
-func LintGitTrigger(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
-	/*
-		in the trigger translator we do the following
-		only repo: x defined -> GitTrigger{x}
-		repo: x defined and GitTrigger{y} -> repo:x, TimerTrigger{y}
-		only GitTrigger{y} defined  -> TimerTrigger{y}
-	*/
-	if !reflect.DeepEqual(man.Repo, manifest.Repo{}) {
-		errs = append(errs, errors.NewInvalidField("repo", "looks like both top level field 'repo' and a git trigger is defined. Please migrate 'repo' settings to the trigger and remove the key!"))
-		return
-	}
-
+func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 	if git.URI == "" {
 		errs = append(errs, errors.NewMissingField("uri"))
 		return

@@ -3,7 +3,6 @@ package upload
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/triggers"
 	"io/ioutil"
 	"os/exec"
 	"strings"
@@ -78,8 +77,6 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 	if err != nil {
 		return
 	}
-
-	man = triggers.NewTriggersTranslator().Translate(man)
 
 	if man.Team == "" || man.Pipeline == "" {
 		err = errors.New("'team' and 'pipeline' must be defined in '.halfpipe.io'")

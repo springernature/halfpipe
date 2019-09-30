@@ -14,10 +14,10 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
 		return
 	}
-	linter.gitLinter = func(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 		return
 	}
-	linter.cronLinter = func(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error) {
+	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
 		return
 	}
 
@@ -69,11 +69,11 @@ func TestCallsOutCorrectly(t *testing.T) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
-		linter.cronLinter = func(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error) {
+		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
 			numCallsCronTriggerLinter++
 			return
 		}
@@ -103,11 +103,11 @@ func TestCallsOutCorrectly(t *testing.T) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
-		linter.cronLinter = func(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error) {
+		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
 			numCallsCronTriggerLinter++
 			return
 		}
@@ -141,11 +141,11 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 		warnings = append(warnings, dockerWarning)
 		return
 	}
-	linter.gitLinter = func(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 		errs = append(errs, gitError)
 		return
 	}
-	linter.cronLinter = func(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error) {
+	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
 		errs = append(errs, cronError)
 		warnings = append(warnings, cronWarning)
 		return

@@ -21,7 +21,8 @@ pipeline: %s
 var validPipelineWithBranch = fmt.Sprintf(`---
 team: %s
 pipeline: %s
-repo:
+triggers:
+- type: git
   branch: %s
 `, team, pipeline, branch)
 

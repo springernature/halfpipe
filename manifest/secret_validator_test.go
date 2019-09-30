@@ -33,22 +33,6 @@ func TestTopLevelManifest(t *testing.T) {
 
 func TestRepo(t *testing.T) {
 	bad := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:        "((not.allowed))",
-			BasePath:   "((not.allowed))",
-			PrivateKey: "((allowed.yo))",
-			WatchedPaths: []string{
-				"ok",
-				"((not.allowed))",
-			},
-			IgnoredPaths: []string{
-				"ok",
-				"okAgain",
-				"((not.allowed))",
-			},
-			GitCryptKey: "((allowed.yo))",
-			Branch:      "((not.allowed))",
-		},
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:        "((not.allowed))",
@@ -76,14 +60,7 @@ func TestRepo(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 12)
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.uri"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.basePath"))
-	assert.NotContains(t, errors, manifest.UnsupportedSecretError("repo.private_key"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.watched_paths[1]"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.ignored_paths[2]"))
-	assert.NotContains(t, errors, manifest.UnsupportedSecretError("repo.git_crypt_key"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("repo.branch"))
+	assert.Len(t, errors, 7)
 
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].uri"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].basePath"))
@@ -97,15 +74,6 @@ func TestRepo(t *testing.T) {
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[2].image"))
 
 	good := manifest.Manifest{
-		Repo: manifest.Repo{
-			URI:          "Kehe",
-			BasePath:     "Kehu,",
-			PrivateKey:   "((super.allowed))",
-			WatchedPaths: []string{"a", "b"},
-			IgnoredPaths: []string{"d", "e"},
-			GitCryptKey:  "((super.allowed))",
-			Branch:       "master",
-		},
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:          "Kehe",

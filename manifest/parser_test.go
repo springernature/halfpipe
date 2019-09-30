@@ -18,21 +18,10 @@ func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
 pipeline: my pipeline
-repo:
-  uri: git@github.com:..
-  private_key: private-key
-  watched_paths:
-  - watched/dir1
-  - watched/dir2
-  ignored_paths:
-  - ignored/dir1/**
-  - README.md
-  git_crypt_key: git-crypt-key
 slack_channel: "#ee-activity"
 artifact_config:
   bucket: myBucket
   json_key: ((some.jsonKey))
-cron_trigger: "*/10 * * * *"
 triggers:
 - type: git
   uri: git@github.com:..
@@ -160,25 +149,11 @@ tasks:
 	expected := Manifest{
 		Team:     "my team",
 		Pipeline: "my pipeline",
-		Repo: Repo{
-			URI:        "git@github.com:..",
-			PrivateKey: "private-key",
-			WatchedPaths: []string{
-				"watched/dir1",
-				"watched/dir2",
-			},
-			IgnoredPaths: []string{
-				"ignored/dir1/**",
-				"README.md",
-			},
-			GitCryptKey: "git-crypt-key",
-		},
 		ArtifactConfig: ArtifactConfig{
 			Bucket:  "myBucket",
 			JSONKey: "((some.jsonKey))",
 		},
 		SlackChannel: "#ee-activity",
-		CronTrigger:  "*/10 * * * *",
 		FeatureToggles: FeatureToggles{
 			"feature1",
 			"feature2",
@@ -363,7 +338,8 @@ tasks:
   unknown_field: wibble`,
 		`
 team: foo
-repo:
+triggers:
+- type: git
   uri: git
   unknown_field: wobble
 

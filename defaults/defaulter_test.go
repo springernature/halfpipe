@@ -405,7 +405,6 @@ func TestSetsDefaultDockerComposeService(t *testing.T) {
 			},
 		},
 	}
-	man.Repo.URI = "git@github.com/foo/bar"
 
 	man = manifestDefaults.Update(man)
 
@@ -553,7 +552,6 @@ func TestSetsTimeout(t *testing.T) {
 
 func TestSetsNames(t *testing.T) {
 	man := manifest.Manifest{
-		Repo: manifest.Repo{URI: "https://github.com/springernature/halfpipe.git"},
 		Tasks: []manifest.Task{
 			manifest.Run{Script: "asd.sh"},
 			manifest.Parallel{

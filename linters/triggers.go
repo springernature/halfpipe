@@ -15,8 +15,8 @@ type triggersLinter struct {
 	workingDir      string
 	branchResolver  project.GitBranchResolver
 	repoURIResolver project.RepoURIResolver
-	gitLinter       func(man manifest.Manifest, git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error)
-	cronLinter      func(man manifest.Manifest, cron manifest.TimerTrigger) (errs []error, warnings []error)
+	gitLinter       func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error)
+	cronLinter      func(cron manifest.TimerTrigger) (errs []error, warnings []error)
 	dockerLinter    func(docker manifest.DockerTrigger) (errs []error, warnings []error)
 }
 
@@ -59,9 +59,9 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 		var e, w []error
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			e, w = t.gitLinter(man, trigger, t.fs, t.workingDir, t.branchResolver, t.repoURIResolver)
+			e, w = t.gitLinter(trigger, t.fs, t.workingDir, t.branchResolver, t.repoURIResolver)
 		case manifest.TimerTrigger:
-			e, w = t.cronLinter(man, trigger)
+			e, w = t.cronLinter(trigger)
 		case manifest.DockerTrigger:
 			e, w = t.dockerLinter(trigger)
 		}

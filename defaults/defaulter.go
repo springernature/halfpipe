@@ -219,8 +219,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 }
 
 func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
-	// Here the triggers.Translator repo to GitTrigger have already been run.
-	// We assume that the translated trigger is the first occurance
+	// We assume that the first git trigger we find is the right one as we lint later that we only have trigger.
+
 	updateGitTrigger := func(t manifest.GitTrigger) manifest.Trigger {
 		t.BasePath = d.Project.BasePath
 

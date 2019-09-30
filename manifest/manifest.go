@@ -70,8 +70,6 @@ type Manifest struct {
 	Team           string         `yaml:"team,omitempty"`
 	Pipeline       string         `yaml:"pipeline,omitempty"`
 	SlackChannel   string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	CronTrigger    string         `json:"cron_trigger" yaml:"cron_trigger,omitempty"`
-	Repo           Repo           `yaml:"repo,omitempty"`
 	ArtifactConfig ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
