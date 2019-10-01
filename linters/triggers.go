@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/result"
-	tasks "github.com/springernature/halfpipe/linters/triggers"
+	"github.com/springernature/halfpipe/linters/triggers"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 )
@@ -18,6 +18,7 @@ type triggersLinter struct {
 	gitLinter       func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error)
 	cronLinter      func(cron manifest.TimerTrigger) (errs []error, warnings []error)
 	dockerLinter    func(docker manifest.DockerTrigger) (errs []error, warnings []error)
+	pipelineLinter  func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error)
 }
 
 func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs []error) {
@@ -64,6 +65,8 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 			e, w = t.cronLinter(trigger)
 		case manifest.DockerTrigger:
 			e, w = t.dockerLinter(trigger)
+		case manifest.PipelineTrigger:
+			e, w = t.pipelineLinter(man, trigger)
 		}
 
 		errs = append(errs, prefixErrors(e)...)
@@ -94,8 +97,9 @@ func NewTriggersLinter(fs afero.Afero, workingDir string, branchResolver project
 		workingDir:      workingDir,
 		branchResolver:  branchResolver,
 		repoURIResolver: repoURIResolver,
-		gitLinter:       tasks.LintGitTrigger,
-		cronLinter:      tasks.LintCronTrigger,
-		dockerLinter:    tasks.LintDockerTrigger,
+		gitLinter:       triggers.LintGitTrigger,
+		cronLinter:      triggers.LintCronTrigger,
+		dockerLinter:    triggers.LintDockerTrigger,
+		pipelineLinter:  triggers.LintPipelineTrigger,
 	}
 }

@@ -58,6 +58,7 @@ const cronName = "cron"
 const cronGetAttempts = 2
 
 const dockerImageGetAttempts = 2
+const pipelineTriggerGetAttempts = 2
 
 const updateJobName = "update"
 const updatePipelineName = "halfpipe update"
@@ -162,6 +163,17 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 				plan = append(plan, dockerTrigger)
 
 			}
+		case manifest.PipelineTrigger:
+			if isUpdateTask || !versioningEnabled {
+				pipelineTrigger := atc.PlanConfig{
+					Get:      trigger.GetTriggerName(),
+					Attempts: pipelineTriggerGetAttempts,
+				}
+
+				plan = append(plan, pipelineTrigger)
+
+			}
+
 		}
 	}
 
@@ -192,6 +204,21 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 				}
 			}
 		}
+	}
+
+	return
+}
+func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+
+	for _, trigger := range triggers {
+		switch trigger := trigger.(type) {
+		case manifest.PipelineTrigger:
+			resourceConfigs = append(resourceConfigs, p.pipelineTriggerResource(trigger))
+		}
+	}
+
+	if len(resourceConfigs) > 0 {
+		resourceType = append(resourceType, halfpipePipelineTriggerResourceType())
 	}
 
 	return
@@ -264,6 +291,10 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
+
+	pipelineResourceTypes, pipelineResources := p.pipelineResources(man.Triggers)
+	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
+	resourceConfigs = append(resourceConfigs, pipelineResources...)
 
 	return
 }

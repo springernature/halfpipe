@@ -28,6 +28,9 @@ type Defaults struct {
 	ArtifactoryUsername  string
 	ArtifactoryPassword  string
 	ArtifactoryURL       string
+	ConcourseURL         string
+	ConcourseUsername    string
+	ConcoursePassword    string
 	Timeout              string
 }
 
@@ -262,6 +265,36 @@ func (d Defaults) updateGitTriggerWithDefaults(man manifest.Manifest) manifest.M
 
 	return man
 }
+func (d Defaults) updatePipelineTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
+	var updatedTriggers manifest.TriggerList
+	for _, trigger := range man.Triggers {
+		switch trigger := trigger.(type) {
+		case manifest.PipelineTrigger:
+			if trigger.Team == "" {
+				trigger.Team = man.Team
+			}
+
+			if trigger.ConcourseURL == "" {
+				trigger.ConcourseURL = d.ConcourseURL
+			}
+
+			if trigger.Username == "" {
+				trigger.Username = d.ConcourseUsername
+			}
+
+			if trigger.Password == "" {
+				trigger.Password = d.ConcoursePassword
+			}
+
+			updatedTriggers = append(updatedTriggers, trigger)
+		default:
+			updatedTriggers = append(updatedTriggers, trigger)
+		}
+	}
+
+	man.Triggers = updatedTriggers
+	return man
+}
 
 func (d Defaults) updateDockerTriggerWithDefaults(man manifest.Manifest) manifest.Manifest {
 	// We assume that the first docker trigger we find is the right one as we lint later that we only have trigger.
@@ -287,6 +320,7 @@ func (d Defaults) updateDockerTriggerWithDefaults(man manifest.Manifest) manifes
 func (d Defaults) updateTriggersWithDefaults(man manifest.Manifest) manifest.Manifest {
 	man = d.updateGitTriggerWithDefaults(man)
 	man = d.updateDockerTriggerWithDefaults(man)
+	man = d.updatePipelineTriggerWithDefaults(man)
 	return man
 }
 

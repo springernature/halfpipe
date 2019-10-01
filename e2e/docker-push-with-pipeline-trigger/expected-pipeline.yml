@@ -1,0 +1,61 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+resources:
+- name: git
+  type: git
+  source:
+    branch: master
+    paths:
+    - e2e/docker-push-with-pipeline-trigger
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+- name: halfpipe-fly
+  type: docker-image
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  check_every: 24h
+- name: halfpipe-example-docker-push docker-push
+  type: halfpipe-pipeline-trigger
+  source:
+    concourse_url: ((concourse.url))
+    job: docker-push
+    password: ((concourse.password))
+    pipeline: halfpipe-example-docker-push
+    team: engineering-enablement
+    username: ((concourse.username))
+  check_every: 24h
+resource_types:
+- name: halfpipe-pipeline-trigger
+  type: registry-image
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-pipeline-trigger-resource
+    username: _json_key
+jobs:
+- name: push to docker registry
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
+        attempts: 2
+      - get: halfpipe-example-docker-push docker-push
+        trigger: true
+        attempts: 2
+    timeout: 1h
+  - put: halfpipe-fly
+    params:
+      build: git/e2e/docker-push-with-pipeline-trigger
+      build_args:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+      dockerfile: git/e2e/docker-push-with-pipeline-trigger/Dockerfile
+      tag_as_latest: true
+    timeout: 1h
+    attempts: 1
+

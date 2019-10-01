@@ -146,6 +146,18 @@ func cronResourceType() atc.ResourceType {
 	}
 }
 
+func halfpipePipelineTriggerResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name: "halfpipe-pipeline-trigger",
+		Type: "registry-image",
+		Source: atc.Source{
+			"repository": config.DockerRegistry + "halfpipe-pipeline-trigger-resource",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
+		},
+	}
+}
+
 func halfpipeCfDeployResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: "cf-resource",
@@ -156,6 +168,24 @@ func halfpipeCfDeployResourceType() atc.ResourceType {
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
+	}
+}
+
+func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
+	sources := atc.Source{
+		"concourse_url": pipelineTrigger.ConcourseURL,
+		"username":      pipelineTrigger.Username,
+		"password":      pipelineTrigger.Password,
+		"team":          pipelineTrigger.Team,
+		"pipeline":      pipelineTrigger.Pipeline,
+		"job":           pipelineTrigger.Job,
+	}
+
+	return atc.ResourceConfig{
+		Name:       pipelineTrigger.GetTriggerName(),
+		Type:       "halfpipe-pipeline-trigger",
+		Source:     sources,
+		CheckEvery: longResourceCheckInterval,
 	}
 }
 

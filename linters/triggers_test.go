@@ -61,6 +61,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 		numCallsGitTriggerLinter := 0
 		numCallsCronTriggerLinter := 0
 		numCallsDockerTriggerLinter := 0
+		numCallsPipelineTriggerLinter := 0
 
 		man := manifest.Manifest{}
 
@@ -82,6 +83,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 		assert.Equal(t, 0, numCallsCronTriggerLinter)
 		assert.Equal(t, 0, numCallsGitTriggerLinter)
 		assert.Equal(t, 0, numCallsDockerTriggerLinter)
+		assert.Equal(t, 0, numCallsPipelineTriggerLinter)
 	})
 
 	t.Run("all triggers", func(t *testing.T) {
@@ -89,12 +91,15 @@ func TestCallsOutCorrectly(t *testing.T) {
 		numCallsGitTriggerLinter := 0
 		numCallsCronTriggerLinter := 0
 		numCallsDockerTriggerLinter := 0
+		numCallsPipelineTriggerLinter := 0
 
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				manifest.GitTrigger{},
+				manifest.PipelineTrigger{},
 				manifest.TimerTrigger{},
 				manifest.DockerTrigger{},
+				manifest.PipelineTrigger{},
 			},
 		}
 
@@ -111,11 +116,16 @@ func TestCallsOutCorrectly(t *testing.T) {
 			numCallsCronTriggerLinter++
 			return
 		}
+		linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error) {
+			numCallsPipelineTriggerLinter++
+			return
+		}
 
 		linter.Lint(man)
 		assert.Equal(t, 1, numCallsCronTriggerLinter)
 		assert.Equal(t, 1, numCallsGitTriggerLinter)
 		assert.Equal(t, 1, numCallsDockerTriggerLinter)
+		assert.Equal(t, 2, numCallsPipelineTriggerLinter)
 	})
 
 }
@@ -126,12 +136,15 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 	cronWarning := errors.New("cronWarning")
 	dockerError := errors.New("dockerError")
 	dockerWarning := errors.New("dockerWarning")
+	pipelineError := errors.New("pipelineError")
+	pipelineWarning := errors.New("pipelineWarning")
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{},
 			manifest.TimerTrigger{},
 			manifest.DockerTrigger{},
+			manifest.PipelineTrigger{},
 		},
 	}
 
@@ -150,15 +163,22 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 		warnings = append(warnings, cronWarning)
 		return
 	}
+	linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error) {
+		errs = append(errs, pipelineError)
+		warnings = append(warnings, pipelineWarning)
+		return
+	}
 
 	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 3)
-	assert.Len(t, result.Warnings, 2)
+	assert.Len(t, result.Errors, 4)
+	assert.Len(t, result.Warnings, 3)
 
 	assert.Equal(t, result.Errors[0].Error(), errors.New("triggers[0] gitError").Error())
 	assert.Equal(t, result.Errors[1].Error(), errors.New("triggers[1] cronError").Error())
 	assert.Equal(t, result.Errors[2].Error(), errors.New("triggers[2] dockerError").Error())
+	assert.Equal(t, result.Errors[3].Error(), errors.New("triggers[3] pipelineError").Error())
 
 	assert.Equal(t, result.Warnings[0].Error(), errors.New("triggers[1] cronWarning").Error())
 	assert.Equal(t, result.Warnings[1].Error(), errors.New("triggers[2] dockerWarning").Error())
+	assert.Equal(t, result.Warnings[2].Error(), errors.New("triggers[3] pipelineWarning").Error())
 }

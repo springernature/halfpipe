@@ -31,7 +31,7 @@ func TestTopLevelManifest(t *testing.T) {
 	assert.Empty(t, secretValidator.Validate(good))
 }
 
-func TestRepo(t *testing.T) {
+func TestTriggers(t *testing.T) {
 	bad := manifest.Manifest{
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
@@ -56,11 +56,19 @@ func TestRepo(t *testing.T) {
 			manifest.DockerTrigger{
 				Image: "((not.allowed))",
 			},
+			manifest.PipelineTrigger{
+				ConcourseURL: "((allowed.yo))",
+				Username:     "((allowed.yo))",
+				Password:     "((allowed.yo))",
+				Team:         "((not.allowed))",
+				Pipeline:     "((not.allowed))",
+				Job:          "((not.allowed))",
+			},
 		},
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 7)
+	assert.Len(t, errors, 10)
 
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].uri"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].basePath"))
@@ -71,7 +79,12 @@ func TestRepo(t *testing.T) {
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[0].branch"))
 
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[1].cron"))
+
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[2].image"))
+
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[3].team"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[3].pipeline"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("triggers[3].job"))
 
 	good := manifest.Manifest{
 		Triggers: manifest.TriggerList{

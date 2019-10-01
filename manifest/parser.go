@@ -225,8 +225,15 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		}
 		t.Type = ""
 		trigger = t
+	case "pipeline":
+		t := PipelineTrigger{}
+		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		trigger = t
 	default:
-		err = errors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron'", triggerIndex, triggerType))
+		err = errors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
 	}
 
 	return

@@ -30,5 +30,9 @@ var DefaultValues = Defaults{
 	ArtifactoryPassword: "((artifactory.password))",
 	ArtifactoryURL:      "((artifactory.url))",
 
+	ConcourseURL:      "((concourse.url))",
+	ConcourseUsername: "((concourse.username))",
+	ConcoursePassword: "((concourse.password))",
+
 	Timeout: "1h",
 }

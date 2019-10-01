@@ -176,6 +176,48 @@ func TestTriggers(t *testing.T) {
 			assert.Equal(t, expectedTrigger, manifestDefaults.Update(man).Triggers[1])
 		})
 	})
+
+	t.Run("PipelineTrigger", func(t *testing.T) {
+		team := "asd"
+		trigger1 := manifest.PipelineTrigger{}
+
+		trigger2 := manifest.PipelineTrigger{
+			ConcourseURL: "url",
+			Username:     "username",
+			Password:     "password",
+		}
+
+		trigger3 := manifest.PipelineTrigger{}
+
+		expectedTrigger := manifest.PipelineTrigger{
+			Team:         team,
+			ConcourseURL: DefaultValues.ConcourseURL,
+			Username:     DefaultValues.ConcourseUsername,
+			Password:     DefaultValues.ConcoursePassword,
+		}
+
+		expectedTrigger2 := manifest.PipelineTrigger{
+			Team:         team,
+			ConcourseURL: "url",
+			Username:     "username",
+			Password:     "password",
+		}
+
+		man := manifest.Manifest{
+			Team: "asd",
+			Triggers: manifest.TriggerList{
+				trigger1,
+				trigger2,
+				trigger3,
+			},
+		}
+
+		updated := DefaultValues.Update(man)
+
+		assert.Equal(t, expectedTrigger, updated.Triggers[0])
+		assert.Equal(t, expectedTrigger2, updated.Triggers[1])
+		assert.Equal(t, expectedTrigger, updated.Triggers[2])
+	})
 }
 
 func TestCFDeployDefaults(t *testing.T) {

@@ -59,7 +59,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(ArtifactConfig{}),
 		reflect.TypeOf(GitTrigger{}),
 		reflect.TypeOf(TimerTrigger{}),
-		reflect.TypeOf(DockerTrigger{}):
+		reflect.TypeOf(DockerTrigger{}),
+		reflect.TypeOf(PipelineTrigger{}):
 
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)

@@ -40,6 +40,13 @@ triggers:
   image: ubuntu
   username: userName
   password: password
+- type: pipeline
+  concourse_url: a
+  username: b
+  password: c
+  team: d
+  pipeline: e
+  job: f
 feature_toggles:
 - feature1
 - feature2
@@ -181,6 +188,14 @@ tasks:
 				Image:    "ubuntu",
 				Username: "userName",
 				Password: "password",
+			},
+			PipelineTrigger{
+				ConcourseURL: "a",
+				Username:     "b",
+				Password:     "c",
+				Team:         "d",
+				Pipeline:     "e",
+				Job:          "f",
 			},
 		},
 		Tasks: []Task{
