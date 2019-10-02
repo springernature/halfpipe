@@ -123,7 +123,7 @@ func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceC
 
 func (p pipeline) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name:       cronName,
+		Name:       trigger.GetTriggerName(),
 		Type:       "cron-resource",
 		CheckEvery: "1m",
 		Source: atc.Source{
@@ -279,26 +279,26 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 	}
 }
 
-func (p pipeline) updateJobConfig(manifest manifest.Manifest, basePath string) *atc.JobConfig {
+func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, basePath string) *atc.JobConfig {
 	return &atc.JobConfig{
-		Name:   updateJobName,
+		Name:   task.GetName(),
 		Serial: true,
 		Plan: []atc.PlanConfig{
-			p.updatePipelineTask(manifest, basePath),
+			p.updatePipelineTask(pipelineName, basePath),
 			{
 				Put: versionName,
 				Params: atc.Params{
 					"bump": "minor",
 				},
-				Attempts: updateTaskAttempts,
+				Attempts: 2,
 			}},
 	}
 }
 
-func (p pipeline) updatePipelineTask(man manifest.Manifest, basePath string) atc.PlanConfig {
+func (p pipeline) updatePipelineTask(pipelineName string, basePath string) atc.PlanConfig {
 	return atc.PlanConfig{
-		Task:     updatePipelineName,
-		Attempts: updateTaskAttempts,
+		Task:     "halfpipe update",
+		Attempts: 2,
 		TaskConfig: &atc.TaskConfig{
 			Platform: "linux",
 			Params: map[string]string{
@@ -306,7 +306,7 @@ func (p pipeline) updatePipelineTask(man manifest.Manifest, basePath string) atc
 				"CONCOURSE_PASSWORD": "((concourse.password))",
 				"CONCOURSE_TEAM":     "((concourse.team))",
 				"CONCOURSE_USERNAME": "((concourse.username))",
-				"PIPELINE_NAME":      man.PipelineName(),
+				"PIPELINE_NAME":      pipelineName,
 				"HALFPIPE_DOMAIN":    config.Domain,
 				"HALFPIPE_PROJECT":   config.Project,
 			},

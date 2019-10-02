@@ -165,7 +165,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 						atc.PlanConfig{
 							Get:      gitName,
 							Trigger:  true,
-							Attempts: gitGetAttempts,
+							Attempts: 2,
 						}},
 				},
 			},

@@ -80,7 +80,7 @@ func TestPipelineTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 
 	assert.Equal(t, trigger1.GetTriggerName(), t2InParallel[0].Name())
 	assert.Equal(t, trigger2.GetTriggerName(), t2InParallel[1].Name())
-	assert.Equal(t, pipelineTriggerGetAttempts, t2InParallel[0].Attempts)
+	assert.Equal(t, trigger2.GetTriggerAttempts(), t2InParallel[0].Attempts)
 	assert.Equal(t, []string{t1[1].Task}, t2InParallel[0].Passed)
 }
 

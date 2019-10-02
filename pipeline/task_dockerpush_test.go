@@ -172,8 +172,8 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}, Attempts: gitGetAttempts},
-				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true, Attempts: versionGetAttempts}},
+				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
+				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts}},
 			}},
 			atc.PlanConfig{
 				Attempts: 1,
@@ -242,8 +242,8 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{updateJobName}, Attempts: gitGetAttempts},
-				atc.PlanConfig{Get: versionName, Passed: []string{updateJobName}, Trigger: true, Attempts: versionGetAttempts}},
+				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
+				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts}},
 			}},
 			restoreArtifactTask(man),
 			atc.PlanConfig{

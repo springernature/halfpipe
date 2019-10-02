@@ -16,6 +16,10 @@ type PipelineTrigger struct {
 	Job          string `json:"job,omitempty" yaml:"job,omitempty"`
 }
 
+func (p PipelineTrigger) GetTriggerAttempts() int {
+	return 2
+}
+
 func (p PipelineTrigger) MarshalYAML() (interface{}, error) {
 	p.Type = "pipeline"
 	return p, nil

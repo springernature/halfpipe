@@ -490,7 +490,7 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 			"folder":       artifactsOutDir,
 			"version_file": "git/.git/ref",
 		},
-		Attempts: artifactsPutAttempts,
+		Attempts: 2,
 	}, config.Jobs[0].Plan[2])
 
 	failureInParallel := config.Jobs[0].Failure.InParallel.Steps

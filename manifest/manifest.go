@@ -51,6 +51,7 @@ type Task interface {
 
 type Trigger interface {
 	GetTriggerName() string
+	GetTriggerAttempts() int
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 

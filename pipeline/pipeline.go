@@ -35,13 +35,9 @@ func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
 }
 
 const artifactsResourceName = "gcp-resource"
-
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
 const artifactsInDir = "artifacts"
-const artifactsGetAttempts = 2
-const artifactsPutAttempts = 2
-
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
@@ -53,16 +49,6 @@ const dockerBuildTmpDir = "docker_build"
 
 const versionName = "version"
 const versionGetAttempts = 2
-
-const cronName = "cron"
-const cronGetAttempts = 2
-
-const dockerImageGetAttempts = 2
-const pipelineTriggerGetAttempts = 2
-
-const updateJobName = "update"
-const updatePipelineName = "halfpipe update"
-const updateTaskAttempts = 2
 
 func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	// This function is used in pipeline.artifactResource for some reason to lowercase
@@ -121,7 +107,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	return atc.PlanConfig{
 		Task:       "get artifact",
 		TaskConfig: &config,
-		Attempts:   artifactsGetAttempts,
+		Attempts:   2,
 	}
 }
 
@@ -135,7 +121,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 		case manifest.GitTrigger:
 			gitClone := atc.PlanConfig{
 				Get:      trigger.GetTriggerName(),
-				Attempts: gitGetAttempts,
+				Attempts: trigger.GetTriggerAttempts(),
 			}
 			if trigger.Shallow {
 				gitClone.Params = map[string]interface{}{
@@ -147,14 +133,14 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 			if isUpdateTask || !versioningEnabled {
 				plan = append(plan, atc.PlanConfig{
 					Get:      trigger.GetTriggerName(),
-					Attempts: cronGetAttempts,
+					Attempts: trigger.GetTriggerAttempts(),
 				})
 			}
 		case manifest.DockerTrigger:
 			if isUpdateTask || !versioningEnabled {
 				dockerTrigger := atc.PlanConfig{
 					Get:      trigger.GetTriggerName(),
-					Attempts: dockerImageGetAttempts,
+					Attempts: trigger.GetTriggerAttempts(),
 					Params: map[string]interface{}{
 						"skip_download": true,
 					},
@@ -167,7 +153,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 			if isUpdateTask || !versioningEnabled {
 				pipelineTrigger := atc.PlanConfig{
 					Get:      trigger.GetTriggerName(),
-					Attempts: pipelineTriggerGetAttempts,
+					Attempts: trigger.GetTriggerAttempts(),
 				}
 
 				plan = append(plan, pipelineTrigger)
@@ -327,7 +313,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
 		job = p.runJob(runTask, man, false, basePath)
 	case manifest.Update:
-		job = p.updateJobConfig(man, basePath)
+		job = p.updateJobConfig(task, man.PipelineName(), basePath)
 	}
 
 	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
@@ -542,7 +528,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 				"folder":       artifactsOutDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
-			Attempts: artifactsPutAttempts,
+			Attempts: 2,
 		}
 		jobConfig.Plan = append(jobConfig.Plan, artifactPut)
 	}
