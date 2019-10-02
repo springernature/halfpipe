@@ -62,5 +62,26 @@ func TestEmptyJob(t *testing.T) {
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
 	helpers.AssertInvalidFieldInErrors(t, "job", errs)
+}
 
+func TestBadStatus(t *testing.T) {
+	trigger := manifest.PipelineTrigger{
+		Team:     "team",
+		Pipeline: "asd",
+		Job:      "asdf",
+		Status:   "kehe",
+	}
+
+	man := manifest.Manifest{
+		Team: "team",
+		Triggers: manifest.TriggerList{
+			trigger,
+		},
+	}
+
+	errs, warns := LintPipelineTrigger(man, trigger)
+
+	assert.Len(t, errs, 1)
+	assert.Len(t, warns, 0)
+	helpers.AssertInvalidFieldInErrors(t, "status", errs)
 }

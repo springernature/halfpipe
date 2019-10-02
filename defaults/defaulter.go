@@ -286,6 +286,10 @@ func (d Defaults) updatePipelineTriggerWithDefaults(man manifest.Manifest) manif
 				trigger.Password = d.ConcoursePassword
 			}
 
+			if trigger.Status == "" {
+				trigger.Status = "succeeded"
+			}
+
 			updatedTriggers = append(updatedTriggers, trigger)
 		default:
 			updatedTriggers = append(updatedTriggers, trigger)

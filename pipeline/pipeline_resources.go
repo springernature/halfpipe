@@ -179,6 +179,7 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 		"team":          pipelineTrigger.Team,
 		"pipeline":      pipelineTrigger.Pipeline,
 		"job":           pipelineTrigger.Job,
+		"status":        pipelineTrigger.Status,
 	}
 
 	return atc.ResourceConfig{

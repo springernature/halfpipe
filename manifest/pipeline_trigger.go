@@ -14,6 +14,7 @@ type PipelineTrigger struct {
 	Team         string `json:"team,omitempty" yaml:"team,omitempty"`
 	Pipeline     string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
 	Job          string `json:"job,omitempty" yaml:"job,omitempty"`
+	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
 func (p PipelineTrigger) GetTriggerAttempts() int {

@@ -185,6 +185,7 @@ func TestTriggers(t *testing.T) {
 			ConcourseURL: "url",
 			Username:     "username",
 			Password:     "password",
+			Status:       "asdf",
 		}
 
 		trigger3 := manifest.PipelineTrigger{}
@@ -194,6 +195,7 @@ func TestTriggers(t *testing.T) {
 			ConcourseURL: DefaultValues.ConcourseURL,
 			Username:     DefaultValues.ConcourseUsername,
 			Password:     DefaultValues.ConcoursePassword,
+			Status:       "succeeded",
 		}
 
 		expectedTrigger2 := manifest.PipelineTrigger{
@@ -201,6 +203,7 @@ func TestTriggers(t *testing.T) {
 			ConcourseURL: "url",
 			Username:     "username",
 			Password:     "password",
+			Status:       "asdf",
 		}
 
 		man := manifest.Manifest{
