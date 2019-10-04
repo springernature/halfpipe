@@ -59,40 +59,44 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 			result.AddError(errors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
 		}
 
-		if err := lintRoutes(manifestPath, app); err != nil {
-			result.AddError(err)
-		}
-
-		if err := lintBuildpack(app); err != nil {
-			result.AddWarning(err)
-		}
+		result.AddError(lintRoutes(manifestPath, app)...)
+		result.AddWarning(lintBuildpack(app)...)
 	}
 	return
 }
 
-func lintRoutes(manifestPath string, man cfManifest.Application) (err error) {
+func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
 	if man.NoRoute {
 		if len(man.Routes) != 0 {
-			return errors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'")
+			errs = append(errs, errors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'"))
+			return
 		}
 
 		if man.HealthCheckType != "process" {
-			return errors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'")
+			errs = append(errs, errors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'"))
+			return
 		}
 
 		return
 	}
 
 	if len(man.Routes) == 0 {
-		return errors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true")
+		errs = append(errs, errors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
+		return
+	}
+
+	for _, route := range man.Routes {
+		if strings.HasPrefix(route, "http://") || strings.HasPrefix(route, "https://") {
+			errs = append(errs, errors.NewNoRoutesError(manifestPath, fmt.Sprintf("Don't put http(s):// at the start of the route: '%s'", route)))
+		}
 	}
 
 	return
 }
 
-func lintBuildpack(man cfManifest.Application) (err error) {
+func lintBuildpack(man cfManifest.Application) (errs []error) {
 	if man.Buildpack.Value != "" {
-		return errors.NewDeprecatedBuildpackError()
+		errs = append(errs, errors.NewDeprecatedBuildpackError())
 	}
-	return nil
+	return
 }

@@ -265,3 +265,24 @@ func TestLintsBuildpackField(t *testing.T) {
 	assert.Equal(t, errors2.NewDeprecatedBuildpackError(), result.Warnings[0])
 	assert.Len(t, result.Errors, 0)
 }
+
+func TestLintNNoHttpInRoutes(t *testing.T) {
+	apps := []cfManifest.Application{
+		{
+			Name:   "My-app",
+			Routes: []string{"http://route1", "https://route2", "route1"},
+		},
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{},
+		},
+	}
+
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Warnings, 0)
+	assert.Len(t, result.Errors, 2)
+}
