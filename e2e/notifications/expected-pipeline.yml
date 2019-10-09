@@ -9,7 +9,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: slack
-  type: slack
+  type: slack-resource
   source:
     url: ((halfpipe-slack.webhook))
   check_every: 24h
@@ -23,7 +23,7 @@ resources:
     username: michiel
   check_every: 24h
 resource_types:
-- name: slack
+- name: slack-resource
   type: registry-image
   source:
     repository: cfcommunity/slack-notification-resource

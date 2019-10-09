@@ -16,7 +16,7 @@ func TestRendersSlackResourceWithoutOnFailureTask(t *testing.T) {
 
 	pipeline := testPipeline().Render(man)
 
-	resourceType, found := pipeline.ResourceTypes.Lookup(slackResourceName)
+	resourceType, found := pipeline.ResourceTypes.Lookup(slackResourceTypeName)
 	assert.True(t, found)
 
 	resource, found := pipeline.Resources.Lookup(slackResourceName)
@@ -24,10 +24,10 @@ func TestRendersSlackResourceWithoutOnFailureTask(t *testing.T) {
 
 	assert.Equal(t, slackResourceName, resource.Name)
 	assert.Equal(t, config.SlackWebhook, resource.Source["url"])
-	assert.Equal(t, "slack", resource.Type)
+	assert.Equal(t, "slack-resource", resource.Type)
 	assert.Equal(t, "registry-image", resourceType.Type)
 	assert.Equal(t, "cfcommunity/slack-notification-resource", resourceType.Source["repository"])
-	assert.Equal(t, "slack", resourceType.Name)
+	assert.Equal(t, "slack-resource", resourceType.Name)
 }
 
 func TestRendersSlackOnFailurePlan(t *testing.T) {

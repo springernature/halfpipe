@@ -50,10 +50,11 @@ func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 }
 
 const slackResourceName = "slack"
+const slackResourceTypeName = "slack-resource"
 
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name:       slackResourceName,
+		Name:       slackResourceTypeName,
 		Type:       "registry-image",
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
@@ -66,7 +67,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 func (p pipeline) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       slackResourceName,
-		Type:       slackResourceName,
+		Type:       slackResourceTypeName,
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"url": config.SlackWebhook,
