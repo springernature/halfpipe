@@ -59,7 +59,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": "cfcommunity/slack-notification-resource",
-			"tag":        "v1.4.2",
+			"tag":        "v1.5.0",
 		},
 	}
 }
