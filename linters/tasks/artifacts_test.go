@@ -1,10 +1,11 @@
 package tasks
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCurrentTaskDoesNotRequireArtifactAndThereAreNoPreviousTasks(t *testing.T) {
@@ -55,7 +56,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{})
 		assert.Len(t, errors, 2)
-		helpers.AssertInvalidFieldInErrors(t, "save_artifact", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "save_artifact", errors)
 	})
 
 	t.Run("docker-compose", func(t *testing.T) {
@@ -69,7 +70,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{})
 		assert.Len(t, errors, 2)
-		helpers.AssertInvalidFieldInErrors(t, "save_artifact", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "save_artifact", errors)
 	})
 
 	t.Run("deploy-cf", func(t *testing.T) {
@@ -79,6 +80,6 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
 		assert.Len(t, errors, 1)
-		helpers.AssertInvalidFieldInErrors(t, "deploy_artifact", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "deploy_artifact", errors)
 	})
 }

@@ -1,9 +1,10 @@
 package tasks
 
 import (
-	"github.com/springernature/halfpipe/helpers"
-	"github.com/springernature/halfpipe/manifest"
 	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func TestLintPrePromoteTasks(t *testing.T) {
@@ -12,27 +13,27 @@ func TestLintPrePromoteTasks(t *testing.T) {
 		ManualTrigger: true,
 	}
 	errors, _ := LintPrePromoteTask(task)
-	helpers.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
 
 	task = manifest.DockerCompose{
 		ManualTrigger: true,
 	}
 	errors, _ = LintPrePromoteTask(task)
-	helpers.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
 
 	task = manifest.DeployCF{
 		ManualTrigger: true,
 	}
 	errors, _ = LintPrePromoteTask(task)
-	helpers.AssertInvalidFieldInErrors(t, "type", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
 
 	task = manifest.DockerPush{
 		ManualTrigger: true,
 	}
 	errors, _ = LintPrePromoteTask(task)
-	helpers.AssertInvalidFieldInErrors(t, "type", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
 
 	task = manifest.Parallel{}
 	errors, _ = LintPrePromoteTask(task)
-	helpers.AssertInvalidFieldInErrors(t, "type", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
 }

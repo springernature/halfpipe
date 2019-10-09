@@ -1,11 +1,12 @@
 package tasks
 
 import (
+	"testing"
+
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
@@ -13,9 +14,9 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 
 	errors, _ := LintDockerPushTask(manifest.DockerPush{}, fs)
 
-	helpers.AssertMissingFieldInErrors(t, "username", errors)
-	helpers.AssertMissingFieldInErrors(t, "password", errors)
-	helpers.AssertMissingFieldInErrors(t, "image", errors)
+	linterrors.AssertMissingFieldInErrors(t, "username", errors)
+	linterrors.AssertMissingFieldInErrors(t, "password", errors)
+	linterrors.AssertMissingFieldInErrors(t, "image", errors)
 }
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
@@ -27,7 +28,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 	}
 
 	errors, _ := LintDockerPushTask(task, fs)
-	helpers.AssertInvalidFieldInErrors(t, "image", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "image", errors)
 }
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
@@ -43,7 +44,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 		errors, _ := LintDockerPushTask(task, fs)
 
-		helpers.AssertFileErrorInErrors(t, "Dockerfile", errors)
+		linterrors.AssertFileErrorInErrors(t, "Dockerfile", errors)
 	})
 
 	t.Run("When DockerfilePath is in a different folder", func(t *testing.T) {
@@ -58,7 +59,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 		errors, _ := LintDockerPushTask(task, fs)
 
-		helpers.AssertFileErrorInErrors(t, "dockerfiles/Dockerfile", errors)
+		linterrors.AssertFileErrorInErrors(t, "dockerfiles/Dockerfile", errors)
 	})
 
 	t.Run("When DockerfilePath is in a different folder upwards", func(t *testing.T) {
@@ -73,7 +74,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 		errors, _ := LintDockerPushTask(task, fs)
 
-		helpers.AssertFileErrorInErrors(t, "../dockerfiles/Dockerfile", errors)
+		linterrors.AssertFileErrorInErrors(t, "../dockerfiles/Dockerfile", errors)
 	})
 }
 
@@ -160,7 +161,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 		errors, warnings := LintDockerPushTask(task, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
-		helpers.AssertInvalidFieldInErrors(t, "build_path", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "build_path", errors)
 	})
 
 	t.Run("errors when build path is a file", func(t *testing.T) {
@@ -185,7 +186,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 		errors, warnings := LintDockerPushTask(task, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
-		helpers.AssertInvalidFieldInErrors(t, "build_path", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "build_path", errors)
 	})
 
 	t.Run("ok when build path is a directory", func(t *testing.T) {
@@ -255,11 +256,11 @@ func TestDockerPushRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintDockerPushTask(task, fs)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
 	errors, _ = LintDockerPushTask(task, fs)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 4
 	errors, warnings := LintDockerPushTask(task, fs)
@@ -300,7 +301,7 @@ func TestDockerCompose_MissingFile(t *testing.T) {
 
 	emptyTask := manifest.DockerCompose{}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
-	helpers.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
+	linterrors.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
 }
 
 func TestDockerCompose_UnknownService(t *testing.T) {
@@ -309,7 +310,7 @@ func TestDockerCompose_UnknownService(t *testing.T) {
 
 	emptyTask := manifest.DockerCompose{Service: "asdf"}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
-	helpers.AssertInvalidFieldInErrors(t, "service", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "service", errors)
 }
 
 func TestDockerComposeRetries(t *testing.T) {
@@ -317,10 +318,10 @@ func TestDockerComposeRetries(t *testing.T) {
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
 	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: -1}, fs)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 6}, fs)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 5}, fs)
 	assert.Len(t, errors, 0)
@@ -341,5 +342,5 @@ func TestLintDockerComposeServiceWhenFileIsGarbage(t *testing.T) {
 
 	errors, _ := lintDockerComposeService("someService", "foo.yml", fs)
 	assert.Len(t, errors, 1)
-	helpers.AssertFileErrorInErrors(t, "foo.yml", errors)
+	linterrors.AssertFileErrorInErrors(t, "foo.yml", errors)
 }

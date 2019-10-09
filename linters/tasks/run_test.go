@@ -1,11 +1,12 @@
 package tasks
 
 import (
+	"testing"
+
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestRunTaskWithoutScriptAndImage(t *testing.T) {
@@ -18,8 +19,8 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	assert.Len(t, errors, 2)
 	assert.Len(t, warnings, 0)
 
-	helpers.AssertMissingField(t, "script", errors[0])
-	helpers.AssertMissingField(t, "docker.image", errors[1])
+	linterrors.AssertMissingField(t, "script", errors[0])
+	linterrors.AssertMissingField(t, "docker.image", errors[1])
 }
 
 func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
@@ -33,7 +34,7 @@ func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
 	errors, warnings := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	helpers.AssertFileErrorInErrors(t, "./build.sh", errors)
+	linterrors.AssertFileErrorInErrors(t, "./build.sh", errors)
 }
 
 func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
@@ -87,7 +88,7 @@ func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	helpers.AssertMissingField(t, "docker.username", errors[0])
+	linterrors.AssertMissingField(t, "docker.username", errors[0])
 }
 
 func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
@@ -105,7 +106,7 @@ func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
 	errors, warnings := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	helpers.AssertMissingField(t, "docker.password", errors[0])
+	linterrors.AssertMissingField(t, "docker.password", errors[0])
 }
 
 func TestRunTaskScriptFileExists(t *testing.T) {
@@ -175,11 +176,11 @@ func TestRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
 	errors, _ = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
 func TestShouldSkipExecutableTestAndProduceWarningIfRunningOnWindows(t *testing.T) {

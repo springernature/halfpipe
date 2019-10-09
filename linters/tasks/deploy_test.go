@@ -1,11 +1,12 @@
 package tasks
 
 import (
+	"testing"
+
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/helpers"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
@@ -16,10 +17,10 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	assert.Len(t, errors, 4)
 	assert.Len(t, warnings, 0)
 
-	helpers.AssertMissingFieldInErrors(t, "api", errors)
-	helpers.AssertMissingFieldInErrors(t, "space", errors)
-	helpers.AssertMissingFieldInErrors(t, "org", errors)
-	helpers.AssertFileErrorInErrors(t, "manifest.yml", errors)
+	linterrors.AssertMissingFieldInErrors(t, "api", errors)
+	linterrors.AssertMissingFieldInErrors(t, "space", errors)
+	linterrors.AssertMissingFieldInErrors(t, "org", errors)
+	linterrors.AssertFileErrorInErrors(t, "manifest.yml", errors)
 }
 
 func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
@@ -46,7 +47,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 
 	errors, warnings = LintDeployCFTask(task, fs)
 	assert.Len(t, errors, 1)
-	helpers.AssertMissingFieldInErrors(t, "api", errors)
+	linterrors.AssertMissingFieldInErrors(t, "api", errors)
 
 	task = manifest.DeployCF{
 		API:      "someRandomApi",
@@ -58,7 +59,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	errors, warnings = LintDeployCFTask(task, fs)
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	helpers.AssertMissingFieldInErrors(t, "testDomain", errors)
+	linterrors.AssertMissingFieldInErrors(t, "testDomain", errors)
 
 }
 
@@ -67,11 +68,11 @@ func TestCfPushRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
 	errors, _ = LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
 func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
@@ -90,7 +91,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 1)
-	helpers.AssertFileErrorInErrors(t, "../artifacts/manifest.yml", warnings)
+	linterrors.AssertFileErrorInErrors(t, "../artifacts/manifest.yml", warnings)
 }
 
 func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testing.T) {
@@ -112,5 +113,5 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 1)
-	helpers.AssertInvalidFieldInErrors(t, "pre_promote", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "pre_promote", errors)
 }

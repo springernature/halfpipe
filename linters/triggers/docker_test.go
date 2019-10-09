@@ -1,10 +1,11 @@
 package triggers
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestEmptyImage(t *testing.T) {
@@ -13,7 +14,7 @@ func TestEmptyImage(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	helpers.AssertMissingFieldInErrors(t, "image", errs)
+	linterrors.AssertMissingFieldInErrors(t, "image", errs)
 }
 
 func TestOk(t *testing.T) {

@@ -1,10 +1,11 @@
 package tasks
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testing.T) {
@@ -13,10 +14,10 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testin
 
 	errors, _ := LintConsumerIntegrationTestTask(task, true)
 	if assert.Len(t, errors, 4) {
-		helpers.AssertMissingFieldInErrors(t, "consumer", errors)
-		helpers.AssertMissingFieldInErrors(t, "consumer_host", errors)
-		helpers.AssertMissingFieldInErrors(t, "provider_host", errors)
-		helpers.AssertMissingFieldInErrors(t, "script", errors)
+		linterrors.AssertMissingFieldInErrors(t, "consumer", errors)
+		linterrors.AssertMissingFieldInErrors(t, "consumer_host", errors)
+		linterrors.AssertMissingFieldInErrors(t, "provider_host", errors)
+		linterrors.AssertMissingFieldInErrors(t, "script", errors)
 	}
 }
 
@@ -26,9 +27,9 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsFromPrePromote(t *testing.T
 
 	errors, _ := LintConsumerIntegrationTestTask(task, false)
 	if assert.Len(t, errors, 3) {
-		helpers.AssertMissingFieldInErrors(t, "consumer", errors)
-		helpers.AssertMissingFieldInErrors(t, "consumer_host", errors)
-		helpers.AssertMissingFieldInErrors(t, "script", errors)
+		linterrors.AssertMissingFieldInErrors(t, "consumer", errors)
+		linterrors.AssertMissingFieldInErrors(t, "consumer_host", errors)
+		linterrors.AssertMissingFieldInErrors(t, "script", errors)
 	}
 }
 
@@ -37,9 +38,9 @@ func TestConsumerIntegrationRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintConsumerIntegrationTestTask(task, false)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
 	errors, _ = LintConsumerIntegrationTestTask(task, false)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }

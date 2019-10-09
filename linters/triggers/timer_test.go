@@ -1,10 +1,11 @@
 package triggers
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestOnlyCronTriggerDefined(t *testing.T) {
@@ -20,7 +21,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "trigger", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "trigger", errs)
 	})
 
 	t.Run("bad trigger", func(t *testing.T) {
@@ -28,7 +29,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "trigger", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "trigger", errs)
 	})
 
 	t.Run("with seconds in trigger", func(t *testing.T) {
@@ -37,6 +38,6 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "trigger", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "trigger", errs)
 	})
 }

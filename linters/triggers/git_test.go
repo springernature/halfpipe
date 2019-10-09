@@ -2,12 +2,13 @@ package triggers
 
 import (
 	"errors"
-	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/helpers"
-	"github.com/springernature/halfpipe/manifest"
-	"github.com/stretchr/testify/assert"
 	"path"
 	"testing"
+
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/linters/linterrors"
+	"github.com/springernature/halfpipe/manifest"
+	"github.com/stretchr/testify/assert"
 )
 
 var defaultBranchResolver = func() (branch string, err error) {
@@ -26,7 +27,7 @@ func TestUriIsEmpty(t *testing.T) {
 	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
-	helpers.AssertMissingFieldInErrors(t, "uri", errs)
+	linterrors.AssertMissingFieldInErrors(t, "uri", errs)
 }
 
 func TestInvalidUri(t *testing.T) {
@@ -37,7 +38,7 @@ func TestInvalidUri(t *testing.T) {
 	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
-	helpers.AssertInvalidFieldInErrors(t, "uri", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "uri", errs)
 }
 
 func TestUriIsValidHttpsUri(t *testing.T) {
@@ -60,7 +61,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
-		helpers.AssertMissingFieldInErrors(t, "private_key", errs)
+		linterrors.AssertMissingFieldInErrors(t, "private_key", errs)
 	})
 
 	t.Run("no errors when private key is set", func(t *testing.T) {
@@ -90,8 +91,8 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 
 	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 	assert.Len(t, errs, 2)
-	helpers.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
-	helpers.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
+	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
+	linterrors.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
 }
 
 func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
@@ -109,8 +110,8 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 
 	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 	assert.Len(t, errs, 2)
-	helpers.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
-	helpers.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
+	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
+	linterrors.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
 }
 
 func TestHasValidGitCryptKey(t *testing.T) {
@@ -136,7 +137,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "git_crypt_key", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "git_crypt_key", errs)
 
 	})
 }
@@ -150,7 +151,7 @@ func TestPublicUrIAndPrivateKey(t *testing.T) {
 	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
 
 	assert.Len(t, errs, 1)
-	helpers.AssertInvalidFieldInErrors(t, "uri", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "uri", errs)
 }
 
 func TestBranch(t *testing.T) {
@@ -180,7 +181,7 @@ func TestBranch(t *testing.T) {
 		}, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "branch", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
 	})
 
 	t.Run("when branch is set to some other branch than we are on", func(t *testing.T) {
@@ -195,7 +196,7 @@ func TestBranch(t *testing.T) {
 		}, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "branch", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
 	})
 
 	t.Run("when branch is set but we are on master", func(t *testing.T) {
@@ -210,7 +211,7 @@ func TestBranch(t *testing.T) {
 		}, defaultRepoURIResolver(trigger.URI))
 
 		assert.Len(t, errs, 1)
-		helpers.AssertInvalidFieldInErrors(t, "branch", errs)
+		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
 	})
 
 	t.Run("when branchResolver returns an error", func(t *testing.T) {

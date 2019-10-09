@@ -1,17 +1,17 @@
-package helpers
+package linterrors
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func AssertMissingField(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(linterrors.MissingFieldError)
+	mf, ok := err.(MissingFieldError)
 	if !ok {
 		assert.Fail(t, "error is not a MissingField", err)
 	} else {
@@ -23,7 +23,7 @@ func AssertMissingFieldInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		mf, ok := err.(linterrors.MissingFieldError)
+		mf, ok := err.(MissingFieldError)
 		if ok {
 			if strings.Contains(mf.Name, name) {
 				return
@@ -37,7 +37,7 @@ func AssertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		mf, ok := err.(linterrors.InvalidFieldError)
+		mf, ok := err.(InvalidFieldError)
 		if ok {
 			if strings.Contains(mf.Name, name) {
 				return
@@ -51,7 +51,7 @@ func AssertFileErrorInErrors(t *testing.T, path string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		e, ok := err.(linterrors.FileError)
+		e, ok := err.(FileError)
 		if ok {
 			if e.Path == path {
 				return

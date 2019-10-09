@@ -1,10 +1,11 @@
 package triggers
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestTeamIsDifferentFromTriggerTeam(t *testing.T) {
@@ -22,7 +23,7 @@ func TestTeamIsDifferentFromTriggerTeam(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	helpers.AssertInvalidFieldInErrors(t, "team", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "team", errs)
 }
 
 func TestEmptyPipeline(t *testing.T) {
@@ -41,7 +42,7 @@ func TestEmptyPipeline(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	helpers.AssertInvalidFieldInErrors(t, "pipeline", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "pipeline", errs)
 }
 
 func TestEmptyJob(t *testing.T) {
@@ -61,7 +62,7 @@ func TestEmptyJob(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	helpers.AssertInvalidFieldInErrors(t, "job", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "job", errs)
 }
 
 func TestBadStatus(t *testing.T) {
@@ -83,5 +84,5 @@ func TestBadStatus(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	helpers.AssertInvalidFieldInErrors(t, "status", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "status", errs)
 }

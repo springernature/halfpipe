@@ -1,10 +1,11 @@
 package tasks
 
 import (
-	"github.com/springernature/halfpipe/helpers"
+	"testing"
+
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
@@ -13,8 +14,8 @@ func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 	errors, _ := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 2) {
-		helpers.AssertMissingFieldInErrors(t, "target", errors)
-		helpers.AssertMissingFieldInErrors(t, "deploy_zip", errors)
+		linterrors.AssertMissingFieldInErrors(t, "target", errors)
+		linterrors.AssertMissingFieldInErrors(t, "deploy_zip", errors)
 	}
 }
 
@@ -24,8 +25,8 @@ func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
 	errors, _ := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 2) {
-		helpers.AssertMissingFieldInErrors(t, "target", errors)
-		helpers.AssertMissingFieldInErrors(t, "ml_modules_version", errors)
+		linterrors.AssertMissingFieldInErrors(t, "target", errors)
+		linterrors.AssertMissingFieldInErrors(t, "ml_modules_version", errors)
 	}
 }
 
@@ -34,21 +35,21 @@ func TestMLRetries(t *testing.T) {
 
 	mlModule.Retries = -1
 	errors, _ := LintDeployMLModulesTask(mlModule)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	mlModule.Retries = 6
 	errors, _ = LintDeployMLModulesTask(mlModule)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	mlZip := manifest.DeployMLZip{}
 
 	mlZip.Retries = -1
 	errors, _ = LintDeployMLZipTask(mlZip)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	mlZip.Retries = 6
 	errors, _ = LintDeployMLZipTask(mlZip)
-	helpers.AssertInvalidFieldInErrors(t, "retries", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
 func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
@@ -62,7 +63,7 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
 	errors, _ := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 1) {
-		helpers.AssertInvalidFieldInErrors(t, "use_build_version", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "use_build_version", errors)
 	}
 }
 
@@ -77,6 +78,6 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLZip(t *testing.T) {
 	errors, _ := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 1) {
-		helpers.AssertInvalidFieldInErrors(t, "use_build_version", errors)
+		linterrors.AssertInvalidFieldInErrors(t, "use_build_version", errors)
 	}
 }
