@@ -3,7 +3,7 @@ package linters
 import (
 	"strings"
 
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -19,26 +19,26 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult
 	result.DocsURL = "https://docs.halfpipe.io/manifest/"
 
 	if manifest.Team == "" {
-		result.AddError(errors.NewMissingField("team"))
+		result.AddError(linterrors.NewMissingField("team"))
 	} else if strings.ToLower(manifest.Team) != manifest.Team {
-		result.AddWarning(errors.NewInvalidField("team", "team should be lower case"))
+		result.AddWarning(linterrors.NewInvalidField("team", "team should be lower case"))
 	}
 
 	if manifest.Pipeline == "" {
-		result.AddError(errors.NewMissingField("pipeline"))
+		result.AddError(linterrors.NewMissingField("pipeline"))
 	}
 
 	if strings.Contains(manifest.Pipeline, " ") {
-		result.AddError(errors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
+		result.AddError(linterrors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
 	}
 
 	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JSONKey == "") ||
 		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JSONKey != "") {
-		result.AddError(errors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
+		result.AddError(linterrors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
 	}
 
 	if manifest.Tasks.NotifiesOnSuccess() && manifest.SlackChannel == "" {
-		result.AddError(errors.NewInvalidField("slack_channel", "must be defined if a task uses `notify_on_success`"))
+		result.AddError(linterrors.NewInvalidField("slack_channel", "must be defined if a task uses `notify_on_success`"))
 	}
 
 	return

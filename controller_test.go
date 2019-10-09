@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
@@ -74,8 +74,8 @@ func (f fakeLinter) Lint(manifest manifest.Manifest) result.LintResult {
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
 
-	linter1 := fakeLinter{errors.NewFileError("file", "is missing")}
-	linter2 := fakeLinter{errors.NewMissingField("field")}
+	linter1 := fakeLinter{linterrors.NewFileError("file", "is missing")}
+	linter2 := fakeLinter{linterrors.NewMissingField("field")}
 	c.linters = []linters.Linter{linter1, linter2}
 
 	pipeline, results := c.Process(validHalfpipeManifest)

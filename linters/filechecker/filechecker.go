@@ -5,30 +5,30 @@ import (
 	errors2 "github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"path"
 )
 
 func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
 	if exists, err := fs.Exists(path); !exists || err != nil {
-		return errors.NewFileError(path, "does not exist")
+		return linterrors.NewFileError(path, "does not exist")
 	}
 
 	info, err := fs.Stat(path)
 	if err != nil {
-		return errors.NewFileError(path, "cannot be read")
+		return linterrors.NewFileError(path, "cannot be read")
 	}
 
 	if !info.Mode().IsRegular() {
-		return errors.NewFileError(path, "is not a file")
+		return linterrors.NewFileError(path, "is not a file")
 	}
 
 	if info.Size() == 0 {
-		return errors.NewFileError(path, "is empty")
+		return linterrors.NewFileError(path, "is empty")
 	}
 
 	if mustBeExecutable && info.Mode()&0111 == 0 {
-		return errors.NewFileError(path, "is not executable")
+		return linterrors.NewFileError(path, "is not executable")
 	}
 
 	return nil
@@ -64,7 +64,7 @@ func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName st
 	}
 
 	if len(foundPaths) == 0 {
-		err = errors.NewMissingHalfpipeFileError()
+		err = linterrors.NewMissingHalfpipeFileError()
 		return
 	}
 

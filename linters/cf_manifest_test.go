@@ -2,7 +2,7 @@ package linters
 
 import (
 	"code.cloudfoundry.org/cli/types"
-	errors2 "github.com/springernature/halfpipe/linters/errors"
+	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"testing"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"

@@ -1,8 +1,8 @@
 package project
 
 import (
-	errors2 "github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
+	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"path/filepath"
 
 	"os/exec"

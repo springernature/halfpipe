@@ -3,7 +3,7 @@ package tasks
 import (
 	"fmt"
 	"github.com/pkg/errors"
-	errors2 "github.com/springernature/halfpipe/linters/errors"
+	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"regexp"
 )

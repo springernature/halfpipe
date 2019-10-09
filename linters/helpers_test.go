@@ -6,14 +6,14 @@ import (
 
 	"fmt"
 
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/stretchr/testify/assert"
 )
 
 func assertMissingField(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.MissingFieldError)
+	mf, ok := err.(linterrors.MissingFieldError)
 	if !ok {
 		assert.Fail(t, "error is not a MissingField", err)
 	} else {
@@ -24,7 +24,7 @@ func assertMissingField(t *testing.T, name string, err error) {
 func assertInvalidField(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.InvalidFieldError)
+	mf, ok := err.(linterrors.InvalidFieldError)
 	if !ok {
 		assert.Fail(t, "error is not an InvalidField", err)
 	} else {
@@ -36,7 +36,7 @@ func assertInvalidFieldInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		mf, ok := err.(errors.InvalidFieldError)
+		mf, ok := err.(linterrors.InvalidFieldError)
 		if ok {
 			if strings.Contains(mf.Name, name) {
 				return
@@ -50,7 +50,7 @@ func assertTriggerErrorInErrors(t *testing.T, name string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		mf, ok := err.(errors.TriggerError)
+		mf, ok := err.(linterrors.TriggerError)
 		if ok {
 			if mf.TriggerName == name {
 				return
@@ -64,7 +64,7 @@ func assertFileErrorInErrors(t *testing.T, glob string, errs []error) {
 	t.Helper()
 
 	for _, err := range errs {
-		mf, ok := err.(errors.FileError)
+		mf, ok := err.(linterrors.FileError)
 		if ok {
 			if strings.Contains(mf.Path, glob) {
 				return
@@ -77,7 +77,7 @@ func assertFileErrorInErrors(t *testing.T, glob string, errs []error) {
 func assertTooManyAppsError(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.TooManyAppsError)
+	mf, ok := err.(linterrors.TooManyAppsError)
 	if !ok {
 		assert.Fail(t, "error is not an TooManyAppsError", err)
 	} else {
@@ -88,7 +88,7 @@ func assertTooManyAppsError(t *testing.T, name string, err error) {
 func assertNoRoutesError(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.NoRoutesError)
+	mf, ok := err.(linterrors.NoRoutesError)
 	if !ok {
 		assert.Fail(t, "error is not an TooManyAppsError", err)
 	} else {
@@ -99,7 +99,7 @@ func assertNoRoutesError(t *testing.T, name string, err error) {
 func assertNoNameError(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.NoNameError)
+	mf, ok := err.(linterrors.NoNameError)
 	if !ok {
 		assert.Fail(t, "error is not an TooManyAppsError", err)
 	} else {
@@ -110,7 +110,7 @@ func assertNoNameError(t *testing.T, name string, err error) {
 func assertWrongHealthCheck(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.WrongHealthCheck)
+	mf, ok := err.(linterrors.WrongHealthCheck)
 	if !ok {
 		assert.Fail(t, "error is not an TooManyAppsError", err)
 	} else {
@@ -121,7 +121,7 @@ func assertWrongHealthCheck(t *testing.T, name string, err error) {
 func assertBadRoutes(t *testing.T, name string, err error) {
 	t.Helper()
 
-	mf, ok := err.(errors.BadRoutesError)
+	mf, ok := err.(linterrors.BadRoutesError)
 	if !ok {
 		assert.Fail(t, "error is not an BadRoutesError", err)
 	} else {

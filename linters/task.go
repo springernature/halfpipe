@@ -3,7 +3,7 @@ package linters
 import (
 	"fmt"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
@@ -51,7 +51,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	result.DocsURL = "https://docs.halfpipe.io/manifest/#tasks"
 
 	if len(man.Tasks) == 0 {
-		result.AddError(errors.NewMissingField("tasks"))
+		result.AddError(linterrors.NewMissingField("tasks"))
 		return
 	}
 
@@ -130,7 +130,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 			lintTimeout = false
 			lintArtifact = false
 		default:
-			errs = append(errs, errors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
+			errs = append(errs, linterrors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}
 
 		if t.ReadsFromArtifacts() && lintArtifact {
@@ -141,7 +141,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		if lintTimeout && t.GetTimeout() != "" {
 			_, err := time.ParseDuration(t.GetTimeout())
 			if err != nil {
-				errs = append(errs, errors.NewInvalidField("timeout", err.Error()))
+				errs = append(errs, linterrors.NewInvalidField("timeout", err.Error()))
 			}
 		}
 

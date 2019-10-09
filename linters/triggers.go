@@ -3,7 +3,7 @@ package linters
 import (
 	"fmt"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/linters/triggers"
 	"github.com/springernature/halfpipe/manifest"
@@ -38,15 +38,15 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 	}
 
 	if numGit > 1 {
-		errs = append(errs, errors.NewTriggerError("git"))
+		errs = append(errs, linterrors.NewTriggerError("git"))
 	}
 
 	if numCron > 1 {
-		errs = append(errs, errors.NewTriggerError("cron"))
+		errs = append(errs, linterrors.NewTriggerError("cron"))
 	}
 
 	if numDocker > 1 {
-		errs = append(errs, errors.NewTriggerError("docker"))
+		errs = append(errs, linterrors.NewTriggerError("docker"))
 	}
 
 	return

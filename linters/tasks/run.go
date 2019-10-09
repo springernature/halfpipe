@@ -3,8 +3,8 @@ package tasks
 import (
 	"fmt"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/errors"
 	"github.com/springernature/halfpipe/linters/filechecker"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
 )
@@ -19,7 +19,7 @@ var WarnMakeSureScriptIsExecutable = func(script string) error {
 
 func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 	if run.Script == "" {
-		errs = append(errs, errors.NewMissingField("script"))
+		errs = append(errs, linterrors.NewMissingField("script"))
 	} else if strings.HasPrefix(run.Script, `\`) {
 		command := strings.Fields(strings.TrimSpace(run.Script))[0]
 		commandWithoutSlashPrefix := command[1:]
@@ -38,18 +38,18 @@ func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, war
 	}
 
 	if run.Retries < 0 || run.Retries > 5 {
-		errs = append(errs, errors.NewInvalidField("retries", "must be between 0 and 5"))
+		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
 	if run.Docker.Image == "" {
-		errs = append(errs, errors.NewMissingField("docker.image"))
+		errs = append(errs, linterrors.NewMissingField("docker.image"))
 	}
 
 	if run.Docker.Username != "" && run.Docker.Password == "" {
-		errs = append(errs, errors.NewMissingField("docker.password"))
+		errs = append(errs, linterrors.NewMissingField("docker.password"))
 	}
 	if run.Docker.Password != "" && run.Docker.Username == "" {
-		errs = append(errs, errors.NewMissingField("docker.username"))
+		errs = append(errs, linterrors.NewMissingField("docker.username"))
 	}
 
 	return

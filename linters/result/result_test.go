@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/pkg/errors"
-	ourErrors "github.com/springernature/halfpipe/linters/errors"
+	ourErrors "github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/stretchr/testify/assert"
 )
 

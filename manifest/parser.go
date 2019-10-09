@@ -9,7 +9,7 @@ import (
 	"encoding/json"
 
 	"github.com/ghodss/yaml"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {
@@ -113,7 +113,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		decoder := json.NewDecoder(bytes.NewReader(rawTask))
 		decoder.DisallowUnknownFields()
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", index, jsonErr.Error()))
+			return linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", index, jsonErr.Error()))
 		}
 		return nil
 	}
@@ -185,7 +185,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = errors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
+		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
 	}
 
 	return
@@ -197,7 +197,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		decoder := json.NewDecoder(bytes.NewReader(rawTrigger))
 		decoder.DisallowUnknownFields()
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return errors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
+			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
 		}
 		return nil
 	}
@@ -233,7 +233,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		t.Type = ""
 		trigger = t
 	default:
-		err = errors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
+		err = linterrors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
 	}
 
 	return

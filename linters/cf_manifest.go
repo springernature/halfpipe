@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-	"github.com/springernature/halfpipe/linters/errors"
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/pipeline"
@@ -50,13 +50,13 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		}
 
 		if len(apps) != 1 {
-			result.AddError(errors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
+			result.AddError(linterrors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
 			return
 		}
 
 		app := apps[0]
 		if app.Name == "" {
-			result.AddError(errors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
+			result.AddError(linterrors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
 		}
 
 		result.AddError(lintRoutes(manifestPath, app)...)
@@ -68,12 +68,12 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
 	if man.NoRoute {
 		if len(man.Routes) != 0 {
-			errs = append(errs, errors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'"))
+			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'"))
 			return
 		}
 
 		if man.HealthCheckType != "process" {
-			errs = append(errs, errors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'"))
+			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'"))
 			return
 		}
 
@@ -81,13 +81,13 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 	}
 
 	if len(man.Routes) == 0 {
-		errs = append(errs, errors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
+		errs = append(errs, linterrors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
 		return
 	}
 
 	for _, route := range man.Routes {
 		if strings.HasPrefix(route, "http://") || strings.HasPrefix(route, "https://") {
-			errs = append(errs, errors.NewNoRoutesError(manifestPath, fmt.Sprintf("Don't put http(s):// at the start of the route: '%s'", route)))
+			errs = append(errs, linterrors.NewNoRoutesError(manifestPath, fmt.Sprintf("Don't put http(s):// at the start of the route: '%s'", route)))
 		}
 	}
 
@@ -96,7 +96,7 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 
 func lintBuildpack(man cfManifest.Application) (errs []error) {
 	if man.Buildpack.Value != "" {
-		errs = append(errs, errors.NewDeprecatedBuildpackError())
+		errs = append(errs, linterrors.NewDeprecatedBuildpackError())
 	}
 	return
 }

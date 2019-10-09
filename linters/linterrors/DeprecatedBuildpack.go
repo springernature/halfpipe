@@ -1,4 +1,4 @@
-package errors
+package linterrors
 
 type DeprecatedBuildpackError struct{}
 
