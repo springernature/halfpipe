@@ -43,5 +43,9 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warni
 		}
 	}
 
+	if cf.PreStart != "" && !strings.HasPrefix(cf.PreStart, "cf ") {
+		errs = append(errs, linterrors.NewInvalidField("pre_start", "must be a cf command"))
+	}
+
 	return
 }
