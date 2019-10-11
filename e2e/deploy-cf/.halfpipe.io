@@ -16,6 +16,7 @@ tasks:
   password: very-secret
   test_domain: some.random.domain.com
   timeout: 5m
+  pre_start: cf apps
   pre_promote:
   - type: run
     name: pre promote step

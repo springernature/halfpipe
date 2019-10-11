@@ -30,6 +30,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Org:        "springer",
 		Username:   "rob",
 		Password:   "supersecret",
+		PreStart:   "cf events my-app",
 		TestDomain: devTestDomain,
 		Manifest:   "manifest-dev.yml",
 		Vars: manifest.Vars{
@@ -173,12 +174,13 @@ func TestRendersCfDeploy(t *testing.T) {
 				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
-					"command":      "halfpipe-push",
-					"testDomain":   devTestDomain,
-					"manifestPath": manifestPath,
-					"vars":         envVars,
-					"appPath":      gitDir,
-					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+					"command":         "halfpipe-push",
+					"testDomain":      devTestDomain,
+					"manifestPath":    manifestPath,
+					"vars":            envVars,
+					"appPath":         gitDir,
+					"gitRefPath":      path.Join(gitDir, ".git", "ref"),
+					"preStartCommand": "cf events my-app",
 				},
 			},
 			atc.PlanConfig{
