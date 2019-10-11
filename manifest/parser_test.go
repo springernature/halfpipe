@@ -99,6 +99,7 @@ tasks:
     FOO: fOo
     BAR: "1"
   deploy_artifact: target/dist/artifact.zip
+  pre_start: cf apps
   pre_promote:
   - type: run
     script: smoke-test.sh
@@ -254,6 +255,7 @@ tasks:
 					"BAR": "1",
 				},
 				DeployArtifact: "target/dist/artifact.zip",
+				PreStart:       "cf apps",
 				PrePromote: []Task{
 					Run{
 						Script: "smoke-test.sh",
