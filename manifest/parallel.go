@@ -5,6 +5,10 @@ type Parallel struct {
 	Tasks TaskList `yaml:"tasks,omitempty"`
 }
 
+func (p Parallel) SetName(name string) Task {
+	panic("SetName should never be used as we only care about sub tasks")
+}
+
 func (p Parallel) MarshalYAML() (interface{}, error) {
 	p.Type = "parallel"
 	return p, nil

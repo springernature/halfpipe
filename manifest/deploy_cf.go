@@ -22,12 +22,20 @@ type DeployCF struct {
 	PreStart        []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 }
 
+func (r DeployCF) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r DeployCF) MarshalYAML() (interface{}, error) {
 	r.Type = "deploy-cf"
 	return r, nil
 }
 
 func (r DeployCF) GetName() string {
+	if r.Name == "" {
+		return "deploy-cf"
+	}
 	return r.Name
 }
 

@@ -15,12 +15,20 @@ type ConsumerIntegrationTest struct {
 	Timeout              string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r ConsumerIntegrationTest) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r ConsumerIntegrationTest) MarshalYAML() (interface{}, error) {
 	r.Type = "consumer-integration-test"
 	return r, nil
 }
 
 func (r ConsumerIntegrationTest) GetName() string {
+	if r.Name == "" {
+		return "consumer-integration-test"
+	}
 	return r.Name
 }
 

@@ -16,12 +16,20 @@ type DockerCompose struct {
 	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r DockerCompose) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r DockerCompose) MarshalYAML() (interface{}, error) {
 	r.Type = "docker-compose"
 	return r, nil
 }
 
 func (r DockerCompose) GetName() string {
+	if r.Name == "" {
+		return "docker-compose"
+	}
 	return r.Name
 }
 

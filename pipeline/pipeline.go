@@ -475,7 +475,7 @@ func inParallelGets(job *atc.JobConfig) atc.PlanSequence {
 
 func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
-		Name:   task.Name,
+		Name:   task.GetName(),
 		Serial: true,
 		Plan:   atc.PlanSequence{},
 	}
@@ -492,7 +492,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	runPlan := atc.PlanConfig{
 		Attempts:   task.GetAttempts(),
-		Task:       task.Name,
+		Task:       task.GetName(),
 		Privileged: task.Privileged,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
@@ -556,7 +556,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	}
 
 	job := atc.JobConfig{
-		Name:   task.Name,
+		Name:   task.GetName(),
 		Serial: true,
 	}
 
@@ -699,7 +699,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 
 	return manifest.Run{
 		Retries: task.Retries,
-		Name:    task.Name,
+		Name:    task.GetName(),
 		Script:  dockerComposeScript(task, man.FeatureToggles.Versioned()),
 		Docker: manifest.Docker{
 			Image:    config.DockerRegistry + config.DockerComposeImage,
@@ -720,7 +720,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
-		Name:   task.Name,
+		Name:   task.GetName(),
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
@@ -744,7 +744,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 
 func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
-		Name:   task.Name,
+		Name:   task.GetName(),
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{

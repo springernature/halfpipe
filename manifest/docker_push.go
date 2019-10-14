@@ -16,12 +16,20 @@ type DockerPush struct {
 	BuildPath        string `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 }
 
+func (r DockerPush) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r DockerPush) MarshalYAML() (interface{}, error) {
 	r.Type = "docker-push"
 	return r, nil
 }
 
 func (r DockerPush) GetName() string {
+	if r.Name == "" {
+		return "docker-push"
+	}
 	return r.Name
 }
 

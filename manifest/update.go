@@ -4,6 +4,10 @@ type Update struct {
 	Timeout string
 }
 
+func (u Update) SetName(name string) Task {
+	return u
+}
+
 func (u Update) MarshalYAML() (interface{}, error) {
 	panic("This should never be exposed")
 }

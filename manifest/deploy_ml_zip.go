@@ -14,12 +14,20 @@ type DeployMLZip struct {
 	UseBuildVersion bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLZip) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r DeployMLZip) MarshalYAML() (interface{}, error) {
 	r.Type = "deploy-ml-zip"
 	return r, nil
 }
 
 func (r DeployMLZip) GetName() string {
+	if r.Name == "" {
+		return "deploy-ml-zip"
+	}
 	return r.Name
 }
 

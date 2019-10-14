@@ -1,5 +1,10 @@
 package manifest
 
+import (
+	"fmt"
+	"strings"
+)
+
 type Docker struct {
 	Image    string
 	Username string `yaml:"username,omitempty" secretAllowed:"true"`
@@ -22,12 +27,20 @@ type Run struct {
 	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r Run) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r Run) MarshalYAML() (interface{}, error) {
 	r.Type = "run"
 	return r, nil
 }
 
 func (r Run) GetName() string {
+	if r.Name == "" {
+		return fmt.Sprintf("run %s", strings.Replace(r.Script, "./", "", 1))
+	}
 	return r.Name
 }
 

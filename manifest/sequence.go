@@ -5,6 +5,10 @@ type Sequence struct {
 	Tasks TaskList
 }
 
+func (s Sequence) SetName(name string) Task {
+	panic("SetName should never be used in the rendering for a sequence task as we only care about sub tasks")
+}
+
 func (s Sequence) ReadsFromArtifacts() bool {
 	for _, task := range s.Tasks {
 		if task.ReadsFromArtifacts() {

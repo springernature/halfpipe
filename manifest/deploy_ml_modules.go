@@ -14,12 +14,20 @@ type DeployMLModules struct {
 	UseBuildVersion  bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLModules) SetName(name string) Task {
+	r.Name = name
+	return r
+}
+
 func (r DeployMLModules) MarshalYAML() (interface{}, error) {
 	r.Type = "deploy-ml-modules"
 	return r, nil
 }
 
 func (r DeployMLModules) GetName() string {
+	if r.Name == "" {
+		return "deploy-ml-modules"
+	}
 	return r.Name
 }
 

@@ -46,6 +46,7 @@ type Task interface {
 	NotifiesOnSuccess() bool
 	GetTimeout() string
 	GetName() string
+	SetName(name string) Task
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 

@@ -56,10 +56,7 @@ func (d Defaults) getUniqueName(name string, previousNames []string, counter int
 
 }
 
-func (d Defaults) uniqueName(name string, defaultName string, previousNames []string) string {
-	if name == "" {
-		name = defaultName
-	}
+func (d Defaults) uniqueName(name string, previousNames []string) string {
 	return d.getUniqueName(name, previousNames, 0)
 }
 
@@ -74,8 +71,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 		for _, task := range tasks {
 			switch task := task.(type) {
 			case manifest.DeployCF:
-				task.Name = d.uniqueName(task.Name, "deploy-cf", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 				if task.API == d.CfAPISnPaas {
 					if task.Org == "" {
 						task.Org = d.CfOrgSnPaas
@@ -117,8 +114,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Run:
-				task.Name = d.uniqueName(task.Name, fmt.Sprintf("run %s", strings.Replace(task.Script, "./", "", 1)), previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				if strings.HasPrefix(task.Docker.Image, config.DockerRegistry) {
 					task.Docker.Username = d.DockerUsername
@@ -133,8 +130,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerPush:
-				task.Name = d.uniqueName(task.Name, "docker-push", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				if strings.HasPrefix(task.Image, config.DockerRegistry) {
 					task.Username = d.DockerUsername
@@ -154,8 +151,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerCompose:
-				task.Name = d.uniqueName(task.Name, "docker-compose", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
@@ -170,8 +167,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.ConsumerIntegrationTest:
-				task.Name = d.uniqueName(task.Name, "consumer-integration-test", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 
@@ -182,8 +179,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLModules:
-				task.Name = d.uniqueName(task.Name, "deploy-ml-modules", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				if task.GetTimeout() == "" {
 					task.Timeout = d.Timeout
@@ -192,8 +189,8 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLZip:
-				task.Name = d.uniqueName(task.Name, "deploy-ml-zip", previousNames)
-				previousNames = append(previousNames, task.Name)
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
 
 				if task.GetTimeout() == "" {
 					task.Timeout = d.Timeout
