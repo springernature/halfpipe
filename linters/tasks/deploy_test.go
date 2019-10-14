@@ -128,12 +128,12 @@ func TestCfPushPreStart(t *testing.T) {
 		TestDomain: "test.domain",
 	}
 
-	task.PreStart = "cf something good"
+	task.PreStart = []string{"cf something good"}
 	errors, _ := LintDeployCFTask(task, fs)
 	assert.Empty(t, errors)
 
-	task.PreStart = "something bad"
+	task.PreStart = []string{"cf something good", "something bad", "cf something else good", "something else bad"}
 	errors, _ = LintDeployCFTask(task, fs)
-	assert.Len(t, errors, 1)
+	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_start", errors)
 }

@@ -51,7 +51,7 @@ jobs:
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf/manifest.yml
-      preStartCommand: cf apps
+      preStartCommand: cf apps; cf events myapp-CANDIDATE
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m

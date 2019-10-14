@@ -19,7 +19,7 @@ type DeployCF struct {
 	Timeout         string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Retries         int      `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	PreStart        string   `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
+	PreStart        []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 }
 
 func (r DeployCF) MarshalYAML() (interface{}, error) {

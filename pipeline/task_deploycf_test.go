@@ -30,7 +30,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Org:        "springer",
 		Username:   "rob",
 		Password:   "supersecret",
-		PreStart:   "cf events my-app",
+		PreStart:   []string{"cf events my-app", "cf blah"},
 		TestDomain: devTestDomain,
 		Manifest:   "manifest-dev.yml",
 		Vars: manifest.Vars{
@@ -180,7 +180,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"vars":            envVars,
 					"appPath":         gitDir,
 					"gitRefPath":      path.Join(gitDir, ".git", "ref"),
-					"preStartCommand": "cf events my-app",
+					"preStartCommand": "cf events my-app; cf blah",
 				},
 			},
 			atc.PlanConfig{

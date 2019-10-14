@@ -1,6 +1,7 @@
 package tasks
 
 import (
+	"fmt"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/filechecker"
@@ -43,8 +44,10 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warni
 		}
 	}
 
-	if cf.PreStart != "" && !strings.HasPrefix(cf.PreStart, "cf ") {
-		errs = append(errs, linterrors.NewInvalidField("pre_start", "must be a cf command"))
+	for _, preStartCommand := range cf.PreStart {
+		if !strings.HasPrefix(preStartCommand, "cf ") {
+			errs = append(errs, linterrors.NewInvalidField("pre_start", fmt.Sprintf("only cf commands are allowed: %s", preStartCommand)))
+		}
 	}
 
 	return

@@ -578,8 +578,8 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	if task.Timeout != "" {
 		push.Params["timeout"] = task.Timeout
 	}
-	if task.PreStart != "" {
-		push.Params["preStartCommand"] = task.PreStart
+	if len(task.PreStart) > 0 {
+		push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
 	}
 
 	if man.FeatureToggles.Versioned() {
