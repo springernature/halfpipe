@@ -60,9 +60,69 @@ func (d Defaults) uniqueName(name string, previousNames []string) string {
 	return d.getUniqueName(name, previousNames, 0)
 }
 
-func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) manifest.TaskList {
+func (d Defaults) uniqueifyNames(tasks manifest.TaskList) manifest.TaskList {
 	var previousNames []string
+	var taskSwitcher func(tasks manifest.TaskList) manifest.TaskList
+	taskSwitcher = func(tasks manifest.TaskList) manifest.TaskList {
+		var updatedTasks manifest.TaskList
+		for _, task := range tasks {
+			switch task := task.(type) {
+			case manifest.DeployCF:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				task.PrePromote = d.uniqueifyNames(task.PrePromote)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
 
+			case manifest.Run:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.DockerPush:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.DockerCompose:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.ConsumerIntegrationTest:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.DeployMLModules:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.DeployMLZip:
+				task.Name = d.uniqueName(task.GetName(), previousNames)
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.Update:
+				previousNames = append(previousNames, task.GetName())
+				updatedTasks = append(updatedTasks, task)
+
+			case manifest.Parallel:
+				task.Tasks = taskSwitcher(task.Tasks)
+				updatedTasks = append(updatedTasks, task)
+			case manifest.Sequence:
+				task.Tasks = taskSwitcher(task.Tasks)
+				updatedTasks = append(updatedTasks, task)
+			default:
+				panic("got a unknown task..")
+			}
+		}
+		return updatedTasks
+	}
+	return taskSwitcher(tasks)
+}
+
+func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) manifest.TaskList {
 	var taskSwitcher func(tasks manifest.TaskList) manifest.TaskList
 	taskSwitcher = func(tasks manifest.TaskList) manifest.TaskList {
 
@@ -71,8 +131,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 		for _, task := range tasks {
 			switch task := task.(type) {
 			case manifest.DeployCF:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
 				if task.API == d.CfAPISnPaas {
 					if task.Org == "" {
 						task.Org = d.CfOrgSnPaas
@@ -114,9 +172,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Run:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				if strings.HasPrefix(task.Docker.Image, config.DockerRegistry) {
 					task.Docker.Username = d.DockerUsername
 					task.Docker.Password = d.DockerPassword
@@ -130,9 +185,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerPush:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				if strings.HasPrefix(task.Image, config.DockerRegistry) {
 					task.Username = d.DockerUsername
 					task.Password = d.DockerPassword
@@ -151,9 +203,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DockerCompose:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				if task.Service == "" {
 					task.Service = d.DockerComposeService
 				}
@@ -167,9 +216,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.ConsumerIntegrationTest:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				task.Vars = d.addArtifactoryCredentialsToVars(task.Vars)
 
 				if task.GetTimeout() == "" {
@@ -179,9 +225,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLModules:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				if task.GetTimeout() == "" {
 					task.Timeout = d.Timeout
 				}
@@ -189,9 +232,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.DeployMLZip:
-				task.Name = d.uniqueName(task.GetName(), previousNames)
-				previousNames = append(previousNames, task.GetName())
-
 				if task.GetTimeout() == "" {
 					task.Timeout = d.Timeout
 				}
@@ -199,7 +239,6 @@ func (d Defaults) updateTasks(tasks manifest.TaskList, man manifest.Manifest) ma
 				updatedTasks = append(updatedTasks, task)
 
 			case manifest.Update:
-				previousNames = append(previousNames, task.GetName())
 				task.Timeout = d.Timeout
 				updatedTasks = append(updatedTasks, task)
 
@@ -332,6 +371,7 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 		updated.Tasks = append(manifest.TaskList{manifest.Update{}}, updated.Tasks...)
 	}
 
+	updated.Tasks = d.uniqueifyNames(updated.Tasks)
 	updated.Tasks = d.updateTasks(updated.Tasks, updated)
 
 	return updated
