@@ -23,11 +23,11 @@ func (t TestTasksRenamer) Apply(original manifest.TaskList) (updated manifest.Ta
 }
 
 type TestTasksDefaulter struct {
-	apply func(original manifest.TaskList) (updated manifest.TaskList)
+	apply func(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList)
 }
 
-func (t TestTasksDefaulter) Apply(original manifest.TaskList) (updated manifest.TaskList) {
-	return t.apply(original)
+func (t TestTasksDefaulter) Apply(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList) {
+	return t.apply(original, defaults)
 }
 
 func TestUpdatePipeline(t *testing.T) {
@@ -38,7 +38,7 @@ func TestUpdatePipeline(t *testing.T) {
 		tasksRenamer: TestTasksRenamer{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
 			return original
 		}},
-		tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
+		tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList) {
 			return original
 		}},
 	}
@@ -79,7 +79,7 @@ func TestUpdateTriggers(t *testing.T) {
 			tasksRenamer: TestTasksRenamer{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
 				return original
 			}},
-			tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
+			tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList) {
 				return original
 			}},
 		}
@@ -102,7 +102,7 @@ func TestUpdateNames(t *testing.T) {
 			tasksRenamer: TestTasksRenamer{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
 				return expectedJobs
 			}},
-			tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
+			tasksDefaulter: TestTasksDefaulter{apply: func(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList) {
 				return expectedJobs
 			}},
 		}

@@ -18,7 +18,7 @@ type TasksRenamer interface {
 }
 
 type TasksDefaulter interface {
-	Apply(original manifest.TaskList) (updated manifest.TaskList)
+	Apply(original manifest.TaskList, defaults DefaultsNew) (updated manifest.TaskList)
 }
 
 type DefaultsNew struct {
@@ -57,7 +57,7 @@ func (d DefaultsNew) Apply(original manifest.Manifest) (updated manifest.Manifes
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksRenamer.Apply(updated.Tasks)
-	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks)
+	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d)
 
 	return
 }
@@ -67,5 +67,6 @@ func NewNewDefaulter(project project.Data) DefaultsNew {
 	d.Project = project
 	d.triggersDefaulter = NewTriggersDefaulter()
 	d.tasksRenamer = NewTasksRenamer()
+	d.tasksDefaulter = NewTaskDefaulter()
 	return d
 }
