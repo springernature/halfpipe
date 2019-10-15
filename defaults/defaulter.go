@@ -9,8 +9,6 @@ import (
 	"github.com/springernature/halfpipe/project"
 )
 
-type Defaulter func(manifest.Manifest, project.Data) manifest.Manifest
-
 type Defaults struct {
 	RepoPrivateKey       string
 	CfUsername           string
@@ -373,7 +371,6 @@ func (d Defaults) Update(man manifest.Manifest) manifest.Manifest {
 
 	updated.Tasks = d.uniqueifyNames(updated.Tasks)
 	updated.Tasks = d.updateTasks(updated.Tasks, updated)
-
 	return updated
 
 }
