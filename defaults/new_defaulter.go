@@ -66,5 +66,6 @@ func NewNewDefaulter(project project.Data) DefaultsNew {
 	d := DefaultValuesNew
 	d.Project = project
 	d.triggersDefaulter = NewTriggersDefaulter()
+	d.tasksRenamer = NewTasksRenamer()
 	return d
 }

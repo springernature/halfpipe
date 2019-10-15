@@ -63,5 +63,5 @@ func (Parallel) GetTimeout() string {
 }
 
 func (Parallel) GetName() string {
-	panic("GetTimeout should never be used in the rendering for a parallel task as we only care about sub tasks")
+	panic("GetName should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
