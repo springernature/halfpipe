@@ -59,7 +59,7 @@ func (s sampleGenerator) Generate() (err error) {
 
 	proj, err := s.projectResolver.Parse(s.currentDir, true)
 	if err != nil {
-		return
+		return err
 	}
 
 	if proj.BasePath != "" {
@@ -74,11 +74,10 @@ func (s sampleGenerator) Generate() (err error) {
 
 	out, err := yaml.Marshal(man)
 	if err != nil {
-		return
+		return err
 	}
 
-	err = s.fs.WriteFile(".halfpipe.io", out, 0777)
-	return
+	return s.fs.WriteFile(".halfpipe.io", out, 0777)
 }
 
 func createPipelineName(project project.Data) string {

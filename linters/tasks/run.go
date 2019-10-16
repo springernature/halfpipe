@@ -52,5 +52,5 @@ func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, war
 		errs = append(errs, linterrors.NewMissingField("docker.username"))
 	}
 
-	return
+	return errs, warnings
 }

@@ -19,5 +19,5 @@ func LintCronTrigger(cron manifest.TimerTrigger) (errs []error, warnings []error
 		errs = append(errs, linterrors.NewInvalidField("trigger", "seconds in cron expression is not supported"))
 	}
 
-	return
+	return errs, warnings
 }

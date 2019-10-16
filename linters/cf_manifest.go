@@ -39,19 +39,19 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		//skip linting if file provided as an artifact
 		//task linter will warn that file needs to be generated in previous task
 		if strings.HasPrefix(manifestPath, "../artifacts/") {
-			return
+			return result
 		}
 
 		apps, err := linter.readCfManifest(manifestPath, nil, nil)
 
 		if err != nil {
 			result.AddError(goErrors.New(fmt.Sprintf("cf-manifest error in %s, %s", manifestPath, err.Error())))
-			return
+			return result
 		}
 
 		if len(apps) != 1 {
 			result.AddError(linterrors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
-			return
+			return result
 		}
 
 		app := apps[0]
@@ -62,27 +62,27 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		result.AddError(lintRoutes(manifestPath, app)...)
 		result.AddWarning(lintBuildpack(app)...)
 	}
-	return
+	return result
 }
 
 func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
 	if man.NoRoute {
 		if len(man.Routes) != 0 {
 			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'"))
-			return
+			return errs
 		}
 
 		if man.HealthCheckType != "process" {
 			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'"))
-			return
+			return errs
 		}
 
-		return
+		return errs
 	}
 
 	if len(man.Routes) == 0 {
 		errs = append(errs, linterrors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
-		return
+		return errs
 	}
 
 	for _, route := range man.Routes {
@@ -91,12 +91,12 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 		}
 	}
 
-	return
+	return errs
 }
 
 func lintBuildpack(man cfManifest.Application) (errs []error) {
 	if man.Buildpack.Value != "" {
 		errs = append(errs, linterrors.NewDeprecatedBuildpackError())
 	}
-	return
+	return errs
 }

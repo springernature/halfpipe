@@ -57,19 +57,19 @@ func (s sync) getLatestRelease() (release Release, err error) {
 
 func (s sync) Check() (err error) {
 	if s.currentVersion.EQ(config.DevVersion) || s.shouldSkip {
-		return
+		return err
 	}
 
 	latestRelease, err := s.getLatestRelease()
 	if err != nil {
-		return
+		return err
 	}
 
 	if s.currentVersion.LT(latestRelease.Version) {
 		err = ErrOutOfDateBinary(s.currentVersion, latestRelease.Version)
 	}
 
-	return
+	return err
 }
 
 func (s sync) Update(out io.Writer) (err error) {
@@ -87,17 +87,17 @@ func (s sync) Update(out io.Writer) (err error) {
 		if writeErr != nil {
 			err = writeErr
 		}
-		return
+		return err
 	}
 
 	_, err = out.Write([]byte("downloading latest version from " + latestRelease.DownloadURL + "\n"))
 	if err != nil {
-		return
+		return err
 	}
 
 	resp, err := s.httpGetter(latestRelease.DownloadURL)
 	if err != nil {
-		return
+		return err
 	}
 
 	var fileSize int64
@@ -111,5 +111,5 @@ func (s sync) Update(out io.Writer) (err error) {
 	progressBar.Start()
 
 	err = s.updater(progressBar.NewProxyReader(resp.Body), update.Options{})
-	return
+	return err
 }

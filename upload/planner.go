@@ -65,35 +65,35 @@ type planner struct {
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 	halfpipeFilePath, err := filechecker.GetHalfpipeFileName(p.fs, p.workingDir)
 	if err != nil {
-		return
+		return man, err
 	}
 
 	yamlString, err := filechecker.ReadFile(p.fs, halfpipeFilePath)
 	if err != nil {
-		return
+		return man, err
 	}
 
 	err = yaml.Unmarshal([]byte(yamlString), &man)
 	if err != nil {
-		return
+		return man, err
 	}
 
 	if man.Team == "" || man.Pipeline == "" {
 		err = errors.New("'team' and 'pipeline' must be defined in '.halfpipe.io'")
 	}
 
-	return
+	return man, err
 }
 
 func (p planner) lintAndRender() (cmd Command, err error) {
 	file, err := p.pipelineFile(p.fs)
 	if err != nil {
-		return
+		return cmd, err
 	}
 
 	path, err := p.pathResolver("halfpipe")
 	if err != nil {
-		return
+		return cmd, err
 	}
 
 	cmd.Cmd = exec.Cmd{
@@ -103,14 +103,14 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 	}
 	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
 
-	return
+	return cmd, err
 }
 
 func (p planner) statusAndLogin(concourseURL, team string) (cmd Command, err error) {
 	path, err := p.pathResolver("fly")
 	if err != nil {
 		err = ErrFlyNotInstalled(p.oSResolver())
-		return
+		return cmd, err
 	}
 
 	cmd = Command{
@@ -143,14 +143,14 @@ func (p planner) statusAndLogin(concourseURL, team string) (cmd Command, err err
 		},
 	}
 
-	return
+	return cmd, err
 }
 
 func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 	path, err := p.pathResolver("fly")
 	if err != nil {
 		err = ErrFlyNotInstalled(p.oSResolver())
-		return
+		return cmd, err
 	}
 
 	cmd.Cmd = exec.Cmd{
@@ -162,13 +162,13 @@ func (p planner) uploadCmd(team, pipeline string) (cmd Command, err error) {
 		cmd.Cmd.Args = append(cmd.Cmd.Args, "--non-interactive")
 	}
 
-	return
+	return cmd, err
 }
 
 func (p planner) Plan() (plan Plan, err error) {
 	man, err := p.getHalfpipeManifest()
 	if err != nil {
-		return
+		return plan, err
 	}
 
 	if p.currentBranch != "master" && !p.nonInteractive {
@@ -177,7 +177,7 @@ func (p planner) Plan() (plan Plan, err error) {
 
 	lintAndRenderCmd, err := p.lintAndRender()
 	if err != nil {
-		return
+		return plan, err
 	}
 	plan = append(plan, lintAndRenderCmd)
 
@@ -188,28 +188,28 @@ func (p planner) Plan() (plan Plan, err error) {
 
 	statusAndLoginCmd, err := p.statusAndLogin(concourseURL, man.Team)
 	if err != nil {
-		return
+		return plan, err
 	}
 	plan = append(plan, statusAndLoginCmd)
 
 	uploadCmd, err := p.uploadCmd(man.Team, man.PipelineName())
 	if err != nil {
-		return
+		return plan, err
 	}
 	plan = append(plan, uploadCmd)
 
-	return
+	return plan, err
 }
 
 func (p planner) Unpause() (plan Plan, err error) {
 	man, err := p.getHalfpipeManifest()
 	if err != nil {
-		return
+		return plan, err
 	}
 
 	path, err := p.pathResolver("fly")
 	if err != nil {
-		return
+		return plan, err
 	}
 
 	plan = append(plan, Command{
@@ -219,5 +219,5 @@ func (p planner) Unpause() (plan Plan, err error) {
 		},
 	})
 
-	return
+	return plan, err
 }

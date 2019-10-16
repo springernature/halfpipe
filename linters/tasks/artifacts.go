@@ -38,7 +38,7 @@ func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (er
 		}
 	}
 
-	return
+	return errs, warnings
 }
 
 func previousTasksSavesArtifact(tasks []manifest.Task) bool {

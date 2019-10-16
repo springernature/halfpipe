@@ -42,7 +42,7 @@ func (lrs LintResults) Error() (out string) {
 		out += result.Error()
 		out += "\n"
 	}
-	return
+	return out
 }
 
 func (lr LintResult) Error() (out string) {
@@ -63,7 +63,7 @@ func (lr LintResult) Error() (out string) {
 		out += fmt.Sprintf("\t%s\n\n", `No issues \o/`)
 	}
 
-	return
+	return out
 }
 
 func formatErrors(typeOfError string, errs []error) (out string) {
@@ -71,7 +71,7 @@ func formatErrors(typeOfError string, errs []error) (out string) {
 	for _, err := range deduplicate(errs) {
 		out += fmt.Sprintf("\t\t* %s\n", err)
 	}
-	return
+	return out
 }
 
 func (lr LintResult) HasErrors() bool {
@@ -96,7 +96,7 @@ func deduplicate(errs []error) (errors []error) {
 			errors = append(errors, err)
 		}
 	}
-	return
+	return errors
 }
 
 func errorInErrors(err error, errs []error) bool {

@@ -192,9 +192,9 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 		}
 	}
 
-	return
+	return resourceConfigs
 }
-func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, trigger := range triggers {
 		switch trigger := trigger.(type) {
@@ -204,13 +204,13 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	}
 
 	if len(resourceConfigs) > 0 {
-		resourceType = append(resourceType, halfpipePipelineTriggerResourceType())
+		resourceTypes = append(resourceTypes, halfpipePipelineTriggerResourceType())
 	}
 
-	return
+	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	var tmpResourceConfigs atc.ResourceConfigs
 	for _, task := range tasks {
 		switch task := task.(type) {
@@ -227,7 +227,7 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.Res
 	}
 
 	if len(tmpResourceConfigs) > 0 {
-		resourceType = append(resourceType, halfpipeCfDeployResourceType())
+		resourceTypes = append(resourceTypes, halfpipeCfDeployResourceType())
 	}
 
 	for _, tmpResourceConfig := range tmpResourceConfigs {
@@ -236,7 +236,7 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceType atc.Res
 		}
 	}
 
-	return
+	return resourceTypes, resourceConfigs
 }
 
 func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
@@ -282,7 +282,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
 	resourceConfigs = append(resourceConfigs, pipelineResources...)
 
-	return
+	return resourceTypes, resourceConfigs
 }
 
 func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
@@ -351,7 +351,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 	addTimeout(job, task.GetTimeout())
 	addPassedJobsToGets(job, previousTaskNames)
 
-	return
+	return job
 }
 
 func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
@@ -365,7 +365,8 @@ func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 	default:
 		taskNames = append(taskNames, task.GetName())
 	}
-	return
+
+	return taskNames
 }
 
 func (p pipeline) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
@@ -400,7 +401,7 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 		}
 	}
 
-	return
+	return cfg
 }
 
 func addTimeout(job *atc.JobConfig, timeout string) {
@@ -810,8 +811,7 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 		artifactPath = path.Join(artifactPath, "../")
 	}
 
-	artifactPath = path.Join(artifactPath, artifactsDir)
-	return
+	return path.Join(artifactPath, artifactsDir)
 }
 
 func fullPathToArtifactsDir(repoName string, basePath string, artifactsDir string, artifactPath string) (fullArtifactPath string) {
@@ -822,24 +822,23 @@ func fullPathToArtifactsDir(repoName string, basePath string, artifactsDir strin
 		fullArtifactPath = path.Join(fullArtifactPath, subfolderPath)
 	}
 
-	return
+	return fullArtifactPath
 }
 
 func relativePathToRepoRoot(repoName string, basePath string) (relativePath string) {
 	relativePath, _ = filepath.Rel(path.Join(repoName, basePath), repoName)
-	return
+	return relativePath
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), ".git", "ref")
-	gitRefPath = windowsToLinuxPath(p)
-	return
+	return windowsToLinuxPath(p)
+
 }
 
 func pathToVersionFile(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), path.Join("..", "version", "version"))
-	gitRefPath = windowsToLinuxPath(p)
-	return
+	return windowsToLinuxPath(p)
 }
 
 func windowsToLinuxPath(path string) (unixPath string) {

@@ -32,7 +32,7 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 		fmt.Fscanln(stdin, &input) // #nosec
 		if input != "y" {
 			err = errors.New("aborted")
-			return
+			return err
 		}
 	}
 
@@ -55,7 +55,7 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 		}
 	}
 
-	return
+	return err
 }
 
 type Command struct {

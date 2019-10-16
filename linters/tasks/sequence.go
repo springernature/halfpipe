@@ -8,17 +8,17 @@ import (
 func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) {
 	if !cameFromAParallel {
 		errs = append(errs, linterrors.NewInvalidField("type", "You are only allowed to use a 'sequence' inside a 'parallel'"))
-		return
+		return errs, warnings
 	}
 
 	if len(seqTask.Tasks) == 0 {
 		errs = append(errs, linterrors.NewInvalidField("tasks", "You are not allowed to use a empty 'sequence'"))
-		return
+		return errs, warnings
 	}
 
 	if len(seqTask.Tasks) == 1 {
 		warnings = append(warnings, linterrors.NewInvalidField("tasks", "It seems unnecessary to have a single task in a sequence"))
-		return
+		return errs, warnings
 	}
 
 	for _, task := range seqTask.Tasks {
@@ -30,5 +30,5 @@ func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs [
 		}
 	}
 
-	return
+	return errs, warnings
 }

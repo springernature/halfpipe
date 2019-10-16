@@ -39,5 +39,5 @@ func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []
 		warnings = append(warnings, linterrors.NewInvalidField("tasks", "Only one 'parallel' task can save artifacts on failure without ending up in weird race conditions"))
 	}
 
-	return
+	return errs, warnings
 }

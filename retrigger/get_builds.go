@@ -19,7 +19,7 @@ func (build Build) String() string {
 func (build Build) Retrigger() (err error) {
 	flyPath, err := exec.LookPath("fly")
 	if err != nil {
-		return
+		return err
 	}
 
 	cmd := exec.Cmd{
@@ -30,8 +30,7 @@ func (build Build) Retrigger() (err error) {
 	}
 	fmt.Printf("$ %s\n", strings.Join(cmd.Args, " "))
 
-	err = cmd.Run()
-	return
+	return cmd.Run()
 }
 
 type Builds []Build
@@ -42,7 +41,7 @@ func (builds Builds) GetErrored() (erroredBuilds Builds) {
 			erroredBuilds = append(erroredBuilds, build)
 		}
 	}
-	return
+	return erroredBuilds
 }
 
 func (builds Builds) IsLatest(build Build) bool {
@@ -61,7 +60,7 @@ func (builds Builds) IsLatest(build Build) bool {
 func GetBuilds(team string, count string) (builds Builds, err error) {
 	flyPath, err := exec.LookPath("fly")
 	if err != nil {
-		return
+		return builds, err
 	}
 
 	stdoutBuffer := bytes.Buffer{}
@@ -75,9 +74,9 @@ func GetBuilds(team string, count string) (builds Builds, err error) {
 
 	err = cmd.Run()
 	if err != nil {
-		return
+		return builds, err
 	}
 
 	err = json.Unmarshal([]byte(stdoutBuffer.String()), &builds)
-	return
+	return builds, err
 }
