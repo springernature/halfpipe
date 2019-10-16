@@ -35,5 +35,5 @@ func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Default
 	if !updated.HasGitTrigger() {
 		updated = append(updated, t.gitTriggerDefaulter(manifest.GitTrigger{}, defaults))
 	}
-	return
+	return updated
 }

@@ -61,6 +61,5 @@ func uniqueifyNames(tasks manifest.TaskList) manifest.TaskList {
 }
 
 func (t tasksRenamer) Apply(original manifest.TaskList) (updated manifest.TaskList) {
-	updated = uniqueifyNames(original)
-	return updated
+	return uniqueifyNames(original)
 }

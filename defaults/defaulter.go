@@ -54,10 +54,9 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 	}
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
-
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 
-	return
+	return updated
 }
 
 func New(project project.Data) Defaults {

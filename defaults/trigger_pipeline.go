@@ -26,5 +26,6 @@ func defaultPipelineTrigger(original manifest.PipelineTrigger, defaults Defaults
 	if updated.Status == "" {
 		updated.Status = "succeeded"
 	}
-	return
+
+	return updated
 }

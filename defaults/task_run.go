@@ -13,5 +13,5 @@ func runDefaulter(original manifest.Run, defaults Defaults) (updated manifest.Ru
 		updated.Docker.Password = defaults.DockerPassword
 	}
 
-	return
+	return updated
 }

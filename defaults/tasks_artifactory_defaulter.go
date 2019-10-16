@@ -48,5 +48,5 @@ func (t tasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, default
 		updated = append(updated, tt)
 	}
 
-	return
+	return updated
 }
