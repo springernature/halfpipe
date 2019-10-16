@@ -14,6 +14,11 @@ type DeployMLModules struct {
 	UseBuildVersion  bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLModules) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r DeployMLModules) SetName(name string) Task {
 	r.Name = name
 	return r

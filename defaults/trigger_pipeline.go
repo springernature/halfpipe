@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func defaultPipelineTrigger(original manifest.PipelineTrigger, defaults DefaultsNew, man manifest.Manifest) (updated manifest.PipelineTrigger) {
+func defaultPipelineTrigger(original manifest.PipelineTrigger, defaults Defaults, man manifest.Manifest) (updated manifest.PipelineTrigger) {
 	updated = original
 
 	if updated.Team == "" {

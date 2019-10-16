@@ -28,7 +28,7 @@ func NewController(defaulter defaults.Defaults, linters []linters.Linter, render
 }
 
 func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
-	updatedManifest := c.defaulter.Update(man)
+	updatedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
 		results = append(results, linter.Lint(updatedManifest))

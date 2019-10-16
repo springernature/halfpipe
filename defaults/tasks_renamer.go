@@ -6,7 +6,6 @@ import (
 )
 
 type tasksRenamer struct {
-
 }
 
 func NewTasksRenamer() TasksRenamer {
@@ -32,7 +31,6 @@ func getUniqueName(name string, previousNames []string, counter int) string {
 func uniqueName(name string, previousNames []string) string {
 	return getUniqueName(name, previousNames, 0)
 }
-
 
 func uniqueifyNames(tasks manifest.TaskList) manifest.TaskList {
 	var previousNames []string

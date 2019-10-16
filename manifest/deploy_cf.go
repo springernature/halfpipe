@@ -22,6 +22,11 @@ type DeployCF struct {
 	PreStart        []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 }
 
+func (r DeployCF) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r DeployCF) SetName(name string) Task {
 	r.Name = name
 	return r

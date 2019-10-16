@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func defaultGitTrigger(original manifest.GitTrigger, defaults DefaultsNew) (updated manifest.GitTrigger) {
+func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
 	updated = original
 
 	updated.BasePath = defaults.Project.BasePath

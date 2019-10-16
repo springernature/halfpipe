@@ -12,13 +12,13 @@ func TestPipelineTrigger(t *testing.T) {
 	t.Run("Empty trigger", func(t *testing.T) {
 		expectedTrigger := manifest.PipelineTrigger{
 			Team:         team,
-			ConcourseURL: DefaultValuesNew.ConcourseURL,
-			Username:     DefaultValuesNew.ConcourseUsername,
-			Password:     DefaultValuesNew.ConcoursePassword,
+			ConcourseURL: DefaultValues.ConcourseURL,
+			Username:     DefaultValues.ConcourseUsername,
+			Password:     DefaultValues.ConcoursePassword,
 			Status:       "succeeded",
 		}
 
-		assert.Equal(t, expectedTrigger, defaultPipelineTrigger(manifest.PipelineTrigger{}, DefaultValuesNew, manifest.Manifest{Team: team}))
+		assert.Equal(t, expectedTrigger, defaultPipelineTrigger(manifest.PipelineTrigger{}, DefaultValues, manifest.Manifest{Team: team}))
 	})
 
 	t.Run("With already present values for the default values", func(t *testing.T) {
@@ -37,6 +37,6 @@ func TestPipelineTrigger(t *testing.T) {
 			Status:       "asdf",
 		}
 
-		assert.Equal(t, expectedTrigger, defaultPipelineTrigger(trigger, DefaultValuesNew, manifest.Manifest{Team: team}))
+		assert.Equal(t, expectedTrigger, defaultPipelineTrigger(trigger, DefaultValues, manifest.Manifest{Team: team}))
 	})
 }

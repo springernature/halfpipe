@@ -70,7 +70,7 @@ func printErrAndResultAndExitOnError(err error, lintResults result.LintResults) 
 
 func createController(projectData project.Data, fs afero.Afero, currentDir string) halfpipe.Controller {
 	return halfpipe.NewController(
-		defaults.NewDefaulter(projectData),
+		defaults.New(projectData),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
 			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),

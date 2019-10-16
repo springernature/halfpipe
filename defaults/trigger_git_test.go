@@ -10,11 +10,11 @@ import (
 func TestGit(t *testing.T) {
 	t.Run("does nothing when URI is not set", func(t *testing.T) {
 		trigger := manifest.GitTrigger{}
-		assert.Equal(t, trigger, defaultGitTrigger(trigger, DefaultValuesNew))
+		assert.Equal(t, trigger, defaultGitTrigger(trigger, DefaultValues))
 	})
 
 	t.Run("private repos", func(t *testing.T) {
-		defaults := DefaultValuesNew
+		defaults := DefaultValues
 		defaults.Project = project.Data{
 			GitURI: "ssh@github.com:private/repo",
 		}
@@ -34,7 +34,7 @@ func TestGit(t *testing.T) {
 	t.Run("public repos", func(t *testing.T) {
 
 		t.Run("http", func(t *testing.T) {
-			defaults := DefaultValuesNew
+			defaults := DefaultValues
 			defaults.Project = project.Data{
 				GitURI: "http://github.com/springernature/halfpipe.git",
 			}
@@ -47,7 +47,7 @@ func TestGit(t *testing.T) {
 		})
 
 		t.Run("https", func(t *testing.T) {
-			defaults := DefaultValuesNew
+			defaults := DefaultValues
 			defaults.Project = project.Data{
 				GitURI: "https://github.com/springernature/halfpipe.git",
 			}
@@ -62,7 +62,7 @@ func TestGit(t *testing.T) {
 	})
 
 	t.Run("project values", func(t *testing.T) {
-		defaults := DefaultValuesNew
+		defaults := DefaultValues
 		defaults.Project = project.Data{BasePath: "foo", GitURI: "bar"}
 
 		expectedTrigger := manifest.GitTrigger{
@@ -75,7 +75,7 @@ func TestGit(t *testing.T) {
 	})
 
 	t.Run("does not overwrite URI when set", func(t *testing.T) {
-		defaults := DefaultValuesNew
+		defaults := DefaultValues
 		defaults.Project = project.Data{BasePath: "foo", GitURI: "bar"}
 
 		trigger := manifest.GitTrigger{

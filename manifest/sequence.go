@@ -5,8 +5,12 @@ type Sequence struct {
 	Tasks TaskList
 }
 
+func (s Sequence) SetTimeout(timeout string) Task {
+	panic("SetTimeout should never be used for a sequence task as we only care about sub tasks")
+}
+
 func (s Sequence) SetName(name string) Task {
-	panic("SetName should never be used in the rendering for a sequence task as we only care about sub tasks")
+	panic("SetName should never be used for a sequence task as we only care about sub tasks")
 }
 
 func (s Sequence) ReadsFromArtifacts() bool {

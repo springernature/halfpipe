@@ -4,6 +4,11 @@ type Update struct {
 	Timeout string
 }
 
+func (u Update) SetTimeout(timeout string) Task {
+	u.Timeout = timeout
+	return u
+}
+
 func (u Update) SetName(name string) Task {
 	return u
 }

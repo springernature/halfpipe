@@ -2,6 +2,6 @@ package defaults
 
 import "github.com/springernature/halfpipe/manifest"
 
-func defaultTimerTrigger(original manifest.TimerTrigger, defaults DefaultsNew) (updated manifest.TimerTrigger) {
+func defaultTimerTrigger(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {
 	return original
 }

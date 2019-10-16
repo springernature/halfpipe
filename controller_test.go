@@ -1,6 +1,7 @@
 package halfpipe
 
 import (
+	"github.com/springernature/halfpipe/project"
 	"testing"
 
 	"github.com/concourse/concourse/atc"
@@ -25,7 +26,7 @@ func testController() controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return controller{
-		defaulter: defaults.DefaultValues,
+		defaulter: defaults.New(project.Data{}),
 	}
 }
 

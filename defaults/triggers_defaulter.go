@@ -3,10 +3,10 @@ package defaults
 import "github.com/springernature/halfpipe/manifest"
 
 type triggersDefaulter struct {
-	gitTriggerDefaulter      func(original manifest.GitTrigger, defaults DefaultsNew) (updated manifest.GitTrigger)
-	timerTriggerDefaulter    func(original manifest.TimerTrigger, defaults DefaultsNew) (updated manifest.TimerTrigger)
-	pipelineTriggerDefaulter func(original manifest.PipelineTrigger, defaults DefaultsNew, man manifest.Manifest) (updated manifest.PipelineTrigger)
-	dockerTriggerDefaulter   func(original manifest.DockerTrigger, defaults DefaultsNew) (updated manifest.DockerTrigger)
+	gitTriggerDefaulter      func(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger)
+	timerTriggerDefaulter    func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger)
+	pipelineTriggerDefaulter func(original manifest.PipelineTrigger, defaults Defaults, man manifest.Manifest) (updated manifest.PipelineTrigger)
+	dockerTriggerDefaulter   func(original manifest.DockerTrigger, defaults Defaults) (updated manifest.DockerTrigger)
 }
 
 func NewTriggersDefaulter() TriggersDefaulter {
@@ -18,7 +18,7 @@ func NewTriggersDefaulter() TriggersDefaulter {
 	}
 }
 
-func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults DefaultsNew, man manifest.Manifest) (updated manifest.TriggerList) {
+func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 	for _, trigger := range original {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
@@ -29,9 +29,11 @@ func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Default
 			updated = append(updated, t.pipelineTriggerDefaulter(trigger, defaults, man))
 		case manifest.DockerTrigger:
 			updated = append(updated, t.dockerTriggerDefaulter(trigger, defaults))
-		default:
-			panic("unknown")
 		}
+	}
+
+	if !updated.HasGitTrigger() {
+		updated = append(updated, t.gitTriggerDefaulter(manifest.GitTrigger{}, defaults))
 	}
 	return
 }

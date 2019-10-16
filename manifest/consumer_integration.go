@@ -20,6 +20,11 @@ func (r ConsumerIntegrationTest) SetName(name string) Task {
 	return r
 }
 
+func (r ConsumerIntegrationTest) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r ConsumerIntegrationTest) MarshalYAML() (interface{}, error) {
 	r.Type = "consumer-integration-test"
 	return r, nil

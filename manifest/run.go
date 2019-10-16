@@ -27,6 +27,11 @@ type Run struct {
 	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r Run) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r Run) SetName(name string) Task {
 	r.Name = name
 	return r

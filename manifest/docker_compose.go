@@ -16,6 +16,11 @@ type DockerCompose struct {
 	Timeout                string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 }
 
+func (r DockerCompose) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r DockerCompose) SetName(name string) Task {
 	r.Name = name
 	return r

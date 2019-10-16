@@ -14,6 +14,11 @@ type DeployMLZip struct {
 	UseBuildVersion bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 }
 
+func (r DeployMLZip) SetTimeout(timeout string) Task {
+	r.Timeout = timeout
+	return r
+}
+
 func (r DeployMLZip) SetName(name string) Task {
 	r.Name = name
 	return r

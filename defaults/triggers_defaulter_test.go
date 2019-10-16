@@ -13,16 +13,16 @@ func TestCallsOutCorrectly(t *testing.T) {
 	expectedDockerTrigger := manifest.DockerTrigger{Image: "asdf"}
 
 	defaulter := triggersDefaulter{
-		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults DefaultsNew) (updated manifest.GitTrigger) {
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
 			return expectedGitTrigger
 		},
-		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults DefaultsNew) (updated manifest.TimerTrigger) {
+		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {
 			return expectedTimerTrigger
 		},
-		pipelineTriggerDefaulter: func(original manifest.PipelineTrigger, defaults DefaultsNew, man manifest.Manifest) (updated manifest.PipelineTrigger) {
+		pipelineTriggerDefaulter: func(original manifest.PipelineTrigger, defaults Defaults, man manifest.Manifest) (updated manifest.PipelineTrigger) {
 			return expectedPipelineTrigger
 		},
-		dockerTriggerDefaulter: func(original manifest.DockerTrigger, defaults DefaultsNew) (updated manifest.DockerTrigger) {
+		dockerTriggerDefaulter: func(original manifest.DockerTrigger, defaults Defaults) (updated manifest.DockerTrigger) {
 			return expectedDockerTrigger
 		},
 	}
@@ -36,7 +36,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 		manifest.TimerTrigger{},
 		manifest.PipelineTrigger{},
 		manifest.DockerTrigger{},
-	}, DefaultValuesNew, manifest.Manifest{})
+	}, DefaultValues, manifest.Manifest{})
 
 	expected := manifest.TriggerList{
 		expectedGitTrigger,
@@ -50,4 +50,34 @@ func TestCallsOutCorrectly(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, updated)
+}
+
+func TestAddsDefaultGitTriggerIfThereIsntOneInTheTriggerList(t *testing.T) {
+	expectedGitTrigger := manifest.GitTrigger{
+		URI: "meehp",
+	}
+
+	timerTrigger := manifest.TimerTrigger{
+		Cron: "asdf",
+	}
+
+	defaulter := triggersDefaulter{
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
+			return expectedGitTrigger
+		},
+		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {
+			return original
+		},
+	}
+
+	input := manifest.TriggerList{
+		timerTrigger,
+	}
+
+	expected := manifest.TriggerList{
+		timerTrigger,
+		expectedGitTrigger,
+	}
+
+	assert.Equal(t, expected, defaulter.Apply(input, DefaultValues, manifest.Manifest{}))
 }

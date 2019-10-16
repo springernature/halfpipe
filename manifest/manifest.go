@@ -8,6 +8,17 @@ import (
 
 type Vars map[string]string
 
+func (v Vars) SetVar(key, value string) Vars {
+	if v == nil {
+		return map[string]string{
+			key: value,
+		}
+	}
+
+	v[key] = value
+	return v
+}
+
 type TaskList []Task
 
 func (tl TaskList) NotifiesOnSuccess() bool {
@@ -45,6 +56,7 @@ type Task interface {
 	IsManualTrigger() bool
 	NotifiesOnSuccess() bool
 	GetTimeout() string
+	SetTimeout(timeout string) Task
 	GetName() string
 	SetName(name string) Task
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
@@ -66,6 +78,16 @@ func (t TriggerList) GetGitTrigger() GitTrigger {
 		}
 	}
 	return GitTrigger{}
+}
+
+func (t TriggerList) HasGitTrigger() bool {
+	for _, trigger := range t {
+		switch trigger.(type) {
+		case GitTrigger:
+			return true
+		}
+	}
+	return false
 }
 
 type Manifest struct {
