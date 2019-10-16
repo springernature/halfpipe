@@ -27,6 +27,7 @@ type Defaults struct {
 
 	DockerUsername string
 	DockerPassword string
+	DockerfilePath string
 
 	Project project.Data
 

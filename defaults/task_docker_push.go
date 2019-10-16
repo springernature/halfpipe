@@ -15,7 +15,7 @@ func dockerPushDefaulter(original manifest.DockerPush, defaults Defaults) (updat
 	}
 
 	if updated.DockerfilePath == "" {
-		updated.DockerfilePath = "Dockerfile"
+		updated.DockerfilePath = defaults.DockerfilePath
 	}
 
 	return updated
