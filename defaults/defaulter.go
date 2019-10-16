@@ -5,10 +5,6 @@ import (
 	"github.com/springernature/halfpipe/project"
 )
 
-type Defaulter interface {
-	Apply(original manifest.Manifest) (updated manifest.Manifest)
-}
-
 type TriggersDefaulter interface {
 	Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList)
 }
