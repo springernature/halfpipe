@@ -137,3 +137,25 @@ func TestCfPushPreStart(t *testing.T) {
 	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_start", errors)
 }
+
+func TestSubTasksDoesntDefineNotifications(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		API:        "asdf",
+		Space:      "asdf",
+		Org:        "asdf",
+		TestDomain: "asdf",
+		PrePromote: manifest.TaskList{
+			manifest.Run{Notifications: manifest.Notifications{OnSuccess: []string{"Meehp"}}},
+			manifest.Run{},
+			manifest.Run{Notifications: manifest.Notifications{OnFailure: []string{"Moohp"}}},
+		},
+	}
+
+	errors, _ := LintDeployCFTask(task, fs)
+	assert.Len(t, errors, 2)
+	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[0].notifications", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[2].notifications", errors)
+}

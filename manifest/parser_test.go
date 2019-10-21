@@ -81,6 +81,13 @@ tasks:
   username: user
   password: pass
   image: golang:latest
+  notifications:
+    on_success:
+    - asdf
+    - kehe
+    on_failure:
+    - kfds
+    - oasdf
   vars:
     FOO: fOo
     BAR: "1"
@@ -240,6 +247,10 @@ tasks:
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",
+				},
+				Notifications: Notifications{
+					OnSuccess: []string{"asdf", "kehe"},
+					OnFailure: []string{"kfds", "oasdf"},
 				},
 				Timeout: "1h",
 			},

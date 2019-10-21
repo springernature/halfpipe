@@ -5,6 +5,14 @@ type Parallel struct {
 	Tasks TaskList `yaml:"tasks,omitempty"`
 }
 
+func (p Parallel) GetNotifications() Notifications {
+	panic("GetNotifications should never be used as we only care about sub tasks")
+}
+
+func (p Parallel) SetNotifications(notifications Notifications) Task {
+	panic("SetNotifications should never be used as we only care about sub tasks")
+}
+
 func (p Parallel) SetTimeout(timeout string) Task {
 	panic("SetTimeout should never be used as we only care about sub tasks")
 }

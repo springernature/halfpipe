@@ -20,7 +20,13 @@ tasks:
   script: ./a
   docker:
     image: alpine
-
+  notifications:
+    on_success: 
+    - asdf
+    - prws
+    on_failure:
+    - kehe
+    - whoop
 - type: deploy-cf
   name: deploy to staging
   api: ((cloudfoundry.api-live))

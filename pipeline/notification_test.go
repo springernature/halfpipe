@@ -3,41 +3,25 @@ package pipeline
 import (
 	"testing"
 
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestRendersSlackResourceWithoutOnFailureTask(t *testing.T) {
-	slackChannel := "#ee-re"
-
-	man := manifest.Manifest{}
-	man.SlackChannel = slackChannel
-
-	pipeline := testPipeline().Render(man)
-
-	resourceType, found := pipeline.ResourceTypes.Lookup(slackResourceTypeName)
-	assert.True(t, found)
-
-	resource, found := pipeline.Resources.Lookup(slackResourceName)
-	assert.True(t, found)
-
-	assert.Equal(t, slackResourceName, resource.Name)
-	assert.Equal(t, config.SlackWebhook, resource.Source["url"])
-	assert.Equal(t, "slack-resource", resource.Type)
-	assert.Equal(t, "registry-image", resourceType.Type)
-	assert.Equal(t, "cfcommunity/slack-notification-resource", resourceType.Source["repository"])
-	assert.Equal(t, "slack-resource", resourceType.Name)
-}
 
 func TestRendersSlackOnFailurePlan(t *testing.T) {
 	slackChannel := "#ee-re"
 
 	man := manifest.Manifest{}
-	man.SlackChannel = slackChannel
 	man.Tasks = []manifest.Task{
-		manifest.DeployCF{},
-		manifest.Run{},
+		manifest.DeployCF{
+			Notifications: manifest.Notifications{
+				OnFailure: []string{slackChannel},
+			},
+		},
+		manifest.Run{
+			Notifications: manifest.Notifications{
+				OnFailure: []string{slackChannel},
+			},
+		},
 	}
 	pipeline := testPipeline().Render(man)
 
@@ -52,11 +36,17 @@ func TestRendersSlackOnFailurePlanWithArtifactOnFailure(t *testing.T) {
 	slackChannel := "#ee-re"
 
 	man := manifest.Manifest{}
-	man.SlackChannel = slackChannel
 	man.Tasks = []manifest.Task{
-		manifest.DeployCF{},
+		manifest.DeployCF{
+			Notifications: manifest.Notifications{
+				OnFailure: []string{slackChannel},
+			},
+		},
 		manifest.Run{
 			SaveArtifactsOnFailure: []string{"test-reports"},
+			Notifications: manifest.Notifications{
+				OnFailure: []string{slackChannel},
+			},
 		},
 	}
 	pipeline := testPipeline().Render(man)
@@ -87,13 +77,20 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 	taskName2 := "task2"
 	taskName3 := "task3"
 
+	withoutSuccess := manifest.Notifications{
+		OnFailure: []string{slackChannel},
+	}
+	withSuccess := manifest.Notifications{
+		OnFailure: []string{slackChannel},
+		OnSuccess: []string{slackChannel},
+	}
+
 	t.Run("top level task", func(t *testing.T) {
 		man := manifest.Manifest{
-			SlackChannel: slackChannel,
 			Tasks: manifest.TaskList{
-				manifest.Run{Name: taskName1, NotifyOnSuccess: true},
-				manifest.DockerCompose{Name: taskName2},
-				manifest.DockerPush{Name: taskName3, NotifyOnSuccess: true},
+				manifest.Run{Name: taskName1, NotifyOnSuccess: true, Notifications: withSuccess},
+				manifest.DockerCompose{Name: taskName2, Notifications: withoutSuccess},
+				manifest.DockerPush{Name: taskName3, NotifyOnSuccess: true, Notifications: withSuccess},
 			},
 		}
 
@@ -108,32 +105,4 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 		thirdTask, _ := pipeline.Jobs.Lookup(taskName3)
 		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
 	})
-
-	t.Run("pre promote task", func(t *testing.T) {
-		man := manifest.Manifest{
-			SlackChannel: slackChannel,
-			Tasks: manifest.TaskList{
-				manifest.Run{Name: taskName1, NotifyOnSuccess: true},
-				manifest.DockerCompose{Name: taskName2},
-				manifest.DeployCF{
-					Name: taskName3,
-					PrePromote: manifest.TaskList{
-						manifest.Run{NotifyOnSuccess: true},
-					},
-				},
-			},
-		}
-
-		pipeline := testPipeline().Render(man)
-
-		firstTask, _ := pipeline.Jobs.Lookup(taskName1)
-		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
-
-		secondTask, _ := pipeline.Jobs.Lookup(taskName2)
-		assert.Nil(t, secondTask.Success)
-
-		thirdTask, _ := pipeline.Jobs.Lookup(taskName3)
-		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
-	})
-
 }

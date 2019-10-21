@@ -5,6 +5,14 @@ type Sequence struct {
 	Tasks TaskList
 }
 
+func (s Sequence) GetNotifications() Notifications {
+	panic("GetNotifications should never be used for a sequence task as we only care about sub tasks")
+}
+
+func (s Sequence) SetNotifications(notifications Notifications) Task {
+	panic("SetNotifications should never be used for a sequence task as we only care about sub tasks")
+}
+
 func (s Sequence) SetTimeout(timeout string) Task {
 	panic("SetTimeout should never be used for a sequence task as we only care about sub tasks")
 }

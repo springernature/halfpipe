@@ -139,6 +139,19 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		return
 	case reflect.TypeOf(Update{}):
 		return
+	case reflect.TypeOf(Notifications{}):
+		notifications := v.Interface().(Notifications)
+
+		for ni, success := range notifications.OnSuccess {
+			fieldName := fmt.Sprintf("%s.on_success[%d]", fieldName, ni)
+			s.validate(success, fieldName, secretTag, errs)
+		}
+
+		for ni, success := range notifications.OnFailure {
+			fieldName := fmt.Sprintf("%s.on_failure[%d]", fieldName, ni)
+			s.validate(success, fieldName, secretTag, errs)
+		}
+		return
 
 	default:
 		panic(fmt.Sprintf("Not implemented for %s", v.Type()))

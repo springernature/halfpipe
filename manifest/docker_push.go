@@ -2,18 +2,28 @@ package manifest
 
 type DockerPush struct {
 	Type             string
-	Name             string `yaml:"name,omitempty"`
-	ManualTrigger    bool   `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Username         string `yaml:"username,omitempty" secretAllowed:"true"`
-	Password         string `yaml:"password,omitempty" secretAllowed:"true"`
-	Image            string `yaml:"image,omitempty"`
-	Vars             Vars   `yaml:"vars,omitempty" secretAllowed:"true"`
-	RestoreArtifacts bool   `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	Retries          int    `yaml:"retries,omitempty"`
-	NotifyOnSuccess  bool   `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout          string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	DockerfilePath   string `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
-	BuildPath        string `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+	Name             string        `yaml:"name,omitempty"`
+	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Username         string        `yaml:"username,omitempty" secretAllowed:"true"`
+	Password         string        `yaml:"password,omitempty" secretAllowed:"true"`
+	Image            string        `yaml:"image,omitempty"`
+	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	RestoreArtifacts bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	Retries          int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
+	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+}
+
+func (r DockerPush) GetNotifications() Notifications {
+	return r.Notifications
+}
+
+func (r DockerPush) SetNotifications(notifications Notifications) Task {
+	r.Notifications = notifications
+	return r
 }
 
 func (r DockerPush) SetTimeout(timeout string) Task {

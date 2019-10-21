@@ -2,16 +2,26 @@ package manifest
 
 type DeployMLZip struct {
 	Type            string
-	Name            string   `yaml:"name,omitempty"`
-	DeployZip       string   `json:"deploy_zip" yaml:"deploy_zip,omitempty"`
-	AppName         string   `json:"app_name" yaml:"app_name,omitempty"`
-	AppVersion      string   `json:"app_version" yaml:"app_version,omitempty"`
-	Targets         []string `yaml:"targets,omitempty" secretAllowed:"true" `
-	ManualTrigger   bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Retries         int      `yaml:"retries,omitempty"`
-	NotifyOnSuccess bool     `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Timeout         string   `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	UseBuildVersion bool     `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+	Name            string        `yaml:"name,omitempty"`
+	DeployZip       string        `json:"deploy_zip" yaml:"deploy_zip,omitempty"`
+	AppName         string        `json:"app_name" yaml:"app_name,omitempty"`
+	AppVersion      string        `json:"app_version" yaml:"app_version,omitempty"`
+	Targets         []string      `yaml:"targets,omitempty" secretAllowed:"true" `
+	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Retries         int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	UseBuildVersion bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+}
+
+func (r DeployMLZip) GetNotifications() Notifications {
+	return r.Notifications
+}
+
+func (r DeployMLZip) SetNotifications(notifications Notifications) Task {
+	r.Notifications = notifications
+	return r
 }
 
 func (r DeployMLZip) SetTimeout(timeout string) Task {
