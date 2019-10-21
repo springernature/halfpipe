@@ -1,6 +1,7 @@
 package halfpipe
 
 import (
+	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
 	"testing"
 
@@ -27,6 +28,7 @@ func testController() controller {
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return controller{
 		defaulter: defaults.New(project.Data{}),
+		mapper:    mapper.New(),
 	}
 }
 

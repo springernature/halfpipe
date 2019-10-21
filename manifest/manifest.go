@@ -19,16 +19,18 @@ func (v Vars) SetVar(key, value string) Vars {
 	return v
 }
 
-type TaskList []Task
-
-func (tl TaskList) NotifiesOnSuccess() bool {
-	for _, task := range tl {
-		if task.NotifiesOnSuccess() {
-			return true
-		}
-	}
-	return false
+type Notifications struct {
+	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
+	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
+	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
 }
+
+func (n Notifications) NotificationsDefined() bool {
+	return len(n.OnSuccess) > 0 || len(n.OnFailure) > 0
+}
+
+type TaskList []Task
 
 func (tl TaskList) SavesArtifacts() bool {
 	for _, task := range tl {
@@ -48,6 +50,26 @@ func (tl TaskList) SavesArtifactsOnFailure() bool {
 	return false
 }
 
+func (tl TaskList) UsesNotifications() bool {
+	for _, task := range tl {
+		switch task := task.(type) {
+		case Parallel:
+			if task.Tasks.UsesNotifications() {
+				return true
+			}
+		case Sequence:
+			if task.Tasks.UsesNotifications() {
+				return true
+			}
+		default:
+			if task.GetNotifications().NotificationsDefined() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
@@ -55,10 +77,16 @@ type Task interface {
 	SavesArtifactsOnFailure() bool
 	IsManualTrigger() bool
 	NotifiesOnSuccess() bool
+
 	GetTimeout() string
 	SetTimeout(timeout string) Task
+
 	GetName() string
 	SetName(name string) Task
+
+	GetNotifications() Notifications
+	SetNotifications(notifications Notifications) Task
+
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 
@@ -98,10 +126,6 @@ type Manifest struct {
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks          TaskList       `yaml:"tasks,omitempty"`
-}
-
-func (m Manifest) NotifiesOnFailure() bool {
-	return m.SlackChannel != ""
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

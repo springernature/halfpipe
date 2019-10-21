@@ -125,9 +125,30 @@ jobs:
       steps:
       - put: slack
         params:
-          channel: '#yo'
+          channel: kehe
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          text: Nooooes >:c
+          username: Halfpipe
+      - put: slack
+        params:
+          channel: whoop
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Nooooes >:c
+          username: Halfpipe
+  on_success:
+    in_parallel:
+      steps:
+      - put: slack
+        params:
+          channel: asdf
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Wiiiie! \o/
+          username: Halfpipe
+      - put: slack
+        params:
+          channel: prws
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Wiiiie! \o/
           username: Halfpipe
   plan:
   - in_parallel:

@@ -50,5 +50,12 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warni
 		}
 	}
 
+	for i, prePromoteTask := range cf.PrePromote {
+		if prePromoteTask.GetNotifications().NotificationsDefined() {
+			errs = append(errs, linterrors.NewInvalidField(
+				fmt.Sprintf("pre_promote[%d].notifications", i), "pre_promote tasks are not allowed to specify notifications. Please move them up to the 'deploy-cf' task"))
+		}
+	}
+
 	return errs, warnings
 }

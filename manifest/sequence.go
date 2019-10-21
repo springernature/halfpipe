@@ -5,6 +5,14 @@ type Sequence struct {
 	Tasks TaskList
 }
 
+func (s Sequence) GetNotifications() Notifications {
+	panic("GetNotifications should never be used for a sequence task as we only care about sub tasks")
+}
+
+func (s Sequence) SetNotifications(notifications Notifications) Task {
+	panic("SetNotifications should never be used for a sequence task as we only care about sub tasks")
+}
+
 func (s Sequence) SetTimeout(timeout string) Task {
 	panic("SetTimeout should never be used for a sequence task as we only care about sub tasks")
 }
@@ -49,12 +57,7 @@ func (s Sequence) IsManualTrigger() bool {
 }
 
 func (s Sequence) NotifiesOnSuccess() bool {
-	for _, task := range s.Tasks {
-		if task.NotifiesOnSuccess() {
-			return true
-		}
-	}
-	return false
+	panic("NotifiesOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
 func (s Sequence) GetTimeout() string {

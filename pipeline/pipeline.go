@@ -252,7 +252,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		}
 	}
 
-	if man.NotifiesOnFailure() || man.Tasks.NotifiesOnSuccess() {
+	if man.Tasks.UsesNotifications() {
 		resourceTypes = append(resourceTypes, p.slackResourceType())
 		resourceConfigs = append(resourceConfigs, p.slackResource())
 	}
@@ -316,14 +316,16 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		job = p.updateJobConfig(task, man.PipelineName(), basePath)
 	}
 
-	if task.SavesArtifactsOnFailure() || man.NotifiesOnFailure() {
+	onFailureChannels := task.GetNotifications().OnFailure
+	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 {
 		sequence := atc.PlanSequence{}
 
 		if task.SavesArtifactsOnFailure() {
 			sequence = append(sequence, saveArtifactOnFailurePlan())
 		}
-		if man.NotifiesOnFailure() {
-			sequence = append(sequence, slackOnFailurePlan(man.SlackChannel))
+
+		for _, onFailureChannel := range onFailureChannels {
+			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
 		job.Failure = &atc.PlanConfig{
@@ -333,10 +335,14 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		}
 	}
 
-	if task.NotifiesOnSuccess() {
-		sequence := atc.PlanSequence{
-			slackOnSuccessPlan(man.SlackChannel),
+	onSuccessChannels := task.GetNotifications().OnSuccess
+	if len(onSuccessChannels) > 0 {
+		sequence := atc.PlanSequence{}
+
+		for _, onSuccessChannel := range onSuccessChannels {
+			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
 		}
+
 		job.Success = &atc.PlanConfig{
 			InParallel: &atc.InParallelConfig{
 				Steps: sequence,

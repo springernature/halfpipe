@@ -1,7 +1,17 @@
 package manifest
 
 type Update struct {
-	Timeout string
+	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Timeout       string
+}
+
+func (u Update) GetNotifications() Notifications {
+	return u.Notifications
+}
+
+func (u Update) SetNotifications(notifications Notifications) Task {
+	u.Notifications = notifications
+	return u
 }
 
 func (u Update) SetTimeout(timeout string) Task {

@@ -5,6 +5,14 @@ type Parallel struct {
 	Tasks TaskList `yaml:"tasks,omitempty"`
 }
 
+func (p Parallel) GetNotifications() Notifications {
+	panic("GetNotifications should never be used as we only care about sub tasks")
+}
+
+func (p Parallel) SetNotifications(notifications Notifications) Task {
+	panic("SetNotifications should never be used as we only care about sub tasks")
+}
+
 func (p Parallel) SetTimeout(timeout string) Task {
 	panic("SetTimeout should never be used as we only care about sub tasks")
 }
@@ -54,12 +62,7 @@ func (Parallel) IsManualTrigger() bool {
 }
 
 func (p Parallel) NotifiesOnSuccess() bool {
-	for _, task := range p.Tasks {
-		if task.NotifiesOnSuccess() {
-			return true
-		}
-	}
-	return false
+	panic("NotifiesOnSuccess should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetTimeout() string {
