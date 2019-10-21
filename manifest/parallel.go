@@ -62,12 +62,7 @@ func (Parallel) IsManualTrigger() bool {
 }
 
 func (p Parallel) NotifiesOnSuccess() bool {
-	for _, task := range p.Tasks {
-		if task.NotifiesOnSuccess() {
-			return true
-		}
-	}
-	return false
+	panic("NotifiesOnSuccess should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
 func (Parallel) GetTimeout() string {

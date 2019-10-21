@@ -57,12 +57,7 @@ func (s Sequence) IsManualTrigger() bool {
 }
 
 func (s Sequence) NotifiesOnSuccess() bool {
-	for _, task := range s.Tasks {
-		if task.NotifiesOnSuccess() {
-			return true
-		}
-	}
-	return false
+	panic("NotifiesOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
 func (s Sequence) GetTimeout() string {
