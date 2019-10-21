@@ -17,7 +17,6 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 		default:
 			if !task.GetNotifications().NotificationsDefined() {
 				notifications := manifest.Notifications{
-					OnSuccess: nil,
 					OnFailure: []string{slackChannel},
 				}
 

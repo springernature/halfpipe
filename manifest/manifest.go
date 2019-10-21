@@ -60,7 +60,7 @@ func (tl TaskList) UsesNotifications() bool {
 				return true
 			}
 		default:
-			if task.GetNotifications().NotificationsDefined() == true {
+			if task.GetNotifications().NotificationsDefined() {
 				return true
 			}
 		}
