@@ -5,18 +5,22 @@ import (
 	"github.com/concourse/concourse/atc"
 )
 
-func slackOnFailurePlan(channel string) atc.PlanConfig {
-	return slackPlan(channel, "failed")
+func slackOnFailurePlan(channel string, message string) atc.PlanConfig {
+	return slackPlan(channel, "failed", message)
 }
 
-func slackOnSuccessPlan(channel string) atc.PlanConfig {
-	return slackPlan(channel, "succeeded")
+func slackOnSuccessPlan(channel string, message string) atc.PlanConfig {
+	return slackPlan(channel, "succeeded", message)
 }
 
-func slackPlan(channel string, status string) atc.PlanConfig {
+func slackPlan(channel string, status string, message string) atc.PlanConfig {
 	url := "<$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>"
 	icon := fmt.Sprintf("https://concourse.halfpipe.io/public/images/favicon-%s.png", status)
-	text := fmt.Sprintf("Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` %s %s", status, url)
+
+	text := message
+	if text == "" {
+		text = fmt.Sprintf("Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` %s %s", status, url)
+	}
 
 	return atc.PlanConfig{
 		Put: slackResourceName,

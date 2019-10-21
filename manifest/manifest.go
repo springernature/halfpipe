@@ -20,8 +20,10 @@ func (v Vars) SetVar(key, value string) Vars {
 }
 
 type Notifications struct {
-	OnSuccess []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnFailure []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
+	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
+	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {

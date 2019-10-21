@@ -97,12 +97,12 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 		pipeline := testPipeline().Render(man)
 
 		firstTask, _ := pipeline.Jobs.Lookup(taskName1)
-		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel, ""))
 
 		secondTask, _ := pipeline.Jobs.Lookup(taskName2)
 		assert.Nil(t, secondTask.Success)
 
 		thirdTask, _ := pipeline.Jobs.Lookup(taskName3)
-		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel))
+		assert.Equal(t, (thirdTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel, ""))
 	})
 }

@@ -325,7 +325,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		}
 
 		for _, onFailureChannel := range onFailureChannels {
-			sequence = append(sequence, slackOnFailurePlan(onFailureChannel))
+			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
 		job.Failure = &atc.PlanConfig{
@@ -340,7 +340,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		sequence := atc.PlanSequence{}
 
 		for _, onSuccessChannel := range onSuccessChannels {
-			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel))
+			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
 		}
 
 		job.Success = &atc.PlanConfig{

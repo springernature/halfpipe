@@ -21,9 +21,11 @@ tasks:
   docker:
     image: alpine
   notifications:
+    on_success_message: Wiiiie! \o/
     on_success: 
     - asdf
     - prws
+    on_failure_message: Nooooes >:c
     on_failure:
     - kehe
     - whoop
