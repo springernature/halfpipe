@@ -19,7 +19,13 @@ func NewTriggersDefaulter() TriggersDefaulter {
 }
 
 func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
-	for _, trigger := range original {
+	triggersUnderDefaulting := original
+
+	if !original.HasGitTrigger() {
+		triggersUnderDefaulting = append(triggersUnderDefaulting, manifest.GitTrigger{})
+	}
+
+	for _, trigger := range triggersUnderDefaulting {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
 			updated = append(updated, t.gitTriggerDefaulter(trigger, defaults))
@@ -32,8 +38,5 @@ func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Default
 		}
 	}
 
-	if !updated.HasGitTrigger() {
-		updated = append(updated, t.gitTriggerDefaulter(manifest.GitTrigger{}, defaults))
-	}
-	return
+	return updated
 }

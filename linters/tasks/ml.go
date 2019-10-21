@@ -21,7 +21,7 @@ func LintDeployMLZipTask(mlTask manifest.DeployMLZip) (errs []error, warnings []
 	if mlTask.AppVersion != "" && mlTask.UseBuildVersion {
 		errs = append(errs, linterrors.NewInvalidField("use_build_version", "cannot set both app_version and use_build_version"))
 	}
-	return
+	return errs, warnings
 }
 
 func LintDeployMLModulesTask(mlTask manifest.DeployMLModules) (errs []error, warnings []error) {
@@ -40,5 +40,5 @@ func LintDeployMLModulesTask(mlTask manifest.DeployMLModules) (errs []error, war
 	if mlTask.AppVersion != "" && mlTask.UseBuildVersion {
 		errs = append(errs, linterrors.NewInvalidField("use_build_version", "cannot set both app_version and use_build_version"))
 	}
-	return
+	return errs, warnings
 }

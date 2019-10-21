@@ -10,5 +10,5 @@ func LintDockerTrigger(docker manifest.DockerTrigger) (errs []error, warnings []
 		errs = append(errs, linterrors.NewMissingField("image"))
 	}
 
-	return
+	return errs, warnings
 }

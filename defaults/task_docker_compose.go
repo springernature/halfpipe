@@ -9,5 +9,5 @@ func dockerComposeDefaulter(original manifest.DockerCompose, defaults Defaults) 
 		updated.Service = defaults.DockerComposeService
 	}
 
-	return
+	return updated
 }

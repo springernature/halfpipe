@@ -52,7 +52,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 
 	if len(man.Tasks) == 0 {
 		result.AddError(linterrors.NewMissingField("tasks"))
-		return
+		return result
 	}
 
 	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{}, true, false)
@@ -62,7 +62,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	result.AddError(errs...)
 	result.AddWarning(warnings...)
 
-	return
+	return result
 }
 
 func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task, lintArtifact, cameFromParallel bool) (rE []error, rW []error) {
@@ -149,7 +149,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		rW = append(rW, prefixErrors(warnings)...)
 	}
 
-	return
+	return rE, rW
 }
 
 func sortErrors(errs []error) {
@@ -174,6 +174,6 @@ func prefixErrorsWithIndex(prefix string) func(errs []error) (rE []error) {
 			}
 
 		}
-		return
+		return rE
 	}
 }

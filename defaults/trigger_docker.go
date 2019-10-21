@@ -12,5 +12,5 @@ func defaultDockerTrigger(original manifest.DockerTrigger, defaults Defaults) (u
 		updated.Username = defaults.DockerUsername
 		updated.Password = defaults.DockerPassword
 	}
-	return
+	return updated
 }

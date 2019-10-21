@@ -41,5 +41,5 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult
 		result.AddError(linterrors.NewInvalidField("slack_channel", "must be defined if a task uses `notify_on_success`"))
 	}
 
-	return
+	return result
 }

@@ -52,7 +52,7 @@ func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []erro
 		}
 	}
 
-	return
+	return errs, warnings
 }
 
 func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
@@ -67,20 +67,21 @@ func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []er
 
 	if err := filechecker.CheckFile(fs, composeFile, false); err != nil {
 		errs = append(errs, err)
-		return
+		return errs, warnings
 	}
 
 	e, w := lintDockerComposeService(dc.Service, composeFile, fs)
 	errs = append(errs, e...)
 	warnings = append(warnings, w...)
-	return
+
+	return errs, warnings
 }
 
 func lintDockerComposeService(service string, composeFile string, fs afero.Afero) (errs []error, warnings []error) {
 	content, err := fs.ReadFile(composeFile)
 	if err != nil {
 		errs = append(errs, err)
-		return
+		return errs, warnings
 	}
 
 	var compose struct {
@@ -90,24 +91,24 @@ func lintDockerComposeService(service string, composeFile string, fs afero.Afero
 	if err != nil {
 		err = linterrors.NewFileError(composeFile, err.Error())
 		errs = append(errs, err)
-		return
+		return errs, warnings
 	}
 
 	if _, ok := compose.Services[service]; ok {
-		return
+		return errs, warnings
 	}
 
 	var composeWithoutServices map[string]interface{}
 	err = yaml.Unmarshal(content, &composeWithoutServices)
 	if err != nil {
 		errs = append(errs, err)
-		return
+		return errs, warnings
 	}
 
 	if _, ok := composeWithoutServices[service]; ok {
-		return
+		return errs, warnings
 	}
 
 	errs = append(errs, linterrors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in %s", service, composeFile)))
-	return
+	return errs, warnings
 }

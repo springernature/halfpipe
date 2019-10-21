@@ -49,7 +49,7 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 		errs = append(errs, linterrors.NewTriggerError("docker"))
 	}
 
-	return
+	return errs
 }
 
 func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnings []error) {
@@ -72,7 +72,7 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 		errs = append(errs, prefixErrors(e)...)
 		warnings = append(warnings, prefixErrors(w)...)
 	}
-	return
+	return errs, warnings
 }
 
 func (t triggersLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
@@ -81,14 +81,14 @@ func (t triggersLinter) Lint(manifest manifest.Manifest) (result result.LintResu
 
 	result.Errors = append(result.Errors, t.lintOnlyOneOfEach(manifest.Triggers)...)
 	if len(result.Errors) > 0 {
-		return
+		return result
 	}
 
 	errs, warnings := t.lintTrigger(manifest)
 	result.Errors = append(result.Errors, errs...)
 	result.Warnings = append(result.Warnings, warnings...)
 
-	return
+	return result
 }
 
 func NewTriggersLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) triggersLinter {

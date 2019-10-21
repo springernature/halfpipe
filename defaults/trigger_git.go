@@ -25,5 +25,5 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults) (updated
 		updated.PrivateKey = defaults.RepoPrivateKey
 	}
 
-	return
+	return updated
 }

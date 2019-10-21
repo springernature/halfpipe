@@ -47,12 +47,12 @@ func runGitBranch() (output []string, err error) {
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
-		return
+		return output, err
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")
 
-	return
+	return output, err
 }
 
 func runGitRevParse() (output []string, err error) {
@@ -63,11 +63,11 @@ func runGitRevParse() (output []string, err error) {
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
-		return
+		return output, err
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")
-	return
+	return output, err
 }
 
 func runningInConcourse(gitBranchOutput []string, gitRevParseOutput []string) bool {
@@ -94,7 +94,7 @@ func makeSureThereIsCommits() (err error) {
 		return runErr
 	}
 
-	return
+	return err
 }
 
 func BranchResolver() (branch string, err error) {
@@ -107,17 +107,17 @@ func BranchResolver() (branch string, err error) {
 	// The calls below will fail.
 	err = makeSureThereIsCommits()
 	if err != nil {
-		return
+		return branch, err
 	}
 
 	gitBranchOutput, err := runGitBranch()
 	if err != nil {
-		return
+		return branch, err
 	}
 
 	gitRevParseOutput, err := runGitRevParse()
 	if err != nil {
-		return
+		return branch, err
 	}
 
 	if runningInConcourse(gitBranchOutput, gitRevParseOutput) {
@@ -125,5 +125,5 @@ func BranchResolver() (branch string, err error) {
 	} else {
 		branch = gitRevParseOutput[0]
 	}
-	return
+	return branch, err
 }

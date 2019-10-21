@@ -29,13 +29,13 @@ func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
 func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
 	if git.URI == "" {
 		errs = append(errs, linterrors.NewMissingField("uri"))
-		return
+		return errs, warnings
 	}
 
 	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, git.URI)
 	if !match {
 		errs = append(errs, linterrors.NewInvalidField("uri", fmt.Sprintf("'%s' is not a valid git URI. If you are using SSH-aliases you must manually specify this field.", git.URI)))
-		return
+		return errs, warnings
 	}
 
 	if strings.HasPrefix(git.URI, "git@") && git.PrivateKey == "" {
@@ -83,5 +83,5 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 		}
 	}
 
-	return
+	return errs, warnings
 }

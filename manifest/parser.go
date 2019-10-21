@@ -13,17 +13,12 @@ import (
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {
-	addError := func(e error) {
-		errs = append(errs, e)
-	}
-
 	if es := unmarshalAsJSON([]byte(manifestYaml), &man); len(es) > 0 {
 		for _, err := range es {
-			addError(NewParseError(err.Error()))
+			errs = append(errs, NewParseError(err.Error()))
 		}
-		return
 	}
-	return
+	return man, errs
 }
 
 // convert YAML to JSON because JSON parser gives more control that we need to unmarshal into tasks
@@ -188,7 +183,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
 	}
 
-	return
+	return task, err
 }
 
 func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType string) (trigger Trigger, err error) {
@@ -236,5 +231,5 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		err = linterrors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
 	}
 
-	return
+	return trigger, err
 }

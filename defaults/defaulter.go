@@ -5,10 +5,6 @@ import (
 	"github.com/springernature/halfpipe/project"
 )
 
-type Defaulter interface {
-	Apply(original manifest.Manifest) (updated manifest.Manifest)
-}
-
 type TriggersDefaulter interface {
 	Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList)
 }
@@ -31,6 +27,7 @@ type Defaults struct {
 
 	DockerUsername string
 	DockerPassword string
+	DockerfilePath string
 
 	Project project.Data
 
@@ -58,10 +55,9 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 	}
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
-
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 
-	return
+	return updated
 }
 
 func New(project project.Data) Defaults {

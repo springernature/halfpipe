@@ -50,5 +50,5 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero) (errs []error, warni
 		}
 	}
 
-	return
+	return errs, warnings
 }

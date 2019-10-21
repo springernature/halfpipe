@@ -20,5 +20,5 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result result.LintResul
 	result.DocsURL = "https://docs.halfpipe.io/vault/"
 
 	result.AddError(s.secretValidator.Validate(manifest)...)
-	return
+	return result
 }

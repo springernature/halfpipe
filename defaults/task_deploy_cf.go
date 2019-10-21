@@ -37,5 +37,5 @@ func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manife
 		}
 	}
 
-	return
+	return updated
 }

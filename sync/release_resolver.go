@@ -34,7 +34,7 @@ func (r results) GetLatest() (result Release) {
 		}
 	}
 
-	return
+	return result
 }
 
 type result struct {
@@ -47,8 +47,7 @@ func (r result) getDownloadURL() string {
 
 func (r result) getVersion() (version semver.Version, err error) {
 	rx := regexp.MustCompile(`[0-9]+.[0-9]+.[0-9]+`)
-	version, err = semver.Parse(string(rx.Find([]byte(r.URI))))
-	return
+	return semver.Parse(string(rx.Find([]byte(r.URI))))
 }
 
 type Release struct {
@@ -81,6 +80,5 @@ func ResolveLatestVersionFromArtifactory(os string, httpGetter HTTPGetter) (rele
 		return release, wrapArtifactoryError(err)
 	}
 
-	release = r.GetLatest()
-	return
+	return r.GetLatest(), nil
 }

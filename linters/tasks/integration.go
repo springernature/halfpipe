@@ -24,5 +24,6 @@ func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, provi
 	if cit.Retries < 0 || cit.Retries > 5 {
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
-	return
+
+	return errs, warnings
 }

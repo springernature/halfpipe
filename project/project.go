@@ -75,12 +75,12 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 
 	if _, e := c.LookPath("git"); e != nil {
 		err = ErrGitNotFound
-		return
+		return p, err
 	}
 
 	basePath, rootName, err := pathRelativeToGit(workingDir)
 	if err != nil {
-		return
+		return p, err
 	}
 	// win -> unix path
 	basePath = strings.Replace(basePath, `\`, "/", -1)
@@ -88,14 +88,14 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 	origin, e := c.OriginURL()
 	if e != nil {
 		err = ErrNoOriginConfigured
-		return
+		return p, err
 	}
 
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
 	if e != nil {
 		if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
 			err = e
-			return
+			return p, err
 		}
 	}
 
@@ -103,5 +103,5 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 	p.BasePath = basePath
 	p.RootName = rootName
 	p.HalfpipeFilePath = halfpipeFilePath
-	return
+	return p, err
 }

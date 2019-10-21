@@ -36,16 +36,16 @@ func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
 
 func ReadFile(fs afero.Afero, path string) (content string, err error) {
 	if err = CheckFile(fs, path, false); err != nil {
-		return
+		return content, err
 	}
 
 	bytez, err := fs.ReadFile(path)
 	if err != nil {
-		return
+		return content, err
 	}
 
 	content = string(bytez)
-	return
+	return content, err
 }
 
 func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName string, err error) {
@@ -60,12 +60,12 @@ func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName st
 
 	if len(foundPaths) > 1 {
 		err = errors2.New(fmt.Sprintf("found %s files. Please use only 1 of those", foundPaths))
-		return
+		return halfpipeFileName, err
 	}
 
 	if len(foundPaths) == 0 {
 		err = linterrors.NewMissingHalfpipeFileError()
-		return
+		return halfpipeFileName, err
 	}
 
 	return foundPaths[0], nil

@@ -117,7 +117,7 @@ func (m Manifest) PipelineName() (pipelineName string) {
 		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(gitTrigger.Branch))
 	}
 
-	return
+	return pipelineName
 }
 
 type ArtifactConfig struct {

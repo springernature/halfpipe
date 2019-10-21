@@ -32,7 +32,7 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.Lin
 			result.AddError(ErrNonSupportedFeature(feature))
 		}
 	}
-	return
+	return result
 }
 
 func (f featureToggleLinter) featureInAvailableFeatures(feature string) bool {

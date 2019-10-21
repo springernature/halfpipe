@@ -19,22 +19,22 @@ func contains(allowedStatus []string, status string) bool {
 func LintPipelineTrigger(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error) {
 	if man.Team != pipeline.Team {
 		errs = append(errs, linterrors.NewInvalidField("team", fmt.Sprintf("you can only trigger on pipelines in your team, '%s'!", man.Team)))
-		return
+		return errs, warnings
 	}
 
 	if pipeline.Pipeline == "" {
 		errs = append(errs, linterrors.NewInvalidField("pipeline", "must not be empty"))
-		return
+		return errs, warnings
 	}
 
 	if pipeline.Job == "" {
 		errs = append(errs, linterrors.NewInvalidField("job", "must not be empty"))
-		return
+		return errs, warnings
 	}
 
 	allowedStatus := []string{"succeeded", "failed", "errored", "aborted"}
 	if !contains(allowedStatus, pipeline.Status) {
 		errs = append(errs, linterrors.NewInvalidField("status", fmt.Sprintf("must be one of %s", strings.Join(allowedStatus, ", "))))
 	}
-	return
+	return errs, warnings
 }

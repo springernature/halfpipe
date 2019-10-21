@@ -39,5 +39,5 @@ func (c controller) Process(man manifest.Manifest) (config atc.Config, results r
 	}
 
 	config = c.renderer.Render(updatedManifest)
-	return
+	return config, results
 }

@@ -22,5 +22,5 @@ func LintPrePromoteTask(task manifest.Task) (errs []error, warnings []error) {
 		errs = append(errs, linterrors.NewInvalidField("manual_trigger", "You are not allowed to have a manual trigger inside a pre promote task"))
 	}
 
-	return
+	return errs, warnings
 }

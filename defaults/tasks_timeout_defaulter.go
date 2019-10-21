@@ -33,5 +33,5 @@ func (t tasksTimeoutDefaulter) Apply(original manifest.TaskList, defaults Defaul
 		updated = append(updated, tt)
 	}
 
-	return
+	return updated
 }
