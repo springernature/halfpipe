@@ -31,6 +31,7 @@ type Defaults struct {
 
 	Project project.Data
 
+	DockerComposeFile    string
 	DockerComposeService string
 
 	ArtifactoryUsername string

@@ -870,7 +870,7 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	}
 
 	composeFileOption := ""
-	if task.ComposeFile != "" {
+	if task.ComposeFile != "docker-compose.yml" {
 		composeFileOption = "-f " + task.ComposeFile
 	}
 	envOption := strings.Join(envStrings, " ")

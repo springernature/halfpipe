@@ -25,7 +25,9 @@ var DefaultValues = Defaults{
 	DockerUsername:       "_json_key",
 	DockerPassword:       "((halfpipe-gcr.private_key))",
 	DockerComposeService: "app",
-	DockerfilePath:       "Dockerfile",
+
+	DockerComposeFile: "docker-compose.yml",
+	DockerfilePath:    "Dockerfile",
 
 	ArtifactoryUsername: "((artifactory.username))",
 	ArtifactoryPassword: "((artifactory.password))",
