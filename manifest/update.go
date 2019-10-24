@@ -1,6 +1,7 @@
 package manifest
 
 type Update struct {
+	Type          string
 	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout       string
 }
@@ -24,7 +25,8 @@ func (u Update) SetName(name string) Task {
 }
 
 func (u Update) MarshalYAML() (interface{}, error) {
-	panic("This should never be exposed")
+	u.Type = "update"
+	return u, nil
 }
 
 func (Update) ReadsFromArtifacts() bool {
