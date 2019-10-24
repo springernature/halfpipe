@@ -3,9 +3,11 @@ package manifest
 type FeatureToggles []string
 
 const FeatureUpdatePipeline = "update-pipeline"
+const FeatureFlattenDockerCompose = "flatten-docker-compose"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
+	FeatureFlattenDockerCompose,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -23,4 +25,8 @@ func (f FeatureToggles) Versioned() bool {
 
 func (f FeatureToggles) UpdatePipeline() bool {
 	return f.contains(FeatureUpdatePipeline)
+}
+
+func (f FeatureToggles) FlattenDockerCompose() bool {
+	return f.contains(FeatureFlattenDockerCompose)
 }
