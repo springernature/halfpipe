@@ -70,22 +70,6 @@ func (tl TaskList) UsesNotifications() bool {
 	return false
 }
 
-type TaskRunner func(task Task) (updated Task)
-
-func (tl TaskList) RunForEachTask(runner TaskRunner) (updated TaskList) {
-	for _, t := range tl {
-		switch t := t.(type) {
-		case Parallel:
-			updated = append(updated, t.Tasks.RunForEachTask(runner)...)
-		case Sequence:
-			updated = append(updated, t.Tasks.RunForEachTask(runner)...)
-		default:
-			//updated = append()
-		}
-	}
-	return updated
-}
-
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
