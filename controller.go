@@ -12,6 +12,7 @@ import (
 
 type Controller interface {
 	Process(man manifest.Manifest) (config atc.Config, results result.LintResults)
+	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest)
 }
 
 type controller struct {
@@ -31,11 +32,7 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 }
 
 func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
-	// Apply defaults for values
-	updatedManifest := c.defaulter.Apply(man)
-
-	// Map fields to other fields
-	updatedManifest = c.mapper.Apply(updatedManifest)
+	updatedManifest := c.DefaultAndMap(man)
 
 	for _, linter := range c.linters {
 		results = append(results, linter.Lint(updatedManifest))
@@ -47,4 +44,8 @@ func (c controller) Process(man manifest.Manifest) (config atc.Config, results r
 
 	config = c.renderer.Render(updatedManifest)
 	return config, results
+}
+
+func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest) {
+	return c.mapper.Apply(c.defaulter.Apply(man))
 }
