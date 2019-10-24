@@ -1,6 +1,9 @@
 package mapper
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/manifest"
+)
 
 type Mapper interface {
 	Apply(original manifest.Manifest) (updated manifest.Manifest)
@@ -24,6 +27,7 @@ func New() Mapper {
 	return mapper{
 		mappers: []Mapper{
 			NewNotificationsMapper(),
+			NewDockerComposeMapper(afero.Afero{Fs: afero.NewOsFs()}),
 		},
 	}
 }
