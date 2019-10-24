@@ -47,18 +47,28 @@ func (m dockerComposeMapper) updateTasks(tasks manifest.TaskList) (updated manif
 }
 
 func (m dockerComposeMapper) convertToRunTask(dcTask manifest.DockerCompose) manifest.Task {
-	dcFile, err := m.dockerComposeFile(dcTask.ComposeFile)
+	dc, err := m.dockerComposeFile(dcTask.ComposeFile)
 	if err != nil {
 		return dcTask
 	}
 
-	if len(dcFile.Services) != 1 {
+	if len(dc.Services) != 1 {
 		return dcTask
 	}
 
-	service, ok := dcFile.Services[dcTask.Service]
+	service, ok := dc.Services[dcTask.Service]
 	if !ok {
 		return dcTask
+	}
+
+	//don't convert if working_dir is the parent dir
+	for _, vol := range service.Volumes {
+		v := strings.Split(vol, ":")
+		if len(v) > 1 {
+			if v[0] == ".." && v[1] == service.WorkingDir {
+				return dcTask
+			}
+		}
 	}
 
 	//prefer the command set in halfpipe over docker-compose
@@ -100,12 +110,13 @@ func (m dockerComposeMapper) dockerComposeFile(path string) (dc DockerCompose, e
 	}
 	err = yaml.Unmarshal(content, &dc)
 	return dc, err
-
 }
 
 type Service struct {
-	Image   string
-	Command string
+	Image      string
+	Command    string
+	Volumes    []string
+	WorkingDir string `yaml:"working_dir"`
 }
 
 type DockerCompose struct {

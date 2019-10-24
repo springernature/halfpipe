@@ -86,3 +86,28 @@ func TestConvertsDockerComposeTaskToRunTask(t *testing.T) {
 
 	assert.Equal(t, expected, NewDockerComposeMapper(fs).Apply(original).Tasks[0])
 }
+
+func TestDoesNotConvertWhenWorkingDirIsParent(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	var dockerComposeContents = `
+version: '3'
+services:
+  app:
+    image: eu.gcr.io/halfpipe-io/build-openjdk11-nvm
+    command: bash -lc 'cd oscar-sites-nature && ./build'
+    working_dir: /root/code
+    volumes:
+    - ..:/root/code:delegated`
+
+	fs.WriteFile("docker-compose.yml", []byte(dockerComposeContents), 0777)
+
+	original := manifest.Manifest{
+		FeatureToggles: []string{manifest.FeatureFlattenDockerCompose},
+		Tasks: manifest.TaskList{
+			manifest.DockerCompose{ComposeFile: "docker-compose.yml", Service: "app"},
+		},
+	}
+
+	assert.Equal(t, original, NewDockerComposeMapper(fs).Apply(original))
+}
