@@ -32,17 +32,19 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 }
 
 func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
-	updatedManifest := c.DefaultAndMap(man)
+	defaultedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
-		results = append(results, linter.Lint(updatedManifest))
+		results = append(results, linter.Lint(defaultedManifest))
 	}
 
 	if results.HasErrors() {
 		return
 	}
 
-	config = c.renderer.Render(updatedManifest)
+	mappedManifest := c.mapper.Apply(defaultedManifest)
+
+	config = c.renderer.Render(mappedManifest)
 	return config, results
 }
 
