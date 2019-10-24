@@ -60,17 +60,12 @@ func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []er
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	composeFile := "docker-compose.yml"
-	if dc.ComposeFile != "" {
-		composeFile = dc.ComposeFile
-	}
-
-	if err := filechecker.CheckFile(fs, composeFile, false); err != nil {
+	if err := filechecker.CheckFile(fs, dc.ComposeFile, false); err != nil {
 		errs = append(errs, err)
 		return errs, warnings
 	}
 
-	e, w := lintDockerComposeService(dc.Service, composeFile, fs)
+	e, w := lintDockerComposeService(dc.Service, dc.ComposeFile, fs)
 	errs = append(errs, e...)
 	warnings = append(warnings, w...)
 

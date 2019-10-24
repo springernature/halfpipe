@@ -278,14 +278,15 @@ func TestDockerCompose_Happy(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
-	emptyTask := manifest.DockerCompose{Service: "app"} //We specify service here as its default is set in the defaulter
+	emptyTask := manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml"} //We specify service and compose file here as they are set in the defaulter
 	errors, warnings := LintDockerComposeTask(emptyTask, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 
 	task := manifest.DockerCompose{
-		Name:    "run docker compose",
-		Service: "app",
+		Name:        "run docker compose",
+		Service:     "app",
+		ComposeFile: "docker-compose.yml",
 		Vars: manifest.Vars{
 			"A": "a",
 			"B": "b",
@@ -299,7 +300,7 @@ func TestDockerCompose_Happy(t *testing.T) {
 func TestDockerCompose_MissingFile(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	emptyTask := manifest.DockerCompose{}
+	emptyTask := manifest.DockerCompose{ComposeFile: "docker-compose.yml"}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
 	linterrors.AssertFileErrorInErrors(t, "docker-compose.yml", errors)
 }
@@ -308,7 +309,7 @@ func TestDockerCompose_UnknownService(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
-	emptyTask := manifest.DockerCompose{Service: "asdf"}
+	emptyTask := manifest.DockerCompose{Service: "asdf", ComposeFile: "docker-compose.yml"}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "service", errors)
 }
@@ -317,13 +318,13 @@ func TestDockerComposeRetries(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
-	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: -1}, fs)
+	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: -1}, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
-	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 6}, fs)
+	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: 6}, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
-	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", Retries: 5}, fs)
+	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: 5}, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 }
