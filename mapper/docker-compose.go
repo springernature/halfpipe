@@ -37,6 +37,9 @@ func (m dockerComposeMapper) updateTasks(tasks manifest.TaskList) (updated manif
 		case manifest.Sequence:
 			task.Tasks = m.updateTasks(task.Tasks)
 			updated = append(updated, task)
+		case manifest.DeployCF:
+			task.PrePromote = m.updateTasks(task.PrePromote)
+			updated = append(updated, task)
 		case manifest.DockerCompose:
 			updated = append(updated, m.convertToRunTask(task))
 		default:

@@ -21,3 +21,12 @@ tasks:
   vars:
     F: foo
     B: bar
+
+- type: deploy-cf
+  api: mp-api
+  org: my-org
+  space: my-space
+  test_domain: test.com
+  pre_promote:
+    - type: docker-compose
+      name: test2

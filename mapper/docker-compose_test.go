@@ -111,3 +111,36 @@ services:
 
 	assert.Equal(t, original, NewDockerComposeMapper(fs).Apply(original))
 }
+
+func TestConvertsTaskInDeployCFPrePromote(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	var dockerComposeContents = `
+        version: 3
+        services:
+          some-service:
+            image: appropriate/curl
+            command: foo-bar`
+
+	fs.WriteFile("docker-compose-foo.yml", []byte(dockerComposeContents), 0777)
+
+	original := manifest.Manifest{
+		FeatureToggles: []string{manifest.FeatureFlattenDockerCompose},
+		Tasks: manifest.TaskList{
+			manifest.DeployCF{
+				PrePromote: manifest.TaskList{
+					manifest.DockerCompose{
+						Name:        "task name",
+						Service:     "some-service",
+						ComposeFile: "docker-compose-foo.yml",
+					},
+				},
+			},
+		},
+	}
+
+	actual := NewDockerComposeMapper(fs).Apply(original)
+
+	deployTask, _ := actual.Tasks[0].(manifest.DeployCF)
+	assert.IsType(t, manifest.Run{}, deployTask.PrePromote[0])
+}

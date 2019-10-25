@@ -1,0 +1,7 @@
+---
+applications:
+- name: halfpipe-example-kotlin-dev
+  instances: 1
+  memory: 32M
+  routes:
+  - route: "test-route"
