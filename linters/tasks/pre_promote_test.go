@@ -8,32 +8,42 @@ import (
 )
 
 func TestLintPrePromoteTasks(t *testing.T) {
-	var task manifest.Task
-	task = manifest.Run{
-		ManualTrigger: true,
-	}
-	errors, _ := LintPrePromoteTask(task)
-	linterrors.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
 
-	task = manifest.DockerCompose{
-		ManualTrigger: true,
-	}
-	errors, _ = LintPrePromoteTask(task)
-	linterrors.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
+	t.Run("Manual trigger", func(t *testing.T) {
+		task := manifest.Run{
+			ManualTrigger: true,
+		}
+		errors, _ := LintPrePromoteTask(task)
+		linterrors.AssertInvalidFieldInErrors(t, "manual_trigger", errors)
+	})
 
-	task = manifest.DeployCF{
-		ManualTrigger: true,
-	}
-	errors, _ = LintPrePromoteTask(task)
-	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
+	t.Run("Notifications", func(t *testing.T) {
+		task := manifest.Run{
+			Notifications: manifest.Notifications{
+				OnSuccess: []string{
+					"#kehe",
+				},
+			},
+		}
+		errors, _ := LintPrePromoteTask(task)
+		linterrors.AssertInvalidFieldInErrors(t, "notifications", errors)
+	})
 
-	task = manifest.DockerPush{
-		ManualTrigger: true,
-	}
-	errors, _ = LintPrePromoteTask(task)
-	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
+	t.Run("Non supported task", func(t *testing.T) {
+		nonSupportedTasks := manifest.TaskList{
+			manifest.DeployCF{},
+			manifest.DockerPush{},
+			manifest.DeployMLZip{},
+			manifest.DeployMLModules{},
+			manifest.Parallel{},
+			manifest.Sequence{},
+		}
 
-	task = manifest.Parallel{}
-	errors, _ = LintPrePromoteTask(task)
-	linterrors.AssertInvalidFieldInErrors(t, "type", errors)
+		for _, nonSupportedTask := range nonSupportedTasks {
+			errors, _ := LintPrePromoteTask(nonSupportedTask)
+			linterrors.AssertInvalidFieldInErrors(t, "type", errors)
+		}
+
+	})
+
 }
