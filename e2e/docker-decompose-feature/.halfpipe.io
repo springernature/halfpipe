@@ -2,7 +2,7 @@ team: engineering-enablement
 pipeline: halfpipe-e2e-docker-compose
 
 feature_toggles:
-- flatten-docker-compose
+- docker-decompose
 
 triggers:
 - type: git

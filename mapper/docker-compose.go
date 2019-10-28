@@ -19,7 +19,7 @@ func NewDockerComposeMapper(fs afero.Afero) Mapper {
 }
 
 func (m dockerComposeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	if !original.FeatureToggles.FlattenDockerCompose() {
+	if !original.FeatureToggles.DockerDecompose() {
 		return original
 	}
 

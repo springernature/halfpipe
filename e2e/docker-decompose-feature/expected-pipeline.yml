@@ -80,7 +80,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-compose-flatten-feature
+        dir: git/e2e/docker-decompose-feature
       inputs:
       - name: git
       caches:
@@ -143,7 +143,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-compose-flatten-feature
+        dir: git/e2e/docker-decompose-feature
       inputs:
       - name: git
       caches:
@@ -158,7 +158,7 @@ jobs:
     resource: CF mp-api my-org my-space
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/docker-compose-flatten-feature/manifest.yml
+      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -174,10 +174,10 @@ jobs:
   - put: cf halfpipe-push
     resource: CF mp-api my-org my-space
     params:
-      appPath: git/e2e/docker-compose-flatten-feature
+      appPath: git/e2e/docker-decompose-feature
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/docker-compose-flatten-feature/manifest.yml
+      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
     timeout: 1h
@@ -186,7 +186,7 @@ jobs:
     resource: CF mp-api my-org my-space
     params:
       command: halfpipe-check
-      manifestPath: git/e2e/docker-compose-flatten-feature/manifest.yml
+      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -239,7 +239,7 @@ jobs:
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/docker-compose-flatten-feature
+              dir: git/e2e/docker-decompose-feature
             inputs:
             - name: git
             caches:
@@ -251,7 +251,7 @@ jobs:
     resource: CF mp-api my-org my-space
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/docker-compose-flatten-feature/manifest.yml
+      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
     timeout: 1h

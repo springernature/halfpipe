@@ -32,7 +32,7 @@ func TestConvertsDockerComposeTaskToRunTask(t *testing.T) {
 	fs.WriteFile("docker-compose-foo.yml", []byte(dockerComposeContents), 0777)
 
 	original := manifest.Manifest{
-		FeatureToggles: []string{manifest.FeatureFlattenDockerCompose},
+		FeatureToggles: []string{manifest.FeatureDockerDecompose},
 		Tasks: manifest.TaskList{
 			manifest.DockerCompose{
 				Name:          "task name",
@@ -103,7 +103,7 @@ services:
 	fs.WriteFile("docker-compose.yml", []byte(dockerComposeContents), 0777)
 
 	original := manifest.Manifest{
-		FeatureToggles: []string{manifest.FeatureFlattenDockerCompose},
+		FeatureToggles: []string{manifest.FeatureDockerDecompose},
 		Tasks: manifest.TaskList{
 			manifest.DockerCompose{ComposeFile: "docker-compose.yml", Service: "app"},
 		},
@@ -125,7 +125,7 @@ func TestConvertsTaskInDeployCFPrePromote(t *testing.T) {
 	fs.WriteFile("docker-compose-foo.yml", []byte(dockerComposeContents), 0777)
 
 	original := manifest.Manifest{
-		FeatureToggles: []string{manifest.FeatureFlattenDockerCompose},
+		FeatureToggles: []string{manifest.FeatureDockerDecompose},
 		Tasks: manifest.TaskList{
 			manifest.DeployCF{
 				PrePromote: manifest.TaskList{
