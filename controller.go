@@ -1,7 +1,7 @@
 package halfpipe
 
 import (
-	"github.com/concourse/concourse/atc"
+	"github.com/springernature/halfpipe/action"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/linters/result"
@@ -11,7 +11,7 @@ import (
 )
 
 type Controller interface {
-	Process(man manifest.Manifest) (config atc.Config, results result.LintResults)
+	Process(man manifest.Manifest) (config interface{}, results result.LintResults)
 	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest)
 }
 
@@ -31,7 +31,7 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 	}
 }
 
-func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+func (c controller) Process(man manifest.Manifest) (config interface{}, results result.LintResults) {
 	defaultedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
@@ -44,7 +44,13 @@ func (c controller) Process(man manifest.Manifest) (config atc.Config, results r
 
 	mappedManifest := c.mapper.Apply(defaultedManifest)
 
-	config = c.renderer.Render(mappedManifest)
+	if mappedManifest.FeatureToggles.GithubActions() {
+		config = action.Renderer().Render(mappedManifest)
+	} else {
+		// Concourse
+		config = c.renderer.Render(mappedManifest)
+	}
+
 	return config, results
 }
 

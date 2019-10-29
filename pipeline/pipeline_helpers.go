@@ -49,7 +49,7 @@ func toEnvironmentKey(s string) string {
 	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")
 }
 
-func ToString(pipeline atc.Config) (string, error) {
+func ToString(pipeline interface{}) (string, error) {
 	renderedPipeline, err := yaml.Marshal(pipeline)
 	if err != nil {
 		return "", err

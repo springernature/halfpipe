@@ -1,0 +1,19 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: halfpipe-github-actions-run
+"on":
+  push:
+    branches:
+    - master
+    paths:
+    - e2e/github-actions
+  schedule:
+  - cron: '* 10 * * *'
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: test
+      run: ./a
+

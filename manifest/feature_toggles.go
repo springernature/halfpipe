@@ -4,10 +4,12 @@ type FeatureToggles []string
 
 const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
+const FeatureGithubActions = "github-actions"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
+	FeatureGithubActions,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -29,4 +31,8 @@ func (f FeatureToggles) UpdatePipeline() bool {
 
 func (f FeatureToggles) DockerDecompose() bool {
 	return f.contains(FeatureDockerDecompose)
+}
+
+func (f FeatureToggles) GithubActions() bool {
+	return f.contains(FeatureGithubActions)
 }
