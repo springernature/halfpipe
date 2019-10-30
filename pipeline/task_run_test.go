@@ -40,7 +40,7 @@ func TestRenderRunTask(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   3,
 				Task:       "run yolo.sh",
@@ -100,7 +100,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",
@@ -165,7 +165,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",

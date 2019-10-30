@@ -14,6 +14,7 @@ jobs:
       steps:
       - get: git
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: test
     config:

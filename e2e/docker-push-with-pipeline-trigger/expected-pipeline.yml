@@ -45,6 +45,7 @@ jobs:
       - get: halfpipe-example-docker-push docker-push
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - put: halfpipe-fly
     params:

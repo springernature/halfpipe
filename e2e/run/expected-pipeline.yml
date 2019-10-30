@@ -19,6 +19,7 @@ jobs:
         params:
           depth: 1
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: test
     config:

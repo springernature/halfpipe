@@ -50,7 +50,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -111,7 +111,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -171,9 +171,9 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
 				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
-				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts}},
+				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts, Timeout: "1m"}},
 			}},
 			atc.PlanConfig{
 				Attempts: 1,
@@ -241,9 +241,9 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Name:   jobName,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
 				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
-				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts}},
+				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts, Timeout: "1m"}},
 			}},
 			restoreArtifactTask(man),
 			atc.PlanConfig{

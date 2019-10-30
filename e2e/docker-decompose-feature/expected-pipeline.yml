@@ -34,6 +34,7 @@ jobs:
       - get: git
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: test
     config:
@@ -98,6 +99,7 @@ jobs:
         - test
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: two-services
     privileged: true
@@ -170,6 +172,7 @@ jobs:
         - two-services
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF mp-api my-org my-space

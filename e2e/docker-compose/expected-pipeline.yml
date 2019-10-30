@@ -17,6 +17,7 @@ jobs:
       - get: git
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: test
     privileged: true
@@ -78,6 +79,7 @@ jobs:
         - test
         trigger: true
         attempts: 2
+      fail_fast: true
     timeout: 1h
   - task: custom
     privileged: true

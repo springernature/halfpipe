@@ -167,6 +167,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 							Trigger:  true,
 							Attempts: 2,
 						}},
+					FailFast: true,
 				},
 			},
 			atc.PlanConfig{

@@ -167,6 +167,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 		plan = append(plan, atc.PlanConfig{
 			Get:      versionName,
 			Attempts: versionGetAttempts,
+			Timeout:  "1m", // Should never take more than 1 min to fetch the version..
 		})
 	}
 
@@ -472,7 +473,8 @@ func inParallelGets(job *atc.JobConfig) atc.PlanSequence {
 	sequence := job.Plan[:numberOfGets]
 	inParallelPlan := atc.PlanSequence{atc.PlanConfig{
 		InParallel: &atc.InParallelConfig{
-			Steps: sequence,
+			Steps:    sequence,
+			FailFast: true,
 		},
 	}}
 	job.Plan = append(inParallelPlan, job.Plan[numberOfGets:]...)

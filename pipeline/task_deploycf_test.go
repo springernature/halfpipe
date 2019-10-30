@@ -168,7 +168,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   taskDeployDev.Name,
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Put:      "cf halfpipe-push",
 				Attempts: 2,
@@ -234,7 +234,8 @@ func TestRendersCfDeploy(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{
-					Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts, Passed: []string{taskDeployQa.Name, taskDeployStaging.Name}}},
+					FailFast: true,
+					Steps:    atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts, Passed: []string{taskDeployQa.Name, taskDeployStaging.Name}}},
 				},
 				Timeout: timeout,
 			},
