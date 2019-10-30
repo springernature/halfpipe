@@ -25,7 +25,6 @@ resources:
     status: succeeded
     team: engineering-enablement
     username: ((concourse.username))
-  check_every: 24h
 resource_types:
 - name: halfpipe-pipeline-trigger
   type: registry-image

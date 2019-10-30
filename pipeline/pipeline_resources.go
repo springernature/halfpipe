@@ -184,10 +184,9 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 	}
 
 	return atc.ResourceConfig{
-		Name:       pipelineTrigger.GetTriggerName(),
-		Type:       "halfpipe-pipeline-trigger",
-		Source:     sources,
-		CheckEvery: longResourceCheckInterval,
+		Name:   pipelineTrigger.GetTriggerName(),
+		Type:   "halfpipe-pipeline-trigger",
+		Source: sources,
 	}
 }
 
