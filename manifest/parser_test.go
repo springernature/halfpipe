@@ -71,6 +71,11 @@ tasks:
   vars:
     FOO: fOo
     BAR: "1"
+    BAZ: true
+    WRYY: 2
+    THIS_IS_STRANGE:
+    - a
+    - b
   save_artifacts:
   - target/dist/artifact.zip
   - README.md
@@ -228,8 +233,11 @@ tasks:
 				Name:        "docker compose task",
 				ComposeFile: "../compose-file.yml",
 				Vars: Vars{
-					"FOO": "fOo",
-					"BAR": "1",
+					"FOO":  "fOo",
+					"BAR":  "1",
+					"BAZ":  "true",
+					"WRYY": "2",
+					"THIS_IS_STRANGE": "[a b]",
 				},
 				SaveArtifacts: []string{
 					"target/dist/artifact.zip",

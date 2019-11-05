@@ -72,6 +72,21 @@ func (t *TaskList) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (t *Vars) UnmarshalJSON(b []byte) error {
+	var rawVars map[string]interface{}
+	if err := json.Unmarshal(b, &rawVars); err != nil {
+		return err
+	}
+
+	var tmpVars Vars
+	for key, val := range rawVars {
+		tmpVars = tmpVars.SetVar(key, fmt.Sprintf("%v", val))
+	}
+
+	(*t) = tmpVars
+	return nil
+}
+
 func (t *TriggerList) UnmarshalJSON(b []byte) error {
 	// first get a raw array
 	var rawTrigger []json.RawMessage
