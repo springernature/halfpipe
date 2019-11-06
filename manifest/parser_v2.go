@@ -9,37 +9,10 @@ import (
 	"strings"
 )
 
-func removeTypeFromTasksAndTriggers(triggers TriggerList, tasks TaskList) (updatedTriggers TriggerList, updatedTasks TaskList) {
-	for _, trigger := range triggers {
-		var updated Trigger
-		switch trigger := trigger.(type) {
-		case GitTrigger:
-			trigger.Type = ""
-			updated = trigger
-		case DockerTrigger:
-			trigger.Type = ""
-			updated = trigger
-		case PipelineTrigger:
-			trigger.Type = ""
-			updated = trigger
-		case TimerTrigger:
-			trigger.Type = ""
-			updated = trigger
-		}
-		updatedTriggers = append(updatedTriggers, updated)
-	}
-
-	return updatedTriggers, updatedTasks
-}
-
 func ParseV2(manifestYaml string) (man Manifest, errors []error) {
 	if err := yaml.Unmarshal([]byte(manifestYaml), &man); err != nil {
 		errors = append(errors, err)
 	}
-
-	updatedTriggers, updatedTasks := removeTypeFromTasksAndTriggers(man.Triggers, man.Tasks)
-	man.Triggers = updatedTriggers
-	man.Tasks = updatedTasks
 
 	return
 }
@@ -97,18 +70,22 @@ func (t *TriggerList) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		case "git":
 			g := GitTrigger{}
 			err = yaml.UnmarshalStrict(yamlAgain, &g)
+			g.Type = ""
 			typedTrigger = g
 		case "docker":
 			d := DockerTrigger{}
 			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
 			typedTrigger = d
 		case "pipeline":
 			p := PipelineTrigger{}
 			err = yaml.UnmarshalStrict(yamlAgain, &p)
+			p.Type = ""
 			typedTrigger = p
 		case "timer":
 			t := TimerTrigger{}
 			err = yaml.UnmarshalStrict(yamlAgain, &t)
+			t.Type = ""
 			typedTrigger = t
 		default:
 			triggerType := trigger["type"]
