@@ -7,7 +7,6 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/filechecker"
@@ -73,9 +72,9 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 		return man, err
 	}
 
-	err = yaml.Unmarshal([]byte(yamlString), &man)
-	if err != nil {
-		return man, err
+	man, errs := manifest.Parse(yamlString)
+	if errs != nil {
+		return man, errs[0]
 	}
 
 	if man.Team == "" || man.Pipeline == "" {

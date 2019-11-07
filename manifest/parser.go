@@ -1,250 +1,186 @@
 package manifest
 
 import (
-	"bytes"
-	"strings"
-
 	"fmt"
-
-	"encoding/json"
-
-	"github.com/ghodss/yaml"
+	"github.com/simonjohansson/yaml"
 	"github.com/springernature/halfpipe/linters/linterrors"
+	"reflect"
+	"regexp"
+	"strings"
 )
 
-func Parse(manifestYaml string) (man Manifest, errs []error) {
-	if es := unmarshalAsJSON([]byte(manifestYaml), &man); len(es) > 0 {
-		for _, err := range es {
-			errs = append(errs, NewParseError(err.Error()))
+func Parse(manifestYaml string) (man Manifest, errors []error) {
+	if err := yaml.Unmarshal([]byte(manifestYaml), &man); err != nil {
+		errors = append(errors, err)
+	}
+
+	return
+}
+
+func getAllowedFieldsInType(t interface{}) (allowedFields []string) {
+	reflected := reflect.ValueOf(t)
+	for i := 0; i < reflected.NumField(); i++ {
+		tag := reflected.Type().Field(i).Tag
+		yamlTag := tag.Get("yaml")
+		if yamlTag != "" && yamlTag != "-" {
+			fieldName := strings.Split(yamlTag, ",")[0]
+			allowedFields = append(allowedFields, fieldName)
 		}
 	}
-	return man, errs
+	return allowedFields
 }
 
-// convert YAML to JSON because JSON parser gives more control that we need to unmarshal into tasks
-func unmarshalAsJSON(yml []byte, out *Manifest) []error {
-	js, err := yaml.YAMLToJSON(yml)
-	if err != nil {
-		return []error{err}
+func formatError(err error, t interface{}, prefix string) error {
+	// To check if field does not exist in type
+	fieldNotFoundRegex := regexp.MustCompile(`field (.*) not found in`)
+	if fieldNotFoundRegex.MatchString(err.Error()) {
+		fieldName := fieldNotFoundRegex.FindStringSubmatch(err.Error())[1]
+		allowedFields := getAllowedFieldsInType(t)
+		reasonText := fmt.Sprintf("must be one of '%s'", strings.Join(allowedFields, ", "))
+		return linterrors.NewInvalidField(fmt.Sprintf("%s.%s", prefix, fieldName), reasonText)
 	}
 
-	decoder := json.NewDecoder(bytes.NewReader(js))
-	decoder.DisallowUnknownFields()
-
-	if err := decoder.Decode(out); err != nil {
-		msg := strings.Replace(err.Error(), "json: ", "", -1)
-		return []error{fmt.Errorf(msg)}
+	// To check if we do something naughty with types
+	if strings.Contains(err.Error(), "cannot unmarshal") {
+		badTypeRegex := regexp.MustCompile(`line [0-9]+: (.*)`)
+		typeErrorStr := badTypeRegex.FindStringSubmatch(err.Error())[1]
+		return linterrors.NewInvalidField(prefix, typeErrorStr)
 	}
-	return nil
+
+	return fmt.Errorf("%s: %s", prefix, err)
 }
 
-type objectWithType struct {
-	Type string
-}
-
-func (t *TaskList) UnmarshalJSON(b []byte) error {
-	// first get a raw array
-	var rawTasks []json.RawMessage
-	if err := json.Unmarshal(b, &rawTasks); err != nil {
-		return err
+func (t *TriggerList) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var triggers []map[string]interface{}
+	if unmarshalErr := unmarshal(&triggers); unmarshalErr != nil {
+		return unmarshalErr
 	}
 
-	// then just read the type field
-	var objectsWithType []objectWithType
-	if err := json.Unmarshal(b, &objectsWithType); err != nil {
-		return err
-	}
+	for i, trigger := range triggers {
+		prefix := fmt.Sprintf("triggers[%d]", i)
+		yamlAgain, marshalErr := yaml.Marshal(trigger)
+		if marshalErr != nil {
+			return formatError(marshalErr, nil, prefix)
+		}
 
-	// should have 2 arrays the same length..
-	if len(rawTasks) != len(objectsWithType) {
-		return fmt.Errorf("error parsing tasks")
-	}
+		var typedTrigger Trigger
+		var err error
 
-	// loop through and use the Type field to unmarshal into the correct type of Task
-	for i, typedObject := range objectsWithType {
-		task, err := unmarshalTask(i, rawTasks[i], typedObject.Type)
+		switch trigger["type"] {
+		case "git":
+			g := GitTrigger{}
+			err = yaml.UnmarshalStrict(yamlAgain, &g)
+			g.Type = ""
+			typedTrigger = g
+		case "docker":
+			d := DockerTrigger{}
+			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
+			typedTrigger = d
+		case "pipeline":
+			p := PipelineTrigger{}
+			err = yaml.UnmarshalStrict(yamlAgain, &p)
+			p.Type = ""
+			typedTrigger = p
+		case "timer":
+			t := TimerTrigger{}
+			err = yaml.UnmarshalStrict(yamlAgain, &t)
+			t.Type = ""
+			typedTrigger = t
+		default:
+			triggerType := trigger["type"]
+			if triggerType == nil {
+				triggerType = ""
+			}
+			return linterrors.NewInvalidField(fmt.Sprintf("%s.type", prefix), fmt.Sprintf("was '%s' but must be one of 'git', 'pipeline', 'docker', 'cron'", triggerType))
+		}
+
 		if err != nil {
-			return err
+			return formatError(err, typedTrigger, prefix)
 		}
-		*t = append(*t, task)
+
+		*t = append(*t, typedTrigger)
 	}
 
 	return nil
 }
 
-func (t *Vars) UnmarshalJSON(b []byte) error {
-	var rawVars map[string]interface{}
-	if err := json.Unmarshal(b, &rawVars); err != nil {
-		return err
+func (t *TaskList) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var tasks []map[string]interface{}
+	if unmarshalErr := unmarshal(&tasks); unmarshalErr != nil {
+		return unmarshalErr
 	}
 
-	var tmpVars Vars
-	for key, val := range rawVars {
-		tmpVars = tmpVars.SetVar(key, fmt.Sprintf("%v", val))
-	}
+	for i, task := range tasks {
+		prefix := fmt.Sprintf("tasks[%d]", i)
+		yamlAgain, marshalErr := yaml.Marshal(task)
+		if marshalErr != nil {
+			return formatError(marshalErr, nil, prefix)
+		}
 
-	(*t) = tmpVars
-	return nil
-}
+		var typedTask Task
+		var err error
 
-func (t *TriggerList) UnmarshalJSON(b []byte) error {
-	// first get a raw array
-	var rawTrigger []json.RawMessage
-	if err := json.Unmarshal(b, &rawTrigger); err != nil {
-		return err
-	}
+		switch task["type"] {
+		case "run":
+			r := Run{}
+			err = yaml.UnmarshalStrict(yamlAgain, &r)
+			r.Type = ""
+			typedTask = r
+		case "docker-compose":
+			d := DockerCompose{}
+			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
+			typedTask = d
+		case "deploy-cf":
+			c := DeployCF{}
+			err = yaml.UnmarshalStrict(yamlAgain, &c)
+			c.Type = ""
+			typedTask = c
+		case "docker-push":
+			d := DockerPush{}
+			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
+			typedTask = d
+		case "consumer-integration-test":
+			c := ConsumerIntegrationTest{}
+			err = yaml.UnmarshalStrict(yamlAgain, &c)
+			c.Type = ""
+			typedTask = c
+		case "deploy-ml-zip":
+			d := DeployMLZip{}
+			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
+			typedTask = d
+		case "deploy-ml-modules":
+			d := DeployMLModules{}
+			err = yaml.UnmarshalStrict(yamlAgain, &d)
+			d.Type = ""
+			typedTask = d
+		case "parallel":
+			p := Parallel{}
+			err = yaml.UnmarshalStrict(yamlAgain, &p)
+			p.Type = ""
+			typedTask = p
+		case "sequence":
+			p := Sequence{}
+			err = yaml.UnmarshalStrict(yamlAgain, &p)
+			p.Type = ""
+			typedTask = p
+		default:
+			triggerType := task["type"]
+			if triggerType == nil {
+				triggerType = ""
+			}
+			return linterrors.NewInvalidField(fmt.Sprintf("%s.type", prefix), fmt.Sprintf("was '%s' but must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'deploy-ml-zip', 'deploy-ml-modules', 'parallel', 'sequence'", triggerType))
+		}
 
-	// then just read the type field
-	var objectsWithType []objectWithType
-	if err := json.Unmarshal(b, &objectsWithType); err != nil {
-		return err
-	}
-
-	// should have 2 arrays the same length..
-	if len(rawTrigger) != len(objectsWithType) {
-		return fmt.Errorf("error parsing trigger")
-	}
-
-	// loop through and use the Type field to unmarshal into the correct type of Task
-	for i, typedObject := range objectsWithType {
-		trigger, err := unmarshalTrigger(i, rawTrigger[i], typedObject.Type)
 		if err != nil {
-			return err
+			return formatError(err, typedTask, prefix)
 		}
-		*t = append(*t, trigger)
+
+		*t = append(*t, typedTask)
 	}
 
 	return nil
-}
-
-func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (task Task, err error) {
-
-	unmarshal := func(rawTask json.RawMessage, t Task, index int) error {
-		decoder := json.NewDecoder(bytes.NewReader(rawTask))
-		decoder.DisallowUnknownFields()
-		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", index, jsonErr.Error()))
-		}
-		return nil
-	}
-
-	// unmarshal into the correct type of Task
-	switch taskType {
-	case "run":
-		t := Run{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "deploy-cf":
-		t := DeployCF{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "docker-push":
-		t := DockerPush{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "docker-compose":
-		t := DockerCompose{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "consumer-integration-test":
-		t := ConsumerIntegrationTest{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "deploy-ml-zip":
-		t := DeployMLZip{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "deploy-ml-modules":
-		t := DeployMLModules{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "parallel":
-		t := Parallel{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-	case "sequence":
-		t := Sequence{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		task = t
-
-	default:
-		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
-	}
-
-	return task, err
-}
-
-func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType string) (trigger Trigger, err error) {
-
-	unmarshal := func(rawTrigger json.RawMessage, t Trigger, index int) error {
-		decoder := json.NewDecoder(bytes.NewReader(rawTrigger))
-		decoder.DisallowUnknownFields()
-		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
-		}
-		return nil
-	}
-
-	// unmarshal into the correct type of Task
-	switch triggerType {
-	case "git":
-		t := GitTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		trigger = t
-	case "timer":
-		t := TimerTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		trigger = t
-	case "docker":
-		t := DockerTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		trigger = t
-	case "pipeline":
-		t := PipelineTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
-		t.Type = ""
-		trigger = t
-	default:
-		err = linterrors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
-	}
-
-	return trigger, err
 }

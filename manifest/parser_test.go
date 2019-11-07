@@ -1,388 +1,701 @@
 package manifest
 
 import (
-	"testing"
-
-	"fmt"
-
+	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func TestEmptyManifest(t *testing.T) {
+func TestEmpty(t *testing.T) {
 	man, errs := Parse(``)
-	assert.Nil(t, errs)
+	assert.Empty(t, errs)
 	assert.Equal(t, Manifest{}, man)
 }
 
-func TestValidYaml_Everything(t *testing.T) {
-	man, errs := Parse(`
-team: my team
-pipeline: my pipeline
-slack_channel: "#ee-activity"
-artifact_config:
-  bucket: myBucket
-  json_key: ((some.jsonKey))
-triggers:
-- type: git
-  uri: git@github.com:..
-  private_key: private-key
-  watched_paths:
-  - watched/dir1
-  - watched/dir2
-  ignored_paths:
-  - ignored/dir1/**
-  - README.md
-  git_crypt_key: git-crypt-key
-  manual_trigger: true
-- type: timer
-  cron: "*/10 * * * *"
-- type: docker
-  image: ubuntu
-  username: userName
-  password: password
-- type: pipeline
-  pipeline: a
-  job: b
-  status: c 
-feature_toggles:
-- feature1
-- feature2
-- featureXYZ
-tasks:
-- type: run
-  name: run task
-  script: script.sh --param
-  docker:
-    image: golang:latest
-    username: user
-    password: pass
-  privileged: true
-  vars:
-    FOO: fOo
-    BAR: "1"
-  save_artifacts:
-  - target/dist/artifact.zip
-  - README.md
-  save_artifacts_on_failure:
-  - test_reports
-- type: docker-compose
-  name: docker compose task
-  compose_file: ../compose-file.yml
-  vars:
-    FOO: fOo
-    BAR: "1"
-    BAZ: true
-    WRYY: 2
-    THIS_IS_STRANGE:
-    - a
-    - b
-  save_artifacts:
-  - target/dist/artifact.zip
-  - README.md
-  save_artifacts_on_failure:
-  - test_reports
-- type: docker-push
-  name: docker push task
-  username: user
-  password: pass
-  image: golang:latest
-  notifications:
-    on_success:
-    - asdf
-    - kehe
-    on_failure:
-    - kfds
-    - oasdf
-  vars:
-    FOO: fOo
-    BAR: "1"
-  timeout: 1h
-- type: deploy-cf
-  name: deploy cf task
-  api: cf.api
-  space: cf.space
-  org: cf.org
-  username: cf.user
-  password: cf.pass
-  manifest: manifest.yml
-  space: cf.space
-  test_domain: asdf.com
-  vars:
-    FOO: fOo
-    BAR: "1"
-  deploy_artifact: target/dist/artifact.zip
-  pre_start: 
-  - cf apps
-  - cf events
-  pre_promote:
-  - type: run
-    script: smoke-test.sh
-    docker:
-      image: golang
-  - type: consumer-integration-test
-    name: cdc-name
-    consumer: cdc-consumer
-    consumer_host: cdc-host
-    script: cdc-script
-- type: docker-compose
-  name: docker compose task 2
-  service: asdf
-- type: consumer-integration-test
-  name: cdc-name
-  consumer: cdc-consumer
-  consumer_host: cdc-host
-  script: cdc-script
-  git_clone_options: --depth 100
-- type: deploy-ml-zip
-  name: deploy ml zip
-  app_name: app-name
-  app_version: app-version
-  deploy_zip: deploy-zip
-  use_build_version: true
-  targets:
-  - target1
-  - target2
-- type: deploy-ml-modules
-  app_name: app-name
-  app_version: app-version
-  ml_modules_version: ml-modules-version
-  targets:
-  - target1
-  - target2
-- type: parallel
-  tasks:
-  - type: run
-    name: pr1
-  - type: run
-    name: pr2
-- type: parallel
-  tasks:
-  - type: sequence
-    tasks: 
-    - type: run
-      name: pr1
-    - type: run
-      name: pr2
-`)
+func TestTopLevel(t *testing.T) {
 
+	yaml := `pipeline: simon
+team: asdf
+triggers: 
+- type: git
+  branch: simon
+- type: asdf
+`
+
+	Parse(yaml)
+}
+
+func TestArtifactConfig(t *testing.T) {
+	yaml := `
+artifact_config:
+  bucket: BUCKET
+  json_key: JSON_KEY
+`
 	expected := Manifest{
-		Team:     "my team",
-		Pipeline: "my pipeline",
 		ArtifactConfig: ArtifactConfig{
-			Bucket:  "myBucket",
-			JSONKey: "((some.jsonKey))",
-		},
-		SlackChannel: "#ee-activity",
-		FeatureToggles: FeatureToggles{
-			"feature1",
-			"feature2",
-			"featureXYZ",
-		},
-		Triggers: TriggerList{
-			GitTrigger{
-				URI:        "git@github.com:..",
-				PrivateKey: "private-key",
-				WatchedPaths: []string{
-					"watched/dir1",
-					"watched/dir2",
-				},
-				IgnoredPaths: []string{
-					"ignored/dir1/**",
-					"README.md",
-				},
-				GitCryptKey:   "git-crypt-key",
-				ManualTrigger: true,
-			},
-			TimerTrigger{
-				Cron: "*/10 * * * *",
-			},
-			DockerTrigger{
-				Image:    "ubuntu",
-				Username: "userName",
-				Password: "password",
-			},
-			PipelineTrigger{
-				Pipeline: "a",
-				Job:      "b",
-				Status:   "c",
-			},
-		},
-		Tasks: []Task{
-			Run{
-				Name:   "run task",
-				Script: "script.sh --param",
-				Docker: Docker{
-					Image:    "golang:latest",
-					Username: "user",
-					Password: "pass",
-				},
-				Privileged: true,
-				Vars: Vars{
-					"FOO": "fOo",
-					"BAR": "1",
-				},
-				SaveArtifacts: []string{
-					"target/dist/artifact.zip",
-					"README.md",
-				},
-				SaveArtifactsOnFailure: []string{
-					"test_reports",
-				},
-			},
-			DockerCompose{
-				Name:        "docker compose task",
-				ComposeFile: "../compose-file.yml",
-				Vars: Vars{
-					"FOO":  "fOo",
-					"BAR":  "1",
-					"BAZ":  "true",
-					"WRYY": "2",
-					"THIS_IS_STRANGE": "[a b]",
-				},
-				SaveArtifacts: []string{
-					"target/dist/artifact.zip",
-					"README.md",
-				},
-				SaveArtifactsOnFailure: []string{
-					"test_reports",
-				},
-			},
-			DockerPush{
-				Name:     "docker push task",
-				Username: "user",
-				Password: "pass",
-				Image:    "golang:latest",
-				Vars: Vars{
-					"FOO": "fOo",
-					"BAR": "1",
-				},
-				Notifications: Notifications{
-					OnSuccess: []string{"asdf", "kehe"},
-					OnFailure: []string{"kfds", "oasdf"},
-				},
-				Timeout: "1h",
-			},
-			DeployCF{
-				Name:       "deploy cf task",
-				API:        "cf.api",
-				Space:      "cf.space",
-				Org:        "cf.org",
-				Username:   "cf.user",
-				Password:   "cf.pass",
-				TestDomain: "asdf.com",
-				Manifest:   "manifest.yml",
-				Vars: Vars{
-					"FOO": "fOo",
-					"BAR": "1",
-				},
-				DeployArtifact: "target/dist/artifact.zip",
-				PreStart:       []string{"cf apps", "cf events"},
-				PrePromote: []Task{
-					Run{
-						Script: "smoke-test.sh",
-						Docker: Docker{
-							Image: "golang",
-						},
-					},
-					ConsumerIntegrationTest{
-						Name:         "cdc-name",
-						Consumer:     "cdc-consumer",
-						ConsumerHost: "cdc-host",
-						Script:       "cdc-script",
-					}},
-			},
-			DockerCompose{
-				Name:    "docker compose task 2",
-				Service: "asdf",
-			},
-			ConsumerIntegrationTest{
-				Name:            "cdc-name",
-				Consumer:        "cdc-consumer",
-				ConsumerHost:    "cdc-host",
-				GitCloneOptions: "--depth 100",
-				Script:          "cdc-script",
-			},
-			DeployMLZip{
-				Name:            "deploy ml zip",
-				DeployZip:       "deploy-zip",
-				AppName:         "app-name",
-				AppVersion:      "app-version",
-				Targets:         []string{"target1", "target2"},
-				UseBuildVersion: true,
-			},
-			DeployMLModules{
-				MLModulesVersion: "ml-modules-version",
-				AppName:          "app-name",
-				AppVersion:       "app-version",
-				Targets:          []string{"target1", "target2"},
-				UseBuildVersion:  false,
-			},
-			Parallel{
-				Tasks: TaskList{
-					Run{Name: "pr1"},
-					Run{Name: "pr2"},
-				},
-			},
-			Parallel{
-				Tasks: TaskList{
-					Sequence{
-						Tasks: TaskList{
-							Run{Name: "pr1"},
-							Run{Name: "pr2"},
-						},
-					},
-				},
-			},
+			Bucket:  "BUCKET",
+			JSONKey: "JSON_KEY",
 		},
 	}
 
-	assert.Nil(t, errs)
+	man, errs := Parse(yaml)
+	assert.Empty(t, errs)
 	assert.Equal(t, expected, man)
 }
 
-func TestInvalidYaml(t *testing.T) {
-	yamls := []string{
-		"team : { foo",
-		"\t team: foo",
+func TestFeatureToggles(t *testing.T) {
+	yaml := `
+feature_toggles:
+- TOGGLE1
+- TOGGLE2
+`
+	expected := Manifest{
+		FeatureToggles: []string{
+			"TOGGLE1",
+			"TOGGLE2",
+		},
 	}
 
-	for _, yaml := range yamls {
-		_, errs := Parse(yaml)
-		assert.Equal(t, len(errs), 1, fmt.Sprintf("%q", yaml))
-	}
+	man, errs := Parse(yaml)
+	assert.Empty(t, errs)
+	assert.Equal(t, expected, man)
 }
 
-func TestFailsWithUnknownFields(t *testing.T) {
-	tests := []string{
-		`
-team: foo
-tasks:
-- type: run
-  script: foo.sh
-  docker: 
-    image: bash:latest
-- type: docker-compose
-  unknown_field: wibble`,
-		`
-team: foo
-tasks:
-- type: docker-compose
-  unknown_field: wibble`,
-		`
-team: foo
+func TestTriggers(t *testing.T) {
+	t.Run("empty trigger type", func(t *testing.T) {
+		yaml := `
+triggers: 
+- branch: simon
+`
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "triggers[0].type", errs)
+	})
+
+	t.Run("bad trigger type", func(t *testing.T) {
+		yaml := `
+triggers: 
+- type: git
+- type: bad
+`
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "triggers[1].type", errs)
+	})
+
+	t.Run("bad field in trigger", func(t *testing.T) {
+		yaml := `
 triggers:
 - type: git
-  uri: git
-  unknown_field: wobble
-
-tasks:
-- type: docker-compose`,
-	}
-
-	for i, yaml := range tests {
+  thisFieldDoesNotExist: yeah
+`
 		_, errs := Parse(yaml)
-		if assert.NotEmpty(t, errs, fmt.Sprintf("%v. %q", i, yaml)) {
-			assert.Contains(t, fmt.Sprintf("%v", errs), "unknown_field")
+		linterrors.AssertInvalidFieldInErrors(t, "triggers[0].thisFieldDoesNotExist", errs)
+	})
+
+	t.Run("bad type in trigger", func(t *testing.T) {
+		yaml := `
+triggers:
+- type: docker
+- type: git
+  manual_trigger: yesPlz`
+
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "triggers[1]", errs)
+	})
+
+	t.Run("all triggers", func(t *testing.T) {
+		yaml := `
+triggers: 
+- type: git
+  uri: URI
+  private_key: PRIVATE_KEY 
+  watched_paths: 
+  - WATCHED_PATH1
+  - WATCHED_PATH2
+  ignored_paths:
+  - IGNORED_PATH1
+  - IGNORED_PATH2
+  git_crypt_key: GIT_CRYPT_KEY
+  branch: BRANCH
+  shallow: true
+  manual_trigger: true
+- type: docker
+  image: IMAGE
+  username: USERNAME
+  password: PASSWORD
+- type: timer
+  cron: CRON_EXPR
+- type: pipeline
+  concourse_url: CONCOURSE_URL
+  username: USERNAME
+  password: PASSWORD
+  team: TEAM
+  pipeline: PIPELINE
+  job: JOB
+  status: STATUS
+`
+		expected := TriggerList{
+			GitTrigger{
+				URI:           "URI",
+				PrivateKey:    "PRIVATE_KEY",
+				WatchedPaths:  []string{"WATCHED_PATH1", "WATCHED_PATH2"},
+				IgnoredPaths:  []string{"IGNORED_PATH1", "IGNORED_PATH2"},
+				GitCryptKey:   "GIT_CRYPT_KEY",
+				Branch:        "BRANCH",
+				Shallow:       true,
+				ManualTrigger: true,
+			},
+			DockerTrigger{
+				Image:    "IMAGE",
+				Username: "USERNAME",
+				Password: "PASSWORD",
+			},
+			TimerTrigger{
+				Cron: "CRON_EXPR",
+			},
+			PipelineTrigger{
+				ConcourseURL: "CONCOURSE_URL",
+				Username:     "USERNAME",
+				Password:     "PASSWORD",
+				Team:         "TEAM",
+				Pipeline:     "PIPELINE",
+				Job:          "JOB",
+				Status:       "STATUS",
+			},
 		}
-	}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Triggers)
+	})
+}
+
+func TestTasks(t *testing.T) {
+	t.Run("empty task type", func(t *testing.T) {
+		yaml := `
+tasks: 
+- something: simon
+`
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "tasks[0].type", errs)
+	})
+
+	t.Run("bad task type", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: run
+- type: bad
+`
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "tasks[1].type", errs)
+	})
+	//
+	t.Run("bad field in trigger", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: run
+  thisFieldDoesNotExist: yeah
+`
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "tasks[0].thisFieldDoesNotExist", errs)
+	})
+
+	t.Run("bad type in trigger", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: run
+- type: run
+  manual_trigger: yesPlz`
+
+		_, errs := Parse(yaml)
+		linterrors.AssertInvalidFieldInErrors(t, "tasks[1]", errs)
+	})
+
+	t.Run("run", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: run
+  name: NAME
+  manual_trigger: true
+  script: SCRIPT
+  docker:
+    image: IMAGE
+    username: USERNAME
+    password: PASSWORD
+  privileged: true
+  vars:
+    VAR1: 1
+    VAR2: true
+    VAR3: "STR"
+  save_artifacts:
+  - PATH1
+  - PATH2
+  restore_artifacts: true
+  save_artifacts_on_failure:
+  - PATH3
+  - PATH4
+  retries: 3
+  notify_on_success: true
+  notifications:
+    on_success:
+    - c1
+    - c2
+    on_success_message: MSG1
+    on_failure:
+    - c3
+    - c4
+    on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := Run{
+			Name:          "NAME",
+			ManualTrigger: true,
+			Script:        "SCRIPT",
+			Docker: Docker{
+				Image:    "IMAGE",
+				Username: "USERNAME",
+				Password: "PASSWORD",
+			},
+			Privileged: true,
+			Vars: Vars{
+				"VAR1": "1",
+				"VAR2": "true",
+				"VAR3": "STR",
+			},
+			SaveArtifacts: []string{
+				"PATH1",
+				"PATH2",
+			},
+			RestoreArtifacts: true,
+			SaveArtifactsOnFailure: []string{
+				"PATH3",
+				"PATH4",
+			},
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+
+	})
+
+	t.Run("docker-compose", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: docker-compose
+  name: NAME
+  command: COMMAND
+  manual_trigger: true
+  service: SERVICE
+  compose_file: COMPOSE_FILE
+
+  vars:
+    VAR1: 1
+    VAR2: true
+    VAR3: STR
+  save_artifacts:
+  - PATH1
+  - PATH2
+  restore_artifacts: true
+  save_artifacts_on_failure: 
+  - PATH3
+  - PATH4
+  retries: 3
+  notify_on_success: true
+  notifications:
+    on_success:
+    - c1
+    - c2
+    on_success_message: MSG1
+    on_failure:
+    - c3
+    - c4
+    on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := DockerCompose{
+			Name:          "NAME",
+			Command:       "COMMAND",
+			ManualTrigger: true,
+			Service:       "SERVICE",
+			ComposeFile:   "COMPOSE_FILE",
+
+			Vars: Vars{
+				"VAR1": "1",
+				"VAR2": "true",
+				"VAR3": "STR",
+			},
+			SaveArtifacts: []string{
+				"PATH1",
+				"PATH2",
+			},
+			RestoreArtifacts: true,
+			SaveArtifactsOnFailure: []string{
+				"PATH3",
+				"PATH4",
+			},
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("deploy-cf", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: deploy-cf
+  name: NAME
+  api: API
+  space: SPACE
+  org: ORG
+  username: USERNAME
+  password: PASSWORD
+  manifest: MANIFEST
+  test_domain: TEST_DOMAIN
+  pre_start:
+  - PS1
+  deploy_artifact: DEPLOY_ARTIFACT
+  pre_promote:
+  - type: run
+    name: PP1
+  - type: run
+    name: PP2
+  manual_trigger: true
+  vars:
+   VAR1: 1
+   VAR2: true
+   VAR3: STR
+  retries: 3
+  notify_on_success: true
+  notifications:
+   on_success:
+   - c1
+   - c2
+   on_success_message: MSG1
+   on_failure:
+   - c3
+   - c4
+   on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := DeployCF{
+			Name:       "NAME",
+			API:        "API",
+			Space:      "SPACE",
+			Org:        "ORG",
+			Username:   "USERNAME",
+			Password:   "PASSWORD",
+			Manifest:   "MANIFEST",
+			TestDomain: "TEST_DOMAIN",
+			PreStart:   []string{"PS1"},
+			PrePromote: TaskList{
+				Run{Name: "PP1"},
+				Run{Name: "PP2"},
+			},
+			DeployArtifact: "DEPLOY_ARTIFACT",
+			ManualTrigger:  true,
+			Vars: Vars{
+				"VAR1": "1",
+				"VAR2": "true",
+				"VAR3": "STR",
+			},
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("docker-push", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: docker-push
+  name: NAME
+  username: USERNAME
+  password: PASSWORD
+  image: IMAGE
+  dockerfile_path: DOCKER_FILE_PATH
+  build_path: BUILD_PATH
+
+  manual_trigger: true
+  vars:
+   VAR1: 1
+   VAR2: true
+   VAR3: STR
+  retries: 3
+  notify_on_success: true
+  notifications:
+   on_success:
+   - c1
+   - c2
+   on_success_message: MSG1
+   on_failure:
+   - c3
+   - c4
+   on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := DockerPush{
+			Name:           "NAME",
+			Username:       "USERNAME",
+			Password:       "PASSWORD",
+			Image:          "IMAGE",
+			DockerfilePath: "DOCKER_FILE_PATH",
+			BuildPath:      "BUILD_PATH",
+
+			ManualTrigger: true,
+			Vars: Vars{
+				"VAR1": "1",
+				"VAR2": "true",
+				"VAR3": "STR",
+			},
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("consumer-integration-test", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: consumer-integration-test
+  name: NAME
+  consumer: CONSUMER
+  consumer_host: CONSUMER_HOST
+  git_clone_options: GIT_CLONE_OPTIONS
+  provider_host: PROVIDER_HOST
+  script: SCRIPT
+  docker_compose_service: DOCKER_COMPOSE_SERVICE
+
+  vars:
+   VAR1: 1
+   VAR2: true
+   VAR3: STR
+  retries: 3
+  notify_on_success: true
+  notifications:
+   on_success:
+   - c1
+   - c2
+   on_success_message: MSG1
+   on_failure:
+   - c3
+   - c4
+   on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := ConsumerIntegrationTest{
+			Name:                 "NAME",
+			Consumer:             "CONSUMER",
+			ConsumerHost:         "CONSUMER_HOST",
+			GitCloneOptions:      "GIT_CLONE_OPTIONS",
+			ProviderHost:         "PROVIDER_HOST",
+			Script:               "SCRIPT",
+			DockerComposeService: "DOCKER_COMPOSE_SERVICE",
+
+			Vars: Vars{
+				"VAR1": "1",
+				"VAR2": "true",
+				"VAR3": "STR",
+			},
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("deploy-ml-zip", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: deploy-ml-zip
+  name: NAME
+  deploy_zip: DEPLOY_ZIP
+  app_name: APP_NAME
+  app_version: APP_VERSION
+  targets:
+  - T1
+  - T2
+  use_build_version: true
+
+  manual_trigger: true
+  retries: 3
+  notify_on_success: true
+  notifications:
+   on_success:
+   - c1
+   - c2
+   on_success_message: MSG1
+   on_failure:
+   - c3
+   - c4
+   on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := DeployMLZip{
+			Name:            "NAME",
+			DeployZip:       "DEPLOY_ZIP",
+			AppName:         "APP_NAME",
+			AppVersion:      "APP_VERSION",
+			Targets:         []string{"T1", "T2"},
+			UseBuildVersion: true,
+
+			ManualTrigger:   true,
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("deploy-ml-modules", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: deploy-ml-modules
+  name: NAME
+  ml_modules_version: ML_MODULES_VERSION
+  app_name: APP_NAME
+  app_version: APP_VERSION
+  targets:
+  - T1
+  - T2
+  use_build_version: true
+
+  manual_trigger: true
+  retries: 3
+  notify_on_success: true
+  notifications:
+   on_success:
+   - c1
+   - c2
+   on_success_message: MSG1
+   on_failure:
+   - c3
+   - c4
+   on_failure_message: MSG2
+  timeout: TIMEOUT
+`
+		expected := DeployMLModules{
+			Name:             "NAME",
+			MLModulesVersion: "ML_MODULES_VERSION",
+			AppName:          "APP_NAME",
+			AppVersion:       "APP_VERSION",
+			Targets:          []string{"T1", "T2"},
+			UseBuildVersion:  true,
+
+			ManualTrigger:   true,
+			Retries:         3,
+			NotifyOnSuccess: true,
+			Notifications: Notifications{
+				OnSuccess:        []string{"c1", "c2"},
+				OnSuccessMessage: "MSG1",
+				OnFailure:        []string{"c3", "c4"},
+				OnFailureMessage: "MSG2",
+			},
+			Timeout: "TIMEOUT",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("parallel", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: parallel
+  tasks:
+  - type: run
+    name: p1
+  - type: docker-push
+    name: p2
+`
+		expected := Parallel{
+			Tasks: TaskList{
+				Run{Name: "p1"},
+				DockerPush{Name: "p2"},
+			},
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
+
+	t.Run("sequence", func(t *testing.T) {
+		yaml := `
+tasks:
+- type: sequence
+  tasks:
+  - type: run
+    name: s1
+  - type: docker-push
+    name: s2
+`
+		expected := Sequence{
+			Tasks: TaskList{
+				Run{Name: "s1"},
+				DockerPush{Name: "s2"},
+			},
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man.Tasks[0])
+	})
 }
