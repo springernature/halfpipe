@@ -13,16 +13,34 @@ func TestEmpty(t *testing.T) {
 }
 
 func TestTopLevel(t *testing.T) {
-
-	yaml := `pipeline: simon
-team: asdf
-triggers: 
-- type: git
-  branch: simon
-- type: asdf
+	t.Run("random weird field", func(t *testing.T) {
+		yaml := `
+FISHMANS_BEST_ALBUM: LONG_SEASON
 `
+		expected := Manifest{
+		}
 
-	Parse(yaml)
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man)
+	})
+
+	t.Run("valid", func(t *testing.T) {
+		yaml := `
+team: TEAM
+pipeline: PIPELINE
+slack_channel: SLACK_CHANNEL 
+`
+		expected := Manifest{
+			Team:           "TEAM",
+			Pipeline:       "PIPELINE",
+			SlackChannel:   "SLACK_CHANNEL",
+		}
+
+		man, errs := Parse(yaml)
+		assert.Empty(t, errs)
+		assert.Equal(t, expected, man)
+	})
 }
 
 func TestArtifactConfig(t *testing.T) {
