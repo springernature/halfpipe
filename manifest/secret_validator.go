@@ -29,16 +29,16 @@ func NewSecretValidator() SecretValidator {
 	return secretValidator{}
 }
 
-func (s secretValidator) getRealFieldName(fieldName string, jsonTag string) string {
+func (s secretValidator) getRealFieldName(fieldName string, yamlTag string) string {
 	if fieldName == "API" {
 		return "api"
 	}
 
-	if jsonTag == "" || jsonTag == "-" || jsonTag == "omitempty" {
+	if yamlTag == "" || yamlTag == "-" || yamlTag == "omitempty" {
 		return strings.ToLower(string(fieldName[0])) + fieldName[1:]
 	}
 
-	return strings.Split(jsonTag, ",")[0]
+	return strings.Split(yamlTag, ",")[0]
 }
 
 func (s secretValidator) validate(i interface{}, fieldName string, secretTag string, errs *[]error) {
@@ -65,14 +65,14 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
 			name := v.Type().Field(i).Name
-			jsonTag := v.Type().Field(i).Tag.Get("json")
+			yamlTag := v.Type().Field(i).Tag.Get("yaml")
 			secretTag := v.Type().Field(i).Tag.Get(tagName)
 
 			var realFieldName string
 			if fieldName == "" {
-				realFieldName = s.getRealFieldName(name, jsonTag)
+				realFieldName = s.getRealFieldName(name, yamlTag)
 			} else {
-				realFieldName = fmt.Sprintf("%s.%s", fieldName, s.getRealFieldName(name, jsonTag))
+				realFieldName = fmt.Sprintf("%s.%s", fieldName, s.getRealFieldName(name, yamlTag))
 			}
 
 			s.validate(field.Interface(), realFieldName, secretTag, errs)

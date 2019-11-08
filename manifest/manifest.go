@@ -20,10 +20,10 @@ func (v Vars) SetVar(key, value string) Vars {
 }
 
 type Notifications struct {
-	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+	OnSuccess        []string `yaml:"on_success,omitempty"`
+	OnSuccessMessage string   `yaml:"on_success_message,omitempty"`
+	OnFailure        []string `yaml:"on_failure,omitempty"`
+	OnFailureMessage string   `yaml:"on_failure_message,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
@@ -121,10 +121,10 @@ func (t TriggerList) HasGitTrigger() bool {
 type Manifest struct {
 	Team           string         `yaml:"team,omitempty"`
 	Pipeline       string         `yaml:"pipeline,omitempty"`
-	SlackChannel   string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	ArtifactConfig ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
-	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
-	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
+	SlackChannel   string         `yaml:"slack_channel,omitempty"`
+	ArtifactConfig ArtifactConfig `yaml:"artifact_config,omitempty"`
+	FeatureToggles FeatureToggles `yaml:"feature_toggles,omitempty"`
+	Triggers       TriggerList    `yaml:"triggers,omitempty"`
 	Tasks          TaskList       `yaml:"tasks,omitempty"`
 }
 
@@ -145,19 +145,19 @@ func (m Manifest) PipelineName() (pipelineName string) {
 }
 
 type ArtifactConfig struct {
-	Bucket  string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true"`
-	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
+	Bucket  string `yaml:"bucket,omitempty" secretAllowed:"true"`
+	JSONKey string `yaml:"json_key,omitempty" secretAllowed:"true"`
 }
 
 type Repo struct {
-	URI          string   `json:"uri,omitempty" yaml:"uri,omitempty"`
-	BasePath     string   `json:"-" yaml:"-"` //don't auto unmarshal
-	PrivateKey   string   `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`
-	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
-	IgnoredPaths []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`
-	GitCryptKey  string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty" secretAllowed:"true"`
-	Branch       string   `json:"branch,omitempty" yaml:"branch,omitempty"`
-	Shallow      bool     `json:"shallow,omitempty" yaml:"shallow,omitempty"`
+	URI          string   `yaml:"uri,omitempty"`
+	BasePath     string   `yaml:"-"` //don't auto unmarshal
+	PrivateKey   string   `yaml:"private_key,omitempty" secretAllowed:"true"`
+	WatchedPaths []string `yaml:"watched_paths,omitempty"`
+	IgnoredPaths []string `yaml:"ignored_paths,omitempty"`
+	GitCryptKey  string   `yaml:"git_crypt_key,omitempty" secretAllowed:"true"`
+	Branch       string   `yaml:"branch,omitempty"`
+	Shallow      bool     `yaml:"shallow,omitempty"`
 }
 
 func (repo Repo) IsPublic() bool {

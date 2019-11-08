@@ -2,7 +2,7 @@ package manifest
 
 type Update struct {
 	Type          string
-	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications Notifications `yaml:"notifications,omitempty"`
 	Timeout       string
 }
 

@@ -5,22 +5,22 @@ import "strings"
 type DeployCF struct {
 	Type            string
 	Name            string        `yaml:"name,omitempty"`
-	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger   bool          `yaml:"manual_trigger,omitempty"`
 	API             string        `yaml:"api,omitempty" secretAllowed:"true"`
 	Space           string        `yaml:"space,omitempty" secretAllowed:"true"`
 	Org             string        `yaml:"org,omitempty" secretAllowed:"true"`
 	Username        string        `yaml:"username,omitempty" secretAllowed:"true"`
 	Password        string        `yaml:"password,omitempty" secretAllowed:"true"`
 	Manifest        string        `yaml:"manifest,omitempty"`
-	TestDomain      string        `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
+	TestDomain      string        `yaml:"test_domain,omitempty" secretAllowed:"true"`
 	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	DeployArtifact  string        `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
-	PrePromote      TaskList      `json:"pre_promote" yaml:"pre_promote,omitempty"`
-	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DeployArtifact  string        `yaml:"deploy_artifact,omitempty"`
+	PrePromote      TaskList      `yaml:"pre_promote,omitempty"`
+	Timeout         string        `yaml:"timeout,omitempty"`
 	Retries         int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	PreStart        []string      `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
+	NotifyOnSuccess bool          `yaml:"notify_on_success,omitempty"`
+	Notifications   Notifications `yaml:"notifications,omitempty"`
+	PreStart        []string      `yaml:"pre_start,omitempty"`
 }
 
 func (r DeployCF) GetNotifications() Notifications {

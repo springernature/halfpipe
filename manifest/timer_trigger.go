@@ -2,7 +2,7 @@ package manifest
 
 type TimerTrigger struct {
 	Type string
-	Cron string `json:"cron,omitempty" yaml:"cron,omitempty"`
+	Cron string `yaml:"cron,omitempty"`
 }
 
 func (t TimerTrigger) GetTriggerAttempts() int {

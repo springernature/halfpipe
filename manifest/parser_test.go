@@ -17,8 +17,7 @@ func TestTopLevel(t *testing.T) {
 		yaml := `
 FISHMANS_BEST_ALBUM: LONG_SEASON
 `
-		expected := Manifest{
-		}
+		expected := Manifest{}
 
 		man, errs := Parse(yaml)
 		assert.Empty(t, errs)
@@ -32,9 +31,9 @@ pipeline: PIPELINE
 slack_channel: SLACK_CHANNEL 
 `
 		expected := Manifest{
-			Team:           "TEAM",
-			Pipeline:       "PIPELINE",
-			SlackChannel:   "SLACK_CHANNEL",
+			Team:         "TEAM",
+			Pipeline:     "PIPELINE",
+			SlackChannel: "SLACK_CHANNEL",
 		}
 
 		man, errs := Parse(yaml)

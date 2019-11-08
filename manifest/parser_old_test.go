@@ -230,10 +230,10 @@ tasks:
 				Name:        "docker compose task",
 				ComposeFile: "../compose-file.yml",
 				Vars: Vars{
-					"FOO":             "fOo",
-					"BAR":             "1",
-					"BAZ":             "true",
-					"WRYY":            "2",
+					"FOO":  "fOo",
+					"BAR":  "1",
+					"BAZ":  "true",
+					"WRYY": "2",
 				},
 				SaveArtifacts: []string{
 					"target/dist/artifact.zip",

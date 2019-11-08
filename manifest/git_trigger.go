@@ -4,15 +4,15 @@ import "strings"
 
 type GitTrigger struct {
 	Type          string
-	URI           string   `json:"uri,omitempty" yaml:"uri,omitempty"`
-	BasePath      string   `json:"-" yaml:"-"` //don't auto unmarshal
-	PrivateKey    string   `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`
-	WatchedPaths  []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
-	IgnoredPaths  []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`
-	GitCryptKey   string   `json:"git_crypt_key,omitempty" yaml:"git_crypt_key,omitempty" secretAllowed:"true"`
-	Branch        string   `json:"branch,omitempty" yaml:"branch,omitempty"`
-	Shallow       bool     `json:"shallow,omitempty" yaml:"shallow,omitempty"`
-	ManualTrigger bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	URI           string   `yaml:"uri,omitempty"`
+	BasePath      string   `yaml:"-"` //don't auto unmarshal
+	PrivateKey    string   `yaml:"private_key,omitempty" secretAllowed:"true"`
+	WatchedPaths  []string `yaml:"watched_paths,omitempty"`
+	IgnoredPaths  []string `yaml:"ignored_paths,omitempty"`
+	GitCryptKey   string   `yaml:"git_crypt_key,omitempty" secretAllowed:"true"`
+	Branch        string   `yaml:"branch,omitempty"`
+	Shallow       bool     `yaml:"shallow,omitempty"`
+	ManualTrigger bool     `yaml:"manual_trigger,omitempty"`
 }
 
 func (git GitTrigger) GetTriggerAttempts() int {

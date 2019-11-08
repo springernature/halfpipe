@@ -14,18 +14,18 @@ type Docker struct {
 type Run struct {
 	Type                   string
 	Name                   string        `yaml:"name,omitempty"`
-	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger          bool          `yaml:"manual_trigger,omitempty"`
 	Script                 string        `yaml:"script,omitempty"`
 	Docker                 Docker        `yaml:"docker,omitempty"`
 	Privileged             bool          `yaml:"privileged,omitempty"`
 	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
-	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	SaveArtifacts          []string      `yaml:"save_artifacts,omitempty"`
+	RestoreArtifacts       bool          `yaml:"restore_artifacts,omitempty"`
+	SaveArtifactsOnFailure []string      `yaml:"save_artifacts_on_failure,omitempty"`
 	Retries                int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	NotifyOnSuccess        bool          `yaml:"notify_on_success,omitempty"`
+	Notifications          Notifications `yaml:"notifications,omitempty"`
+	Timeout                string        `yaml:"timeout,omitempty"`
 }
 
 func (r Run) GetNotifications() Notifications {

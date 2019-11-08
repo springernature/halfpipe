@@ -8,13 +8,13 @@ import (
 
 type PipelineTrigger struct {
 	Type         string
-	ConcourseURL string `json:"concourse_url,omitempty" yaml:"concourse_url,omitempty" secretAllowed:"true"`
-	Username     string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
-	Password     string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	Team         string `json:"team,omitempty" yaml:"team,omitempty"`
-	Pipeline     string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
-	Job          string `json:"job,omitempty" yaml:"job,omitempty"`
-	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
+	ConcourseURL string `yaml:"concourse_url,omitempty" secretAllowed:"true"`
+	Username     string `yaml:"username,omitempty" secretAllowed:"true"`
+	Password     string `yaml:"password,omitempty" secretAllowed:"true"`
+	Team         string `yaml:"team,omitempty"`
+	Pipeline     string `yaml:"pipeline,omitempty"`
+	Job          string `yaml:"job,omitempty"`
+	Status       string `yaml:"status,omitempty"`
 }
 
 func (p PipelineTrigger) GetTriggerAttempts() int {

@@ -4,9 +4,9 @@ import "strings"
 
 type DockerTrigger struct {
 	Type     string
-	Image    string `json:"image,omitempty" yaml:"image,omitempty"`
-	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
-	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
+	Image    string `yaml:"image,omitempty"`
+	Username string `yaml:"username,omitempty" secretAllowed:"true"`
+	Password string `yaml:"password,omitempty" secretAllowed:"true"`
 }
 
 func (d DockerTrigger) GetTriggerAttempts() int {

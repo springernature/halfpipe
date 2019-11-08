@@ -4,16 +4,16 @@ type ConsumerIntegrationTest struct {
 	Type                 string
 	Name                 string        `yaml:"name,omitempty"`
 	Consumer             string        `yaml:"consumer,omitempty"`
-	ConsumerHost         string        `json:"consumer_host" yaml:"consumer_host,omitempty"`
-	GitCloneOptions      string        `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
-	ProviderHost         string        `json:"provider_host" yaml:"provider_host,omitempty"`
+	ConsumerHost         string        `yaml:"consumer_host,omitempty"`
+	GitCloneOptions      string        `yaml:"git_clone_options,omitempty"`
+	ProviderHost         string        `yaml:"provider_host,omitempty"`
 	Script               string        `yaml:"script,omitempty"`
-	DockerComposeService string        `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
+	DockerComposeService string        `yaml:"docker_compose_service,omitempty"`
 	Vars                 Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	Retries              int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess      bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications        Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Timeout              string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	NotifyOnSuccess      bool          `yaml:"notify_on_success,omitempty"`
+	Notifications        Notifications `yaml:"notifications,omitempty"`
+	Timeout              string        `yaml:"timeout,omitempty"`
 }
 
 func (r ConsumerIntegrationTest) GetNotifications() Notifications {

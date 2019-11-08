@@ -56,7 +56,7 @@ func (t *TriggerList) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return unmarshalErr
 	}
 
-		for i, trigger := range triggers {
+	for i, trigger := range triggers {
 		prefix := fmt.Sprintf("triggers[%d]", i)
 		yamlAgain, marshalErr := yaml.Marshal(trigger)
 		if marshalErr != nil {
