@@ -8,6 +8,7 @@ resources:
     - e2e/deploy-ml-modules
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
+  check_every: 10m
 jobs:
 - name: Deploy ml-modules artifact
   serial: true

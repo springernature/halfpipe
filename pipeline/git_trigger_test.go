@@ -1,6 +1,7 @@
 package pipeline
 
 import (
+	"github.com/springernature/halfpipe/config"
 	"testing"
 
 	"github.com/concourse/concourse/atc"
@@ -9,7 +10,7 @@ import (
 )
 
 func TestRendersHttpGitResource(t *testing.T) {
-	gitURI := "git@github.com:springernature/repo.git"
+	gitURI := "git@blah.com:springernature/repo.git"
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
@@ -35,7 +36,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 }
 
 func TestRendersSshGitResource(t *testing.T) {
-	gitURI := "git@github.com:springernature/repo.git/"
+	gitURI := "git@blah.com:springernature/repo.git/"
 	privateKey := "blurgh"
 
 	man := manifest.Manifest{
@@ -64,7 +65,7 @@ func TestRendersSshGitResource(t *testing.T) {
 }
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
-	gitURI := "git@github.com:springernature/repo.git/"
+	gitURI := "git@blah.com:springernature/repo.git/"
 	privateKey := "blurgh"
 	watches := []string{"watch1", "watch2"}
 	ignores := []string{"ignore1", "ignore2"}
@@ -99,7 +100,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 }
 
 func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
-	gitURI := "git@github.com:springernature/repo.git"
+	gitURI := "git@blah.com:springernature/repo.git"
 	gitCrypt := "AABBFF66"
 
 	man := manifest.Manifest{
@@ -128,7 +129,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 }
 
 func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
-	gitURI := "git@github.com:springernature/repo.git"
+	gitURI := "git@blah.com:springernature/repo.git"
 	branch := "master"
 
 	man := manifest.Manifest{
@@ -231,4 +232,24 @@ func TestRenderWithGitManualTrigger(t *testing.T) {
 	getGitStep = (config.Jobs[2].Plan[0].InParallel.Steps)[0]
 	assert.Equal(t, config.Jobs[1].Name, getGitStep.Passed[0])
 	assert.False(t, getGitStep.Trigger)
+}
+
+func TestRendersWebHookAssistedGitResources(t *testing.T) {
+	gitURIs := map[string]string{
+		"git@github.com/foo/repo.git":                "",
+		config.WebHookAssistedGitPrefix + "repo.git": webHookAssistedResourceCheckInterval,
+	}
+	for uri, expectedInterval := range gitURIs {
+		t.Run(uri, func(t *testing.T) {
+			man := manifest.Manifest{
+				Triggers: manifest.TriggerList{
+					manifest.GitTrigger{
+						URI: uri,
+					},
+				},
+			}
+			resource, _ := testPipeline().Render(man).Resources.Lookup(gitName)
+			assert.Equal(t, expectedInterval, resource.CheckEvery)
+		})
+	}
 }

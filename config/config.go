@@ -38,6 +38,8 @@ var (
 		"http://github.com/springernature/":  "git@github.com:springernature/",
 		"https://github.com/springernature/": "git@github.com:springernature/",
 	}
+
+	WebHookAssistedGitPrefix = "git@github.com:springernature/"
 )
 
 var DevVersion = semver.Version{

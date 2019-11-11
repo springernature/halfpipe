@@ -13,6 +13,7 @@ resources:
     branch: master
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
+  check_every: 10m
 - name: halfpipe-fly
   type: docker-image
   source:

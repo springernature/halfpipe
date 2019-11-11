@@ -14,6 +14,7 @@ import (
 )
 
 const longResourceCheckInterval = "24h"
+const webHookAssistedResourceCheckInterval = "10m"
 
 func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	sources := atc.Source{
@@ -42,11 +43,17 @@ func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 		sources["branch"] = trigger.Branch
 	}
 
-	return atc.ResourceConfig{
+	cfg := atc.ResourceConfig{
 		Name:   trigger.GetTriggerName(),
 		Type:   "git",
 		Source: sources,
 	}
+
+	if strings.HasPrefix(trigger.URI, config.WebHookAssistedGitPrefix) {
+		cfg.CheckEvery = webHookAssistedResourceCheckInterval
+	}
+
+	return cfg
 }
 
 const slackResourceName = "slack"
