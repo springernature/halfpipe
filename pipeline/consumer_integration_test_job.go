@@ -64,6 +64,14 @@ func consumerIntegrationTestScript(vars manifest.Vars) string {
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
 	}
 	sort.Strings(envStrings)
+	envOption := strings.Join(envStrings, " ")
+
+	var cacheVolumeFlags []string
+	for _, cacheVolume := range config.DockerComposeCacheDirs {
+		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
+	}
+
+	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
 	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
@@ -92,7 +100,9 @@ git checkout ${REVISION}
 docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
-  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} %s \
+  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+  %s \
+  %s \
   ${DOCKER_COMPOSE_SERVICE:-code}
-`, strings.Join(envStrings, " "))
+`, envOption, volumeOption)
 }

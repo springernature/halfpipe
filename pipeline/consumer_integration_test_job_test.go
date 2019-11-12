@@ -205,7 +205,9 @@ func TestBuildsTheRightDockerComposeRunScriptWithEnvVars(t *testing.T) {
 	expected := `docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \
-  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} -e blah -e blah1 \
+  -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+  -e blah -e blah1 \
+  -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
   ${DOCKER_COMPOSE_SERVICE:-code}`
 
 	assert.Contains(t, actual, expected)
