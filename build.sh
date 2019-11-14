@@ -31,8 +31,8 @@ else
 fi
 
 echo [4/5] e2e test
-if [ "${1-}" = "github" ]; then
-    echo "skipping in github build"
+if [ "${CIRCLECI-}" = "true" ]; then
+    echo "skipping in circleci build"
 else
     cd e2e; ./test.sh "${1-}"; cd - > /dev/null
 fi
