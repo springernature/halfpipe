@@ -41,4 +41,4 @@ declare function csv($p) {
 };
 
 "Pipeline Name,Pipeline Group,GoCD Server,Last Run",
-server(("03", "05")) ! csv(.)
+server(("05")) ! csv(.)
