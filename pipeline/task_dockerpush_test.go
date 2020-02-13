@@ -32,6 +32,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 				"B": "b",
 			},
 			DockerfilePath: "Dockerfile",
+			Tag:            "gitref",
 		},
 	}
 
@@ -62,6 +63,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 						"B": "b",
 					},
 					"tag_as_latest": true,
+					"tag_file":      "git/.git/ref",
 				},
 			},
 		},
@@ -119,6 +121,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 					"build":         gitDir + "/" + basePath,
 					"dockerfile":    path.Join(gitDir, basePath, man.Tasks[0].(manifest.DockerPush).DockerfilePath),
 					"tag_as_latest": true,
+					"tag_file":      "",
 				}},
 		},
 	}
@@ -153,6 +156,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 			Password:       password,
 			Image:          repo,
 			DockerfilePath: "Dockerfile",
+			Tag:            "version",
 		},
 	}
 
@@ -219,6 +223,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		RestoreArtifacts: true,
 		DockerfilePath:   "Dockerfile",
 		BuildPath:        buildPath,
+		Tag:              "version",
 	}
 	man.Tasks = []manifest.Task{
 		manifest.Update{},

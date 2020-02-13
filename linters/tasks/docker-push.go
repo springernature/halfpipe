@@ -11,7 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error) {
+func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
 	if docker.Username == "" {
 		errs = append(errs, linterrors.NewMissingField("username"))
 	}
@@ -49,6 +49,16 @@ func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []erro
 			}
 		} else if !isDir {
 			errs = append(errs, linterrors.NewInvalidField("build_path", fmt.Sprintf("'%s' must be a directory but is a file ", docker.BuildPath)))
+		}
+	}
+
+	if docker.Tag != "" {
+		if (docker.Tag != "gitref") && (docker.Tag != "version") {
+			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version'"))
+		}
+
+		if docker.Tag == "version" && !manifest.FeatureToggles.Versioned() {
+			errs = append(errs, linterrors.NewInvalidField("tag", "'version' requires the update-pipeline feature toggle"))
 		}
 	}
 

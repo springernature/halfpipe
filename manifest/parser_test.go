@@ -97,6 +97,7 @@ tasks:
     FOO: fOo
     BAR: "1"
   timeout: 1h
+  tag: version
 - type: deploy-cf
   name: deploy cf task
   api: cf.api
@@ -261,6 +262,7 @@ tasks:
 					OnFailure: []string{"kfds", "oasdf"},
 				},
 				Timeout: "1h",
+				Tag:     "version",
 			},
 			DeployCF{
 				Name:       "deploy cf task",

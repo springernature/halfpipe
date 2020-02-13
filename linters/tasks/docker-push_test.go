@@ -9,10 +9,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var emptyManifest = manifest.Manifest{}
+
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors, _ := LintDockerPushTask(manifest.DockerPush{}, fs)
+	errors, _ := LintDockerPushTask(manifest.DockerPush{}, emptyManifest, fs)
 
 	linterrors.AssertMissingFieldInErrors(t, "username", errors)
 	linterrors.AssertMissingFieldInErrors(t, "password", errors)
@@ -27,7 +29,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 		Image:    "asd",
 	}
 
-	errors, _ := LintDockerPushTask(task, fs)
+	errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "image", errors)
 }
 
@@ -42,7 +44,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		}
 
-		errors, _ := LintDockerPushTask(task, fs)
+		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 
 		linterrors.AssertFileErrorInErrors(t, "Dockerfile", errors)
 	})
@@ -57,7 +59,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			DockerfilePath: "dockerfiles/Dockerfile",
 		}
 
-		errors, _ := LintDockerPushTask(task, fs)
+		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 
 		linterrors.AssertFileErrorInErrors(t, "dockerfiles/Dockerfile", errors)
 	})
@@ -72,7 +74,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			DockerfilePath: "../dockerfiles/Dockerfile",
 		}
 
-		errors, _ := LintDockerPushTask(task, fs)
+		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 
 		linterrors.AssertFileErrorInErrors(t, "../dockerfiles/Dockerfile", errors)
 	})
@@ -95,7 +97,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -115,7 +117,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "dockerfile/Dockerfile",
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -135,7 +137,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "../dockerfile/Dockerfile",
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -158,7 +160,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      "buildPathDoesntExist",
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
 		linterrors.AssertInvalidFieldInErrors(t, "build_path", errors)
@@ -183,7 +185,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
 		linterrors.AssertInvalidFieldInErrors(t, "build_path", errors)
@@ -208,7 +210,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -232,7 +234,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors, warnings := LintDockerPushTask(task, fs)
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -255,15 +257,106 @@ func TestDockerPushRetries(t *testing.T) {
 	}
 
 	task.Retries = -1
-	errors, _ := LintDockerPushTask(task, fs)
+	errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
-	errors, _ = LintDockerPushTask(task, fs)
+	errors, _ = LintDockerPushTask(task, emptyManifest, fs)
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 4
-	errors, warnings := LintDockerPushTask(task, fs)
+	errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
+}
+
+func TestDockerPushTag(t *testing.T) {
+	t.Run("Alles ok with gitref", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "gitref",
+		}
+
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
+
+	t.Run("Alles ok with version", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		man := manifest.Manifest{
+			FeatureToggles: []string{
+				manifest.FeatureUpdatePipeline,
+			},
+		}
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "version",
+		}
+
+		errors, warnings := LintDockerPushTask(task, man, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
+
+	t.Run("Not Ok when with version and pipeline without update pipeline", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "version",
+		}
+
+		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
+		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
+		assert.Len(t, errors, 1)
+	})
+	t.Run("Alles ok with empty", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "",
+		}
+
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
+
+	t.Run("Not ok with something else", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "somethingRandom",
+		}
+
+		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
+		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
+		assert.Len(t, errors, 1)
+	})
 }

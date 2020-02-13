@@ -143,7 +143,7 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 		dockerComposeDefaulter: func(original manifest.DockerCompose, defaults Defaults) (updated manifest.DockerCompose) {
 			return expectedDockerCompose
 		},
-		dockerPushDefaulter: func(original manifest.DockerPush, defaults Defaults) (updated manifest.DockerPush) {
+		dockerPushDefaulter: func(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush) {
 			return expectedDockerPush
 		},
 		deployCfDefaulter: func(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF) {

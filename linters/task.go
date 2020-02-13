@@ -17,7 +17,7 @@ type taskLinter struct {
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
-	lintDockerPushTask              func(task manifest.DockerPush, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error)
 	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error)
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
@@ -55,7 +55,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 		return result
 	}
 
-	errs, warnings := linter.lintTasks("", man.Tasks, []manifest.Task{}, true, false)
+	errs, warnings := linter.lintTasks("", man.Tasks, man, []manifest.Task{}, true, false)
 	sortErrors(errs)
 	sortErrors(warnings)
 
@@ -65,7 +65,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	return result
 }
 
-func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previousTasks []manifest.Task, lintArtifact, cameFromParallel bool) (rE []error, rW []error) {
+func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man manifest.Manifest, previousTasks []manifest.Task, lintArtifact, cameFromParallel bool) (rE []error, rW []error) {
 	for index, t := range ts {
 		previousTasks = append(previousTasks, ts[:index]...)
 
@@ -96,12 +96,12 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 					warnings = append(warnings, prePromotePrefixer(w)...)
 				}
 
-				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, previousTasks, false, false)
+				subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s.pre_promote", taskID), task.PrePromote, man, previousTasks, false, false)
 				errs = append(errs, subErrors...)
 				warnings = append(warnings, subWarnings...)
 			}
 		case manifest.DockerPush:
-			errs, warnings = linter.lintDockerPushTask(task, linter.Fs)
+			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs)
 		case manifest.DockerCompose:
 			errs, warnings = linter.lintDockerComposeTask(task, linter.Fs)
 		case manifest.ConsumerIntegrationTest:
@@ -117,14 +117,14 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, previous
 		case manifest.Update:
 		case manifest.Parallel:
 			errs, warnings = linter.lintParallel(task)
-			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, true, true)
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, man, previousTasks, true, true)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false
 			lintArtifact = false
 		case manifest.Sequence:
 			errs, warnings = linter.lintSequence(task, cameFromParallel)
-			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, previousTasks, true, false)
+			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, man, previousTasks, true, false)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false

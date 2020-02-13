@@ -15,6 +15,7 @@ type DockerPush struct {
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
 	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+	Tag              string        `json:"tag,omitempty" yaml:"tag,omitempty"`
 }
 
 func (r DockerPush) GetNotifications() Notifications {
@@ -74,4 +75,14 @@ func (r DockerPush) ReadsFromArtifacts() bool {
 
 func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
+}
+
+func (r DockerPush) GetTagPath() string {
+	if r.Tag == "gitref" {
+		return "git/.git/ref"
+	}
+	if r.Tag == "version" {
+		return "version/number"
+	}
+	return ""
 }

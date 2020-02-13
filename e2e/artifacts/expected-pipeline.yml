@@ -462,6 +462,7 @@ jobs:
         B: b
       dockerfile: docker_build/e2e/artifacts/Dockerfile
       tag_as_latest: true
+      tag_file: git/.git/ref
     timeout: 1h
     attempts: 1
 - name: docker-compose

@@ -38,6 +38,7 @@ jobs:
         B: b
       dockerfile: git/e2e/docker-push/Dockerfile
       tag_as_latest: true
+      tag_file: git/.git/ref
     timeout: 1h
     attempts: 1
 

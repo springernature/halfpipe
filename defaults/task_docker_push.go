@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func dockerPushDefaulter(original manifest.DockerPush, defaults Defaults) (updated manifest.DockerPush) {
+func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush) {
 	updated = original
 
 	if strings.HasPrefix(updated.Image, config.DockerRegistry) {
@@ -16,6 +16,14 @@ func dockerPushDefaulter(original manifest.DockerPush, defaults Defaults) (updat
 
 	if updated.DockerfilePath == "" {
 		updated.DockerfilePath = defaults.DockerfilePath
+	}
+
+	if original.Tag == "" {
+		if man.FeatureToggles.Versioned() {
+			updated.Tag = "version"
+		} else {
+			updated.Tag = "gitref"
+		}
 	}
 
 	return updated

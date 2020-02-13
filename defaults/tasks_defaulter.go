@@ -17,7 +17,7 @@ type TasksArtifactoryVarsDefaulter interface {
 type tasksDefaulter struct {
 	runDefaulter                         func(original manifest.Run, defaults Defaults) (updated manifest.Run)
 	dockerComposeDefaulter               func(original manifest.DockerCompose, defaults Defaults) (updated manifest.DockerCompose)
-	dockerPushDefaulter                  func(original manifest.DockerPush, defaults Defaults) (updated manifest.DockerPush)
+	dockerPushDefaulter                  func(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush)
 	deployCfDefaulter                    func(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF)
 	consumerIntegrationTestTaskDefaulter func(original manifest.ConsumerIntegrationTest, defaults Defaults) (updated manifest.ConsumerIntegrationTest)
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
@@ -58,7 +58,7 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 		case manifest.DockerCompose:
 			tt = t.dockerComposeDefaulter(task, defaults)
 		case manifest.DockerPush:
-			tt = t.dockerPushDefaulter(task, defaults)
+			tt = t.dockerPushDefaulter(task, man, defaults)
 		case manifest.DeployCF:
 			ppTasks := t.Apply(task.PrePromote, defaults, man)
 			task = t.deployCfDefaulter(task, defaults, man)

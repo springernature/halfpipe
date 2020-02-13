@@ -739,14 +739,12 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 					"build":         path.Join(gitDir, basePath, task.BuildPath),
 					"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
 					"tag_as_latest": true,
+					"tag_file":      task.GetTagPath(),
 				}},
 		},
 	}
 	if len(task.Vars) > 0 {
 		job.Plan[0].Params["build_args"] = convertVars(task.Vars)
-	}
-	if man.FeatureToggles.Versioned() {
-		job.Plan[0].Params["tag_file"] = "version/number"
 	}
 	return &job
 }
@@ -789,6 +787,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 					"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
 					"dockerfile":    path.Join(dockerBuildTmpDir, basePath, task.DockerfilePath),
 					"tag_as_latest": true,
+					"tag_file":      task.GetTagPath(),
 				}},
 		},
 	}
@@ -796,9 +795,6 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 	putIndex := 1
 	if len(task.Vars) > 0 {
 		job.Plan[putIndex].Params["build_args"] = convertVars(task.Vars)
-	}
-	if man.FeatureToggles.Versioned() {
-		job.Plan[putIndex].Params["tag_file"] = "version/number"
 	}
 	return &job
 }
