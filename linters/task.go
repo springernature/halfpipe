@@ -17,7 +17,7 @@ type taskLinter struct {
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
-	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error)
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
@@ -103,7 +103,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 				warnings = append(warnings, subWarnings...)
 			}
 		case manifest.DockerPush:
-			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs)
+			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs, linter.deprecatedDockerRegistries)
 		case manifest.DockerCompose:
 			errs, warnings = linter.lintDockerComposeTask(task, linter.Fs, linter.deprecatedDockerRegistries)
 		case manifest.ConsumerIntegrationTest:

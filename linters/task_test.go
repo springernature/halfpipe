@@ -115,7 +115,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintPrePromoteTasksNum++
 			return
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			calledLintDockerPushTask = true
 			calledLintDockerPushTaskNum++
 			return
@@ -237,7 +237,7 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
 			return []error{prePromoteErr}, []error{prePromoteWarn}
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			return []error{dockerPushErr}, []error{dockerPushWarn}
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
@@ -314,7 +314,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
 			return []error{prePromoteErr}, []error{prePromoteWarn}
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			return []error{dockerPushErr}, []error{dockerPushWarn}
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
@@ -407,7 +407,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
 			return []error{prePromoteErr}, []error{prePromoteWarn}
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			return []error{dockerPushErr}, []error{dockerPushWarn}
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error, warnings []error) {
@@ -640,7 +640,7 @@ func TestLintTimeout(t *testing.T) {
 		},
 		lintDeployCFTask:   func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error) { return },
 		LintPrePromoteTask: func(task manifest.Task) (errs []error, warnings []error) { return },
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			return
 		},
 		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
