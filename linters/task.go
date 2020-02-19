@@ -14,7 +14,7 @@ import (
 
 type taskLinter struct {
 	Fs                              afero.Afero
-	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
+	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
@@ -26,9 +26,10 @@ type taskLinter struct {
 	lintParallel                    func(parallelTask manifest.Parallel) (errs []error, warnings []error)
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error)
 	os                              string
+	deprecatedDockerRegistries      []string
 }
 
-func NewTasksLinter(fs afero.Afero, os string) taskLinter {
+func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []string) taskLinter {
 	return taskLinter{
 		Fs:                              fs,
 		lintRunTask:                     tasks.LintRunTask,
@@ -43,6 +44,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintParallel:                    tasks.LintParallelTask,
 		lintSequence:                    tasks.LintSequenceTask,
 		os:                              os,
+		deprecatedDockerRegistries:      deprecatedDockerRegistries,
 	}
 }
 
@@ -84,7 +86,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		var warnings []error
 		switch task := t.(type) {
 		case manifest.Run:
-			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os)
+			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os, linter.deprecatedDockerRegistries)
 		case manifest.DeployCF:
 			errs, warnings = linter.lintDeployCFTask(task, linter.Fs)
 

@@ -17,7 +17,7 @@ var WarnMakeSureScriptIsExecutable = func(script string) error {
 	return fmt.Errorf("we have disabled the executable test for windows hosts. Make sure '%s' is actually executable otherwise the pipeline will produce runtime errors", script)
 }
 
-func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
+func LintRunTask(run manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 	if run.Script == "" {
 		errs = append(errs, linterrors.NewMissingField("script"))
 	} else if strings.HasPrefix(run.Script, `\`) {
@@ -50,6 +50,12 @@ func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error, war
 	}
 	if run.Docker.Password != "" && run.Docker.Username == "" {
 		errs = append(errs, linterrors.NewMissingField("docker.username"))
+	}
+
+	for _, hostname := range deprecatedDockerRegistries {
+		if strings.HasPrefix(run.Docker.Image, hostname) {
+			warnings = append(warnings, linterrors.NewDeprecatedDockerRegistryError(hostname))
+		}
 	}
 
 	return errs, warnings
