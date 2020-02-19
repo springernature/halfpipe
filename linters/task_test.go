@@ -120,7 +120,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintDockerPushTaskNum++
 			return
 		},
-		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
+		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			calledLintDockerComposeTask = true
 			calledLintDockerComposeTaskNum++
 			return
@@ -643,7 +643,9 @@ func TestLintTimeout(t *testing.T) {
 		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
 			return
 		},
-		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) { return },
+		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
+			return
+		},
 		lintConsumerIntegrationTestTask: func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
 			return
 		},
