@@ -10,8 +10,8 @@ import (
 )
 
 func TestLintOnlyOneOfEachAllowed(t *testing.T) {
-	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil, []string{})
+	linter.dockerLinter = func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 		return
 	}
 	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
@@ -65,8 +65,8 @@ func TestCallsOutCorrectly(t *testing.T) {
 
 		man := manifest.Manifest{}
 
-		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil, []string{})
+		linter.dockerLinter = func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			numCallsDockerTriggerLinter++
 			return
 		}
@@ -103,8 +103,8 @@ func TestCallsOutCorrectly(t *testing.T) {
 			},
 		}
 
-		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil, []string{})
+		linter.dockerLinter = func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 			numCallsDockerTriggerLinter++
 			return
 		}
@@ -148,8 +148,8 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 		},
 	}
 
-	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil, []string{})
+	linter.dockerLinter = func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 		errs = append(errs, dockerError)
 		warnings = append(warnings, dockerWarning)
 		return

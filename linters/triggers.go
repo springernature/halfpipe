@@ -11,14 +11,15 @@ import (
 )
 
 type triggersLinter struct {
-	fs              afero.Afero
-	workingDir      string
-	branchResolver  project.GitBranchResolver
-	repoURIResolver project.RepoURIResolver
-	gitLinter       func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error)
-	cronLinter      func(cron manifest.TimerTrigger) (errs []error, warnings []error)
-	dockerLinter    func(docker manifest.DockerTrigger) (errs []error, warnings []error)
-	pipelineLinter  func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error)
+	fs                         afero.Afero
+	deprecatedDockerRegistries []string
+	workingDir                 string
+	branchResolver             project.GitBranchResolver
+	repoURIResolver            project.RepoURIResolver
+	gitLinter                  func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error)
+	cronLinter                 func(cron manifest.TimerTrigger) (errs []error, warnings []error)
+	dockerLinter               func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error)
+	pipelineLinter             func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error)
 }
 
 func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs []error) {
@@ -64,7 +65,7 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 		case manifest.TimerTrigger:
 			e, w = t.cronLinter(trigger)
 		case manifest.DockerTrigger:
-			e, w = t.dockerLinter(trigger)
+			e, w = t.dockerLinter(trigger, t.deprecatedDockerRegistries)
 		case manifest.PipelineTrigger:
 			e, w = t.pipelineLinter(man, trigger)
 		}
@@ -91,15 +92,16 @@ func (t triggersLinter) Lint(manifest manifest.Manifest) (result result.LintResu
 	return result
 }
 
-func NewTriggersLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) triggersLinter {
+func NewTriggersLinter(fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, deprecatedDockerRegistries []string) triggersLinter {
 	return triggersLinter{
-		fs:              fs,
-		workingDir:      workingDir,
-		branchResolver:  branchResolver,
-		repoURIResolver: repoURIResolver,
-		gitLinter:       triggers.LintGitTrigger,
-		cronLinter:      triggers.LintCronTrigger,
-		dockerLinter:    triggers.LintDockerTrigger,
-		pipelineLinter:  triggers.LintPipelineTrigger,
+		fs:                         fs,
+		deprecatedDockerRegistries: deprecatedDockerRegistries,
+		workingDir:                 workingDir,
+		branchResolver:             branchResolver,
+		repoURIResolver:            repoURIResolver,
+		gitLinter:                  triggers.LintGitTrigger,
+		cronLinter:                 triggers.LintCronTrigger,
+		dockerLinter:               triggers.LintDockerTrigger,
+		pipelineLinter:             triggers.LintPipelineTrigger,
 	}
 }

@@ -77,7 +77,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 		mapper.New(),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
-			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),
+			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL, config.DeprecatedDockerRegistries),
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS, config.DeprecatedDockerRegistries),
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
