@@ -14,10 +14,10 @@ resources:
   source:
     url: ((halfpipe-slack.webhook))
   check_every: 24h
-- name: CF live pe staging
+- name: CF snpaas pe staging
   type: cf-resource
   source:
-    api: ((cloudfoundry.api-live))
+    api: ((cloudfoundry.api-snpaas))
     org: pe
     password: very-secret
     space: staging
@@ -228,7 +228,7 @@ jobs:
           username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/notifications/manifest.yml
@@ -256,13 +256,13 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       appPath: git/e2e/notifications
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/notifications/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
       timeout: 1h
       vars:
         A: "0.1"
@@ -270,7 +270,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-check
       manifestPath: git/e2e/notifications/manifest.yml
@@ -295,7 +295,7 @@ jobs:
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
-              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
             run:
               path: /bin/sh
               args:
@@ -338,11 +338,11 @@ jobs:
           attempts: 1
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/notifications/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
       timeout: 1h
     timeout: 1h
     attempts: 2

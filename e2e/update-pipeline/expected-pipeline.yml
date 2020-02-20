@@ -46,10 +46,10 @@ resources:
     space: dev
     username: michiel
   check_every: 24h
-- name: CF live pe staging
+- name: CF snpaas pe staging
   type: cf-resource
   source:
-    api: ((cloudfoundry.api-live))
+    api: ((cloudfoundry.api-snpaas))
     org: pe
     password: very-secret
     space: staging
@@ -314,7 +314,7 @@ jobs:
   serial: true
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -363,14 +363,14 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-push
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
       timeout: 1h
       vars:
         A: "0.1"
@@ -378,7 +378,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -403,7 +403,7 @@ jobs:
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
-              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
             run:
               path: /bin/sh
               args:
@@ -474,7 +474,7 @@ jobs:
               DOCKER_COMPOSE_SERVICE: ""
               GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
               GIT_CLONE_OPTIONS: ""
-              PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.live.cf.private.springer.com
+              PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
               PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
               PROVIDER_NAME: halfpipe-e2e-update-pipeline
             run:
@@ -542,11 +542,11 @@ jobs:
           attempts: 1
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF live pe staging
+    resource: CF snpaas pe staging
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      testDomain: live.cf.private.springer.com
+      testDomain: springernature.app
       timeout: 1h
     timeout: 1h
     attempts: 2

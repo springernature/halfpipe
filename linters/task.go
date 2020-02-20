@@ -15,7 +15,7 @@ import (
 type taskLinter struct {
 	Fs                              afero.Afero
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error)
-	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
@@ -27,9 +27,10 @@ type taskLinter struct {
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error)
 	os                              string
 	deprecatedDockerRegistries      []string
+	deprecatedCFApis                []string
 }
 
-func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []string) taskLinter {
+func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []string, deprecatedCFApis []string) taskLinter {
 	return taskLinter{
 		Fs:                              fs,
 		lintRunTask:                     tasks.LintRunTask,
@@ -45,6 +46,7 @@ func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []stri
 		lintSequence:                    tasks.LintSequenceTask,
 		os:                              os,
 		deprecatedDockerRegistries:      deprecatedDockerRegistries,
+		deprecatedCFApis:                deprecatedCFApis,
 	}
 }
 
@@ -88,7 +90,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Run:
 			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os, linter.deprecatedDockerRegistries)
 		case manifest.DeployCF:
-			errs, warnings = linter.lintDeployCFTask(task, linter.Fs)
+			errs, warnings = linter.lintDeployCFTask(task, linter.Fs, linter.deprecatedCFApis)
 
 			if len(errs) == 0 && len(task.PrePromote) > 0 {
 				for pI, preTask := range task.PrePromote {

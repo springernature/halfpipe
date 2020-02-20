@@ -13,7 +13,7 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	task := manifest.DeployCF{Manifest: "manifest.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors, warnings := LintDeployCFTask(task, fs)
+	errors, warnings := LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 4)
 	assert.Len(t, warnings, 0)
 
@@ -34,7 +34,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		Manifest: "manifest.yml",
 	}
 
-	errors, warnings := LintDeployCFTask(task, fs)
+	errors, warnings := LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 
@@ -45,7 +45,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		Manifest: "manifest.yml",
 	}
 
-	errors, warnings = LintDeployCFTask(task, fs)
+	errors, warnings = LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 1)
 	linterrors.AssertMissingFieldInErrors(t, "api", errors)
 
@@ -56,7 +56,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		Manifest: "manifest.yml",
 	}
 
-	errors, warnings = LintDeployCFTask(task, fs)
+	errors, warnings = LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	linterrors.AssertMissingFieldInErrors(t, "testDomain", errors)
@@ -67,11 +67,11 @@ func TestCfPushRetries(t *testing.T) {
 	task := manifest.DeployCF{}
 
 	task.Retries = -1
-	errors, _ := LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ := LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, []string{})
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
-	errors, _ = LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ = LintDeployCFTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, []string{})
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
@@ -87,7 +87,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 		TestDomain: "test.domain",
 	}
 
-	errors, warnings := LintDeployCFTask(task, fs)
+	errors, warnings := LintDeployCFTask(task, fs, []string{})
 
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 1)
@@ -109,7 +109,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 		},
 	}
 
-	errors, warnings := LintDeployCFTask(task, fs)
+	errors, warnings := LintDeployCFTask(task, fs, []string{})
 
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 1)
@@ -129,11 +129,11 @@ func TestCfPushPreStart(t *testing.T) {
 	}
 
 	task.PreStart = []string{"cf something good"}
-	errors, _ := LintDeployCFTask(task, fs)
+	errors, _ := LintDeployCFTask(task, fs, []string{})
 	assert.Empty(t, errors)
 
 	task.PreStart = []string{"cf something good", "something bad", "cf something else good", "something else bad"}
-	errors, _ = LintDeployCFTask(task, fs)
+	errors, _ = LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_start", errors)
 }
@@ -154,8 +154,26 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 		},
 	}
 
-	errors, _ := LintDeployCFTask(task, fs)
+	errors, _ := LintDeployCFTask(task, fs, []string{})
 	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[0].notifications", errors)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[2].notifications", errors)
+}
+
+func TestCFDeployTaskWithDeprecatedCFApi(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		API:        "deprecated.api",
+		Org:        "Something",
+		Space:      "Something",
+		TestDomain: "foo",
+	}
+
+	errors, warnings := LintDeployCFTask(task, fs, []string{"foo.bar", "deprecated.api"})
+	assert.Len(t, errors, 0)
+	if assert.Len(t, warnings, 1) {
+		assert.Equal(t, linterrors.NewDeprecatedCFApiError("deprecated.api"), warnings[0])
+	}
 }
