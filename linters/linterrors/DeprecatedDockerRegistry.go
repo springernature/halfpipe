@@ -11,5 +11,5 @@ func NewDeprecatedDockerRegistryError(hostname string) DeprecatedDockerRegistryE
 }
 
 func (e DeprecatedDockerRegistryError) Error() string {
-	return fmt.Sprintf("the docker registry '%s' has been deprecated. More information: https://ee-discourse.springernature.io/c/news-updates", e.hostname)
+	return fmt.Sprintf("the docker registry '%s' has been deprecated. More information: https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/1317", e.hostname)
 }
