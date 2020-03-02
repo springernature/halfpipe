@@ -4,10 +4,12 @@ type FeatureToggles []string
 
 const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
+const FeatureCFV7 = "cf-v7"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
+	FeatureCFV7,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -29,4 +31,8 @@ func (f FeatureToggles) UpdatePipeline() bool {
 
 func (f FeatureToggles) DockerDecompose() bool {
 	return f.contains(FeatureDockerDecompose)
+}
+
+func (f FeatureToggles) CFV7() bool {
+	return f.contains(FeatureCFV7)
 }

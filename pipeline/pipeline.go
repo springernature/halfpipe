@@ -211,7 +211,7 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	var tmpResourceConfigs atc.ResourceConfigs
 	for _, task := range tasks {
 		switch task := task.(type) {
@@ -219,16 +219,16 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList) (resourceTypes atc.Re
 			resourceName := deployCFResourceName(task)
 			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName))
 		case manifest.Parallel:
-			_, configs := p.cfPushResources(task.Tasks)
+			_, configs := p.cfPushResources(task.Tasks, v7enabled)
 			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
 		case manifest.Sequence:
-			_, configs := p.cfPushResources(task.Tasks)
+			_, configs := p.cfPushResources(task.Tasks, v7enabled)
 			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
 		}
 	}
 
 	if len(tmpResourceConfigs) > 0 {
-		resourceTypes = append(resourceTypes, halfpipeCfDeployResourceType())
+		resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled))
 	}
 
 	for _, tmpResourceConfig := range tmpResourceConfigs {
@@ -275,7 +275,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
 
-	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks)
+	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks, man.FeatureToggles.CFV7())
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
 
