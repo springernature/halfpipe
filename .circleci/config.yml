@@ -2,7 +2,7 @@
  jobs:
    build:
      docker:
-       - image: golang:1.13-buster
+       - image: golang:1.14-buster
      steps:
        - checkout
        - run: ./build.sh ci
