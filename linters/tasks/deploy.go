@@ -44,9 +44,13 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero, deprecatedApis []str
 		}
 	}
 
-	for _, preStartCommand := range cf.PreStart {
-		if !strings.HasPrefix(preStartCommand, "cf ") {
-			errs = append(errs, linterrors.NewInvalidField("pre_start", fmt.Sprintf("only cf commands are allowed: %s", preStartCommand)))
+	if cf.Rolling && len(cf.PreStart) > 0 {
+		errs = append(errs, linterrors.NewInvalidField("pre_start", "cannot use pre_start with rolling deployment"))
+	} else {
+		for _, preStartCommand := range cf.PreStart {
+			if !strings.HasPrefix(preStartCommand, "cf ") {
+				errs = append(errs, linterrors.NewInvalidField("pre_start", fmt.Sprintf("only cf commands are allowed: %s", preStartCommand)))
+			}
 		}
 	}
 
@@ -60,6 +64,9 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero, deprecatedApis []str
 	for _, api := range deprecatedApis {
 		if cf.API == api {
 			warnings = append(warnings, linterrors.NewDeprecatedCFApiError(api))
+			if cf.Rolling {
+				errs = append(errs, linterrors.NewInvalidField("rolling", "cannot use rolling deployment with a deprecated api"))
+			}
 		}
 	}
 

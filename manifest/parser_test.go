@@ -103,6 +103,7 @@ tasks:
   api: cf.api
   space: cf.space
   org: cf.org
+  rolling: true
   username: cf.user
   password: cf.pass
   manifest: manifest.yml
@@ -269,6 +270,7 @@ tasks:
 				API:        "cf.api",
 				Space:      "cf.space",
 				Org:        "cf.org",
+				Rolling:    true,
 				Username:   "cf.user",
 				Password:   "cf.pass",
 				TestDomain: "asdf.com",

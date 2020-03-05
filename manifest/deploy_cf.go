@@ -21,6 +21,7 @@ type DeployCF struct {
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	PreStart        []string      `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
+	Rolling         bool          `yaml:"rolling,omitempty"`
 }
 
 func (r DeployCF) GetNotifications() Notifications {

@@ -177,3 +177,45 @@ func TestCFDeployTaskWithDeprecatedCFApi(t *testing.T) {
 		assert.Equal(t, linterrors.NewDeprecatedCFApiError("deprecated.api"), warnings[0])
 	}
 }
+
+func TestCFDeployTaskWithRollingAndDeprecatedCFApi(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		API:        "deprecated.api",
+		Org:        "Something",
+		Space:      "Something",
+		TestDomain: "foo",
+		Rolling:    true,
+	}
+
+	errors, warnings := LintDeployCFTask(task, fs, []string{"foo.bar", "deprecated.api"})
+	if assert.Len(t, errors, 1) {
+		assert.Equal(t, linterrors.NewInvalidField("rolling", "cannot use rolling deployment with a deprecated api"), errors[0])
+	}
+	if assert.Len(t, warnings, 1) {
+		assert.Equal(t, linterrors.NewDeprecatedCFApiError("deprecated.api"), warnings[0])
+	}
+}
+
+func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		API:        "api",
+		Org:        "Something",
+		Space:      "Something",
+		TestDomain: "foo",
+		Rolling:    true,
+		PreStart:   []string{"cf logs"},
+	}
+
+	errors, warnings := LintDeployCFTask(task, fs, []string{})
+	if assert.Len(t, errors, 1) {
+		assert.Equal(t, linterrors.NewInvalidField("pre_start", "cannot use pre_start with rolling deployment"), errors[0])
+	}
+	assert.Len(t, warnings, 0)
+
+}
