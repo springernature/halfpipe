@@ -304,7 +304,11 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		job = p.dockerComposeJob(task, man, basePath)
 
 	case manifest.DeployCF:
-		job = p.deployCFJob(task, man, basePath)
+		if task.Rolling {
+			job = p.rollingDeployCFJob(task, man, basePath)
+		} else {
+			job = p.deployCFJob(task, man, basePath)
+		}
 
 	case manifest.DockerPush:
 		job = p.dockerPushJob(task, man, basePath)
@@ -617,45 +621,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	}
 	job.Plan = append(job.Plan, check)
 
-	// saveArtifactInPP and restoreArtifactInPP are needed to make sure we don't run pre-promote tasks in parallel when the first task saves an artifact and the second restores it.
-	var prePromoteTasks atc.PlanSequence
-	var saveArtifactInPP bool
-	var restoreArtifactInPP bool
-	for _, t := range task.PrePromote {
-		applications, e := p.readCfManifest(task.Manifest, nil, nil)
-		if e != nil {
-			panic(e)
-		}
-		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
-		var ppJob *atc.JobConfig
-		switch ppTask := t.(type) {
-		case manifest.Run:
-			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = make(map[string]string)
-			}
-			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.runJob(ppTask, man, false, basePath)
-			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
-			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
-
-		case manifest.DockerCompose:
-			if len(ppTask.Vars) == 0 {
-				ppTask.Vars = make(map[string]string)
-			}
-			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.dockerComposeJob(ppTask, man, basePath)
-			restoreArtifactInPP = saveArtifactInPP && ppTask.RestoreArtifacts
-			saveArtifactInPP = saveArtifactInPP || len(ppTask.SaveArtifacts) > 0
-
-		case manifest.ConsumerIntegrationTest:
-			if ppTask.ProviderHost == "" {
-				ppTask.ProviderHost = testRoute
-			}
-			ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
-		}
-		planConfig := atc.PlanConfig{Do: &ppJob.Plan}
-		prePromoteTasks = append(prePromoteTasks, planConfig)
-	}
+	prePromoteTasks, restoreArtifactInPP := p.prePromoteTasks(task, man, basePath)
 
 	if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
 		inParallelJob := atc.PlanConfig{
@@ -663,7 +629,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 				Steps: prePromoteTasks,
 			},
 		}
-
 		job.Plan = append(job.Plan, inParallelJob)
 	} else if len(prePromoteTasks) > 0 {
 		job.Plan = append(job.Plan, prePromoteTasks...)
@@ -699,6 +664,93 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 
 	job.Ensure = &cleanup
 	return &job
+}
+
+func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
+	resourceName := deployCFResourceName(task)
+	manifestPath := path.Join(gitDir, basePath, task.Manifest)
+
+	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
+		manifestPath = strings.TrimPrefix(task.Manifest, "../")
+	}
+
+	vars := convertVars(task.Vars)
+
+	appPath := path.Join(gitDir, basePath)
+	if len(task.DeployArtifact) > 0 {
+		appPath = path.Join(artifactsInDir, basePath, task.DeployArtifact)
+	}
+
+	job := atc.JobConfig{
+		Name:   task.GetName(),
+		Serial: true,
+	}
+
+	deploy := atc.PlanConfig{
+		Put:      "cf rolling deploy",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-rolling-deploy",
+			"manifestPath": manifestPath,
+			"appPath":      appPath,
+			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+		},
+	}
+	if len(vars) > 0 {
+		deploy.Params["vars"] = vars
+	}
+	if task.Timeout != "" {
+		deploy.Params["timeout"] = task.Timeout
+	}
+	if man.FeatureToggles.Versioned() {
+		deploy.Params["buildVersionPath"] = path.Join("version", "version")
+	}
+	job.Plan = append(job.Plan, deploy)
+
+	return &job
+}
+
+func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) (prePromoteTasks atc.PlanSequence, restoreArtifacts bool) {
+	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
+	// tasks in parallel when the first task saves an artifact and the second restores it.
+	var saveArtifacts bool
+	for _, t := range task.PrePromote {
+		applications, e := p.readCfManifest(task.Manifest, nil, nil)
+		if e != nil {
+			panic(e)
+		}
+		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
+		var ppJob *atc.JobConfig
+		switch ppTask := t.(type) {
+		case manifest.Run:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = make(map[string]string)
+			}
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			ppJob = p.runJob(ppTask, man, false, basePath)
+			restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
+			saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
+
+		case manifest.DockerCompose:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = make(map[string]string)
+			}
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			ppJob = p.dockerComposeJob(ppTask, man, basePath)
+			restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
+			saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
+
+		case manifest.ConsumerIntegrationTest:
+			if ppTask.ProviderHost == "" {
+				ppTask.ProviderHost = testRoute
+			}
+			ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
+		}
+		planConfig := atc.PlanConfig{Do: &ppJob.Plan}
+		prePromoteTasks = append(prePromoteTasks, planConfig)
+	}
+	return prePromoteTasks, restoreArtifacts
 }
 
 func buildTestRoute(appName, space, testDomain string) string {
