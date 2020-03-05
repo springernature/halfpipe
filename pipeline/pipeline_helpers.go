@@ -28,7 +28,12 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 	api = strings.Replace(api, "http://", "", -1)
 	api = strings.Replace(api, "((cloudfoundry.api-", "", -1)
 	api = strings.Replace(api, "))", "", -1)
+
 	name = fmt.Sprintf("CF %s", api)
+	if task.Rolling {
+		name = fmt.Sprintf("rolling cf %s", api)
+
+	}
 
 	if org := strings.Replace(task.Org, "((cloudfoundry.org-snpaas))", "", -1); org != "" {
 		name = fmt.Sprintf("%s %s", name, org)

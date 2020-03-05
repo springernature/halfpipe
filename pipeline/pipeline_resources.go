@@ -166,13 +166,31 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 	}
 }
 
+const deployCfResourceTypeName = "cf-resource"
+
 func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool) atc.ResourceType {
 	image := "cf-resource"
 	if v7enabled {
 		image = "cf-resource-v7"
 	}
 	return atc.ResourceType{
-		Name: "cf-resource",
+		Name: deployCfResourceTypeName,
+		Type: "registry-image",
+		Source: atc.Source{
+			"repository": path.Join(config.DockerRegistry + image),
+			"tag":        "stable",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
+		},
+	}
+}
+
+const rollingDeployCfResourceTypeName = "rolling-deploy"
+
+func (p pipeline) halfpipeRollingCfDeployResourceType() atc.ResourceType {
+	image := "rolling-cf-resource"
+	return atc.ResourceType{
+		Name: rollingDeployCfResourceTypeName,
 		Type: "registry-image",
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry + image),
@@ -202,6 +220,11 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 }
 
 func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
+	resourceType := deployCfResourceTypeName
+	if deployCF.Rolling {
+		resourceType = rollingDeployCfResourceTypeName
+	}
+
 	sources := atc.Source{
 		"api":      deployCF.API,
 		"org":      deployCF.Org,
@@ -212,7 +235,7 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 
 	return atc.ResourceConfig{
 		Name:       resourceName,
-		Type:       "cf-resource",
+		Type:       resourceType,
 		Source:     sources,
 		CheckEvery: longResourceCheckInterval,
 	}

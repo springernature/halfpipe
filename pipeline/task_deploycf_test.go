@@ -582,3 +582,42 @@ func TestSetsBuildVersionPathParamForVersionedPipelines(t *testing.T) {
 	assert.Equal(t, path.Join("version", "version"), buildVersionPath)
 
 }
+
+func TestIncludesResourcesForDeployCF(t *testing.T) {
+	deployTask := manifest.DeployCF{
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		Username:   "user",
+		Password:   "password",
+		TestDomain: "test.domain",
+		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsInDir),
+	}
+
+	rollingDeployTask := manifest.DeployCF{
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		Username:   "user",
+		Password:   "password",
+		TestDomain: "test.domain",
+		Manifest:   fmt.Sprintf("../%s/manifest.yml", artifactsInDir),
+		Rolling:    true,
+	}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			deployTask,
+			rollingDeployTask,
+		},
+	}
+
+	pipeline := testPipeline().Render(man)
+
+	_, deployResourceTypeExists := pipeline.ResourceTypes.Lookup(deployCfResourceTypeName)
+	assert.True(t, deployResourceTypeExists)
+
+	_, rollingDeployResourceTypeExists := pipeline.ResourceTypes.Lookup(rollingDeployCfResourceTypeName)
+	assert.True(t, rollingDeployResourceTypeExists)
+
+}

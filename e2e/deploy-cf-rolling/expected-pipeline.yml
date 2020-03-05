@@ -9,8 +9,8 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
-- name: CF dev-api engineering-enablement dev
-  type: cf-resource
+- name: rolling cf dev-api engineering-enablement dev
+  type: rolling-deploy
   source:
     api: dev-api
     org: engineering-enablement
@@ -19,11 +19,11 @@ resources:
     username: michiel
   check_every: 24h
 resource_types:
-- name: cf-resource
+- name: rolling-deploy
   type: registry-image
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource
+    repository: eu.gcr.io/halfpipe-io/rolling-cf-resource
     tag: stable
     username: _json_key
 jobs:
@@ -31,7 +31,7 @@ jobs:
   serial: true
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
+    resource: rolling cf dev-api engineering-enablement dev
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
@@ -47,7 +47,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api engineering-enablement dev
+    resource: rolling cf dev-api engineering-enablement dev
     params:
       appPath: git/e2e/deploy-cf-rolling
       command: halfpipe-push
@@ -58,7 +58,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api engineering-enablement dev
+    resource: rolling cf dev-api engineering-enablement dev
     params:
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
@@ -126,7 +126,7 @@ jobs:
           attempts: 1
     timeout: 5m
   - put: cf halfpipe-promote
-    resource: CF dev-api engineering-enablement dev
+    resource: rolling cf dev-api engineering-enablement dev
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml

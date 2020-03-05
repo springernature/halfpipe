@@ -227,8 +227,14 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool) (reso
 		}
 	}
 
-	if len(tmpResourceConfigs) > 0 {
-		resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled))
+	for _, r := range tmpResourceConfigs {
+		if _, found := resourceTypes.Lookup(r.Type); !found {
+			if r.Type == deployCfResourceTypeName {
+				resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled))
+			} else {
+				resourceTypes = append(resourceTypes, p.halfpipeRollingCfDeployResourceType())
+			}
+		}
 	}
 
 	for _, tmpResourceConfig := range tmpResourceConfigs {
