@@ -23,7 +23,7 @@ resource_types:
   type: registry-image
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/rolling-cf-resource
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v7
     tag: stable
     username: _json_key
 jobs:

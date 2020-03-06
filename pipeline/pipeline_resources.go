@@ -188,17 +188,9 @@ func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool) atc.ResourceType 
 const rollingDeployCfResourceTypeName = "rolling-deploy"
 
 func (p pipeline) halfpipeRollingCfDeployResourceType() atc.ResourceType {
-	image := "rolling-cf-resource"
-	return atc.ResourceType{
-		Name: rollingDeployCfResourceTypeName,
-		Type: "registry-image",
-		Source: atc.Source{
-			"repository": path.Join(config.DockerRegistry + image),
-			"tag":        "stable",
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
-		},
-	}
+	rT := p.halfpipeCfDeployResourceType(true)
+	rT.Name = rollingDeployCfResourceTypeName
+	return rT
 }
 
 func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
