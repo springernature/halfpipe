@@ -686,6 +686,45 @@ func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manife
 		Serial: true,
 	}
 
+	if len(task.PrePromote) > 0 {
+		deploy := atc.PlanConfig{
+			Put:      "deploy test app",
+			Attempts: task.GetAttempts(),
+			Resource: resourceName,
+			Params: atc.Params{
+				"command":      "halfpipe-push",
+				"manifestPath": manifestPath,
+				"appPath":      appPath,
+				"testDomain":   task.TestDomain,
+				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+				"instances":    "1",
+			},
+		}
+		if len(vars) > 0 {
+			deploy.Params["vars"] = vars
+		}
+		if task.Timeout != "" {
+			deploy.Params["timeout"] = task.Timeout
+		}
+		if man.FeatureToggles.Versioned() {
+			deploy.Params["buildVersionPath"] = path.Join("version", "version")
+		}
+		job.Plan = append(job.Plan, deploy)
+
+		prePromoteTasks, restoreArtifactInPP := p.prePromoteTasks(task, man, basePath)
+
+		if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
+			inParallelJob := atc.PlanConfig{
+				InParallel: &atc.InParallelConfig{
+					Steps: prePromoteTasks,
+				},
+			}
+			job.Plan = append(job.Plan, inParallelJob)
+		} else if len(prePromoteTasks) > 0 {
+			job.Plan = append(job.Plan, prePromoteTasks...)
+		}
+	}
+
 	deploy := atc.PlanConfig{
 		Put:      "cf rolling deploy",
 		Attempts: task.GetAttempts(),
