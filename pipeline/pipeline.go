@@ -304,11 +304,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		job = p.dockerComposeJob(task, man, basePath)
 
 	case manifest.DeployCF:
-		if task.Rolling {
-			job = p.rollingDeployCFJob(task, man, basePath)
-		} else {
-			job = p.deployCFJob(task, man, basePath)
-		}
+		job = p.deployCFJob(task, man, basePath)
 
 	case manifest.DockerPush:
 		job = p.dockerPushJob(task, man, basePath)
@@ -562,12 +558,11 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
 	resourceName := deployCFResourceName(task)
 	manifestPath := path.Join(gitDir, basePath, task.Manifest)
+	vars := convertVars(task.Vars)
 
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
 		manifestPath = strings.TrimPrefix(task.Manifest, "../")
 	}
-
-	vars := convertVars(task.Vars)
 
 	appPath := path.Join(gitDir, basePath)
 	if len(task.DeployArtifact) > 0 {
@@ -579,6 +574,76 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 		Serial: true,
 	}
 
+	if !task.Rolling {
+		job.Plan = append(job.Plan, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+		job.Plan = append(job.Plan, p.checkApp(task, resourceName, manifestPath))
+		job.Plan = append(job.Plan, p.prePromoteTasks(task, man, basePath)...)
+		job.Plan = append(job.Plan, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
+		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
+	} else {
+		if len(task.PrePromote) == 0 {
+			job.Plan = append(job.Plan, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+		} else {
+			job.Plan = append(job.Plan, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+			job.Plan = append(job.Plan, p.prePromoteTasks(task, man, basePath)...)
+			job.Plan = append(job.Plan, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			job.Plan = append(job.Plan, p.removeTestApp(task, resourceName, manifestPath))
+		}
+	}
+
+	return &job
+}
+
+func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.PlanConfig {
+	cleanup := atc.PlanConfig{
+		Put:      "cf halfpipe-cleanup",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-cleanup",
+			"manifestPath": manifestPath,
+		},
+	}
+	if task.Timeout != "" {
+		cleanup.Params["timeout"] = task.Timeout
+	}
+	return &cleanup
+}
+
+func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+	promote := atc.PlanConfig{
+		Put:      "cf halfpipe-promote",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-promote",
+			"testDomain":   task.TestDomain,
+			"manifestPath": manifestPath,
+		},
+	}
+	if task.Timeout != "" {
+		promote.Params["timeout"] = task.Timeout
+	}
+	return promote
+}
+
+func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+	check := atc.PlanConfig{
+		Put:      "cf halfpipe-check",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-check",
+			"manifestPath": manifestPath,
+		},
+	}
+	if task.Timeout != "" {
+		check.Params["timeout"] = task.Timeout
+	}
+	return check
+}
+
+func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	push := atc.PlanConfig{
 		Put:      "cf halfpipe-push",
 		Attempts: task.GetAttempts(),
@@ -600,133 +665,30 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	if len(task.PreStart) > 0 {
 		push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
 	}
-
 	if man.FeatureToggles.Versioned() {
 		push.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 
-	job.Plan = append(job.Plan, push)
-
-	check := atc.PlanConfig{
-		Put:      "cf halfpipe-check",
-		Attempts: task.GetAttempts(),
-		Resource: resourceName,
-		Params: atc.Params{
-			"command":      "halfpipe-check",
-			"manifestPath": manifestPath,
-		},
+	if task.Rolling {
+		push.Put = "deploy test app"
+		push.Params["instances"] = 1
 	}
-	if task.Timeout != "" {
-		check.Params["timeout"] = task.Timeout
-	}
-	job.Plan = append(job.Plan, check)
-
-	prePromoteTasks, restoreArtifactInPP := p.prePromoteTasks(task, man, basePath)
-
-	if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
-		inParallelJob := atc.PlanConfig{
-			InParallel: &atc.InParallelConfig{
-				Steps: prePromoteTasks,
-			},
-		}
-		job.Plan = append(job.Plan, inParallelJob)
-	} else if len(prePromoteTasks) > 0 {
-		job.Plan = append(job.Plan, prePromoteTasks...)
-	}
-
-	promote := atc.PlanConfig{
-		Put:      "cf halfpipe-promote",
-		Attempts: task.GetAttempts(),
-		Resource: resourceName,
-		Params: atc.Params{
-			"command":      "halfpipe-promote",
-			"testDomain":   task.TestDomain,
-			"manifestPath": manifestPath,
-		},
-	}
-	if task.Timeout != "" {
-		promote.Params["timeout"] = task.Timeout
-	}
-	job.Plan = append(job.Plan, promote)
-
-	cleanup := atc.PlanConfig{
-		Put:      "cf halfpipe-cleanup",
-		Attempts: task.GetAttempts(),
-		Resource: resourceName,
-		Params: atc.Params{
-			"command":      "halfpipe-cleanup",
-			"manifestPath": manifestPath,
-		},
-	}
-	if task.Timeout != "" {
-		cleanup.Params["timeout"] = task.Timeout
-	}
-
-	job.Ensure = &cleanup
-	return &job
+	return push
 }
 
-func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
-	resourceName := deployCFResourceName(task)
-	manifestPath := path.Join(gitDir, basePath, task.Manifest)
-
-	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
-		manifestPath = strings.TrimPrefix(task.Manifest, "../")
+func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+	return atc.PlanConfig{
+		Put:      "remove test app",
+		Attempts: task.GetAttempts(),
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-delete-test",
+			"manifestPath": manifestPath,
+		},
 	}
+}
 
-	vars := convertVars(task.Vars)
-
-	appPath := path.Join(gitDir, basePath)
-	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(artifactsInDir, basePath, task.DeployArtifact)
-	}
-
-	job := atc.JobConfig{
-		Name:   task.GetName(),
-		Serial: true,
-	}
-
-	if len(task.PrePromote) > 0 {
-		deploy := atc.PlanConfig{
-			Put:      "deploy test app",
-			Attempts: task.GetAttempts(),
-			Resource: resourceName,
-			Params: atc.Params{
-				"command":      "halfpipe-push",
-				"manifestPath": manifestPath,
-				"appPath":      appPath,
-				"testDomain":   task.TestDomain,
-				"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-				"instances":    "1",
-			},
-		}
-		if len(vars) > 0 {
-			deploy.Params["vars"] = vars
-		}
-		if task.Timeout != "" {
-			deploy.Params["timeout"] = task.Timeout
-		}
-		if man.FeatureToggles.Versioned() {
-			deploy.Params["buildVersionPath"] = path.Join("version", "version")
-		}
-		job.Plan = append(job.Plan, deploy)
-
-		prePromoteTasks, restoreArtifactInPP := p.prePromoteTasks(task, man, basePath)
-
-		if len(prePromoteTasks) > 0 {
-			if !restoreArtifactInPP {
-				inParallelJob := atc.PlanConfig{
-					InParallel: &atc.InParallelConfig{
-						Steps: prePromoteTasks,
-					},
-				}
-				job.Plan = append(job.Plan, inParallelJob)
-			} else {
-				job.Plan = append(job.Plan, prePromoteTasks...)
-			}
-		}
-	}
-
+func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	deploy := atc.PlanConfig{
 		Put:      "cf rolling deploy",
 		Attempts: task.GetAttempts(),
@@ -747,27 +709,15 @@ func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manife
 	if man.FeatureToggles.Versioned() {
 		deploy.Params["buildVersionPath"] = path.Join("version", "version")
 	}
-	job.Plan = append(job.Plan, deploy)
-
-	if len(task.PrePromote) > 0 {
-		job.Plan = append(job.Plan, atc.PlanConfig{
-			Put:      "remove test app",
-			Attempts: task.GetAttempts(),
-			Resource: resourceName,
-			Params: atc.Params{
-				"command":      "halfpipe-delete-test",
-				"manifestPath": manifestPath,
-			},
-		})
-	}
-
-	return &job
+	return deploy
 }
 
-func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) (prePromoteTasks atc.PlanSequence, restoreArtifacts bool) {
+func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.PlanSequence {
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
 	var saveArtifacts bool
+	var restoreArtifacts bool
+	var prePromoteTasks atc.PlanSequence
 	for _, t := range task.PrePromote {
 		applications, e := p.readCfManifest(task.Manifest, nil, nil)
 		if e != nil {
@@ -803,7 +753,18 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 		planConfig := atc.PlanConfig{Do: &ppJob.Plan}
 		prePromoteTasks = append(prePromoteTasks, planConfig)
 	}
-	return prePromoteTasks, restoreArtifacts
+
+	if len(prePromoteTasks) > 0 && !restoreArtifacts {
+		return atc.PlanSequence{
+			atc.PlanConfig{
+				InParallel: &atc.InParallelConfig{
+					Steps: prePromoteTasks,
+				},
+			},
+		}
+	}
+
+	return prePromoteTasks
 }
 
 func buildTestRoute(appName, space, testDomain string) string {

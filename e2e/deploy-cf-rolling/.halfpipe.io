@@ -9,6 +9,17 @@ triggers:
 tasks:
 - type: deploy-cf
   rolling: true
+  name: deploy to cf without the jazz
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+
+- type: deploy-cf
+  rolling: true
   name: deploy to cf
   api: dev-api
   space: dev

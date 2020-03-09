@@ -27,6 +27,53 @@ resource_types:
     tag: stable
     username: _json_key
 jobs:
+- name: deploy to cf without any jazz
+  serial: true
+  ensure:
+    put: cf halfpipe-cleanup
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-cleanup
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
+        attempts: 2
+      fail_fast: true
+    timeout: 5m
+  - put: cf halfpipe-push
+    resource: CF dev-api engineering-enablement dev
+    params:
+      appPath: git/e2e/deploy-cf
+      command: halfpipe-push
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
+  - put: cf halfpipe-check
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-check
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
+  - put: cf halfpipe-promote
+    resource: CF dev-api engineering-enablement dev
+    params:
+      command: halfpipe-promote
+      manifestPath: git/e2e/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
 - name: deploy to cf
   serial: true
   ensure:
@@ -42,6 +89,8 @@ jobs:
   - in_parallel:
       steps:
       - get: git
+        passed:
+        - deploy to cf without any jazz
         trigger: true
         attempts: 2
       fail_fast: true

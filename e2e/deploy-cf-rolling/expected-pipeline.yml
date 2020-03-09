@@ -27,12 +27,34 @@ resource_types:
     tag: stable
     username: _json_key
 jobs:
+- name: deploy to cf without the jazz
+  serial: true
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
+        attempts: 2
+      fail_fast: true
+    timeout: 5m
+  - put: cf rolling deploy
+    resource: rolling cf dev-api engineering-enablement dev
+    params:
+      appPath: git/e2e/deploy-cf-rolling
+      command: halfpipe-rolling-deploy
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+      timeout: 5m
+    timeout: 5m
+    attempts: 2
 - name: deploy to cf
   serial: true
   plan:
   - in_parallel:
       steps:
       - get: git
+        passed:
+        - deploy to cf without the jazz
         trigger: true
         attempts: 2
       fail_fast: true
@@ -43,7 +65,7 @@ jobs:
       appPath: git/e2e/deploy-cf-rolling
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      instances: "1"
+      instances: 1
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
