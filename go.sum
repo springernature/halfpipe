@@ -44,6 +44,7 @@ github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a/go.mod h1:DAHtR1m6l
 github.com/asaskevich/govalidator v0.0.0-20180720115003-f9ffefc3facf/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=
 github.com/aws/aws-sdk-go v1.18.3 h1:6BkQIKBFCXw0zVQl5KC7o+J/zYTyz+DKWxL3Uy0XUjg=
 github.com/aws/aws-sdk-go v1.18.3/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
+github.com/aws/aws-sdk-go v1.25.18/go.mod h1:KmX6BPdI08NWTb3/sm4ZGu5ShLoqVDhKgpiN924inxo=
 github.com/beevik/etree v0.0.0-20161216042344-4cd0dd976db8/go.mod h1:r8Aw8JqVegEf0w2fDnATrX9VpkMcyFeM0FhwO62wh+A=
 github.com/beorn7/perks v0.0.0-20160229213445-3ac7bf7a47d1/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
@@ -79,9 +80,13 @@ github.com/cloudfoundry/go-socks5 v0.0.0-20180221174514-54f73bdb8a8e/go.mod h1:P
 github.com/cloudfoundry/socks5-proxy v0.0.0-20180530211953-3659db090cb2/go.mod h1:0a+Ghg38uB86Dx+de84dFSkILTnBHzCpFMRnjHgSzi4=
 github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292/go.mod h1:qRiX68mZX1lGBkTWyp3CLcenw9I94W2dLeRvMzcn9N4=
 github.com/concourse/baggageclaim v1.6.5/go.mod h1:XEX/nfW5iJQwJVLUh1AxyqtFRLeyM+iZLeKMUEloiKc=
+github.com/concourse/concourse v1.6.0 h1:3SOfoBBDTZ6sJTrgqh6cKppLmHbPs3B01hn4cyp6jvQ=
 github.com/concourse/concourse v1.6.1-0.20190909191855-49c1b40eced1 h1:JVqfxnrSHchQExHg8UyHUDPsjEBJm6Q5MSb+MVZdGjc=
 github.com/concourse/concourse v1.6.1-0.20190909191855-49c1b40eced1/go.mod h1:t6D2Fg1kXpg/AxQB4bbwfEr1EhxfU6InUFg0sZXwxzM=
+github.com/concourse/concourse v1.6.1-0.20191031130138-a3baf16f5128 h1:IBRvtwVggI5gIEsAoOEc0XlanCToLJg4Bw0bTK2gRHc=
+github.com/concourse/concourse v1.6.1-0.20191031130138-a3baf16f5128/go.mod h1:F8y9sgwn6/luPBiy5Rsaq+bo+UzYsFOSN9DxlPApCRs=
 github.com/concourse/dex v0.0.0-20190417202333-2202f4ef4172/go.mod h1:jq+kdbXyj+bEdch50oYfPCNK4ZCRKAd/R0wlZuAG+Gc=
+github.com/concourse/dex v0.0.0-20191028164029-00bcc75bd8b9/go.mod h1:jq+kdbXyj+bEdch50oYfPCNK4ZCRKAd/R0wlZuAG+Gc=
 github.com/concourse/flag v0.0.0-20180907155614-cb47f24fff1c/go.mod h1:ngs845OZCESOe8vgeK5fsCNIiS0vUSqB8MGQMS9+4og=
 github.com/concourse/flag v1.0.0/go.mod h1:ngs845OZCESOe8vgeK5fsCNIiS0vUSqB8MGQMS9+4og=
 github.com/concourse/go-archive v0.0.0-20180803203406-784931698f4f/go.mod h1:Xfo080IPQBmVz3I5ehjCddW3phA2mwv0NFwlpjf5CO8=

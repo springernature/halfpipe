@@ -54,6 +54,10 @@ func TestRenderDockerComposeTask(t *testing.T) {
 	expectedJob := atc.JobConfig{
 		Name:   "docker-compose",
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
@@ -113,6 +117,10 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 	expectedJob := atc.JobConfig{
 		Name:   "docker-compose",
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{

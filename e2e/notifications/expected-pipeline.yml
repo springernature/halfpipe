@@ -40,6 +40,9 @@ resource_types:
 jobs:
 - name: task1
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -122,6 +125,9 @@ jobs:
     attempts: 1
 - name: task2
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -217,6 +223,9 @@ jobs:
     attempts: 1
 - name: deploy to staging
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:

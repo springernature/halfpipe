@@ -158,6 +158,10 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 	expectedJob := atc.JobConfig{
 		Name:   "c-name",
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{

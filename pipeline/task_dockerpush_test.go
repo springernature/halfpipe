@@ -48,7 +48,11 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	expectedJobConfig := atc.JobConfig{
-		Name:   "docker-push",
+		Name: "docker-push",
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
@@ -112,6 +116,10 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	expectedJobConfig := atc.JobConfig{
 		Name:   "docker-push",
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
@@ -174,6 +182,10 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	expectedJobConfig := atc.JobConfig{
 		Name:   "docker-push",
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
 				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
@@ -245,6 +257,10 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	expectedJobConfig := atc.JobConfig{
 		Name:   jobName,
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
 				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},

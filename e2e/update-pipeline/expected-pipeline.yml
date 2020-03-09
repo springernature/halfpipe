@@ -82,6 +82,9 @@ resource_types:
 jobs:
 - name: update
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -122,6 +125,9 @@ jobs:
     attempts: 2
 - name: Test
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -231,6 +237,9 @@ jobs:
     attempts: 2
 - name: deploy to cf
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev
@@ -312,6 +321,9 @@ jobs:
     attempts: 2
 - name: deploy to staging
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF snpaas pe staging
@@ -552,6 +564,9 @@ jobs:
     attempts: 2
 - name: deploy to qa
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF snpaas qa
@@ -783,6 +798,9 @@ jobs:
     attempts: 2
 - name: push to docker registry
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -816,6 +834,9 @@ jobs:
     attempts: 1
 - name: run notify.sh
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -892,6 +913,9 @@ jobs:
     attempts: 1
 - name: docker-compose
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -988,6 +1012,9 @@ jobs:
     attempts: 1
 - name: another-c-name
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -1097,6 +1124,9 @@ jobs:
     attempts: 1
 - name: deploy-ml-zip
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -1204,6 +1234,9 @@ jobs:
     attempts: 1
 - name: Deploy ml-modules artifact
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:

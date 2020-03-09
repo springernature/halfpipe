@@ -57,6 +57,9 @@ resource_types:
 jobs:
 - name: create-artifact
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -158,6 +161,9 @@ jobs:
     attempts: 2
 - name: read-artifact
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -253,6 +259,9 @@ jobs:
     attempts: 1
 - name: deploy to staging
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF snpaas pe staging
@@ -395,6 +404,9 @@ jobs:
     attempts: 2
 - name: push to docker registry
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -467,6 +479,9 @@ jobs:
     attempts: 1
 - name: docker-compose
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
       steps:
@@ -586,6 +601,9 @@ jobs:
     attempts: 1
 - name: deploy-ml-zip
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:

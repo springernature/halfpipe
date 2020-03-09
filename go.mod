@@ -7,7 +7,7 @@ require (
 	github.com/bmatcuk/doublestar v1.1.1 // indirect
 	github.com/cloudfoundry/bosh-cli v5.4.0+incompatible
 	github.com/cloudfoundry/bosh-utils v0.0.0-20181224171034-c2cf699102bd // indirect
-	github.com/concourse/concourse v1.6.1-0.20190909191855-49c1b40eced1
+	github.com/concourse/concourse v1.6.1-0.20191031130138-a3baf16f5128
 	github.com/cppforlife/go-patch v0.0.0-20181218195656-90228d472812 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf

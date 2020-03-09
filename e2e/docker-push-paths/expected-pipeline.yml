@@ -26,6 +26,9 @@ resources:
 jobs:
 - name: push to docker registry
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -48,6 +51,9 @@ jobs:
     attempts: 1
 - name: push to docker registry again
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:

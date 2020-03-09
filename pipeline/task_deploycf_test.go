@@ -165,7 +165,11 @@ func TestRendersCfDeploy(t *testing.T) {
 		"VAR2": "value2",
 	}
 	expectedDevJob := atc.JobConfig{
-		Name:   taskDeployDev.Name,
+		Name: taskDeployDev.Name,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts}}}},
@@ -231,6 +235,10 @@ func TestRendersCfDeploy(t *testing.T) {
 	expectedLiveJob := atc.JobConfig{
 		Name:   taskDeployLive.Name,
 		Serial: true,
+		BuildLogRetention: &(atc.BuildLogRetention{
+			Builds:                 5,
+			MinimumSucceededBuilds: 1,
+		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{

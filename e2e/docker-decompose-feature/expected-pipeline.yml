@@ -29,6 +29,9 @@ resource_types:
 jobs:
 - name: test
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -92,6 +95,9 @@ jobs:
     attempts: 1
 - name: two-services
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -156,6 +162,9 @@ jobs:
     attempts: 1
 - name: deploy-cf
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF mp-api my-org my-space

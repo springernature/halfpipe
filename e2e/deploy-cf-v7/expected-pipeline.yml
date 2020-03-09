@@ -29,6 +29,9 @@ resource_types:
 jobs:
 - name: deploy to cf
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
     resource: CF dev-api engineering-enablement dev

@@ -27,6 +27,9 @@ resource_types:
 jobs:
 - name: create zip for ml task
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
@@ -114,6 +117,9 @@ jobs:
     attempts: 2
 - name: deploy-ml-zip
   serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
   plan:
   - in_parallel:
       steps:
