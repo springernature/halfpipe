@@ -119,4 +119,11 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
+  - put: remove test app
+    resource: rolling cf dev-api engineering-enablement dev
+    params:
+      command: halfpipe-delete-test
+      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+    timeout: 5m
+    attempts: 2
 

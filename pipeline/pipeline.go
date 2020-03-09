@@ -713,15 +713,17 @@ func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manife
 
 		prePromoteTasks, restoreArtifactInPP := p.prePromoteTasks(task, man, basePath)
 
-		if len(prePromoteTasks) > 0 && !restoreArtifactInPP {
-			inParallelJob := atc.PlanConfig{
-				InParallel: &atc.InParallelConfig{
-					Steps: prePromoteTasks,
-				},
+		if len(prePromoteTasks) > 0 {
+			if !restoreArtifactInPP {
+				inParallelJob := atc.PlanConfig{
+					InParallel: &atc.InParallelConfig{
+						Steps: prePromoteTasks,
+					},
+				}
+				job.Plan = append(job.Plan, inParallelJob)
+			} else {
+				job.Plan = append(job.Plan, prePromoteTasks...)
 			}
-			job.Plan = append(job.Plan, inParallelJob)
-		} else if len(prePromoteTasks) > 0 {
-			job.Plan = append(job.Plan, prePromoteTasks...)
 		}
 	}
 
@@ -746,6 +748,18 @@ func (p pipeline) rollingDeployCFJob(task manifest.DeployCF, man manifest.Manife
 		deploy.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 	job.Plan = append(job.Plan, deploy)
+
+	if len(task.PrePromote) > 0 {
+		job.Plan = append(job.Plan, atc.PlanConfig{
+			Put:      "remove test app",
+			Attempts: task.GetAttempts(),
+			Resource: resourceName,
+			Params: atc.Params{
+				"command":      "halfpipe-delete-test",
+				"manifestPath": manifestPath,
+			},
+		})
+	}
 
 	return &job
 }
