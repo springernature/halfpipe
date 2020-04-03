@@ -3,7 +3,8 @@ package linters
 import (
 	goErrors "errors"
 	"fmt"
-
+	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/defaults"
 	"strings"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
@@ -25,19 +26,18 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 	result.Linter = "CF Manifest Linter"
 	result.DocsURL = "https://docs.halfpipe.io/cf-deployment/"
 
-	var manifestPaths []string
-
+	var tasks []manifest.DeployCF
 	for _, task := range man.Tasks {
 		switch t := task.(type) {
 		case manifest.DeployCF:
-			manifestPaths = append(manifestPaths, t.Manifest)
+			tasks = append(tasks, t)
 		}
 	}
 
-	for _, manifestPath := range manifestPaths {
-
+	for _, task := range tasks {
 		//skip linting if file provided as an artifact
 		//task linter will warn that file needs to be generated in previous task
+		manifestPath := task.Manifest
 		if strings.HasPrefix(manifestPath, "../artifacts/") {
 			return result
 		}
@@ -60,9 +60,31 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		}
 
 		result.AddError(lintRoutes(manifestPath, app)...)
+		result.AddError(lintDockerPush(task, app)...)
 		result.AddWarning(lintBuildpack(app)...)
 	}
 	return result
+}
+
+func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []error) {
+	if app.DockerImage != "" {
+		if task.DeployArtifact != "" {
+			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "You cannot specify both 'deploy_artifact' in the task and 'docker.image' in the manifest"))
+			return
+		}
+
+		if task.API != defaults.DefaultValues.CfAPISnPaas {
+			errs = append(errs, linterrors.NewInvalidField("api", "Only SnPaaS supports docker image push"))
+			return
+		}
+
+		if !strings.HasPrefix(app.DockerImage, config.DockerRegistry) {
+			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, fmt.Sprintf("Image must come from '%s'", config.DockerRegistry)))
+			return
+		}
+	}
+
+	return
 }
 
 func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
