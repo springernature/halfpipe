@@ -17,7 +17,6 @@ func (c cFDockerPush) Apply(original manifest.Manifest) (updated manifest.Manife
 	}
 	updated.Tasks = u
 	return updated, nil
-	return
 }
 
 func (c cFDockerPush) updateTasks(tasks manifest.TaskList) (updated manifest.TaskList, err error) {
