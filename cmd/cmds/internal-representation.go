@@ -16,7 +16,7 @@ var internalRepresentation = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		man, controller := getManifestAndCreateController()
 
-		defaultedAndMappedManifest := controller.DefaultAndMap(man)
+		defaultedAndMappedManifest, _ := controller.DefaultAndMap(man)
 
 		updatedManifest, err := yaml.Marshal(defaultedAndMappedManifest)
 		printErrAndResultAndExitOnError(err, nil)

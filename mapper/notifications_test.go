@@ -7,7 +7,8 @@ import (
 )
 
 func TestDoesNothingWhenSlackChannelIsNotDefined(t *testing.T) {
-	assert.Equal(t, manifest.Manifest{}, NewNotificationsMapper().Apply(manifest.Manifest{}))
+	updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{})
+	assert.Equal(t, manifest.Manifest{}, updated)
 }
 
 func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
@@ -50,7 +51,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 			},
 		}
 
-		updated := NewNotificationsMapper().Apply(input)
+		updated, _ := NewNotificationsMapper().Apply(input)
 		assert.Equal(t, expected, updated)
 
 		// Make sure we dont update the old manifest in place, cus that leads to horrible bugs.
@@ -89,7 +90,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 			},
 		}
 
-		updated := NewNotificationsMapper().Apply(input)
+		updated, _ := NewNotificationsMapper().Apply(input)
 		assert.Equal(t, expected, updated)
 	})
 
@@ -133,7 +134,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 			},
 		}
 
-		updated := NewNotificationsMapper().Apply(input)
+		updated, _ := NewNotificationsMapper().Apply(input)
 		assert.Equal(t, expected, updated)
 	})
 
@@ -187,7 +188,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 			},
 		}
 
-		updated := NewNotificationsMapper().Apply(input)
+		updated, _ := NewNotificationsMapper().Apply(input)
 		assert.Equal(t, expected, updated)
 	})
 }

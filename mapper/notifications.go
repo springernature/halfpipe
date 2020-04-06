@@ -32,7 +32,7 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 	return updated
 }
 
-func (n notificationsMapper) Apply(original manifest.Manifest) (updated manifest.Manifest) {
+func (n notificationsMapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
 	updated = original
 
 	if updated.SlackChannel != "" {
@@ -40,7 +40,7 @@ func (n notificationsMapper) Apply(original manifest.Manifest) (updated manifest
 		updated.SlackChannel = ""
 	}
 
-	return updated
+	return updated, nil
 }
 
 func NewNotificationsMapper() Mapper {

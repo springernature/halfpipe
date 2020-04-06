@@ -10,8 +10,8 @@ type testMapper struct {
 	mapper func(original manifest.Manifest) (updated manifest.Manifest)
 }
 
-func (m testMapper) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	return m.mapper(original)
+func (m testMapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
+	return m.mapper(original), nil
 }
 
 func TestAppliesTheMappersCorrectly(t *testing.T) {
@@ -38,7 +38,7 @@ func TestAppliesTheMappersCorrectly(t *testing.T) {
 		},
 	}
 
-	updated := m.Apply(manifest.Manifest{})
+	updated, _ := m.Apply(manifest.Manifest{})
 
 	assert.True(t, calledMapper1)
 

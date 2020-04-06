@@ -1,6 +1,7 @@
 package halfpipe
 
 import (
+	"errors"
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
 	"testing"
@@ -112,4 +113,23 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 	pipeline, results := c.Process(validHalfpipeManifest)
 	assert.Len(t, results, 0)
 	assert.Equal(t, config, pipeline)
+}
+
+type FakeMapper struct {
+	err error
+}
+
+func (f FakeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
+	return original, f.err
+}
+
+func TestGivesBackABadTestResultWhenAMapperFails(t *testing.T) {
+	c := testController()
+	c.renderer = FakeRenderer{}
+	c.mapper = FakeMapper{err: errors.New("blurgh")}
+	_, results := c.Process(validHalfpipeManifest)
+
+	assert.Len(t, results, 1)
+	assert.True(t, results.HasErrors())
+	assert.False(t, results.HasWarnings())
 }

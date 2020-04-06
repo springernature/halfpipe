@@ -18,14 +18,14 @@ func NewDockerComposeMapper(fs afero.Afero) Mapper {
 	return dockerComposeMapper{fs}
 }
 
-func (m dockerComposeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest) {
+func (m dockerComposeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
 	if !original.FeatureToggles.DockerDecompose() {
-		return original
+		return original, nil
 	}
 
 	updated = original
 	updated.Tasks = m.updateTasks(updated.Tasks)
-	return updated
+	return updated, nil
 }
 
 func (m dockerComposeMapper) updateTasks(tasks manifest.TaskList) (updated manifest.TaskList) {

@@ -16,7 +16,8 @@ func TestDoesNothingWhenFeatureToggleNotSet(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, original, NewDockerComposeMapper(fs).Apply(original))
+	updated, _ := NewDockerComposeMapper(fs).Apply(original)
+	assert.Equal(t, original, updated)
 }
 
 func TestConvertsDockerComposeTaskToRunTask(t *testing.T) {
@@ -84,7 +85,8 @@ func TestConvertsDockerComposeTaskToRunTask(t *testing.T) {
 		Timeout: "1m",
 	}
 
-	assert.Equal(t, expected, NewDockerComposeMapper(fs).Apply(original).Tasks[0])
+	updated, _ := NewDockerComposeMapper(fs).Apply(original)
+	assert.Equal(t, expected, updated.Tasks[0])
 }
 
 func TestDoesNotConvertWhenWorkingDirIsParent(t *testing.T) {
@@ -109,7 +111,8 @@ services:
 		},
 	}
 
-	assert.Equal(t, original, NewDockerComposeMapper(fs).Apply(original))
+	updated, _ := NewDockerComposeMapper(fs).Apply(original)
+	assert.Equal(t, original, updated)
 }
 
 func TestConvertsTaskInDeployCFPrePromote(t *testing.T) {
@@ -139,7 +142,7 @@ func TestConvertsTaskInDeployCFPrePromote(t *testing.T) {
 		},
 	}
 
-	actual := NewDockerComposeMapper(fs).Apply(original)
+	actual, _ := NewDockerComposeMapper(fs).Apply(original)
 
 	deployTask, _ := actual.Tasks[0].(manifest.DeployCF)
 	assert.IsType(t, manifest.Run{}, deployTask.PrePromote[0])

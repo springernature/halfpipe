@@ -6,21 +6,21 @@ import (
 )
 
 type Mapper interface {
-	Apply(original manifest.Manifest) (updated manifest.Manifest)
+	Apply(original manifest.Manifest) (updated manifest.Manifest, err error)
 }
 
 type mapper struct {
 	mappers []Mapper
 }
 
-func (m mapper) Apply(original manifest.Manifest) (updated manifest.Manifest) {
+func (m mapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
 	updated = original
 
 	for _, mm := range m.mappers {
-		updated = mm.Apply(updated)
+		updated, err = mm.Apply(updated)
 	}
 
-	return updated
+	return updated, nil
 }
 
 func New() Mapper {
@@ -28,6 +28,7 @@ func New() Mapper {
 		mappers: []Mapper{
 			NewNotificationsMapper(),
 			NewDockerComposeMapper(afero.Afero{Fs: afero.NewOsFs()}),
+			NewCFDockerPushMapper(),
 		},
 	}
 }

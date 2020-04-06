@@ -22,6 +22,7 @@ type DeployCF struct {
 	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	PreStart        []string      `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	Rolling         bool          `yaml:"rolling,omitempty"`
+	IsDockerPush    bool          `json:"-" yaml:"-"`
 }
 
 func (r DeployCF) GetNotifications() Notifications {

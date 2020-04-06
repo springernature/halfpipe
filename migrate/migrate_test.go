@@ -12,7 +12,7 @@ type MockController struct {
 	processFunc func(man manifest.Manifest) (config atc.Config, results result.LintResults)
 }
 
-func (m MockController) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest) {
+func (m MockController) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {
 	panic("implement me")
 }
 

@@ -12,7 +12,7 @@ import (
 
 type Controller interface {
 	Process(man manifest.Manifest) (config atc.Config, results result.LintResults)
-	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest)
+	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error)
 }
 
 type controller struct {
@@ -42,12 +42,16 @@ func (c controller) Process(man manifest.Manifest) (config atc.Config, results r
 		return
 	}
 
-	mappedManifest := c.mapper.Apply(defaultedManifest)
+	mappedManifest, err := c.mapper.Apply(defaultedManifest)
+	if err != nil {
+		results = append(results, result.LintResult{Linter: "Internal mapper", Errors: []error{err}})
+		return
+	}
 
 	config = c.renderer.Render(mappedManifest)
 	return config, results
 }
 
-func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest) {
+func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {
 	return c.mapper.Apply(c.defaulter.Apply(man))
 }
