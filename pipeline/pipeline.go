@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/defaults"
 	"regexp"
 	"strings"
 
@@ -660,10 +661,17 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 			"command":      "halfpipe-push",
 			"testDomain":   task.TestDomain,
 			"manifestPath": manifestPath,
-			"appPath":      appPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 		},
 	}
+
+	if task.IsDockerPush {
+		push.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
+		push.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+	} else {
+		push.Params["appPath"] = appPath
+	}
+
 	if len(vars) > 0 {
 		push.Params["vars"] = vars
 	}

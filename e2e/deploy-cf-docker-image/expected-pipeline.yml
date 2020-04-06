@@ -53,6 +53,8 @@ jobs:
     resource: CF snpaas dev
     params:
       command: halfpipe-push
+      dockerPassword: ((halfpipe-gcr.private_key))
+      dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
@@ -104,6 +106,8 @@ jobs:
     resource: CF snpaas dev
     params:
       command: halfpipe-push
+      dockerPassword: ((halfpipe-gcr.private_key))
+      dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app

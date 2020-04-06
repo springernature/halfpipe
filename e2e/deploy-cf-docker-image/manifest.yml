@@ -6,4 +6,4 @@ applications:
   routes:
   - route: "test-route"
   docker:
-    image: someImage
+    image: eu.gcr.io/halfpipe-io/someImage
