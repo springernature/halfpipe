@@ -712,10 +712,17 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 		Params: atc.Params{
 			"command":      "halfpipe-rolling-deploy",
 			"manifestPath": manifestPath,
-			"appPath":      appPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 		},
 	}
+
+	if task.IsDockerPush {
+		deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
+		deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+	} else {
+		deploy.Params["appPath"] = appPath
+	}
+
 	if len(vars) > 0 {
 		deploy.Params["vars"] = vars
 	}
