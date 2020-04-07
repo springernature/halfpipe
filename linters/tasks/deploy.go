@@ -7,10 +7,11 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/pipeline"
 	"strings"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest pipeline.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}
@@ -67,6 +68,28 @@ func LintDeployCFTask(cf manifest.DeployCF, fs afero.Afero, deprecatedApis []str
 			if cf.Rolling {
 				errs = append(errs, linterrors.NewInvalidField("rolling", "cannot use rolling deployment with a deprecated api"))
 			}
+		}
+	}
+
+	if cf.DockerTag != "" {
+
+		apps, err := readCfManifest(cf.Manifest, nil, nil)
+		if err != nil {
+			errs = append(errs, err)
+			return
+		}
+
+		if apps[0].DockerImage == "" {
+			errs = append(errs, linterrors.NewInvalidField("docker_tag", "you must specify a 'docker.image' in the CF manifest if you want to use this feature"))
+			return
+		}
+
+		if (cf.DockerTag != "gitref") && (cf.DockerTag != "version") {
+			errs = append(errs, linterrors.NewInvalidField("docker_tag", "must be either 'gitref' or 'version'"))
+		}
+
+		if cf.DockerTag == "version" && !man.FeatureToggles.Versioned() {
+			errs = append(errs, linterrors.NewInvalidField("docker_tag", "'version' requires the update-pipeline feature toggle"))
 		}
 	}
 

@@ -1,12 +1,14 @@
 package linters
 
 import (
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/pipeline"
 	"sort"
 	"strings"
 	"time"
@@ -15,7 +17,7 @@ import (
 type taskLinter struct {
 	Fs                              afero.Afero
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error)
-	lintDeployCFTask                func(task manifest.DeployCF, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest pipeline.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
@@ -90,7 +92,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Run:
 			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os, linter.deprecatedDockerRegistries)
 		case manifest.DeployCF:
-			errs, warnings = linter.lintDeployCFTask(task, linter.Fs, linter.deprecatedCFApis)
+			errs, warnings = linter.lintDeployCFTask(task, man, cfManifest.ReadAndInterpolateManifest, linter.Fs, linter.deprecatedCFApis)
 
 			if len(errs) == 0 && len(task.PrePromote) > 0 {
 				for pI, preTask := range task.PrePromote {
