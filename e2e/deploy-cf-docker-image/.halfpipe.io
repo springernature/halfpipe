@@ -1,6 +1,9 @@
 team: engineering-enablement
 pipeline: halfpipe-e2e-deploy-cf-docker-image
 
+feature_toggles:
+- update-pipeline
+
 triggers:
 - type: git
   watched_paths:
@@ -16,6 +19,7 @@ tasks:
   name: deploy to cf with pre promote
   api: ((cloudfoundry.api-snpaas))
   space: dev
+  docker_tag: gitref
   pre_promote:
   - type: run
     name: pre promote step
@@ -30,6 +34,7 @@ tasks:
   api: ((cloudfoundry.api-snpaas))
   space: dev
   rolling: true
+  docker_tag: version
 
 - type: deploy-cf
   name: deploy to cf with pre promote - rolling deploy

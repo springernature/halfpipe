@@ -9,6 +9,13 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
+- name: version
+  type: semver
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: engineering-enablement-halfpipe-e2e-deploy-cf-docker-image
 - name: CF snpaas dev
   type: cf-resource
   source:
@@ -43,6 +50,49 @@ resource_types:
     tag: stable
     username: _json_key
 jobs:
+- name: update
+  serial: true
+  build_log_retention:
+    builds: 5
+    minimum_succeeded_builds: 1
+  plan:
+  - in_parallel:
+      steps:
+      - get: git
+        trigger: true
+        attempts: 2
+      fail_fast: true
+    timeout: 1h
+  - task: halfpipe update
+    config:
+      platform: linux
+      image_resource:
+        type: registry-image
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: _json_key
+      params:
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_URL: ((concourse.url))
+        CONCOURSE_USERNAME: ((concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: halfpipe-e2e-deploy-cf-docker-image
+      run:
+        path: update-pipeline
+        dir: git/e2e/deploy-cf-docker-image
+      inputs:
+      - name: git
+    timeout: 1h
+    attempts: 2
+  - put: version
+    params:
+      bump: minor
+    timeout: 1h
+    attempts: 2
 - name: deploy to cf simple
   serial: true
   build_log_retention:
@@ -61,13 +111,21 @@ jobs:
   - in_parallel:
       steps:
       - get: git
+        passed:
+        - update
+        attempts: 2
+      - get: version
+        passed:
+        - update
         trigger: true
+        timeout: 1m
         attempts: 2
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF snpaas dev
     params:
+      buildVersionPath: version/version
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
@@ -114,15 +172,22 @@ jobs:
       - get: git
         passed:
         - deploy to cf simple
+        attempts: 2
+      - get: version
+        passed:
+        - deploy to cf simple
         trigger: true
+        timeout: 1m
         attempts: 2
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF snpaas dev
     params:
+      buildVersionPath: version/version
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
+      dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
@@ -184,6 +249,7 @@ jobs:
                 fi
 
                 export GIT_REVISION=`cat ../../.git/ref`
+                export BUILD_VERSION=`cat ../../../version/version`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
@@ -193,6 +259,7 @@ jobs:
               dir: git/e2e/deploy-cf-docker-image
             inputs:
             - name: git
+            - name: version
             caches:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache
@@ -218,13 +285,19 @@ jobs:
       - get: git
         passed:
         - deploy to cf with pre promote
+        attempts: 2
+      - get: version
+        passed:
+        - deploy to cf with pre promote
         trigger: true
+        timeout: 1m
         attempts: 2
       fail_fast: true
     timeout: 1h
   - put: cf rolling deploy
     resource: rolling cf snpaas dev
     params:
+      buildVersionPath: version/version
       command: halfpipe-rolling-deploy
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
@@ -253,13 +326,19 @@ jobs:
       - get: git
         passed:
         - deploy to cf simple - rolling deploy
+        attempts: 2
+      - get: version
+        passed:
+        - deploy to cf simple - rolling deploy
         trigger: true
+        timeout: 1m
         attempts: 2
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
     resource: CF snpaas dev
     params:
+      buildVersionPath: version/version
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
@@ -323,6 +402,7 @@ jobs:
                 fi
 
                 export GIT_REVISION=`cat ../../.git/ref`
+                export BUILD_VERSION=`cat ../../../version/version`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
@@ -332,6 +412,7 @@ jobs:
               dir: git/e2e/deploy-cf-docker-image
             inputs:
             - name: git
+            - name: version
             caches:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache

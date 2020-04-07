@@ -185,12 +185,9 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 		case manifest.DockerPush:
 			resourceConfigs = append(resourceConfigs, p.dockerPushResource(task))
 		case manifest.Parallel:
-			for _, subTask := range task.Tasks {
-				switch subTask := subTask.(type) {
-				case manifest.DockerPush:
-					resourceConfigs = append(resourceConfigs, p.dockerPushResource(subTask))
-				}
-			}
+			resourceConfigs = append(resourceConfigs, p.dockerPushResources(task.Tasks)...)
+		case manifest.Sequence:
+			resourceConfigs = append(resourceConfigs, p.dockerPushResources(task.Tasks)...)
 		}
 	}
 
@@ -668,6 +665,13 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	if task.IsDockerPush {
 		push.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
 		push.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		if task.DockerTag != "" {
+			if task.DockerTag == "version" {
+				push.Params["dockerTag"] = path.Join(versionName, "version")
+			} else if task.DockerTag == "gitref" {
+				push.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
+			}
+		}
 	} else {
 		push.Params["appPath"] = appPath
 	}
