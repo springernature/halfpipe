@@ -723,6 +723,13 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	if task.IsDockerPush {
 		deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
 		deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		if task.DockerTag != "" {
+			if task.DockerTag == "version" {
+				deploy.Params["dockerTag"] = path.Join(versionName, "version")
+			} else if task.DockerTag == "gitref" {
+				deploy.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
+			}
+		}
 	} else {
 		deploy.Params["appPath"] = appPath
 	}

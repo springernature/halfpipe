@@ -300,6 +300,7 @@ jobs:
       buildVersionPath: version/version
       command: halfpipe-rolling-deploy
       dockerPassword: ((halfpipe-gcr.private_key))
+      dockerTag: version/version
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
@@ -311,15 +312,6 @@ jobs:
   build_log_retention:
     builds: 5
     minimum_succeeded_builds: 1
-  ensure:
-    put: cf halfpipe-cleanup
-    resource: CF snpaas dev
-    params:
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
-    timeout: 1h
-    attempts: 2
   plan:
   - in_parallel:
       steps:
@@ -335,24 +327,18 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-push
-    resource: CF snpaas dev
+  - put: deploy test app
+    resource: rolling cf snpaas dev
     params:
       buildVersionPath: version/version
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
+      dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      instances: 1
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: cf halfpipe-check
-    resource: CF snpaas dev
-    params:
-      command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -418,13 +404,24 @@ jobs:
             - path: ../../../halfpipe-cache
           attempts: 1
     timeout: 1h
-  - put: cf halfpipe-promote
-    resource: CF snpaas dev
+  - put: cf rolling deploy
+    resource: rolling cf snpaas dev
     params:
-      command: halfpipe-promote
+      buildVersionPath: version/version
+      command: halfpipe-rolling-deploy
+      dockerPassword: ((halfpipe-gcr.private_key))
+      dockerTag: git/.git/ref
+      dockerUsername: _json_key
+      gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      testDomain: springernature.app
       timeout: 1h
+    timeout: 1h
+    attempts: 2
+  - put: remove test app
+    resource: rolling cf snpaas dev
+    params:
+      command: halfpipe-delete-test
+      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
     timeout: 1h
     attempts: 2
 

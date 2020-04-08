@@ -40,6 +40,8 @@ tasks:
   name: deploy to cf with pre promote - rolling deploy
   api: ((cloudfoundry.api-snpaas))
   space: dev
+  rolling: true
+  docker_tag: gitref
   pre_promote:
     - type: run
       name: pre promote step
