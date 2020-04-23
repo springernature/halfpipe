@@ -294,11 +294,34 @@ func TestLintUnversionedBuildpack(t *testing.T) {
 
 }
 
+func TestLintMissingBuildpack(t *testing.T) {
+	apps := []cfManifest.Application{{
+		Name:   "My-app",
+		Routes: []string{"route1"},
+	}}
+
+	man := manifest.Manifest{
+		Tasks: []manifest.Task{
+			manifest.DeployCF{},
+		},
+	}
+
+	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
+
+	result := linter.Lint(man)
+	assert.Len(t, result.Errors, 0)
+	if assert.Len(t, result.Warnings, 1) {
+		assert.Equal(t, errors2.NewMissingBuildpackError(), result.Warnings[0])
+	}
+
+}
+
 func TestLintNoHttpInRoutes(t *testing.T) {
 	apps := []cfManifest.Application{
 		{
-			Name:   "My-app",
-			Routes: []string{"http://route1", "https://route2", "route1"},
+			Name:       "My-app",
+			Routes:     []string{"http://route1", "https://route2", "route1"},
+			Buildpacks: []string{"java"},
 		},
 	}
 

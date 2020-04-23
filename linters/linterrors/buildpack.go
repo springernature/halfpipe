@@ -23,3 +23,13 @@ func NewUnversionedBuildpackError(buildpack string) UnversionedBuildpackError {
 func (e UnversionedBuildpackError) Error() string {
 	return fmt.Sprintf("Buildpack '%s' does not specify a version so the latest will be used on each deploy. It is recommended to pin to a version like this: %s#<VERSION>", e.buildpack, e.buildpack)
 }
+
+type MissingBuildpackError struct{}
+
+func NewMissingBuildpackError() MissingBuildpackError {
+	return MissingBuildpackError{}
+}
+
+func (e MissingBuildpackError) Error() string {
+	return "No buildpack specified in manifest. Cloud Foundry will try to detect which system buildpack to use. Please see https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack"
+}

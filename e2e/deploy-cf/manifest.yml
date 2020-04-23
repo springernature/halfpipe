@@ -5,3 +5,5 @@ applications:
   memory: 32M
   routes:
   - route: "test-route"
+  buildpacks:
+    - java

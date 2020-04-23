@@ -127,5 +127,9 @@ func lintBuildpack(man cfManifest.Application) (errs []error) {
 		}
 	}
 
+	if man.Buildpack.Value == "" && len(man.Buildpacks) == 0 && man.DockerImage == "" {
+		errs = append(errs, linterrors.NewMissingBuildpackError())
+	}
+
 	return errs
 }
