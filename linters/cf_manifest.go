@@ -120,5 +120,12 @@ func lintBuildpack(man cfManifest.Application) (errs []error) {
 	if man.Buildpack.Value != "" {
 		errs = append(errs, linterrors.NewDeprecatedBuildpackError())
 	}
+
+	for _, bp := range man.Buildpacks {
+		if strings.HasPrefix(bp, "http") && !strings.Contains(bp, "#") {
+			errs = append(errs, linterrors.NewUnversionedBuildpackError(bp))
+		}
+	}
+
 	return errs
 }
