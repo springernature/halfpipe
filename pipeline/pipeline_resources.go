@@ -168,10 +168,13 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 
 const deployCfResourceTypeName = "cf-resource"
 
-func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool) atc.ResourceType {
+func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool, newResource bool) atc.ResourceType {
 	image := "cf-resource"
 	if v7enabled {
 		image = "cf-resource-v7"
+	}
+	if newResource {
+		image = "cf-resource-refactor"
 	}
 	return atc.ResourceType{
 		Name: deployCfResourceTypeName,
@@ -188,7 +191,7 @@ func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool) atc.ResourceType 
 const rollingDeployCfResourceTypeName = "rolling-deploy"
 
 func (p pipeline) halfpipeRollingCfDeployResourceType() atc.ResourceType {
-	rT := p.halfpipeCfDeployResourceType(true)
+	rT := p.halfpipeCfDeployResourceType(true, false)
 	rT.Name = rollingDeployCfResourceTypeName
 	return rT
 }

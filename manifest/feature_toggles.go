@@ -5,11 +5,13 @@ type FeatureToggles []string
 const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
 const FeatureCFV7 = "cf-v7"
+const FeatureNewDeployResource = "new-deploy-resource"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
 	FeatureCFV7,
+	FeatureNewDeployResource,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -23,6 +25,10 @@ func (f FeatureToggles) contains(aFeature string) bool {
 
 func (f FeatureToggles) Versioned() bool {
 	return f.UpdatePipeline()
+}
+
+func (f FeatureToggles) NewDeployResource() bool {
+	return f.contains(FeatureNewDeployResource)
 }
 
 func (f FeatureToggles) UpdatePipeline() bool {

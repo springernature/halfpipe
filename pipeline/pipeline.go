@@ -209,7 +209,7 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool, newResource bool) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	var tmpResourceConfigs atc.ResourceConfigs
 	for _, task := range tasks {
 		switch task := task.(type) {
@@ -217,20 +217,24 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool) (reso
 			resourceName := deployCFResourceName(task)
 			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName))
 		case manifest.Parallel:
-			_, configs := p.cfPushResources(task.Tasks, v7enabled)
+			_, configs := p.cfPushResources(task.Tasks, v7enabled, false)
 			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
 		case manifest.Sequence:
-			_, configs := p.cfPushResources(task.Tasks, v7enabled)
+			_, configs := p.cfPushResources(task.Tasks, v7enabled, false)
 			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
 		}
 	}
 
 	for _, r := range tmpResourceConfigs {
 		if _, found := resourceTypes.Lookup(r.Type); !found {
-			if r.Type == deployCfResourceTypeName {
-				resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled))
+			if newResource {
+				resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled, newResource))
 			} else {
-				resourceTypes = append(resourceTypes, p.halfpipeRollingCfDeployResourceType())
+				if r.Type == deployCfResourceTypeName {
+					resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled, newResource))
+				} else {
+					resourceTypes = append(resourceTypes, p.halfpipeRollingCfDeployResourceType())
+				}
 			}
 		}
 	}
@@ -279,7 +283,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
 
-	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks, man.FeatureToggles.CFV7())
+	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks, man.FeatureToggles.CFV7(), man.FeatureToggles.NewDeployResource())
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
 
@@ -691,6 +695,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 
 	if task.Rolling {
 		push.Put = "deploy test app"
+		push.Params["instances"] = 1
 		push.Params["instances"] = 1
 	}
 	return push
