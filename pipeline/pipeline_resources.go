@@ -214,9 +214,9 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 	}
 }
 
-func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
+func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string, newResource bool) atc.ResourceConfig {
 	resourceType := deployCfResourceTypeName
-	if deployCF.Rolling {
+	if deployCF.Rolling && !newResource {
 		resourceType = rollingDeployCfResourceTypeName
 	}
 

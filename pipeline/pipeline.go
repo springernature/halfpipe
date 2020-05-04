@@ -215,7 +215,7 @@ func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool, newRe
 		switch task := task.(type) {
 		case manifest.DeployCF:
 			resourceName := deployCFResourceName(task)
-			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName))
+			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName, newResource))
 		case manifest.Parallel:
 			_, configs := p.cfPushResources(task.Tasks, v7enabled, false)
 			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
