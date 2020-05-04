@@ -69,17 +69,17 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []error) {
 	if app.DockerImage != "" {
 		if task.DeployArtifact != "" {
-			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "You cannot specify both 'deploy_artifact' in the task and 'docker.image' in the manifest"))
+			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "you cannot specify both 'deploy_artifact' in the task and 'docker.image' in the manifest"))
 			return
 		}
 
 		if task.API != defaults.DefaultValues.CfAPISnPaas {
-			errs = append(errs, linterrors.NewInvalidField("api", "Only SnPaaS supports docker image push"))
+			errs = append(errs, linterrors.NewInvalidField("api", "only SNPaaS supports docker image push"))
 			return
 		}
 
 		if !strings.HasPrefix(app.DockerImage, config.DockerRegistry) {
-			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, fmt.Sprintf("Image must come from '%s'", config.DockerRegistry)))
+			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, fmt.Sprintf("image must come from '%s'", config.DockerRegistry)))
 			return
 		}
 	}
@@ -90,12 +90,12 @@ func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []
 func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
 	if man.NoRoute {
 		if len(man.Routes) != 0 {
-			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "You cannot specify both 'routes' and 'no-route'"))
+			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "you cannot specify both 'routes' and 'no-route'"))
 			return errs
 		}
 
 		if man.HealthCheckType != "process" {
-			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "If 'no-route' is true you must set 'health-check-type' to 'process'"))
+			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "if 'no-route' is true you must set 'health-check-type' to 'process'"))
 			return errs
 		}
 
@@ -109,7 +109,7 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 
 	for _, route := range man.Routes {
 		if strings.HasPrefix(route, "http://") || strings.HasPrefix(route, "https://") {
-			errs = append(errs, linterrors.NewNoRoutesError(manifestPath, fmt.Sprintf("Don't put http(s):// at the start of the route: '%s'", route)))
+			errs = append(errs, linterrors.NewNoRoutesError(manifestPath, fmt.Sprintf("don't put http(s):// at the start of the route: '%s'", route)))
 		}
 	}
 

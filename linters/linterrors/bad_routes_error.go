@@ -12,5 +12,5 @@ func NewBadRoutesError(path string, reason string) BadRoutesError {
 }
 
 func (e BadRoutesError) Error() string {
-	return fmt.Sprintf("Invalid CF Manifest: '%s': %s", e.Path, e.Reason)
+	return fmt.Sprintf("invalid CF Manifest: '%s': %s", e.Path, e.Reason)
 }

@@ -9,7 +9,7 @@ func NewDeprecatedBuildpackError() DeprecatedBuildpackError {
 }
 
 func (e DeprecatedBuildpackError) Error() string {
-	return "Use of 'buildpack' attribute in manifest is deprecated in favor of 'buildpacks'. Please see <http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#deprecated>"
+	return "use of 'buildpack' attribute in manifest is deprecated in favor of 'buildpacks'. Please see <http://docs.cloudfoundry.org/devguide/deploy-apps/manifest.html#deprecated>"
 }
 
 type UnversionedBuildpackError struct {
@@ -21,7 +21,7 @@ func NewUnversionedBuildpackError(buildpack string) UnversionedBuildpackError {
 }
 
 func (e UnversionedBuildpackError) Error() string {
-	return fmt.Sprintf("Buildpack '%s' does not specify a version so the latest will be used on each deploy. It is recommended to pin to a version like this: %s#<VERSION>", e.buildpack, e.buildpack)
+	return fmt.Sprintf("buildpack '%s' does not specify a version so the latest will be used on each deploy. It is recommended to pin to a version like this: %s#<VERSION>", e.buildpack, e.buildpack)
 }
 
 type MissingBuildpackError struct{}
@@ -31,5 +31,5 @@ func NewMissingBuildpackError() MissingBuildpackError {
 }
 
 func (e MissingBuildpackError) Error() string {
-	return "No buildpack specified in manifest. Cloud Foundry will try to detect which system buildpack to use. Please see <https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack>"
+	return "no buildpack specified in manifest. Cloud Foundry will try to detect which system buildpack to use. Please see <https://docs.cloudfoundry.org/devguide/deploy-apps/manifest-attributes.html#buildpack>"
 }

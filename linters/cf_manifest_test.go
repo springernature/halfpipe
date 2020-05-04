@@ -360,7 +360,7 @@ func TestLintDockerImagePush(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 1)
-		assert.Contains(t, result.Errors[0].Error(), "You cannot specify both 'deploy_artifact' in the task")
+		assert.Contains(t, result.Errors[0].Error(), "you cannot specify both 'deploy_artifact' in the task")
 
 	})
 
@@ -409,7 +409,7 @@ func TestLintDockerImagePush(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 1)
-		assert.Contains(t, result.Errors[0].Error(), "Image must come from")
+		assert.Contains(t, result.Errors[0].Error(), "image must come from")
 	})
 
 	t.Run("All is good", func(t *testing.T) {

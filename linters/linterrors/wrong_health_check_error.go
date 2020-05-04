@@ -12,5 +12,5 @@ func NewWrongHealthCheck(path string, reason string) WrongHealthCheck {
 }
 
 func (e WrongHealthCheck) Error() string {
-	return fmt.Sprintf("Invalid CF Manifest: '%s': %s", e.Path, e.Reason)
+	return fmt.Sprintf("invalid CF Manifest: '%s': %s", e.Path, e.Reason)
 }
