@@ -82,3 +82,19 @@ func TestCallsOutToDefaulters(t *testing.T) {
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))
 
 }
+
+func TestSetsFeatureToggleForEngineeringEnablement(t *testing.T) {
+	defaults := Defaults{
+		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
+			return nil
+		}},
+		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
+			return nil
+		}},
+	}
+
+	appliedManifest := defaults.Apply(manifest.Manifest{
+		Team: "engineering-enablement",
+	})
+	assert.True(t, appliedManifest.FeatureToggles.NewDeployResource())
+}

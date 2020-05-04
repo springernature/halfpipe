@@ -1,8 +1,5 @@
-team: halfpipe-team
+team: engineering-enablement
 pipeline: halfpipe-e2e-deploy-cf-refactor
-
-feature_toggles:
-- new-deploy-resource
 
 triggers:
 - type: git
