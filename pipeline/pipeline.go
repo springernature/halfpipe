@@ -725,6 +725,10 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 		},
 	}
 
+	if man.FeatureToggles.NewDeployResource() {
+		deploy.Params["cliVersion"] = "cf7"
+	}
+
 	if task.IsDockerPush {
 		deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
 		deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
