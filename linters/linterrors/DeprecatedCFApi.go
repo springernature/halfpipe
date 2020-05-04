@@ -11,5 +11,5 @@ func NewDeprecatedCFApiError(api string) DeprecatedCFApiError {
 }
 
 func (e DeprecatedCFApiError) Error() string {
-	return fmt.Sprintf("the Cloud Foundry instance at '%s' has been deprecated. More information: https://ee-discourse.springernature.io/t/cloud-foundry-on-premises-deprecated/1292", e.api)
+	return fmt.Sprintf("The Cloud Foundry instance at '%s' has been deprecated. Please see <https://ee-discourse.springernature.io/t/cloud-foundry-on-premises-deprecated/1292>", e.api)
 }

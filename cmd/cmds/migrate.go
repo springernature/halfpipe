@@ -43,7 +43,7 @@ var migrateCmd = &cobra.Command{
 
 		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 		if len(manErrors) > 0 {
-			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
+			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
 		}
 
 		controller := createController(projectData, fs, currentDir)

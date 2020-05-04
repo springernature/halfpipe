@@ -15,7 +15,7 @@ func NewTopLevelLinter() topLevelLinter {
 }
 
 func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Top level fields"
+	result.Linter = "Halfpipe Manifest"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/"
 
 	if manifest.Team == "" {

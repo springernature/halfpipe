@@ -26,10 +26,6 @@ func TestHasErrors(t *testing.T) {
 }
 
 func TestError(t *testing.T) {
-	noErrors := NewLintResult("blah", "url", []error{}, nil)
-
-	assert.Contains(t, noErrors.Error(), `No issues \o/`)
-
 	e1 := errors.New("error1")
 	e2 := errors.New("error2")
 	documentedError := ourErrors.NewMissingField("blurgh")
