@@ -1,4 +1,4 @@
-team: engineering-enablement
+team: halfpipe-team
 pipeline: docker-push-with-update-pipeline
 
 feature_toggles:

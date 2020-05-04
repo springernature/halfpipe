@@ -15,7 +15,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: engineering-enablement-halfpipe-e2e-deploy-cf-docker-image
+    key: halfpipe-team-halfpipe-e2e-deploy-cf-docker-image
 - name: CF snpaas dev
   type: cf-resource
   source:

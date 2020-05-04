@@ -13,7 +13,7 @@ resources:
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: engineering-enablement/halfpipe-e2e-deploy-ml-zip
+    folder: halfpipe-team/halfpipe-e2e-deploy-ml-zip
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 resource_types:
@@ -142,7 +142,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/halfpipe-e2e-deploy-ml-zip
+        FOLDER: halfpipe-team/halfpipe-e2e-deploy-ml-zip
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:

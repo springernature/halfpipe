@@ -1,4 +1,4 @@
-team: engineering-enablement
+team: halfpipe-team
 pipeline: halfpipe-e2e-update-pipeline
 
 triggers:

@@ -15,7 +15,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: engineering-enablement-docker-push-with-update-pipeline
+    key: halfpipe-team-docker-push-with-update-pipeline
 - name: image1
   type: docker-image
   source:

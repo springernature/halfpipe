@@ -13,14 +13,14 @@ resources:
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: engineering-enablement/halfpipe-e2e-update-pipeline
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: artifacts-on-failure
   type: gcp-resource
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: engineering-enablement/halfpipe-e2e-update-pipeline
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   check_every: 24h
 - name: version
@@ -29,7 +29,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: engineering-enablement-halfpipe-e2e-update-pipeline
+    key: halfpipe-team-halfpipe-e2e-update-pipeline
 - name: halfpipe-fly
   type: docker-image
   source:
@@ -37,11 +37,11 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   check_every: 24h
-- name: CF dev-api engineering-enablement dev
+- name: CF dev-api halfpipe-team dev
   type: cf-resource
   source:
     api: dev-api
-    org: engineering-enablement
+    org: halfpipe-team
     password: very-secret
     space: dev
     username: michiel
@@ -242,7 +242,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -276,7 +276,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -291,7 +291,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-push
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
@@ -303,7 +303,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -311,7 +311,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -360,7 +360,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -603,7 +603,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:
@@ -957,7 +957,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: engineering-enablement
+        HALFPIPE_CACHE_TEAM: halfpipe-team
       run:
         path: docker.sh
         args:
@@ -1154,7 +1154,7 @@ jobs:
           username: _json_key
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: engineering-enablement/halfpipe-e2e-update-pipeline
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       run:

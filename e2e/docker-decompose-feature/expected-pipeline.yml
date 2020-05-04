@@ -126,7 +126,7 @@ jobs:
         B: bar
         F: foo
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
-        HALFPIPE_CACHE_TEAM: engineering-enablement
+        HALFPIPE_CACHE_TEAM: halfpipe-team
       run:
         path: docker.sh
         args:

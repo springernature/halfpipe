@@ -24,7 +24,7 @@ resources:
     password: ((concourse.password))
     pipeline: halfpipe-example-docker-push
     status: succeeded
-    team: engineering-enablement
+    team: halfpipe-team
     username: ((concourse.username))
 resource_types:
 - name: halfpipe-pipeline-trigger

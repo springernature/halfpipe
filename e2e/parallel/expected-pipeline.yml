@@ -15,7 +15,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: engineering-enablement-halfpipe-e2e-parallel
+    key: halfpipe-team-halfpipe-e2e-parallel
 jobs:
 - name: update
   serial: true
