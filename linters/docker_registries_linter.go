@@ -43,7 +43,7 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 		}
 
 		if err != nil {
-			if l.todaysDate.Before(l.deprecationDate.AddDate(0, -1, 0)) || man.FeatureToggles.DisableDockerRegistryLinter() {
+			if l.todaysDate.Before(l.deprecationDate.AddDate(0, -1, 0)) || man.FeatureToggles.DisableDeprecatedDockerRegistryError() {
 				result.AddWarning(err)
 			} else {
 				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/>, you have until %s to migrate", err.Error(), l.deprecationDate.Format("02 January 2006")))

@@ -118,7 +118,7 @@ func TestRunTask(t *testing.T) {
 			},
 		}
 		man.FeatureToggles = []string{
-			manifest.FeatureToggleDisableDeprecatedDockerRegistryError,
+			manifest.FeatureDisableDeprecatedDockerRegistryError,
 		}
 		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneWeekFromDeprecation).Lint(man)
 		assert.Len(t, lintResult.Warnings, 2)
