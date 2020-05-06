@@ -24,7 +24,7 @@ func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
 		}
 
 		if err != nil {
-			if l.todaysDate.Before(l.deprecationDate.AddDate(0,-1, 0)) || man.FeatureToggles.DisableDockerRegistryLinter(){
+			if l.todaysDate.Before(l.deprecationDate.AddDate(0, -1, 0)) || man.FeatureToggles.DisableDockerRegistryLinter() {
 				result.AddWarning(err)
 			} else {
 				result.AddError(fmt.Errorf("%s .... To supress this error use the feature toggle '%s', you have until %s to migrate", err.Error(), manifest.FeatureToggleDisableDeprecatedDockerRegistryError, l.deprecationDate))

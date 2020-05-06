@@ -14,7 +14,7 @@ var deprecatedPrefixes = []string{
 	"docker-registry",
 }
 
-var oneMonthBeforeDeprecation = time.Now().AddDate(0,0,-1)
+var oneMonthBeforeDeprecation = time.Now().AddDate(0, 0, -1)
 var deprecationDate = time.Now().AddDate(0, 1, 0)
 var oneWeekFromDeprecation = time.Now().AddDate(0, 0, 21)
 
@@ -124,5 +124,37 @@ func TestRunTask(t *testing.T) {
 		lintResult := NewDeprecatedDockerRegistriesLinter(deprecatedPrefixes, deprecationDate, oneWeekFromDeprecation).Lint(man)
 		assert.Len(t, lintResult.Warnings, 2)
 		assert.Empty(t, lintResult.Errors)
+	})
+}
+
+func TestDockerCompose(t *testing.T) {
+	t.Run("When we fail to read the docker-compose file", func(t *testing.T) {
+		panic("implement me")
+	})
+
+	t.Run("When we are referencing a deprecated repo", func(t *testing.T) {
+		panic("implement me")
+	})
+
+	t.Run("When we are not referencing a deprecated repo", func(t *testing.T) {
+		panic("implement me")
+	})
+}
+
+func DockerPush(t testing.T) {
+	t.Run("When we fail to read the Dockerfile", func(t *testing.T) {
+		panic("implement me")
+	})
+
+	t.Run("When we are pushing to deprecated registries", func(t *testing.T) {
+		panic("implement me")
+	})
+
+	t.Run("When we are referencing a deprecated registry in the Dockerfile", func(t *testing.T) {
+		panic("implement me")
+	})
+
+	t.Run("When we are not referencing a deprecated repo", func(t *testing.T) {
+		panic("implement me")
 	})
 }
