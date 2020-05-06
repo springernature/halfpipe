@@ -10,14 +10,14 @@ import (
 	"time"
 )
 
-type linter struct {
+type dockerRegistriesLinter struct {
 	fs                 afero.Afero
 	deprecatedPrefixes []string
 	deprecationDate    time.Time
 	todaysDate         time.Time
 }
 
-func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
+func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Deprecated Docker Registries"
 	result.DocsURL = "https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/"
 
@@ -54,7 +54,7 @@ func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
 	return
 }
 
-func (l linter) lintRunTask(task manifest.Run) (err error) {
+func (l dockerRegistriesLinter) lintRunTask(task manifest.Run) (err error) {
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.HasPrefix(task.Docker.Image, deprecated) {
 			return linterrors.NewInvalidField("docker.image", fmt.Sprintf("the docker image '%s' references the deprecated docker registry '%s'", task.Docker.Image, deprecated))
@@ -63,7 +63,7 @@ func (l linter) lintRunTask(task manifest.Run) (err error) {
 	return nil
 }
 
-func (l linter) lintDockerCompose(task manifest.DockerCompose) (badError bool, err error) {
+func (l dockerRegistriesLinter) lintDockerCompose(task manifest.DockerCompose) (badError bool, err error) {
 	composeFile, err := l.fs.ReadFile(task.ComposeFile)
 	if err != nil {
 		return true, err
@@ -76,7 +76,7 @@ func (l linter) lintDockerCompose(task manifest.DockerCompose) (badError bool, e
 	return false, nil
 }
 
-func (l linter) lintDockerPush(task manifest.DockerPush) (badError bool, err error) {
+func (l dockerRegistriesLinter) lintDockerPush(task manifest.DockerPush) (badError bool, err error) {
 	dockerContent, err := l.fs.ReadFile(task.DockerfilePath)
 	if err != nil {
 		return true, err
@@ -94,7 +94,7 @@ func (l linter) lintDockerPush(task manifest.DockerPush) (badError bool, err err
 }
 
 func NewDeprecatedDockerRegistriesLinter(fs afero.Afero, deprecatedPrefixes []string, deprecationDate time.Time, todaysDate time.Time) Linter {
-	return linter{
+	return dockerRegistriesLinter{
 		fs:                 fs,
 		deprecatedPrefixes: deprecatedPrefixes,
 		deprecationDate:    deprecationDate,
