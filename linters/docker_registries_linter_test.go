@@ -95,8 +95,6 @@ func TestRunTask(t *testing.T) {
 		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneWeekFromDeprecation).Lint(man)
 		assert.Empty(t, lintResult.Warnings)
 		assert.Len(t, lintResult.Errors, 2)
-
-		fmt.Println(lintResult.Errors[1])
 	})
 
 	t.Run("Should error, but doesnt due to feature toggle", func(t *testing.T) {
