@@ -10,6 +10,7 @@ require (
 	github.com/concourse/concourse v1.6.1-0.20191031130138-a3baf16f5128
 	github.com/cppforlife/go-patch v0.0.0-20181218195656-90228d472812 // indirect
 	github.com/ghodss/yaml v1.0.0
+	github.com/gookit/color v1.2.5
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a

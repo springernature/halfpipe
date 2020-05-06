@@ -12,5 +12,5 @@ func NewNoNameError(path string, reason string) NoNameError {
 }
 
 func (e NoNameError) Error() string {
-	return fmt.Sprintf("Invalid CF Manifest: '%s': %s", e.Path, e.Reason)
+	return fmt.Sprintf("invalid CF Manifest: '%s': %s", e.Path, e.Reason)
 }

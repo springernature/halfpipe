@@ -21,7 +21,7 @@ func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
 	}
 
 	if len(matches) == 0 {
-		return linterrors.NewFileError(glob, "Could not find any files or directories matching glob")
+		return linterrors.NewFileError(glob, "could not find any files or directories matching glob")
 	}
 	return nil
 }
@@ -70,7 +70,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 			}
 
 			if git.Branch != currentBranch && git.Branch != "" {
-				errs = append(errs, linterrors.NewInvalidField("branch", fmt.Sprintf("You are currently on branch '%s' but you specified branch '%s'", currentBranch, git.Branch)))
+				errs = append(errs, linterrors.NewInvalidField("branch", fmt.Sprintf("you are currently on branch '%s' but you specified branch '%s'", currentBranch, git.Branch)))
 			}
 		}
 	}

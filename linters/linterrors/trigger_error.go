@@ -11,5 +11,5 @@ func NewTriggerError(triggerName string) TriggerError {
 }
 
 func (e TriggerError) Error() string {
-	return fmt.Sprintf("Invalid trigger '%s': you are only allowed one of these in a pipeline", e.TriggerName)
+	return fmt.Sprintf("invalid trigger '%s': you are only allowed one of these in a pipeline", e.TriggerName)
 }

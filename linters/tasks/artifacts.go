@@ -28,13 +28,13 @@ func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (er
 
 	for _, saveArtifact := range saveArtifacts {
 		if environmentVariableNameRegex.Match([]byte(saveArtifact)) {
-			errs = append(errs, errors2.NewInvalidField("save_artifact", fmt.Sprintf("You are not allowed to refer to environment variables: '%s'", saveArtifact)))
+			errs = append(errs, errors2.NewInvalidField("save_artifact", fmt.Sprintf("you are not allowed to refer to environment variables: '%s'", saveArtifact)))
 		}
 	}
 
 	if deployArtifact != "" {
 		if environmentVariableNameRegex.Match([]byte(deployArtifact)) {
-			errs = append(errs, errors2.NewInvalidField("deploy_artifact", fmt.Sprintf("You are not allowed to refer to environment variables: '%s'", deployArtifact)))
+			errs = append(errs, errors2.NewInvalidField("deploy_artifact", fmt.Sprintf("you are not allowed to refer to environment variables: '%s'", deployArtifact)))
 		}
 	}
 

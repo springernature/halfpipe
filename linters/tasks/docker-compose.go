@@ -58,6 +58,6 @@ func lintDockerComposeService(service string, composeFile string, composeContent
 		return errs, warnings
 	}
 
-	errs = append(errs, linterrors.NewInvalidField("service", fmt.Sprintf("Could not find service '%s' in %s", service, composeFile)))
+	errs = append(errs, linterrors.NewInvalidField("service", fmt.Sprintf("could not find service '%s' in %s", service, composeFile)))
 	return errs, warnings
 }

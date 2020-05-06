@@ -11,5 +11,5 @@ func NewMissingField(name string) MissingFieldError {
 }
 
 func (e MissingFieldError) Error() string {
-	return fmt.Sprintf("Missing field: '%s'", e.Name)
+	return fmt.Sprintf("missing field: '%s'", e.Name)
 }

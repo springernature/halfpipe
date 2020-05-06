@@ -12,5 +12,5 @@ func NewDockerPushError(path string, reason string) DockerPushError {
 }
 
 func (e DockerPushError) Error() string {
-	return fmt.Sprintf("Invalid CF Manifest: '%s': %s", e.Path, e.Reason)
+	return fmt.Sprintf("invalid CF Manifest: '%s': %s", e.Path, e.Reason)
 }

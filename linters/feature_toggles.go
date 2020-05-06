@@ -24,7 +24,7 @@ func NewFeatureToggleLinter(availableFeatures manifest.FeatureToggles) featureTo
 }
 
 func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Feature Toggles Linter"
+	result.Linter = "Feature Toggles"
 	result.DocsURL = "https://docs.halfpipe.io/manifest/#feature-toggles"
 
 	for _, feature := range manifest.FeatureToggles {

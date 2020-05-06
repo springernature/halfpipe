@@ -7,26 +7,26 @@ import (
 
 func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) {
 	if !cameFromAParallel {
-		errs = append(errs, linterrors.NewInvalidField("type", "You are only allowed to use a 'sequence' inside a 'parallel'"))
+		errs = append(errs, linterrors.NewInvalidField("type", "you are only allowed to use 'sequence' inside 'parallel'"))
 		return errs, warnings
 	}
 
 	if len(seqTask.Tasks) == 0 {
-		errs = append(errs, linterrors.NewInvalidField("tasks", "You are not allowed to use a empty 'sequence'"))
+		errs = append(errs, linterrors.NewInvalidField("tasks", "you are not allowed to use a empty 'sequence'"))
 		return errs, warnings
 	}
 
 	if len(seqTask.Tasks) == 1 {
-		warnings = append(warnings, linterrors.NewInvalidField("tasks", "It seems unnecessary to have a single task in a sequence"))
+		warnings = append(warnings, linterrors.NewInvalidField("tasks", "it seems unnecessary to have a single task in a sequence"))
 		return errs, warnings
 	}
 
 	for _, task := range seqTask.Tasks {
 		switch task.(type) {
 		case manifest.Sequence:
-			errs = append(errs, linterrors.NewInvalidField("tasks", "A sequence task cannot contain sequence tasks"))
+			errs = append(errs, linterrors.NewInvalidField("tasks", "a sequence task cannot contain sequence tasks"))
 		case manifest.Parallel:
-			errs = append(errs, linterrors.NewInvalidField("tasks", "A sequence task cannot contain parallel tasks"))
+			errs = append(errs, linterrors.NewInvalidField("tasks", "a sequence task cannot contain parallel tasks"))
 		}
 	}
 

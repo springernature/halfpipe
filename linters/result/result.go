@@ -1,6 +1,9 @@
 package result
 
-import "fmt"
+import (
+	"fmt"
+	"github.com/gookit/color"
+)
 
 type LintResults []LintResult
 type LintResult struct {
@@ -38,38 +41,27 @@ func (lrs LintResults) HasErrors() bool {
 }
 
 func (lrs LintResults) Error() (out string) {
+	if lrs.HasErrors() || lrs.HasWarnings() {
+		out += "The Halfpipe Linter found problems in your project:\n"
+	}
 	for _, result := range lrs {
 		out += result.Error()
-		out += "\n"
 	}
 	return out
 }
 
 func (lr LintResult) Error() (out string) {
-	if lr.DocsURL != "" {
-		out += fmt.Sprintf("%s (%s)\n", lr.Linter, lr.DocsURL)
-	} else {
-		out += fmt.Sprintf("%s\n", lr.Linter)
+	if lr.HasWarnings() || lr.HasErrors() {
+		out += fmt.Sprintf("\n%s <%s>\n", lr.Linter, lr.DocsURL)
+		out += formatErrors("ERROR", lr.Errors, color.FgRed)
+		out += formatErrors("WARNING", lr.Warnings, color.FgYellow)
 	}
-
-	if lr.HasErrors() {
-		out += formatErrors("Errors", lr.Errors)
-	}
-	if lr.HasWarnings() {
-		out += formatErrors("Warnings", lr.Warnings)
-	}
-
-	if !lr.HasErrors() && !lr.HasWarnings() {
-		out += fmt.Sprintf("\t%s\n\n", `No issues \o/`)
-	}
-
 	return out
 }
 
-func formatErrors(typeOfError string, errs []error) (out string) {
-	out += fmt.Sprintf("\t%s:\n", typeOfError)
+func formatErrors(typeOfError string, errs []error, color color.Color) (out string) {
 	for _, err := range deduplicate(errs) {
-		out += fmt.Sprintf("\t\t* %s\n", err)
+		out += color.Sprintf("  [%s] %s\n", typeOfError, err)
 	}
 	return out
 }
