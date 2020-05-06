@@ -18,6 +18,9 @@ type linter struct {
 }
 
 func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
+	result.Linter = "Docker Registries"
+	result.DocsURL = "https://docs.halfpipe.io/docker-registry/"
+
 	for _, task := range man.Tasks.Flatten() {
 		var err error
 		switch task.(type) {
