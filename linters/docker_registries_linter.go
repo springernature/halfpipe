@@ -57,7 +57,7 @@ func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
 func (l linter) lintRunTask(task manifest.Run) (err error) {
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.HasPrefix(task.Docker.Image, deprecated) {
-			return linterrors.NewInvalidField("docker.image", fmt.Sprintf("The docker image '%s' references the deprecated docker registry '%s'", task.Docker.Image, deprecated))
+			return linterrors.NewInvalidField("docker.image", fmt.Sprintf("the docker image '%s' references the deprecated docker registry '%s'", task.Docker.Image, deprecated))
 		}
 	}
 	return nil

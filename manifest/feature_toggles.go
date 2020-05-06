@@ -6,7 +6,7 @@ const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
 const FeatureCFV7 = "cf-v7"
 const FeatureNewDeployResource = "new-deploy-resource"
-const FeatureToggleDisableDeprecatedDockerRegistryError = "im-aware-that-we-will-deprecate-old-docker-registries"
+const FeatureToggleDisableDeprecatedDockerRegistryError = "im-aware-that-old-docker-registries-will-stop-working-on-24-august-2020"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
