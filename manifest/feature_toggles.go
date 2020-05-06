@@ -6,12 +6,14 @@ const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
 const FeatureCFV7 = "cf-v7"
 const FeatureNewDeployResource = "new-deploy-resource"
+const FeatureToggleDisableDeprecatedDockerRegistryError = "im-aware-that-we-will-deprecate-old-docker-registries"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
 	FeatureCFV7,
 	FeatureNewDeployResource,
+	FeatureToggleDisableDeprecatedDockerRegistryError,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -41,4 +43,8 @@ func (f FeatureToggles) DockerDecompose() bool {
 
 func (f FeatureToggles) CFV7() bool {
 	return f.contains(FeatureCFV7)
+}
+
+func (f FeatureToggles) DisableDockerRegistryLinter() bool {
+	return f.contains(FeatureToggleDisableDeprecatedDockerRegistryError)
 }

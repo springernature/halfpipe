@@ -19,6 +19,7 @@ import (
 	"os"
 	"path"
 	"runtime"
+	"time"
 )
 
 var checkVersion = func() (err error) {
@@ -82,6 +83,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewTasksLinter(fs, runtime.GOOS, config.DeprecatedDockerRegistries, config.DeprecatedCFApis),
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
+			linters.NewDeprecatedDockerRegistriesLinter([]string{"te-docker.docker-registry.tools.springer-sbm.com", "docker-registry.dc.springernature.pe"}, time.Date(2020, 8, 24, 0, 0, 0, 0, time.UTC), time.Now()),
 		},
 		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest, fs),
 	)
