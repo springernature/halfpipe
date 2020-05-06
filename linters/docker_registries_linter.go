@@ -24,14 +24,14 @@ func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
 		case manifest.Run:
 			err = l.lintRunTask(task.(manifest.Run))
 		case manifest.DockerCompose:
-			e, badErr := l.lintDockerCompose(task.(manifest.DockerCompose))
+			badErr, e := l.lintDockerCompose(task.(manifest.DockerCompose))
 			if badErr {
 				result.AddError(e)
 				return
 			}
 			err = e
 		case manifest.DockerPush:
-			e, badErr := l.lintDockerPush(task.(manifest.DockerPush))
+			badErr, e := l.lintDockerPush(task.(manifest.DockerPush))
 			if badErr {
 				result.AddError(e)
 				return
@@ -43,7 +43,7 @@ func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
 			if l.todaysDate.Before(l.deprecationDate.AddDate(0, -1, 0)) || man.FeatureToggles.DisableDockerRegistryLinter() {
 				result.AddWarning(err)
 			} else {
-				result.AddError(fmt.Errorf("%s .... To supress this error use the feature toggle '%s', you have until %s to migrate", err.Error(), manifest.FeatureToggleDisableDeprecatedDockerRegistryError, l.deprecationDate))
+				result.AddError(fmt.Errorf("%s .... To supress this error use the feature toggle as described in '%s', you have until %s to migrate", err.Error(), "https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/", l.deprecationDate))
 			}
 
 		}
@@ -60,33 +60,33 @@ func (l linter) lintRunTask(task manifest.Run) (err error) {
 	return nil
 }
 
-func (l linter) lintDockerCompose(task manifest.DockerCompose) (err error, badError bool) {
+func (l linter) lintDockerCompose(task manifest.DockerCompose) (badError bool, err error) {
 	composeFile, err := l.fs.ReadFile(task.ComposeFile)
 	if err != nil {
-		return err, true
+		return true, err
 	}
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.Contains(string(composeFile), deprecated) {
-			return linterrors.NewInvalidField("composeFile", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.ComposeFile, deprecated)), false
+			return false, linterrors.NewInvalidField("composeFile", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.ComposeFile, deprecated))
 		}
 	}
-	return nil, false
+	return false, nil
 }
 
-func (l linter) lintDockerPush(task manifest.DockerPush) (err error, badError bool) {
+func (l linter) lintDockerPush(task manifest.DockerPush) (badError bool, err error) {
 	dockerContent, err := l.fs.ReadFile(task.DockerfilePath)
 	if err != nil {
-		return err, true
+		return true, err
 	}
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.HasPrefix(task.Image, deprecated) {
-			return linterrors.NewInvalidField("image", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.Image, deprecated)), false
+			return false, linterrors.NewInvalidField("image", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.Image, deprecated))
 		}
 		if strings.Contains(string(dockerContent), deprecated) {
-			return linterrors.NewInvalidField("dockerfile_path", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.DockerfilePath, deprecated)), false
+			return false, linterrors.NewInvalidField("dockerfile_path", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.DockerfilePath, deprecated))
 		}
 	}
-	return nil, false
+	return false, nil
 
 }
 
