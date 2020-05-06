@@ -80,10 +80,10 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewTopLevelLinter(),
 			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL, config.DeprecatedDockerRegistries),
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
-			linters.NewTasksLinter(fs, runtime.GOOS, config.DeprecatedDockerRegistries, config.DeprecatedCFApis),
+			linters.NewTasksLinter(fs, runtime.GOOS, config.DeprecatedCFApis),
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
-			linters.NewDeprecatedDockerRegistriesLinter(fs, []string{"te-docker.docker-registry.tools.springer-sbm.com", "docker-registry.dc.springernature.pe"}, time.Date(2020, 8, 24, 0, 0, 0, 0, time.UTC), time.Now()),
+			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries, time.Date(2020, 8, 24, 0, 0, 0, 0, time.UTC), time.Now()),
 		},
 		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest, fs),
 	)

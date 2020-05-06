@@ -16,11 +16,11 @@ import (
 
 type taskLinter struct {
 	Fs                              afero.Afero
-	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string, deprecatedDockerRegistries []string) (errs []error, warnings []error)
+	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest pipeline.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
-	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
-	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error)
+	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
+	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error)
 	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error)
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) (errs []error, warnings []error)
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) (errs []error, warnings []error)
@@ -32,7 +32,7 @@ type taskLinter struct {
 	deprecatedCFApis                []string
 }
 
-func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []string, deprecatedCFApis []string) taskLinter {
+func NewTasksLinter(fs afero.Afero, os string, deprecatedCFApis []string) taskLinter {
 	return taskLinter{
 		Fs:                              fs,
 		lintRunTask:                     tasks.LintRunTask,
@@ -47,7 +47,6 @@ func NewTasksLinter(fs afero.Afero, os string, deprecatedDockerRegistries []stri
 		lintParallel:                    tasks.LintParallelTask,
 		lintSequence:                    tasks.LintSequenceTask,
 		os:                              os,
-		deprecatedDockerRegistries:      deprecatedDockerRegistries,
 		deprecatedCFApis:                deprecatedCFApis,
 	}
 }
@@ -90,7 +89,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		var warnings []error
 		switch task := t.(type) {
 		case manifest.Run:
-			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os, linter.deprecatedDockerRegistries)
+			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os)
 		case manifest.DeployCF:
 			errs, warnings = linter.lintDeployCFTask(task, man, cfManifest.ReadAndInterpolateManifest, linter.Fs, linter.deprecatedCFApis)
 
@@ -107,9 +106,9 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 				warnings = append(warnings, subWarnings...)
 			}
 		case manifest.DockerPush:
-			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs, linter.deprecatedDockerRegistries)
+			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs)
 		case manifest.DockerCompose:
-			errs, warnings = linter.lintDockerComposeTask(task, linter.Fs, linter.deprecatedDockerRegistries)
+			errs, warnings = linter.lintDockerComposeTask(task, linter.Fs)
 		case manifest.ConsumerIntegrationTest:
 			if listName == "tasks" {
 				errs, warnings = linter.lintConsumerIntegrationTestTask(task, true)

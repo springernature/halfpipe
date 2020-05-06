@@ -2,17 +2,15 @@ package tasks
 
 import (
 	"fmt"
-	"os"
-	"regexp"
-	"strings"
-
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
+	"os"
+	"regexp"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
+func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
 	if docker.Username == "" {
 		errs = append(errs, linterrors.NewMissingField("username"))
 	}
@@ -36,7 +34,7 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		errs = append(errs, linterrors.NewInvalidField("dockerfile_path", "must not be empty"))
 	}
 
-	dockerFileContent, err := filechecker.ReadFile(fs, docker.DockerfilePath)
+	_, err := filechecker.ReadFile(fs, docker.DockerfilePath)
 	if err != nil {
 		errs = append(errs, err)
 	}
@@ -61,12 +59,6 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 
 		if docker.Tag == "version" && !manifest.FeatureToggles.Versioned() {
 			errs = append(errs, linterrors.NewInvalidField("tag", "'version' requires the update-pipeline feature toggle"))
-		}
-	}
-
-	for _, hostname := range deprecatedDockerRegistries {
-		if strings.HasPrefix(docker.Image, hostname) || strings.Contains(dockerFileContent, hostname) {
-			warnings = append(warnings, linterrors.NewDeprecatedDockerRegistryError(hostname))
 		}
 	}
 
