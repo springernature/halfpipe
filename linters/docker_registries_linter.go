@@ -18,8 +18,8 @@ type linter struct {
 }
 
 func (l linter) Lint(man manifest.Manifest) (result result.LintResult) {
-	result.Linter = "Docker Registries"
-	result.DocsURL = "https://docs.halfpipe.io/docker-registry/"
+	result.Linter = "Deprecated Docker Registries"
+	result.DocsURL = "https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/"
 
 	for _, task := range man.Tasks.Flatten() {
 		var err error
