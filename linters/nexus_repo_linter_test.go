@@ -51,4 +51,14 @@ func TestNexusRepoLinter(t *testing.T) {
 		assert.Len(t, result.Warnings, 2)
 	})
 
+	t.Run("ignore dot directories", func(t *testing.T) {
+		fs := afero.Afero{afero.NewMemMapFs()}
+		writeFile(fs, ".git/build.sbt")
+		writeFile(fs, ".any-dot-dir/pom.xml")
+
+		linter := NewNexusRepoLinter(fs)
+		result := linter.Lint(manifest.Manifest{})
+		assert.Len(t, result.Warnings, 0)
+		assert.Len(t, result.Errors, 0)
+	})
 }

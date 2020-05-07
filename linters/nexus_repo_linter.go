@@ -39,7 +39,7 @@ func (l nexusRepoLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	}
 
 	_ = l.fs.Walk(".", func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() && info.Name() == ".git" {
+		if info.IsDir() && strings.HasPrefix(info.Name(), ".") {
 			return filepath.SkipDir
 		}
 		if shouldCheckFile(info.Name()) {
