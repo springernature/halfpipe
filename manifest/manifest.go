@@ -70,6 +70,25 @@ func (tl TaskList) UsesNotifications() bool {
 	return false
 }
 
+func (tl TaskList) Flatten() (updated TaskList) {
+	for _, task := range tl {
+		switch task.(type) {
+		case DeployCF:
+			copied := task.(DeployCF)
+			copied.PrePromote = nil
+			updated = append(updated, copied)
+			updated = append(updated, task.(DeployCF).PrePromote.Flatten()...)
+		case Sequence:
+			updated = append(updated, task.(Sequence).Tasks.Flatten()...)
+		case Parallel:
+			updated = append(updated, task.(Parallel).Tasks.Flatten()...)
+		default:
+			updated = append(updated, task)
+		}
+	}
+	return
+}
+
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int
