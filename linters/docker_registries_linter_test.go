@@ -7,17 +7,12 @@ import (
 	"github.com/stretchr/testify/assert"
 	"path"
 	"testing"
-	"time"
 )
 
 var deprecatedPrefixes = []string{
 	"my-private-repo.tools",
 	"docker-registry",
 }
-
-var oneMonthBeforeDeprecation = time.Now().AddDate(0, 0, -1)
-var deprecationDate = time.Now().AddDate(0, 1, 0)
-var oneWeekFromDeprecation = time.Now().AddDate(0, 0, 21)
 
 var deprecatedImage1 = path.Join(deprecatedPrefixes[0], "something")
 var deprecatedImage2 = path.Join(deprecatedPrefixes[1], "something")
@@ -40,35 +35,9 @@ func TestRunTask(t *testing.T) {
 				},
 			},
 		}
-		linter := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes)
 		assert.Empty(t, linter.Lint(man).Errors)
 		assert.Empty(t, linter.Lint(man).Warnings)
-	})
-
-	t.Run("Warning", func(t *testing.T) {
-		man := manifest.Manifest{
-			Tasks: manifest.TaskList{
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: okImage2,
-					},
-				},
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: deprecatedImage1,
-					},
-				},
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: deprecatedImage2,
-					},
-				},
-			},
-		}
-
-		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation).Lint(man)
-		assert.Empty(t, lintResult.Errors)
-		assert.Len(t, lintResult.Warnings, 2)
 	})
 
 	t.Run("Error", func(t *testing.T) {
@@ -92,7 +61,7 @@ func TestRunTask(t *testing.T) {
 			},
 		}
 
-		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneWeekFromDeprecation).Lint(man)
+		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes).Lint(man)
 		assert.Empty(t, lintResult.Warnings)
 		assert.Len(t, lintResult.Errors, 2)
 	})
@@ -120,7 +89,7 @@ func TestRunTask(t *testing.T) {
 		man.FeatureToggles = []string{
 			manifest.FeatureToggleDisableDeprecatedDockerRegistryError,
 		}
-		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes, deprecationDate, oneWeekFromDeprecation).Lint(man)
+		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes).Lint(man)
 		assert.Len(t, lintResult.Warnings, 2)
 		assert.Empty(t, lintResult.Errors)
 	})
@@ -134,7 +103,7 @@ func TestDockerCompose(t *testing.T) {
 			},
 		}
 
-		linter := NewDeprecatedDockerRegistriesLinter(afero.Afero{afero.NewMemMapFs()}, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(afero.Afero{afero.NewMemMapFs()}, deprecatedPrefixes)
 		assert.Len(t, linter.Lint(man).Errors, 1)
 		assert.Len(t, linter.Lint(man).Warnings, 0)
 		assert.Equal(t, "open some/path: file does not exist", linter.Lint(man).Errors[0].Error())
@@ -195,12 +164,13 @@ deploy:
   volumes:
     - .:/home/dev/code
 `, okImage1, okImage2)), 0777)
-		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes)
 		result := linter.Lint(man)
-		assert.False(t, result.HasErrors())
-		assert.Len(t, result.Warnings, 2)
-		assert.Contains(t, result.Warnings[0].Error(), deprecatedPrefixes[0])
-		assert.Contains(t, result.Warnings[1].Error(), deprecatedPrefixes[1])
+		assert.True(t, result.HasErrors())
+		assert.False(t, result.HasWarnings())
+		assert.Len(t, result.Errors, 2)
+		assert.Contains(t, result.Errors[0].Error(), deprecatedPrefixes[0])
+		assert.Contains(t, result.Errors[1].Error(), deprecatedPrefixes[1])
 	})
 }
 
@@ -215,12 +185,13 @@ func TestDockerPush(t *testing.T) {
 		}
 
 		fs := afero.Afero{afero.NewMemMapFs()}
-		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes)
 		result := linter.Lint(man)
-		assert.False(t, result.HasErrors())
-		assert.Len(t, result.Warnings, 2)
-		assert.Contains(t, result.Warnings[0].Error(), deprecatedImage1)
-		assert.Contains(t, result.Warnings[1].Error(), deprecatedImage2)
+		assert.True(t, result.HasErrors())
+		assert.False(t, result.HasWarnings())
+		assert.Len(t, result.Errors, 2)
+		assert.Contains(t, result.Errors[0].Error(), deprecatedImage1)
+		assert.Contains(t, result.Errors[1].Error(), deprecatedImage2)
 	})
 
 	t.Run("When we fail to read the Dockerfile", func(t *testing.T) {
@@ -231,7 +202,7 @@ func TestDockerPush(t *testing.T) {
 		}
 
 		fs := afero.Afero{afero.NewMemMapFs()}
-		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes)
 		result := linter.Lint(man)
 		assert.Len(t, result.Warnings, 0)
 		assert.Len(t, result.Errors, 1)
@@ -261,12 +232,13 @@ RUN rm -rf /
 FROM %s
 RUN echo yay
 `, okImage1)), 0777)
-		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes, deprecationDate, oneMonthBeforeDeprecation)
+		linter := NewDeprecatedDockerRegistriesLinter(fs, deprecatedPrefixes)
 		result := linter.Lint(man)
-		assert.False(t, result.HasErrors())
-		assert.Len(t, result.Warnings, 2)
-		assert.Contains(t, result.Warnings[0].Error(), deprecatedPrefixes[0])
-		assert.Contains(t, result.Warnings[1].Error(), deprecatedPrefixes[1])
+		assert.False(t, result.HasWarnings())
+		assert.True(t, result.HasErrors())
+		assert.Len(t, result.Errors, 2)
+		assert.Contains(t, result.Errors[0].Error(), deprecatedPrefixes[0])
+		assert.Contains(t, result.Errors[1].Error(), deprecatedPrefixes[1])
 	})
 
 }

@@ -19,7 +19,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"time"
 )
 
 var checkVersion = func() (err error) {
@@ -83,7 +82,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewTasksLinter(fs, runtime.GOOS, config.DeprecatedCFApis),
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
-			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries, time.Date(2020, 8, 24, 0, 0, 0, 0, time.UTC), time.Now()),
+			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries),
 		},
 		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest, fs),
 	)
