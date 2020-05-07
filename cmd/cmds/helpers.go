@@ -19,7 +19,6 @@ import (
 	"os"
 	"path"
 	"runtime"
-	"time"
 )
 
 var checkVersion = func() (err error) {

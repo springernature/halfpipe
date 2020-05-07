@@ -93,11 +93,9 @@ func (l dockerRegistriesLinter) lintDockerPush(task manifest.DockerPush) (badErr
 
 }
 
-func NewDeprecatedDockerRegistriesLinter(fs afero.Afero, deprecatedPrefixes []string, deprecationDate time.Time, todaysDate time.Time) Linter {
+func NewDeprecatedDockerRegistriesLinter(fs afero.Afero, deprecatedPrefixes []string) Linter {
 	return dockerRegistriesLinter{
 		fs:                 fs,
 		deprecatedPrefixes: deprecatedPrefixes,
-		deprecationDate:    deprecationDate,
-		todaysDate:         todaysDate,
 	}
 }
