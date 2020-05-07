@@ -6,14 +6,16 @@ const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
 const FeatureCFV7 = "cf-v7"
 const FeatureNewDeployResource = "new-deploy-resource"
-const FeatureToggleDisableDeprecatedDockerRegistryError = "im-aware-that-old-docker-registries-will-stop-working-on-24-august-2020"
+const FeatureDisableDeprecatedDockerRegistryError = "im-aware-that-old-docker-registries-will-stop-working-on-24-august-2020"
+const FeatureDisableDeprecatedNexusRepositoryError = "im-aware-that-repo-dot-tools-will-stop-working-on-24-august-2020"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
 	FeatureCFV7,
 	FeatureNewDeployResource,
-	FeatureToggleDisableDeprecatedDockerRegistryError,
+	FeatureDisableDeprecatedDockerRegistryError,
+	FeatureDisableDeprecatedNexusRepositoryError,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -45,6 +47,10 @@ func (f FeatureToggles) CFV7() bool {
 	return f.contains(FeatureCFV7)
 }
 
-func (f FeatureToggles) DisableDockerRegistryLinter() bool {
-	return f.contains(FeatureToggleDisableDeprecatedDockerRegistryError)
+func (f FeatureToggles) DisableDeprecatedDockerRegistryError() bool {
+	return f.contains(FeatureDisableDeprecatedDockerRegistryError)
+}
+
+func (f FeatureToggles) DisableDeprecatedNexusRepositoryError() bool {
+	return f.contains(FeatureDisableDeprecatedNexusRepositoryError)
 }

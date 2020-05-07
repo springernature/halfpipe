@@ -83,6 +83,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
 			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries),
+			linters.NewNexusRepoLinter(fs),
 		},
 		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest, fs),
 	)
