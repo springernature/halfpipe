@@ -7,14 +7,11 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
-	"time"
 )
 
 type dockerRegistriesLinter struct {
 	fs                 afero.Afero
 	deprecatedPrefixes []string
-	deprecationDate    time.Time
-	todaysDate         time.Time
 }
 
 func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintResult) {
@@ -46,7 +43,7 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 			if man.FeatureToggles.DisableDeprecatedDockerRegistryError() {
 				result.AddWarning(err)
 			} else {
-				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/>, you have until %s to migrate", err.Error(), l.deprecationDate.Format("02 January 2006")))
+				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/>, you have until 24 August 2020 to migrate", err.Error()))
 			}
 
 		}
