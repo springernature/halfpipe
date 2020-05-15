@@ -16,7 +16,7 @@ type dockerRegistriesLinter struct {
 
 func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Deprecated Docker Registries"
-	result.DocsURL = "https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/"
+	result.DocsURL = "http://status.ee.springernature.io/incidents/bl8y88pmcz23"
 
 	for _, task := range man.Tasks.Flatten() {
 		var err error
@@ -43,7 +43,7 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 			if man.FeatureToggles.DisableDeprecatedDockerRegistryError() {
 				result.AddWarning(err)
 			} else {
-				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <https://ee-discourse.springernature.io/t/internal-docker-registries-end-of-life/>, you have until 24 August 2020 to migrate", err.Error()))
+				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <http://status.ee.springernature.io/incidents/bl8y88pmcz23>, you have until 24 August 2020 to migrate", err.Error()))
 			}
 
 		}

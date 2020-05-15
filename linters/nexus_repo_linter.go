@@ -16,7 +16,7 @@ type nexusRepoLinter struct {
 
 func (l nexusRepoLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Deprecated Nexus Repository"
-	result.DocsURL = "https://ee-discourse.springernature.io/t/repo-tools-nexus-repository-end-of-life/1318"
+	result.DocsURL = "http://status.ee.springernature.io/incidents/bl8y88pmcz23"
 
 	repoTools := "repo.tools.springer-sbm.com"
 
