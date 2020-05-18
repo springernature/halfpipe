@@ -622,10 +622,8 @@ func TestIncludesResourcesForDeployCF(t *testing.T) {
 
 	pipeline := testPipeline().Render(man)
 
-	_, deployResourceTypeExists := pipeline.ResourceTypes.Lookup(deployCfResourceTypeName)
-	assert.True(t, deployResourceTypeExists)
+	r, found := pipeline.ResourceTypes.Lookup(deployCfResourceTypeName)
+	assert.True(t, found)
 
-	_, rollingDeployResourceTypeExists := pipeline.ResourceTypes.Lookup(rollingDeployCfResourceTypeName)
-	assert.True(t, rollingDeployResourceTypeExists)
-
+	assert.Contains(t, r.Source["repository"].(string), "cf-resource-v2")
 }

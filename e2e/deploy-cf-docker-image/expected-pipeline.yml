@@ -26,7 +26,7 @@ resources:
     username: ((cloudfoundry.username-snpaas))
   check_every: 24h
 - name: rolling cf snpaas dev
-  type: rolling-deploy
+  type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
@@ -39,14 +39,7 @@ resource_types:
   type: registry-image
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource
-    tag: stable
-    username: _json_key
-- name: rolling-deploy
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v7
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
     tag: stable
     username: _json_key
 jobs:

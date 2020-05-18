@@ -168,14 +168,12 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 
 const deployCfResourceTypeName = "cf-resource"
 
-func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool, newResource bool) atc.ResourceType {
-	image := "cf-resource"
-	if v7enabled {
-		image = "cf-resource-v7"
-	}
+func (p pipeline) halfpipeCfDeployResourceType(newResource bool) atc.ResourceType {
+	image := deployCfResourceTypeName
 	if newResource {
-		image = "cf-resource-refactor"
+		image = strings.Join([]string{image, "v2"}, "-")
 	}
+
 	return atc.ResourceType{
 		Name: deployCfResourceTypeName,
 		Type: "registry-image",
@@ -186,14 +184,6 @@ func (p pipeline) halfpipeCfDeployResourceType(v7enabled bool, newResource bool)
 			"username":   "_json_key",
 		},
 	}
-}
-
-const rollingDeployCfResourceTypeName = "rolling-deploy"
-
-func (p pipeline) halfpipeRollingCfDeployResourceType() atc.ResourceType {
-	rT := p.halfpipeCfDeployResourceType(true, false)
-	rT.Name = rollingDeployCfResourceTypeName
-	return rT
 }
 
 func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
@@ -214,11 +204,8 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 	}
 }
 
-func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string, newResource bool) atc.ResourceConfig {
+func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	resourceType := deployCfResourceTypeName
-	if deployCF.Rolling && !newResource {
-		resourceType = rollingDeployCfResourceTypeName
-	}
 
 	sources := atc.Source{
 		"api":      deployCF.API,

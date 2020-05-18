@@ -209,43 +209,40 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResources(tasks manifest.TaskList, v7enabled bool, newResource bool) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
-	var tmpResourceConfigs atc.ResourceConfigs
-	for _, task := range tasks {
+func (p pipeline) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
+	usesRolling := false
+	for _, task := range man.Tasks.Flatten() {
 		switch task := task.(type) {
 		case manifest.DeployCF:
-			resourceName := deployCFResourceName(task)
-			tmpResourceConfigs = append(tmpResourceConfigs, p.deployCFResource(task, resourceName, newResource))
-		case manifest.Parallel:
-			_, configs := p.cfPushResources(task.Tasks, v7enabled, false)
-			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
-		case manifest.Sequence:
-			_, configs := p.cfPushResources(task.Tasks, v7enabled, false)
-			tmpResourceConfigs = append(tmpResourceConfigs, configs...)
-		}
-	}
-
-	for _, r := range tmpResourceConfigs {
-		if _, found := resourceTypes.Lookup(r.Type); !found {
-			if newResource {
-				resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled, newResource))
-			} else {
-				if r.Type == deployCfResourceTypeName {
-					resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType(v7enabled, newResource))
-				} else {
-					resourceTypes = append(resourceTypes, p.halfpipeRollingCfDeployResourceType())
-				}
+			if task.Rolling {
+				usesRolling = true
+				break
 			}
 		}
 	}
 
-	for _, tmpResourceConfig := range tmpResourceConfigs {
-		if _, found := resourceConfigs.Lookup(tmpResourceConfig.Name); !found {
-			resourceConfigs = append(resourceConfigs, tmpResourceConfig)
+	if man.FeatureToggles.NewDeployResource() || usesRolling {
+		return p.halfpipeCfDeployResourceType(true)
+	}
+	return p.halfpipeCfDeployResourceType(false)
+}
+
+func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+
+	for _, task := range man.Tasks.Flatten() {
+		switch task := task.(type) {
+		case manifest.DeployCF:
+			resourceConfig := p.deployCFResource(task, deployCFResourceName(task))
+			if _, found := resourceConfigs.Lookup(resourceConfig.Name); !found {
+				resourceConfigs = append(resourceConfigs, resourceConfig)
+			}
 		}
 	}
+	if len(resourceConfigs) > 0 {
+		resourceTypes = append(resourceTypes, p.cfPushResourceConfig(man))
+	}
 
-	return resourceTypes, resourceConfigs
+	return
 }
 
 func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
@@ -283,7 +280,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
 
-	cfResourceTypes, cfResources := p.cfPushResources(man.Tasks, man.FeatureToggles.CFV7(), man.FeatureToggles.NewDeployResource())
+	cfResourceTypes, cfResources := p.cfPushResourcesv2(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
 

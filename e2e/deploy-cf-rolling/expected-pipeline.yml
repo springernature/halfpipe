@@ -10,7 +10,7 @@ resources:
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
 - name: rolling cf dev-api halfpipe-team dev
-  type: rolling-deploy
+  type: cf-resource
   source:
     api: dev-api
     org: halfpipe-team
@@ -19,11 +19,11 @@ resources:
     username: michiel
   check_every: 24h
 resource_types:
-- name: rolling-deploy
+- name: cf-resource
   type: registry-image
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v7
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
     tag: stable
     username: _json_key
 jobs:
