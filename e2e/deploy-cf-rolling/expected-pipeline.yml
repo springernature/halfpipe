@@ -44,6 +44,7 @@ jobs:
     resource: rolling cf dev-api halfpipe-team dev
     params:
       appPath: git/e2e/deploy-cf-rolling
+      cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
@@ -141,6 +142,7 @@ jobs:
     resource: rolling cf dev-api halfpipe-team dev
     params:
       appPath: git/e2e/deploy-cf-rolling
+      cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml

@@ -210,20 +210,10 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 }
 
 func (p pipeline) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
-	usesRolling := false
-	for _, task := range man.Tasks.Flatten() {
-		switch task := task.(type) {
-		case manifest.DeployCF:
-			if task.Rolling {
-				usesRolling = true
-				break
-			}
-		}
-	}
-
-	if man.FeatureToggles.NewDeployResource() || usesRolling {
+	if man.FeatureToggles.OldDeployResource() {
 		return p.halfpipeCfDeployResourceType(true)
 	}
+
 	return p.halfpipeCfDeployResourceType(false)
 }
 
@@ -719,11 +709,8 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 			"command":      "halfpipe-rolling-deploy",
 			"manifestPath": manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+			"cliVersion":   "cf7",
 		},
-	}
-
-	if man.FeatureToggles.NewDeployResource() {
-		deploy.Params["cliVersion"] = "cf7"
 	}
 
 	if task.IsDockerPush {

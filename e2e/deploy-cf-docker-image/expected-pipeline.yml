@@ -291,6 +291,7 @@ jobs:
     resource: rolling cf snpaas dev
     params:
       buildVersionPath: version/version
+      cliVersion: cf7
       command: halfpipe-rolling-deploy
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: version/version
@@ -401,6 +402,7 @@ jobs:
     resource: rolling cf snpaas dev
     params:
       buildVersionPath: version/version
+      cliVersion: cf7
       command: halfpipe-rolling-deploy
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref

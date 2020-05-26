@@ -112,7 +112,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name: "cf-resource",
 		Type: "registry-image",
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "cf-resource",
+			"repository": config.DockerRegistry + "cf-resource-v2",
 			"tag":        "stable",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",

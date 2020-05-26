@@ -168,17 +168,18 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 
 const deployCfResourceTypeName = "cf-resource"
 
-func (p pipeline) halfpipeCfDeployResourceType(newResource bool) atc.ResourceType {
-	image := deployCfResourceTypeName
-	if newResource {
-		image = strings.Join([]string{image, "v2"}, "-")
+func (p pipeline) halfpipeCfDeployResourceType(oldResource bool) atc.ResourceType {
+	image := strings.Join([]string{deployCfResourceTypeName, "v2"}, "-")
+	if oldResource {
+		image = deployCfResourceTypeName
 	}
 
+	fullPath := path.Join(config.DockerRegistry + image)
 	return atc.ResourceType{
 		Name: deployCfResourceTypeName,
 		Type: "registry-image",
 		Source: atc.Source{
-			"repository": path.Join(config.DockerRegistry + image),
+			"repository": fullPath,
 			"tag":        "stable",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",

@@ -1,10 +1,13 @@
-team: engineering-enablement
-pipeline: halfpipe-e2e-deploy-cf-refactor
+team: halfpipe-team
+pipeline: halfpipe-e2e-deploy-cf
+
+feature_toggles:
+- old-deploy-resource
 
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-cf-refactor-resource
+  - e2e/deploy-cf
 
 tasks:
 - type: deploy-cf

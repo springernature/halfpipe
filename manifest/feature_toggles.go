@@ -5,6 +5,7 @@ type FeatureToggles []string
 const FeatureUpdatePipeline = "update-pipeline"
 const FeatureDockerDecompose = "docker-decompose"
 const FeatureNewDeployResource = "new-deploy-resource"
+const FeatureOldDeployResource = "old-deploy-resource"
 const FeatureDisableDeprecatedDockerRegistryError = "im-aware-that-old-docker-registries-will-stop-working-on-24-august-2020"
 const FeatureDisableDeprecatedNexusRepositoryError = "im-aware-that-repo-dot-tools-will-stop-working-on-24-august-2020"
 
@@ -12,6 +13,7 @@ var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureDockerDecompose,
 	FeatureNewDeployResource,
+	FeatureOldDeployResource,
 	FeatureDisableDeprecatedDockerRegistryError,
 	FeatureDisableDeprecatedNexusRepositoryError,
 }
@@ -31,6 +33,10 @@ func (f FeatureToggles) Versioned() bool {
 
 func (f FeatureToggles) NewDeployResource() bool {
 	return f.contains(FeatureNewDeployResource)
+}
+
+func (f FeatureToggles) OldDeployResource() bool {
+	return f.contains(FeatureOldDeployResource)
 }
 
 func (f FeatureToggles) UpdatePipeline() bool {

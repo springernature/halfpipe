@@ -55,12 +55,6 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 		updated.Tasks = append(manifest.TaskList{manifest.Update{}}, updated.Tasks...)
 	}
 
-	if updated.Team == "engineering-enablement" {
-		if !updated.FeatureToggles.NewDeployResource() {
-			updated.FeatureToggles = append(updated.FeatureToggles, manifest.FeatureNewDeployResource)
-		}
-	}
-
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 

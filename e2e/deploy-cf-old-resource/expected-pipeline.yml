@@ -5,15 +5,15 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-cf-refactor-resource
+    - e2e/deploy-cf
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
-- name: CF dev-api engineering-enablement dev
+- name: CF dev-api halfpipe-team dev
   type: cf-resource
   source:
     api: dev-api
-    org: engineering-enablement
+    org: halfpipe-team
     password: very-secret
     space: dev
     username: michiel
@@ -23,7 +23,7 @@ resource_types:
   type: registry-image
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    repository: eu.gcr.io/halfpipe-io/cf-resource
     tag: stable
     username: _json_key
 jobs:
@@ -34,10 +34,10 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -50,29 +50,29 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf-refactor-resource
+      appPath: git/e2e/deploy-cf-old-resource
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -84,10 +84,10 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -102,22 +102,22 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf-refactor-resource
+      appPath: git/e2e/deploy-cf-old-resource
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       preStartCommand: cf apps; cf events myapp-CANDIDATE
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -173,7 +173,7 @@ jobs:
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/deploy-cf-refactor-resource
+              dir: git/e2e/deploy-cf-old-resource
             inputs:
             - name: git
             caches:
@@ -182,10 +182,10 @@ jobs:
           attempts: 1
     timeout: 5m
   - put: cf halfpipe-promote
-    resource: CF dev-api engineering-enablement dev
+    resource: CF dev-api halfpipe-team dev
     params:
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf-refactor-resource/manifest.yml
+      manifestPath: git/e2e/deploy-cf-old-resource/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
