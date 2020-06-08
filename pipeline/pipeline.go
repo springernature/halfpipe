@@ -795,7 +795,10 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 }
 
 func buildTestRoute(appName, space, testDomain string) string {
-	return fmt.Sprintf("%s-%s-CANDIDATE.%s", appName, space, testDomain)
+	return fmt.Sprintf("%s-%s-CANDIDATE.%s",
+		strings.Replace(appName, "_", "-", -1),
+		strings.Replace(space, "_", "-", -1),
+		testDomain)
 }
 
 func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {

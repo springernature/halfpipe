@@ -627,3 +627,13 @@ func TestIncludesResourcesForDeployCF(t *testing.T) {
 
 	assert.Contains(t, r.Source["repository"].(string), "cf-resource-v2")
 }
+
+func TestTestDomain(t *testing.T) {
+	t.Run("Without underscore", func(t *testing.T) {
+		assert.Equal(t, "appName-spaceName-CANDIDATE.domain.com", buildTestRoute("appName", "spaceName", "domain.com"))
+	})
+
+	t.Run("With underscore", func(t *testing.T) {
+		assert.Equal(t, "app-Name-space-Name-CANDIDATE.domain.com", buildTestRoute("app_Name", "space_Name", "domain.com"))
+	})
+}
