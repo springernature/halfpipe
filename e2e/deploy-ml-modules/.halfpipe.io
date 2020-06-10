@@ -16,3 +16,4 @@ tasks:
   targets:
   - ml.dev.springer-sbm.com
   - ml.qa1.springer-sbm.com
+  username: foo

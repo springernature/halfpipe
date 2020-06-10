@@ -144,10 +144,13 @@ tasks:
   targets:
   - target1
   - target2
+  username: un
+  password: pw
 - type: deploy-ml-modules
   app_name: app-name
   app_version: app-version
   ml_modules_version: ml-modules-version
+  password: p
   targets:
   - target1
   - target2
@@ -313,6 +316,8 @@ tasks:
 				AppVersion:      "app-version",
 				Targets:         []string{"target1", "target2"},
 				UseBuildVersion: true,
+				Username:        "un",
+				Password:        "pw",
 			},
 			DeployMLModules{
 				MLModulesVersion: "ml-modules-version",
@@ -320,6 +325,7 @@ tasks:
 				AppVersion:       "app-version",
 				Targets:          []string{"target1", "target2"},
 				UseBuildVersion:  false,
+				Password:         "p",
 			},
 			Parallel{
 				Tasks: TaskList{

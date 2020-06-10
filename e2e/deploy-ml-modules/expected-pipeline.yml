@@ -40,7 +40,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         MARKLOGIC_HOST: ml.dev.springer-sbm.com,ml.qa1.springer-sbm.com
         MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))
-        MARKLOGIC_USERNAME: ((halfpipe-ml-deploy.username))
+        MARKLOGIC_USERNAME: foo
         ML_MODULES_VERSION: "2.1425"
         USE_BUILD_VERSION: "false"
       run:

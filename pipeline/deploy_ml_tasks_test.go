@@ -33,8 +33,8 @@ func TestConvertDeployMLZipToRunTask(t *testing.T) {
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":     "blah,blah1",
-			"MARKLOGIC_USERNAME": "((halfpipe-ml-deploy.username))",
-			"MARKLOGIC_PASSWORD": "((halfpipe-ml-deploy.password))",
+			"MARKLOGIC_USERNAME": "",
+			"MARKLOGIC_PASSWORD": "",
 			"APP_NAME":           "a-name",
 			"APP_VERSION":        "a-version",
 			"DEPLOY_ZIP":         "d-artifact",
@@ -56,6 +56,7 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 		AppVersion:       "a-version",
 		Targets:          []string{"blah", "blah1"},
 		ManualTrigger:    true,
+		Password:         "pw",
 	}
 
 	man := manifest.Manifest{}
@@ -74,8 +75,8 @@ func TestConvertDeployMLModulesToRunTask(t *testing.T) {
 			"ARTIFACTORY_USERNAME": "((artifactory.username))",
 			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
 			"MARKLOGIC_HOST":       "blah,blah1",
-			"MARKLOGIC_PASSWORD":   "((halfpipe-ml-deploy.password))",
-			"MARKLOGIC_USERNAME":   "((halfpipe-ml-deploy.username))",
+			"MARKLOGIC_PASSWORD":   "pw",
+			"MARKLOGIC_USERNAME":   "",
 			"APP_NAME":             "a-name",
 			"APP_VERSION":          "a-version",
 			"ML_MODULES_VERSION":   "1.2345",

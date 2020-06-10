@@ -13,6 +13,8 @@ type DeployMLModules struct {
 	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	UseBuildVersion  bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+	Username         string        `json:"username" yaml:"username,omitempty" secretAllowed:"true"`
+	Password         string        `json:"password" yaml:"password,omitempty" secretAllowed:"true"`
 }
 
 func (r DeployMLModules) GetNotifications() Notifications {

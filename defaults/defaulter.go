@@ -42,6 +42,9 @@ type Defaults struct {
 	ConcourseUsername string
 	ConcoursePassword string
 
+	MarkLogicUsername string
+	MarkLogicPassword string
+
 	Timeout string
 
 	triggersDefaulter TriggersDefaulter

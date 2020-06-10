@@ -20,8 +20,8 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
-			"MARKLOGIC_USERNAME":   "((halfpipe-ml-deploy.username))",
-			"MARKLOGIC_PASSWORD":   "((halfpipe-ml-deploy.password))",
+			"MARKLOGIC_USERNAME":   mlTask.Username,
+			"MARKLOGIC_PASSWORD":   mlTask.Password,
 			"APP_NAME":             defaultValue(mlTask.AppName, man.Pipeline),
 			"ARTIFACTORY_USERNAME": "((artifactory.username))",
 			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
@@ -49,8 +49,8 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":     strings.Join(mlTask.Targets, ","),
-			"MARKLOGIC_USERNAME": "((halfpipe-ml-deploy.username))",
-			"MARKLOGIC_PASSWORD": "((halfpipe-ml-deploy.password))",
+			"MARKLOGIC_USERNAME": mlTask.Username,
+			"MARKLOGIC_PASSWORD": mlTask.Password,
 			"APP_NAME":           defaultValue(mlTask.AppName, man.Pipeline),
 			"DEPLOY_ZIP":         mlTask.DeployZip,
 			"USE_BUILD_VERSION":  fmt.Sprint(mlTask.UseBuildVersion),

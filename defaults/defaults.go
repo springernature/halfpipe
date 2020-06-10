@@ -37,5 +37,8 @@ var DefaultValues = Defaults{
 	ConcourseUsername: "((concourse.username))",
 	ConcoursePassword: "((concourse.password))",
 
+	MarkLogicUsername: "((halfpipe-ml-deploy.username))",
+	MarkLogicPassword: "((halfpipe-ml-deploy.password))",
+
 	Timeout: "1h",
 }
