@@ -171,7 +171,7 @@ func (p planner) Plan() (plan Plan, err error) {
 		return plan, err
 	}
 
-	if p.currentBranch != "master" && !p.nonInteractive {
+	if p.currentBranch != "master" && p.currentBranch != "main" && !p.nonInteractive {
 		plan = append(plan, SecurityQuestion(man.Pipeline, p.currentBranch))
 	}
 

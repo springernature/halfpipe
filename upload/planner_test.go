@@ -113,6 +113,18 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
 		assert.Equal(t, expectedPlan, planToString(plan))
 	})
 
+	t.Run("returns a plan when on main", func(t *testing.T) {
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "main", osResolver, envResolver, "")
+		plan, err := planner.Plan()
+
+		expectedPlan := `halfpipe > pipeline.yml
+fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
+
+		assert.Nil(t, err)
+		assert.Equal(t, expectedPlan, planToString(plan))
+	})
+
 	t.Run("returns a non-interactive plan", func(t *testing.T) {
 		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "")
 		plan, err := planner.Plan()

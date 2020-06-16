@@ -156,7 +156,7 @@ func (m Manifest) PipelineName() (pipelineName string) {
 	pipelineName = m.Pipeline
 	gitTrigger := m.Triggers.GetGitTrigger()
 
-	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" {
+	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {
 		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(gitTrigger.Branch))
 	}
 

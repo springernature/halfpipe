@@ -23,6 +23,11 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 	man := manifest.Manifest{
 		Team:     team,
 		Pipeline: pipeline,
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				Branch: "main",
+			},
+		},
 		FeatureToggles: manifest.FeatureToggles{
 			manifest.FeatureUpdatePipeline,
 		},

@@ -34,6 +34,7 @@ func TestRepo_UriFormats(t *testing.T) {
 func TestPipelineNameOnMaster(t *testing.T) {
 	assert.Equal(t, "some-pipeline-name", actualName("some-pipeline-name", ""))
 	assert.Equal(t, "some-pipeline-name", actualName("some-pipeline-name", "master"))
+	assert.Equal(t, "some-pipeline-name", actualName("some-pipeline-name", "main"))
 }
 
 func TestPipelineNameOnBranch(t *testing.T) {

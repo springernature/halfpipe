@@ -15,7 +15,8 @@ func TestRendersHttpGitResource(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
-				URI: gitURI,
+				URI:    gitURI,
+				Branch: "main",
 			},
 		},
 	}
@@ -27,7 +28,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 				Type: "git",
 				Source: atc.Source{
 					"uri":    gitURI,
-					"branch": "master",
+					"branch": "main",
 				},
 			},
 		},
@@ -44,6 +45,7 @@ func TestRendersSshGitResource(t *testing.T) {
 			manifest.GitTrigger{
 				URI:        gitURI,
 				PrivateKey: privateKey,
+				Branch:     "main",
 			},
 		},
 	}
@@ -56,7 +58,7 @@ func TestRendersSshGitResource(t *testing.T) {
 				Source: atc.Source{
 					"uri":         gitURI,
 					"private_key": privateKey,
-					"branch":      "master",
+					"branch":      "main",
 				},
 			},
 		},
@@ -74,6 +76,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:          gitURI,
+				Branch:       "main",
 				PrivateKey:   privateKey,
 				WatchedPaths: watches,
 				IgnoredPaths: ignores,
@@ -91,7 +94,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 					"private_key":  privateKey,
 					"paths":        watches,
 					"ignore_paths": ignores,
-					"branch":       "master",
+					"branch":       "main",
 				},
 			},
 		},
@@ -107,6 +110,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:         gitURI,
+				Branch:      "main",
 				GitCryptKey: gitCrypt,
 			},
 		},
@@ -120,7 +124,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 				Source: atc.Source{
 					"uri":           gitURI,
 					"git_crypt_key": gitCrypt,
-					"branch":        "master",
+					"branch":        "main",
 				},
 			},
 		},

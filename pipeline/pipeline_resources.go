@@ -37,11 +37,7 @@ func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 		sources["git_crypt_key"] = trigger.GitCryptKey
 	}
 
-	if trigger.Branch == "" {
-		sources["branch"] = "master"
-	} else {
-		sources["branch"] = trigger.Branch
-	}
+	sources["branch"] = trigger.Branch
 
 	cfg := atc.ResourceConfig{
 		Name:   trigger.GetTriggerName(),
@@ -281,7 +277,7 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
 	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.Pipeline)
 	gitTrigger := manifest.Triggers.GetGitTrigger()
-	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" {
+	if gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {
 		key = fmt.Sprintf("%s-%s", key, gitTrigger.Branch)
 	}
 
