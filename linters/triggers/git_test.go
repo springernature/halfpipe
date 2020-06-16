@@ -12,7 +12,7 @@ import (
 )
 
 var defaultBranchResolver = func() (branch string, err error) {
-	return "master", nil
+	return "main", nil
 }
 
 var defaultRepoURIResolver = func(uri string) func() (string, error) {
@@ -43,7 +43,8 @@ func TestInvalidUri(t *testing.T) {
 
 func TestUriIsValidHttpsUri(t *testing.T) {
 	trigger := manifest.GitTrigger{
-		URI: "https://github.com/springernature/halfpipe.git",
+		URI:    "https://github.com/springernature/halfpipe.git",
+		Branch: "main",
 	}
 
 	errs, warns := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
@@ -55,7 +56,8 @@ func TestUriIsValidHttpsUri(t *testing.T) {
 func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	t.Run("errors when private key is not set", func(t *testing.T) {
 		trigger := manifest.GitTrigger{
-			URI: "git@github.com:springernature/halfpipe.git",
+			URI:    "git@github.com:springernature/halfpipe.git",
+			Branch: "main",
 		}
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
@@ -68,6 +70,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI:        "git@github.com:springernature/halfpipe.git",
 			PrivateKey: "kehe",
+			Branch:     "main",
 		}
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
@@ -81,6 +84,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 		URI:          "https://github.com/springernature/halfpipe.git",
 		WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 		IgnoredPaths: []string{"c/*", "d"},
+		Branch:       "main",
 	}
 
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
@@ -98,6 +102,7 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI:          "https://github.com/springernature/halfpipe.git",
+		Branch:       "main",
 		BasePath:     "project-name",
 		WatchedPaths: []string{"watches/there", "watches/no-there/**"},
 		IgnoredPaths: []string{"c/*", "d"},
@@ -119,6 +124,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI:         "git@github.com:springernature/halfpipe.git",
 			PrivateKey:  "kehe",
+			Branch:      "main",
 			GitCryptKey: "((gitcrypt.key))",
 		}
 
@@ -130,6 +136,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 	t.Run("invalid", func(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI:         "git@github.com:springernature/halfpipe.git",
+			Branch:      "main",
 			PrivateKey:  "kehe",
 			GitCryptKey: "CLEARTEXTKEY_BADASS",
 		}
@@ -145,6 +152,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 func TestPublicUrIAndPrivateKey(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI:        "https://github.com/springernature/halfpipe.git",
+		Branch:     "main",
 		PrivateKey: "kehe",
 	}
 
@@ -234,6 +242,7 @@ func TestRepoResolver(t *testing.T) {
 	t.Run("when uri is not same as uri resolver", func(t *testing.T) {
 		trigger := manifest.GitTrigger{
 			URI:        "git@github.com:springernature/someRepo.git",
+			Branch:     "main",
 			PrivateKey: "asdf",
 		}
 
@@ -249,6 +258,7 @@ func TestRepoResolver(t *testing.T) {
 		expectedError := errors.New("keHu")
 		trigger := manifest.GitTrigger{
 			URI:        "git@github.com:springernature/someRepo.git",
+			Branch:     "main",
 			PrivateKey: "asdf",
 		}
 

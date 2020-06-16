@@ -2,6 +2,7 @@ package defaults
 
 import (
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -13,7 +14,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 	expectedDockerTrigger := manifest.DockerTrigger{Image: "asdf"}
 
 	defaulter := triggersDefaulter{
-		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
 			return expectedGitTrigger
 		},
 		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {
@@ -62,7 +63,7 @@ func TestAddsDefaultGitTriggerIfThereIsntOneInTheTriggerList(t *testing.T) {
 	}
 
 	defaulter := triggersDefaulter{
-		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
 			return expectedGitTrigger
 		},
 		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {

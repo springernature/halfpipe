@@ -65,8 +65,9 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 	} else {
 
 		if config.CheckBranch == "true" {
-			if currentBranch != "master" && git.Branch == "" {
-				errs = append(errs, linterrors.NewInvalidField("branch", "must be set if you are executing halfpipe from a non master branch"))
+			if git.Branch == "" {
+				// We default to either `main`, `master` or nothing in defaultGitTrigger
+				errs = append(errs, linterrors.NewInvalidField("branch", "must be set if you are executing halfpipe from a non main/master branch"))
 			}
 
 			if git.Branch != currentBranch && git.Branch != "" {

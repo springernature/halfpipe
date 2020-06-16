@@ -3,13 +3,22 @@ package defaults
 import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 	"strings"
 )
 
-func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults) (updated manifest.GitTrigger) {
+func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
 	updated = original
-
 	updated.BasePath = defaults.Project.BasePath
+
+	if updated.Branch == "" {
+		branch, err := branchResolver()
+		if err == nil {
+			if branch == "master" || branch == "main" {
+				updated.Branch = branch
+			}
+		}
+	}
 
 	if updated.URI == "" {
 		updated.URI = defaults.Project.GitURI
