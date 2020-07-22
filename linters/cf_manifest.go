@@ -24,7 +24,7 @@ func NewCfManifestLinter(cfManifestReader pipeline.CfManifestReader) cfManifestL
 
 func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "CF Manifest"
-	result.DocsURL = "https://docs.halfpipe.io/cf-deployment/"
+	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/cf-deployment/"
 
 	var tasks []manifest.DeployCF
 	for _, task := range man.Tasks {

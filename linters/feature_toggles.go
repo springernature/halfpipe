@@ -25,7 +25,7 @@ func NewFeatureToggleLinter(availableFeatures manifest.FeatureToggles) featureTo
 
 func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Feature Toggles"
-	result.DocsURL = "https://docs.halfpipe.io/manifest/#feature-toggles"
+	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#feature_toggles"
 
 	for _, feature := range manifest.FeatureToggles {
 		if !f.featureInAvailableFeatures(feature) {

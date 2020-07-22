@@ -16,7 +16,7 @@ func NewTopLevelLinter() topLevelLinter {
 
 func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Halfpipe Manifest"
-	result.DocsURL = "https://docs.halfpipe.io/manifest/"
+	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/"
 
 	if manifest.Team == "" {
 		result.AddError(linterrors.NewMissingField("team"))

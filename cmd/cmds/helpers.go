@@ -112,7 +112,7 @@ func getManifestAndCreateController() (manifest.Manifest, halfpipe.Controller) {
 
 	man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 	if len(manErrors) > 0 {
-		printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://docs.halfpipe.io/manifest/", manErrors, nil)})
+		printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 	}
 
 	controller := createController(projectData, fs, currentDir)

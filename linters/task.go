@@ -53,7 +53,7 @@ func NewTasksLinter(fs afero.Afero, os string, deprecatedCFApis []string) taskLi
 
 func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "Tasks"
-	result.DocsURL = "https://docs.halfpipe.io/manifest/#tasks"
+	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#tasks"
 
 	if len(man.Tasks) == 0 {
 		result.AddError(linterrors.NewMissingField("tasks"))
