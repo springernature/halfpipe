@@ -748,7 +748,7 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	for _, t := range task.PrePromote {
 		applications, e := p.readCfManifest(task.Manifest, nil, nil)
 		if e != nil {
-			panic(e)
+			panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
 		}
 		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
 		var ppJob *atc.JobConfig
