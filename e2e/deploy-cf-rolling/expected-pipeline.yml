@@ -70,6 +70,7 @@ jobs:
     resource: rolling cf dev-api halfpipe-team dev
     params:
       appPath: git/e2e/deploy-cf-rolling
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       instances: 1

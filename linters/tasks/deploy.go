@@ -93,5 +93,9 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 		}
 	}
 
+	if cf.CliVersion != "cf6" && cf.CliVersion != "cf7" {
+		errs = append(errs, linterrors.NewInvalidField("cli_version", "must be either 'cf6' or 'cf7'"))
+	}
+
 	return errs, warnings
 }

@@ -37,6 +37,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			"VAR1": "value1",
 			"VAR2": "value2",
 		},
+		CliVersion: "cf6",
 	}
 
 	taskDeployQa := manifest.DeployCF{
@@ -52,6 +53,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			"VAR1": "value1",
 			"VAR2": "value2",
 		},
+		CliVersion: "cf6",
 	}
 
 	taskDeployStaging := manifest.DeployCF{
@@ -67,6 +69,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			"VAR1": "value1",
 			"VAR2": "value2",
 		},
+		CliVersion: "cf6",
 	}
 
 	timeout := "5m"
@@ -80,6 +83,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Password:   "supersecret",
 		Manifest:   "manifest-live.yml",
 		Timeout:    timeout,
+		CliVersion: "cf6",
 	}
 
 	man := manifest.Manifest{
@@ -185,6 +189,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"appPath":         gitDir,
 					"gitRefPath":      path.Join(gitDir, ".git", "ref"),
 					"preStartCommand": "cf events my-app; cf blah",
+					"cliVersion":      "cf6",
 				},
 			},
 			atc.PlanConfig{
@@ -194,6 +199,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Params: atc.Params{
 					"command":      "halfpipe-check",
 					"manifestPath": manifestPath,
+					"cliVersion":   "cf6",
 				},
 			},
 			atc.PlanConfig{
@@ -204,6 +210,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   devTestDomain,
 					"manifestPath": manifestPath,
+					"cliVersion":   "cf6",
 				},
 			},
 		},
@@ -214,6 +221,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
 				"manifestPath": manifestPath,
+				"cliVersion":   "cf6",
 			},
 		},
 	}
@@ -258,6 +266,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"appPath":      gitDir,
 					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 					"timeout":      "5m",
+					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
 			},
@@ -269,6 +278,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-check",
 					"manifestPath": liveManifest,
 					"timeout":      "5m",
+					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
 			},
@@ -281,6 +291,7 @@ func TestRendersCfDeploy(t *testing.T) {
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
 					"timeout":      "5m",
+					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
 			},
@@ -293,6 +304,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				"command":      "halfpipe-cleanup",
 				"manifestPath": liveManifest,
 				"timeout":      "5m",
+				"cliVersion":   "cf6",
 			},
 			Timeout: timeout,
 		},

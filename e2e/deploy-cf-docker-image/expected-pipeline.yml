@@ -95,6 +95,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -119,6 +120,7 @@ jobs:
     resource: CF snpaas dev
     params:
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
@@ -131,6 +133,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -139,6 +142,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
@@ -154,6 +158,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -178,6 +183,7 @@ jobs:
     resource: CF snpaas dev
     params:
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
@@ -191,6 +197,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -261,6 +268,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF snpaas dev
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
@@ -325,6 +333,7 @@ jobs:
     resource: rolling cf snpaas dev
     params:
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref

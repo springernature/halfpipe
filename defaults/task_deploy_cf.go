@@ -37,5 +37,9 @@ func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manife
 		}
 	}
 
+	if updated.CliVersion == "" {
+		updated.CliVersion = defaults.CfCliVersion
+	}
+
 	return updated
 }

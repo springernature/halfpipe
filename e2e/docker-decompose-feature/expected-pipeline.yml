@@ -169,6 +169,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF mp-api my-org my-space
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
@@ -188,6 +189,7 @@ jobs:
     resource: CF mp-api my-org my-space
     params:
       appPath: git/e2e/docker-decompose-feature
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
@@ -198,6 +200,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF mp-api my-org my-space
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
@@ -263,6 +266,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF mp-api my-org my-space
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com

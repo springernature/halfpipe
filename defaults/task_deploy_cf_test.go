@@ -11,10 +11,11 @@ func TestCFDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 
 		expected := manifest.DeployCF{
-			Org:      man.Team,
-			Username: DefaultValues.CfUsername,
-			Password: DefaultValues.CfPassword,
-			Manifest: DefaultValues.CfManifest,
+			Org:        man.Team,
+			Username:   DefaultValues.CfUsername,
+			Password:   DefaultValues.CfPassword,
+			Manifest:   DefaultValues.CfManifest,
+			CliVersion: DefaultValues.CfCliVersion,
 		}
 
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, DefaultValues, man))
@@ -30,9 +31,15 @@ func TestCFDeployDefaults(t *testing.T) {
 			Password:   DefaultValues.CfPasswordSnPaas,
 			TestDomain: "springernature.app",
 			Manifest:   DefaultValues.CfManifest,
+			CliVersion: DefaultValues.CfCliVersion,
 		}
 
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: DefaultValues.CfAPISnPaas}, DefaultValues, man))
+	})
+
+	t.Run("cli version", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf"}
+		assert.Equal(t, "cf6", deployCfDefaulter(manifest.DeployCF{}, DefaultValues, man).CliVersion)
 	})
 }
 
@@ -44,6 +51,7 @@ func TestDoesntOverride(t *testing.T) {
 		Password:   "d",
 		Manifest:   "e",
 		TestDomain: "f",
+		CliVersion: "g",
 	}
 
 	updated := deployCfDefaulter(input, DefaultValues, manifest.Manifest{})

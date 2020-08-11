@@ -16,6 +16,7 @@ tasks:
   password: very-secret
   test_domain: some.random.domain.com
   timeout: 5m
+  cli_version: cf7
 
 - type: deploy-cf
   name: deploy to cf

@@ -24,6 +24,7 @@ type Defaults struct {
 	CfAPISnPaas      string
 	CfManifest       string
 	CfTestDomains    map[string]string
+	CfCliVersion     string
 
 	DockerUsername string
 	DockerPassword string

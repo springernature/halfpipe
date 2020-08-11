@@ -23,6 +23,7 @@ type DeployCF struct {
 	PreStart        []string      `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	Rolling         bool          `yaml:"rolling,omitempty"`
 	IsDockerPush    bool          `json:"-" yaml:"-"`
+	CliVersion      string        `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	DockerTag       string        `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 }
 

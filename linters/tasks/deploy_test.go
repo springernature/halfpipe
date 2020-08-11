@@ -22,12 +22,13 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
-	assert.Len(t, errors, 4)
+	assert.Len(t, errors, 5)
 	assert.Len(t, warnings, 0)
 
 	linterrors.AssertMissingFieldInErrors(t, "api", errors)
 	linterrors.AssertMissingFieldInErrors(t, "space", errors)
 	linterrors.AssertMissingFieldInErrors(t, "org", errors)
+	linterrors.AssertInvalidFieldInErrors(t, "cli_version", errors)
 	linterrors.AssertFileErrorInErrors(t, "manifest.yml", errors)
 }
 
@@ -36,10 +37,11 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
 	task := manifest.DeployCF{
-		API:      "((cloudfoundry.api-dev))",
-		Org:      "Something",
-		Space:    "Something",
-		Manifest: "manifest.yml",
+		API:        "((cloudfoundry.api-dev))",
+		Org:        "Something",
+		Space:      "Something",
+		Manifest:   "manifest.yml",
+		CliVersion: "cf6",
 	}
 
 	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
@@ -47,10 +49,11 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	assert.Len(t, warnings, 0)
 
 	task = manifest.DeployCF{
-		API:      "",
-		Org:      "Something",
-		Space:    "Something",
-		Manifest: "manifest.yml",
+		API:        "",
+		Org:        "Something",
+		Space:      "Something",
+		Manifest:   "manifest.yml",
+		CliVersion: "cf6",
 	}
 
 	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
@@ -58,17 +61,64 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	linterrors.AssertMissingFieldInErrors(t, "api", errors)
 
 	task = manifest.DeployCF{
-		API:      "someRandomApi",
-		Org:      "Something",
-		Space:    "Something",
-		Manifest: "manifest.yml",
+		API:        "someRandomApi",
+		Org:        "Something",
+		Space:      "Something",
+		Manifest:   "manifest.yml",
+		CliVersion: "cf6",
 	}
 
 	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	linterrors.AssertMissingFieldInErrors(t, "testDomain", errors)
+}
 
+func TestCfCliVersion(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	t.Run("not set", func(t *testing.T) {
+		task := manifest.DeployCF{
+			API:      "((cloudfoundry.api-dev))",
+			Org:      "Something",
+			Space:    "Something",
+			Manifest: "manifest.yml",
+		}
+
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
+		assert.Len(t, errors, 1)
+		linterrors.AssertInvalidFieldInErrors(t, "cli_version", errors)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("cf6", func(t *testing.T) {
+		task := manifest.DeployCF{
+			API:        "((cloudfoundry.api-dev))",
+			Org:        "Something",
+			Space:      "Something",
+			Manifest:   "manifest.yml",
+			CliVersion: "cf6",
+		}
+
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("cf7", func(t *testing.T) {
+		task := manifest.DeployCF{
+			API:        "((cloudfoundry.api-dev))",
+			Org:        "Something",
+			Space:      "Something",
+			Manifest:   "manifest.yml",
+			CliVersion: "cf7",
+		}
+
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
 }
 
 func TestCfPushRetries(t *testing.T) {
@@ -93,6 +143,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "test.domain",
+		CliVersion: "cf6",
 	}
 
 	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
@@ -112,6 +163,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "test.domain",
+		CliVersion: "cf6",
 		PrePromote: []manifest.Task{
 			manifest.Run{},
 		},
@@ -134,6 +186,7 @@ func TestCfPushPreStart(t *testing.T) {
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "test.domain",
+		CliVersion: "cf6",
 	}
 
 	task.PreStart = []string{"cf something good"}
@@ -160,6 +213,7 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 			manifest.Run{},
 			manifest.Run{Notifications: manifest.Notifications{OnFailure: []string{"Moohp"}}},
 		},
+		CliVersion: "cf6",
 	}
 
 	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{})
@@ -177,6 +231,7 @@ func TestCFDeployTaskWithDeprecatedCFApi(t *testing.T) {
 		Org:        "Something",
 		Space:      "Something",
 		TestDomain: "foo",
+		CliVersion: "cf6",
 	}
 
 	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{"foo.bar", "deprecated.api"})
@@ -196,6 +251,7 @@ func TestCFDeployTaskWithRollingAndDeprecatedCFApi(t *testing.T) {
 		Space:      "Something",
 		TestDomain: "foo",
 		Rolling:    true,
+		CliVersion: "cf6",
 	}
 
 	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs, []string{"foo.bar", "deprecated.api"})
@@ -217,6 +273,7 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 		Space:      "Something",
 		TestDomain: "foo",
 		Rolling:    true,
+		CliVersion: "cf6",
 		PreStart:   []string{"cf logs"},
 	}
 
@@ -264,6 +321,7 @@ func TestDockerTag(t *testing.T) {
 				Space:      "Something",
 				TestDomain: "foo",
 				DockerTag:  "unknown",
+				CliVersion: "cf6",
 			}
 
 			errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
@@ -282,6 +340,7 @@ func TestDockerTag(t *testing.T) {
 				Space:      "Something",
 				TestDomain: "foo",
 				DockerTag:  "gitref",
+				CliVersion: "cf6",
 			}
 
 			errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
@@ -300,6 +359,7 @@ func TestDockerTag(t *testing.T) {
 					Space:      "Something",
 					TestDomain: "foo",
 					DockerTag:  "version",
+					CliVersion: "cf6",
 				}
 
 				errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
@@ -318,6 +378,7 @@ func TestDockerTag(t *testing.T) {
 					Space:      "Something",
 					TestDomain: "foo",
 					DockerTag:  "version",
+					CliVersion: "cf6",
 				}
 
 				errors, warnings := LintDeployCFTask(task, manifest.Manifest{FeatureToggles: manifest.FeatureToggles{manifest.FeatureUpdatePipeline}}, cfManifestReader, fs, []string{})

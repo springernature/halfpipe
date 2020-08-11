@@ -244,6 +244,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF dev-api halfpipe-team dev
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
@@ -295,6 +296,7 @@ jobs:
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -305,6 +307,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF dev-api halfpipe-team dev
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
@@ -313,6 +316,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF dev-api halfpipe-team dev
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
@@ -328,6 +332,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF snpaas pe staging
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
@@ -379,6 +384,7 @@ jobs:
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -392,6 +398,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF snpaas pe staging
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
@@ -556,6 +563,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF snpaas pe staging
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
@@ -571,6 +579,7 @@ jobs:
     put: cf halfpipe-cleanup
     resource: CF snpaas qa
     params:
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
@@ -622,6 +631,7 @@ jobs:
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -635,6 +645,7 @@ jobs:
   - put: cf halfpipe-check
     resource: CF snpaas qa
     params:
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
@@ -790,6 +801,7 @@ jobs:
   - put: cf halfpipe-promote
     resource: CF snpaas qa
     params:
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app

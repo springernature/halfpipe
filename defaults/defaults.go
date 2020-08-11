@@ -22,6 +22,7 @@ var DefaultValues = Defaults{
 	CfPasswordSnPaas:     "((cloudfoundry.password-snpaas))",
 	CfOrgSnPaas:          "((cloudfoundry.org-snpaas))",
 	CfAPISnPaas:          "((cloudfoundry.api-snpaas))",
+	CfCliVersion:         "cf6",
 	DockerUsername:       "_json_key",
 	DockerPassword:       "((halfpipe-gcr.private_key))",
 	DockerComposeService: "app",

@@ -599,6 +599,7 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 		Params: atc.Params{
 			"command":      "halfpipe-cleanup",
 			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
 		},
 	}
 	if task.Timeout != "" {
@@ -616,6 +617,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 			"command":      "halfpipe-promote",
 			"testDomain":   task.TestDomain,
 			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
 		},
 	}
 	if task.Timeout != "" {
@@ -632,6 +634,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 		Params: atc.Params{
 			"command":      "halfpipe-check",
 			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
 		},
 	}
 	if task.Timeout != "" {
@@ -650,6 +653,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 			"testDomain":   task.TestDomain,
 			"manifestPath": manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+			"cliVersion":   task.CliVersion,
 		},
 	}
 
