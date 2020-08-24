@@ -687,8 +687,8 @@ func TestLintTimeout(t *testing.T) {
 	result := taskLinter.Lint(man)
 
 	assert.Len(t, result.Errors, 4)
-	assert.Equal(t, "tasks[0] invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[0].Error())
-	assert.Equal(t, "tasks[1] invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[1].Error())
-	assert.Equal(t, "tasks[1].pre_promote[0] invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[2].Error())
-	assert.Equal(t, "tasks[2] invalid field 'timeout': time: invalid duration immaBadTime", result.Errors[3].Error())
+	assert.Equal(t, `tasks[0] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[0].Error())
+	assert.Equal(t, `tasks[1] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[1].Error())
+	assert.Equal(t, `tasks[1].pre_promote[0] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[2].Error())
+	assert.Equal(t, `tasks[2] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[3].Error())
 }

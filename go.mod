@@ -26,4 +26,4 @@ require (
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
 )
 
-go 1.14
+go 1.15
