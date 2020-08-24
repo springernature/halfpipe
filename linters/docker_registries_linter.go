@@ -40,12 +40,7 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 		}
 
 		if err != nil {
-			if man.FeatureToggles.DisableDeprecatedDockerRegistryError() {
-				result.AddWarning(err)
-			} else {
-				result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <http://status.ee.springernature.io/incidents/bl8y88pmcz23>, you have until 24 August 2020 to migrate", err.Error()))
-			}
-
+			result.AddError(fmt.Errorf("%s. This registry has now been decommissioned <http://status.ee.springernature.io/incidents/bl8y88pmcz23>", err.Error()))
 		}
 	}
 	return
@@ -54,7 +49,7 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 func (l dockerRegistriesLinter) lintRunTask(task manifest.Run) (err error) {
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.HasPrefix(task.Docker.Image, deprecated) {
-			return linterrors.NewInvalidField("docker.image", fmt.Sprintf("the docker image '%s' references the deprecated docker registry '%s'", task.Docker.Image, deprecated))
+			return linterrors.NewInvalidField("docker.image", fmt.Sprintf("the docker image '%s' references the docker registry '%s'", task.Docker.Image, deprecated))
 		}
 	}
 	return nil
@@ -67,7 +62,7 @@ func (l dockerRegistriesLinter) lintDockerCompose(task manifest.DockerCompose) (
 	}
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.Contains(string(composeFile), deprecated) {
-			return false, linterrors.NewInvalidField("composeFile", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.ComposeFile, deprecated))
+			return false, linterrors.NewInvalidField("composeFile", fmt.Sprintf("'%s' references the docker registry '%s'", task.ComposeFile, deprecated))
 		}
 	}
 	return false, nil
@@ -80,10 +75,10 @@ func (l dockerRegistriesLinter) lintDockerPush(task manifest.DockerPush) (badErr
 	}
 	for _, deprecated := range l.deprecatedPrefixes {
 		if strings.HasPrefix(task.Image, deprecated) {
-			return false, linterrors.NewInvalidField("image", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.Image, deprecated))
+			return false, linterrors.NewInvalidField("image", fmt.Sprintf("'%s' references the docker registry '%s'", task.Image, deprecated))
 		}
 		if strings.Contains(string(dockerContent), deprecated) {
-			return false, linterrors.NewInvalidField("dockerfile_path", fmt.Sprintf("'%s' references the deprecated docker registry '%s'", task.DockerfilePath, deprecated))
+			return false, linterrors.NewInvalidField("dockerfile_path", fmt.Sprintf("'%s' references the docker registry '%s'", task.DockerfilePath, deprecated))
 		}
 	}
 	return false, nil

@@ -40,11 +40,3 @@ func (f FeatureToggles) UpdatePipeline() bool {
 func (f FeatureToggles) DockerDecompose() bool {
 	return f.contains(FeatureDockerDecompose)
 }
-
-func (f FeatureToggles) DisableDeprecatedDockerRegistryError() bool {
-	return f.contains(FeatureDisableDeprecatedDockerRegistryError)
-}
-
-func (f FeatureToggles) DisableDeprecatedNexusRepositoryError() bool {
-	return f.contains(FeatureDisableDeprecatedNexusRepositoryError)
-}

@@ -45,11 +45,7 @@ func (l nexusRepoLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 		if shouldCheckFile(info.Name()) {
 			if isMatch, _ := l.fs.FileContainsBytes(path, []byte(repoTools)); isMatch {
 				errOrWarning := fmt.Errorf("file '%s' references '%s'", path, repoTools)
-				if man.FeatureToggles.DisableDeprecatedNexusRepositoryError() {
-					result.AddWarning(errOrWarning)
-				} else {
-					result.AddError(fmt.Errorf("%s. To supress this error use the feature toggle as described in <%s>, you have until 24 August 2020 to migrate", errOrWarning.Error(), result.DocsURL))
-				}
+				result.AddError(fmt.Errorf("%s. This repository has now been decommissioned <%s>", errOrWarning.Error(), result.DocsURL))
 			}
 		}
 		return nil

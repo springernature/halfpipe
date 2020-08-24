@@ -66,7 +66,7 @@ func TestRunTask(t *testing.T) {
 		assert.Len(t, lintResult.Errors, 2)
 	})
 
-	t.Run("Should error, but doesnt due to feature toggle", func(t *testing.T) {
+	t.Run("feature toggle has no effect", func(t *testing.T) {
 		man := manifest.Manifest{
 			Tasks: manifest.TaskList{
 				manifest.Run{
@@ -90,8 +90,8 @@ func TestRunTask(t *testing.T) {
 			manifest.FeatureDisableDeprecatedDockerRegistryError,
 		}
 		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes).Lint(man)
-		assert.Len(t, lintResult.Warnings, 2)
-		assert.Empty(t, lintResult.Errors)
+		assert.Empty(t, lintResult.Warnings)
+		assert.Len(t, lintResult.Errors, 2)
 	})
 }
 
