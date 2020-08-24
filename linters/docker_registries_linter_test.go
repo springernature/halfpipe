@@ -65,34 +65,6 @@ func TestRunTask(t *testing.T) {
 		assert.Empty(t, lintResult.Warnings)
 		assert.Len(t, lintResult.Errors, 2)
 	})
-
-	t.Run("feature toggle has no effect", func(t *testing.T) {
-		man := manifest.Manifest{
-			Tasks: manifest.TaskList{
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: okImage2,
-					},
-				},
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: deprecatedImage1,
-					},
-				},
-				manifest.Run{
-					Docker: manifest.Docker{
-						Image: deprecatedImage2,
-					},
-				},
-			},
-		}
-		man.FeatureToggles = []string{
-			manifest.FeatureDisableDeprecatedDockerRegistryError,
-		}
-		lintResult := NewDeprecatedDockerRegistriesLinter(afero.Afero{}, deprecatedPrefixes).Lint(man)
-		assert.Empty(t, lintResult.Warnings)
-		assert.Len(t, lintResult.Errors, 2)
-	})
 }
 
 func TestDockerCompose(t *testing.T) {

@@ -41,16 +41,6 @@ func TestNexusRepoLinter(t *testing.T) {
 		assert.Len(t, result.Errors, 2)
 	})
 
-	t.Run("feature toggle has no effect", func(t *testing.T) {
-		fs := afero.Afero{afero.NewMemMapFs()}
-		writeFile(fs, "foo/bar/build.sbt")
-		writeFile(fs, "foo/bar/baz/pom.xml")
-
-		linter := NewNexusRepoLinter(fs)
-		result := linter.Lint(manifest.Manifest{FeatureToggles: []string{manifest.FeatureDisableDeprecatedNexusRepositoryError}})
-		assert.Len(t, result.Errors, 2)
-	})
-
 	t.Run("ignore dot directories", func(t *testing.T) {
 		fs := afero.Afero{afero.NewMemMapFs()}
 		writeFile(fs, ".git/build.sbt")

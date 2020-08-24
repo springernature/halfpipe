@@ -29,7 +29,7 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.Lin
 
 	for _, feature := range manifest.FeatureToggles {
 		if !f.featureInAvailableFeatures(feature) {
-			result.AddError(ErrNonSupportedFeature(feature))
+			result.AddWarning(ErrNonSupportedFeature(feature))
 		}
 	}
 	return result

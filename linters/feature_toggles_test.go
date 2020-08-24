@@ -10,7 +10,7 @@ func TestDoesNothingIfNoFeaturesAvailable(t *testing.T) {
 	assert.False(t, NewFeatureToggleLinter(manifest.FeatureToggles{}).Lint(manifest.Manifest{}).HasErrors())
 }
 
-func TestErrorsIfUnknownFeatureToggle(t *testing.T) {
+func TestWarningIfUnknownFeatureToggle(t *testing.T) {
 	availableFeatures := manifest.FeatureToggles{
 		"featurea",
 	}
@@ -23,8 +23,8 @@ func TestErrorsIfUnknownFeatureToggle(t *testing.T) {
 	}
 
 	result := NewFeatureToggleLinter(availableFeatures).Lint(man)
-	assert.True(t, result.HasErrors())
-	assert.Equal(t, ErrNonSupportedFeature("featureb"), result.Errors[0])
+	assert.True(t, result.HasWarnings())
+	assert.Equal(t, ErrNonSupportedFeature("featureb"), result.Warnings[0])
 }
 
 func TestDoesNothingIfAllFeaturesAreAvailable(t *testing.T) {
