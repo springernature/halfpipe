@@ -154,6 +154,7 @@ tasks:
   targets:
   - target1
   - target2
+  build_history: 10
 - type: parallel
   tasks:
   - type: run
@@ -326,6 +327,7 @@ tasks:
 				Targets:          []string{"target1", "target2"},
 				UseBuildVersion:  false,
 				Password:         "p",
+				BuildHistory:     10,
 			},
 			Parallel{
 				Tasks: TaskList{

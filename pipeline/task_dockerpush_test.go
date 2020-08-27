@@ -50,7 +50,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 	expectedJobConfig := atc.JobConfig{
 		Name: "docker-push",
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Serial: true,
@@ -117,7 +117,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{
@@ -183,7 +183,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		Name:   "docker-push",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{
@@ -258,7 +258,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		Name:   jobName,
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{

@@ -15,6 +15,16 @@ type DeployMLZip struct {
 	UseBuildVersion bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 	Username        string        `json:"username" yaml:"username,omitempty" secretAllowed:"true"`
 	Password        string        `json:"password" yaml:"password,omitempty" secretAllowed:"true"`
+	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+}
+
+func (r DeployMLZip) GetBuildHistory() int {
+	return r.BuildHistory
+}
+
+func (r DeployMLZip) SetBuildHistory(buildHistory int) Task {
+	r.BuildHistory = buildHistory
+	return r
 }
 
 func (r DeployMLZip) GetNotifications() Notifications {

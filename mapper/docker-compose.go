@@ -95,6 +95,7 @@ func (m dockerComposeMapper) convertToRunTask(dcTask manifest.DockerCompose) man
 		NotifyOnSuccess:        dcTask.NotifyOnSuccess,
 		Notifications:          dcTask.Notifications,
 		Timeout:                dcTask.Timeout,
+		BuildHistory:           dcTask.BuildHistory,
 	}
 
 	//hmm, copied from defaulter :)

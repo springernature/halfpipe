@@ -10,12 +10,16 @@ type testTriggersDefaulter struct {
 	apply func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList)
 }
 
-func (t testTriggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
-	return t.apply(original, defaults, man)
-}
-
 type testTasksDefaulter struct {
 	apply func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
+}
+
+type testBuildHistoryDefaulter struct {
+	apply func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
+}
+
+func (t testTriggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
+	return t.apply(original, defaults, man)
 }
 
 func (t testTasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
@@ -26,12 +30,19 @@ func (t testTasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, def
 	return t.apply(original, defaults)
 }
 
+func (t testBuildHistoryDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+	return t.apply(original, defaults)
+}
+
 func TestUpdatePipeline(t *testing.T) {
 	defaults := Defaults{
 		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 			return original
 		}},
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
+			return original
+		}},
+		buildHistoryDefaulter: testBuildHistoryDefaulter{apply: func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
 			return original
 		}},
 	}
@@ -70,15 +81,23 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		manifest.DockerPush{},
 	}
 
+	calledTestTasksDefaulter := false
+	calledBuildHistoryDefaulter := false
 	defaults := Defaults{
 		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 			return expectedTriggers
 		}},
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
+			calledTestTasksDefaulter = true
+			return expectedTasks
+		}},
+		buildHistoryDefaulter: testBuildHistoryDefaulter{apply: func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+			calledBuildHistoryDefaulter = true
 			return expectedTasks
 		}},
 	}
 
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))
-
+	assert.True(t, calledTestTasksDefaulter)
+	assert.True(t, calledBuildHistoryDefaulter)
 }

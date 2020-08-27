@@ -55,7 +55,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{
@@ -118,7 +118,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 		Name:   "docker-compose",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{

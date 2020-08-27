@@ -352,7 +352,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 	configureTriggerOnGets(job, task, man)
 	addTimeout(job, task.GetTimeout())
 	addPassedJobsToGets(job, previousTaskNames)
-	addBuildLogRetentionSettings(job)
+	addBuildLogRetentionSettings(job, task)
 
 	return job
 }
@@ -426,9 +426,9 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 	}
 }
 
-func addBuildLogRetentionSettings(job *atc.JobConfig) {
+func addBuildLogRetentionSettings(job *atc.JobConfig, task manifest.Task) {
 	job.BuildLogRetention = &(atc.BuildLogRetention{
-		Builds:                 5,
+		Builds:                 task.GetBuildHistory(),
 		MinimumSucceededBuilds: 1,
 	})
 }

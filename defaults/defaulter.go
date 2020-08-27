@@ -13,6 +13,10 @@ type TasksDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
+type BuildHistoryDefaulter interface {
+	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
+}
+
 type Defaults struct {
 	RepoPrivateKey string
 
@@ -46,10 +50,12 @@ type Defaults struct {
 	MarkLogicUsername string
 	MarkLogicPassword string
 
-	Timeout string
+	Timeout      string
+	BuildHistory int
 
-	triggersDefaulter TriggersDefaulter
-	tasksDefaulter    TasksDefaulter
+	triggersDefaulter     TriggersDefaulter
+	tasksDefaulter        TasksDefaulter
+	buildHistoryDefaulter BuildHistoryDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
@@ -61,6 +67,7 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
+	updated.Tasks = d.buildHistoryDefaulter.Apply(updated.Tasks, d)
 
 	return updated
 }
@@ -71,6 +78,7 @@ func New(project project.Data) Defaults {
 
 	d.triggersDefaulter = NewTriggersDefaulter()
 	d.tasksDefaulter = NewTaskDefaulter()
+	d.buildHistoryDefaulter = NewBuildHistoryDefaulter()
 
 	return d
 }

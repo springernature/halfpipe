@@ -4,6 +4,16 @@ type Update struct {
 	Type          string
 	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout       string
+	BuildHistory  int
+}
+
+func (u Update) GetBuildHistory() int {
+	return u.BuildHistory
+}
+
+func (u Update) SetBuildHistory(buildHistory int) Task {
+	u.BuildHistory = buildHistory
+	return u
 }
 
 func (u Update) GetNotifications() Notifications {

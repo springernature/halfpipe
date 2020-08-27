@@ -13,3 +13,4 @@ tasks:
   privileged: false
   docker:
     image: alpine:test
+  build_history: 10

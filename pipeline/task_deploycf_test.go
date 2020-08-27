@@ -171,7 +171,7 @@ func TestRendersCfDeploy(t *testing.T) {
 	expectedDevJob := atc.JobConfig{
 		Name: taskDeployDev.Name,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Serial: true,
@@ -244,7 +244,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Name:   taskDeployLive.Name,
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{

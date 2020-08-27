@@ -159,7 +159,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		Name:   "c-name",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{

@@ -106,6 +106,9 @@ type Task interface {
 	GetNotifications() Notifications
 	SetNotifications(notifications Notifications) Task
 
+	GetBuildHistory() int
+	SetBuildHistory(buildHistory int) Task
+
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 

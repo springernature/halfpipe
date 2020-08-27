@@ -39,7 +39,7 @@ func TestRenderRunTask(t *testing.T) {
 	expected := atc.JobConfig{
 		Name: "run yolo.sh",
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Serial: true,
@@ -103,7 +103,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 	expected := atc.JobConfig{
 		Name: "run yolo.sh",
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Serial: true,
@@ -173,7 +173,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 		Name:   "run yolo.sh",
 		Serial: true,
 		BuildLogRetention: &(atc.BuildLogRetention{
-			Builds:                 5,
+			Builds:                 0,
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{

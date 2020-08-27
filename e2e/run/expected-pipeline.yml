@@ -13,7 +13,7 @@ jobs:
 - name: test
   serial: true
   build_log_retention:
-    builds: 5
+    builds: 10
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:

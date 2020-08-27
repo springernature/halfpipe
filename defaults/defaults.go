@@ -42,4 +42,6 @@ var DefaultValues = Defaults{
 	MarkLogicPassword: "((halfpipe-ml-deploy.password))",
 
 	Timeout: "1h",
+
+	BuildHistory: 5,
 }

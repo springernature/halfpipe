@@ -25,6 +25,16 @@ type DeployCF struct {
 	IsDockerPush    bool          `json:"-" yaml:"-"`
 	CliVersion      string        `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	DockerTag       string        `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
+	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+}
+
+func (r DeployCF) GetBuildHistory() int {
+	return r.BuildHistory
+}
+
+func (r DeployCF) SetBuildHistory(buildHistory int) Task {
+	r.BuildHistory = buildHistory
+	return r
 }
 
 func (r DeployCF) GetNotifications() Notifications {

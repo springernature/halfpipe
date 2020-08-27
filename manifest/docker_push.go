@@ -16,6 +16,16 @@ type DockerPush struct {
 	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
 	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 	Tag              string        `json:"tag,omitempty" yaml:"tag,omitempty"`
+	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+}
+
+func (r DockerPush) GetBuildHistory() int {
+	return r.BuildHistory
+}
+
+func (r DockerPush) SetBuildHistory(buildHistory int) Task {
+	r.BuildHistory = buildHistory
+	return r
 }
 
 func (r DockerPush) GetNotifications() Notifications {
