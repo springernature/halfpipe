@@ -30,7 +30,6 @@ jobs:
 - name: test
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -96,7 +95,6 @@ jobs:
 - name: two-services
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -163,7 +161,6 @@ jobs:
 - name: deploy-cf
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup

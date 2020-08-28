@@ -50,12 +50,10 @@ type Defaults struct {
 	MarkLogicUsername string
 	MarkLogicPassword string
 
-	Timeout      string
-	BuildHistory int
+	Timeout string
 
-	triggersDefaulter     TriggersDefaulter
-	tasksDefaulter        TasksDefaulter
-	buildHistoryDefaulter BuildHistoryDefaulter
+	triggersDefaulter TriggersDefaulter
+	tasksDefaulter    TasksDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
@@ -67,7 +65,6 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
-	updated.Tasks = d.buildHistoryDefaulter.Apply(updated.Tasks, d)
 
 	return updated
 }
@@ -78,7 +75,6 @@ func New(project project.Data) Defaults {
 
 	d.triggersDefaulter = NewTriggersDefaulter()
 	d.tasksDefaulter = NewTaskDefaulter()
-	d.buildHistoryDefaulter = NewBuildHistoryDefaulter()
 
 	return d
 }

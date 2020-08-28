@@ -427,10 +427,14 @@ func addPassedJobsToGets(job *atc.JobConfig, passedJobs []string) {
 }
 
 func addBuildLogRetentionSettings(job *atc.JobConfig, task manifest.Task) {
-	job.BuildLogRetention = &(atc.BuildLogRetention{
-		Builds:                 task.GetBuildHistory(),
+	retention := atc.BuildLogRetention{
 		MinimumSucceededBuilds: 1,
-	})
+	}
+	if task.GetBuildHistory() != 0 {
+		retention.Builds = task.GetBuildHistory()
+	}
+
+	job.BuildLogRetention = &retention
 }
 
 func configureTriggerOnGets(job *atc.JobConfig, task manifest.Task, man manifest.Manifest) {

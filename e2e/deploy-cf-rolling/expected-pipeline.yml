@@ -30,7 +30,6 @@ jobs:
 - name: deploy to cf without the jazz
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -54,7 +53,6 @@ jobs:
 - name: deploy to cf
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:

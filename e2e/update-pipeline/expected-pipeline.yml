@@ -83,7 +83,6 @@ jobs:
 - name: update
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -126,7 +125,6 @@ jobs:
 - name: Test
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
@@ -238,7 +236,6 @@ jobs:
 - name: deploy to cf
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
@@ -326,7 +323,6 @@ jobs:
 - name: deploy to staging
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
@@ -573,7 +569,6 @@ jobs:
 - name: deploy to qa
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
@@ -811,7 +806,6 @@ jobs:
 - name: push to docker registry
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -847,7 +841,6 @@ jobs:
 - name: run notify.sh
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -926,7 +919,6 @@ jobs:
 - name: docker-compose
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
@@ -1025,7 +1017,6 @@ jobs:
 - name: another-c-name
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -1137,7 +1128,6 @@ jobs:
 - name: deploy-ml-zip
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -1247,7 +1237,6 @@ jobs:
 - name: Deploy ml-modules artifact
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:

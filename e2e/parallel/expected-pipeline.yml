@@ -20,7 +20,6 @@ jobs:
 - name: update
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -65,7 +64,6 @@ jobs:
 - name: first job
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -142,7 +140,6 @@ jobs:
 - name: parallel 1 1
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -219,7 +216,6 @@ jobs:
 - name: parallel 1 2
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -296,7 +292,6 @@ jobs:
 - name: parallel 1 3
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -373,7 +368,6 @@ jobs:
 - name: parallel 2 sequence 1 1
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -454,7 +448,6 @@ jobs:
 - name: parallel 2 sequence 1 2
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -531,7 +524,6 @@ jobs:
 - name: parallel 2 sequence 2 1
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -612,7 +604,6 @@ jobs:
 - name: parallel 2 sequence 2 2
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -689,7 +680,6 @@ jobs:
 - name: parallel 2 sequence 2 3
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -766,7 +756,6 @@ jobs:
 - name: parallel 2 1
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:
@@ -847,7 +836,6 @@ jobs:
 - name: after parallel
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:

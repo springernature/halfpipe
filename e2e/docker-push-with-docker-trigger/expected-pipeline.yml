@@ -24,7 +24,6 @@ jobs:
 - name: push to docker registry
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   plan:
   - in_parallel:

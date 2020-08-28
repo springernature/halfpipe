@@ -41,7 +41,6 @@ jobs:
 - name: task1
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
@@ -126,7 +125,6 @@ jobs:
 - name: task2
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
@@ -224,7 +222,6 @@ jobs:
 - name: deploy to staging
   serial: true
   build_log_retention:
-    builds: 5
     minimum_succeeded_builds: 1
   on_failure:
     in_parallel:
