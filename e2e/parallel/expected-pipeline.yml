@@ -99,8 +99,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -175,8 +174,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -251,8 +249,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -327,8 +324,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -407,8 +403,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -483,8 +478,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -563,8 +557,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -639,8 +632,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -715,8 +707,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -795,8 +786,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
@@ -875,8 +865,7 @@ jobs:
         args:
         - -c
         - |
-          which bash > /dev/null
-          if [ $? != 0 ]; then
+          if ! which bash > /dev/null; then
             echo "WARNING: Bash is not present in the docker image"
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"

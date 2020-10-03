@@ -1010,8 +1010,7 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, 
 	var out []string
 
 	if checkForBash {
-		out = append(out, `which bash > /dev/null
-if [ $? != 0 ]; then
+		out = append(out, `if ! which bash > /dev/null; then
   echo "WARNING: Bash is not present in the docker image"
   echo "If your script depends on bash you will get a strange error message like:"
   echo "  sh: yourscript.sh: command not found"
