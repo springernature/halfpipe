@@ -47,7 +47,7 @@ jobs:
             echo "If your script depends on bash you will get a strange error message like:"
             echo "  sh: yourscript.sh: command not found"
             echo "To fix, make sure your docker image contains bash!"
-            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING" to \"true\"."
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
             echo ""
             echo ""
           fi
