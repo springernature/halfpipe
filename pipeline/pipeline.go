@@ -1018,7 +1018,7 @@ then
   echo "There is a known issue where DNS resolving does not work as expected"
   echo "https://github.com/gliderlabs/docker-alpine/issues/255"
   echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-  echo "we recommend debian:stretch-slim as an alternative"
+  echo "we recommend debian:buster-slim as an alternative"
   echo ""
   echo ""
 fi
