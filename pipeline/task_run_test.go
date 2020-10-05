@@ -212,14 +212,14 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 
 func TestRunScriptArgs(t *testing.T) {
 	withNoArtifacts := runScriptArgs(manifest.Run{Script: "./build.sh"}, manifest.Manifest{}, true, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nif [ -e /etc/alpine-release ]\nthen\n  echo \"WARNING: you are running your build in a Alpine image or one that is based on the Alpine\"\n  echo \"There is a known issue where DNS resolving does not work as expected\"\n  echo \"https://github.com/gliderlabs/docker-alpine/issues/255\"\n  echo \"If you see any errors related to resolving hostnames the best course of action is to switch to another image\"\n  echo \"we recommend debian:stretch-slim as an alternative\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n"}
+	expected := []string{"-c", fmt.Sprintf("%s\n%s\n%s", warningMissingBash, warningAlpineImage, "export GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n")}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
 
 func TestRunScriptArgsWhenInMonoRepo(t *testing.T) {
 	withNoArtifacts := runScriptArgs(manifest.Run{Script: "./build.sh"}, manifest.Manifest{}, true, "")
-	expected := []string{"-c", "which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nif [ -e /etc/alpine-release ]\nthen\n  echo \"WARNING: you are running your build in a Alpine image or one that is based on the Alpine\"\n  echo \"There is a known issue where DNS resolving does not work as expected\"\n  echo \"https://github.com/gliderlabs/docker-alpine/issues/255\"\n  echo \"If you see any errors related to resolving hostnames the best course of action is to switch to another image\"\n  echo \"we recommend debian:stretch-slim as an alternative\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n"}
+	expected := []string{"-c", fmt.Sprintf("%s\n%s\n%s", warningMissingBash, warningAlpineImage, "export GIT_REVISION=`cat .git/ref`\n\n./build.sh\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n")}
 
 	assert.Equal(t, expected, withNoArtifacts)
 }
@@ -236,7 +236,7 @@ func TestRunScriptPath(t *testing.T) {
 
 	for initial, updated := range tests {
 		args := runScriptArgs(manifest.Run{Script: initial}, manifest.Manifest{}, true, "")
-		expected := []string{"-c", fmt.Sprintf("which bash > /dev/null\nif [ $? != 0 ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo \"If your script depends on bash you will get a strange error message like:\"\n  echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make sure your docker image contains bash!\"\n  echo \"\"\n  echo \"\"\nfi\n\nif [ -e /etc/alpine-release ]\nthen\n  echo \"WARNING: you are running your build in a Alpine image or one that is based on the Alpine\"\n  echo \"There is a known issue where DNS resolving does not work as expected\"\n  echo \"https://github.com/gliderlabs/docker-alpine/issues/255\"\n  echo \"If you see any errors related to resolving hostnames the best course of action is to switch to another image\"\n  echo \"we recommend debian:stretch-slim as an alternative\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat .git/ref`\n\n%s\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n", updated)}
+		expected := []string{"-c", fmt.Sprintf("%s\n%s\nexport GIT_REVISION=`cat .git/ref`\n\n%s\nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ] ; then\n  exit 1\nfi\n", warningMissingBash, warningAlpineImage, updated)}
 
 		assert.Equal(t, expected, args, initial)
 	}

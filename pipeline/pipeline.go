@@ -2,9 +2,10 @@ package pipeline
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/defaults"
 	"regexp"
 	"strings"
+
+	"github.com/springernature/halfpipe/defaults"
 
 	"path/filepath"
 
@@ -1000,6 +1001,29 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 `, composeCommand)
 }
 
+var warningMissingBash = `if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+  echo "WARNING: Bash is not present in the docker image"
+  echo "If your script depends on bash you will get a strange error message like:"
+  echo "  sh: yourscript.sh: command not found"
+  echo "To fix, make sure your docker image contains bash!"
+  echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+  echo ""
+  echo ""
+fi
+`
+
+var warningAlpineImage = `if [ -e /etc/alpine-release ]
+then
+  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+  echo "There is a known issue where DNS resolving does not work as expected"
+  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+  echo "we recommend debian:stretch-slim as an alternative"
+  echo ""
+  echo ""
+fi
+`
+
 func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, basePath string) []string {
 
 	script := task.Script
@@ -1010,29 +1034,10 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, 
 	var out []string
 
 	if checkForBash {
-		out = append(out, `if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
-  echo "WARNING: Bash is not present in the docker image"
-  echo "If your script depends on bash you will get a strange error message like:"
-  echo "  sh: yourscript.sh: command not found"
-  echo "To fix, make sure your docker image contains bash!"
-  echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
-  echo ""
-  echo ""
-fi
-`)
+		out = append(out, warningMissingBash)
 	}
 
-	out = append(out, `if [ -e /etc/alpine-release ]
-then
-  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-  echo "There is a known issue where DNS resolving does not work as expected"
-  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-  echo "we recommend debian:stretch-slim as an alternative"
-  echo ""
-  echo ""
-fi
-`)
+	out = append(out, warningAlpineImage)
 	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
 		out = append(out, `copyArtifact() {
   ARTIFACT=$1
