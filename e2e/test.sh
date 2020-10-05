@@ -11,7 +11,7 @@ do
             ./test.sh
         else
             ../../halfpipe 1> pipeline.yml
-            diff pipeline.yml expected-pipeline.yml
+            diff --ignore-blank-lines pipeline.yml expected-pipeline.yml
             if command -v fly; then
                 fly validate-pipeline -c pipeline.yml > /dev/null
             fi
