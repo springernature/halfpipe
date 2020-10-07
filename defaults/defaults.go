@@ -12,9 +12,6 @@ var DefaultValues = Defaults{
 		"https://api.live.cf.springer-sbm.com": "live.cf.private.springer.com",
 		"((cloudfoundry.api-live))":            "live.cf.private.springer.com",
 
-		"https://api.europe-west1.cf.gcp.springernature.io": "apps.gcp.springernature.io",
-		"((cloudfoundry.api-gcp))":                          "apps.gcp.springernature.io",
-
 		"https://api.snpaas.eu":       "springernature.app",
 		"((cloudfoundry.api-snpaas))": "springernature.app",
 	},
