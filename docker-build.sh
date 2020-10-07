@@ -7,4 +7,4 @@ docker run -it \
   -v "$PWD":/halfpipe \
   -w /halfpipe \
   golang:1.15-buster \
-  bash #./build.sh
+  ./build.sh
