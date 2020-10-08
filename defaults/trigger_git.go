@@ -16,6 +16,13 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 		if err == nil {
 			if branch == "master" || branch == "main" {
 				updated.Branch = branch
+			} else if config.CheckBranch == "false" {
+				// This is only here for when we develop on a non master branch.
+				// Otherwise the e2e tests will all fail with the only diff being
+				//<     branch: ""
+				//---
+				//>     branch: master
+				updated.Branch = "master"
 			}
 		}
 	}
