@@ -794,7 +794,8 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 		return atc.PlanSequence{
 			atc.PlanConfig{
 				InParallel: &atc.InParallelConfig{
-					Steps: prePromoteTasks,
+					Steps:    prePromoteTasks,
+					FailFast: true,
 				},
 			},
 		}

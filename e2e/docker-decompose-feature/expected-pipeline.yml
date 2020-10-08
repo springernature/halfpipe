@@ -259,6 +259,7 @@ jobs:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache
           attempts: 1
+      fail_fast: true
     timeout: 1h
   - put: cf halfpipe-promote
     resource: CF mp-api my-org my-space

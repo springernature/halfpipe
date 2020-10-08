@@ -136,6 +136,7 @@ jobs:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache
           attempts: 1
+      fail_fast: true
     timeout: 5m
   - put: cf rolling deploy
     resource: rolling cf dev-api halfpipe-team dev
