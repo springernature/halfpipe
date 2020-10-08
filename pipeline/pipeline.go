@@ -607,9 +607,6 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 			"cliVersion":   task.CliVersion,
 		},
 	}
-	if task.Timeout != "" {
-		cleanup.Params["timeout"] = task.Timeout
-	}
 	return &cleanup
 }
 
@@ -625,9 +622,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 			"cliVersion":   task.CliVersion,
 		},
 	}
-	if task.Timeout != "" {
-		promote.Params["timeout"] = task.Timeout
-	}
+
 	return promote
 }
 
@@ -642,9 +637,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 			"cliVersion":   task.CliVersion,
 		},
 	}
-	if task.Timeout != "" {
-		check.Params["timeout"] = task.Timeout
-	}
+
 	return check
 }
 
@@ -678,9 +671,6 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 
 	if len(vars) > 0 {
 		push.Params["vars"] = vars
-	}
-	if task.Timeout != "" {
-		push.Params["timeout"] = task.Timeout
 	}
 	if len(task.PreStart) > 0 {
 		push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
@@ -738,9 +728,6 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 
 	if len(vars) > 0 {
 		deploy.Params["vars"] = vars
-	}
-	if task.Timeout != "" {
-		deploy.Params["timeout"] = task.Timeout
 	}
 	if man.FeatureToggles.Versioned() {
 		deploy.Params["buildVersionPath"] = path.Join("version", "version")

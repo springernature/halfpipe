@@ -169,7 +169,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -191,7 +190,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
@@ -200,7 +198,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -267,6 +264,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
-      timeout: 1h
     timeout: 1h
     attempts: 2
+

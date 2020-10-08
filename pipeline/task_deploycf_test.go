@@ -265,7 +265,6 @@ func TestRendersCfDeploy(t *testing.T) {
 					"manifestPath": liveManifest,
 					"appPath":      gitDir,
 					"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-					"timeout":      "5m",
 					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
@@ -277,7 +276,6 @@ func TestRendersCfDeploy(t *testing.T) {
 				Params: atc.Params{
 					"command":      "halfpipe-check",
 					"manifestPath": liveManifest,
-					"timeout":      "5m",
 					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
@@ -290,7 +288,6 @@ func TestRendersCfDeploy(t *testing.T) {
 					"command":      "halfpipe-promote",
 					"testDomain":   liveTestDomain,
 					"manifestPath": liveManifest,
-					"timeout":      "5m",
 					"cliVersion":   "cf6",
 				},
 				Timeout: timeout,
@@ -303,7 +300,6 @@ func TestRendersCfDeploy(t *testing.T) {
 			Params: atc.Params{
 				"command":      "halfpipe-cleanup",
 				"manifestPath": liveManifest,
-				"timeout":      "5m",
 				"cliVersion":   "cf6",
 			},
 			Timeout: timeout,

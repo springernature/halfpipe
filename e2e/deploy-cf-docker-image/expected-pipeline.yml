@@ -96,7 +96,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -125,7 +124,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
@@ -134,7 +132,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-promote
@@ -144,7 +141,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: deploy to cf with pre promote
@@ -158,7 +154,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -188,7 +183,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
@@ -197,7 +191,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -269,7 +262,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: deploy to cf simple - rolling deploy
@@ -302,7 +294,6 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: deploy to cf with pre promote - rolling deploy
@@ -337,7 +328,6 @@ jobs:
       instances: 1
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -413,7 +403,6 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - put: remove test app
@@ -423,3 +412,4 @@ jobs:
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
     timeout: 1h
     attempts: 2
+

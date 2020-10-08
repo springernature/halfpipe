@@ -266,7 +266,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/artifacts/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -314,7 +313,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/artifacts/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
@@ -326,7 +324,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/artifacts/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -400,7 +397,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/artifacts/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: push to docker registry
@@ -700,3 +696,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

@@ -47,7 +47,6 @@ jobs:
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
 - name: deploy to cf
@@ -74,7 +73,6 @@ jobs:
       instances: 1
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - in_parallel:
@@ -145,7 +143,6 @@ jobs:
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: remove test app
@@ -155,3 +152,4 @@ jobs:
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
     timeout: 5m
     attempts: 2
+

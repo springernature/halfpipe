@@ -239,7 +239,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/notifications/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   on_success:
@@ -271,7 +270,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/notifications/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
@@ -283,7 +281,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/notifications/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -353,6 +350,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/notifications/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
+

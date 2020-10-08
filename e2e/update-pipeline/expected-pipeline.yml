@@ -244,7 +244,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   plan:
@@ -298,7 +297,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
@@ -307,7 +305,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
@@ -317,7 +314,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
 - name: deploy to staging
@@ -331,7 +327,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -385,7 +380,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
@@ -397,7 +391,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - in_parallel:
@@ -563,7 +556,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: deploy to qa
@@ -577,7 +569,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   plan:
@@ -631,7 +622,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
       vars:
         A: "0.1"
         B: "false"
@@ -643,7 +633,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
-      timeout: 1h
     timeout: 1h
     attempts: 2
   - do:
@@ -800,7 +789,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
-      timeout: 1h
     timeout: 1h
     attempts: 2
 - name: push to docker registry
@@ -1316,3 +1304,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

@@ -38,7 +38,6 @@ jobs:
       cliVersion: cf7
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   plan:
@@ -58,7 +57,6 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
@@ -67,7 +65,6 @@ jobs:
       cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
@@ -77,7 +74,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
 - name: deploy to cf
@@ -91,7 +87,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   plan:
@@ -114,7 +109,6 @@ jobs:
       manifestPath: git/e2e/deploy-cf/manifest.yml
       preStartCommand: cf apps; cf events myapp-CANDIDATE
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
@@ -123,7 +117,6 @@ jobs:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
-      timeout: 5m
     timeout: 5m
     attempts: 2
   - in_parallel:
@@ -193,6 +186,6 @@ jobs:
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
-      timeout: 5m
     timeout: 5m
     attempts: 2
+
