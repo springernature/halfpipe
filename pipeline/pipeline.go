@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/cf"
 	"regexp"
 	"strings"
 
@@ -13,8 +14,6 @@ import (
 
 	"path"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-	boshTemplate "github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
@@ -25,14 +24,12 @@ type Renderer interface {
 	Render(manifest manifest.Manifest) atc.Config
 }
 
-type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []boshTemplate.VarKV) ([]cfManifest.Application, error)
-
 type pipeline struct {
 	fs             afero.Afero
-	readCfManifest CfManifestReader
+	readCfManifest cf.CfManifestReader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
+func NewPipeline(cfManifestReader cf.CfManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 
