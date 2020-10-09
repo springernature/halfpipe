@@ -46,7 +46,7 @@ var migrateCmd = &cobra.Command{
 			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 		}
 
-		controller := createController(projectData, fs, currentDir)
+		controller := createController(projectData, fs, currentDir, nullRenderer{})
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
 		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
 		printErrAndResultAndExitOnError(err, results)

@@ -13,6 +13,10 @@ type Controller interface {
 	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error)
 }
 
+type Renderer interface {
+	Render(manifest manifest.Manifest) (string, error)
+}
+
 type controller struct {
 	defaulter defaults.Defaults
 	mapper    mapper.Mapper
@@ -52,8 +56,4 @@ func (c controller) Process(man manifest.Manifest) (config string, results resul
 
 func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {
 	return c.mapper.Apply(c.defaulter.Apply(man))
-}
-
-type Renderer interface {
-	Render(manifest manifest.Manifest) (string, error)
 }

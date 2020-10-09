@@ -15,18 +15,16 @@ import (
 	"path"
 
 	"github.com/concourse/concourse/atc"
-	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
 type pipeline struct {
-	fs             afero.Afero
 	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader cf.ManifestReader, fs afero.Afero) pipeline {
-	return pipeline{readCfManifest: cfManifestReader, fs: fs}
+func NewPipeline(cfManifestReader cf.ManifestReader) pipeline {
+	return pipeline{readCfManifest: cfManifestReader}
 }
 
 const artifactsResourceName = "gcp-resource"

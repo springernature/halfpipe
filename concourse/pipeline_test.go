@@ -4,7 +4,6 @@ import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 
 	"github.com/cloudfoundry/bosh-cli/director/template"
-	"github.com/spf13/afero"
 )
 
 func testPipeline() pipeline {
@@ -17,7 +16,7 @@ func testPipeline() pipeline {
 		}, nil
 	}
 
-	return NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	return NewPipeline(cfManifestReader)
 }
 
 /*

@@ -11,7 +11,6 @@ import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/concourse/atc"
-	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -395,7 +394,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 		}, nil
 	}
 
-	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	pipeline := NewPipeline(cfManifestReader)
 	cfg := pipeline.RenderAtcConfig(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
@@ -501,7 +500,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 		}, nil
 	}
 
-	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	pipeline := NewPipeline(cfManifestReader)
 	cfg := pipeline.RenderAtcConfig(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
