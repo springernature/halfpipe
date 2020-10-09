@@ -17,6 +17,10 @@ type BuildHistoryDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
+type DefaultsI interface {
+	Apply(original manifest.Manifest) (updated manifest.Manifest)
+}
+
 type Defaults struct {
 	RepoPrivateKey string
 

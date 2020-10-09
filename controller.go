@@ -22,21 +22,11 @@ type Controller interface {
 }
 
 type controller struct {
-	defaulter         defaults.Defaults
+	defaulter         defaults.DefaultsI
 	mapper            mapper.Mapper
 	linters           []linters.Linter
 	concourseRenderer concourse.Renderer
 	actionsRenderer   actions.Renderer
-}
-
-func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []linters.Linter, concourseRenderer concourse.Renderer, actionsRenderer actions.Renderer) Controller {
-	return controller{
-		defaulter:         defaulter,
-		mapper:            mapper,
-		linters:           linters,
-		concourseRenderer: concourseRenderer,
-		actionsRenderer:   actionsRenderer,
-	}
 }
 
 func (c controller) Process(man manifest.Manifest) (config Config, results result.LintResults) {
@@ -67,6 +57,16 @@ func (c controller) Process(man manifest.Manifest) (config Config, results resul
 	}
 
 	return config, results
+}
+
+func NewController(defaulter defaults.DefaultsI, mapper mapper.Mapper, linters []linters.Linter, concourseRenderer concourse.Renderer, actionsRenderer actions.Renderer) Controller {
+	return controller{
+		defaulter:         defaulter,
+		mapper:            mapper,
+		linters:           linters,
+		concourseRenderer: concourseRenderer,
+		actionsRenderer:   actionsRenderer,
+	}
 }
 
 func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {

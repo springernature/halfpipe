@@ -11,6 +11,6 @@ type On struct {
 
 type Actions struct {
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
-	
+
 	On On `json:"on,omitempty" yaml:"on,omitempty"`
 }
