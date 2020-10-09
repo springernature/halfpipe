@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"

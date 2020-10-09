@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"fmt"
@@ -26,10 +26,10 @@ type Renderer interface {
 
 type pipeline struct {
 	fs             afero.Afero
-	readCfManifest cf.CfManifestReader
+	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader cf.CfManifestReader, fs afero.Afero) pipeline {
+func NewPipeline(cfManifestReader cf.ManifestReader, fs afero.Afero) pipeline {
 	return pipeline{readCfManifest: cfManifestReader, fs: fs}
 }
 

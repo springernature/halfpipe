@@ -15,10 +15,10 @@ import (
 )
 
 type cfManifestLinter struct {
-	readCfManifest cf.CfManifestReader
+	readCfManifest cf.ManifestReader
 }
 
-func NewCfManifestLinter(cfManifestReader cf.CfManifestReader) cfManifestLinter {
+func NewCfManifestLinter(cfManifestReader cf.ManifestReader) cfManifestLinter {
 	return cfManifestLinter{cfManifestReader}
 }
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-for system in */
+for system in c*/
 do
   system=${system%*/}
   echo "* Running ${system}"

@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}

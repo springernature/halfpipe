@@ -5,4 +5,4 @@ import (
 	"github.com/cloudfoundry/bosh-cli/director/template"
 )
 
-type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]manifest.Application, error)
+type ManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]manifest.Application, error)
