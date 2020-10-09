@@ -1,13 +1,39 @@
 package actions
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"fmt"
+	"github.com/springernature/halfpipe/config"
+	"gopkg.in/yaml.v2"
+)
 
-type workflow struct{}
-
-func NewWorkflow() workflow {
-	return workflow{}
+type Workflow struct {
+	Name string
+	On   On
+	Jobs []Job
 }
 
-func (w workflow) Render(man manifest.Manifest) (string, error) {
-	return "workflow yaml", nil
+type On struct {
+	Push Push
+}
+
+type Push struct {
+	Branches Branches
+	Paths    Paths
+}
+
+type Branches []string
+type Paths []string
+
+type Job struct {
+	Name string
+}
+
+func (w Workflow) asYAML() (string, error) {
+	output, err := yaml.Marshal(w)
+	if err != nil {
+		return "", err
+	}
+
+	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
+	return fmt.Sprintf("%s\n%s", versionComment, output), nil
 }

@@ -13,6 +13,6 @@ var actionsCmd = &cobra.Command{
 	Use:   "actions",
 	Short: "Generates a GitHub Actions workflow",
 	Run: func(cmd *cobra.Command, args []string) {
-		render(actions.NewWorkflow())
+		render(actions.NewActions())
 	},
 }

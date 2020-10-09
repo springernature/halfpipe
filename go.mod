@@ -24,6 +24,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 go 1.15
