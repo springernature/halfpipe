@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-cf-rolling
+    - e2e/concourse/deploy-cf-rolling
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -42,11 +42,11 @@ jobs:
   - put: cf rolling deploy
     resource: rolling cf dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf-rolling
+      appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -67,12 +67,12 @@ jobs:
   - put: deploy test app
     resource: rolling cf dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf-rolling
+      appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       instances: 1
-      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -122,14 +122,14 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../../.git/ref`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/deploy-cf-rolling
+              dir: git/e2e/concourse/deploy-cf-rolling
             inputs:
             - name: git
             caches:
@@ -141,11 +141,11 @@ jobs:
   - put: cf rolling deploy
     resource: rolling cf dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf-rolling
+      appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -153,6 +153,7 @@ jobs:
     resource: rolling cf dev-api halfpipe-team dev
     params:
       command: halfpipe-delete-test
-      manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
     timeout: 5m
     attempts: 2
+

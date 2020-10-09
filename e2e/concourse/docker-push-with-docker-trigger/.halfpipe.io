@@ -6,7 +6,7 @@ triggers:
   image: alpine
 - type: git
   watched_paths:
-  - e2e/docker-push-with-docker-trigger
+  - e2e/concourse/docker-push-with-docker-trigger
 
 tasks:
 - type: docker-push

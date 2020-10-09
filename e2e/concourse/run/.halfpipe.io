@@ -5,7 +5,7 @@ triggers:
 - type: git
   shallow: true
   watched_paths:
-  - e2e/run
+  - e2e/concourse/run
 tasks:
 - type: run
   name: test

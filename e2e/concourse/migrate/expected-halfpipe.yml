@@ -5,7 +5,7 @@ feature_toggles:
 triggers:
 - type: git
   watched_paths:
-  - e2e/migrate
+  - e2e/concourse/migrate
 - type: timer
   cron: '* * * * *'
 tasks:

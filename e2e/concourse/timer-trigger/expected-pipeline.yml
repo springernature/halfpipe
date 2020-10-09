@@ -46,14 +46,14 @@ jobs:
     timeout: 1h
   - put: halfpipe-fly
     params:
-      build: git/e2e/timer-trigger
+      build: git/e2e/concourse/timer-trigger
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
-      dockerfile: git/e2e/timer-trigger/Dockerfile
+      dockerfile: git/e2e/concourse/timer-trigger/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
     timeout: 1h

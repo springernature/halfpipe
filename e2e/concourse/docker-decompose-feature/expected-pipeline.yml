@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/docker-compose
+    - e2e/concourse/docker-compose
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -77,14 +77,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           \echo hello
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-decompose-feature
+        dir: git/e2e/concourse/docker-decompose-feature
       inputs:
       - name: git
       caches:
@@ -141,7 +141,7 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose -f docker-compose-2-services.yml run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
@@ -150,7 +150,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-decompose-feature
+        dir: git/e2e/concourse/docker-decompose-feature
       inputs:
       - name: git
       caches:
@@ -168,7 +168,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
+      manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -185,11 +185,11 @@ jobs:
   - put: cf halfpipe-push
     resource: CF mp-api my-org my-space
     params:
-      appPath: git/e2e/docker-decompose-feature
+      appPath: git/e2e/concourse/docker-decompose-feature
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
+      manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
     timeout: 1h
@@ -199,7 +199,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
+      manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -245,14 +245,14 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../../.git/ref`
 
                 \echo hello
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/docker-decompose-feature
+              dir: git/e2e/concourse/docker-decompose-feature
             inputs:
             - name: git
             caches:
@@ -266,8 +266,9 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/docker-decompose-feature/manifest.yml
+      manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
     timeout: 1h
     attempts: 2
+

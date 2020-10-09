@@ -7,7 +7,7 @@ feature_toggles:
 triggers:
 - type: git
   watched_paths:
-  - e2e/docker-push-with-update-pipeline
+  - e2e/concourse/docker-push-with-update-pipeline
 
 tasks:
 - type: docker-push

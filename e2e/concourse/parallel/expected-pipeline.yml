@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/parallel
+    - e2e/concourse/parallel
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -51,7 +51,7 @@ jobs:
         PIPELINE_NAME: halfpipe-e2e-parallel
       run:
         path: update-pipeline
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
     timeout: 1h
@@ -120,15 +120,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -196,15 +196,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -272,15 +272,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -348,15 +348,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -428,15 +428,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -504,15 +504,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -584,15 +584,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -660,15 +660,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -736,15 +736,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -816,15 +816,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -896,15 +896,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/parallel
+        dir: git/e2e/concourse/parallel
       inputs:
       - name: git
       - name: version
@@ -913,3 +913,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

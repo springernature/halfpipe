@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-update-pipeline
 triggers:
 - type: git
   watched_paths:
-  - e2e/update-pipeline
+  - e2e/concourse/update-pipeline
 
 feature_toggles:
 - update-pipeline

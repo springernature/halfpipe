@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-deploy-cf-rolling
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-cf-rolling
+  - e2e/concourse/deploy-cf-rolling
 
 tasks:
 - type: deploy-cf

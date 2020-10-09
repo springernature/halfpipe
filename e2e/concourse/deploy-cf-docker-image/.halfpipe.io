@@ -7,7 +7,7 @@ feature_toggles:
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-cf-docker-image
+  - e2e/concourse/deploy-cf-docker-image
 
 tasks:
 - type: deploy-cf

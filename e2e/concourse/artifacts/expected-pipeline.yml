@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/artifacts
+    - e2e/concourse/artifacts
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -127,21 +127,21 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure/e2e/artifacts
-            copyArtifact ../../.halfpipe.io.yml ../../../artifacts-out-failure
+            copyArtifact .halfpipe.io.yml ../../../../artifacts-out-failure/e2e/concourse/artifacts
+            copyArtifact ../../.halfpipe.io.yml ../../../../artifacts-out-failure/e2e
             exit 1
           fi
 
           # Artifacts to copy from task
-          copyArtifact someFile ../../../artifacts-out/e2e/artifacts
-          copyArtifact ../parentDir/someFile2 ../../../artifacts-out/e2e/parentDir
-        dir: git/e2e/artifacts
+          copyArtifact someFile ../../../../artifacts-out/e2e/concourse/artifacts
+          copyArtifact ../parentDir/someFile2 ../../../../artifacts-out/e2e/concourse/parentDir
+        dir: git/e2e/concourse/artifacts
       inputs:
       - name: git
       outputs:
@@ -237,16 +237,16 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. ../..
+          cp -r ../../../../artifacts/. ../../..
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/artifacts
+        dir: git/e2e/concourse/artifacts
       inputs:
       - name: git
       - name: artifacts
@@ -265,7 +265,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/artifacts/manifest.yml
+      manifestPath: git/e2e/concourse/artifacts/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -308,11 +308,11 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas pe staging
     params:
-      appPath: git/e2e/artifacts
+      appPath: git/e2e/concourse/artifacts
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/artifacts/manifest.yml
+      manifestPath: git/e2e/concourse/artifacts/manifest.yml
       testDomain: springernature.app
       timeout: 1h
       vars:
@@ -325,7 +325,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/artifacts/manifest.yml
+      manifestPath: git/e2e/concourse/artifacts/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -375,16 +375,16 @@ jobs:
                 fi
 
                 # Copying in artifacts from previous task
-                cp -r ../../../artifacts/. ../..
+                cp -r ../../../../artifacts/. ../../..
 
-                export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../../.git/ref`
 
                 ./a
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/artifacts
+              dir: git/e2e/concourse/artifacts
             inputs:
             - name: git
             - name: artifacts
@@ -399,7 +399,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/artifacts/manifest.yml
+      manifestPath: git/e2e/concourse/artifacts/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -466,14 +466,14 @@ jobs:
     timeout: 1h
   - put: halfpipe-fly
     params:
-      build: docker_build/e2e/artifacts
+      build: docker_build/e2e/concourse/artifacts
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
-      dockerfile: docker_build/e2e/artifacts/Dockerfile
+      dockerfile: docker_build/e2e/concourse/artifacts/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
     timeout: 1h
@@ -575,9 +575,9 @@ jobs:
           }
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. ../..
+          cp -r ../../../../artifacts/. ../../..
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose  run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
@@ -585,10 +585,10 @@ jobs:
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact docker-compose.yml ../../../artifacts-out-failure/e2e/artifacts
+            copyArtifact docker-compose.yml ../../../../artifacts-out-failure/e2e/concourse/artifacts
             exit 1
           fi
-        dir: git/e2e/artifacts
+        dir: git/e2e/concourse/artifacts
       inputs:
       - name: git
       - name: artifacts
@@ -683,16 +683,16 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. ../..
+          cp -r ../../../../artifacts/. ../../..
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/artifacts
+        dir: git/e2e/concourse/artifacts
       inputs:
       - name: git
       - name: artifacts
@@ -701,3 +701,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

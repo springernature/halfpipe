@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/run
+    - e2e/concourse/run
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -63,14 +63,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/run
+        dir: git/e2e/concourse/run
       inputs:
       - name: git
       caches:
@@ -78,3 +78,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

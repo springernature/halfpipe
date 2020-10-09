@@ -57,14 +57,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/manual-git-trigger
+        dir: git/e2e/concourse/manual-git-trigger
       inputs:
       - name: git
       caches:
@@ -72,3 +72,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-cf-docker-image
+    - e2e/concourse/deploy-cf-docker-image
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -75,7 +75,7 @@ jobs:
         PIPELINE_NAME: halfpipe-e2e-deploy-cf-docker-image
       run:
         path: update-pipeline
-        dir: git/e2e/deploy-cf-docker-image
+        dir: git/e2e/concourse/deploy-cf-docker-image
       inputs:
       - name: git
     timeout: 1h
@@ -95,7 +95,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -123,7 +123,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -133,7 +133,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -142,7 +142,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -157,7 +157,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -186,7 +186,7 @@ jobs:
       dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -196,7 +196,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -245,15 +245,15 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
-                export BUILD_VERSION=`cat ../../../version/version`
+                export GIT_REVISION=`cat ../../../.git/ref`
+                export BUILD_VERSION=`cat ../../../../version/version`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/deploy-cf-docker-image
+              dir: git/e2e/concourse/deploy-cf-docker-image
             inputs:
             - name: git
             - name: version
@@ -268,7 +268,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -302,7 +302,7 @@ jobs:
       dockerTag: version/version
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -336,7 +336,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       instances: 1
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -386,15 +386,15 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
-                export BUILD_VERSION=`cat ../../../version/version`
+                export GIT_REVISION=`cat ../../../.git/ref`
+                export BUILD_VERSION=`cat ../../../../version/version`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/deploy-cf-docker-image
+              dir: git/e2e/concourse/deploy-cf-docker-image
             inputs:
             - name: git
             - name: version
@@ -414,7 +414,7 @@ jobs:
       dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -422,6 +422,7 @@ jobs:
     resource: rolling cf snpaas dev
     params:
       command: halfpipe-delete-test
-      manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
     timeout: 1h
     attempts: 2
+

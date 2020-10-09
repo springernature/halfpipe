@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/update-pipeline
+    - e2e/concourse/update-pipeline
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -112,7 +112,7 @@ jobs:
         PIPELINE_NAME: halfpipe-e2e-update-pipeline
       run:
         path: update-pipeline
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
     timeout: 1h
@@ -201,21 +201,21 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure/e2e/update-pipeline
+            copyArtifact .halfpipe.io.yml ../../../../artifacts-out-failure/e2e/concourse/update-pipeline
             exit 1
           fi
 
           # Artifacts to copy from task
-          copyArtifact target/distribution ../../../artifacts-out/e2e/update-pipeline/target
-          copyArtifact README.md ../../../artifacts-out/e2e/update-pipeline
-        dir: git/e2e/update-pipeline
+          copyArtifact target/distribution ../../../../artifacts-out/e2e/concourse/update-pipeline/target
+          copyArtifact README.md ../../../../artifacts-out/e2e/concourse/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -243,7 +243,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -291,12 +291,12 @@ jobs:
   - put: cf halfpipe-push
     resource: CF dev-api halfpipe-team dev
     params:
-      appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
+      appPath: artifacts/e2e/concourse/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -306,7 +306,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -315,7 +315,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -330,7 +330,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -378,12 +378,12 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas pe staging
     params:
-      appPath: git/e2e/update-pipeline
+      appPath: git/e2e/concourse/update-pipeline
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
       vars:
@@ -396,7 +396,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -446,17 +446,17 @@ jobs:
                 fi
 
                 # Copying in artifacts from previous task
-                cp -r ../../../artifacts/. ../..
+                cp -r ../../../../artifacts/. ../../..
 
-                export GIT_REVISION=`cat ../../.git/ref`
-                export BUILD_VERSION=`cat ../../../version/version`
+                export GIT_REVISION=`cat ../../../.git/ref`
+                export BUILD_VERSION=`cat ../../../../version/version`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/update-pipeline
+              dir: git/e2e/concourse/update-pipeline
             inputs:
             - name: git
             - name: artifacts
@@ -508,8 +508,8 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
-                export BUILD_VERSION=`cat ../../../version/version`
+                export GIT_REVISION=`cat ../../../.git/ref`
+                export BUILD_VERSION=`cat ../../../../version/version`
 
                 \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
@@ -547,7 +547,7 @@ jobs:
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/update-pipeline
+              dir: git/e2e/concourse/update-pipeline
             inputs:
             - name: git
             - name: version
@@ -562,7 +562,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -577,7 +577,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -625,12 +625,12 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas qa
     params:
-      appPath: git/e2e/update-pipeline
+      appPath: git/e2e/concourse/update-pipeline
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
       vars:
@@ -643,7 +643,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -703,8 +703,8 @@ jobs:
               fi
             }
 
-            export GIT_REVISION=`cat ../../.git/ref`
-            export BUILD_VERSION=`cat ../../../version/version`
+            export GIT_REVISION=`cat ../../../.git/ref`
+            export BUILD_VERSION=`cat ../../../../version/version`
 
             ./smoke-test.sh
             EXIT_STATUS=$?
@@ -713,8 +713,8 @@ jobs:
             fi
 
             # Artifacts to copy from task
-            copyArtifact build ../../../artifacts-out/e2e/update-pipeline
-          dir: git/e2e/update-pipeline
+            copyArtifact build ../../../../artifacts-out/e2e/concourse/update-pipeline
+          dir: git/e2e/concourse/update-pipeline
         inputs:
         - name: git
         - name: version
@@ -774,17 +774,17 @@ jobs:
             fi
 
             # Copying in artifacts from previous task
-            cp -r ../../../artifacts/. ../..
+            cp -r ../../../../artifacts/. ../../..
 
-            export GIT_REVISION=`cat ../../.git/ref`
-            export BUILD_VERSION=`cat ../../../version/version`
+            export GIT_REVISION=`cat ../../../.git/ref`
+            export BUILD_VERSION=`cat ../../../../version/version`
 
             ./smoke-test.sh
             EXIT_STATUS=$?
             if [ $EXIT_STATUS != 0 ] ; then
               exit 1
             fi
-          dir: git/e2e/update-pipeline
+          dir: git/e2e/concourse/update-pipeline
         inputs:
         - name: git
         - name: artifacts
@@ -799,7 +799,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/update-pipeline/manifest.yml
+      manifestPath: git/e2e/concourse/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
@@ -827,14 +827,14 @@ jobs:
     timeout: 1h
   - put: halfpipe-fly
     params:
-      build: git/e2e/update-pipeline
+      build: git/e2e/concourse/update-pipeline
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
-      dockerfile: git/e2e/update-pipeline/Dockerfile
+      dockerfile: git/e2e/concourse/update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: version/number
     timeout: 1h
@@ -900,15 +900,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           ./notify.sh
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -992,8 +992,8 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose  run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
@@ -1001,10 +1001,10 @@ jobs:
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             # Artifacts to copy in case of failure
-            copyArtifact docker-compose.yml ../../../artifacts-out-failure/e2e/update-pipeline
+            copyArtifact docker-compose.yml ../../../../artifacts-out-failure/e2e/concourse/update-pipeline
             exit 1
           fi
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -1078,8 +1078,8 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
 
@@ -1117,7 +1117,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -1215,17 +1215,17 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. ../..
+          cp -r ../../../../artifacts/. ../../..
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: artifacts
@@ -1300,15 +1300,15 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
           /ml-deploy/deploy-ml-modules
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/update-pipeline
+        dir: git/e2e/concourse/update-pipeline
       inputs:
       - name: git
       - name: version
@@ -1317,3 +1317,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

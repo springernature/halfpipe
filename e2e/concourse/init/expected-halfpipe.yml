@@ -1,11 +1,11 @@
 team: CHANGE-ME
-pipeline: halfpipe-e2e-init
+pipeline: halfpipe-e2e-concourse-init
 feature_toggles:
   - update-pipeline
 triggers:
   - type: git
     watched_paths:
-      - e2e/init
+      - e2e/concourse/init
 tasks:
   - type: run
     name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI

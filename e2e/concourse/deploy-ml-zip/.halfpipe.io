@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-deploy-ml-zip
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-ml-zip
+  - e2e/concourse/deploy-ml-zip
 
 tasks:
 - type: run

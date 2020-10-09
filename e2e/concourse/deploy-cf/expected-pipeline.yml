@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-cf
+    - e2e/concourse/deploy-cf
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -37,7 +37,7 @@ jobs:
     params:
       cliVersion: cf7
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -52,11 +52,11 @@ jobs:
   - put: cf halfpipe-push
     resource: CF dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf
+      appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf7
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -66,7 +66,7 @@ jobs:
     params:
       cliVersion: cf7
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -75,7 +75,7 @@ jobs:
     params:
       cliVersion: cf7
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
@@ -90,7 +90,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -107,11 +107,11 @@ jobs:
   - put: cf halfpipe-push
     resource: CF dev-api halfpipe-team dev
     params:
-      appPath: git/e2e/deploy-cf
+      appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       preStartCommand: cf apps; cf events myapp-CANDIDATE
       testDomain: some.random.domain.com
       timeout: 5m
@@ -122,7 +122,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
     timeout: 5m
     attempts: 2
@@ -171,14 +171,14 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../../.git/ref`
 
                 ./smoke-test.sh
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/deploy-cf
+              dir: git/e2e/concourse/deploy-cf
             inputs:
             - name: git
             caches:
@@ -192,8 +192,9 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/deploy-cf/manifest.yml
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
     timeout: 5m
     attempts: 2
+

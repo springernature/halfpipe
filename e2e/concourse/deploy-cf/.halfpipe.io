@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-deploy-cf
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-cf
+  - e2e/concourse/deploy-cf
 
 tasks:
 - type: deploy-cf

@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-consumer-integration-test
 triggers:
 - type: git
   watched_paths:
-  - e2e/consumer-integration-test
+  - e2e/concourse/consumer-integration-test
 
 tasks:
 - type: consumer-integration-test

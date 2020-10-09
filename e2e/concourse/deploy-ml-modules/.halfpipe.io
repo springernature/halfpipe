@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-deploy-ml-modules
 triggers:
 - type: git
   watched_paths:
-  - e2e/deploy-ml-modules
+  - e2e/concourse/deploy-ml-modules
 
 tasks:
 - type: deploy-ml-modules

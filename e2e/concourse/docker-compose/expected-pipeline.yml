@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/docker-compose
+    - e2e/concourse/docker-compose
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -55,7 +55,7 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose  run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
@@ -64,7 +64,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-compose
+        dir: git/e2e/concourse/docker-compose
       inputs:
       - name: git
       caches:
@@ -121,7 +121,7 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           docker-compose -f custom-docker-compose.yml run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
@@ -130,7 +130,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/docker-compose
+        dir: git/e2e/concourse/docker-compose
       inputs:
       - name: git
       caches:
@@ -138,3 +138,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-ml-modules
+    - e2e/concourse/deploy-ml-modules
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -68,14 +68,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           /ml-deploy/deploy-ml-modules
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/deploy-ml-modules
+        dir: git/e2e/concourse/deploy-ml-modules
       inputs:
       - name: git
       caches:
@@ -83,3 +83,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

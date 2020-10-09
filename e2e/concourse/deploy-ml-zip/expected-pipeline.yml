@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/deploy-ml-zip
+    - e2e/concourse/deploy-ml-zip
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -88,7 +88,7 @@ jobs:
             fi
           }
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
@@ -97,8 +97,8 @@ jobs:
           fi
 
           # Artifacts to copy from task
-          copyArtifact ml.zip ../../../artifacts-out/e2e/deploy-ml-zip
-        dir: git/e2e/deploy-ml-zip
+          copyArtifact ml.zip ../../../../artifacts-out/e2e/concourse/deploy-ml-zip
+        dir: git/e2e/concourse/deploy-ml-zip
       inputs:
       - name: git
       outputs:
@@ -198,16 +198,16 @@ jobs:
           fi
 
           # Copying in artifacts from previous task
-          cp -r ../../../artifacts/. ../..
+          cp -r ../../../../artifacts/. ../../..
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/deploy-ml-zip
+        dir: git/e2e/concourse/deploy-ml-zip
       inputs:
       - name: git
       - name: artifacts
@@ -216,3 +216,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

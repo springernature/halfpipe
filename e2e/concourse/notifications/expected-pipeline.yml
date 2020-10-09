@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/notifications
+    - e2e/concourse/notifications
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -107,14 +107,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/notifications
+        dir: git/e2e/concourse/notifications
       inputs:
       - name: git
       caches:
@@ -204,14 +204,14 @@ jobs:
             echo ""
           fi
 
-          export GIT_REVISION=`cat ../../.git/ref`
+          export GIT_REVISION=`cat ../../../.git/ref`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/notifications
+        dir: git/e2e/concourse/notifications
       inputs:
       - name: git
       caches:
@@ -238,7 +238,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
-      manifestPath: git/e2e/notifications/manifest.yml
+      manifestPath: git/e2e/concourse/notifications/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -265,11 +265,11 @@ jobs:
   - put: cf halfpipe-push
     resource: CF snpaas pe staging
     params:
-      appPath: git/e2e/notifications
+      appPath: git/e2e/concourse/notifications
       cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
-      manifestPath: git/e2e/notifications/manifest.yml
+      manifestPath: git/e2e/concourse/notifications/manifest.yml
       testDomain: springernature.app
       timeout: 1h
       vars:
@@ -282,7 +282,7 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-check
-      manifestPath: git/e2e/notifications/manifest.yml
+      manifestPath: git/e2e/concourse/notifications/manifest.yml
       timeout: 1h
     timeout: 1h
     attempts: 2
@@ -331,14 +331,14 @@ jobs:
                   echo ""
                 fi
 
-                export GIT_REVISION=`cat ../../.git/ref`
+                export GIT_REVISION=`cat ../../../.git/ref`
 
                 ./a
                 EXIT_STATUS=$?
                 if [ $EXIT_STATUS != 0 ] ; then
                   exit 1
                 fi
-              dir: git/e2e/notifications
+              dir: git/e2e/concourse/notifications
             inputs:
             - name: git
             caches:
@@ -352,8 +352,9 @@ jobs:
     params:
       cliVersion: cf6
       command: halfpipe-promote
-      manifestPath: git/e2e/notifications/manifest.yml
+      manifestPath: git/e2e/concourse/notifications/manifest.yml
       testDomain: springernature.app
       timeout: 1h
     timeout: 1h
     attempts: 2
+

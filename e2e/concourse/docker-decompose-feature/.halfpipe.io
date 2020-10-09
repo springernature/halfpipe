@@ -7,7 +7,7 @@ feature_toggles:
 triggers:
 - type: git
   watched_paths:
-  - e2e/docker-compose
+  - e2e/concourse/docker-compose
 
 tasks:
 - type: docker-compose

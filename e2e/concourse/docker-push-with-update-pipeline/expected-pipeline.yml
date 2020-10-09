@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/docker-push-with-update-pipeline
+    - e2e/concourse/docker-push-with-update-pipeline
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -63,7 +63,7 @@ jobs:
         PIPELINE_NAME: docker-push-with-update-pipeline
       run:
         path: update-pipeline
-        dir: git/e2e/docker-push-with-update-pipeline
+        dir: git/e2e/concourse/docker-push-with-update-pipeline
       inputs:
       - name: git
     timeout: 1h
@@ -94,14 +94,14 @@ jobs:
     timeout: 1h
   - put: image1
     params:
-      build: git/e2e/docker-push-with-update-pipeline
+      build: git/e2e/concourse/docker-push-with-update-pipeline
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
-      dockerfile: git/e2e/docker-push-with-update-pipeline/Dockerfile
+      dockerfile: git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: version/number
     timeout: 1h
@@ -127,14 +127,14 @@ jobs:
     timeout: 1h
   - put: image2
     params:
-      build: git/e2e/docker-push-with-update-pipeline
+      build: git/e2e/concourse/docker-push-with-update-pipeline
       build_args:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
-      dockerfile: git/e2e/docker-push-with-update-pipeline/Dockerfile
+      dockerfile: git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
     timeout: 1h

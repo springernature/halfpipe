@@ -5,7 +5,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/docker-push-paths
+    - e2e/concourse/docker-push-paths
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
@@ -38,12 +38,12 @@ jobs:
     timeout: 1h
   - put: halfpipe-fly
     params:
-      build: git/e2e/docker-push-paths/some/build/dir
+      build: git/e2e/concourse/docker-push-paths/some/build/dir
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-      dockerfile: git/e2e/docker-push-paths/dockerfiles/Dockerfile
+      dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
     timeout: 1h
@@ -64,12 +64,12 @@ jobs:
     timeout: 1h
   - put: halfpipe
     params:
-      build: git/e2e/docker-push-paths
+      build: git/e2e/concourse/docker-push-paths
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-      dockerfile: git/e2e/docker-push-paths/dockerfiles/Dockerfile
+      dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
     timeout: 1h

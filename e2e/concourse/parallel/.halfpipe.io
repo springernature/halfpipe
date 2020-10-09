@@ -5,7 +5,7 @@ triggers:
 - type: git
   shallow: true
   watched_paths:
-  - e2e/parallel
+  - e2e/concourse/parallel
 
 feature_toggles:
 - update-pipeline

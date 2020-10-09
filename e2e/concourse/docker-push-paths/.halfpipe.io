@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-docker-push-paths
 triggers:
 - type: git
   watched_paths:
-  - e2e/docker-push-paths
+  - e2e/concourse/docker-push-paths
 
 tasks:
 - type: docker-push
