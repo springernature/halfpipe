@@ -79,7 +79,7 @@ func TestRenderConsumerIntegrationTestTaskInPrePromoteStage(t *testing.T) {
 			Caches: config.CacheDirs,
 		}}
 
-	job := p.Render(man).Jobs[0]
+	job := p.RenderAtcConfig(man).Jobs[0]
 	assert.Equal(t, expectedPlan, (*(job.Plan[3].InParallel.Steps)[0].Do)[0])
 }
 
@@ -113,7 +113,7 @@ func TestRenderConsumerIntegrationTestTaskWithProviderHost(t *testing.T) {
 		},
 	}
 
-	job := p.Render(man).Jobs[0]
+	job := p.RenderAtcConfig(man).Jobs[0]
 	assert.Equal(t, "p-host", (*(job.Plan[3].InParallel.Steps)[0].Do)[0].TaskConfig.Params["PROVIDER_HOST"])
 }
 
@@ -195,7 +195,7 @@ func TestRenderConsumerIntegrationTestTaskOutsidePrePromote(t *testing.T) {
 		},
 	}
 
-	jobs := p.Render(man).Jobs
+	jobs := p.RenderAtcConfig(man).Jobs
 	if assert.Len(t, jobs, 1) {
 		assert.Equal(t, expectedJob, jobs[0])
 	}

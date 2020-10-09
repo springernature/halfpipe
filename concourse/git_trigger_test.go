@@ -33,7 +33,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(man))
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man))
 }
 
 func TestRendersSshGitResource(t *testing.T) {
@@ -63,7 +63,7 @@ func TestRendersSshGitResource(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(man))
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man))
 }
 
 func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
@@ -99,7 +99,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(man))
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man))
 }
 
 func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
@@ -129,7 +129,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(man))
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man))
 }
 
 func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
@@ -157,7 +157,7 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 			},
 		},
 	}
-	assert.Equal(t, expected, testPipeline().Render(man))
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man))
 }
 
 func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
@@ -175,7 +175,7 @@ func TestRendersTasksWithDepth1IfShallowIsSet(t *testing.T) {
 		},
 	}
 
-	rendered := testPipeline().Render(man)
+	rendered := testPipeline().RenderAtcConfig(man)
 
 	task, _ := rendered.Jobs.Lookup(taskName)
 	assert.Equal(t, "git", (task.Plan[0].InParallel.Steps)[0].Get)
@@ -193,7 +193,7 @@ func TestRenderWithGitTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 			manifest.DockerPush{Name: "t3"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
@@ -222,7 +222,7 @@ func TestRenderWithGitManualTrigger(t *testing.T) {
 			manifest.DockerPush{Name: "t3"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
@@ -252,7 +252,7 @@ func TestRendersWebHookAssistedGitResources(t *testing.T) {
 					},
 				},
 			}
-			resource, _ := testPipeline().Render(man).Resources.Lookup(gitName)
+			resource, _ := testPipeline().RenderAtcConfig(man).Resources.Lookup(gitName)
 			assert.Equal(t, expectedInterval, resource.CheckEvery)
 		})
 	}

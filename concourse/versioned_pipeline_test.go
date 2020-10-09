@@ -11,7 +11,7 @@ import (
 func TestDoesntHaveResourceIfToggleIsDisabled(t *testing.T) {
 	man := manifest.Manifest{}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	_, found := cfg.Resources.Lookup(versionName)
 	assert.False(t, found)
@@ -33,7 +33,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	resource, found := cfg.Resources.Lookup(versionName)
 	assert.True(t, found)
@@ -59,7 +59,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 		},
 	}
 
-	cfgWithBranch := testPipeline().Render(manWithBranch)
+	cfgWithBranch := testPipeline().RenderAtcConfig(manWithBranch)
 	resourceWithBranch, found := cfgWithBranch.Resources.Lookup(versionName)
 	assert.True(t, found)
 	assert.Equal(t, "semver", resource.Type)
@@ -73,7 +73,7 @@ func TestHasCorrectResourceIfFeatureToggleIsEnabled(t *testing.T) {
 
 func TestShouldNotAddAVersionJobAIfFeatureToggleIsNotEnabled(t *testing.T) {
 	man := manifest.Manifest{}
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	_, found := cfg.Jobs.Lookup(versionName)
 	assert.False(t, found)
@@ -89,7 +89,7 @@ func TestShouldAddAVersionJobAsFirstJobIfFeatureToggleIsEnabled(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	_, found := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 	assert.True(t, found)
@@ -106,7 +106,7 @@ func TestGetShouldNotContainGetOnVersionIfFeatureToggleIsNotEnabled(t *testing.T
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 	config, found := cfg.Jobs.Lookup(jobName)
 	assert.True(t, found)
 
@@ -130,7 +130,7 @@ func TestGetShouldContainGetOnVersionIfFeatureToggleIsEnabled(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 	config, found := cfg.Jobs.Lookup(jobName)
 	assert.True(t, found)
 
@@ -163,7 +163,7 @@ func TestVersionGetShouldBeTheOnlyOneWithTriggerTrue(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	updateConfig, found := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 	assert.True(t, found)
@@ -216,7 +216,7 @@ func TestUpdateVersionShouldBeTheOnlyJobThatHasTheCronTrigger(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	var cronFound bool
 	var versionFound bool
@@ -289,7 +289,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVar(t *testing.T
 		Name: versionName,
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	run, _ := config.Jobs.Lookup("run")
 	assert.Contains(t, run.Plan[1].TaskConfig.Inputs, expectedInput)
@@ -370,7 +370,7 @@ func TestUpdateVersionShouldAddTheVersionAsAInputToAllJobsAndEnvVarWhenInMonoRep
 		Name: versionName,
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	run, _ := config.Jobs.Lookup("run")
 	assert.Contains(t, run.Plan[1].TaskConfig.Inputs, expectedInput)

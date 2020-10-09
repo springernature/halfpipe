@@ -74,7 +74,7 @@ func TestRenderRunTask(t *testing.T) {
 				}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
@@ -140,7 +140,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 				}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
@@ -207,7 +207,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 				}},
 		}}
 
-	assert.Equal(t, expected, testPipeline().Render(man).Jobs[0])
+	assert.Equal(t, expected, testPipeline().RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRunScriptArgs(t *testing.T) {

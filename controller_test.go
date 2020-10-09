@@ -6,7 +6,6 @@ import (
 	"github.com/springernature/halfpipe/project"
 	"testing"
 
-	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
@@ -36,13 +35,8 @@ func testController() controller {
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
 
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
+	config := "some config"
+
 	c.renderer = FakeRenderer{Config: config}
 
 	_, results := c.Process(validHalfpipeManifest)
@@ -53,13 +47,8 @@ func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 func TestWorksForHalfpipeFile(t *testing.T) {
 	c := testController()
 
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
+	config := "some config"
+
 	c.renderer = FakeRenderer{Config: config}
 
 	_, results := c.Process(validHalfpipeManifest)
@@ -91,23 +80,18 @@ func TestAppliesAllLinters(t *testing.T) {
 }
 
 type FakeRenderer struct {
-	Config atc.Config
+	Config string
 }
 
-func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
-	return f.Config
+func (f FakeRenderer) Render(manifest manifest.Manifest) (string, error) {
+	return f.Config, nil
 }
 
-func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
+func TestGivesBackConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
 
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
+	config := "some output"
+
 	c.renderer = FakeRenderer{Config: config}
 
 	pipeline, results := c.Process(validHalfpipeManifest)

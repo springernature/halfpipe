@@ -32,7 +32,7 @@ func TestRenderWithParallelTasks(t *testing.T) {
 			manifest.Run{Name: "Smoke Test 2", Script: "asd.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	assert.Nil(t, (config.Jobs[0].Plan[0].InParallel.Steps)[0].Passed)
 
@@ -87,7 +87,7 @@ func TestRenderWithParallelAndSeqTasks(t *testing.T) {
 			manifest.Run{Name: "d"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	t.Run("first task", func(t *testing.T) {
 		assert.Empty(t, getPassed(config.Jobs[0]))
@@ -135,7 +135,7 @@ func TestRenderWithParallelOnFirstTasks(t *testing.T) {
 			manifest.DockerPush{Name: "Push"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	assert.Nil(t, config.Jobs[1].Plan[0].Passed)

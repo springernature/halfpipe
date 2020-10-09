@@ -27,7 +27,7 @@ func TestAddsResourceIfWeSaveArtifacts(t *testing.T) {
 			},
 		}
 
-		renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().RenderAtcConfig(man)
 		resource, found := renderedPipeline.Resources.Lookup(artifactsName)
 		assert.True(t, found)
 		assert.Equal(t, "myteam/mypipeline", resource.Source["folder"])
@@ -51,7 +51,7 @@ func TestAddsResourceIfWeSaveArtifacts(t *testing.T) {
 			},
 		}
 
-		renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().RenderAtcConfig(man)
 		resource, found := renderedPipeline.Resources.Lookup(artifactsName)
 		assert.True(t, found)
 		assert.Equal(t, "myteam/mypipeline-mybranch", resource.Source["folder"])
@@ -69,7 +69,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifact(t *testing.T) 
 		runTask,
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
 	expectedRunScript := runScriptArgs(runTask, manifest.Manifest{}, true, "")
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
@@ -135,7 +135,7 @@ func TestRendersPipelineFailureOutputFolderAndPut(t *testing.T) {
 		return false
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	config1, _ := renderedPipeline.Jobs.Lookup(run1)
 	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDir})
 	assert.Contains(t, config1.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
@@ -185,7 +185,7 @@ func TestRendersPipelineFailureOutputIsCorrect(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	config, _ := renderedPipeline.Jobs.Lookup(name)
 	assert.Contains(t, config.Plan[1].TaskConfig.Outputs, atc.TaskOutputConfig{Name: artifactsOutDirOnFailure})
 
@@ -215,7 +215,7 @@ func TestRendersPipelineFailureOutputHasResourceDef(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	_, found := renderedPipeline.ResourceTypes.Lookup(artifactsResourceName)
 	assert.True(t, found)
 }
@@ -238,7 +238,7 @@ func TestRendersPipelineWithOutputFolderAndFileCopyIfSaveArtifactInMonoRepo(t *t
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Outputs, 1) // Plan[0] is always the git get, Plan[1] is the task
 	expectedRunScript := runScriptArgs(runTask, man, true, man.Triggers.GetGitTrigger().BasePath)
 	assert.Equal(t, expectedRunScript, renderedPipeline.Jobs[0].Plan[1].TaskConfig.Run.Args)
@@ -266,7 +266,7 @@ func TestRendersPipelineWithCorrectResourceIfOverridingArtifactoryConfig(t *test
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
 	assert.Equal(t, artifactsName, renderedPipeline.Jobs[0].Plan[2].Put)
 	assert.Equal(t, artifactsOutDir, renderedPipeline.Jobs[0].Plan[2].Params["folder"])
@@ -307,7 +307,7 @@ func TestRendersPipelineWithDeployArtifacts(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[1].Plan, 5)
@@ -348,7 +348,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -376,7 +376,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 	assert.Len(t, renderedPipeline.Jobs, 2)
 	assert.Len(t, renderedPipeline.Jobs[0].Plan, 3)
@@ -400,7 +400,7 @@ func TestRenderRunWithBothRestoreAndSave(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	assert.Equal(t, restoreArtifactTask(man), config.Jobs[0].Plan[1])
 	assert.Equal(t, "artifacts-out", config.Jobs[0].Plan[2].TaskConfig.Outputs[0].Name)
@@ -427,7 +427,7 @@ func TestRenderGetHasTheSameConfigOptionsInTheRestoreAsInTheResourceConfig(t *te
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	artifactConfig, foundResourceConfig := config.Resources.Lookup(artifactsName)
 	assert.True(t, foundResourceConfig)
@@ -473,7 +473,7 @@ func TestRenderRunWithSaveArtifactsAndSaveArtifactsOnFailure(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	_, found := config.Resources.Lookup(artifactsName)
 	assert.True(t, found)
@@ -521,7 +521,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			},
 		}
 
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.False(t, found)
@@ -548,7 +548,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			},
 		}
 
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.True(t, found)
@@ -573,7 +573,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			},
 		}
 
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.True(t, found)
@@ -598,7 +598,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			},
 		}
 
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.False(t, found)
@@ -626,7 +626,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 			},
 		}
 
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.True(t, found)
@@ -656,7 +656,7 @@ func TestRenderRunWithCorrectResources(t *testing.T) {
 				},
 			},
 		}
-		config := testPipeline().Render(man)
+		config := testPipeline().RenderAtcConfig(man)
 
 		_, found := config.Resources.Lookup(artifactsName)
 		assert.True(t, found)

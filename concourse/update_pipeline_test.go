@@ -16,7 +16,7 @@ func TestShouldAddUpdateJobAsFirstJob(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	_, found := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 	assert.True(t, found)
@@ -36,7 +36,7 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	updateJob, _ := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 
@@ -70,7 +70,7 @@ func TestShouldAddUpdatePipelineTaskWithManualGitTrigger(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	updateJob, _ := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 
@@ -93,7 +93,7 @@ func TestUpdatePipelinePlan(t *testing.T) {
 	}
 
 	pipeline := testPipeline()
-	cfg := pipeline.Render(man)
+	cfg := pipeline.RenderAtcConfig(man)
 	updateJob, _ := cfg.Jobs.Lookup(manifest.Update{}.GetName())
 	updatePipeline := updateJob.Plan[1]
 

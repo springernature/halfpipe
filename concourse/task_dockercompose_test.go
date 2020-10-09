@@ -80,7 +80,7 @@ func TestRenderDockerComposeTask(t *testing.T) {
 				}},
 		}}
 
-	assert.Equal(t, expectedJob, p.Render(man).Jobs[0])
+	assert.Equal(t, expectedJob, p.RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
@@ -143,7 +143,7 @@ func TestRenderDockerComposeTaskWithCommand(t *testing.T) {
 				}},
 		}}
 
-	assert.Equal(t, expectedJob, p.Render(man).Jobs[0])
+	assert.Equal(t, expectedJob, p.RenderAtcConfig(man).Jobs[0])
 }
 
 func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
@@ -158,7 +158,7 @@ func TestDockerComposeRunJobIsPrivileged(t *testing.T) {
 		},
 	}
 
-	step := p.Render(man).Jobs[0].Plan[2]
+	step := p.RenderAtcConfig(man).Jobs[0].Plan[2]
 	assert.Equal(t, "docker-compose", step.Task)
 	assert.True(t, step.Privileged)
 

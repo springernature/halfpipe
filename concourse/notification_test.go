@@ -23,7 +23,7 @@ func TestRendersSlackOnFailurePlan(t *testing.T) {
 			},
 		},
 	}
-	pipeline := testPipeline().Render(man)
+	pipeline := testPipeline().RenderAtcConfig(man)
 
 	channel := (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Params["channel"]
 	channel1 := (pipeline.Jobs[1].Failure.InParallel.Steps)[0].Params["channel"]
@@ -49,7 +49,7 @@ func TestRendersSlackOnFailurePlanWithArtifactOnFailure(t *testing.T) {
 			},
 		},
 	}
-	pipeline := testPipeline().Render(man)
+	pipeline := testPipeline().RenderAtcConfig(man)
 
 	assert.Equal(t, slackResourceName, (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Put)
 	assert.Equal(t, slackChannel, (pipeline.Jobs[0].Failure.InParallel.Steps)[0].Params["channel"])
@@ -63,7 +63,7 @@ func TestDoesntRenderWhenNotSet(t *testing.T) {
 	man := manifest.Manifest{}
 	man.SlackChannel = ""
 
-	pipeline := testPipeline().Render(man)
+	pipeline := testPipeline().RenderAtcConfig(man)
 	_, foundResource := pipeline.Resources.Lookup(slackResourceName)
 	assert.False(t, foundResource)
 
@@ -94,7 +94,7 @@ func TestAddsSlackNotificationOnSuccess(t *testing.T) {
 			},
 		}
 
-		pipeline := testPipeline().Render(man)
+		pipeline := testPipeline().RenderAtcConfig(man)
 
 		firstTask, _ := pipeline.Jobs.Lookup(taskName1)
 		assert.Equal(t, (firstTask.Success.InParallel.Steps)[0], slackOnSuccessPlan(slackChannel, ""))

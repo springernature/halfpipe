@@ -23,7 +23,7 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	getArtifact := renderedPipeline.Jobs[0].Plan[1]
 	assert.Equal(t, "get artifact", getArtifact.Name())
 	assert.Equal(t, "git", getArtifact.TaskConfig.Inputs[0].Name)
@@ -43,7 +43,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 	assert.Equal(t, "get artifact", renderedPipeline.Jobs[0].Plan[1].Name())
 	assert.Contains(t, renderedPipeline.Jobs[0].Plan[2].TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsName})
@@ -68,7 +68,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[0].Plan[1])
 
 	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
@@ -96,7 +96,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerPushTask(t *testing.T) {
 		},
 	}
 
-	renderedPipeline = testPipeline().Render(man)
+	renderedPipeline = testPipeline().RenderAtcConfig(man)
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[0].Plan[1])
 
 	runtTaskArgs = renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
@@ -123,7 +123,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			},
 		}
 
-		renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
 		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
@@ -146,7 +146,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			},
 		}
 
-		renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
 		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
@@ -172,7 +172,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForRunTask(t *t
 			},
 		}
 
-		renderedPipeline := testPipeline().Render(man)
+		renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 		runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
 		restoreTaskParams := renderedPipeline.Jobs[0].Plan[1].TaskConfig.Params
@@ -194,7 +194,7 @@ func TestRendersPipelineWithArtifactsBeingCopiedIntoTheWorkingDirForDockerCompos
 		},
 	}
 
-	renderedPipeline := testPipeline().Render(man)
+	renderedPipeline := testPipeline().RenderAtcConfig(man)
 
 	runtTaskArgs := renderedPipeline.Jobs[0].Plan[2].TaskConfig.Run.Args[1]
 	assert.Contains(t, runtTaskArgs, "cp -r ../artifacts/. .")

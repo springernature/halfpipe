@@ -28,7 +28,7 @@ func TestTimeout(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	hasCorrectTimeout := func(jc atc.JobConfig, t string) bool {
 		for _, p := range jc.Plan {
@@ -84,7 +84,7 @@ func TestTimeout2(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	hasCorrectTimeout := func(jc atc.JobConfig, t string) bool {
 		for _, p := range jc.Plan {

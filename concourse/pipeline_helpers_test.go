@@ -19,7 +19,7 @@ func TestToString(t *testing.T) {
 		},
 	}
 
-	actual, err := ToString(testPipeline().Render(man))
+	actual, err := ToString(testPipeline().RenderAtcConfig(man))
 	expected := "uri: repo.git"
 
 	assert.Nil(t, err)
@@ -36,7 +36,7 @@ func TestToStringVersionComment(t *testing.T) {
 	}
 	con.Version = "0.0.1-yolo"
 
-	actual, err := ToString(testPipeline().Render(man))
+	actual, err := ToString(testPipeline().RenderAtcConfig(man))
 
 	assert.Nil(t, err)
 	assert.Regexp(t, regexp.MustCompile(`^#.*0\.0\.1-yolo.*`), actual)

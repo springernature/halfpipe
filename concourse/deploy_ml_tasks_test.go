@@ -136,7 +136,7 @@ func TestRenderDeployMLTasksAsRunTask(t *testing.T) {
 			manifest.DeployMLModules{Name: "foobar 2"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	assert.Equal(t, "foobar 1", config.Jobs[0].Plan[2].Task)
 	assert.Equal(t, "foobar 2", config.Jobs[1].Plan[1].Task)
 }

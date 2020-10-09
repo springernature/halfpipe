@@ -3,7 +3,6 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/concourse"
 	"os"
 )
 
@@ -17,10 +16,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		pipelineConfig, lintResults := controller.Process(man)
 		printErrAndResultAndExitOnError(nil, lintResults)
 
-		pipeline, renderError := concourse.ToString(pipelineConfig)
-		printErrAndResultAndExitOnError(renderError, nil)
-
-		fmt.Println(pipeline)
+		fmt.Println(pipelineConfig)
 	},
 }
 

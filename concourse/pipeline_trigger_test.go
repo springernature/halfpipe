@@ -17,7 +17,7 @@ func TestPipelineTriggerResourceTypeSet(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	_, found := config.ResourceTypes.Lookup("halfpipe-pipeline-trigger")
 	assert.True(t, found)
 }
@@ -36,7 +36,7 @@ func TestPipelineTriggerSetAddsResource(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	resource, found := config.Resources.Lookup(trigger.GetTriggerName())
 	assert.True(t, found)
 	assert.Equal(t, "halfpipe-pipeline-trigger", resource.Type)
@@ -64,7 +64,7 @@ func TestPipelineTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 			manifest.Run{Script: "s2.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	t1 := config.Jobs[0].Plan
 	t1InParallel := t1[0].InParallel.Steps
@@ -105,7 +105,7 @@ func TestPipelineTriggerSetWithParallelTasks(t *testing.T) {
 			manifest.Run{Script: "last.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	first := config.Jobs[0].Plan
 	firstInParallel := first[0].InParallel.Steps

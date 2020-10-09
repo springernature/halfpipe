@@ -19,7 +19,7 @@ func TestCronTriggerResourceTypeSet(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	_, found := config.ResourceTypes.Lookup("cron-resource")
 	assert.True(t, found)
 }
@@ -33,7 +33,7 @@ func TestCronTriggerNotSet(t *testing.T) {
 			manifest.Run{Name: "blah", Script: "run.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	resources := config.Resources
 	plan := config.Jobs[0].Plan
 
@@ -60,7 +60,7 @@ func TestCronTriggerSetAddsResource(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 	resource, found := config.Resources.Lookup(manifest.TimerTrigger{}.GetTriggerName())
 	assert.True(t, found)
 	assert.Equal(t, manifest.TimerTrigger{}.GetTriggerName(), resource.Name)
@@ -81,7 +81,7 @@ func TestCronTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 			manifest.Run{Script: "s2.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	t1 := config.Jobs[0].Plan
 	t1InParallel := t1[0].InParallel.Steps
@@ -117,7 +117,7 @@ func TestCronTriggerSetWithParallelTasks(t *testing.T) {
 			manifest.Run{Script: "last.sh"},
 		},
 	}
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	first := config.Jobs[0].Plan
 	firstInParallel := first[0].InParallel.Steps
@@ -167,7 +167,7 @@ func TestCronTriggerSetWhenUsingRestoreArtifact(t *testing.T) {
 		},
 	}
 
-	config := testPipeline().Render(man)
+	config := testPipeline().RenderAtcConfig(man)
 
 	first := config.Jobs[0].Plan
 	firstInParallel := first[0].InParallel.Steps

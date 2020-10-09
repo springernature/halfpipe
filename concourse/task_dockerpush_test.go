@@ -74,8 +74,8 @@ func TestRenderDockerPushTask(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, testPipeline().Render(man).Resources[1])
-	assert.Equal(t, expectedJobConfig, testPipeline().Render(man).Jobs[0])
+	assert.Equal(t, expectedResource, testPipeline().RenderAtcConfig(man).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
@@ -135,8 +135,8 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, testPipeline().Render(man).Resources[1])
-	assert.Equal(t, expectedJobConfig, testPipeline().Render(man).Jobs[0])
+	assert.Equal(t, expectedResource, testPipeline().RenderAtcConfig(man).Resources[1])
+	assert.Equal(t, expectedJobConfig, testPipeline().RenderAtcConfig(man).Jobs[0])
 }
 
 func TestRenderDockerPushWithVersioning(t *testing.T) {
@@ -204,8 +204,8 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	assert.Equal(t, expectedResource, testPipeline().Render(man).Resources[2])
-	assert.Equal(t, expectedJobConfig, testPipeline().Render(man).Jobs[1])
+	assert.Equal(t, expectedResource, testPipeline().RenderAtcConfig(man).Resources[2])
+	assert.Equal(t, expectedJobConfig, testPipeline().RenderAtcConfig(man).Jobs[1])
 }
 
 func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
@@ -306,11 +306,11 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	dockerResource, found := testPipeline().Render(man).Resources.Lookup(dockerResourceName(dockerPush.Image))
+	dockerResource, found := testPipeline().RenderAtcConfig(man).Resources.Lookup(dockerResourceName(dockerPush.Image))
 	assert.True(t, found)
 	assert.Equal(t, expectedResource, dockerResource)
 
-	config, foundJob := testPipeline().Render(man).Jobs.Lookup(jobName)
+	config, foundJob := testPipeline().RenderAtcConfig(man).Jobs.Lookup(jobName)
 	assert.True(t, foundJob)
 	assert.Equal(t, expectedJobConfig, config)
 }

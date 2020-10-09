@@ -310,7 +310,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		},
 	}
 
-	cfg := testPipeline().Render(man)
+	cfg := testPipeline().RenderAtcConfig(man)
 
 	assert.Len(t, cfg.ResourceTypes, 1)
 	assert.Equal(t, expectedResourceType, cfg.ResourceTypes[0])
@@ -396,7 +396,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	}
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
-	cfg := pipeline.Render(man)
+	cfg := pipeline.RenderAtcConfig(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -502,7 +502,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	}
 
 	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
-	cfg := pipeline.Render(man)
+	cfg := pipeline.RenderAtcConfig(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
 
@@ -566,7 +566,7 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 		Tasks: []manifest.Task{taskDeploy},
 	}
 
-	plan := testPipeline().Render(man).Jobs[0].Plan
+	plan := testPipeline().RenderAtcConfig(man).Jobs[0].Plan
 
 	getSteps := plan[0].InParallel.Steps
 	assert.Equal(t, gitName, getSteps[0].Get)
@@ -596,7 +596,7 @@ func TestSetsBuildVersionPathParamForVersionedPipelines(t *testing.T) {
 	}
 
 	//unversioned
-	rendered := testPipeline().Render(man)
+	rendered := testPipeline().RenderAtcConfig(man)
 	man.FeatureToggles = append(man.FeatureToggles, "update-pipeline")
 	buildVersionPath := rendered.Jobs[1].Plan[2].Params["buildVersionPath"]
 	assert.Equal(t, path.Join("version", "version"), buildVersionPath)
@@ -632,7 +632,7 @@ func TestIncludesResourcesForDeployCF(t *testing.T) {
 		},
 	}
 
-	pipeline := testPipeline().Render(man)
+	pipeline := testPipeline().RenderAtcConfig(man)
 
 	r, found := pipeline.ResourceTypes.Lookup(deployCfResourceTypeName)
 	assert.True(t, found)
