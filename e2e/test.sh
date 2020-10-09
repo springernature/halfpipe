@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-for system in c*/
+for system in */
 do
   system=${system%*/}
+  cmd=""
+  if [[ "$system" = "actions" ]]; then cmd="actions"; fi
   echo "* Running ${system}"
   (
     cd $system
@@ -16,7 +18,7 @@ do
             if [[ -f test.sh ]]; then
                 ./test.sh
             else
-                ../../../halfpipe 1> pipeline.yml
+                ../../../halfpipe $cmd 1> pipeline.yml
                 diff --ignore-blank-lines pipeline.yml expected-pipeline.yml
                 if command -v fly > /dev/null; then
                     fly validate-pipeline -c pipeline.yml > /dev/null

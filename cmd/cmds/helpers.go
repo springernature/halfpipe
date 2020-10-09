@@ -118,3 +118,12 @@ func getManifestAndCreateController(renderer halfpipe.Renderer) (manifest.Manife
 
 	return man, controller
 }
+
+func render(renderer halfpipe.Renderer) {
+	man, controller := getManifestAndCreateController(renderer)
+
+	pipelineConfig, lintResults := controller.Process(man)
+	printErrAndResultAndExitOnError(nil, lintResults)
+
+	fmt.Println(pipelineConfig)
+}

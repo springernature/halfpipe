@@ -1,9 +1,6 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-run
 
-feature_toggles:
-- github-actions
-
 triggers:
 - type: git
   watched_paths:
