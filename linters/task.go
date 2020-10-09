@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/pipeline/concourse"
 	"sort"
 	"strings"
 	"time"
@@ -17,7 +17,7 @@ import (
 type taskLinter struct {
 	Fs                              afero.Afero
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
-	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest pipeline.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest concourse.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error)

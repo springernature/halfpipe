@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/afero"
 )
 
-func testPipeline() pipeline {
+func testPipeline() renderer {
 	cfManifestReader := func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
 		return []cfManifest.Application{
 			{
@@ -17,7 +17,7 @@ func testPipeline() pipeline {
 		}, nil
 	}
 
-	return NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	return NewRenderer(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 }
 
 /*

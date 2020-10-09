@@ -5,20 +5,20 @@ import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
+	"github.com/springernature/halfpipe/pipeline/concourse"
 	"strings"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/pipeline"
 )
 
 type cfManifestLinter struct {
-	readCfManifest pipeline.CfManifestReader
+	readCfManifest concourse.CfManifestReader
 }
 
-func NewCfManifestLinter(cfManifestReader pipeline.CfManifestReader) cfManifestLinter {
+func NewCfManifestLinter(cfManifestReader concourse.CfManifestReader) cfManifestLinter {
 	return cfManifestLinter{cfManifestReader}
 }
 

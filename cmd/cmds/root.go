@@ -3,7 +3,8 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/pipeline/actions"
+	"github.com/springernature/halfpipe/pipeline/concourse"
 	"os"
 )
 
@@ -17,10 +18,17 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		pipelineConfig, lintResults := controller.Process(man)
 		printErrAndResultAndExitOnError(nil, lintResults)
 
-		pipeline, renderError := pipeline.ToString(pipelineConfig.ConcourseConfig)
-		printErrAndResultAndExitOnError(renderError, nil)
+		var pipeline string
+		var renderErr error
+		if man.FeatureToggles.GithubActions() {
+			pipeline, renderErr = actions.ToString(pipelineConfig.ActionsConfig)
+		} else {
+			pipeline, renderErr = concourse.ToString(pipelineConfig.ConcourseConfig)
+		}
 
+		printErrAndResultAndExitOnError(renderErr, nil)
 		fmt.Println(pipeline)
+
 	},
 }
 

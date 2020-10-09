@@ -43,7 +43,7 @@ func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 			},
 		},
 	}
-	c.renderer = FakeRenderer{Config: config}
+	c.concourseRenderer = FakeRenderer{Config: config}
 
 	_, results := c.Process(validHalfpipeManifest)
 
@@ -60,7 +60,7 @@ func TestWorksForHalfpipeFile(t *testing.T) {
 			},
 		},
 	}
-	c.renderer = FakeRenderer{Config: config}
+	c.concourseRenderer = FakeRenderer{Config: config}
 
 	_, results := c.Process(validHalfpipeManifest)
 
@@ -108,7 +108,7 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 			},
 		},
 	}
-	c.renderer = FakeRenderer{Config: config}
+	c.concourseRenderer = FakeRenderer{Config: config}
 
 	pipeline, results := c.Process(validHalfpipeManifest)
 	assert.Len(t, results, 0)
@@ -125,7 +125,7 @@ func (f FakeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest
 
 func TestGivesBackABadTestResultWhenAMapperFails(t *testing.T) {
 	c := testController()
-	c.renderer = FakeRenderer{}
+	c.concourseRenderer = FakeRenderer{}
 	c.mapper = FakeMapper{err: errors.New("blurgh")}
 	_, results := c.Process(validHalfpipeManifest)
 

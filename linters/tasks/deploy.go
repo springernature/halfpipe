@@ -7,11 +7,11 @@ import (
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/pipeline/concourse"
 	"strings"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest pipeline.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest concourse.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}

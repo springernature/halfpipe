@@ -7,11 +7,13 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
-	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/pipeline/actions"
+	"github.com/springernature/halfpipe/pipeline/concourse"
 )
 
 type Config struct {
 	ConcourseConfig atc.Config
+	ActionsConfig   actions.Actions
 }
 
 type Controller interface {
@@ -20,18 +22,20 @@ type Controller interface {
 }
 
 type controller struct {
-	defaulter defaults.Defaults
-	mapper    mapper.Mapper
-	linters   []linters.Linter
-	renderer  pipeline.Renderer
+	defaulter         defaults.Defaults
+	mapper            mapper.Mapper
+	linters           []linters.Linter
+	concourseRenderer concourse.Renderer
+	actionsRenderer   actions.Renderer
 }
 
-func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []linters.Linter, renderer pipeline.Renderer) Controller {
+func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []linters.Linter, concourseRenderer concourse.Renderer, actionsRenderer actions.Renderer) Controller {
 	return controller{
-		defaulter: defaulter,
-		mapper:    mapper,
-		linters:   linters,
-		renderer:  renderer,
+		defaulter:         defaulter,
+		mapper:            mapper,
+		linters:           linters,
+		concourseRenderer: concourseRenderer,
+		actionsRenderer:   actionsRenderer,
 	}
 }
 
@@ -52,9 +56,16 @@ func (c controller) Process(man manifest.Manifest) (config Config, results resul
 		return
 	}
 
-	config = Config{
-		ConcourseConfig: c.renderer.Render(mappedManifest),
+	if mappedManifest.FeatureToggles.GithubActions() {
+		config = Config{
+			ActionsConfig: c.actionsRenderer.Render(mappedManifest),
+		}
+	} else {
+		config = Config{
+			ConcourseConfig: c.concourseRenderer.Render(mappedManifest),
+		}
 	}
+
 	return config, results
 }
 

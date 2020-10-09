@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"github.com/concourse/concourse/atc"

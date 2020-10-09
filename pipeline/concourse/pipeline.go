@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"fmt"
@@ -27,13 +27,13 @@ type Renderer interface {
 
 type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []boshTemplate.VarKV) ([]cfManifest.Application, error)
 
-type pipeline struct {
+type renderer struct {
 	fs             afero.Afero
 	readCfManifest CfManifestReader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
-	return pipeline{readCfManifest: cfManifestReader, fs: fs}
+func NewRenderer(cfManifestReader CfManifestReader, fs afero.Afero) renderer {
+	return renderer{readCfManifest: cfManifestReader, fs: fs}
 }
 
 const artifactsResourceName = "gcp-resource"
@@ -113,7 +113,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 	}
 }
 
-func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.PlanConfig {
+func (p renderer) initialPlan(man manifest.Manifest, task manifest.Task) []atc.PlanConfig {
 	_, isUpdateTask := task.(manifest.Update)
 	versioningEnabled := man.FeatureToggles.Versioned()
 
@@ -180,7 +180,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.P
 	return plan
 }
 
-func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
+func (p renderer) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.DockerPush:
@@ -194,7 +194,7 @@ func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs 
 
 	return resourceConfigs
 }
-func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p renderer) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, trigger := range triggers {
 		switch trigger := trigger.(type) {
@@ -210,7 +210,7 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
+func (p renderer) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
 	if man.FeatureToggles.OldDeployResource() {
 		return p.halfpipeCfDeployResourceType(true)
 	}
@@ -218,7 +218,7 @@ func (p pipeline) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
 	return p.halfpipeCfDeployResourceType(false)
 }
 
-func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p renderer) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, task := range man.Tasks.Flatten() {
 		switch task := task.(type) {
@@ -236,7 +236,7 @@ func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.Re
 	return
 }
 
-func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p renderer) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
@@ -282,7 +282,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
+func (p renderer) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job *atc.JobConfig) {
 	initialPlan := p.initialPlan(man, task)
 	basePath := man.Triggers.GetGitTrigger().BasePath
 
@@ -358,7 +358,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 	return job
 }
 
-func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
+func (p renderer) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 	switch task := task.(type) {
 	case manifest.Parallel:
 		for _, subTask := range task.Tasks {
@@ -373,14 +373,14 @@ func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 	return taskNames
 }
 
-func (p pipeline) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
+func (p renderer) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
 	if currentIndex == 0 {
 		return []string{}
 	}
 	return p.taskNamesFromTask(taskList[currentIndex-1])
 }
 
-func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+func (p renderer) Render(man manifest.Manifest) (cfg atc.Config) {
 	resourceTypes, resourceConfigs := p.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
@@ -490,7 +490,7 @@ func inParallelGets(job *atc.JobConfig) atc.PlanSequence {
 	return job.Plan
 }
 
-func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) *atc.JobConfig {
+func (p renderer) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) *atc.JobConfig {
 	jobConfig := atc.JobConfig{
 		Name:   task.GetName(),
 		Serial: true,
@@ -557,7 +557,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	return &jobConfig
 }
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
+func (p renderer) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) *atc.JobConfig {
 	resourceName := deployCFResourceName(task)
 	manifestPath := path.Join(gitDir, basePath, task.Manifest)
 	vars := convertVars(task.Vars)
@@ -596,7 +596,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	return &job
 }
 
-func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.PlanConfig {
+func (p renderer) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.PlanConfig {
 	cleanup := atc.PlanConfig{
 		Put:      "cf halfpipe-cleanup",
 		Attempts: task.GetAttempts(),
@@ -613,7 +613,7 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 	return &cleanup
 }
 
-func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+func (p renderer) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	promote := atc.PlanConfig{
 		Put:      "cf halfpipe-promote",
 		Attempts: task.GetAttempts(),
@@ -631,7 +631,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 	return promote
 }
 
-func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+func (p renderer) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	check := atc.PlanConfig{
 		Put:      "cf halfpipe-check",
 		Attempts: task.GetAttempts(),
@@ -648,7 +648,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 	return check
 }
 
-func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
+func (p renderer) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	push := atc.PlanConfig{
 		Put:      "cf halfpipe-push",
 		Attempts: task.GetAttempts(),
@@ -697,7 +697,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	return push
 }
 
-func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
+func (p renderer) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	return atc.PlanConfig{
 		Put:      "remove test app",
 		Attempts: task.GetAttempts(),
@@ -709,7 +709,7 @@ func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, man
 	}
 }
 
-func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
+func (p renderer) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	deploy := atc.PlanConfig{
 		Put:      "cf rolling deploy",
 		Attempts: task.GetAttempts(),
@@ -748,7 +748,7 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	return deploy
 }
 
-func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.PlanSequence {
+func (p renderer) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.PlanSequence {
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
 	var saveArtifacts bool
@@ -835,7 +835,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 	}
 }
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) *atc.JobConfig {
+func (p renderer) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) *atc.JobConfig {
 	return p.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
 }
 
@@ -911,7 +911,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 	return &job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest, basePath string) *atc.JobConfig {
+func (p renderer) dockerPushJob(task manifest.DockerPush, man manifest.Manifest, basePath string) *atc.JobConfig {
 	resourceName := dockerResourceName(task.Image)
 	if task.RestoreArtifacts {
 		return dockerPushJobWithRestoreArtifacts(task, resourceName, man, basePath)

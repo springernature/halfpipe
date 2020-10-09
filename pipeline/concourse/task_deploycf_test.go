@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"github.com/springernature/halfpipe/config"
@@ -395,7 +395,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 		}, nil
 	}
 
-	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	pipeline := NewRenderer(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")
@@ -501,7 +501,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 		}, nil
 	}
 
-	pipeline := NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
+	pipeline := NewRenderer(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
 	cfg := pipeline.Render(man)
 
 	assert.Len(t, cfg.Jobs, 3, "should be 3 jobs")

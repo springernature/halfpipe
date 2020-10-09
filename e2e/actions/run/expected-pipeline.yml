@@ -1,12 +1,11 @@
+# Generated using halfpipe cli version 0.0.0-DEV
 name: halfpipe-e2e-run
-
-on:
+"on":
   push:
     branches:
-      - "main"
+    - master
     paths:
-      - "e2e/actions/run"
-
+    - e2e/actions/run
 jobs:
   this-is-a-test:
     name: This is a test
@@ -14,8 +13,8 @@ jobs:
     container:
       image: alpine:test
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run
-        run: |
-          ./a
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Run
+      run: |
+        ./a

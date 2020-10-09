@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"github.com/springernature/halfpipe/config"
