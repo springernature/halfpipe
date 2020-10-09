@@ -11,6 +11,7 @@ require (
 	github.com/cppforlife/go-patch v0.0.0-20181218195656-90228d472812 // indirect
 	github.com/ghodss/yaml v1.0.0
 	github.com/gookit/color v1.2.5
+	github.com/iancoleman/orderedmap v0.0.0-20190318233801-ac98e3ecb4b0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
@@ -24,6 +25,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
+	gopkg.in/yaml.v2 v2.2.2
 )
 
 go 1.15

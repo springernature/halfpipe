@@ -2,8 +2,8 @@ package actions
 
 import (
 	"fmt"
-	"github.com/ghodss/yaml"
 	"github.com/springernature/halfpipe/config"
+	"gopkg.in/yaml.v2"
 )
 
 func ToString(pipeline Actions) (string, error) {
