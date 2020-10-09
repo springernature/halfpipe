@@ -18,7 +18,7 @@ do
             else
                 ../../../halfpipe 1> pipeline.yml
                 diff --ignore-blank-lines pipeline.yml expected-pipeline.yml
-                if command -v fly > /dev/null; then
+                if command -v fly > /dev/null && ! grep 'github-actions' .halfpipe.io > /dev/null; then
                     fly validate-pipeline -c pipeline.yml > /dev/null
                 fi
             fi
