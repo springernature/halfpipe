@@ -3,22 +3,13 @@ package upload
 import (
 	"errors"
 	"fmt"
+	"github.com/onsi/gomega/gbytes"
 	"io"
 	"os/exec"
 	"strings"
 )
 
 type Plan []Command
-
-type capturingWriter struct {
-	writtenBytes []byte
-	writer       io.Writer
-}
-
-func (c *capturingWriter) Write(p []byte) (n int, err error) {
-	c.writtenBytes = append(c.writtenBytes, p...)
-	return c.writer.Write(p)
-}
 
 func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonInteractive bool) (err error) {
 	fmt.Fprintln(stdout, "Planned execution") // #nosec
@@ -39,10 +30,11 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 	for _, cmd := range p {
 		fmt.Fprintf(stdout, "\n=== %s ===\n", cmd) // #nosec
 
-		capturingStderr := capturingWriter{writer: stderr}
+		stderrOutput := gbytes.NewBuffer()
+		capturingWriter := io.MultiWriter(stderr, stderrOutput)
 
-		if runErr := cmd.Run(stdout, &capturingStderr, stdin); runErr != nil {
-			if cmd.ExecuteOnFailureFilter != nil && cmd.ExecuteOnFailureFilter(capturingStderr.writtenBytes) {
+		if runErr := cmd.Run(stdout, capturingWriter, stdin); runErr != nil {
+			if cmd.ExecuteOnFailureFilter != nil && cmd.ExecuteOnFailureFilter(stderrOutput.Contents()) {
 				for _, failureCmd := range cmd.ExecuteOnFailure {
 					if runErr := failureCmd.Run(stdout, stderr, stdin); runErr != nil {
 						return runErr
