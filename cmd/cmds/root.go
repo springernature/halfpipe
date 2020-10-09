@@ -17,7 +17,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		pipelineConfig, lintResults := controller.Process(man)
 		printErrAndResultAndExitOnError(nil, lintResults)
 
-		pipeline, renderError := pipeline.ToString(pipelineConfig)
+		pipeline, renderError := pipeline.ToString(pipelineConfig.ConcourseConfig)
 		printErrAndResultAndExitOnError(renderError, nil)
 
 		fmt.Println(pipeline)

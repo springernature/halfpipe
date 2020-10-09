@@ -10,8 +10,12 @@ import (
 	"github.com/springernature/halfpipe/pipeline"
 )
 
+type Config struct {
+	ConcourseConfig atc.Config
+}
+
 type Controller interface {
-	Process(man manifest.Manifest) (config atc.Config, results result.LintResults)
+	Process(man manifest.Manifest) (config Config, results result.LintResults)
 	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error)
 }
 
@@ -31,7 +35,7 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 	}
 }
 
-func (c controller) Process(man manifest.Manifest) (config atc.Config, results result.LintResults) {
+func (c controller) Process(man manifest.Manifest) (config Config, results result.LintResults) {
 	defaultedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
@@ -48,7 +52,9 @@ func (c controller) Process(man manifest.Manifest) (config atc.Config, results r
 		return
 	}
 
-	config = c.renderer.Render(mappedManifest)
+	config = Config{
+		ConcourseConfig: c.renderer.Render(mappedManifest),
+	}
 	return config, results
 }
 

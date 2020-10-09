@@ -112,7 +112,7 @@ func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
 
 	pipeline, results := c.Process(validHalfpipeManifest)
 	assert.Len(t, results, 0)
-	assert.Equal(t, config, pipeline)
+	assert.Equal(t, config, pipeline.ConcourseConfig)
 }
 
 type FakeMapper struct {
