@@ -1,0 +1,21 @@
+name: halfpipe-e2e-run
+
+on:
+  push:
+    branches:
+      - "main"
+    paths:
+      - "e2e/actions/run"
+
+jobs:
+  this-is-a-test:
+    name: This is a test
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run
+        run: |
+          ./a
