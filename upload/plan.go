@@ -33,7 +33,12 @@ func (p Plan) Execute(stdout io.Writer, stderr io.Writer, stdin io.Reader, nonIn
 		stderrOutput := gbytes.NewBuffer()
 		capturingWriter := io.MultiWriter(stderr, stderrOutput)
 
-		if runErr := cmd.Run(stdout, capturingWriter, stdin); runErr != nil {
+		stderrWriter := stderr
+		if cmd.ExecuteOnFailureFilter != nil {
+			stderrWriter = capturingWriter
+		}
+
+		if runErr := cmd.Run(stdout, stderrWriter, stdin); runErr != nil {
 			if cmd.ExecuteOnFailureFilter != nil && cmd.ExecuteOnFailureFilter(stderrOutput.Contents()) {
 				for _, failureCmd := range cmd.ExecuteOnFailure {
 					if runErr := failureCmd.Run(stdout, stderr, stdin); runErr != nil {
