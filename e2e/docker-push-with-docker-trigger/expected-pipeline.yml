@@ -1,9 +1,9 @@
 # Generated using halfpipe cli version 0.0.0-DEV
 resources:
-- name: alpine
+- name: alpine.tag
   type: docker-image
   source:
-    repository: alpine
+    repository: springernature/alpine:tag
 - name: git
   type: git
   source:
@@ -28,7 +28,7 @@ jobs:
   plan:
   - in_parallel:
       steps:
-      - get: alpine
+      - get: alpine.tag
         trigger: true
         params:
           skip_download: true

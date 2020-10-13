@@ -3,7 +3,7 @@ pipeline: halfpipe-e2e-docker-push-with-docker-trigger
 
 triggers:
 - type: docker
-  image: alpine
+  image: springernature/alpine:tag
 - type: git
   watched_paths:
   - e2e/docker-push-with-docker-trigger

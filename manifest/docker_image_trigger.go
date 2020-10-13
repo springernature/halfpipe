@@ -19,7 +19,21 @@ func (d DockerTrigger) MarshalYAML() (interface{}, error) {
 }
 
 func (d DockerTrigger) GetTriggerName() string {
-	imageName := d.Image
-	parts := strings.Split(imageName, "/")
-	return parts[len(parts)-1]
+	/*
+		Name components may contain lowercase letters, digits and separators.
+		A separator is defined as a period, one or two underscores, or one or more dashes.
+		A name component may not start or end with a separator
+
+		A tag name must be valid ASCII and may contain lowercase and uppercase letters, digits, underscores, periods and dashes.
+		A tag name may not start with a period or a dash and may contain a maximum of 128 characters.
+
+		https://docs.docker.com/engine/reference/commandline/tag/
+	*/
+
+	parts := strings.Split(d.Image, "/")
+	name := parts[len(parts)-1]
+	lowerCasedName := strings.ToLower(name)
+	withoutUnderscore := strings.Replace(lowerCasedName, "_", "-", -1)
+	replaceColonWithDot := strings.Replace(withoutUnderscore, ":", ".", -1)
+	return replaceColonWithDot
 }

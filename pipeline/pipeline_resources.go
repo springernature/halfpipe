@@ -235,7 +235,7 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceCon
 
 func (p pipeline) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
 	config := atc.ResourceConfig{
-		Name: dockerResourceName(trigger.Image),
+		Name: dockerResourceName(trigger.GetTriggerName()),
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": trigger.Image,
