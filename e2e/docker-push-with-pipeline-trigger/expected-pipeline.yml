@@ -16,7 +16,7 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   check_every: 24h
-- name: halfpipe-example-docker-push docker-push
+- name: halfpipe-example-docker-push.docker-push
   type: halfpipe-pipeline-trigger
   source:
     concourse_url: ((concourse.url))
@@ -44,7 +44,7 @@ jobs:
       - get: git
         trigger: true
         attempts: 2
-      - get: halfpipe-example-docker-push docker-push
+      - get: halfpipe-example-docker-push.docker-push
         trigger: true
         attempts: 2
       fail_fast: true

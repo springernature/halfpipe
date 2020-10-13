@@ -27,6 +27,7 @@ func (p PipelineTrigger) MarshalYAML() (interface{}, error) {
 }
 
 func (p PipelineTrigger) GetTriggerName() string {
-	name := fmt.Sprintf("%s %s", p.Pipeline, p.Job)
-	return strings.TrimSpace(regexp.MustCompile("[^a-zA-Z0-9-/]+").ReplaceAllString(name, " "))
+	name := fmt.Sprintf("%s.%s", strings.ToLower(p.Pipeline), strings.ToLower(p.Job))
+	replaceSpecialChars := strings.TrimSpace(regexp.MustCompile("[^a-z0-9-.]+").ReplaceAllString(name, " "))
+	return strings.Replace(replaceSpecialChars, " ", "-", -1)
 }

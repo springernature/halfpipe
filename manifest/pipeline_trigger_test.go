@@ -11,5 +11,5 @@ func TestName(t *testing.T) {
 		Job:      "Deploy to QA-Preview (SNPaaS)",
 	}
 
-	assert.Equal(t, "oscar-sites-bmc Deploy to QA-Preview SNPaaS", pt.GetTriggerName())
+	assert.Equal(t, "oscar-sites-bmc.deploy-to-qa-preview-snpaas", pt.GetTriggerName())
 }
