@@ -268,7 +268,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			}},
 			restoreArtifactTask(man),
 			atc.PlanConfig{
-				Task: "Copying git repo and artifacts to a temporary build dir",
+				Task: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
 					ImageResource: &atc.ImageResource{

@@ -37,7 +37,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: create zip for ml task
+  - task: create-zip-for-ml-task
     config:
       platform: linux
       image_resource:

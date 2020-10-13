@@ -509,7 +509,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	runPlan := atc.PlanConfig{
 		Attempts:   task.GetAttempts(),
-		Task:       task.GetName(),
+		Task:       restrictAllowedCharacterSet(task.GetName()),
 		Privileged: task.Privileged,
 		TaskConfig: &atc.TaskConfig{
 			Platform:      "linux",
@@ -867,7 +867,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 		Serial: true,
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{
-				Task: "Copying git repo and artifacts to a temporary build dir",
+				Task: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
 					ImageResource: &atc.ImageResource{
@@ -1099,4 +1099,10 @@ func onErrorScript(artifactPaths []string, basePath string) string {
 	}
 	returnScript = append(returnScript, "  exit 1")
 	return strings.Join(returnScript, "\n")
+}
+
+func restrictAllowedCharacterSet(in string) string {
+	// https://concourse-ci.org/config-basics.html#schema.identifier
+	simplified := regexp.MustCompile("[^a-z0-9-.]+").ReplaceAllString(strings.ToLower(in), " ")
+	return strings.Replace(strings.TrimSpace(simplified), " ", "-", -1)
 }

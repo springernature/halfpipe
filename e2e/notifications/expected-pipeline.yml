@@ -289,7 +289,7 @@ jobs:
   - in_parallel:
       steps:
       - do:
-        - task: run a
+        - task: run-a
           config:
             platform: linux
             image_resource:

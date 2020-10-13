@@ -150,7 +150,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: Test
+  - task: test
     config:
       platform: linux
       image_resource:
@@ -403,7 +403,7 @@ jobs:
   - in_parallel:
       steps:
       - do:
-        - task: run smoke-test.sh
+        - task: run-smoke-test.sh
           config:
             platform: linux
             image_resource:
@@ -731,7 +731,7 @@ jobs:
       attempts: 2
     timeout: 1h
   - do:
-    - task: restore artifact in pre promote
+    - task: restore-artifact-in-pre-promote
       config:
         platform: linux
         image_resource:
@@ -858,7 +858,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: run notify.sh
+  - task: run-notify.sh
     config:
       platform: linux
       image_resource:
@@ -1254,7 +1254,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: Deploy ml-modules artifact
+  - task: deploy-ml-modules-artifact
     config:
       platform: linux
       image_resource:

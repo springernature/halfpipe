@@ -47,7 +47,7 @@ func TestRenderRunTask(t *testing.T) {
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   3,
-				Task:       "run yolo.sh",
+				Task:       "run-yolo.sh",
 				Privileged: true,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
@@ -111,7 +111,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
-				Task:       "run yolo.sh",
+				Task:       "run-yolo.sh",
 				Privileged: false,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",
@@ -180,7 +180,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
-				Task:       "run yolo.sh",
+				Task:       "run-yolo.sh",
 				Privileged: false,
 				TaskConfig: &atc.TaskConfig{
 					Platform: "linux",

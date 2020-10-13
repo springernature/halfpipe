@@ -22,7 +22,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: Deploy ml-modules artifact
+  - task: deploy-ml-modules-artifact
     config:
       platform: linux
       image_resource:

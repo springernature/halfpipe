@@ -82,7 +82,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: first job
+  - task: first-job
     config:
       platform: linux
       image_resource:
@@ -158,7 +158,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 1 1
+  - task: parallel-1-1
     config:
       platform: linux
       image_resource:
@@ -234,7 +234,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 1 2
+  - task: parallel-1-2
     config:
       platform: linux
       image_resource:
@@ -310,7 +310,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 1 3
+  - task: parallel-1-3
     config:
       platform: linux
       image_resource:
@@ -390,7 +390,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 sequence 1 1
+  - task: parallel-2-sequence-1-1
     config:
       platform: linux
       image_resource:
@@ -466,7 +466,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 sequence 1 2
+  - task: parallel-2-sequence-1-2
     config:
       platform: linux
       image_resource:
@@ -546,7 +546,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 sequence 2 1
+  - task: parallel-2-sequence-2-1
     config:
       platform: linux
       image_resource:
@@ -622,7 +622,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 sequence 2 2
+  - task: parallel-2-sequence-2-2
     config:
       platform: linux
       image_resource:
@@ -698,7 +698,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 sequence 2 3
+  - task: parallel-2-sequence-2-3
     config:
       platform: linux
       image_resource:
@@ -778,7 +778,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: parallel 2 1
+  - task: parallel-2-1
     config:
       platform: linux
       image_resource:
@@ -858,7 +858,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: after parallel
+  - task: after-parallel
     config:
       platform: linux
       image_resource:

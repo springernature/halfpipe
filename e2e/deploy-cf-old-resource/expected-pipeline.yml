@@ -129,7 +129,7 @@ jobs:
   - in_parallel:
       steps:
       - do:
-        - task: pre promote step
+        - task: pre-promote-step
           config:
             platform: linux
             image_resource:

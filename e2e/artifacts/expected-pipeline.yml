@@ -332,7 +332,7 @@ jobs:
   - in_parallel:
       steps:
       - do:
-        - task: run a
+        - task: run-a
           config:
             platform: linux
             image_resource:
@@ -444,7 +444,7 @@ jobs:
       - name: artifacts
     timeout: 1h
     attempts: 2
-  - task: Copying git repo and artifacts to a temporary build dir
+  - task: copying-git-repo-and-artifacts-to-a-temporary-build-dir
     config:
       platform: linux
       image_resource:

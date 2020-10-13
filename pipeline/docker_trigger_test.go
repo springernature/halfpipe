@@ -100,17 +100,17 @@ func TestDockerTriggerSetWithCorrectPassedOnSecondJob(t *testing.T) {
 
 	fmt.Println(ToString(config))
 
-	t1 := config.Jobs[0].Plan
-	t1InParallel := t1[0].InParallel.Steps
+	t1 := config.Jobs[0]
+	t1InParallel := t1.Plan[0].InParallel.Steps
 
-	assert.Len(t, t1, 2)
+	assert.Len(t, t1.Plan, 2)
 	assert.Equal(t, trigger.GetTriggerName(), t1InParallel[0].Name())
 	assert.True(t, t1InParallel[0].Trigger)
 
-	t2 := config.Jobs[1].Plan
-	t2InParallel := t2[0].InParallel.Steps
-	assert.Len(t, t2, 2)
+	t2 := config.Jobs[1]
+	t2InParallel := t2.Plan[0].InParallel.Steps
+	assert.Len(t, t2.Plan, 2)
 
 	assert.Equal(t, trigger.GetTriggerName(), t2InParallel[0].Name())
-	assert.Equal(t, []string{t1[1].Task}, t2InParallel[0].Passed)
+	assert.Equal(t, []string{t1.Name}, t2InParallel[0].Passed)
 }
