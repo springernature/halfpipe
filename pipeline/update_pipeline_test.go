@@ -46,7 +46,7 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	//1. inParallel containing get "git"
 	inParallel := *updateJob.Plan[0].InParallel
 	assert.Equal(t, 1, len(inParallel.Steps))
-	assert.Equal(t, gitName, (inParallel.Steps)[0].Name())
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), (inParallel.Steps)[0].Name())
 	assert.True(t, (inParallel.Steps)[0].Trigger)
 
 	//2. task "update pipeline"
@@ -77,7 +77,7 @@ func TestShouldAddUpdatePipelineTaskWithManualGitTrigger(t *testing.T) {
 	//1. inParallel containing get "git"
 	inParallel := *updateJob.Plan[0].InParallel
 	assert.Equal(t, 1, len(inParallel.Steps))
-	assert.Equal(t, gitName, (inParallel.Steps)[0].Name())
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), (inParallel.Steps)[0].Name())
 	assert.False(t, (inParallel.Steps)[0].Trigger)
 }
 

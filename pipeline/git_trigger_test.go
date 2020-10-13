@@ -24,7 +24,7 @@ func TestRendersHttpGitResource(t *testing.T) {
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
 			atc.ResourceConfig{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 				Type: "git",
 				Source: atc.Source{
 					"uri":    gitURI,
@@ -53,7 +53,7 @@ func TestRendersSshGitResource(t *testing.T) {
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
 			atc.ResourceConfig{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 				Type: "git",
 				Source: atc.Source{
 					"uri":         gitURI,
@@ -87,7 +87,7 @@ func TestRendersGitResourceWithWatchesAndIgnores(t *testing.T) {
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
 			atc.ResourceConfig{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 				Type: "git",
 				Source: atc.Source{
 					"uri":          gitURI,
@@ -119,7 +119,7 @@ func TestRendersHttpGitResourceWithGitCrypt(t *testing.T) {
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
 			atc.ResourceConfig{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 				Type: "git",
 				Source: atc.Source{
 					"uri":           gitURI,
@@ -148,7 +148,7 @@ func TestRendersGitResourceWithBranchIfSet(t *testing.T) {
 	expected := atc.Config{
 		Resources: atc.ResourceConfigs{
 			atc.ResourceConfig{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 				Type: "git",
 				Source: atc.Source{
 					"uri":    gitURI,
@@ -197,7 +197,7 @@ func TestRenderWithGitTriggerTrueAndPassedOnPreviousTask(t *testing.T) {
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
-	assert.Equal(t, gitName, getGitStep.Name())
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), getGitStep.Name())
 	assert.True(t, getGitStep.Trigger)
 
 	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
@@ -226,7 +226,7 @@ func TestRenderWithGitManualTrigger(t *testing.T) {
 
 	assert.Nil(t, config.Jobs[0].Plan[0].Passed)
 	getGitStep := (config.Jobs[0].Plan[0].InParallel.Steps)[0]
-	assert.Equal(t, gitName, getGitStep.Name())
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), getGitStep.Name())
 	assert.False(t, getGitStep.Trigger)
 
 	getGitStep = (config.Jobs[1].Plan[0].InParallel.Steps)[0]
@@ -252,7 +252,7 @@ func TestRendersWebHookAssistedGitResources(t *testing.T) {
 					},
 				},
 			}
-			resource, _ := testPipeline().Render(man).Resources.Lookup(gitName)
+			resource, _ := testPipeline().Render(man).Resources.Lookup(manifest.GitTrigger{}.GetTriggerName())
 			assert.Equal(t, expectedInterval, resource.CheckEvery)
 		})
 	}

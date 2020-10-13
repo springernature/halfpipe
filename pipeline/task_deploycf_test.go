@@ -410,7 +410,7 @@ func TestRenderWithPrePromoteTasks(t *testing.T) {
 	plan := deployJob.Plan
 
 	//halfpipe-push
-	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Get)
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), (plan[0].InParallel.Steps)[0].Get)
 	assert.Equal(t, cfg.Jobs[0].Name, (plan[0].InParallel.Steps)[0].Passed[0])
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
@@ -516,7 +516,7 @@ func TestRenderWithPrePromoteTasksWhenSavingAndRestoringArtifacts(t *testing.T) 
 	plan := deployJob.Plan
 
 	//halfpipe-push
-	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Get)
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), (plan[0].InParallel.Steps)[0].Get)
 	assert.Equal(t, cfg.Jobs[0].Name, (plan[0].InParallel.Steps)[0].Passed[0])
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 	assert.Equal(t, "halfpipe-push", plan[2].Params["command"])
@@ -569,7 +569,7 @@ func TestRendersCfDeploy_GetsArtifactWhenCfManifestFromArtifacts(t *testing.T) {
 	plan := testPipeline().Render(man).Jobs[0].Plan
 
 	getSteps := plan[0].InParallel.Steps
-	assert.Equal(t, gitName, getSteps[0].Get)
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), getSteps[0].Get)
 	assert.Equal(t, restoreArtifactTask(man), plan[1])
 
 	assert.Equal(t, path.Join(artifactsInDir, "manifest.yml"), plan[2].Params["manifestPath"])

@@ -334,7 +334,7 @@ func (p pipeline) updatePipelineTask(pipelineName string, basePath string) atc.P
 				Dir:  path.Join(gitDir, basePath),
 			},
 			Inputs: []atc.TaskInputConfig{
-				{Name: gitName},
+				{Name: manifest.GitTrigger{}.GetTriggerName()},
 			},
 		}}
 }

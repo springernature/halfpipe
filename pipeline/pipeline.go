@@ -43,7 +43,6 @@ const artifactsInDir = "artifacts"
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
-const gitName = "git"
 const gitDir = "git"
 const gitGetAttempts = 2
 
@@ -96,7 +95,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.PlanConfig {
 		},
 		Inputs: []atc.TaskInputConfig{
 			{
-				Name: gitName,
+				Name: manifest.GitTrigger{}.GetTriggerName(),
 			},
 		},
 		Outputs: []atc.TaskOutputConfig{
@@ -297,7 +296,7 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		job = p.deployCFJob(task, man, basePath)
 
 	case manifest.DockerPush:
-		job = p.dockerPushJob(task, man, basePath)
+		job = p.dockerPushJob(task, basePath)
 
 	case manifest.ConsumerIntegrationTest:
 		job = p.consumerIntegrationTestJob(task, man, basePath)
@@ -450,17 +449,18 @@ func configureTriggerOnGets(job *atc.JobConfig, task manifest.Task, man manifest
 	switch task.(type) {
 	case manifest.Update:
 		for i, step := range gets.Steps {
-			if step.Get == gitName {
+			if step.Get == (manifest.GitTrigger{}.GetTriggerName()) {
 				gets.Steps[i].Trigger = !manualGitTrigger
 			} else {
 				gets.Steps[i].Trigger = true
 			}
 		}
 	default:
+		manifest.GitTrigger{}.GetTriggerName()
 		for i, step := range gets.Steps {
 			if step.Get == versionName {
 				gets.Steps[i].Trigger = true
-			} else if step.Get == gitName {
+			} else if step.Get == (manifest.GitTrigger{}.GetTriggerName()) {
 				gets.Steps[i].Trigger = !versioningEnabled && !manualGitTrigger
 			} else {
 				gets.Steps[i].Trigger = !versioningEnabled
@@ -521,7 +521,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 				Args: runScriptArgs(task, man, !isDockerCompose, basePath),
 			},
 			Inputs: []atc.TaskInputConfig{
-				{Name: gitName},
+				{Name: manifest.GitTrigger{}.GetTriggerName()},
 			},
 			Caches: config.CacheDirs,
 		}}
@@ -839,7 +839,7 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 	return p.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
 }
 
-func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
+func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.GetName(),
 		Serial: true,
@@ -861,7 +861,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 	return &job
 }
 
-func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, man manifest.Manifest, basePath string) *atc.JobConfig {
+func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) *atc.JobConfig {
 	job := atc.JobConfig{
 		Name:   task.GetName(),
 		Serial: true,
@@ -911,12 +911,12 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 	return &job
 }
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, man manifest.Manifest, basePath string) *atc.JobConfig {
+func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) *atc.JobConfig {
 	resourceName := dockerResourceName(task.Image)
 	if task.RestoreArtifacts {
-		return dockerPushJobWithRestoreArtifacts(task, resourceName, man, basePath)
+		return dockerPushJobWithRestoreArtifacts(task, resourceName, basePath)
 	}
-	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, man, basePath)
+	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, basePath)
 }
 
 func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {

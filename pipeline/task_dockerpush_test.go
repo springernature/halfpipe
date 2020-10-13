@@ -55,7 +55,7 @@ func TestRenderDockerPushTask(t *testing.T) {
 		}),
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -121,7 +121,7 @@ func TestRenderDockerPushTaskNotInRoot(t *testing.T) {
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts: 1,
 				Put:      "halfpipe-cli",
@@ -188,7 +188,7 @@ func TestRenderDockerPushWithVersioning(t *testing.T) {
 		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
+				atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
 				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts, Timeout: "1m"}},
 			}},
 			atc.PlanConfig{
@@ -263,7 +263,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 		}),
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{
-				atc.PlanConfig{Get: gitName, Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
+				atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Passed: []string{manifest.Update{}.GetName()}, Attempts: gitGetAttempts},
 				atc.PlanConfig{Get: versionName, Passed: []string{manifest.Update{}.GetName()}, Trigger: true, Attempts: versionGetAttempts, Timeout: "1m"}},
 			}},
 			restoreArtifactTask(man),
@@ -285,7 +285,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 						}, "\n")},
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitName},
+						{Name: manifest.GitTrigger{}.GetTriggerName()},
 						{Name: artifactsName},
 					},
 					Outputs: []atc.TaskOutputConfig{

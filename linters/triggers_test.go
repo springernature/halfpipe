@@ -50,9 +50,9 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 3)
 		assert.Len(t, result.Warnings, 0)
-		assertTriggerErrorInErrors(t, "git", result.Errors)
-		assertTriggerErrorInErrors(t, "cron", result.Errors)
-		assertTriggerErrorInErrors(t, "docker", result.Errors)
+		assertTriggerErrorInErrors(t, manifest.GitTrigger{}.GetTriggerName(), result.Errors)
+		assertTriggerErrorInErrors(t, manifest.TimerTrigger{}.GetTriggerName(), result.Errors)
+		assertTriggerErrorInErrors(t, manifest.DockerTrigger{}.GetTriggerName(), result.Errors)
 	})
 }
 

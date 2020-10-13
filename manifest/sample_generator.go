@@ -64,7 +64,6 @@ func (s sampleGenerator) Generate() (err error) {
 
 	if proj.BasePath != "" {
 		man.Triggers = append(man.Triggers, GitTrigger{
-			Type:         "git",
 			WatchedPaths: []string{proj.BasePath},
 		})
 	}

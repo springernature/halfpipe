@@ -44,7 +44,7 @@ func TestRenderRunTask(t *testing.T) {
 		}),
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   3,
 				Task:       "run yolo.sh",
@@ -68,7 +68,7 @@ func TestRenderRunTask(t *testing.T) {
 						Args: runScriptArgs(runTask, manifest.Manifest{}, true, ""),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitName},
+						{Name: manifest.GitTrigger{}.GetTriggerName()},
 					},
 					Caches: config.CacheDirs,
 				}},
@@ -108,7 +108,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 		}),
 		Serial: true,
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",
@@ -134,7 +134,7 @@ func TestRenderRunTaskWithPrivateRepo(t *testing.T) {
 						Args: runScriptArgs(runTask, manifest.Manifest{}, true, ""),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitName},
+						{Name: manifest.GitTrigger{}.GetTriggerName()},
 					},
 					Caches: config.CacheDirs,
 				}},
@@ -177,7 +177,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 			MinimumSucceededBuilds: 1,
 		}),
 		Plan: atc.PlanSequence{
-			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitName, Trigger: true, Attempts: gitGetAttempts}}}},
+			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: manifest.GitTrigger{}.GetTriggerName(), Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
 				Attempts:   1,
 				Task:       "run yolo.sh",
@@ -201,7 +201,7 @@ func TestRenderRunTaskFromHalfpipeNotInRoot(t *testing.T) {
 						Args: runScriptArgs(runTask, man, true, man.Triggers.GetGitTrigger().BasePath),
 					},
 					Inputs: []atc.TaskInputConfig{
-						{Name: gitName},
+						{Name: manifest.GitTrigger{}.GetTriggerName()},
 					},
 					Caches: config.CacheDirs,
 				}},

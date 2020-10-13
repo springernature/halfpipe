@@ -43,7 +43,7 @@ func TestCronTriggerNotSet(t *testing.T) {
 
 	//should be 2 items in the plan: get git + task
 	assert.Len(t, plan, 2)
-	assert.Equal(t, gitName, (plan[0].InParallel.Steps)[0].Name())
+	assert.Equal(t, manifest.GitTrigger{}.GetTriggerName(), (plan[0].InParallel.Steps)[0].Name())
 	assert.True(t, (plan[0].InParallel.Steps)[0].Trigger)
 	assert.Equal(t, "blah", plan[1].Task)
 }
