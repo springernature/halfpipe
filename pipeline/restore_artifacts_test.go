@@ -25,7 +25,7 @@ func TestRendersPipelineWithArtifactsAsInputForRunTask(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 	getArtifact := renderedPipeline.Jobs[0].Plan[1]
-	assert.Equal(t, "get artifact", getArtifact.Name())
+	assert.Equal(t, "get-artifact", getArtifact.Name())
 	assert.Equal(t, "git", getArtifact.TaskConfig.Inputs[0].Name)
 	assert.Equal(t, artifactsInDir, getArtifact.TaskConfig.Outputs[0].Name)
 
@@ -45,7 +45,7 @@ func TestRendersPipelineWithArtifactsAsInputForDockerComposeTask(t *testing.T) {
 
 	renderedPipeline := testPipeline().Render(man)
 
-	assert.Equal(t, "get artifact", renderedPipeline.Jobs[0].Plan[1].Name())
+	assert.Equal(t, "get-artifact", renderedPipeline.Jobs[0].Plan[1].Name())
 	assert.Contains(t, renderedPipeline.Jobs[0].Plan[2].TaskConfig.Inputs, atc.TaskInputConfig{Name: artifactsName})
 }
 

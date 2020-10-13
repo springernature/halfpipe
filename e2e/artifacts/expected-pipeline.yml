@@ -172,7 +172,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: get artifact
+  - task: get-artifact
     config:
       platform: linux
       image_resource:
@@ -279,7 +279,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: get artifact
+  - task: get-artifact
     config:
       platform: linux
       image_resource:
@@ -418,7 +418,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: get artifact
+  - task: get-artifact
     config:
       platform: linux
       image_resource:
@@ -501,7 +501,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: get artifact
+  - task: get-artifact
     config:
       platform: linux
       image_resource:
@@ -613,7 +613,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: get artifact
+  - task: get-artifact
     config:
       platform: linux
       image_resource:
