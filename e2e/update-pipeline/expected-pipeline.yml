@@ -238,7 +238,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -288,7 +288,7 @@ jobs:
       - name: artifacts
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
@@ -301,7 +301,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -310,7 +310,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -325,7 +325,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -375,7 +375,7 @@ jobs:
       - name: artifacts
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/update-pipeline
@@ -391,7 +391,7 @@ jobs:
         B: "false"
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -557,7 +557,7 @@ jobs:
           attempts: 1
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -572,7 +572,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-snpaas-qa
     params:
       cliVersion: cf6
@@ -622,7 +622,7 @@ jobs:
       - name: artifacts
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-snpaas-qa
     params:
       appPath: git/e2e/update-pipeline
@@ -638,7 +638,7 @@ jobs:
         B: "false"
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-snpaas-qa
     params:
       cliVersion: cf6
@@ -794,7 +794,7 @@ jobs:
         - path: ../../../halfpipe-cache
       attempts: 1
     timeout: 1h
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-snpaas-qa
     params:
       cliVersion: cf6
@@ -1317,3 +1317,4 @@ jobs:
       - path: ../../../halfpipe-cache
     timeout: 1h
     attempts: 1
+

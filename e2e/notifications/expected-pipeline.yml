@@ -233,7 +233,7 @@ jobs:
           text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -262,7 +262,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/notifications
@@ -277,7 +277,7 @@ jobs:
         B: "false"
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -347,7 +347,7 @@ jobs:
           attempts: 1
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
@@ -357,3 +357,4 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
+

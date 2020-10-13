@@ -356,7 +356,7 @@ func TestRenderPipelineWithSaveAndDeploy(t *testing.T) {
 
 	// order of the plans is important
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
+	assert.Equal(t, "halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
 
 	expectedAppPath := fmt.Sprintf("%s/%s/%s", artifactsInDir, basePath, deployArtifactPath)
 	assert.Equal(t, expectedAppPath, renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
@@ -384,7 +384,7 @@ func TestRenderPipelineWithSaveAndDeployInSingleAppRepo(t *testing.T) {
 
 	// order if the plans is important
 	assert.Equal(t, restoreArtifactTask(man), renderedPipeline.Jobs[1].Plan[1])
-	assert.Equal(t, "cf halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
+	assert.Equal(t, "halfpipe-push", renderedPipeline.Jobs[1].Plan[2].Put)
 	assert.Equal(t, path.Join(artifactsInDir, "/build/lib/artifact.jar"), renderedPipeline.Jobs[1].Plan[2].Params["appPath"])
 }
 

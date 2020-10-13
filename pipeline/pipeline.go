@@ -598,7 +598,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 
 func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.PlanConfig {
 	cleanup := atc.PlanConfig{
-		Put:      "cf halfpipe-cleanup",
+		Put:      "halfpipe-cleanup",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
@@ -615,7 +615,7 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 
 func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	promote := atc.PlanConfig{
-		Put:      "cf halfpipe-promote",
+		Put:      "halfpipe-promote",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
@@ -633,7 +633,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 
 func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	check := atc.PlanConfig{
-		Put:      "cf halfpipe-check",
+		Put:      "halfpipe-check",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
@@ -650,7 +650,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 
 func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	push := atc.PlanConfig{
-		Put:      "cf halfpipe-push",
+		Put:      "halfpipe-push",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{

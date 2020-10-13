@@ -178,7 +178,7 @@ func TestRendersCfDeploy(t *testing.T) {
 		Plan: atc.PlanSequence{
 			atc.PlanConfig{InParallel: &atc.InParallelConfig{FailFast: true, Steps: atc.PlanSequence{atc.PlanConfig{Get: gitDir, Trigger: true, Attempts: gitGetAttempts}}}},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-push",
+				Put:      "halfpipe-push",
 				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
@@ -193,7 +193,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				},
 			},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-check",
+				Put:      "halfpipe-check",
 				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
@@ -203,7 +203,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				},
 			},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-promote",
+				Put:      "halfpipe-promote",
 				Attempts: 2,
 				Resource: expectedDevResource.Name,
 				Params: atc.Params{
@@ -215,7 +215,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			},
 		},
 		Ensure: &atc.PlanConfig{
-			Put:      "cf halfpipe-cleanup",
+			Put:      "halfpipe-cleanup",
 			Attempts: 2,
 			Resource: expectedDevResource.Name,
 			Params: atc.Params{
@@ -256,7 +256,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Timeout: timeout,
 			},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-push",
+				Put:      "halfpipe-push",
 				Attempts: 2,
 				Resource: expectedLiveResource.Name,
 				Params: atc.Params{
@@ -271,7 +271,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Timeout: timeout,
 			},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-check",
+				Put:      "halfpipe-check",
 				Attempts: 2,
 				Resource: expectedLiveResource.Name,
 				Params: atc.Params{
@@ -283,7 +283,7 @@ func TestRendersCfDeploy(t *testing.T) {
 				Timeout: timeout,
 			},
 			atc.PlanConfig{
-				Put:      "cf halfpipe-promote",
+				Put:      "halfpipe-promote",
 				Attempts: 2,
 				Resource: expectedLiveResource.Name,
 				Params: atc.Params{
@@ -297,7 +297,7 @@ func TestRendersCfDeploy(t *testing.T) {
 			},
 		},
 		Ensure: &atc.PlanConfig{
-			Put:      "cf halfpipe-cleanup",
+			Put:      "halfpipe-cleanup",
 			Attempts: 2,
 			Resource: expectedLiveResource.Name,
 			Params: atc.Params{

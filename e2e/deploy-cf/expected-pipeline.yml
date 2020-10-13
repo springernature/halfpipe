@@ -32,7 +32,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
@@ -49,7 +49,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 5m
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf
@@ -61,7 +61,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
@@ -70,7 +70,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
@@ -85,7 +85,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -104,7 +104,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 5m
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf
@@ -117,7 +117,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -187,7 +187,7 @@ jobs:
           attempts: 1
       fail_fast: true
     timeout: 5m
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
@@ -197,3 +197,4 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
+

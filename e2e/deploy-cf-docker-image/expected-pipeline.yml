@@ -90,7 +90,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -114,7 +114,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-snpaas-dev
     params:
       buildVersionPath: version/version
@@ -128,7 +128,7 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -137,7 +137,7 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -152,7 +152,7 @@ jobs:
   build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: cf halfpipe-cleanup
+    put: halfpipe-cleanup
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -176,7 +176,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-push
+  - put: halfpipe-push
     resource: cf-snpaas-dev
     params:
       buildVersionPath: version/version
@@ -191,7 +191,7 @@ jobs:
       timeout: 1h
     timeout: 1h
     attempts: 2
-  - put: cf halfpipe-check
+  - put: halfpipe-check
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -263,7 +263,7 @@ jobs:
           attempts: 1
       fail_fast: true
     timeout: 1h
-  - put: cf halfpipe-promote
+  - put: halfpipe-promote
     resource: cf-snpaas-dev
     params:
       cliVersion: cf6
@@ -425,3 +425,4 @@ jobs:
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
     timeout: 1h
     attempts: 2
+
