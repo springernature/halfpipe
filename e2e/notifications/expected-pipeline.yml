@@ -14,7 +14,7 @@ resources:
   source:
     url: ((halfpipe-slack.webhook))
   check_every: 24h
-- name: CF snpaas pe staging
+- name: cf-snpaas-pe-staging
   type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -234,7 +234,7 @@ jobs:
           username: Halfpipe
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -263,7 +263,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/notifications
       cliVersion: cf6
@@ -278,7 +278,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -348,7 +348,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-promote

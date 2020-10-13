@@ -37,7 +37,7 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   check_every: 24h
-- name: CF dev-api halfpipe-team dev
+- name: cf-dev-api-halfpipe-team-dev
   type: cf-resource
   source:
     api: dev-api
@@ -46,7 +46,7 @@ resources:
     space: dev
     username: michiel
   check_every: 24h
-- name: CF snpaas pe staging
+- name: cf-snpaas-pe-staging
   type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -55,7 +55,7 @@ resources:
     space: staging
     username: michiel
   check_every: 24h
-- name: CF snpaas qa
+- name: cf-snpaas-qa
   type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -239,7 +239,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -289,7 +289,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-push
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
@@ -302,7 +302,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -311,7 +311,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -326,7 +326,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -376,7 +376,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-push
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
@@ -392,7 +392,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -558,7 +558,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF snpaas pe staging
+    resource: cf-snpaas-pe-staging
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -573,7 +573,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF snpaas qa
+    resource: cf-snpaas-qa
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -623,7 +623,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-push
-    resource: CF snpaas qa
+    resource: cf-snpaas-qa
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
@@ -639,7 +639,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF snpaas qa
+    resource: cf-snpaas-qa
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -795,7 +795,7 @@ jobs:
       attempts: 1
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF snpaas qa
+    resource: cf-snpaas-qa
     params:
       cliVersion: cf6
       command: halfpipe-promote

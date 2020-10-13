@@ -9,7 +9,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
-- name: rolling cf dev-api halfpipe-team dev
+- name: rolling-cf-dev-api-halfpipe-team-dev
   type: cf-resource
   source:
     api: dev-api
@@ -40,7 +40,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf rolling deploy
-    resource: rolling cf dev-api halfpipe-team dev
+    resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf7
@@ -65,7 +65,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: deploy test app
-    resource: rolling cf dev-api halfpipe-team dev
+    resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf6
@@ -139,7 +139,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf rolling deploy
-    resource: rolling cf dev-api halfpipe-team dev
+    resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf7
@@ -150,7 +150,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: remove test app
-    resource: rolling cf dev-api halfpipe-team dev
+    resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml

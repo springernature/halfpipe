@@ -16,7 +16,7 @@ resources:
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-deploy-cf-docker-image
-- name: CF snpaas dev
+- name: cf-snpaas-dev
   type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -25,7 +25,7 @@ resources:
     space: dev
     username: ((cloudfoundry.username-snpaas))
   check_every: 24h
-- name: rolling cf snpaas dev
+- name: rolling-cf-snpaas-dev
   type: cf-resource
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -91,7 +91,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -115,7 +115,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -129,7 +129,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -138,7 +138,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-promote
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -153,7 +153,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -177,7 +177,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-push
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -192,7 +192,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -264,7 +264,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf halfpipe-promote
-    resource: CF snpaas dev
+    resource: cf-snpaas-dev
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -293,7 +293,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf rolling deploy
-    resource: rolling cf snpaas dev
+    resource: rolling-cf-snpaas-dev
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -326,7 +326,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: deploy test app
-    resource: rolling cf snpaas dev
+    resource: rolling-cf-snpaas-dev
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -405,7 +405,7 @@ jobs:
       fail_fast: true
     timeout: 1h
   - put: cf rolling deploy
-    resource: rolling cf snpaas dev
+    resource: rolling-cf-snpaas-dev
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -419,7 +419,7 @@ jobs:
     timeout: 1h
     attempts: 2
   - put: remove test app
-    resource: rolling cf snpaas dev
+    resource: rolling-cf-snpaas-dev
     params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml

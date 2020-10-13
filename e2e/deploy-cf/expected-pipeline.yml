@@ -9,7 +9,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   check_every: 10m
-- name: CF dev-api halfpipe-team dev
+- name: cf-dev-api-halfpipe-team-dev
   type: cf-resource
   source:
     api: dev-api
@@ -33,7 +33,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
       command: halfpipe-cleanup
@@ -50,7 +50,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf7
@@ -62,7 +62,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
       command: halfpipe-check
@@ -71,7 +71,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-promote
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf7
       command: halfpipe-promote
@@ -86,7 +86,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     put: cf halfpipe-cleanup
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -105,7 +105,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-push
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf6
@@ -118,7 +118,7 @@ jobs:
     timeout: 5m
     attempts: 2
   - put: cf halfpipe-check
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -188,7 +188,7 @@ jobs:
       fail_fast: true
     timeout: 5m
   - put: cf halfpipe-promote
-    resource: CF dev-api halfpipe-team dev
+    resource: cf-dev-api-halfpipe-team-dev
     params:
       cliVersion: cf6
       command: halfpipe-promote
