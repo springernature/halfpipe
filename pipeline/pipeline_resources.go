@@ -222,7 +222,7 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 
 func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name: dockerResourceName(docker.Image),
+		Name: manifest.DockerTrigger{Image: docker.Image}.GetTriggerName(),
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   docker.Username,
@@ -235,7 +235,7 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceCon
 
 func (p pipeline) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
 	config := atc.ResourceConfig{
-		Name: dockerResourceName(trigger.GetTriggerName()),
+		Name: trigger.GetTriggerName(),
 		Type: "docker-image",
 		Source: atc.Source{
 			"repository": trigger.Image,

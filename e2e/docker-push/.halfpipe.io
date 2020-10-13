@@ -11,7 +11,7 @@ tasks:
   name: push to docker registry
   username: rob
   password: verysecret
-  image: springerplatformengineering/halfpipe-fly
+  image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
   vars:
     A: a
     B: b

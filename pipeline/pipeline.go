@@ -912,7 +912,7 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 }
 
 func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) *atc.JobConfig {
-	resourceName := dockerResourceName(task.Image)
+	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
 	if task.RestoreArtifacts {
 		return dockerPushJobWithRestoreArtifacts(task, resourceName, basePath)
 	}

@@ -44,11 +44,6 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 	return
 }
 
-func dockerResourceName(imageName string) string {
-	parts := strings.Split(imageName, "/")
-	return parts[len(parts)-1]
-}
-
 // convert string to uppercase and replace non A-Z 0-9 with underscores
 func toEnvironmentKey(s string) string {
 	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")

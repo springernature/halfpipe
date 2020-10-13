@@ -243,7 +243,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	}
 
 	expectedResource := atc.ResourceConfig{
-		Name: dockerResourceName(dockerPush.Image),
+		Name: manifest.DockerTrigger{Image: dockerPush.Image}.GetTriggerName(),
 		Type: "docker-image",
 		Source: atc.Source{
 			"username":   username,
@@ -295,7 +295,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 			},
 			atc.PlanConfig{
 				Attempts: 1,
-				Put:      dockerResourceName(dockerPush.Image),
+				Put:      manifest.DockerTrigger{Image: dockerPush.Image}.GetTriggerName(),
 				Params: atc.Params{
 					"tag_file":      "version/number",
 					"build":         dockerBuildTmpDir + "/" + basePath + "/" + buildPath,
@@ -306,7 +306,7 @@ func TestRenderDockerPushWithVersioningAndRestoreArtifact(t *testing.T) {
 	}
 
 	// First resource will always be the git resource.
-	dockerResource, found := testPipeline().Render(man).Resources.Lookup(dockerResourceName(dockerPush.Image))
+	dockerResource, found := testPipeline().Render(man).Resources.Lookup(manifest.DockerTrigger{Image: dockerPush.Image}.GetTriggerName())
 	assert.True(t, found)
 	assert.Equal(t, expectedResource, dockerResource)
 
