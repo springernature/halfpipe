@@ -690,7 +690,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	}
 
 	if task.Rolling {
-		push.Put = "deploy test app"
+		push.Put = "deploy-test-app"
 		push.Params["instances"] = 1
 		push.Params["instances"] = 1
 	}
@@ -699,7 +699,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 
 func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.PlanConfig {
 	return atc.PlanConfig{
-		Put:      "remove test app",
+		Put:      "remove-test-app",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{
@@ -711,7 +711,7 @@ func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, man
 
 func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.PlanConfig {
 	deploy := atc.PlanConfig{
-		Put:      "cf rolling deploy",
+		Put:      "rolling-deploy",
 		Attempts: task.GetAttempts(),
 		Resource: resourceName,
 		Params: atc.Params{

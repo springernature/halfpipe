@@ -39,7 +39,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 5m
-  - put: cf rolling deploy
+  - put: rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
@@ -64,7 +64,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 5m
-  - put: deploy test app
+  - put: deploy-test-app
     resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
@@ -138,7 +138,7 @@ jobs:
           attempts: 1
       fail_fast: true
     timeout: 5m
-  - put: cf rolling deploy
+  - put: rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/deploy-cf-rolling
@@ -149,7 +149,7 @@ jobs:
       timeout: 5m
     timeout: 5m
     attempts: 2
-  - put: remove test app
+  - put: remove-test-app
     resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       command: halfpipe-delete-test
