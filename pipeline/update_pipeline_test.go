@@ -50,7 +50,7 @@ func TestShouldAddUpdatePipelineTask(t *testing.T) {
 	assert.True(t, (inParallel.Steps)[0].Trigger)
 
 	//2. task "update pipeline"
-	assert.Equal(t, updateJob.Plan[1].Name(), "halfpipe update")
+	assert.Equal(t, updateJob.Plan[1].Name(), "update")
 
 	//3. put "version"
 	assert.Equal(t, updateJob.Plan[2].Name(), versionName)

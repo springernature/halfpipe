@@ -43,7 +43,7 @@ jobs:
         attempts: 2
       fail_fast: true
     timeout: 1h
-  - task: halfpipe update
+  - task: update
     config:
       platform: linux
       image_resource:

@@ -311,7 +311,7 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 
 func (p pipeline) updatePipelineTask(pipelineName string, basePath string) atc.PlanConfig {
 	return atc.PlanConfig{
-		Task:     "halfpipe update",
+		Task:     "update",
 		Attempts: 2,
 		TaskConfig: &atc.TaskConfig{
 			Platform: "linux",
