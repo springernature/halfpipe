@@ -55,13 +55,13 @@ tasks:
     A: a
     B: b
   restore_artifacts: true
-#
-#- type: docker-compose
-#  vars:
-#    A: a
-#  save_artifacts_on_failure:
-#    - docker-compose.yml
-#  restore_artifacts: true
+
+- type: docker-compose
+  vars:
+    A: a
+  save_artifacts_on_failure:
+    - docker-compose.yml
+  restore_artifacts: true
 #
 #- type: deploy-ml-zip
 #  deploy_zip: target/xquery.zip

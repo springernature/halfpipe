@@ -961,6 +961,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 		SaveArtifacts:          task.SaveArtifacts,
 		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
+		Timeout:                task.GetTimeout(),
 	}
 }
 
