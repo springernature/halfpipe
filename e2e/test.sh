@@ -13,7 +13,7 @@ do
             ../../halfpipe 1> pipelineActual.yml
             diff --ignore-blank-lines pipelineActual.yml pipelineExpected.yml
             if command -v fly > /dev/null; then
-                fly validate-pipeline -c pipeline.yml > /dev/null
+                fly validate-pipeline -c pipelineActual.yml > /dev/null
             fi
         fi
     )

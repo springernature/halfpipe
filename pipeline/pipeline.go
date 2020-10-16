@@ -907,26 +907,26 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
 
-	if len(prePromoteTasks) > 1 {
+	if len(prePromoteTasks) == 1 {
 		return []atc.Step{
 			{
 				Config: &atc.TimeoutStep{
-					Step: &atc.InParallelStep{
-						Config: atc.InParallelConfig{
-							Steps:    prePromoteTasks,
-							FailFast: true,
-						},
-					},
+					Step:     prePromoteTasks[0].Config,
 					Duration: task.GetTimeout(),
 				},
 			},
 		}
 	}
-	step := prePromoteTasks[0]
+
 	return []atc.Step{
 		{
 			Config: &atc.TimeoutStep{
-				Step:     step.Config,
+				Step: &atc.InParallelStep{
+					Config: atc.InParallelConfig{
+						Steps:    prePromoteTasks,
+						FailFast: true,
+					},
+				},
 				Duration: task.GetTimeout(),
 			},
 		},
