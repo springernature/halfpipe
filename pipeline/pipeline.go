@@ -2,6 +2,7 @@ package pipeline
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/defaults"
 	"regexp"
 	"strings"
 
@@ -251,6 +252,7 @@ func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.Re
 			}
 		}
 	}
+
 	if len(resourceConfigs) > 0 {
 		resourceTypes = append(resourceTypes, p.cfPushResourceConfig(man))
 	}
@@ -320,7 +322,6 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 
 	case manifest.DockerPush:
 		job = p.dockerPushJob(task, basePath)
-
 	case manifest.ConsumerIntegrationTest:
 		job = p.consumerIntegrationTestJob(task, man, basePath)
 
@@ -636,146 +637,169 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 }
 
 func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.JobConfig {
-	//resourceName := deployCFResourceName(task)
-	//manifestPath := path.Join(gitDir, basePath, task.Manifest)
-	//vars := convertVars(task.Vars)
+	resourceName := deployCFResourceName(task)
+	manifestPath := path.Join(gitDir, basePath, task.Manifest)
+	vars := convertVars(task.Vars)
 	//
-	//if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
-	//	manifestPath = strings.TrimPrefix(task.Manifest, "../")
-	//}
-	//
-	//appPath := path.Join(gitDir, basePath)
-	//if len(task.DeployArtifact) > 0 {
-	//	appPath = path.Join(artifactsInDir, basePath, task.DeployArtifact)
-	//}
-	//
-	//job := atc.JobConfig{
-	//	Name:   task.GetName(),
-	//	Serial: true,
-	//}
-	//
-	//if !task.Rolling {
-	//	job.Plan = append(job.Plan, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-	//	job.Plan = append(job.Plan, p.checkApp(task, resourceName, manifestPath))
-	//	job.Plan = append(job.Plan, p.prePromoteTasks(task, man, basePath)...)
-	//	job.Plan = append(job.Plan, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
-	//	job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
-	//} else {
-	//	if len(task.PrePromote) == 0 {
-	//		job.Plan = append(job.Plan, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
-	//	} else {
-	//		job.Plan = append(job.Plan, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-	//		job.Plan = append(job.Plan, p.prePromoteTasks(task, man, basePath)...)
-	//		job.Plan = append(job.Plan, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
-	//		job.Plan = append(job.Plan, p.removeTestApp(task, resourceName, manifestPath))
-	//	}
-	//}
-	//
-	//return &job
-	return atc.JobConfig{}
+	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
+		manifestPath = strings.TrimPrefix(task.Manifest, "../")
+	}
+
+	appPath := path.Join(gitDir, basePath)
+	if len(task.DeployArtifact) > 0 {
+		appPath = path.Join(artifactsInDir, basePath, task.DeployArtifact)
+	}
+
+	job := atc.JobConfig{
+		Name:   task.GetName(),
+		Serial: true,
+	}
+
+	var steps []atc.Step
+	if !task.Rolling {
+		steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+		steps = append(steps, p.checkApp(task, resourceName, manifestPath))
+		//steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
+		steps = append(steps, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
+		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
+	} else {
+		if len(task.PrePromote) == 0 {
+			job.PlanSequence = append(job.PlanSequence, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+		} else {
+			//job.PlanSequence = append(job.PlanSequence, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+			//job.PlanSequence = append(job.PlanSequence, p.prePromoteTasks(task, man, basePath)...)
+			//job.PlanSequence = append(job.PlanSequence, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			//job.PlanSequence = append(job.PlanSequence, p.removeTestApp(task, resourceName, manifestPath))
+		}
+	}
+
+	for i, step := range steps {
+		steps[i] = atc.Step{
+			Config: &atc.TimeoutStep{
+				Step: &atc.RetryStep{
+					Step:     step.Config,
+					Attempts: task.GetAttempts(),
+				},
+				Duration: task.GetTimeout(),
+			},
+		}
+	}
+
+	job.PlanSequence = steps
+	return job
 }
 
-func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
-	//cleanup := atc.PlanConfig{
-	//	Put:      "halfpipe-cleanup",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-cleanup",
-	//		"manifestPath": manifestPath,
-	//		"cliVersion":   task.CliVersion,
-	//	},
-	//}
-	//if task.Timeout != "" {
-	//	cleanup.Params["timeout"] = task.Timeout
-	//}
-	//return &cleanup
-	return atc.Step{}
+func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.Step {
+	cleanup := atc.PutStep{
+		Name:     "halfpipe-cleanup",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-cleanup",
+			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
+		},
+	}
+	if task.Timeout != "" {
+		cleanup.Params["timeout"] = task.Timeout
+	}
+
+	return &atc.Step{
+		Config: &atc.RetryStep{
+			Step: &atc.TimeoutStep{
+				Step:     &cleanup,
+				Duration: task.GetTimeout(),
+			},
+			Attempts: task.GetAttempts(),
+		},
+	}
 }
 
 func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
-	//promote := atc.PlanConfig{
-	//	Put:      "halfpipe-promote",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-promote",
-	//		"testDomain":   task.TestDomain,
-	//		"manifestPath": manifestPath,
-	//		"cliVersion":   task.CliVersion,
-	//	},
-	//}
-	//if task.Timeout != "" {
-	//	promote.Params["timeout"] = task.Timeout
-	//}
-	return atc.Step{}
+	promote := atc.PutStep{
+		Name:     "halfpipe-promote",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-promote",
+			"testDomain":   task.TestDomain,
+			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
+		},
+	}
+	if task.Timeout != "" {
+		promote.Params["timeout"] = task.Timeout
+	}
+	return atc.Step{
+		Config: &promote,
+	}
 }
 
 func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
-	//check := atc.PlanConfig{
-	//	Put:      "halfpipe-check",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-check",
-	//		"manifestPath": manifestPath,
-	//		"cliVersion":   task.CliVersion,
-	//	},
-	//}
-	//if task.Timeout != "" {
-	//	check.Params["timeout"] = task.Timeout
-	//}
-	return atc.Step{}
+	check := atc.PutStep{
+		Name:     "halfpipe-check",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-check",
+			"manifestPath": manifestPath,
+			"cliVersion":   task.CliVersion,
+		},
+	}
+	if task.Timeout != "" {
+		check.Params["timeout"] = task.Timeout
+	}
+	return atc.Step{
+		Config: &check,
+	}
 }
 
 func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
-	//push := atc.PlanConfig{
-	//	Put:      "halfpipe-push",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-push",
-	//		"testDomain":   task.TestDomain,
-	//		"manifestPath": manifestPath,
-	//		"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-	//		"cliVersion":   task.CliVersion,
-	//	},
-	//}
-	//
-	//if task.IsDockerPush {
-	//	push.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
-	//	push.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
-	//	if task.DockerTag != "" {
-	//		if task.DockerTag == "version" {
-	//			push.Params["dockerTag"] = path.Join(versionName, "version")
-	//		} else if task.DockerTag == "gitref" {
-	//			push.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
-	//		}
-	//	}
-	//} else {
-	//	push.Params["appPath"] = appPath
-	//}
-	//
-	//if len(vars) > 0 {
-	//	push.Params["vars"] = vars
-	//}
-	//if task.Timeout != "" {
-	//	push.Params["timeout"] = task.Timeout
-	//}
-	//if len(task.PreStart) > 0 {
-	//	push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
-	//}
-	//if man.FeatureToggles.Versioned() {
-	//	push.Params["buildVersionPath"] = path.Join("version", "version")
-	//}
-	//
-	//if task.Rolling {
-	//	push.Put = "deploy-test-app"
-	//	push.Params["instances"] = 1
-	//	push.Params["instances"] = 1
-	//}
-	//return push
-	return atc.Step{}
+	push := atc.PutStep{
+		Name:     "halfpipe-push",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-push",
+			"testDomain":   task.TestDomain,
+			"manifestPath": manifestPath,
+			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+			"cliVersion":   task.CliVersion,
+		},
+	}
+
+	if task.IsDockerPush {
+		push.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
+		push.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		if task.DockerTag != "" {
+			if task.DockerTag == "version" {
+				push.Params["dockerTag"] = path.Join(versionName, "version")
+			} else if task.DockerTag == "gitref" {
+				push.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
+			}
+		}
+	} else {
+		push.Params["appPath"] = appPath
+	}
+
+	if len(vars) > 0 {
+		push.Params["vars"] = vars
+	}
+	if task.Timeout != "" {
+		push.Params["timeout"] = task.Timeout
+	}
+	if len(task.PreStart) > 0 {
+		push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
+	}
+	if man.FeatureToggles.Versioned() {
+		push.Params["buildVersionPath"] = path.Join("version", "version")
+	}
+
+	if task.Rolling {
+		push.Name = "deploy-test-app"
+		push.Params["instances"] = 1
+		push.Params["instances"] = 1
+	}
+
+	return atc.Step{
+		Config: &push,
+	}
 }
 
 func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
@@ -836,14 +860,14 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	// tasks in parallel when the first task saves an artifact and the second restores it.
 	//var saveArtifacts bool
 	//var restoreArtifacts bool
-	//var prePromoteTasks atc.PlanSequence
+	//var prePromoteTasks []atc.Step
 	//for _, t := range task.PrePromote {
 	//	applications, e := p.readCfManifest(task.Manifest, nil, nil)
 	//	if e != nil {
 	//		panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
 	//	}
 	//	testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
-	//	var ppJob *atc.JobConfig
+	//	var ppJob atc.JobConfig
 	//	switch ppTask := t.(type) {
 	//	case manifest.Run:
 	//		if len(ppTask.Vars) == 0 {
@@ -869,23 +893,44 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	//		}
 	//		ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
 	//	}
-	//	planConfig := atc.PlanConfig{Do: &ppJob.Plan}
-	//	prePromoteTasks = append(prePromoteTasks, planConfig)
+	//	//planConfig := atc.PlanConfig{Do: &ppJob.Plan}
+	//	// Config            *TaskConfig
+	//
+	//	atc.TaskStep{
+	//		Name:              "",
+	//		Privileged:        false,
+	//		ConfigPath:        "",
+	//		Config:            ppJob,
+	//		Params:            nil,
+	//		Vars:              nil,
+	//		Tags:              nil,
+	//		InputMapping:      nil,
+	//		OutputMapping:     nil,
+	//		ImageArtifactName: "",
+	//	}
+	//	prePromoteTasks = append(prePromoteTasks, atc.Step{})
 	//}
 	//
 	//if len(prePromoteTasks) > 0 && !restoreArtifacts {
-	//	return atc.PlanSequence{
-	//		atc.PlanConfig{
-	//			InParallel: &atc.InParallelConfig{
-	//				Steps:    prePromoteTasks,
+	//	return atc.Step{
+	//		Config: &atc.InParallelStep{
+	//			Config: atc.InParallelConfig{
+	//				Steps:    nil,
 	//				FailFast: true,
 	//			},
 	//		},
+	//		//atc.PlanConfig{
+	//		//	InParallel: &atc.InParallelConfig{
+	//		//		Steps:    prePromoteTasks,
+	//		//		FailFast: true,
+	//		//	},
+	//		//},
 	//	}
 	//}
-	//
+
 	//return prePromoteTasks
-	return atc.Step{}
+	return atc.Step{
+	}
 }
 
 func buildTestRoute(appName, space, testDomain string) string {
@@ -924,75 +969,89 @@ func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Man
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
-	//job := atc.JobConfig{
-	//	Name:   task.GetName(),
-	//	Serial: true,
-	//	Plan: atc.PlanSequence{
-	//		atc.PlanConfig{
-	//			Attempts: task.GetAttempts(),
-	//			Put:      resourceName,
-	//			Params: atc.Params{
-	//				"build":         path.Join(gitDir, basePath, task.BuildPath),
-	//				"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
-	//				"tag_as_latest": true,
-	//				"tag_file":      task.GetTagPath(),
-	//			}},
-	//	},
-	//}
-	//if len(task.Vars) > 0 {
-	//	job.Plan[0].Params["build_args"] = convertVars(task.Vars)
-	//}
-	return atc.JobConfig{}
+	put := atc.Step{
+		Config: &atc.TimeoutStep{
+			Step: &atc.RetryStep{
+				Step: &atc.PutStep{
+					Name: resourceName,
+					Params: atc.Params{
+						"build":         path.Join(gitDir, basePath, task.BuildPath),
+						"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
+						"tag_as_latest": true,
+						"tag_file":      task.GetTagPath(),
+						"build_args":    convertVars(task.Vars),
+					},
+				},
+				Attempts: task.GetAttempts(),
+			},
+			Duration: task.GetTimeout(),
+		},
+	}
+
+	return atc.JobConfig{
+		Name:         task.GetName(),
+		Serial:       true,
+		PlanSequence: []atc.Step{put},
+	}
 }
 
 func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
-	//job := atc.JobConfig{
-	//	Name:   task.GetName(),
-	//	Serial: true,
-	//	Plan: atc.PlanSequence{
-	//		atc.PlanConfig{
-	//			Task: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
-	//			TaskConfig: &atc.TaskConfig{
-	//				Platform: "linux",
-	//				ImageResource: &atc.ImageResource{
-	//					Type: "docker-image",
-	//					Source: atc.Source{
-	//						"repository": "alpine",
-	//					},
-	//				},
-	//				Run: atc.TaskRunConfig{
-	//					Path: "/bin/sh",
-	//					Args: []string{"-c", strings.Join([]string{
-	//						fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-	//						fmt.Sprintf("cp -r %s/. %s", artifactsInDir, dockerBuildTmpDir),
-	//					}, "\n")},
-	//				},
-	//				Inputs: []atc.TaskInputConfig{
-	//					{Name: gitDir},
-	//					{Name: artifactsName},
-	//				},
-	//				Outputs: []atc.TaskOutputConfig{
-	//					{Name: dockerBuildTmpDir},
-	//				},
-	//			}},
-	//
-	//		atc.PlanConfig{
-	//			Attempts: task.GetAttempts(),
-	//			Put:      resourceName,
-	//			Params: atc.Params{
-	//				"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
-	//				"dockerfile":    path.Join(dockerBuildTmpDir, basePath, task.DockerfilePath),
-	//				"tag_as_latest": true,
-	//				"tag_file":      task.GetTagPath(),
-	//			}},
-	//	},
-	//}
-	//
-	//putIndex := 1
-	//if len(task.Vars) > 0 {
-	//	job.Plan[putIndex].Params["build_args"] = convertVars(task.Vars)
-	//}
-	return atc.JobConfig{}
+	copyArtifact := atc.Step{
+		Config: &atc.TimeoutStep{
+			Step: &atc.TaskStep{
+				Name: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
+				Config: &atc.TaskConfig{
+					Platform: "linux",
+					ImageResource: &atc.ImageResource{
+						Type: "docker-image",
+						Source: atc.Source{
+							"repository": "alpine",
+						},
+					},
+					Run: atc.TaskRunConfig{
+						Path: "/bin/sh",
+						Args: []string{"-c", strings.Join([]string{
+							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
+							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, dockerBuildTmpDir),
+						}, "\n")},
+					},
+					Inputs: []atc.TaskInputConfig{
+						{Name: gitDir},
+						{Name: artifactsName},
+					},
+					Outputs: []atc.TaskOutputConfig{
+						{Name: dockerBuildTmpDir},
+					},
+				},
+			},
+			Duration: task.GetTimeout(),
+		},
+	}
+
+	put := atc.Step{
+		Config: &atc.TimeoutStep{
+			Step: &atc.RetryStep{
+				Step: &atc.PutStep{
+					Name: resourceName,
+					Params: atc.Params{
+						"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
+						"dockerfile":    path.Join(dockerBuildTmpDir, basePath, task.DockerfilePath),
+						"tag_as_latest": true,
+						"tag_file":      task.GetTagPath(),
+						"build_args":    convertVars(task.Vars),
+					},
+				},
+				Attempts: task.GetAttempts(),
+			},
+			Duration: task.GetTimeout(),
+		},
+	}
+
+	return atc.JobConfig{
+		Name:         task.GetName(),
+		Serial:       true,
+		PlanSequence: []atc.Step{copyArtifact, put},
+	}
 }
 
 func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) atc.JobConfig {
