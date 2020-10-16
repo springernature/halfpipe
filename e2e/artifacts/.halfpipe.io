@@ -62,10 +62,10 @@ tasks:
   save_artifacts_on_failure:
     - docker-compose.yml
   restore_artifacts: true
-#
-#- type: deploy-ml-zip
-#  deploy_zip: target/xquery.zip
-#  targets:
-#  - ml.dev.springer-sbm.com
-#
-#
+
+- type: deploy-ml-zip
+  deploy_zip: target/xquery.zip
+  targets:
+  - ml.dev.springer-sbm.com
+
+

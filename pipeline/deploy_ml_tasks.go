@@ -57,6 +57,7 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 		},
 		ManualTrigger:    mlTask.ManualTrigger,
 		RestoreArtifacts: true,
+		Timeout: mlTask.GetTimeout(),
 	}
 
 	if mlTask.AppVersion != "" {
