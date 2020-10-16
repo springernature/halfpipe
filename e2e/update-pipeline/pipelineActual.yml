@@ -1,107 +1,27 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/update-pipeline
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: artifacts
-  type: gcp-resource
-  source:
-    bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/halfpipe-e2e-update-pipeline
-    json_key: ((halfpipe-artifacts.private_key))
-  check_every: 24h
-- name: artifacts-on-failure
-  type: gcp-resource
-  source:
-    bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/halfpipe-e2e-update-pipeline
-    json_key: ((halfpipe-artifacts.private_key))
-  check_every: 24h
-- name: version
-  type: semver
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-update-pipeline
-- name: halfpipe-fly
-  type: docker-image
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe-fly
-    username: rob
-  check_every: 24h
-- name: cf-dev-api-halfpipe-team-dev
-  type: cf-resource
-  source:
-    api: dev-api
-    org: halfpipe-team
-    password: very-secret
-    space: dev
-    username: michiel
-  check_every: 24h
-- name: cf-snpaas-pe-staging
-  type: cf-resource
-  source:
-    api: ((cloudfoundry.api-snpaas))
-    org: pe
-    password: very-secret
-    space: staging
-    username: michiel
-  check_every: 24h
-- name: cf-snpaas-qa
-  type: cf-resource
-  source:
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    password: ((cloudfoundry.password-snpaas))
-    space: qa
-    username: ((cloudfoundry.username-snpaas))
-  check_every: 24h
-resource_types:
-- name: gcp-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/gcp-resource
-    tag: stable
-    username: _json_key
-- name: cf-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
-    username: _json_key
 jobs:
-- name: update
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: update
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 1h
-  - task: update
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
       params:
         CONCOURSE_PASSWORD: ((concourse.password))
         CONCOURSE_TEAM: ((concourse.team))
@@ -109,61 +29,68 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-update-pipeline
+        PIPELINE_NAME: halfpipe-e2e-update-pipeline-6_5_1
+      platform: linux
       run:
-        path: update-pipeline
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
+        path: update-pipeline
+    task: update
     timeout: 1h
-    attempts: 2
-  - put: version
+  - attempts: 2
     params:
       bump: minor
+    put: version
     timeout: 1h
-    attempts: 2
-- name: Test
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: Test
   on_failure:
     in_parallel:
       steps:
-      - put: artifacts-on-failure
+      - attempts: 2
         params:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
-        attempts: 2
+        put: artifacts-on-failure
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - update
-        attempts: 2
-      - get: version
-        passed:
-        - update
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - update
+      - attempts: 2
+        get: version
+        passed:
+        - update
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: test
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: node
           tag: 9.5.0-alpine
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |-
@@ -216,80 +143,71 @@ jobs:
           copyArtifact target/distribution ../../../artifacts-out/e2e/update-pipeline/target
           copyArtifact README.md ../../../artifacts-out/e2e/update-pipeline
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: version
-      outputs:
-      - name: artifacts-out
-      - name: artifacts-out-failure
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: test
     timeout: 1h
-    attempts: 1
-  - put: artifacts
+  - attempts: 1
     params:
       folder: artifacts-out
       version_file: git/.git/ref
+    put: artifacts
     timeout: 1h
-    attempts: 2
-- name: deploy to cf
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-dev-api-halfpipe-team-dev
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
+    put: halfpipe-cleanup
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
+  name: deploy to cf
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - Test
-        attempts: 2
-      - get: version
-        passed:
-        - Test
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - Test
+      - attempts: 2
+        get: version
+        passed:
+        - Test
+        timeout: 1m
+        trigger: true
     timeout: 5m
-  - task: get-artifact
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
-      params:
-        BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
-        JSON_KEY: ((halfpipe-artifacts.private_key))
-        VERSION_FILE: git/.git/ref
-      run:
-        path: /opt/resource/download
-        args:
-        - .
-        dir: artifacts
+        type: registry-image
       inputs:
       - name: git
       outputs:
       - name: artifacts
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-push
-    resource: cf-dev-api-halfpipe-team-dev
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 1h
+  - attempts: 2
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
@@ -299,84 +217,93 @@ jobs:
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-promote
+    put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
+    put: halfpipe-promote
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
-- name: deploy to staging
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-snpaas-pe-staging
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
+  name: deploy to staging
+  on_failure:
+    in_parallel:
+      steps:
+      - attempts: 2
+        params:
+          folder: artifacts-out-failure
+          postfix: failure
+          version_file: git/.git/ref
+        put: artifacts-on-failure
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to cf
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to cf
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to cf
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to cf
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: get-artifact
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
-      params:
-        BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
-        JSON_KEY: ((halfpipe-artifacts.private_key))
-        VERSION_FILE: git/.git/ref
-      run:
-        path: /opt/resource/download
-        args:
-        - .
-        dir: artifacts
+        type: registry-image
       inputs:
       - name: git
       outputs:
       - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
     timeout: 1h
-    attempts: 2
-  - put: halfpipe-push
-    resource: cf-snpaas-pe-staging
+  - attempts: 2
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
@@ -389,38 +316,46 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-snpaas-pe-staging
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
+    put: halfpipe-check
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: run-smoke-test.sh
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-fly
                 tag: latest
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: artifacts
+            - name: version
             params:
               A: blah
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -457,26 +392,25 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/update-pipeline
-            inputs:
-            - name: git
-            - name: artifacts
-            - name: version
+              path: /bin/sh
+          task: run-smoke-test.sh
+          timeout: 1h
+      - do:
+        - attempts: 1
+          config:
             caches:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache
-          attempts: 1
-      - do:
-        - task: c-name
-          privileged: true
-          config:
-            platform: linux
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
                 tag: stable
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: version
             params:
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
@@ -492,8 +426,8 @@ jobs:
               PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
               PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
               PROVIDER_NAME: halfpipe-e2e-update-pipeline
+            platform: linux
             run:
-              path: docker.sh
               args:
               - -c
               - |
@@ -548,82 +482,148 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/update-pipeline
-            inputs:
-            - name: git
-            - name: version
+              path: docker.sh
+          privileged: true
+          task: c-name
+          timeout: 1h
+      - do:
+        - attempts: 1
+          config:
             caches:
             - path: ../../../var/halfpipe/cache
             - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+            image_resource:
+              source:
+                password: ((halfpipe-gcr.private_key))
+                repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+                tag: stable
+                username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: version
+            outputs:
+            - name: artifacts-out-failure
+            params:
+              ARTIFACTORY_PASSWORD: ((artifactory.password))
+              ARTIFACTORY_URL: ((artifactory.url))
+              ARTIFACTORY_USERNAME: ((artifactory.username))
+              GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+              HALFPIPE_CACHE_TEAM: halfpipe-team
+              TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
+            platform: linux
+            run:
+              args:
+              - -c
+              - |
+                if [ -e /etc/alpine-release ]
+                then
+                  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+                  echo "There is a known issue where DNS resolving does not work as expected"
+                  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+                  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+                  echo "we recommend debian:buster-slim as an alternative"
+                  echo ""
+                  echo ""
+                fi
+
+                copyArtifact() {
+                  ARTIFACT=$1
+                  ARTIFACT_OUT_PATH=$2
+
+                  if [ -e $ARTIFACT ] ; then
+                    mkdir -p $ARTIFACT_OUT_PATH
+                    cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+                  else
+                    echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+                    exit 1
+                  fi
+                }
+
+                export GIT_REVISION=`cat ../../.git/ref`
+                export BUILD_VERSION=`cat ../../../version/version`
+
+                \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+                docker-compose  run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e TEST_ROUTE -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+
+                EXIT_STATUS=$?
+                if [ $EXIT_STATUS != 0 ] ; then
+                  # Artifacts to copy in case of failure
+                  copyArtifact path ../../../artifacts-out-failure/e2e/update-pipeline
+                  exit 1
+                fi
+              dir: git/e2e/update-pipeline
+              path: docker.sh
+          privileged: true
+          task: run-pre-promote-step-in-docker-compose
+          timeout: 1h
     timeout: 1h
-  - put: halfpipe-promote
-    resource: cf-snpaas-pe-staging
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
-- name: deploy to qa
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-snpaas-qa
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-qa
     timeout: 1h
-    attempts: 2
+  name: deploy to qa
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to cf
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to cf
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to cf
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to cf
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: get-artifact
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
-      params:
-        BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
-        JSON_KEY: ((halfpipe-artifacts.private_key))
-        VERSION_FILE: git/.git/ref
-      run:
-        path: /opt/resource/download
-        args:
-        - .
-        dir: artifacts
+        type: registry-image
       inputs:
       - name: git
       outputs:
       - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
     timeout: 1h
-    attempts: 2
-  - put: halfpipe-push
-    resource: cf-snpaas-qa
+  - attempts: 2
     params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
@@ -636,196 +636,178 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-snpaas-qa
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - do:
-    - task: save-artifact-in-pre-promote
-      config:
-        platform: linux
-        image_resource:
-          type: registry-image
-          source:
-            password: ((halfpipe-gcr.private_key))
-            repository: eu.gcr.io/halfpipe-io/halfpipe-fly
-            tag: latest
-            username: _json_key
-        params:
-          A: blah
-          ARTIFACTORY_PASSWORD: ((artifactory.password))
-          ARTIFACTORY_URL: ((artifactory.url))
-          ARTIFACTORY_USERNAME: ((artifactory.username))
-          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
-        run:
-          path: /bin/sh
-          args:
-          - -c
-          - |-
-            if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
-              echo "WARNING: Bash is not present in the docker image"
-              echo "If your script depends on bash you will get a strange error message like:"
-              echo "  sh: yourscript.sh: command not found"
-              echo "To fix, make sure your docker image contains bash!"
-              echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
-              echo ""
-              echo ""
-            fi
-
-            if [ -e /etc/alpine-release ]
-            then
-              echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-              echo "There is a known issue where DNS resolving does not work as expected"
-              echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-              echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-              echo "we recommend debian:buster-slim as an alternative"
-              echo ""
-              echo ""
-            fi
-
-            copyArtifact() {
-              ARTIFACT=$1
-              ARTIFACT_OUT_PATH=$2
-
-              if [ -e $ARTIFACT ] ; then
-                mkdir -p $ARTIFACT_OUT_PATH
-                cp -r $ARTIFACT $ARTIFACT_OUT_PATH
-              else
-                echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
-                exit 1
-              fi
-            }
-
-            export GIT_REVISION=`cat ../../.git/ref`
-            export BUILD_VERSION=`cat ../../../version/version`
-
-            ./smoke-test.sh
-            EXIT_STATUS=$?
-            if [ $EXIT_STATUS != 0 ] ; then
-              exit 1
-            fi
-
-            # Artifacts to copy from task
-            copyArtifact build ../../../artifacts-out/e2e/update-pipeline
-          dir: git/e2e/update-pipeline
-        inputs:
-        - name: git
-        - name: version
-        outputs:
-        - name: artifacts-out
-        caches:
-        - path: ../../../var/halfpipe/cache
-        - path: ../../../halfpipe-cache
-      attempts: 1
-    - put: artifacts
-      params:
-        folder: artifacts-out
-        version_file: git/.git/ref
-      attempts: 2
-    timeout: 1h
-  - do:
-    - task: restore-artifact-in-pre-promote
-      config:
-        platform: linux
-        image_resource:
-          type: registry-image
-          source:
-            password: ((halfpipe-gcr.private_key))
-            repository: eu.gcr.io/halfpipe-io/halfpipe-fly
-            tag: latest
-            username: _json_key
-        params:
-          A: blah
-          ARTIFACTORY_PASSWORD: ((artifactory.password))
-          ARTIFACTORY_URL: ((artifactory.url))
-          ARTIFACTORY_USERNAME: ((artifactory.username))
-          TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
-        run:
-          path: /bin/sh
-          args:
-          - -c
-          - |
-            if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
-              echo "WARNING: Bash is not present in the docker image"
-              echo "If your script depends on bash you will get a strange error message like:"
-              echo "  sh: yourscript.sh: command not found"
-              echo "To fix, make sure your docker image contains bash!"
-              echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
-              echo ""
-              echo ""
-            fi
-
-            if [ -e /etc/alpine-release ]
-            then
-              echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-              echo "There is a known issue where DNS resolving does not work as expected"
-              echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-              echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-              echo "we recommend debian:buster-slim as an alternative"
-              echo ""
-              echo ""
-            fi
-
-            # Copying in artifacts from previous task
-            cp -r ../../../artifacts/. ../..
-
-            export GIT_REVISION=`cat ../../.git/ref`
-            export BUILD_VERSION=`cat ../../../version/version`
-
-            ./smoke-test.sh
-            EXIT_STATUS=$?
-            if [ $EXIT_STATUS != 0 ] ; then
-              exit 1
-            fi
-          dir: git/e2e/update-pipeline
-        inputs:
-        - name: git
-        - name: artifacts
-        - name: version
-        caches:
-        - path: ../../../var/halfpipe/cache
-        - path: ../../../halfpipe-cache
-      attempts: 1
-    timeout: 1h
-  - put: halfpipe-promote
+    put: halfpipe-check
     resource: cf-snpaas-qa
+    timeout: 1h
+  - in_parallel:
+      fail_fast: true
+      steps:
+      - do:
+        - attempts: 1
+          config:
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
+            image_resource:
+              source:
+                password: ((halfpipe-gcr.private_key))
+                repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+                tag: latest
+                username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: version
+            params:
+              A: blah
+              ARTIFACTORY_PASSWORD: ((artifactory.password))
+              ARTIFACTORY_URL: ((artifactory.url))
+              ARTIFACTORY_USERNAME: ((artifactory.username))
+              TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
+            platform: linux
+            run:
+              args:
+              - -c
+              - |
+                if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+                  echo "WARNING: Bash is not present in the docker image"
+                  echo "If your script depends on bash you will get a strange error message like:"
+                  echo "  sh: yourscript.sh: command not found"
+                  echo "To fix, make sure your docker image contains bash!"
+                  echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+                  echo ""
+                  echo ""
+                fi
+
+                if [ -e /etc/alpine-release ]
+                then
+                  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+                  echo "There is a known issue where DNS resolving does not work as expected"
+                  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+                  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+                  echo "we recommend debian:buster-slim as an alternative"
+                  echo ""
+                  echo ""
+                fi
+
+                export GIT_REVISION=`cat ../../.git/ref`
+                export BUILD_VERSION=`cat ../../../version/version`
+
+                ./smoke-test.sh
+                EXIT_STATUS=$?
+                if [ $EXIT_STATUS != 0 ] ; then
+                  exit 1
+                fi
+              dir: git/e2e/update-pipeline
+              path: /bin/sh
+          task: save-artifact-in-pre-promote
+          timeout: 1h
+      - do:
+        - attempts: 1
+          config:
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
+            image_resource:
+              source:
+                password: ((halfpipe-gcr.private_key))
+                repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+                tag: latest
+                username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: artifacts
+            - name: version
+            params:
+              A: blah
+              ARTIFACTORY_PASSWORD: ((artifactory.password))
+              ARTIFACTORY_URL: ((artifactory.url))
+              ARTIFACTORY_USERNAME: ((artifactory.username))
+              TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
+            platform: linux
+            run:
+              args:
+              - -c
+              - |
+                if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+                  echo "WARNING: Bash is not present in the docker image"
+                  echo "If your script depends on bash you will get a strange error message like:"
+                  echo "  sh: yourscript.sh: command not found"
+                  echo "To fix, make sure your docker image contains bash!"
+                  echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+                  echo ""
+                  echo ""
+                fi
+
+                if [ -e /etc/alpine-release ]
+                then
+                  echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+                  echo "There is a known issue where DNS resolving does not work as expected"
+                  echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+                  echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+                  echo "we recommend debian:buster-slim as an alternative"
+                  echo ""
+                  echo ""
+                fi
+
+                # Copying in artifacts from previous task
+                cp -r ../../../artifacts/. ../..
+
+                export GIT_REVISION=`cat ../../.git/ref`
+                export BUILD_VERSION=`cat ../../../version/version`
+
+                ./smoke-test.sh
+                EXIT_STATUS=$?
+                if [ $EXIT_STATUS != 0 ] ; then
+                  exit 1
+                fi
+              dir: git/e2e/update-pipeline
+              path: /bin/sh
+          task: restore-artifact-in-pre-promote
+          timeout: 1h
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-qa
     timeout: 1h
-    attempts: 2
-- name: push to docker registry
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: push to docker registry
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to staging
-        - deploy to qa
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to staging
-        - deploy to qa
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to staging
+        - deploy to qa
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to staging
+        - deploy to qa
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: halfpipe-fly
+  - attempts: 1
     params:
       build: git/e2e/update-pipeline
       build_args:
@@ -837,45 +819,50 @@ jobs:
       dockerfile: git/e2e/update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: version/number
+    put: halfpipe-fly
     timeout: 1h
-    attempts: 1
-- name: run notify.sh
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: run notify.sh
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - push to docker registry
-        attempts: 2
-      - get: version
-        passed:
-        - push to docker registry
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - push to docker registry
+      - attempts: 2
+        get: version
+        passed:
+        - push to docker registry
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: run-notify.sh
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           password: blah
           repository: busy
           tag: latest
           username: michiel
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -909,53 +896,54 @@ jobs:
             exit 1
           fi
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: run-notify.sh
     timeout: 1h
-    attempts: 1
-- name: docker-compose
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: docker-compose
   on_failure:
     in_parallel:
       steps:
-      - put: artifacts-on-failure
+      - attempts: 2
         params:
           folder: artifacts-out-failure
           postfix: failure
           version_file: git/.git/ref
-        attempts: 2
+        put: artifacts-on-failure
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - run notify.sh
-        attempts: 2
-      - get: version
-        passed:
-        - run notify.sh
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - run notify.sh
+      - attempts: 2
+        get: version
+        passed:
+        - run notify.sh
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: docker-compose
-    privileged: true
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: artifacts-out-failure
       params:
         A: a
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -963,8 +951,8 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: halfpipe-team
+      platform: linux
       run:
-        path: docker.sh
         args:
         - -c
         - |
@@ -1005,46 +993,44 @@ jobs:
             exit 1
           fi
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: version
-      outputs:
-      - name: artifacts-out-failure
+        path: docker.sh
+    privileged: true
+    task: docker-compose
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: another-c-name
+  plan:
+  - in_parallel:
+      fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - docker-compose
+      - attempts: 2
+        get: version
+        passed:
+        - docker-compose
+        timeout: 1m
+        trigger: true
+    timeout: 1h
+  - attempts: 1
+    config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
-    timeout: 1h
-    attempts: 1
-- name: another-c-name
-  serial: true
-  build_log_retention:
-    minimum_succeeded_builds: 1
-  plan:
-  - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - docker-compose
-        attempts: 2
-      - get: version
-        passed:
-        - docker-compose
-        trigger: true
-        timeout: 1m
-        attempts: 2
-      fail_fast: true
-    timeout: 1h
-  - task: another-c-name
-    privileged: true
-    config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -1062,8 +1048,8 @@ jobs:
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
         PROVIDER_NAME: halfpipe-e2e-update-pipeline
+      platform: linux
       run:
-        path: docker.sh
         args:
         - -c
         - |
@@ -1118,69 +1104,71 @@ jobs:
             exit 1
           fi
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: docker.sh
+    privileged: true
+    task: another-c-name
     timeout: 1h
-    attempts: 1
-- name: deploy-ml-zip
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: deploy-ml-zip
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - another-c-name
-        attempts: 2
-      - get: version
-        passed:
-        - another-c-name
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - another-c-name
+      - attempts: 2
+        get: version
+        passed:
+        - another-c-name
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - task: get-artifact
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
           tag: stable
           username: _json_key
-      params:
-        BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
-        JSON_KEY: ((halfpipe-artifacts.private_key))
-        VERSION_FILE: git/.git/ref
-      run:
-        path: /opt/resource/download
-        args:
-        - .
-        dir: artifacts
+        type: registry-image
       inputs:
       - name: git
       outputs:
       - name: artifacts
-    timeout: 1h
-    attempts: 2
-  - task: deploy-ml-zip
-    config:
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
       platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 1h
+  - attempts: 1
+    config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      - name: version
       params:
         APP_NAME: halfpipe-e2e-update-pipeline
         DEPLOY_ZIP: target/xquery.zip
@@ -1188,8 +1176,8 @@ jobs:
         MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))
         MARKLOGIC_USERNAME: ((halfpipe-ml-deploy.username))
         USE_BUILD_VERSION: "false"
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -1226,44 +1214,43 @@ jobs:
             exit 1
           fi
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: artifacts
-      - name: version
+        path: /bin/sh
+    task: deploy-ml-zip
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: Deploy ml-modules artifact
+  plan:
+  - in_parallel:
+      fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy-ml-zip
+      - attempts: 2
+        get: version
+        passed:
+        - deploy-ml-zip
+        timeout: 1m
+        trigger: true
+    timeout: 1h
+  - attempts: 1
+    config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
-    timeout: 1h
-    attempts: 1
-- name: Deploy ml-modules artifact
-  serial: true
-  build_log_retention:
-    minimum_succeeded_builds: 1
-  plan:
-  - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy-ml-zip
-        attempts: 2
-      - get: version
-        passed:
-        - deploy-ml-zip
-        trigger: true
-        timeout: 1m
-        attempts: 2
-      fail_fast: true
-    timeout: 1h
-  - task: deploy-ml-modules-artifact
-    config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         APP_NAME: my-app
         APP_VERSION: v1
@@ -1274,8 +1261,8 @@ jobs:
         MARKLOGIC_USERNAME: ((halfpipe-ml-deploy.username))
         ML_MODULES_VERSION: "2.1425"
         USE_BUILD_VERSION: "false"
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -1309,12 +1296,88 @@ jobs:
             exit 1
           fi
         dir: git/e2e/update-pipeline
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: deploy-ml-modules-artifact
     timeout: 1h
-    attempts: 1
+  serial: true
+resource_types:
+- name: gcp-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/gcp-resource
+    tag: stable
+    username: _json_key
+  type: registry-image
+- name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/update-pipeline
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: artifacts
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline-651
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- check_every: 24h
+  name: artifacts-on-failure
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline-651
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-update-pipeline-6.5.1
+  type: semver
+- check_every: 24h
+  name: halfpipe-fly
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  type: docker-image
+- check_every: 24h
+  name: cf-dev-api-halfpipe-team-dev
+  source:
+    api: dev-api
+    org: halfpipe-team
+    password: very-secret
+    space: dev
+    username: michiel
+  type: cf-resource
+- check_every: 24h
+  name: cf-snpaas-pe-staging
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: pe
+    password: very-secret
+    space: staging
+    username: michiel
+  type: cf-resource
+- check_every: 24h
+  name: cf-snpaas-qa
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    password: ((cloudfoundry.password-snpaas))
+    space: qa
+    username: ((cloudfoundry.username-snpaas))
+  type: cf-resource
 

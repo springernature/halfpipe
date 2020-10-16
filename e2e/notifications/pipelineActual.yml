@@ -1,88 +1,53 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/notifications
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: slack
-  type: slack-resource
-  source:
-    url: ((halfpipe-slack.webhook))
-  check_every: 24h
-- name: cf-snpaas-pe-staging
-  type: cf-resource
-  source:
-    api: ((cloudfoundry.api-snpaas))
-    org: pe
-    password: very-secret
-    space: staging
-    username: michiel
-  check_every: 24h
-resource_types:
-- name: slack-resource
-  type: registry-image
-  source:
-    repository: cfcommunity/slack-notification-resource
-    tag: v1.5.0
-  check_every: 24h
-- name: cf-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
-    username: _json_key
 jobs:
-- name: task1
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: task1
   on_failure:
     in_parallel:
       steps:
-      - put: slack
-        params:
+      - params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
+        put: slack
   on_success:
     in_parallel:
       steps:
-      - put: slack
-        params:
+      - params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
             <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
+        put: slack
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 1h
-  - task: task1
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -115,71 +80,71 @@ jobs:
             exit 1
           fi
         dir: git/e2e/notifications
-      inputs:
-      - name: git
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: task1
     timeout: 1h
-    attempts: 1
-- name: task2
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: task2
   on_failure:
     in_parallel:
       steps:
-      - put: slack
-        params:
+      - params:
           channel: kehe
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
-      - put: slack
-        params:
+        put: slack
+      - params:
           channel: whoop
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
+        put: slack
   on_success:
     in_parallel:
       steps:
-      - put: slack
-        params:
+      - params:
           channel: asdf
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
-      - put: slack
-        params:
+        put: slack
+      - params:
           channel: prws
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
+        put: slack
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - task1
         trigger: true
-        attempts: 2
-      fail_fast: true
     timeout: 1h
-  - task: task2
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -212,58 +177,53 @@ jobs:
             exit 1
           fi
         dir: git/e2e/notifications
-      inputs:
-      - name: git
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: task2
     timeout: 1h
-    attempts: 1
-- name: deploy to staging
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
-  on_failure:
-    in_parallel:
-      steps:
-      - put: slack
-        params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-snpaas-pe-staging
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/notifications/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
+  name: deploy to staging
+  on_failure:
+    in_parallel:
+      steps:
+      - params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+          username: Halfpipe
+        put: slack
   on_success:
     in_parallel:
       steps:
-      - put: slack
-        params:
+      - params:
           channel: '#yo'
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
             <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
           username: Halfpipe
+        put: slack
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - task2
         trigger: true
-        attempts: 2
-      fail_fast: true
     timeout: 1h
-  - put: halfpipe-push
-    resource: cf-snpaas-pe-staging
+  - attempts: 2
     params:
       appPath: git/e2e/notifications
       cliVersion: cf6
@@ -275,38 +235,44 @@ jobs:
       vars:
         A: "0.1"
         B: "false"
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-snpaas-pe-staging
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/notifications/manifest.yml
       timeout: 1h
+    put: halfpipe-check
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: run-a
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-fly
                 tag: latest
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
             params:
               A: blah
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -339,22 +305,57 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/notifications
-            inputs:
-            - name: git
-            caches:
-            - path: ../../../var/halfpipe/cache
-            - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+              path: /bin/sh
+          task: run-a
+          timeout: 1h
     timeout: 1h
-  - put: halfpipe-promote
-    resource: cf-snpaas-pe-staging
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/notifications/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-pe-staging
     timeout: 1h
-    attempts: 2
+  serial: true
+resource_types:
+- check_every: 24h
+  name: slack-resource
+  source:
+    repository: cfcommunity/slack-notification-resource
+    tag: v1.5.0
+  type: registry-image
+- name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/notifications
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: slack
+  source:
+    url: ((halfpipe-slack.webhook))
+  type: slack-resource
+- check_every: 24h
+  name: cf-snpaas-pe-staging
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: pe
+    password: very-secret
+    space: staging
+    username: michiel
+  type: cf-resource
 

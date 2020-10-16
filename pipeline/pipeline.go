@@ -171,7 +171,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 	}
 
 	var attemptsGet []atc.Step
-	for i, _ := range gets {
+	for i := range gets {
 		if gets[i].Name == "version" {
 			attemptsGet = append(attemptsGet, atc.Step{
 				Config: &atc.TimeoutStep{

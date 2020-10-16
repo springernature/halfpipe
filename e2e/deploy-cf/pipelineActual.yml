@@ -1,56 +1,27 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/deploy-cf
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: cf-dev-api-halfpipe-team-dev
-  type: cf-resource
-  source:
-    api: dev-api
-    org: halfpipe-team
-    password: very-secret
-    space: dev
-    username: michiel
-  check_every: 24h
-resource_types:
-- name: cf-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
-    username: _json_key
 jobs:
-- name: deploy to cf without any jazz
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-dev-api-halfpipe-team-dev
+    attempts: 2
     params:
       cliVersion: cf7
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
+    put: halfpipe-cleanup
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
+  name: deploy to cf without any jazz
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 5m
-  - put: halfpipe-push
-    resource: cf-dev-api-halfpipe-team-dev
+  - attempts: 2
     params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf7
@@ -59,53 +30,53 @@ jobs:
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  - attempts: 2
     params:
       cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-promote
+    put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  - attempts: 2
     params:
       cliVersion: cf7
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
+    put: halfpipe-promote
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
-- name: deploy to cf
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-dev-api-halfpipe-team-dev
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
+    put: halfpipe-cleanup
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
+  name: deploy to cf
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf without any jazz
         trigger: true
-        attempts: 2
-      fail_fast: true
     timeout: 5m
-  - put: halfpipe-push
-    resource: cf-dev-api-halfpipe-team-dev
+  - attempts: 2
     params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf6
@@ -115,38 +86,44 @@ jobs:
       preStartCommand: cf apps; cf events myapp-CANDIDATE
       testDomain: some.random.domain.com
       timeout: 5m
-    timeout: 5m
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
+    put: halfpipe-check
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: pre-promote-step
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-fly
                 tag: latest
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
             params:
               A: blah
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.some.random.domain.com
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -179,22 +156,46 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/deploy-cf
-            inputs:
-            - name: git
-            caches:
-            - path: ../../../var/halfpipe/cache
-            - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+              path: /bin/sh
+          task: pre-promote-step
+          timeout: 1h
     timeout: 5m
-  - put: halfpipe-promote
-    resource: cf-dev-api-halfpipe-team-dev
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
+    put: halfpipe-promote
+    resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
-    attempts: 2
+  serial: true
+resource_types:
+- name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/deploy-cf
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: cf-dev-api-halfpipe-team-dev
+  source:
+    api: dev-api
+    org: halfpipe-team
+    password: very-secret
+    space: dev
+    username: michiel
+  type: cf-resource
 

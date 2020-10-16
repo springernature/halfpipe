@@ -1,58 +1,34 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/docker-compose
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: cf-mp-api-my-org-my-space
-  type: cf-resource
-  source:
-    api: mp-api
-    org: my-org
-    password: ((cloudfoundry.password))
-    space: my-space
-    username: ((cloudfoundry.username))
-  check_every: 24h
-resource_types:
-- name: cf-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
-    username: _json_key
 jobs:
-- name: test
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: test
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 1h
-  - task: test
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: appropriate/curl
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -85,38 +61,37 @@ jobs:
             exit 1
           fi
         dir: git/e2e/docker-decompose-feature
-      inputs:
-      - name: git
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: test
     timeout: 1h
-    attempts: 1
-- name: two-services
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: two-services
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - test
         trigger: true
-        attempts: 2
-      fail_fast: true
     timeout: 1h
-  - task: two-services
-    privileged: true
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -125,8 +100,8 @@ jobs:
         F: foo
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: halfpipe-team
+      platform: linux
       run:
-        path: docker.sh
         args:
         - -c
         - |
@@ -151,39 +126,35 @@ jobs:
             exit 1
           fi
         dir: git/e2e/docker-decompose-feature
-      inputs:
-      - name: git
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: docker.sh
+    privileged: true
+    task: two-services
     timeout: 1h
-    attempts: 1
-- name: deploy-cf
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-mp-api-my-org-my-space
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-mp-api-my-org-my-space
     timeout: 1h
-    attempts: 2
+  name: deploy-cf
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - two-services
         trigger: true
-        attempts: 2
-      fail_fast: true
     timeout: 1h
-  - put: halfpipe-push
-    resource: cf-mp-api-my-org-my-space
+  - attempts: 2
     params:
       appPath: git/e2e/docker-decompose-feature
       cliVersion: cf6
@@ -192,35 +163,41 @@ jobs:
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-mp-api-my-org-my-space
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
+    put: halfpipe-check
+    resource: cf-mp-api-my-org-my-space
     timeout: 1h
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: test2
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 repository: appropriate/curl
                 tag: latest
+              type: registry-image
+            inputs:
+            - name: git
             params:
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-my-space-CANDIDATE.test.com
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -253,22 +230,46 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/docker-decompose-feature
-            inputs:
-            - name: git
-            caches:
-            - path: ../../../var/halfpipe/cache
-            - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+              path: /bin/sh
+          task: test2
+          timeout: 1h
     timeout: 1h
-  - put: halfpipe-promote
-    resource: cf-mp-api-my-org-my-space
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       testDomain: test.com
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-mp-api-my-org-my-space
     timeout: 1h
-    attempts: 2
+  serial: true
+resource_types:
+- name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/docker-compose
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: cf-mp-api-my-org-my-space
+  source:
+    api: mp-api
+    org: my-org
+    password: ((cloudfoundry.password))
+    space: my-space
+    username: ((cloudfoundry.username))
+  type: cf-resource
 

@@ -1,70 +1,27 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/deploy-cf-docker-image
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: version
-  type: semver
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-deploy-cf-docker-image
-- name: cf-snpaas-dev
-  type: cf-resource
-  source:
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    password: ((cloudfoundry.password-snpaas))
-    space: dev
-    username: ((cloudfoundry.username-snpaas))
-  check_every: 24h
-- name: rolling-cf-snpaas-dev
-  type: cf-resource
-  source:
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    password: ((cloudfoundry.password-snpaas))
-    space: dev
-    username: ((cloudfoundry.username-snpaas))
-  check_every: 24h
-resource_types:
-- name: cf-resource
-  type: registry-image
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
-    username: _json_key
 jobs:
-- name: update
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: update
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 1h
-  - task: update
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
       params:
         CONCOURSE_PASSWORD: ((concourse.password))
         CONCOURSE_TEAM: ((concourse.team))
@@ -72,50 +29,48 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-deploy-cf-docker-image
+        PIPELINE_NAME: halfpipe-e2e-deploy-cf-docker-image-6_5_1
+      platform: linux
       run:
-        path: update-pipeline
         dir: git/e2e/deploy-cf-docker-image
-      inputs:
-      - name: git
+        path: update-pipeline
+    task: update
     timeout: 1h
-    attempts: 2
-  - put: version
+  - attempts: 2
     params:
       bump: minor
+    put: version
     timeout: 1h
-    attempts: 2
-- name: deploy to cf simple
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-snpaas-dev
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-dev
     timeout: 1h
-    attempts: 2
+  name: deploy to cf simple
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - update
-        attempts: 2
-      - get: version
-        passed:
-        - update
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - update
+      - attempts: 2
+        get: version
+        passed:
+        - update
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: halfpipe-push
-    resource: cf-snpaas-dev
+  - attempts: 2
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -126,58 +81,58 @@ jobs:
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-snpaas-dev
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-promote
+    put: halfpipe-check
     resource: cf-snpaas-dev
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-dev
     timeout: 1h
-    attempts: 2
-- name: deploy to cf with pre promote
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
-    put: halfpipe-cleanup
-    resource: cf-snpaas-dev
+    attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-dev
     timeout: 1h
-    attempts: 2
+  name: deploy to cf with pre promote
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to cf simple
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to cf simple
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to cf simple
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to cf simple
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: halfpipe-push
-    resource: cf-snpaas-dev
+  - attempts: 2
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -189,38 +144,45 @@ jobs:
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: halfpipe-check
+    put: halfpipe-push
     resource: cf-snpaas-dev
+    timeout: 1h
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
+    put: halfpipe-check
+    resource: cf-snpaas-dev
     timeout: 1h
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: pre-promote-step
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-fly
                 tag: latest
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: version
             params:
               A: blah
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -254,46 +216,40 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/deploy-cf-docker-image
-            inputs:
-            - name: git
-            - name: version
-            caches:
-            - path: ../../../var/halfpipe/cache
-            - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+              path: /bin/sh
+          task: pre-promote-step
+          timeout: 1h
     timeout: 1h
-  - put: halfpipe-promote
-    resource: cf-snpaas-dev
+  - attempts: 2
     params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-dev
     timeout: 1h
-    attempts: 2
-- name: deploy to cf simple - rolling deploy
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: deploy to cf simple - rolling deploy
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to cf with pre promote
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to cf with pre promote
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to cf with pre promote
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to cf with pre promote
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: rolling-deploy
-    resource: rolling-cf-snpaas-dev
+  - attempts: 2
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -304,29 +260,29 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
+    put: rolling-deploy
+    resource: rolling-cf-snpaas-dev
     timeout: 1h
-    attempts: 2
-- name: deploy to cf with pre promote - rolling deploy
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: deploy to cf with pre promote - rolling deploy
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - deploy to cf simple - rolling deploy
-        attempts: 2
-      - get: version
-        passed:
-        - deploy to cf simple - rolling deploy
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - deploy to cf simple - rolling deploy
+      - attempts: 2
+        get: version
+        passed:
+        - deploy to cf simple - rolling deploy
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: deploy-test-app
-    resource: rolling-cf-snpaas-dev
+  - attempts: 2
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -339,29 +295,36 @@ jobs:
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
+    put: deploy-test-app
+    resource: rolling-cf-snpaas-dev
     timeout: 1h
-    attempts: 2
   - in_parallel:
+      fail_fast: true
       steps:
       - do:
-        - task: pre-promote-step
+        - attempts: 1
           config:
-            platform: linux
+            caches:
+            - path: ../../../var/halfpipe/cache
+            - path: ../../../halfpipe-cache
             image_resource:
-              type: registry-image
               source:
                 password: ((halfpipe-gcr.private_key))
                 repository: eu.gcr.io/halfpipe-io/halfpipe-fly
                 tag: latest
                 username: _json_key
+              type: registry-image
+            inputs:
+            - name: git
+            - name: version
             params:
               A: blah
               ARTIFACTORY_PASSWORD: ((artifactory.password))
               ARTIFACTORY_URL: ((artifactory.url))
               ARTIFACTORY_USERNAME: ((artifactory.username))
               TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app
+            platform: linux
             run:
-              path: /bin/sh
               args:
               - -c
               - |
@@ -395,17 +358,11 @@ jobs:
                   exit 1
                 fi
               dir: git/e2e/deploy-cf-docker-image
-            inputs:
-            - name: git
-            - name: version
-            caches:
-            - path: ../../../var/halfpipe/cache
-            - path: ../../../halfpipe-cache
-          attempts: 1
-      fail_fast: true
+              path: /bin/sh
+          task: pre-promote-step
+          timeout: 1h
     timeout: 1h
-  - put: rolling-deploy
-    resource: rolling-cf-snpaas-dev
+  - attempts: 2
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -416,13 +373,58 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
-    timeout: 1h
-    attempts: 2
-  - put: remove-test-app
+    put: rolling-deploy
     resource: rolling-cf-snpaas-dev
+    timeout: 1h
+  - attempts: 2
     params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
+    put: remove-test-app
+    resource: rolling-cf-snpaas-dev
     timeout: 1h
-    attempts: 2
+  serial: true
+resource_types:
+- name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/deploy-cf-docker-image
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-deploy-cf-docker-image-6.5.1
+  type: semver
+- check_every: 24h
+  name: cf-snpaas-dev
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    password: ((cloudfoundry.password-snpaas))
+    space: dev
+    username: ((cloudfoundry.username-snpaas))
+  type: cf-resource
+- check_every: 24h
+  name: rolling-cf-snpaas-dev
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    password: ((cloudfoundry.password-snpaas))
+    space: dev
+    username: ((cloudfoundry.username-snpaas))
+  type: cf-resource
 

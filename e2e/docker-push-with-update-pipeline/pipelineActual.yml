@@ -1,58 +1,27 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/docker-push-with-update-pipeline
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: version
-  type: semver
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-docker-push-with-update-pipeline
-- name: image1
-  type: docker-image
-  source:
-    password: verysecret
-    repository: springerplatformengineering/image1
-    username: rob
-  check_every: 24h
-- name: image2
-  type: docker-image
-  source:
-    password: verysecret
-    repository: springerplatformengineering/image2
-    username: rob
-  check_every: 24h
 jobs:
-- name: update
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: update
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        trigger: true
     timeout: 1h
-  - task: update
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
       params:
         CONCOURSE_PASSWORD: ((concourse.password))
         CONCOURSE_TEAM: ((concourse.team))
@@ -60,39 +29,38 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: docker-push-with-update-pipeline
+        PIPELINE_NAME: docker-push-with-update-pipeline-6_5_1
+      platform: linux
       run:
-        path: update-pipeline
         dir: git/e2e/docker-push-with-update-pipeline
-      inputs:
-      - name: git
+        path: update-pipeline
+    task: update
     timeout: 1h
-    attempts: 2
-  - put: version
+  - attempts: 2
     params:
       bump: minor
+    put: version
     timeout: 1h
-    attempts: 2
-- name: push to docker registry
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: push to docker registry
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - update
-        attempts: 2
-      - get: version
-        passed:
-        - update
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - update
+      - attempts: 2
+        get: version
+        passed:
+        - update
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: image1
+  - attempts: 1
     params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:
@@ -104,28 +72,28 @@ jobs:
       dockerfile: git/e2e/docker-push-with-update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: version/number
+    put: image1
     timeout: 1h
-    attempts: 1
-- name: push to docker registry with git ref
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: push to docker registry with git ref
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        passed:
-        - push to docker registry
-        attempts: 2
-      - get: version
-        passed:
-        - push to docker registry
-        trigger: true
-        timeout: 1m
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        passed:
+        - push to docker registry
+      - attempts: 2
+        get: version
+        passed:
+        - push to docker registry
+        timeout: 1m
+        trigger: true
     timeout: 1h
-  - put: image2
+  - attempts: 1
     params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:
@@ -137,6 +105,38 @@ jobs:
       dockerfile: git/e2e/docker-push-with-update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
+    put: image2
     timeout: 1h
-    attempts: 1
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/docker-push-with-update-pipeline
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-docker-push-with-update-pipeline-6.5.1
+  type: semver
+- check_every: 24h
+  name: image1
+  source:
+    password: verysecret
+    repository: springerplatformengineering/image1
+    username: rob
+  type: docker-image
+- check_every: 24h
+  name: image2
+  source:
+    password: verysecret
+    repository: springerplatformengineering/image2
+    username: rob
+  type: docker-image
 

@@ -1,46 +1,29 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/parallel
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
-- name: version
-  type: semver
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-parallel
 jobs:
-- name: update
-  serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: update
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        trigger: true
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: update
+  - attempts: 2
     config:
-      platform: linux
       image_resource:
-        type: registry-image
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
       params:
         CONCOURSE_PASSWORD: ((concourse.password))
         CONCOURSE_TEAM: ((concourse.team))
@@ -48,54 +31,58 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-parallel
+        PIPELINE_NAME: halfpipe-e2e-parallel-6_5_1
+      platform: linux
       run:
-        path: update-pipeline
         dir: git/e2e/parallel
-      inputs:
-      - name: git
+        path: update-pipeline
+    task: update
     timeout: 1h
-    attempts: 2
-  - put: version
+  - attempts: 2
     params:
       bump: minor
+    put: version
     timeout: 1h
-    attempts: 2
-- name: first job
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: first job
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - update
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - update
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: first-job
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -129,49 +116,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: first-job
     timeout: 1h
-    attempts: 1
-- name: parallel 1 1
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 1 1
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        passed:
-        - first job
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      - get: version
         passed:
         - first job
-        trigger: true
+      - attempts: 2
+        get: version
+        passed:
+        - first job
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-1-1
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -205,49 +192,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-1-1
     timeout: 1h
-    attempts: 1
-- name: parallel 1 2
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 1 2
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        passed:
-        - first job
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      - get: version
         passed:
         - first job
-        trigger: true
+      - attempts: 2
+        get: version
+        passed:
+        - first job
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-1-2
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -281,49 +268,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-1-2
     timeout: 1h
-    attempts: 1
-- name: parallel 1 3
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 1 3
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        passed:
-        - first job
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      - get: version
         passed:
         - first job
-        trigger: true
+      - attempts: 2
+        get: version
+        passed:
+        - first job
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-1-3
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -357,53 +344,53 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-1-3
     timeout: 1h
-    attempts: 1
-- name: parallel 2 sequence 1 1
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 sequence 1 1
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-sequence-1-1
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -437,49 +424,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-sequence-1-1
     timeout: 1h
-    attempts: 1
-- name: parallel 2 sequence 1 2
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 sequence 1 2
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - parallel 2 sequence 1 1
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 1 1
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-sequence-1-2
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -513,53 +500,53 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-sequence-1-2
     timeout: 1h
-    attempts: 1
-- name: parallel 2 sequence 2 1
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 sequence 2 1
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        passed:
-        - parallel 1 1
-        - parallel 1 2
-        - parallel 1 3
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      - get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        trigger: true
+      - attempts: 2
+        get: version
+        passed:
+        - parallel 1 1
+        - parallel 1 2
+        - parallel 1 3
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-sequence-2-1
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -593,49 +580,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-sequence-2-1
     timeout: 1h
-    attempts: 1
-- name: parallel 2 sequence 2 2
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 sequence 2 2
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - parallel 2 sequence 2 1
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 2 1
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-sequence-2-2
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -669,49 +656,49 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-sequence-2-2
     timeout: 1h
-    attempts: 1
-- name: parallel 2 sequence 2 3
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 sequence 2 3
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
-        passed:
-        - parallel 2 sequence 2 2
+      - attempts: 2
+        get: git
         params:
           depth: 1
-        attempts: 2
-      - get: version
         passed:
         - parallel 2 sequence 2 2
-        trigger: true
+      - attempts: 2
+        get: version
+        passed:
+        - parallel 2 sequence 2 2
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-sequence-2-3
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -745,53 +732,53 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-sequence-2-3
     timeout: 1h
-    attempts: 1
-- name: parallel 2 1
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: parallel 2 1
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: parallel-2-1
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -825,53 +812,53 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: parallel-2-1
     timeout: 1h
-    attempts: 1
-- name: after parallel
   serial: true
-  build_log_retention:
+- build_log_retention:
     minimum_succeeded_builds: 1
+  name: after parallel
   plan:
   - in_parallel:
+      fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-        params:
-          depth: 1
-        attempts: 2
-      - get: version
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-        trigger: true
         timeout: 1m
-        attempts: 2
-      fail_fast: true
+        trigger: true
     timeout: 1h
-  - task: after-parallel
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
           repository: alpine
           tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -905,11 +892,25 @@ jobs:
             exit 1
           fi
         dir: git/e2e/parallel
-      inputs:
-      - name: git
-      - name: version
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        path: /bin/sh
+    task: after-parallel
     timeout: 1h
-    attempts: 1
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/parallel
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-parallel-6.5.1
+  type: semver
+

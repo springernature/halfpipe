@@ -299,7 +299,7 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 		{Config: &atc.PutStep{Name: versionName, Params: atc.Params{"bump": "minor"}}},
 	}
 
-	for i, _ := range steps {
+	for i := range steps {
 		steps[i] = atc.Step{
 			Config: &atc.RetryStep{
 				Step: &atc.TimeoutStep{

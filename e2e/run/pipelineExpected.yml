@@ -1,49 +1,37 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-resources:
-- name: git
-  type: git
-  source:
-    branch: master
-    paths:
-    - e2e/deploy-ml-modules
-    private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
-  check_every: 10m
 jobs:
-- name: Deploy ml-modules artifact
-  serial: true
-  build_log_retention:
+- build_log_retention:
+    builds: 10
     minimum_succeeded_builds: 1
+  name: test
   plan:
   - in_parallel:
-      steps:
-      - get: git
-        trigger: true
-        attempts: 2
       fail_fast: true
+      steps:
+      - attempts: 2
+        get: git
+        params:
+          depth: 1
+        trigger: true
     timeout: 1h
-  - task: deploy-ml-modules-artifact
+  - attempts: 1
     config:
-      platform: linux
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
       image_resource:
-        type: registry-image
         source:
-          password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
-          tag: latest
-          username: _json_key
+          repository: alpine
+          tag: test
+        type: registry-image
+      inputs:
+      - name: git
       params:
-        APP_NAME: my-app
-        APP_VERSION: v1
         ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
-        MARKLOGIC_HOST: ml.dev.springer-sbm.com,ml.qa1.springer-sbm.com
-        MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))
-        MARKLOGIC_USERNAME: foo
-        ML_MODULES_VERSION: "2.1425"
-        USE_BUILD_VERSION: "false"
+      platform: linux
       run:
-        path: /bin/sh
         args:
         - -c
         - |
@@ -70,16 +58,24 @@ jobs:
 
           export GIT_REVISION=`cat ../../.git/ref`
 
-          /ml-deploy/deploy-ml-modules
+          ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/deploy-ml-modules
-      inputs:
-      - name: git
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+        dir: git/e2e/run
+        path: /bin/sh
+    task: test
     timeout: 1h
-    attempts: 1
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: 6.5.1
+    paths:
+    - e2e/run
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+
