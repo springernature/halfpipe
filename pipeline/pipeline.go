@@ -929,6 +929,9 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	}
 
 	//return prePromoteTasks
+	if len(prePromoteTasks) == 0 {
+		return []atc.Step{}
+	}
 
 	return []atc.Step{
 		{

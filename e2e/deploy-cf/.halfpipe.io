@@ -3,6 +3,7 @@ pipeline: halfpipe-e2e-deploy-cf
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/deploy-cf
 

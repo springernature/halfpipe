@@ -1,4 +1,4 @@
-team: main
+team: halfpipe-team
 pipeline: halfpipe-e2e-artifacts
 
 triggers:
