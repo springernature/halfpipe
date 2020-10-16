@@ -4,5 +4,5 @@
 .DS_Store
 vendor
 
-pipeline.yml
+pipelineActual.yml
 e2e/init/.halfpipe.io

@@ -872,6 +872,9 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
+	if len(task.PrePromote) == 0 {
+		return []atc.Step{}
+	}
 
 	var prePromoteTasks []atc.Step
 	for _, t := range task.PrePromote {
@@ -904,26 +907,13 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
 
-	if len(prePromoteTasks) == 0 {
-		return []atc.Step{}
-	}
-
-	var doSteps []atc.Step
-	for _, ppTask := range prePromoteTasks {
-
-		doSteps = append(doSteps, atc.Step{
-			Config: &atc.DoStep{
-				Steps: []atc.Step{ppTask},
-			},
-		})
-	}
 	if len(prePromoteTasks) > 1 {
 		return []atc.Step{
 			{
 				Config: &atc.TimeoutStep{
 					Step: &atc.InParallelStep{
 						Config: atc.InParallelConfig{
-							Steps:    doSteps,
+							Steps:    prePromoteTasks,
 							FailFast: true,
 						},
 					},
@@ -932,16 +922,11 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 			},
 		}
 	}
-
+	step := prePromoteTasks[0]
 	return []atc.Step{
 		{
 			Config: &atc.TimeoutStep{
-				Step: &atc.InParallelStep{
-					Config: atc.InParallelConfig{
-						Steps:    doSteps,
-						FailFast: true,
-					},
-				},
+				Step:     step.Config,
 				Duration: task.GetTimeout(),
 			},
 		},
