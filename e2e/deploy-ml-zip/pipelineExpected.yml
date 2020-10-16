@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: create zip for ml task
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 1
     config:
       caches:
@@ -93,15 +88,10 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy-ml-zip
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - create zip for ml task
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - create zip for ml task
+    trigger: true
   - config:
       image_resource:
         source:

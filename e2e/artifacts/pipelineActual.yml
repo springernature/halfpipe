@@ -13,13 +13,8 @@ jobs:
           version_file: git/.git/ref
         put: artifacts-on-failure
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 1
     config:
       caches:
@@ -107,15 +102,10 @@ jobs:
     minimum_succeeded_builds: 1
   name: read-artifact
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - create-artifact
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - create-artifact
+    trigger: true
   - config:
       image_resource:
         source:
@@ -212,15 +202,10 @@ jobs:
     timeout: 1h
   name: deploy to staging
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - read-artifact
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - read-artifact
+    trigger: true
   - config:
       image_resource:
         source:
@@ -345,15 +330,10 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - deploy to staging
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - deploy to staging
+    trigger: true
   - config:
       image_resource:
         source:
@@ -426,15 +406,10 @@ jobs:
           version_file: git/.git/ref
         put: artifacts-on-failure
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - push to docker registry
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - push to docker registry
+    trigger: true
   - config:
       image_resource:
         source:
@@ -536,15 +511,10 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy-ml-zip
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - docker-compose
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - docker-compose
+    trigger: true
   - config:
       image_resource:
         source:

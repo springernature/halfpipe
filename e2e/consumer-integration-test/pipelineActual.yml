@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: another-c-name
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 1
     config:
       caches:

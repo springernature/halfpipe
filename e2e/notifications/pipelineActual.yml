@@ -23,13 +23,8 @@ jobs:
           username: Halfpipe
         put: slack
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 1
     config:
       caches:
@@ -118,15 +113,10 @@ jobs:
           username: Halfpipe
         put: slack
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - task1
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - task1
+    trigger: true
   - attempts: 1
     config:
       caches:
@@ -214,15 +204,10 @@ jobs:
           username: Halfpipe
         put: slack
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - task2
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - task2
+    trigger: true
   - attempts: 2
     params:
       appPath: git/e2e/notifications

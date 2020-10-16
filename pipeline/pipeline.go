@@ -164,43 +164,23 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 		})
 	}
 
-	var attemptsGet []atc.Step
+	var steps []atc.Step
 	for i := range gets {
-		if gets[i].Name == "version" {
-			attemptsGet = append(attemptsGet, atc.Step{
-				Config: &atc.TimeoutStep{
-					Step: &atc.RetryStep{
-						Step:     &gets[i],
-						Attempts: 2,
-					},
-					Duration: "1m",
-				},
-				UnknownFields: nil,
-			})
-		} else {
-			attemptsGet = append(attemptsGet, atc.Step{
-				Config: &atc.RetryStep{
-					Step:     &gets[i],
-					Attempts: 2,
-				},
-				UnknownFields: nil,
-			})
-		}
+		steps = append(steps, atc.Step{Config: &gets[i]})
 	}
 
-	timeoutStep := atc.Step{
-		Config: &atc.TimeoutStep{
-			Step: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps:    attemptsGet,
-					FailFast: true,
+	if len(steps) > 1 {
+		steps = []atc.Step{
+			{
+				Config: &atc.InParallelStep{
+					Config: atc.InParallelConfig{
+						Steps:    steps,
+						Limit:    0,
+						FailFast: true,
+					},
 				},
 			},
-			Duration: task.GetTimeout(),
-		},
-	}
-	steps := []atc.Step{
-		timeoutStep,
+		}
 	}
 
 	if task.ReadsFromArtifacts() {

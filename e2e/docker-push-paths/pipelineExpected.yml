@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 1
     params:
       build: git/e2e/docker-push-paths/some/build/dir
@@ -28,15 +23,10 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry again
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - push to docker registry
-        trigger: true
-    timeout: 1h
+  - get: git
+    passed:
+    - push to docker registry
+    trigger: true
   - attempts: 1
     params:
       build: git/e2e/docker-push-paths

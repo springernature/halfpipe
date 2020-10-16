@@ -14,13 +14,8 @@ jobs:
     timeout: 5m
   name: deploy to cf without any jazz
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 5m
+  - get: git
+    trigger: true
   - attempts: 2
     params:
       appPath: git/e2e/deploy-cf-old-resource
@@ -67,15 +62,10 @@ jobs:
     timeout: 5m
   name: deploy to cf
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        passed:
-        - deploy to cf without any jazz
-        trigger: true
-    timeout: 5m
+  - get: git
+    passed:
+    - deploy to cf without any jazz
+    trigger: true
   - attempts: 2
     params:
       appPath: git/e2e/deploy-cf-old-resource

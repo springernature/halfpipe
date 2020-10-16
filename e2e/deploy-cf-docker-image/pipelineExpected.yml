@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -59,17 +54,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -121,17 +112,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf simple
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf simple
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -233,17 +220,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf with pre promote
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf with pre promote
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -266,17 +249,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf simple - rolling deploy
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf simple - rolling deploy
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 2
     params:
       buildVersionPath: version/version

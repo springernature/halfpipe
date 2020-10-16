@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -49,17 +44,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     params:
       build: git/e2e/docker-push-with-update-pipeline
@@ -82,17 +73,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - push to docker registry
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - push to docker registry
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     params:
       build: git/e2e/docker-push-with-update-pipeline

@@ -7,15 +7,12 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: alpine.tag
+      - get: alpine.tag
         params:
           skip_download: true
         trigger: true
-      - attempts: 2
-        get: git
+      - get: git
         trigger: true
-    timeout: 1h
   - attempts: 1
     params:
       build: git/e2e/docker-push-with-docker-trigger

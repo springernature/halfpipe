@@ -4,12 +4,7 @@ jobs:
     minimum_succeeded_builds: 1
   name: test
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-    timeout: 1h
+  - get: git
   - attempts: 1
     config:
       caches:

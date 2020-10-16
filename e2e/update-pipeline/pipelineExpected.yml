@@ -4,13 +4,8 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - in_parallel:
-      fail_fast: true
-      steps:
-      - attempts: 2
-        get: git
-        trigger: true
-    timeout: 1h
+  - get: git
+    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -58,17 +53,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -170,17 +161,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - Test
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - Test
-        timeout: 1m
         trigger: true
-    timeout: 5m
   - config:
       image_resource:
         source:
@@ -264,17 +251,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - config:
       image_resource:
         source:
@@ -579,17 +562,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - config:
       image_resource:
         source:
@@ -783,19 +762,15 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to staging
         - deploy to qa
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to staging
         - deploy to qa
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     params:
       build: git/e2e/update-pipeline
@@ -818,17 +793,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - push to docker registry
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - push to docker registry
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -905,17 +876,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - run notify.sh
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - run notify.sh
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -994,17 +961,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - docker-compose
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - docker-compose
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -1105,17 +1068,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - another-c-name
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - another-c-name
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - config:
       image_resource:
         source:
@@ -1212,17 +1171,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy-ml-zip
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy-ml-zip
-        timeout: 1m
         trigger: true
-    timeout: 1h
   - attempts: 1
     config:
       caches:
