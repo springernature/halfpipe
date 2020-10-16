@@ -37,14 +37,14 @@ tasks:
   vars:
       A: "0.1"
       B: "false"
-#  pre_promote:
-#  - type: run
-#    script: ./a
-#    docker:
-#      image: eu.gcr.io/halfpipe-io/halfpipe-fly
-#    vars:
-#      A: "blah"
-#    restore_artifacts: true
+  pre_promote:
+  - type: run
+    script: ./a
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+    vars:
+      A: "blah"
+    restore_artifacts: true
 
 - type: docker-push
   name: push to docker registry

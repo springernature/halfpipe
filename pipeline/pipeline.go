@@ -640,7 +640,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 					},
 					Duration: task.GetTimeout(),
 				},
-				Attempts: 2,
+				Attempts: task.GetAttempts(),
 			},
 		}
 		jobConfig.PlanSequence = append(jobConfig.PlanSequence, artifactPut)
@@ -668,12 +668,24 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 		Serial: true,
 	}
 
+	addTimeoutAndRetry := func(step atc.Step) atc.Step {
+		return atc.Step{
+			Config: &atc.TimeoutStep{
+				Step: &atc.RetryStep{
+					Step:     step.Config,
+					Attempts: task.GetAttempts(),
+				},
+				Duration: task.GetTimeout(),
+			},
+		}
+	}
+
 	var steps []atc.Step
 	if !task.Rolling {
-		steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-		steps = append(steps, p.checkApp(task, resourceName, manifestPath))
-		//steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
-		steps = append(steps, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
+		steps = append(steps, addTimeoutAndRetry(p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man)))
+		steps = append(steps, addTimeoutAndRetry(p.checkApp(task, resourceName, manifestPath)))
+		steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
+		steps = append(steps, addTimeoutAndRetry(p.promoteCandidateAppToLive(task, resourceName, manifestPath)))
 		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
 	} else {
 		if len(task.PrePromote) == 0 {
@@ -683,18 +695,6 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 			//job.PlanSequence = append(job.PlanSequence, p.prePromoteTasks(task, man, basePath)...)
 			//job.PlanSequence = append(job.PlanSequence, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
 			//job.PlanSequence = append(job.PlanSequence, p.removeTestApp(task, resourceName, manifestPath))
-		}
-	}
-
-	for i, step := range steps {
-		steps[i] = atc.Step{
-			Config: &atc.TimeoutStep{
-				Step: &atc.RetryStep{
-					Step:     step.Config,
-					Attempts: task.GetAttempts(),
-				},
-				Duration: task.GetTimeout(),
-			},
 		}
 	}
 
@@ -868,81 +868,86 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	return atc.Step{}
 }
 
-func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.Step {
+func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
-	//var saveArtifacts bool
-	//var restoreArtifacts bool
-	//var prePromoteTasks []atc.Step
-	//for _, t := range task.PrePromote {
-	//	applications, e := p.readCfManifest(task.Manifest, nil, nil)
-	//	if e != nil {
-	//		panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
-	//	}
-	//	testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
-	//	var ppJob atc.JobConfig
-	//	switch ppTask := t.(type) {
-	//	case manifest.Run:
-	//		if len(ppTask.Vars) == 0 {
-	//			ppTask.Vars = make(map[string]string)
-	//		}
-	//		ppTask.Vars["TEST_ROUTE"] = testRoute
-	//		ppJob = p.runJob(ppTask, man, false, basePath)
-	//		restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
-	//		saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
+
+	var saveArtifacts bool
+	var restoreArtifacts bool
+	var prePromoteTasks []atc.Step
+	for _, t := range task.PrePromote {
+		applications, e := p.readCfManifest(task.Manifest, nil, nil)
+		if e != nil {
+			panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
+		}
+		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
+		var ppJob atc.JobConfig
+		switch ppTask := t.(type) {
+		case manifest.Run:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = make(map[string]string)
+			}
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			ppJob = p.runJob(ppTask, man, false, basePath)
+			restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
+			saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
+			//case manifest.DockerCompose:
+			//	if len(ppTask.Vars) == 0 {
+			//		ppTask.Vars = make(map[string]string)
+			//	}
+			//	ppTask.Vars["TEST_ROUTE"] = testRoute
+			//	ppJob = p.dockerComposeJob(ppTask, man, basePath)
+			//	restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
+			//	saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
+			//
+			//case manifest.ConsumerIntegrationTest:
+			//	if ppTask.ProviderHost == "" {
+			//		ppTask.ProviderHost = testRoute
+			//	}
+			//	ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
+		}
+		//planConfig := atc.PlanConfig{Do: &ppJob.Plan}
+		// Config            *TaskConfig
+		prePromoteTasks = ppJob.PlanSequence
+	}
 	//
-	//	case manifest.DockerCompose:
-	//		if len(ppTask.Vars) == 0 {
-	//			ppTask.Vars = make(map[string]string)
-	//		}
-	//		ppTask.Vars["TEST_ROUTE"] = testRoute
-	//		ppJob = p.dockerComposeJob(ppTask, man, basePath)
-	//		restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
-	//		saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
-	//
-	//	case manifest.ConsumerIntegrationTest:
-	//		if ppTask.ProviderHost == "" {
-	//			ppTask.ProviderHost = testRoute
-	//		}
-	//		ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
-	//	}
-	//	//planConfig := atc.PlanConfig{Do: &ppJob.Plan}
-	//	// Config            *TaskConfig
-	//
-	//	atc.TaskStep{
-	//		Name:              "",
-	//		Privileged:        false,
-	//		ConfigPath:        "",
-	//		Config:            ppJob,
-	//		Params:            nil,
-	//		Vars:              nil,
-	//		Tags:              nil,
-	//		InputMapping:      nil,
-	//		OutputMapping:     nil,
-	//		ImageArtifactName: "",
-	//	}
-	//	prePromoteTasks = append(prePromoteTasks, atc.Step{})
-	//}
-	//
-	//if len(prePromoteTasks) > 0 && !restoreArtifacts {
-	//	return atc.Step{
-	//		Config: &atc.InParallelStep{
-	//			Config: atc.InParallelConfig{
-	//				Steps:    nil,
-	//				FailFast: true,
-	//			},
-	//		},
-	//		//atc.PlanConfig{
-	//		//	InParallel: &atc.InParallelConfig{
-	//		//		Steps:    prePromoteTasks,
-	//		//		FailFast: true,
-	//		//	},
-	//		//},
-	//	}
-	//}
+	if len(prePromoteTasks) > 0 && !restoreArtifacts {
+		//	return atc.Step{
+		//		Config: &atc.InParallelStep{
+		//			Config: atc.InParallelConfig{
+		//				Steps:    nil,
+		//				FailFast: true,
+		//			},
+		//		},
+		//		//atc.PlanConfig{
+		//		//	InParallel: &atc.InParallelConfig{
+		//		//		Steps:    prePromoteTasks,
+		//		//		FailFast: true,
+		//		//	},
+		//		//},
+		//	}
+	}
 
 	//return prePromoteTasks
-	return atc.Step{
+
+	return []atc.Step{
+		{
+			Config: &atc.TimeoutStep{
+				Step: &atc.InParallelStep{
+					Config: atc.InParallelConfig{
+						Steps: []atc.Step{
+							{
+								Config: &atc.DoStep{
+									Steps: prePromoteTasks,
+								},
+							},
+						},
+						FailFast: true,
+					},
+				},
+				Duration: task.GetTimeout(),
+			},
+		},
 	}
 }
 

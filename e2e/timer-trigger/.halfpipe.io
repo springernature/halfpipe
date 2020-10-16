@@ -2,6 +2,8 @@ team: halfpipe-team
 pipeline: halfpipe-e2e-timer-trigger
 
 triggers:
+- type: git
+  branch: 6.5.1
 - type: timer
   cron: "* * * * *"
 
