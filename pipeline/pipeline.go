@@ -689,12 +689,12 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
 	} else {
 		if len(task.PrePromote) == 0 {
-			job.PlanSequence = append(job.PlanSequence, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			steps = append(steps, addTimeoutAndRetry(p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man)))
 		} else {
-			//job.PlanSequence = append(job.PlanSequence, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-			//job.PlanSequence = append(job.PlanSequence, p.prePromoteTasks(task, man, basePath)...)
-			//job.PlanSequence = append(job.PlanSequence, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
-			//job.PlanSequence = append(job.PlanSequence, p.removeTestApp(task, resourceName, manifestPath))
+			steps = append(steps, addTimeoutAndRetry(p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man)))
+			steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
+			steps = append(steps, addTimeoutAndRetry(p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man)))
+			steps = append(steps, addTimeoutAndRetry(p.removeTestApp(task, resourceName, manifestPath)))
 		}
 	}
 
@@ -816,56 +816,57 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 }
 
 func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
-	//return atc.PlanConfig{
-	//	Put:      "remove-test-app",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-delete-test",
-	//		"manifestPath": manifestPath,
-	//	},
-	//}
-	return atc.Step{}
+	return atc.Step{
+		Config:        &atc.PutStep{
+			Name:     "remove-test-app",
+			Resource: resourceName,
+			Params: atc.Params{
+				"command":      "halfpipe-delete-test",
+				"manifestPath": manifestPath,
+			},
+		},
+	}
 }
 
 func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
-	//deploy := atc.PlanConfig{
-	//	Put:      "rolling-deploy",
-	//	Attempts: task.GetAttempts(),
-	//	Resource: resourceName,
-	//	Params: atc.Params{
-	//		"command":      "halfpipe-rolling-deploy",
-	//		"manifestPath": manifestPath,
-	//		"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-	//		"cliVersion":   "cf7",
-	//	},
-	//}
-	//
-	//if task.IsDockerPush {
-	//	deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
-	//	deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
-	//	if task.DockerTag != "" {
-	//		if task.DockerTag == "version" {
-	//			deploy.Params["dockerTag"] = path.Join(versionName, "version")
-	//		} else if task.DockerTag == "gitref" {
-	//			deploy.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
-	//		}
-	//	}
-	//} else {
-	//	deploy.Params["appPath"] = appPath
-	//}
-	//
-	//if len(vars) > 0 {
-	//	deploy.Params["vars"] = vars
-	//}
-	//if task.Timeout != "" {
-	//	deploy.Params["timeout"] = task.Timeout
-	//}
-	//if man.FeatureToggles.Versioned() {
-	//	deploy.Params["buildVersionPath"] = path.Join("version", "version")
-	//}
-	//return deploy
-	return atc.Step{}
+	deploy := atc.PutStep{
+		Name:      "rolling-deploy",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-rolling-deploy",
+			"manifestPath": manifestPath,
+			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+			"cliVersion":   "cf7",
+		},
+	}
+
+	if task.IsDockerPush {
+		deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
+		deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		if task.DockerTag != "" {
+			if task.DockerTag == "version" {
+				deploy.Params["dockerTag"] = path.Join(versionName, "version")
+			} else if task.DockerTag == "gitref" {
+				deploy.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
+			}
+		}
+	} else {
+		deploy.Params["appPath"] = appPath
+	}
+
+	if len(vars) > 0 {
+		deploy.Params["vars"] = vars
+	}
+	if task.Timeout != "" {
+		deploy.Params["timeout"] = task.Timeout
+	}
+	if man.FeatureToggles.Versioned() {
+		deploy.Params["buildVersionPath"] = path.Join("version", "version")
+	}
+
+	return atc.Step{
+		Config: &deploy,
+	}
 }
 
 func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
