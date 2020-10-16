@@ -6,11 +6,11 @@ import (
 
 	"regexp"
 
-	"path"
-	"sigs.k8s.io/yaml"
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"path"
+	"sigs.k8s.io/yaml"
 )
 
 func convertVars(vars manifest.Vars) map[string]interface{} {

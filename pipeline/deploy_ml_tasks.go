@@ -29,7 +29,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
 		ManualTrigger: mlTask.ManualTrigger,
-		Timeout: mlTask.GetTimeout(),
+		Timeout:       mlTask.GetTimeout(),
 	}
 
 	if mlTask.AppVersion != "" {
@@ -58,7 +58,7 @@ func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manif
 		},
 		ManualTrigger:    mlTask.ManualTrigger,
 		RestoreArtifacts: true,
-		Timeout: mlTask.GetTimeout(),
+		Timeout:          mlTask.GetTimeout(),
 	}
 
 	if mlTask.AppVersion != "" {

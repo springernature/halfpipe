@@ -917,13 +917,13 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 			},
 		})
 	}
-	if len(prePromoteTasks) > 1  {
+	if len(prePromoteTasks) > 1 {
 		return []atc.Step{
 			{
 				Config: &atc.TimeoutStep{
 					Step: &atc.InParallelStep{
 						Config: atc.InParallelConfig{
-							Steps: doSteps,
+							Steps:    doSteps,
 							FailFast: true,
 						},
 					},
@@ -932,7 +932,6 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 			},
 		}
 	}
-
 
 	return []atc.Step{
 		{

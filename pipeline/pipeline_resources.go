@@ -302,7 +302,7 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 	for i, _ := range steps {
 		steps[i] = atc.Step{
 			Config: &atc.RetryStep{
-				Step:     &atc.TimeoutStep{
+				Step: &atc.TimeoutStep{
 					Step:     steps[i].Config,
 					Duration: "1h",
 				},
@@ -312,8 +312,8 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 	}
 
 	return atc.JobConfig{
-		Name: task.GetName(),
-		Serial: true,
+		Name:         task.GetName(),
+		Serial:       true,
 		PlanSequence: steps,
 	}
 }
