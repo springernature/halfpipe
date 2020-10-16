@@ -6,8 +6,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -30,12 +29,9 @@ jobs:
         dir: git/e2e/docker-push-with-update-pipeline
         path: update-pipeline
     task: update
-    timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       bump: minor
     put: version
-    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
