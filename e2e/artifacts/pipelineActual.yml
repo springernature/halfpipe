@@ -116,8 +116,7 @@ jobs:
         - create-artifact
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -141,7 +140,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -223,8 +221,7 @@ jobs:
         - read-artifact
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -248,7 +245,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 2
     params:
       appPath: git/e2e/artifacts
@@ -358,8 +354,7 @@ jobs:
         - deploy to staging
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -383,7 +378,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - config:
       image_resource:
         source:
@@ -441,8 +435,7 @@ jobs:
         - push to docker registry
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -466,7 +459,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -553,8 +545,7 @@ jobs:
         - docker-compose
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -578,7 +569,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 1
     config:
       caches:

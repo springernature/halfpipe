@@ -105,15 +105,9 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	}
 
 	return atc.Step{
-		Config: &atc.RetryStep{
-			Step: &atc.TimeoutStep{
-				Step: &atc.TaskStep{
-					Name:   "get-artifact",
-					Config: &config,
-				},
-				Duration: "1h",
-			},
-			Attempts: 2,
+		Config: &atc.TaskStep{
+			Name:   "get-artifact",
+			Config: &config,
 		},
 	}
 }

@@ -181,8 +181,7 @@ jobs:
         timeout: 1m
         trigger: true
     timeout: 5m
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -206,7 +205,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 2
     params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
@@ -277,8 +275,7 @@ jobs:
         timeout: 1m
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -302,7 +299,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 2
     params:
       appPath: git/e2e/update-pipeline
@@ -594,8 +590,7 @@ jobs:
         timeout: 1m
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -619,7 +614,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 2
     params:
       appPath: git/e2e/update-pipeline
@@ -1122,8 +1116,7 @@ jobs:
         timeout: 1m
         trigger: true
     timeout: 1h
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -1147,7 +1140,6 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 1h
   - attempts: 1
     config:
       caches:
