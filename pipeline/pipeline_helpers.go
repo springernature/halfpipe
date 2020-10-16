@@ -7,9 +7,8 @@ import (
 	"regexp"
 
 	"path"
-
+	"sigs.k8s.io/yaml"
 	"github.com/concourse/concourse/atc"
-	"github.com/simonjohansson/yaml"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -60,14 +59,13 @@ func ToString(pipeline atc.Config) (string, error) {
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
-func saveArtifactOnFailurePlan() atc.PlanConfig {
-	return atc.PlanConfig{
-		Put: artifactsOnFailureName,
+func saveArtifactOnFailurePlan() atc.PutStep {
+	return atc.PutStep{
+		Name: artifactsOnFailureName,
 		Params: atc.Params{
 			"folder":       artifactsOutDirOnFailure,
 			"version_file": path.Join(gitDir, ".git", "ref"),
 			"postfix":      "failure",
 		},
-		Attempts: 2,
 	}
 }

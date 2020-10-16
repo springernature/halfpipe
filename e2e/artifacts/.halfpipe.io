@@ -1,8 +1,9 @@
-team: halfpipe-team
+team: main
 pipeline: halfpipe-e2e-artifacts
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/artifacts
 
@@ -25,46 +26,3 @@ tasks:
   docker:
     image: alpine
   restore_artifacts: true
-
-- type: deploy-cf
-  name: deploy to staging
-  api: ((cloudfoundry.api-snpaas))
-  org: pe
-  space: staging
-  username: michiel
-  password: very-secret
-  vars:
-      A: "0.1"
-      B: "false"
-  pre_promote:
-  - type: run
-    script: ./a
-    docker:
-      image: eu.gcr.io/halfpipe-io/halfpipe-fly
-    vars:
-      A: "blah"
-    restore_artifacts: true
-
-- type: docker-push
-  name: push to docker registry
-  username: rob
-  password: verysecret
-  image: springerplatformengineering/halfpipe-fly
-  vars:
-    A: a
-    B: b
-  restore_artifacts: true
-
-- type: docker-compose
-  vars:
-    A: a
-  save_artifacts_on_failure:
-    - docker-compose.yml
-  restore_artifacts: true
-
-- type: deploy-ml-zip
-  deploy_zip: target/xquery.zip
-  targets:
-  - ml.dev.springer-sbm.com
-
-

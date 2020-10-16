@@ -52,7 +52,7 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 	return runTask
 }
 
-func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest, basePath string) *atc.JobConfig {
+func (p pipeline) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest, basePath string) atc.JobConfig {
 	// it is really just a special run job, so let's reuse that
 	job := p.runJob(consumerIntegrationTestToRunTask(task, man), man, true, basePath)
 	return job
