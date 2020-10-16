@@ -43,6 +43,7 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 			"GCR_PRIVATE_KEY":        "((halfpipe-gcr.private_key))",
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 		},
+		Timeout: task.GetTimeout(),
 	}
 
 	for key, val := range task.Vars {
