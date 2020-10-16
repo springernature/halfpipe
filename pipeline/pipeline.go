@@ -15,7 +15,6 @@ import (
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	boshTemplate "github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/concourse/atc"
-	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -27,12 +26,11 @@ type Renderer interface {
 type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []boshTemplate.VarKV) ([]cfManifest.Application, error)
 
 type pipeline struct {
-	fs             afero.Afero
 	readCfManifest CfManifestReader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader, fs afero.Afero) pipeline {
-	return pipeline{readCfManifest: cfManifestReader, fs: fs}
+func NewPipeline(cfManifestReader CfManifestReader) Renderer {
+	return pipeline{readCfManifest: cfManifestReader}
 }
 
 const artifactsResourceName = "gcp-resource"
@@ -43,12 +41,10 @@ const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
 const gitDir = "git"
-const gitGetAttempts = 2
 
 const dockerBuildTmpDir = "docker_build"
 
 const versionName = "version"
-const versionGetAttempts = 2
 
 func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	// This function is used in pipeline.artifactResource for some reason to lowercase
@@ -69,7 +65,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 		BUCKET = man.ArtifactConfig.Bucket
 	}
 
-	config := atc.TaskConfig{
+	taskConfig := atc.TaskConfig{
 		Platform:  "linux",
 		RootfsURI: "",
 		ImageResource: &atc.ImageResource{
@@ -107,7 +103,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	return atc.Step{
 		Config: &atc.TaskStep{
 			Name:   "get-artifact",
-			Config: &config,
+			Config: &taskConfig,
 		},
 	}
 }
@@ -306,16 +302,18 @@ func (p pipeline) onFailure(task manifest.Task) *atc.Step {
 			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
-		if len(sequence) > 1 {
-			return &atc.Step{
-				Config: &atc.InParallelStep{
-					Config: atc.InParallelConfig{
-						Steps: sequence,
-					},
-				},
-			}
+		if len(sequence) == 1 {
+			return &sequence[0]
 		}
-		return &sequence[0]
+
+		return &atc.Step{
+			Config: &atc.InParallelStep{
+				Config: atc.InParallelConfig{
+					Steps: sequence,
+				},
+			},
+		}
+
 	}
 	return nil
 }
@@ -329,16 +327,18 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
 		}
 
-		if len(sequence) > 1 {
-			return &atc.Step{
-				Config: &atc.InParallelStep{
-					Config: atc.InParallelConfig{
-						Steps: sequence,
-					},
-				},
-			}
+		if len(sequence) == 1 {
+			return &sequence[0]
 		}
-		return &sequence[0]
+
+		return &atc.Step{
+			Config: &atc.InParallelStep{
+				Config: atc.InParallelConfig{
+					Steps: sequence,
+				},
+			},
+		}
+
 	}
 
 	return nil
@@ -378,10 +378,8 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 	job.OnSuccess = p.onSuccess(task)
 
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
-	//job.Plan = inParallelGets(job)
 
 	configureTriggerOnGets(job, task, man)
-	//addTimeout(job, task.GetTimeout())
 	addPassedJobsToGets(job, previousTaskNames)
 	addBuildLogRetentionSettings(&job, task)
 
@@ -438,18 +436,8 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return cfg
 }
 
-func addTimeout(job *atc.JobConfig, timeout string) {
-	//for i := range job.Plan {
-	//	job.Plan[i].Timeout = timeout
-	//}
-	//
-	//if job.Ensure != nil {
-	//	job.Ensure.Timeout = timeout
-	//}
-}
-
 func addPassedJobsToGets(job atc.JobConfig, passedJobs []string) {
-	job.PlanSequence[0].Config.Visit(atc.StepRecursor{
+	_ = job.PlanSequence[0].Config.Visit(atc.StepRecursor{
 		OnGet: func(step *atc.GetStep) error {
 			step.Passed = passedJobs
 			return nil
@@ -476,7 +464,7 @@ func configureTriggerOnGets(job atc.JobConfig, task manifest.Task, man manifest.
 	versioningEnabled := man.FeatureToggles.Versioned()
 	manualGitTrigger := man.Triggers.GetGitTrigger().ManualTrigger
 
-	job.PlanSequence[0].Config.Visit(atc.StepRecursor{
+	_ = job.PlanSequence[0].Config.Visit(atc.StepRecursor{
 		OnGet: func(step *atc.GetStep) error {
 			switch task.(type) {
 			case manifest.Update:
@@ -497,50 +485,6 @@ func configureTriggerOnGets(job atc.JobConfig, task manifest.Task, man manifest.
 			return nil
 		},
 	})
-
-	//switch task.(type) {
-	//case manifest.Update:
-	//	for i, step := range gets.Steps {
-	//		if step.Get == (manifest.GitTrigger{}.GetTriggerName()) {
-	//			gets.Steps[i].Trigger = !manualGitTrigger
-	//		} else {
-	//			gets.Steps[i].Trigger = true
-	//		}
-	//	}
-	//default:
-	//	manifest.GitTrigger{}.GetTriggerName()
-	//	for i, step := range gets.Steps {
-	//		if step.Get == versionName {
-	//			gets.Steps[i].Trigger = true
-	//		} else if step.Get == (manifest.GitTrigger{}.GetTriggerName()) {
-	//			gets.Steps[i].Trigger = !versioningEnabled && !manualGitTrigger
-	//		} else {
-	//			gets.Steps[i].Trigger = !versioningEnabled
-	//		}
-	//	}
-	//}
-}
-
-func inParallelGets(job *atc.JobConfig) []atc.Plan {
-	//var numberOfGets int
-	//for i, plan := range job.Plan {
-	//	if plan.Get == "" {
-	//		numberOfGets = i
-	//		break
-	//	}
-	//}
-	//
-	//sequence := job.Plan[:numberOfGets]
-	//inParallelPlan := atc.PlanSequence{atc.PlanConfig{
-	//	InParallel: &atc.InParallelConfig{
-	//		Steps:    sequence,
-	//		FailFast: true,
-	//	},
-	//}}
-	//job.Plan = append(inParallelPlan, job.Plan[numberOfGets:]...)
-	//
-	//return job.Plan
-	return []atc.Plan{}
 }
 
 func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
@@ -678,7 +622,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 			steps = append(steps, addTimeoutAndRetry(p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man)))
 			steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
 			steps = append(steps, addTimeoutAndRetry(p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man)))
-			steps = append(steps, addTimeoutAndRetry(p.removeTestApp(task, resourceName, manifestPath)))
+			steps = append(steps, addTimeoutAndRetry(p.removeTestApp(resourceName, manifestPath)))
 		}
 	}
 
@@ -799,7 +743,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	}
 }
 
-func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
+func (p pipeline) removeTestApp(resourceName string, manifestPath string) atc.Step {
 	return atc.Step{
 		Config: &atc.PutStep{
 			Name:     "remove-test-app",
