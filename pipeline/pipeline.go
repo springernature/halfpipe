@@ -171,14 +171,27 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 	}
 
 	var attemptsGet []atc.Step
-	for _, get := range gets {
-		attemptsGet = append(attemptsGet, atc.Step{
-			Config: &atc.RetryStep{
-				Step:     &get,
-				Attempts: 2,
-			},
-			UnknownFields: nil,
-		})
+	for i, _ := range gets {
+		if gets[i].Name == "version" {
+			attemptsGet = append(attemptsGet, atc.Step{
+				Config: &atc.TimeoutStep{
+					Step: &atc.RetryStep{
+						Step:     &gets[i],
+						Attempts: 2,
+					},
+					Duration: "1m",
+				},
+				UnknownFields: nil,
+			})
+		} else {
+			attemptsGet = append(attemptsGet, atc.Step{
+				Config: &atc.RetryStep{
+					Step:     &gets[i],
+					Attempts: 2,
+				},
+				UnknownFields: nil,
+			})
+		}
 	}
 
 	timeoutStep := atc.Step{

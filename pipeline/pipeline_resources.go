@@ -294,49 +294,58 @@ func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig
 }
 
 func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, basePath string) atc.JobConfig {
-	//return &atc.JobConfig{
-	//	Name:   task.GetName(),
-	//	Serial: true,
-	//	Plan: []atc.PlanConfig{
-	//		p.updatePipelineTask(pipelineName, basePath),
-	//		{
-	//			Put: versionName,
-	//			Params: atc.Params{
-	//				"bump": "minor",
-	//			},
-	//			Attempts: 2,
-	//		}},
-	//}
-	return atc.JobConfig{}
+	steps := []atc.Step{
+		p.updatePipelineTask(pipelineName, basePath),
+		{Config: &atc.PutStep{Name: versionName, Params: atc.Params{"bump": "minor"}}},
+	}
+
+	for i, _ := range steps {
+		steps[i] = atc.Step{
+			Config: &atc.RetryStep{
+				Step:     &atc.TimeoutStep{
+					Step:     steps[i].Config,
+					Duration: "1h",
+				},
+				Attempts: 2,
+			},
+		}
+	}
+
+	return atc.JobConfig{
+		Name: task.GetName(),
+		Serial: true,
+		PlanSequence: steps,
+	}
 }
 
 func (p pipeline) updatePipelineTask(pipelineName string, basePath string) atc.Step {
-	//return atc.PlanConfig{
-	//	Task:     "update",
-	//	Attempts: 2,
-	//	TaskConfig: &atc.TaskConfig{
-	//		Platform: "linux",
-	//		Params: map[string]string{
-	//			"CONCOURSE_URL":      "((concourse.url))",
-	//			"CONCOURSE_PASSWORD": "((concourse.password))",
-	//			"CONCOURSE_TEAM":     "((concourse.team))",
-	//			"CONCOURSE_USERNAME": "((concourse.username))",
-	//			"PIPELINE_NAME":      pipelineName,
-	//			"HALFPIPE_DOMAIN":    config.Domain,
-	//			"HALFPIPE_PROJECT":   config.Project,
-	//		},
-	//		ImageResource: p.imageResource(manifest.Docker{
-	//			Image:    config.DockerRegistry + "halfpipe-auto-update",
-	//			Username: "_json_key",
-	//			Password: "((halfpipe-gcr.private_key))",
-	//		}),
-	//		Run: atc.TaskRunConfig{
-	//			Path: "update-pipeline",
-	//			Dir:  path.Join(gitDir, basePath),
-	//		},
-	//		Inputs: []atc.TaskInputConfig{
-	//			{Name: manifest.GitTrigger{}.GetTriggerName()},
-	//		},
-	//	}}
-	return atc.Step{}
+	return atc.Step{
+		Config: &atc.TaskStep{
+			Name: "update",
+			Config: &atc.TaskConfig{
+				Platform: "linux",
+				Params: map[string]string{
+					"CONCOURSE_URL":      "((concourse.url))",
+					"CONCOURSE_PASSWORD": "((concourse.password))",
+					"CONCOURSE_TEAM":     "((concourse.team))",
+					"CONCOURSE_USERNAME": "((concourse.username))",
+					"PIPELINE_NAME":      pipelineName,
+					"HALFPIPE_DOMAIN":    config.Domain,
+					"HALFPIPE_PROJECT":   config.Project,
+				},
+				ImageResource: p.imageResource(manifest.Docker{
+					Image:    config.DockerRegistry + "halfpipe-auto-update",
+					Username: "_json_key",
+					Password: "((halfpipe-gcr.private_key))",
+				}),
+				Run: atc.TaskRunConfig{
+					Path: "update-pipeline",
+					Dir:  path.Join(gitDir, basePath),
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: manifest.GitTrigger{}.GetTriggerName()},
+				},
+			},
+		},
+	}
 }
