@@ -24,7 +24,7 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: docker-push-with-update-pipeline-6_5_1
+        PIPELINE_NAME: docker-push-with-update-pipeline
       platform: linux
       run:
         dir: git/e2e/docker-push-with-update-pipeline
@@ -99,7 +99,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: 6.5.1
+    branch: ""
     paths:
     - e2e/docker-push-with-update-pipeline
     private_key: ((halfpipe-github.private_key))
@@ -110,7 +110,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-docker-push-with-update-pipeline-6.5.1
+    key: halfpipe-team-docker-push-with-update-pipeline-
   type: semver
 - check_every: 24h
   name: image1

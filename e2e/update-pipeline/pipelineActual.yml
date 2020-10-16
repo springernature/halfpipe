@@ -24,7 +24,7 @@ jobs:
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-update-pipeline-6_5_1
+        PIPELINE_NAME: halfpipe-e2e-update-pipeline
       platform: linux
       run:
         dir: git/e2e/update-pipeline
@@ -182,7 +182,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -272,7 +272,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -583,7 +583,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -1089,7 +1089,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline-651
+        FOLDER: halfpipe-team/halfpipe-e2e-update-pipeline
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -1261,7 +1261,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: 6.5.1
+    branch: ""
     paths:
     - e2e/update-pipeline
     private_key: ((halfpipe-github.private_key))
@@ -1271,14 +1271,14 @@ resources:
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/halfpipe-e2e-update-pipeline-651
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 - check_every: 24h
   name: artifacts-on-failure
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/halfpipe-e2e-update-pipeline-651
+    folder: halfpipe-team/halfpipe-e2e-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 - name: version
@@ -1286,7 +1286,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-update-pipeline-6.5.1
+    key: halfpipe-team-halfpipe-e2e-update-pipeline-
   type: semver
 - check_every: 24h
   name: halfpipe-fly

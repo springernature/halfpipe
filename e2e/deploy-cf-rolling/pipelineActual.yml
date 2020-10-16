@@ -127,7 +127,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: 6.5.1
+    branch: ""
     paths:
     - e2e/deploy-cf-rolling
     private_key: ((halfpipe-github.private_key))

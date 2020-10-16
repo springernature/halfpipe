@@ -3,7 +3,6 @@ pipeline: halfpipe-e2e-artifacts
 
 triggers:
 - type: git
-  branch: 6.5.1
   watched_paths:
   - e2e/artifacts
 

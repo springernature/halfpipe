@@ -106,7 +106,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/halfpipe-e2e-deploy-ml-zip-651
+        FOLDER: halfpipe-team/halfpipe-e2e-deploy-ml-zip
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -191,7 +191,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: 6.5.1
+    branch: ""
     paths:
     - e2e/deploy-ml-zip
     private_key: ((halfpipe-github.private_key))
@@ -201,7 +201,7 @@ resources:
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/halfpipe-e2e-deploy-ml-zip-651
+    folder: halfpipe-team/halfpipe-e2e-deploy-ml-zip
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 
