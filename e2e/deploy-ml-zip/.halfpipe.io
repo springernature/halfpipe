@@ -3,6 +3,7 @@ pipeline: halfpipe-e2e-deploy-ml-zip
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/deploy-ml-zip
 

@@ -3,6 +3,7 @@ pipeline: halfpipe-e2e-docker-push-with-pipeline-trigger
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/docker-push-with-pipeline-trigger
 - type: pipeline

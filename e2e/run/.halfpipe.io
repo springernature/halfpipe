@@ -4,6 +4,7 @@ pipeline: halfpipe-e2e-run
 triggers:
 - type: git
   shallow: true
+  branch: 6.5.1
   watched_paths:
   - e2e/run
 tasks:

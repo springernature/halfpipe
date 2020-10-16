@@ -4,6 +4,7 @@ slack_channel: "#yo"
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/notifications
 

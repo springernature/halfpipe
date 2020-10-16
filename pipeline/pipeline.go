@@ -817,7 +817,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 
 func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
 	return atc.Step{
-		Config:        &atc.PutStep{
+		Config: &atc.PutStep{
 			Name:     "remove-test-app",
 			Resource: resourceName,
 			Params: atc.Params{
@@ -830,7 +830,7 @@ func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, man
 
 func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
 	deploy := atc.PutStep{
-		Name:      "rolling-deploy",
+		Name:     "rolling-deploy",
 		Resource: resourceName,
 		Params: atc.Params{
 			"command":      "halfpipe-rolling-deploy",
@@ -873,8 +873,6 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
 
-	var saveArtifacts bool
-	var restoreArtifacts bool
 	var prePromoteTasks []atc.Step
 	for _, t := range task.PrePromote {
 		applications, e := p.readCfManifest(task.Manifest, nil, nil)
@@ -890,62 +888,58 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			ppJob = p.runJob(ppTask, man, false, basePath)
-			restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
-			saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
-			//case manifest.DockerCompose:
-			//	if len(ppTask.Vars) == 0 {
-			//		ppTask.Vars = make(map[string]string)
-			//	}
-			//	ppTask.Vars["TEST_ROUTE"] = testRoute
-			//	ppJob = p.dockerComposeJob(ppTask, man, basePath)
-			//	restoreArtifacts = saveArtifacts && ppTask.RestoreArtifacts
-			//	saveArtifacts = saveArtifacts || len(ppTask.SaveArtifacts) > 0
-			//
-			//case manifest.ConsumerIntegrationTest:
-			//	if ppTask.ProviderHost == "" {
-			//		ppTask.ProviderHost = testRoute
-			//	}
-			//	ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
+		case manifest.DockerCompose:
+			if len(ppTask.Vars) == 0 {
+				ppTask.Vars = make(map[string]string)
+			}
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			ppJob = p.dockerComposeJob(ppTask, man, basePath)
+
+		case manifest.ConsumerIntegrationTest:
+			if ppTask.ProviderHost == "" {
+				ppTask.ProviderHost = testRoute
+			}
+			ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
 		}
-		//planConfig := atc.PlanConfig{Do: &ppJob.Plan}
-		// Config            *TaskConfig
-		prePromoteTasks = ppJob.PlanSequence
-	}
-	//
-	if len(prePromoteTasks) > 0 && !restoreArtifacts {
-		//	return atc.Step{
-		//		Config: &atc.InParallelStep{
-		//			Config: atc.InParallelConfig{
-		//				Steps:    nil,
-		//				FailFast: true,
-		//			},
-		//		},
-		//		//atc.PlanConfig{
-		//		//	InParallel: &atc.InParallelConfig{
-		//		//		Steps:    prePromoteTasks,
-		//		//		FailFast: true,
-		//		//	},
-		//		//},
-		//	}
+		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
 
-	//return prePromoteTasks
 	if len(prePromoteTasks) == 0 {
 		return []atc.Step{}
 	}
+
+	var doSteps []atc.Step
+	for _, ppTask := range prePromoteTasks {
+
+		doSteps = append(doSteps, atc.Step{
+			Config: &atc.DoStep{
+				Steps: []atc.Step{ppTask},
+			},
+		})
+	}
+	if len(prePromoteTasks) > 1  {
+		return []atc.Step{
+			{
+				Config: &atc.TimeoutStep{
+					Step: &atc.InParallelStep{
+						Config: atc.InParallelConfig{
+							Steps: doSteps,
+							FailFast: true,
+						},
+					},
+					Duration: task.GetTimeout(),
+				},
+			},
+		}
+	}
+
 
 	return []atc.Step{
 		{
 			Config: &atc.TimeoutStep{
 				Step: &atc.InParallelStep{
 					Config: atc.InParallelConfig{
-						Steps: []atc.Step{
-							{
-								Config: &atc.DoStep{
-									Steps: prePromoteTasks,
-								},
-							},
-						},
+						Steps:    doSteps,
 						FailFast: true,
 					},
 				},

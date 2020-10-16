@@ -3,6 +3,7 @@ pipeline: halfpipe-e2e-update-pipeline
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/update-pipeline
 
@@ -59,6 +60,10 @@ tasks:
       consumer_host: c-host
       script: /var/c-script
 
+    - type: docker-compose
+      name: run pre promote step in docker-compose
+      save_artifacts_on_failure:
+        - path
   - type: deploy-cf
     name: deploy to qa
     api: ((cloudfoundry.api-snpaas))
@@ -74,7 +79,6 @@ tasks:
         image: eu.gcr.io/halfpipe-io/halfpipe-fly
       vars:
         A: "blah"
-      save_artifacts: ["build"]
 
     - type: run
       name: restore artifact in pre promote

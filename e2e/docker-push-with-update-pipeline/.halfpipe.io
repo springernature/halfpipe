@@ -6,6 +6,7 @@ feature_toggles:
 
 triggers:
 - type: git
+  branch: 6.5.1
   watched_paths:
   - e2e/docker-push-with-update-pipeline
 
