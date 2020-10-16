@@ -29,6 +29,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
 		ManualTrigger: mlTask.ManualTrigger,
+		Timeout: mlTask.GetTimeout(),
 	}
 
 	if mlTask.AppVersion != "" {
