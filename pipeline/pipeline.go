@@ -292,6 +292,57 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 	return resourceTypes, resourceConfigs
 }
+func (p pipeline) onFailure(task manifest.Task) *atc.Step {
+	onFailureChannels := task.GetNotifications().OnFailure
+	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 {
+		var sequence []atc.Step
+
+		if task.SavesArtifactsOnFailure() {
+			s := saveArtifactOnFailurePlan()
+			sequence = append(sequence, atc.Step{Config: &s})
+		}
+
+		for _, onFailureChannel := range onFailureChannels {
+			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
+		}
+
+		if len(sequence) > 1 {
+			return &atc.Step{
+				Config: &atc.InParallelStep{
+					Config: atc.InParallelConfig{
+						Steps: sequence,
+					},
+				},
+			}
+		}
+		return &sequence[0]
+	}
+	return nil
+}
+
+func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
+	onSuccessChannels := task.GetNotifications().OnSuccess
+	if len(onSuccessChannels) > 0 {
+		var sequence []atc.Step
+
+		for _, onSuccessChannel := range onSuccessChannels {
+			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
+		}
+
+		if len(sequence) > 1 {
+			return &atc.Step{
+				Config: &atc.InParallelStep{
+					Config: atc.InParallelConfig{
+						Steps: sequence,
+					},
+				},
+			}
+		}
+		return &sequence[0]
+	}
+
+	return nil
+}
 
 func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job atc.JobConfig) {
 	initialPlan := p.initialPlan(man, task)
@@ -323,50 +374,9 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 		job = p.updateJobConfig(task, man.PipelineName(), basePath)
 	}
 
-	onFailureChannels := task.GetNotifications().OnFailure
-	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 {
-		var sequence []atc.Step
+	job.OnFailure = p.onFailure(task)
+	job.OnSuccess = p.onSuccess(task)
 
-		if task.SavesArtifactsOnFailure() {
-			s := saveArtifactOnFailurePlan()
-			a := atc.Step{
-				Config: &atc.RetryStep{
-					Step:     &s,
-					Attempts: 2,
-				},
-			}
-			sequence = append(sequence, a)
-		}
-
-		for _, onFailureChannel := range onFailureChannels {
-			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
-		}
-
-		job.OnFailure = &atc.Step{
-			Config: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps: sequence,
-				},
-			},
-		}
-	}
-
-	onSuccessChannels := task.GetNotifications().OnSuccess
-	if len(onSuccessChannels) > 0 {
-		var sequence []atc.Step
-
-		for _, onSuccessChannel := range onSuccessChannels {
-			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
-		}
-
-		job.OnSuccess = &atc.Step{
-			Config: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps: sequence,
-				},
-			},
-		}
-	}
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
 	//job.Plan = inParallelGets(job)
 

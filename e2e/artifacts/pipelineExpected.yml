@@ -4,14 +4,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: create-artifact
   on_failure:
-    in_parallel:
-      steps:
-      - attempts: 2
-        params:
-          folder: artifacts-out-failure
-          postfix: failure
-          version_file: git/.git/ref
-        put: artifacts-on-failure
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
   plan:
   - get: git
     trigger: true
@@ -397,14 +394,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: docker-compose
   on_failure:
-    in_parallel:
-      steps:
-      - attempts: 2
-        params:
-          folder: artifacts-out-failure
-          postfix: failure
-          version_file: git/.git/ref
-        put: artifacts-on-failure
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
   plan:
   - get: git
     passed:

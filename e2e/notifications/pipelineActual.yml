@@ -4,24 +4,19 @@ jobs:
     minimum_succeeded_builds: 1
   name: task1
   on_failure:
-    in_parallel:
-      steps:
-      - params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
-        put: slack
+    params:
+      channel: '#yo'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
   on_success:
-    in_parallel:
-      steps:
-      - params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
-            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
-        put: slack
+    params:
+      channel: '#yo'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
   plan:
   - get: git
     trigger: true
@@ -185,24 +180,19 @@ jobs:
     timeout: 1h
   name: deploy to staging
   on_failure:
-    in_parallel:
-      steps:
-      - params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
-        put: slack
+    params:
+      channel: '#yo'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
   on_success:
-    in_parallel:
-      steps:
-      - params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded
-            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
-          username: Halfpipe
-        put: slack
+    params:
+      channel: '#yo'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
   plan:
   - get: git
     passed:
