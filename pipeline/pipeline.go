@@ -596,33 +596,21 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 		Serial: true,
 	}
 
-	addTimeoutAndRetry := func(step atc.Step) atc.Step {
-		return atc.Step{
-			Config: &atc.TimeoutStep{
-				Step: &atc.RetryStep{
-					Step:     step.Config,
-					Attempts: task.GetAttempts(),
-				},
-				Duration: task.GetTimeout(),
-			},
-		}
-	}
-
 	var steps []atc.Step
 	if !task.Rolling {
-		steps = append(steps, addTimeoutAndRetry(p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man)))
-		steps = append(steps, addTimeoutAndRetry(p.checkApp(task, resourceName, manifestPath)))
+		steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+		steps = append(steps, p.checkApp(task, resourceName, manifestPath))
 		steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
-		steps = append(steps, addTimeoutAndRetry(p.promoteCandidateAppToLive(task, resourceName, manifestPath)))
+		steps = append(steps, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
 		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
 	} else {
 		if len(task.PrePromote) == 0 {
-			steps = append(steps, addTimeoutAndRetry(p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man)))
+			steps = append(steps, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
 		} else {
-			steps = append(steps, addTimeoutAndRetry(p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man)))
+			steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
 			steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
-			steps = append(steps, addTimeoutAndRetry(p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man)))
-			steps = append(steps, addTimeoutAndRetry(p.removeTestApp(resourceName, manifestPath)))
+			steps = append(steps, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			steps = append(steps, p.removeTestApp(resourceName, manifestPath))
 		}
 	}
 

@@ -57,8 +57,7 @@ jobs:
         passed:
         - update
         trigger: true
-  - attempts: 2
-    params:
+  - params:
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
@@ -70,18 +69,14 @@ jobs:
       timeout: 1h
     put: halfpipe-push
     resource: cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
@@ -89,7 +84,6 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-snpaas-dev
-    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -115,8 +109,7 @@ jobs:
         passed:
         - deploy to cf simple
         trigger: true
-  - attempts: 2
-    params:
+  - params:
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
@@ -129,16 +122,13 @@ jobs:
       timeout: 1h
     put: halfpipe-push
     resource: cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-dev
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -198,8 +188,7 @@ jobs:
         path: /bin/sh
     task: pre-promote-step
     timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
@@ -207,7 +196,6 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-snpaas-dev
-    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -223,8 +211,7 @@ jobs:
         passed:
         - deploy to cf with pre promote
         trigger: true
-  - attempts: 2
-    params:
+  - params:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
@@ -236,7 +223,6 @@ jobs:
       timeout: 1h
     put: rolling-deploy
     resource: rolling-cf-snpaas-dev
-    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -252,8 +238,7 @@ jobs:
         passed:
         - deploy to cf simple - rolling deploy
         trigger: true
-  - attempts: 2
-    params:
+  - params:
       buildVersionPath: version/version
       cliVersion: cf6
       command: halfpipe-push
@@ -267,7 +252,6 @@ jobs:
       timeout: 1h
     put: deploy-test-app
     resource: rolling-cf-snpaas-dev
-    timeout: 1h
   - attempts: 1
     config:
       caches:
@@ -327,8 +311,7 @@ jobs:
         path: /bin/sh
     task: pre-promote-step
     timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
@@ -340,14 +323,11 @@ jobs:
       timeout: 1h
     put: rolling-deploy
     resource: rolling-cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/deploy-cf-docker-image/manifest.yml
     put: remove-test-app
     resource: rolling-cf-snpaas-dev
-    timeout: 1h
   serial: true
 resource_types:
 - name: cf-resource

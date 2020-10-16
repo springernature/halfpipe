@@ -6,8 +6,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 2
-    params:
+  - params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf7
       command: halfpipe-rolling-deploy
@@ -16,7 +15,6 @@ jobs:
       timeout: 5m
     put: rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -26,8 +24,7 @@ jobs:
     passed:
     - deploy to cf without the jazz
     trigger: true
-  - attempts: 2
-    params:
+  - params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf6
       command: halfpipe-push
@@ -38,7 +35,6 @@ jobs:
       timeout: 5m
     put: deploy-test-app
     resource: rolling-cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   - attempts: 1
     config:
       caches:
@@ -96,8 +92,7 @@ jobs:
         path: /bin/sh
     task: pre-promote-step
     timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       appPath: git/e2e/deploy-cf-rolling
       cliVersion: cf7
       command: halfpipe-rolling-deploy
@@ -106,14 +101,11 @@ jobs:
       timeout: 5m
     put: rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
+  - params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/deploy-cf-rolling/manifest.yml
     put: remove-test-app
     resource: rolling-cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   serial: true
 resource_types:
 - name: cf-resource

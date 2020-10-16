@@ -16,8 +16,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 2
-    params:
+  - params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf7
       command: halfpipe-push
@@ -27,18 +26,14 @@ jobs:
       timeout: 5m
     put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
     put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf7
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
@@ -46,7 +41,6 @@ jobs:
       timeout: 5m
     put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -66,8 +60,7 @@ jobs:
     passed:
     - deploy to cf without any jazz
     trigger: true
-  - attempts: 2
-    params:
+  - params:
       appPath: git/e2e/deploy-cf
       cliVersion: cf6
       command: halfpipe-push
@@ -78,16 +71,13 @@ jobs:
       timeout: 5m
     put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf/manifest.yml
       timeout: 5m
     put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   - attempts: 1
     config:
       caches:
@@ -145,8 +135,7 @@ jobs:
         path: /bin/sh
     task: pre-promote-step
     timeout: 1h
-  - attempts: 2
-    params:
+  - params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf/manifest.yml
@@ -154,7 +143,6 @@ jobs:
       timeout: 5m
     put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   serial: true
 resource_types:
 - name: cf-resource
