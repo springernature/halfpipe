@@ -124,7 +124,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	}
 }
 
-func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.Step {
+func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
 	_, isUpdateTask := task.(manifest.Update)
 	versioningEnabled := man.FeatureToggles.Versioned()
 
@@ -174,7 +174,9 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 		getSteps = append(getSteps, atc.Step{Config: &atc.GetStep{Name: versionName}})
 	}
 
-	steps := []atc.Step{parallelizeSteps(getSteps)}
+	getStep := p.configureTriggerOnGets(p.addPassedJobsToGets(parallelizeSteps(getSteps), previousTaskNames), task, man)
+
+	steps := []atc.Step{getStep}
 
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, restoreArtifactTask(man))
@@ -322,7 +324,7 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 }
 
 func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job atc.JobConfig) {
-	initialPlan := p.initialPlan(man, task)
+	initialPlan := p.initialPlan(man, task, previousTaskNames)
 	basePath := man.Triggers.GetGitTrigger().BasePath
 
 	switch task := task.(type) {
@@ -353,12 +355,8 @@ func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previous
 
 	job.OnFailure = p.onFailure(task)
 	job.OnSuccess = p.onSuccess(task)
-
+	job.BuildLogRetention = p.buildLogRetention(task)
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
-
-	configureTriggerOnGets(job, task, man)
-	addPassedJobsToGets(job, previousTaskNames)
-	addBuildLogRetentionSettings(&job, task)
 
 	return job
 }
@@ -413,16 +411,17 @@ func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
 	return cfg
 }
 
-func addPassedJobsToGets(job atc.JobConfig, passedJobs []string) {
-	_ = job.PlanSequence[0].Config.Visit(atc.StepRecursor{
+func (p pipeline) addPassedJobsToGets(task atc.Step, passedJobs []string) atc.Step {
+	_ = task.Config.Visit(atc.StepRecursor{
 		OnGet: func(step *atc.GetStep) error {
 			step.Passed = passedJobs
 			return nil
 		},
 	})
+	return task
 }
 
-func addBuildLogRetentionSettings(job *atc.JobConfig, task manifest.Task) {
+func (p pipeline) buildLogRetention(task manifest.Task) *atc.BuildLogRetention {
 	retention := atc.BuildLogRetention{
 		MinimumSucceededBuilds: 1,
 	}
@@ -430,18 +429,18 @@ func addBuildLogRetentionSettings(job *atc.JobConfig, task manifest.Task) {
 		retention.Builds = task.GetBuildHistory()
 	}
 
-	job.BuildLogRetention = &retention
+	return &retention
 }
 
-func configureTriggerOnGets(job atc.JobConfig, task manifest.Task, man manifest.Manifest) {
+func (p pipeline) configureTriggerOnGets(step atc.Step, task manifest.Task, man manifest.Manifest) atc.Step {
 	if task.IsManualTrigger() {
-		return
+		return step
 	}
 
 	versioningEnabled := man.FeatureToggles.Versioned()
 	manualGitTrigger := man.Triggers.GetGitTrigger().ManualTrigger
 
-	_ = job.PlanSequence[0].Config.Visit(atc.StepRecursor{
+	_ = step.Config.Visit(atc.StepRecursor{
 		OnGet: func(step *atc.GetStep) error {
 			switch task.(type) {
 			case manifest.Update:
@@ -462,6 +461,8 @@ func configureTriggerOnGets(job atc.JobConfig, task manifest.Task, man manifest.
 			return nil
 		},
 	})
+
+	return step
 }
 
 func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
