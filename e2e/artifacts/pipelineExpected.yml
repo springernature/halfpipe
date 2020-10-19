@@ -88,12 +88,10 @@ jobs:
         path: /bin/sh
     task: create-artifact
     timeout: 1h
-  - attempts: 1
-    params:
+  - params:
       folder: artifacts-out
       version_file: git/.git/ref
     put: artifacts
-    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

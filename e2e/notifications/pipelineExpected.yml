@@ -79,6 +79,7 @@ jobs:
   name: task2
   on_failure:
     in_parallel:
+      fail_fast: true
       steps:
       - params:
           channel: kehe
@@ -94,6 +95,7 @@ jobs:
         put: slack
   on_success:
     in_parallel:
+      fail_fast: true
       steps:
       - params:
           channel: asdf

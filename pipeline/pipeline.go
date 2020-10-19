@@ -46,6 +46,22 @@ const dockerBuildTmpDir = "docker_build"
 
 const versionName = "version"
 
+func parallelizeSteps(steps []atc.Step) atc.Step {
+	if len(steps) == 1 {
+		return steps[0]
+	}
+
+	return atc.Step{
+		Config: &atc.InParallelStep{
+			Config: atc.InParallelConfig{
+				Steps:    steps,
+				Limit:    0,
+				FailFast: true,
+			},
+		},
+	}
+}
+
 func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	// This function is used in pipeline.artifactResource for some reason to lowercase
 	// and remove chars that are not part of the regex in the folder in the config..
@@ -112,7 +128,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 	_, isUpdateTask := task.(manifest.Update)
 	versioningEnabled := man.FeatureToggles.Versioned()
 
-	var gets []atc.GetStep
+	var getSteps []atc.Step
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
@@ -124,11 +140,11 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 					"depth": 1,
 				}
 			}
-			gets = append(gets, gitClone)
+			getSteps = append(getSteps, atc.Step{Config: &gitClone})
 
 		case manifest.TimerTrigger:
 			if isUpdateTask || !versioningEnabled {
-				gets = append(gets, atc.GetStep{Name: trigger.GetTriggerName()})
+				getSteps = append(getSteps, atc.Step{Config: &atc.GetStep{Name: trigger.GetTriggerName()}})
 			}
 		case manifest.DockerTrigger:
 			if isUpdateTask || !versioningEnabled {
@@ -139,7 +155,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 					},
 				}
 
-				gets = append(gets, dockerTrigger)
+				getSteps = append(getSteps, atc.Step{Config: &dockerTrigger})
 
 			}
 		case manifest.PipelineTrigger:
@@ -148,36 +164,17 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task) []atc.S
 					Name: trigger.GetTriggerName(),
 				}
 
-				gets = append(gets, pipelineTrigger)
+				getSteps = append(getSteps, atc.Step{Config: &pipelineTrigger})
 			}
 
 		}
 	}
 
 	if !isUpdateTask && man.FeatureToggles.Versioned() {
-		gets = append(gets, atc.GetStep{
-			Name: versionName,
-		})
+		getSteps = append(getSteps, atc.Step{Config: &atc.GetStep{Name: versionName}})
 	}
 
-	var steps []atc.Step
-	for i := range gets {
-		steps = append(steps, atc.Step{Config: &gets[i]})
-	}
-
-	if len(steps) > 1 {
-		steps = []atc.Step{
-			{
-				Config: &atc.InParallelStep{
-					Config: atc.InParallelConfig{
-						Steps:    steps,
-						Limit:    0,
-						FailFast: true,
-					},
-				},
-			},
-		}
-	}
+	steps := []atc.Step{parallelizeSteps(getSteps)}
 
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, restoreArtifactTask(man))
@@ -302,18 +299,8 @@ func (p pipeline) onFailure(task manifest.Task) *atc.Step {
 			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
-		if len(sequence) == 1 {
-			return &sequence[0]
-		}
-
-		return &atc.Step{
-			Config: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps: sequence,
-				},
-			},
-		}
-
+		onFailure := parallelizeSteps(sequence)
+		return &onFailure
 	}
 	return nil
 }
@@ -327,18 +314,8 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
 		}
 
-		if len(sequence) == 1 {
-			return &sequence[0]
-		}
-
-		return &atc.Step{
-			Config: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps: sequence,
-				},
-			},
-		}
-
+		onSuccess := parallelizeSteps(sequence)
+		return &onSuccess
 	}
 
 	return nil
@@ -557,20 +534,15 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 
 	if len(task.SaveArtifacts) > 0 {
 		artifactPut := atc.Step{
-			Config: &atc.RetryStep{
-				Step: &atc.TimeoutStep{
-					Step: &atc.PutStep{
-						Name: artifactsName,
-						Params: atc.Params{
-							"folder":       artifactsOutDir,
-							"version_file": path.Join(gitDir, ".git", "ref"),
-						},
-					},
-					Duration: task.GetTimeout(),
+			Config: &atc.PutStep{
+				Name: artifactsName,
+				Params: atc.Params{
+					"folder":       artifactsOutDir,
+					"version_file": path.Join(gitDir, ".git", "ref"),
 				},
-				Attempts: task.GetAttempts(),
 			},
 		}
+
 		jobConfig.PlanSequence = append(jobConfig.PlanSequence, artifactPut)
 	}
 
@@ -823,20 +795,7 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
 
-	if len(prePromoteTasks) == 1 {
-		return prePromoteTasks
-	}
-
-	return []atc.Step{
-		{
-			Config: &atc.InParallelStep{
-				Config: atc.InParallelConfig{
-					Steps:    prePromoteTasks,
-					FailFast: true,
-				},
-			},
-		},
-	}
+	return []atc.Step{parallelizeSteps(prePromoteTasks)}
 }
 
 func buildTestRoute(appName, space, testDomain string) string {
