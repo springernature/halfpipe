@@ -2,7 +2,6 @@ package config
 
 import (
 	"github.com/blang/semver"
-	"github.com/concourse/concourse/atc"
 	"os"
 )
 
@@ -24,9 +23,9 @@ var (
 
 	ConcourseURL = "https://concourse." + Domain
 
-	CacheDirs = []atc.TaskCacheConfig{
-		{Path: "../../../var/halfpipe/cache"},
-		{Path: "../../../halfpipe-cache"}, // deprecated and should be removed after a while
+	CacheDirs = []string{
+		"../../../var/halfpipe/cache",
+		"../../../halfpipe-cache", // deprecated and should be removed after a while
 	}
 
 	DockerComposeCacheDirs = []string{

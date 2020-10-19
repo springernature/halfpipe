@@ -49,6 +49,11 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		taskEnv[key] = value
 	}
 
+	var caches []atc.TaskCacheConfig
+	for _, dir := range config.CacheDirs {
+		caches = append(caches, atc.TaskCacheConfig{Path: dir})
+	}
+
 	runStep := atc.Step{
 		Config: &atc.RetryStep{
 			Step: &atc.TimeoutStep{
@@ -66,7 +71,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 						},
 						Inputs:  taskInputs(),
 						Outputs: taskOutputs(),
-						Caches:  config.CacheDirs,
+						Caches:  caches,
 					},
 				},
 				Duration: task.GetTimeout(),
