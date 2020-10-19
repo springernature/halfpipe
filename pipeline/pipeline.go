@@ -214,15 +214,7 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResourceConfig(man manifest.Manifest) atc.ResourceType {
-	if man.FeatureToggles.OldDeployResource() {
-		return p.halfpipeCfDeployResourceType(true)
-	}
-
-	return p.halfpipeCfDeployResourceType(false)
-}
-
-func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (p pipeline) cfPushResources(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, task := range man.Tasks.Flatten() {
 		switch task := task.(type) {
@@ -235,7 +227,7 @@ func (p pipeline) cfPushResourcesv2(man manifest.Manifest) (resourceTypes atc.Re
 	}
 
 	if len(resourceConfigs) > 0 {
-		resourceTypes = append(resourceTypes, p.cfPushResourceConfig(man))
+		resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType())
 	}
 
 	return
@@ -276,7 +268,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 
 	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
 
-	cfResourceTypes, cfResources := p.cfPushResourcesv2(man)
+	cfResourceTypes, cfResources := p.cfPushResources(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
 

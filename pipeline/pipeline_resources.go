@@ -164,12 +164,8 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 
 const deployCfResourceTypeName = "cf-resource"
 
-func (p pipeline) halfpipeCfDeployResourceType(oldResource bool) atc.ResourceType {
+func (p pipeline) halfpipeCfDeployResourceType() atc.ResourceType {
 	image := strings.Join([]string{deployCfResourceTypeName, "v2"}, "-")
-	if oldResource {
-		image = deployCfResourceTypeName
-	}
-
 	fullPath := path.Join(config.DockerRegistry + image)
 	return atc.ResourceType{
 		Name: deployCfResourceTypeName,
