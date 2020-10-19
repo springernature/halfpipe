@@ -33,11 +33,7 @@ else
 fi
 
 echo [4/5] e2e test
-if [ "${CIRCLECI-}" = "true" ]; then
-    echo "skipping in circleci build"
-else
-    cd e2e; ./test.sh "${1-}"; cd - > /dev/null
-fi
+(cd e2e; ./test.sh "${1-}")
 
 echo [5/5] lint
 if command -v golint > /dev/null; then
