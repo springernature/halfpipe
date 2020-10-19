@@ -75,6 +75,7 @@ tasks:
       image: alpine
 
 - type: run
+  manual_trigger: true
   name: after parallel
   script: ./a
   docker:

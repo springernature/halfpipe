@@ -786,7 +786,6 @@ jobs:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-        trigger: true
   - attempts: 1
     config:
       caches:
