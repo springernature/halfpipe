@@ -28,6 +28,8 @@ func findE2EPaths() []string {
 	return e2eTestPaths
 }
 
+// does not fail if test output does not match expected pipeline
+// only useful for checking code coverage of e2e tests
 func TestE2EForCoverage(t *testing.T) {
 	defer quiet()()
 
