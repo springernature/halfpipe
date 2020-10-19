@@ -3,7 +3,6 @@ package pipeline
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/defaults"
-	"os"
 	"regexp"
 	"strings"
 
@@ -60,10 +59,7 @@ func parallelizeSteps(steps []atc.Step) atc.Step {
 				FailFast: true,
 			},
 		},
-		UnknownFields: nil,
 	}
-	// We know that this should be something
-
 }
 
 func restoreArtifactTask(man manifest.Manifest) atc.Step {
@@ -773,9 +769,6 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 	for _, t := range task.PrePromote {
 		applications, e := p.readCfManifest(task.Manifest, nil, nil)
 		if e != nil {
-			fmt.Println("manifestPath", task.Manifest)
-			wd, _ := os.Getwd()
-			fmt.Println("working dir", wd)
 			panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
 		}
 		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
