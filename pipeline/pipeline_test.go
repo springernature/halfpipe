@@ -1,35 +1,16 @@
 package pipeline
 
-//
-//import (
-//	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-//
-//	"github.com/cloudfoundry/bosh-cli/director/template"
-//	"github.com/spf13/afero"
-//)
-//
-//func testPipeline() pipeline {
-//	cfManifestReader := func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
-//		return []cfManifest.Application{
-//			{
-//				Name:   "test-name",
-//				Routes: []string{"test-route"},
-//			},
-//		}, nil
-//	}
-//
-//	return NewPipeline(cfManifestReader, afero.Afero{Fs: afero.NewMemMapFs()})
-//}
-//
-///*
-//  ___     ___    _  _   _____     ___   _   _   _____     ___   _____   _   _   ___   ___     _  _   ___   ___   ___
-// |   \   / _ \  | \| | |_   _|   | _ \ | | | | |_   _|   / __| |_   _| | | | | | __| | __|   | || | | __| | _ \ | __|
-// | |) | | (_) | | .` |   | |     |  _/ | |_| |   | |     \__ \   | |   | |_| | | _|  | _|    | __ | | _|  |   / | _|
-// |___/   \___/  |_|\_|   |_|     |_|    \___/    |_|     |___/   |_|    \___/  |_|   |_|     |_||_| |___| |_|_\ |___|
-//
-//  _   _   ___   ___     _____   _  _   ___      ___    _____   _  _   ___   ___     _____   ___   ___   _____     ___   ___   _      ___   ___
-// | | | | / __| | __|   |_   _| | || | | __|    / _ \  |_   _| | || | | __| | _ \   |_   _| | __| / __| |_   _|   | __| |_ _| | |    | __| / __|
-// | |_| | \__ \ | _|      | |   | __ | | _|    | (_) |   | |   | __ | | _|  |   /     | |   | _|  \__ \   | |     | _|   | |  | |__  | _|  \__ \
-//  \___/  |___/ |___|     |_|   |_||_| |___|    \___/    |_|   |_||_| |___| |_|_\     |_|   |___| |___/   |_|     |_|   |___| |____| |___| |___/
-//
-//*/
+/*
+ Where are all the tests?
+
+So we had a ton of tests that made it super annoying to change the pipeline renderer as they
+were far to granular and coupled to the implementation...
+
+Given that we have good e2e tests we test the renderer in there.
+
+But! We have a test suite in `cmd/cmds/root_test`.
+This suite basically invoke the e2e tests (without diff, as we diff in the build script)
+so we can check the code coverage of the renderer.
+
+In idea, just right click on the test and `Run '...' with coverage`
+*/

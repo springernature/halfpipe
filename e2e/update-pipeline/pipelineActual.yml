@@ -4,8 +4,13 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - get: git
-    trigger: true
+  - in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        trigger: true
+      - get: cron
+        trigger: true
   - config:
       image_resource:
         source:
@@ -1208,6 +1213,12 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
+- name: cron-resource
+  source:
+    repository: cftoolsmiths/cron-resource
+    tag: v0.3
+  type: registry-image
+  unique_version_history: true
 - name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -1232,6 +1243,13 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
+- check_every: 1m
+  name: cron
+  source:
+    expression: '* * * * *'
+    fire_immediately: true
+    location: UTC
+  type: cron-resource
 - check_every: 24h
   name: artifacts
   source:

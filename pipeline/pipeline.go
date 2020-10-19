@@ -746,6 +746,7 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	if len(vars) > 0 {
 		deploy.Params["vars"] = vars
 	}
+
 	if task.Timeout != "" {
 		deploy.Params["timeout"] = task.Timeout
 	}
