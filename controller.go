@@ -7,7 +7,7 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
-	"github.com/springernature/halfpipe/pipeline"
+	"github.com/springernature/halfpipe/renderers/concourse"
 )
 
 type Controller interface {
@@ -19,10 +19,10 @@ type controller struct {
 	defaulter defaults.Defaults
 	mapper    mapper.Mapper
 	linters   []linters.Linter
-	renderer  pipeline.Renderer
+	renderer  concourse.Renderer
 }
 
-func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []linters.Linter, renderer pipeline.Renderer) Controller {
+func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []linters.Linter, renderer concourse.Renderer) Controller {
 	return controller{
 		defaulter: defaulter,
 		mapper:    mapper,

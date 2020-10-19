@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 import (
 	"fmt"
@@ -62,7 +62,7 @@ func parallelizeSteps(steps []atc.Step) atc.Step {
 }
 
 func restoreArtifactTask(man manifest.Manifest) atc.Step {
-	// This function is used in pipeline.artifactResource for some reason to lowercase
+	// This function is used in concourse.artifactResource for some reason to lowercase
 	// and remove chars that are not part of the regex in the folder in the config..
 	// So we must reuse it.
 	filter := func(str string) string {

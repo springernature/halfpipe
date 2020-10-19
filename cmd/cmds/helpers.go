@@ -12,8 +12,8 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
-	"github.com/springernature/halfpipe/pipeline"
 	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/renderers/concourse"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
@@ -85,7 +85,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries),
 			linters.NewNexusRepoLinter(fs),
 		},
-		pipeline.NewPipeline(cfManifest.ReadAndInterpolateManifest),
+		concourse.NewPipeline(cfManifest.ReadAndInterpolateManifest),
 	)
 
 }

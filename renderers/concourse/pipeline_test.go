@@ -1,4 +1,4 @@
-package pipeline
+package concourse
 
 /*
  Where are all the tests?
