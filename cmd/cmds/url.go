@@ -34,6 +34,5 @@ var urlCmd = &cobra.Command{
 
 		man, _ := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 		fmt.Printf("%s/teams/%s/pipelines/%s\n", config.ConcourseURL, man.Team, man.PipelineName())
-		return
 	},
 }

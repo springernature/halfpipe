@@ -13,7 +13,6 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
-	"github.com/springernature/halfpipe/renderers/concourse"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
@@ -71,7 +70,7 @@ func printErrAndResultAndExitOnError(err error, lintResults result.LintResults) 
 	}
 }
 
-func createController(projectData project.Data, fs afero.Afero, currentDir string) halfpipe.Controller {
+func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer) halfpipe.Controller {
 	return halfpipe.NewController(
 		defaults.New(projectData),
 		mapper.New(),
@@ -85,12 +84,12 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries),
 			linters.NewNexusRepoLinter(fs),
 		},
-		concourse.NewPipeline(cfManifest.ReadAndInterpolateManifest),
+		renderer,
 	)
 
 }
 
-func getManifestAndCreateController() (manifest.Manifest, halfpipe.Controller) {
+func getManifestAndCreateController(renderer halfpipe.Renderer) (manifest.Manifest, halfpipe.Controller) {
 	if err := checkVersion(); err != nil {
 		printErr(err)
 		os.Exit(1)
@@ -115,7 +114,16 @@ func getManifestAndCreateController() (manifest.Manifest, halfpipe.Controller) {
 		printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 	}
 
-	controller := createController(projectData, fs, currentDir)
+	controller := createController(projectData, fs, currentDir, renderer)
 
 	return man, controller
+}
+
+func render(renderer halfpipe.Renderer) {
+	man, controller := getManifestAndCreateController(renderer)
+
+	pipelineConfig, lintResults := controller.Process(man)
+	printErrAndResultAndExitOnError(nil, lintResults)
+
+	fmt.Println(pipelineConfig)
 }

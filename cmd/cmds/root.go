@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"fmt"
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/renderers/concourse"
 	"os"
@@ -10,17 +10,9 @@ import (
 var rootCmd = &cobra.Command{
 	Use: "halfpipe",
 	Short: `halfpipe is a tool to lint and render pipelines
-Invoke without any arguments to lint your .halfpipe.io file and render a concourse pipeline`,
+Invoke without any arguments to lint your .halfpipe.io file and render a Concourse pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
-		man, controller := getManifestAndCreateController()
-
-		pipelineConfig, lintResults := controller.Process(man)
-		printErrAndResultAndExitOnError(nil, lintResults)
-
-		pipeline, renderError := concourse.ToString(pipelineConfig)
-		printErrAndResultAndExitOnError(renderError, nil)
-
-		fmt.Println(pipeline)
+		render(concourse.NewPipeline(cfManifest.ReadAndInterpolateManifest))
 	},
 }
 

@@ -260,10 +260,7 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 }
 
 func buildTestRoute(appName, space, testDomain string) string {
-	return fmt.Sprintf("%s-%s-CANDIDATE.%s",
-		strings.Replace(appName, "_", "-", -1),
-		strings.Replace(space, "_", "-", -1),
-		testDomain)
+	return fmt.Sprintf("%s-%s-CANDIDATE.%s", strings.Replace(appName, "_", "-", -1), strings.Replace(space, "_", "-", -1), testDomain)
 }
 
 func deployCFResourceName(task manifest.DeployCF) (name string) {
@@ -284,7 +281,7 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 		name = fmt.Sprintf("%s-%s", name, strings.ToLower(org))
 	}
 
-	name = fmt.Sprintf(fmt.Sprintf("%s-%s", name, strings.ToLower(task.Space)))
+	name = fmt.Sprintf("%s-%s", name, strings.ToLower(task.Space))
 	name = strings.TrimSpace(name)
 	return
 }

@@ -6,7 +6,6 @@ import (
 	"github.com/springernature/halfpipe/project"
 	"testing"
 
-	"github.com/concourse/concourse/atc"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
@@ -24,26 +23,24 @@ var validHalfpipeManifest = manifest.Manifest{
 	},
 }
 
+type fakeRenderer struct{}
+
+func (f fakeRenderer) Render(manifest manifest.Manifest) (string, error) {
+	return "fake output", nil
+}
+
 func testController() controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return controller{
 		defaulter: defaults.New(project.Data{}),
 		mapper:    mapper.New(),
+		renderer:  fakeRenderer{},
 	}
 }
 
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
-
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
-	c.renderer = FakeRenderer{Config: config}
 
 	_, results := c.Process(validHalfpipeManifest)
 
@@ -52,16 +49,6 @@ func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 
 func TestWorksForHalfpipeFile(t *testing.T) {
 	c := testController()
-
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
-	c.renderer = FakeRenderer{Config: config}
-
 	_, results := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, results.Error(), 0)
@@ -90,29 +77,12 @@ func TestAppliesAllLinters(t *testing.T) {
 	assert.Equal(t, linter2.Error, results[1].Errors[0])
 }
 
-type FakeRenderer struct {
-	Config atc.Config
-}
-
-func (f FakeRenderer) Render(manifest manifest.Manifest) atc.Config {
-	return f.Config
-}
-
-func TestGivesBackAtcConfigWhenLinterPasses(t *testing.T) {
+func TestGivesBackConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
-
-	config := atc.Config{
-		Resources: atc.ResourceConfigs{
-			atc.ResourceConfig{
-				Name: "Yolo",
-			},
-		},
-	}
-	c.renderer = FakeRenderer{Config: config}
 
 	pipeline, results := c.Process(validHalfpipeManifest)
 	assert.Len(t, results, 0)
-	assert.Equal(t, config, pipeline)
+	assert.Equal(t, "fake output", pipeline)
 }
 
 type FakeMapper struct {
@@ -125,7 +95,6 @@ func (f FakeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest
 
 func TestGivesBackABadTestResultWhenAMapperFails(t *testing.T) {
 	c := testController()
-	c.renderer = FakeRenderer{}
 	c.mapper = FakeMapper{err: errors.New("blurgh")}
 	_, results := c.Process(validHalfpipeManifest)
 

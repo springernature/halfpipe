@@ -77,6 +77,6 @@ func GetBuilds(team string, count string) (builds Builds, err error) {
 		return builds, err
 	}
 
-	err = json.Unmarshal([]byte(stdoutBuffer.String()), &builds)
+	err = json.Unmarshal(stdoutBuffer.Bytes(), &builds)
 	return builds, err
 }

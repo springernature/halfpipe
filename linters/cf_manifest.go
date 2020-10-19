@@ -1,7 +1,6 @@
 package linters
 
 import (
-	goErrors "errors"
 	"fmt"
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
@@ -45,7 +44,7 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 		apps, err := linter.readCfManifest(manifestPath, nil, nil)
 
 		if err != nil {
-			result.AddError(goErrors.New(fmt.Sprintf("cf-manifest error in %s, %s", manifestPath, err.Error())))
+			result.AddError(fmt.Errorf("cf-manifest error in %s, %s", manifestPath, err.Error()))
 			return result
 		}
 

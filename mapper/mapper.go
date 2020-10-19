@@ -18,6 +18,9 @@ func (m mapper) Apply(original manifest.Manifest) (updated manifest.Manifest, er
 
 	for _, mm := range m.mappers {
 		updated, err = mm.Apply(updated)
+		if err != nil {
+			return updated, err
+		}
 	}
 
 	return updated, nil

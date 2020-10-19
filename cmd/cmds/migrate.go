@@ -7,11 +7,9 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/migrate"
-	// "github.com/springernature/halfpipe/manifest"
-	// "github.com/springernature/halfpipe/migrate"
+
 	"github.com/springernature/halfpipe/project"
 	"os"
-	//	"path"
 )
 
 func init() {
@@ -46,7 +44,7 @@ var migrateCmd = &cobra.Command{
 			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 		}
 
-		controller := createController(projectData, fs, currentDir)
+		controller := createController(projectData, fs, currentDir, nullRenderer{})
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
 		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
 		printErrAndResultAndExitOnError(err, results)

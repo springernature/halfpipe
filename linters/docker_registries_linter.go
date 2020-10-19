@@ -18,20 +18,20 @@ func (l dockerRegistriesLinter) Lint(man manifest.Manifest) (result result.LintR
 	result.Linter = "Deprecated Docker Registries"
 	result.DocsURL = "http://status.ee.springernature.io/incidents/bl8y88pmcz23"
 
-	for _, task := range man.Tasks.Flatten() {
+	for _, t := range man.Tasks.Flatten() {
 		var err error
-		switch task.(type) {
+		switch task := t.(type) {
 		case manifest.Run:
-			err = l.lintRunTask(task.(manifest.Run))
+			err = l.lintRunTask(task)
 		case manifest.DockerCompose:
-			badErr, e := l.lintDockerCompose(task.(manifest.DockerCompose))
+			badErr, e := l.lintDockerCompose(task)
 			if badErr {
 				result.AddError(e)
 				return
 			}
 			err = e
 		case manifest.DockerPush:
-			badErr, e := l.lintDockerPush(task.(manifest.DockerPush))
+			badErr, e := l.lintDockerPush(task)
 			if badErr {
 				result.AddError(e)
 				return

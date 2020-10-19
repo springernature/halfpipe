@@ -153,7 +153,7 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, 
 	}
 
 	if task.RestoreArtifacts {
-		out = append(out, fmt.Sprintf("# Copying in artifacts from previous task"))
+		out = append(out, "# Copying in artifacts from previous task")
 		out = append(out, fmt.Sprintf("cp -r %s/. %s\n", pathToArtifactsDir(gitDir, basePath, artifactsInDir), relativePathToRepoRoot(gitDir, basePath)))
 	}
 

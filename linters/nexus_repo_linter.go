@@ -31,7 +31,7 @@ func (l nexusRepoLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 
 	shouldCheckFile := func(name string) bool {
 		for _, filename := range filenamesToCheck {
-			if strings.ToLower(filename) == strings.ToLower(name) {
+			if strings.EqualFold(filename, name) {
 				return true
 			}
 		}

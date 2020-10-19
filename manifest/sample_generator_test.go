@@ -20,7 +20,7 @@ func (pr FakeProjectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile
 
 func TestFailsIfHalfpipeFileAlreadyExists(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile(".halfpipe.io", []byte(""), 777)
+	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 
 	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{}, "/home/user/src/myApp")
 

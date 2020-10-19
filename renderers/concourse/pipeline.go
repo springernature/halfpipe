@@ -17,15 +17,11 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type Renderer interface {
-	Render(manifest manifest.Manifest) atc.Config
-}
-
 type pipeline struct {
 	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader cf.ManifestReader) Renderer {
+func NewPipeline(cfManifestReader cf.ManifestReader) pipeline {
 	return pipeline{readCfManifest: cfManifestReader}
 }
 
@@ -371,7 +367,11 @@ func (p pipeline) previousTaskNames(currentIndex int, taskList manifest.TaskList
 	return p.taskNamesFromTask(taskList[currentIndex-1])
 }
 
-func (p pipeline) Render(man manifest.Manifest) (cfg atc.Config) {
+func (p pipeline) Render(man manifest.Manifest) (string, error) {
+	return ToString(p.RenderAtcConfig(man))
+}
+
+func (p pipeline) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
 	resourceTypes, resourceConfigs := p.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)

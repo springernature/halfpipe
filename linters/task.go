@@ -28,7 +28,6 @@ type taskLinter struct {
 	lintParallel                    func(parallelTask manifest.Parallel) (errs []error, warnings []error)
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error)
 	os                              string
-	deprecatedDockerRegistries      []string
 	deprecatedCFApis                []string
 }
 
@@ -122,14 +121,14 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Update:
 		case manifest.Parallel:
 			errs, warnings = linter.lintParallel(task)
-			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, man, previousTasks, true, true)
+			subErrors, subWarnings := linter.lintTasks(taskID, task.Tasks, man, previousTasks, true, true)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false
 			lintArtifact = false
 		case manifest.Sequence:
 			errs, warnings = linter.lintSequence(task, cameFromParallel)
-			subErrors, subWarnings := linter.lintTasks(fmt.Sprintf("%s", taskID), task.Tasks, man, previousTasks, true, false)
+			subErrors, subWarnings := linter.lintTasks(taskID, task.Tasks, man, previousTasks, true, false)
 			errs = append(errs, subErrors...)
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false

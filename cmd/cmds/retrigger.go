@@ -51,7 +51,7 @@ for build in builds:
 			if len(buildsToBeRetriggered) == 0 {
 				fmt.Println("I found the following errored builds")
 				for _, erroredBuild := range erroredBuilds {
-					fmt.Println(fmt.Sprintf("  * %s [#%s]", erroredBuild, erroredBuild.Name))
+					fmt.Printf("  * %s [#%s]\n", erroredBuild, erroredBuild.Name)
 				}
 				fmt.Println("But there has been newer builds for each of them so I will just ignore them.")
 				os.Exit(0)
@@ -66,8 +66,6 @@ for build in builds:
 				}
 				fmt.Println("")
 			}
-
-			return
 		},
 
 		PreRun: func(cmd *cobra.Command, args []string) {

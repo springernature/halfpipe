@@ -24,9 +24,7 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 		updated.URI = defaults.Project.GitURI
 
 		for from, to := range config.RewriteGitHTTPToSSH {
-			if strings.Contains(updated.URI, from) {
-				updated.URI = strings.Replace(updated.URI, from, to, 1)
-			}
+			updated.URI = strings.Replace(updated.URI, from, to, 1)
 		}
 	}
 

@@ -71,17 +71,17 @@ func (tl TaskList) UsesNotifications() bool {
 }
 
 func (tl TaskList) Flatten() (updated TaskList) {
-	for _, task := range tl {
-		switch task.(type) {
+	for _, t := range tl {
+		switch task := t.(type) {
 		case DeployCF:
-			copied := task.(DeployCF)
+			copied := task
 			copied.PrePromote = nil
 			updated = append(updated, copied)
-			updated = append(updated, task.(DeployCF).PrePromote.Flatten()...)
+			updated = append(updated, task.PrePromote.Flatten()...)
 		case Sequence:
-			updated = append(updated, task.(Sequence).Tasks.Flatten()...)
+			updated = append(updated, task.Tasks.Flatten()...)
 		case Parallel:
-			updated = append(updated, task.(Parallel).Tasks.Flatten()...)
+			updated = append(updated, task.Tasks.Flatten()...)
 		default:
 			updated = append(updated, task)
 		}
