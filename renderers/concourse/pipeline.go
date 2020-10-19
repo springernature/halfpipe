@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/cf"
 	"regexp"
 	"strings"
 
@@ -9,8 +10,6 @@ import (
 
 	"path"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
-	boshTemplate "github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -22,13 +21,11 @@ type Renderer interface {
 	Render(manifest manifest.Manifest) atc.Config
 }
 
-type CfManifestReader func(pathToManifest string, pathsToVarsFiles []string, vars []boshTemplate.VarKV) ([]cfManifest.Application, error)
-
 type pipeline struct {
-	readCfManifest CfManifestReader
+	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader CfManifestReader) Renderer {
+func NewPipeline(cfManifestReader cf.ManifestReader) Renderer {
 	return pipeline{readCfManifest: cfManifestReader}
 }
 

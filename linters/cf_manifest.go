@@ -3,6 +3,7 @@ package linters
 import (
 	goErrors "errors"
 	"fmt"
+	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"strings"
@@ -11,14 +12,13 @@ import (
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/renderers/concourse"
 )
 
 type cfManifestLinter struct {
-	readCfManifest concourse.CfManifestReader
+	readCfManifest cf.ManifestReader
 }
 
-func NewCfManifestLinter(cfManifestReader concourse.CfManifestReader) cfManifestLinter {
+func NewCfManifestLinter(cfManifestReader cf.ManifestReader) cfManifestLinter {
 	return cfManifestLinter{cfManifestReader}
 }
 

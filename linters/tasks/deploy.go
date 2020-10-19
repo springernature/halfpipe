@@ -3,15 +3,15 @@ package tasks
 import (
 	"fmt"
 	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/renderers/concourse"
 	"strings"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest concourse.CfManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}
