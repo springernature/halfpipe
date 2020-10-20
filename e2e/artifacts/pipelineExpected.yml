@@ -364,8 +364,7 @@ jobs:
         path: /bin/sh
     task: copying-git-repo-and-artifacts-to-a-temporary-build-dir
     timeout: 1h
-  - attempts: 1
-    params:
+  - params:
       build: docker_build/e2e/artifacts
       build_args:
         A: a
