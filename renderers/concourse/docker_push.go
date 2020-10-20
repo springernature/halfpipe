@@ -17,71 +17,55 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) atc.J
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
-	timeoutStep := atc.TimeoutStep{
-		Step: &atc.PutStep{
-			Name: resourceName,
-			Params: atc.Params{
-				"build":         path.Join(gitDir, basePath, task.BuildPath),
-				"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
-				"tag_as_latest": true,
-				"tag_file":      task.GetTagPath(),
-				"build_args":    convertVars(task.Vars),
-			},
+	put := &atc.PutStep{
+		Name: resourceName,
+		Params: atc.Params{
+			"build":         path.Join(gitDir, basePath, task.BuildPath),
+			"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
+			"tag_as_latest": true,
+			"tag_file":      task.GetTagPath(),
+			"build_args":    convertVars(task.Vars),
 		},
-		Duration: task.GetTimeout(),
-	}
-
-	step := atc.Step{}
-	if task.GetAttempts() > 1 {
-		step.Config = &atc.RetryStep{
-			Step:     &timeoutStep,
-			Attempts: task.GetAttempts(),
-		}
-	} else {
-		step.Config = &timeoutStep
 	}
 
 	return atc.JobConfig{
-		Name:         task.GetName(),
-		Serial:       true,
-		PlanSequence: []atc.Step{step},
+		Name:   task.GetName(),
+		Serial: true,
+		PlanSequence: []atc.Step{
+			stepWithAttemptsAndTimeout(put, task.GetAttempts(), task.GetTimeout()),
+		},
 	}
 }
 
 func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
-	copyArtifact := atc.Step{
-		Config: &atc.TimeoutStep{
-			Step: &atc.TaskStep{
-				Name: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
-				Config: &atc.TaskConfig{
-					Platform: "linux",
-					ImageResource: &atc.ImageResource{
-						Type: "docker-image",
-						Source: atc.Source{
-							"repository": "alpine",
-						},
-					},
-					Run: atc.TaskRunConfig{
-						Path: "/bin/sh",
-						Args: []string{"-c", strings.Join([]string{
-							fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
-							fmt.Sprintf("cp -r %s/. %s", artifactsInDir, dockerBuildTmpDir),
-						}, "\n")},
-					},
-					Inputs: []atc.TaskInputConfig{
-						{Name: gitDir},
-						{Name: artifactsName},
-					},
-					Outputs: []atc.TaskOutputConfig{
-						{Name: dockerBuildTmpDir},
-					},
+	copyArtifact := &atc.TaskStep{
+		Name: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
+		Config: &atc.TaskConfig{
+			Platform: "linux",
+			ImageResource: &atc.ImageResource{
+				Type: "docker-image",
+				Source: atc.Source{
+					"repository": "alpine",
 				},
 			},
-			Duration: task.GetTimeout(),
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Args: []string{"-c", strings.Join([]string{
+					fmt.Sprintf("cp -r %s/. %s", gitDir, dockerBuildTmpDir),
+					fmt.Sprintf("cp -r %s/. %s", artifactsInDir, dockerBuildTmpDir),
+				}, "\n")},
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+				{Name: artifactsName},
+			},
+			Outputs: []atc.TaskOutputConfig{
+				{Name: dockerBuildTmpDir},
+			},
 		},
 	}
 
-	putStep := atc.PutStep{
+	put := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
 			"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
@@ -91,25 +75,13 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 			"build_args":    convertVars(task.Vars),
 		},
 	}
-	timeoutStep := atc.TimeoutStep{
-		Step:     &putStep,
-		Duration: task.GetTimeout(),
-	}
-
-	step := atc.Step{}
-	if task.GetAttempts() > 1 {
-		retryStep := atc.RetryStep{
-			Step:     &timeoutStep,
-			Attempts: task.GetAttempts(),
-		}
-		step.Config = &retryStep
-	} else {
-		step.Config = &timeoutStep
-	}
 
 	return atc.JobConfig{
-		Name:         task.GetName(),
-		Serial:       true,
-		PlanSequence: []atc.Step{copyArtifact, step},
+		Name:   task.GetName(),
+		Serial: true,
+		PlanSequence: []atc.Step{
+			stepWithAttemptsAndTimeout(copyArtifact, task.GetAttempts(), task.Timeout),
+			stepWithAttemptsAndTimeout(put, task.GetAttempts(), task.Timeout),
+		},
 	}
 }

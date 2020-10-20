@@ -51,7 +51,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 }
 
 func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.Step {
-	cleanup := atc.PutStep{
+	cleanup := &atc.PutStep{
 		Name:     "halfpipe-cleanup",
 		Resource: resourceName,
 		Params: atc.Params{
@@ -64,15 +64,9 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 		cleanup.Params["timeout"] = task.Timeout
 	}
 
-	return &atc.Step{
-		Config: &atc.RetryStep{
-			Step: &atc.TimeoutStep{
-				Step:     &cleanup,
-				Duration: task.GetTimeout(),
-			},
-			Attempts: task.GetAttempts(),
-		},
-	}
+	step := stepWithAttemptsAndTimeout(cleanup, task.GetAttempts(), task.GetTimeout())
+	return &step
+
 }
 
 func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {

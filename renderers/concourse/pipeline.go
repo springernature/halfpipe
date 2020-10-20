@@ -547,3 +547,22 @@ func saveArtifactOnFailurePlan() atc.PutStep {
 		},
 	}
 }
+
+func stepWithAttemptsAndTimeout(stepConfig atc.StepConfig, attempts int, timeout string) atc.Step {
+	timeoutStep := &atc.TimeoutStep{
+		Step:     stepConfig,
+		Duration: timeout,
+	}
+
+	if attempts == 1 {
+		return atc.Step{Config: timeoutStep}
+	}
+
+	return atc.Step{
+		Config: &atc.RetryStep{
+			Step:     timeoutStep,
+			Attempts: attempts,
+		},
+	}
+
+}
