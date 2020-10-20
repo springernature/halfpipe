@@ -51,8 +51,7 @@ jobs:
         passed:
         - update
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -123,8 +122,7 @@ jobs:
         passed:
         - first job
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -195,8 +193,7 @@ jobs:
         passed:
         - first job
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -267,8 +264,7 @@ jobs:
         passed:
         - first job
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -343,8 +339,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -415,8 +410,7 @@ jobs:
         passed:
         - parallel 2 sequence 1 1
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -491,8 +485,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -563,8 +556,7 @@ jobs:
         passed:
         - parallel 2 sequence 2 1
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -635,8 +627,7 @@ jobs:
         passed:
         - parallel 2 sequence 2 2
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -711,8 +702,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -786,8 +776,7 @@ jobs:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

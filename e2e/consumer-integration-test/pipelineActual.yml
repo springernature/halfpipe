@@ -6,8 +6,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

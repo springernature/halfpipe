@@ -54,30 +54,39 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		caches = append(caches, atc.TaskCacheConfig{Path: dir})
 	}
 
-	runStep := atc.Step{
-		Config: &atc.RetryStep{
-			Step: &atc.TimeoutStep{
-				Step: &atc.TaskStep{
-					Name:       restrictAllowedCharacterSet(task.GetName()),
-					Privileged: task.Privileged,
-					Config: &atc.TaskConfig{
-						Platform:      "linux",
-						Params:        taskEnv,
-						ImageResource: p.imageResource(task.Docker),
-						Run: atc.TaskRunConfig{
-							Path: taskPath,
-							Dir:  path.Join(gitDir, basePath),
-							Args: runScriptArgs(task, man, !isDockerCompose, basePath),
-						},
-						Inputs:  taskInputs(),
-						Outputs: taskOutputs(),
-						Caches:  caches,
-					},
-				},
-				Duration: task.GetTimeout(),
+	taskStep := atc.TaskStep{
+		Name:       restrictAllowedCharacterSet(task.GetName()),
+		Privileged: task.Privileged,
+		Config: &atc.TaskConfig{
+			Platform:      "linux",
+			Params:        taskEnv,
+			ImageResource: p.imageResource(task.Docker),
+			Run: atc.TaskRunConfig{
+				Path: taskPath,
+				Dir:  path.Join(gitDir, basePath),
+				Args: runScriptArgs(task, man, !isDockerCompose, basePath),
 			},
-			Attempts: task.GetAttempts(),
+			Inputs:  taskInputs(),
+			Outputs: taskOutputs(),
+			Caches:  caches,
 		},
+	}
+
+	timeoutStep := atc.TimeoutStep{
+		Step:     &taskStep,
+		Duration: task.GetTimeout(),
+	}
+
+	runStep := atc.Step{}
+
+	if task.GetAttempts() > 1 {
+		retryStep := atc.RetryStep{
+			Step:     &timeoutStep,
+			Attempts: task.GetAttempts(),
+		}
+		runStep.Config = &retryStep
+	} else {
+		runStep.Config = &timeoutStep
 	}
 
 	jobConfig.PlanSequence = append(jobConfig.PlanSequence, runStep)

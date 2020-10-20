@@ -9,8 +9,7 @@ jobs:
     params:
       depth: 1
     trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

@@ -20,8 +20,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -114,8 +113,7 @@ jobs:
     passed:
     - task1
     trigger: true
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -220,8 +218,7 @@ jobs:
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-pe-staging
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

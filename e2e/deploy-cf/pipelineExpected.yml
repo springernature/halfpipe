@@ -78,8 +78,7 @@ jobs:
       timeout: 5m
     put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

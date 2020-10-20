@@ -35,8 +35,7 @@ jobs:
       timeout: 5m
     put: deploy-test-app
     resource: rolling-cf-dev-api-halfpipe-team-dev
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

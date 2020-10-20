@@ -5,8 +5,7 @@ jobs:
   name: test
   plan:
   - get: git
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

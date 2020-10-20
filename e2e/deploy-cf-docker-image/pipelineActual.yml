@@ -129,8 +129,7 @@ jobs:
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-dev
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -252,8 +251,7 @@ jobs:
       timeout: 1h
     put: deploy-test-app
     resource: rolling-cf-snpaas-dev
-  - attempts: 1
-    config:
+  - config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
