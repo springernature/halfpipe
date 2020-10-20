@@ -738,8 +738,7 @@ jobs:
         - deploy to staging
         - deploy to qa
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/update-pipeline
       build_args:
         A: a

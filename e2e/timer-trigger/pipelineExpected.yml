@@ -11,8 +11,7 @@ jobs:
         trigger: true
       - get: cron
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/timer-trigger
       build_args:
         A: a

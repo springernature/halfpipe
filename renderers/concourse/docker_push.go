@@ -17,23 +17,30 @@ func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) atc.J
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
-	put := atc.Step{
-		Config: &atc.TimeoutStep{
-			Step: &atc.RetryStep{
-				Step: &atc.PutStep{
-					Name: resourceName,
-					Params: atc.Params{
-						"build":         path.Join(gitDir, basePath, task.BuildPath),
-						"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
-						"tag_as_latest": true,
-						"tag_file":      task.GetTagPath(),
-						"build_args":    convertVars(task.Vars),
-					},
-				},
-				Attempts: task.GetAttempts(),
-			},
-			Duration: task.GetTimeout(),
+	putStep := atc.PutStep{
+		Name: resourceName,
+		Params: atc.Params{
+			"build":         path.Join(gitDir, basePath, task.BuildPath),
+			"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
+			"tag_as_latest": true,
+			"tag_file":      task.GetTagPath(),
+			"build_args":    convertVars(task.Vars),
 		},
+	}
+	timeoutStep := atc.TimeoutStep{
+		Step:     &putStep,
+		Duration: task.GetTimeout(),
+	}
+
+	put := atc.Step{}
+	if task.GetAttempts() > 1 {
+		retryStep := atc.RetryStep{
+			Step:     &timeoutStep,
+			Attempts: task.GetAttempts(),
+		}
+		put.Config = &retryStep
+	} else {
+		put.Config = &timeoutStep
 	}
 
 	return atc.JobConfig{

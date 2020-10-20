@@ -6,8 +6,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push
       build_args:
         A: a
@@ -19,6 +18,27 @@ jobs:
       tag_as_latest: true
       tag_file: git/.git/ref
     put: halfpipe-fly.thisismy-tag
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: docker-push
+  plan:
+  - get: git
+    passed:
+    - push to docker registry
+    trigger: true
+  - attempts: 2
+    params:
+      build: git/e2e/docker-push
+      build_args:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      dockerfile: git/e2e/docker-push/Dockerfile
+      tag_as_latest: true
+      tag_file: git/.git/ref
+    put: halfpipe-fly.thisismy-tag2
     timeout: 1h
   serial: true
 resources:
@@ -36,6 +56,13 @@ resources:
   source:
     password: verysecret
     repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
+    username: rob
+  type: docker-image
+- check_every: 24h
+  name: halfpipe-fly.thisismy-tag2
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
     username: rob
   type: docker-image
 

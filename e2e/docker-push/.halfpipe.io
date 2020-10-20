@@ -15,4 +15,8 @@ tasks:
   vars:
     A: a
     B: b
-
+- type: docker-push
+  username: rob
+  password: verysecret
+  image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
+  retries: 1

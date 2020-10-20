@@ -13,8 +13,7 @@ jobs:
         trigger: true
       - get: git
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-with-docker-trigger
       build_args:
         A: a

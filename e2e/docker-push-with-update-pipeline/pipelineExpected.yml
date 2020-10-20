@@ -47,8 +47,7 @@ jobs:
         passed:
         - update
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:
         A: a
@@ -76,8 +75,7 @@ jobs:
         passed:
         - push to docker registry
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:
         A: a

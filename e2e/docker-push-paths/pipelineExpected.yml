@@ -6,8 +6,7 @@ jobs:
   plan:
   - get: git
     trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-paths/some/build/dir
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -27,8 +26,7 @@ jobs:
     passed:
     - push to docker registry
     trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-paths
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))

@@ -11,8 +11,7 @@ jobs:
         trigger: true
       - get: halfpipe-example-docker-push.docker-push
         trigger: true
-  - attempts: 1
-    params:
+  - params:
       build: git/e2e/docker-push-with-pipeline-trigger
       build_args:
         A: a
