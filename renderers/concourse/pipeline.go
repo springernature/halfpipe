@@ -274,12 +274,13 @@ func (p pipeline) onFailure(task manifest.Task) *atc.Step {
 		var sequence []atc.Step
 
 		if task.SavesArtifactsOnFailure() {
-			s := saveArtifactOnFailurePlan()
-			sequence = append(sequence, atc.Step{Config: &s})
+			saveStep := saveArtifactOnFailurePlan()
+			sequence = append(sequence, stepWithAttemptsAndTimeout(&saveStep, defaultStepAttempts, defaultStepTimeout))
 		}
 
 		for _, onFailureChannel := range onFailureChannels {
-			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
+			slackStep := slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage)
+			sequence = append(sequence, stepWithAttemptsAndTimeout(&slackStep, defaultStepAttempts, defaultStepTimeout))
 		}
 
 		onFailure := parallelizeSteps(sequence)
@@ -294,7 +295,8 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 		var sequence []atc.Step
 
 		for _, onSuccessChannel := range onSuccessChannels {
-			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
+			slackStep := slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage)
+			sequence = append(sequence, stepWithAttemptsAndTimeout(&slackStep, defaultStepAttempts, defaultStepTimeout))
 		}
 
 		onSuccess := parallelizeSteps(sequence)

@@ -50,11 +50,13 @@ jobs:
     minimum_succeeded_builds: 1
   name: Test
   on_failure:
+    attempts: 2
     params:
       folder: artifacts-out-failure
       postfix: failure
       version_file: git/.git/ref
     put: artifacts-on-failure
+    timeout: 15m
   plan:
   - in_parallel:
       fail_fast: true
@@ -248,11 +250,13 @@ jobs:
     timeout: 1h
   name: deploy to staging
   on_failure:
+    attempts: 2
     params:
       folder: artifacts-out-failure
       postfix: failure
       version_file: git/.git/ref
     put: artifacts-on-failure
+    timeout: 15m
   plan:
   - in_parallel:
       fail_fast: true
@@ -869,11 +873,13 @@ jobs:
     minimum_succeeded_builds: 1
   name: docker-compose
   on_failure:
+    attempts: 2
     params:
       folder: artifacts-out-failure
       postfix: failure
       version_file: git/.git/ref
     put: artifacts-on-failure
+    timeout: 15m
   plan:
   - in_parallel:
       fail_fast: true

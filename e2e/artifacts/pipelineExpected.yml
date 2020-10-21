@@ -4,11 +4,13 @@ jobs:
     minimum_succeeded_builds: 1
   name: create-artifact
   on_failure:
+    attempts: 2
     params:
       folder: artifacts-out-failure
       postfix: failure
       version_file: git/.git/ref
     put: artifacts-on-failure
+    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -398,11 +400,13 @@ jobs:
     minimum_succeeded_builds: 1
   name: docker-compose
   on_failure:
+    attempts: 2
     params:
       folder: artifacts-out-failure
       postfix: failure
       version_file: git/.git/ref
     put: artifacts-on-failure
+    timeout: 15m
   plan:
   - attempts: 2
     get: git

@@ -4,19 +4,23 @@ jobs:
     minimum_succeeded_builds: 1
   name: task1
   on_failure:
+    attempts: 2
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
       text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
     put: slack
+    timeout: 15m
   on_success:
+    attempts: 2
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
       text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
     put: slack
+    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -82,34 +86,42 @@ jobs:
     in_parallel:
       fail_fast: true
       steps:
-      - params:
+      - attempts: 2
+        params:
           channel: kehe
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
         put: slack
-      - params:
+        timeout: 15m
+      - attempts: 2
+        params:
           channel: whoop
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
         put: slack
+        timeout: 15m
   on_success:
     in_parallel:
       fail_fast: true
       steps:
-      - params:
+      - attempts: 2
+        params:
           channel: asdf
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
-      - params:
+        timeout: 15m
+      - attempts: 2
+        params:
           channel: prws
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
+        timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -184,19 +196,23 @@ jobs:
     timeout: 1h
   name: deploy to staging
   on_failure:
+    attempts: 2
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
       text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
     put: slack
+    timeout: 15m
   on_success:
+    attempts: 2
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
       text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
       username: Halfpipe
     put: slack
+    timeout: 15m
   plan:
   - attempts: 2
     get: git
