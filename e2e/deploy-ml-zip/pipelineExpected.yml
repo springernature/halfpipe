@@ -91,7 +91,8 @@ jobs:
     passed:
     - create zip for ml task
     trigger: true
-  - config:
+  - attempts: 2
+    config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -115,6 +116,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

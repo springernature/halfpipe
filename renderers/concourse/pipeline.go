@@ -75,47 +75,41 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 		BUCKET = man.ArtifactConfig.Bucket
 	}
 
-	taskConfig := atc.TaskConfig{
-		Platform:  "linux",
-		RootfsURI: "",
-		ImageResource: &atc.ImageResource{
-			Type: "registry-image",
-			Source: atc.Source{
-				"repository": config.DockerRegistry + "gcp-resource",
-				"tag":        "stable",
-				"password":   "((halfpipe-gcr.private_key))",
-				"username":   "_json_key",
+	taskStep := &atc.TaskStep{
+		Name: "get-artifact",
+		Config: &atc.TaskConfig{
+			Platform:  "linux",
+			RootfsURI: "",
+			ImageResource: &atc.ImageResource{
+				Type: "registry-image",
+				Source: atc.Source{
+					"repository": config.DockerRegistry + "gcp-resource",
+					"tag":        "stable",
+					"password":   "((halfpipe-gcr.private_key))",
+					"username":   "_json_key",
+				},
 			},
-		},
-		Params: map[string]string{
-			"BUCKET":       BUCKET,
-			"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
-			"JSON_KEY":     jsonKey,
-			"VERSION_FILE": "git/.git/ref",
-		},
-		Run: atc.TaskRunConfig{
-			Path: "/opt/resource/download",
-			Dir:  artifactsInDir,
-			Args: []string{"."},
-		},
-		Inputs: []atc.TaskInputConfig{
-			{
-				Name: manifest.GitTrigger{}.GetTriggerName(),
+			Params: map[string]string{
+				"BUCKET":       BUCKET,
+				"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
+				"JSON_KEY":     jsonKey,
+				"VERSION_FILE": "git/.git/ref",
 			},
-		},
-		Outputs: []atc.TaskOutputConfig{
-			{
-				Name: artifactsInDir,
+			Run: atc.TaskRunConfig{
+				Path: "/opt/resource/download",
+				Dir:  artifactsInDir,
+				Args: []string{"."},
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: manifest.GitTrigger{}.GetTriggerName()},
+			},
+			Outputs: []atc.TaskOutputConfig{
+				{Name: artifactsInDir},
 			},
 		},
 	}
 
-	return atc.Step{
-		Config: &atc.TaskStep{
-			Name:   "get-artifact",
-			Config: &taskConfig,
-		},
-	}
+	return stepWithAttemptsAndTimeout(taskStep, artifactsAttempts, artifactsTimeout)
 }
 
 func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
