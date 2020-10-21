@@ -76,10 +76,12 @@ jobs:
         path: /bin/sh
     task: make-binary
     timeout: 1h
-  - params:
+  - attempts: 2
+    params:
       folder: artifacts-out
       version_file: git/.git/ref
     put: artifacts
+    timeout: 15m
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

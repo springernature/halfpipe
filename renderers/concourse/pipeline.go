@@ -31,6 +31,8 @@ const artifactsOutDir = "artifacts-out"
 const artifactsInDir = "artifacts"
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
+const artifactsAttempts = 2
+const artifactsTimeout = "15m"
 
 const gitDir = "git"
 

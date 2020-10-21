@@ -77,17 +77,15 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 	jobConfig.PlanSequence = append(jobConfig.PlanSequence, step)
 
 	if len(task.SaveArtifacts) > 0 {
-		artifactPut := atc.Step{
-			Config: &atc.PutStep{
-				Name: artifactsName,
-				Params: atc.Params{
-					"folder":       artifactsOutDir,
-					"version_file": path.Join(gitDir, ".git", "ref"),
-				},
+		artifactPut := &atc.PutStep{
+			Name: artifactsName,
+			Params: atc.Params{
+				"folder":       artifactsOutDir,
+				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
 		}
 
-		jobConfig.PlanSequence = append(jobConfig.PlanSequence, artifactPut)
+		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithAttemptsAndTimeout(artifactPut, artifactsAttempts, artifactsTimeout))
 	}
 
 	return jobConfig
