@@ -7,9 +7,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        timeout: 15m
         trigger: true
-      - get: cron
+      - attempts: 2
+        get: cron
+        timeout: 15m
         trigger: true
   - attempts: 2
     config:
@@ -55,12 +59,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - update
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - update
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -162,12 +170,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - Test
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - Test
+        timeout: 15m
         trigger: true
   - attempts: 2
     config:
@@ -245,12 +257,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to cf
+        timeout: 15m
         trigger: true
   - attempts: 2
     config:
@@ -548,12 +564,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to cf
+        timeout: 15m
         trigger: true
   - attempts: 2
     config:
@@ -741,14 +761,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to staging
         - deploy to qa
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to staging
         - deploy to qa
+        timeout: 15m
         trigger: true
   - params:
       build: git/e2e/update-pipeline
@@ -771,12 +795,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - push to docker registry
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - push to docker registry
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -850,12 +878,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - run notify.sh
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - run notify.sh
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -934,12 +966,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - docker-compose
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - docker-compose
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -1040,12 +1076,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - another-c-name
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - another-c-name
+        timeout: 15m
         trigger: true
   - attempts: 2
     config:
@@ -1144,12 +1184,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy-ml-zip
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy-ml-zip
+        timeout: 15m
         trigger: true
   - config:
       caches:

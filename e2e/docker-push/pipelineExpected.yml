@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - params:
       build: git/e2e/docker-push
@@ -24,9 +26,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: docker-push
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - push to docker registry
+    timeout: 15m
     trigger: true
   - attempts: 2
     params:

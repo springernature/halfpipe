@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: test
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

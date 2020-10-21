@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: make binary
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -97,9 +99,11 @@ jobs:
     timeout: 5m
   name: deploy to cf
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - make binary
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:

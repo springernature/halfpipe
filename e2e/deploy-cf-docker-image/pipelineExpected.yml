@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -54,12 +56,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - update
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - update
+        timeout: 15m
         trigger: true
   - params:
       buildVersionPath: version/version
@@ -106,12 +112,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf simple
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to cf simple
+        timeout: 15m
         trigger: true
   - params:
       buildVersionPath: version/version
@@ -207,12 +217,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf with pre promote
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to cf with pre promote
+        timeout: 15m
         trigger: true
   - params:
       buildVersionPath: version/version
@@ -234,12 +248,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - deploy to cf simple - rolling deploy
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - deploy to cf simple - rolling deploy
+        timeout: 15m
         trigger: true
   - params:
       buildVersionPath: version/version

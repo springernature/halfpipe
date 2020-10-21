@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: Deploy ml-modules artifact
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - config:
       caches:

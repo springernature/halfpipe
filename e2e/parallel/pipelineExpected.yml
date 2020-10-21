@@ -4,9 +4,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     params:
       depth: 1
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -46,14 +48,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - update
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - update
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -117,14 +123,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - first job
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - first job
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -188,14 +198,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - first job
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - first job
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -259,14 +273,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - first job
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - first job
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -330,18 +348,22 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -405,14 +427,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 1 1
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 1 1
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -476,18 +502,22 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -551,14 +581,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 2 1
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 2 1
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -622,14 +656,18 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 2 2
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 2 2
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -693,18 +731,22 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
+        timeout: 15m
         trigger: true
   - config:
       caches:
@@ -768,18 +810,22 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
+        timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

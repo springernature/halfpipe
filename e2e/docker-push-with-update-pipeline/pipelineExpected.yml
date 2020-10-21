@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -44,12 +46,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - update
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - update
+        timeout: 15m
         trigger: true
   - params:
       build: git/e2e/docker-push-with-update-pipeline
@@ -72,12 +78,16 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
         passed:
         - push to docker registry
-      - get: version
+        timeout: 15m
+      - attempts: 2
+        get: version
         passed:
         - push to docker registry
+        timeout: 15m
         trigger: true
   - params:
       build: git/e2e/docker-push-with-update-pipeline

@@ -7,9 +7,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        timeout: 15m
         trigger: true
-      - get: halfpipe-example-docker-push.docker-push
+      - attempts: 2
+        get: halfpipe-example-docker-push.docker-push
+        timeout: 15m
         trigger: true
   - params:
       build: git/e2e/docker-push-with-pipeline-trigger

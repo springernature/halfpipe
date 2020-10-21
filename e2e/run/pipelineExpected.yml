@@ -5,9 +5,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: test
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     params:
       depth: 1
+    timeout: 15m
     trigger: true
   - config:
       caches:

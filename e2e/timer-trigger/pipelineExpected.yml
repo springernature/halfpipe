@@ -7,9 +7,13 @@ jobs:
   - in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - attempts: 2
+        get: git
+        timeout: 15m
         trigger: true
-      - get: cron
+      - attempts: 2
+        get: cron
+        timeout: 15m
         trigger: true
   - params:
       build: git/e2e/timer-trigger

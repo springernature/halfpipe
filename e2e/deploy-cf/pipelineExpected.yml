@@ -14,7 +14,9 @@ jobs:
     timeout: 5m
   name: deploy to cf without any jazz
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/deploy-cf
@@ -56,9 +58,11 @@ jobs:
     timeout: 5m
   name: deploy to cf
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - deploy to cf without any jazz
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/deploy-cf

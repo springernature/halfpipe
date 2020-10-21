@@ -85,7 +85,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			},
 		}
 
-		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithAttemptsAndTimeout(artifactPut, artifactsAttempts, artifactsTimeout))
+		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithAttemptsAndTimeout(artifactPut, defaultStepAttempts, defaultStepTimeout))
 	}
 
 	return jobConfig

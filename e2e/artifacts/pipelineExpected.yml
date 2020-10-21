@@ -10,7 +10,9 @@ jobs:
       version_file: git/.git/ref
     put: artifacts-on-failure
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -98,9 +100,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: read-artifact
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - create-artifact
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -199,9 +203,11 @@ jobs:
     timeout: 1h
   name: deploy to staging
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - read-artifact
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -322,9 +328,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - deploy to staging
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -396,9 +404,11 @@ jobs:
       version_file: git/.git/ref
     put: artifacts-on-failure
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - push to docker registry
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:
@@ -502,9 +512,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy-ml-zip
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - docker-compose
+    timeout: 15m
     trigger: true
   - attempts: 2
     config:

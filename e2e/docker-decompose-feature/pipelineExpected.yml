@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: test
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -63,9 +65,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: two-services
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - test
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -133,9 +137,11 @@ jobs:
     timeout: 1h
   name: deploy-cf
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - two-services
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/docker-decompose-feature

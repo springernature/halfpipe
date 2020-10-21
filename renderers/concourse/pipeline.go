@@ -31,8 +31,9 @@ const artifactsOutDir = "artifacts-out"
 const artifactsInDir = "artifacts"
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
-const artifactsAttempts = 2
-const artifactsTimeout = "15m"
+
+const defaultStepAttempts = 2
+const defaultStepTimeout = "15m"
 
 const gitDir = "git"
 
@@ -109,7 +110,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 		},
 	}
 
-	return stepWithAttemptsAndTimeout(taskStep, artifactsAttempts, artifactsTimeout)
+	return stepWithAttemptsAndTimeout(taskStep, defaultStepAttempts, defaultStepTimeout)
 }
 
 func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
@@ -120,46 +121,46 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			gitClone := atc.GetStep{
+			getGit := &atc.GetStep{
 				Name: trigger.GetTriggerName(),
 			}
 			if trigger.Shallow {
-				gitClone.Params = map[string]interface{}{
+				getGit.Params = map[string]interface{}{
 					"depth": 1,
 				}
 			}
-			getSteps = append(getSteps, atc.Step{Config: &gitClone})
+			getSteps = append(getSteps, stepWithAttemptsAndTimeout(getGit, defaultStepAttempts, defaultStepTimeout))
 
 		case manifest.TimerTrigger:
 			if isUpdateTask || !versioningEnabled {
-				getSteps = append(getSteps, atc.Step{Config: &atc.GetStep{Name: trigger.GetTriggerName()}})
+				getTimer := &atc.GetStep{Name: trigger.GetTriggerName()}
+				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getTimer, defaultStepAttempts, defaultStepTimeout))
 			}
+
 		case manifest.DockerTrigger:
 			if isUpdateTask || !versioningEnabled {
-				dockerTrigger := atc.GetStep{
+				getDocker := &atc.GetStep{
 					Name: trigger.GetTriggerName(),
 					Params: map[string]interface{}{
 						"skip_download": true,
 					},
 				}
-
-				getSteps = append(getSteps, atc.Step{Config: &dockerTrigger})
-
+				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getDocker, defaultStepAttempts, defaultStepTimeout))
 			}
+
 		case manifest.PipelineTrigger:
 			if isUpdateTask || !versioningEnabled {
-				pipelineTrigger := atc.GetStep{
+				getPipeline := &atc.GetStep{
 					Name: trigger.GetTriggerName(),
 				}
-
-				getSteps = append(getSteps, atc.Step{Config: &pipelineTrigger})
+				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getPipeline, defaultStepAttempts, defaultStepTimeout))
 			}
-
 		}
 	}
 
 	if !isUpdateTask && man.FeatureToggles.Versioned() {
-		getSteps = append(getSteps, atc.Step{Config: &atc.GetStep{Name: versionName}})
+		getVersion := &atc.GetStep{Name: versionName}
+		getSteps = append(getSteps, stepWithAttemptsAndTimeout(getVersion, defaultStepAttempts, defaultStepTimeout))
 	}
 
 	getStep := p.configureTriggerOnGets(p.addPassedJobsToGets(parallelizeSteps(getSteps), previousTaskNames), task, man)

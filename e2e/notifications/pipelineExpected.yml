@@ -18,7 +18,9 @@ jobs:
       username: Halfpipe
     put: slack
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -109,9 +111,11 @@ jobs:
           username: Halfpipe
         put: slack
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - task1
+    timeout: 15m
     trigger: true
   - config:
       caches:
@@ -194,9 +198,11 @@ jobs:
       username: Halfpipe
     put: slack
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - task2
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/notifications

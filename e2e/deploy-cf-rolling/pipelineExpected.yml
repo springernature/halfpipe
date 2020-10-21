@@ -4,7 +4,9 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy to cf without the jazz
   plan:
-  - get: git
+  - attempts: 2
+    get: git
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/deploy-cf-rolling
@@ -20,9 +22,11 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy to cf
   plan:
-  - get: git
+  - attempts: 2
+    get: git
     passed:
     - deploy to cf without the jazz
+    timeout: 15m
     trigger: true
   - params:
       appPath: git/e2e/deploy-cf-rolling
