@@ -11,7 +11,8 @@ jobs:
         trigger: true
       - get: cron
         trigger: true
-  - config:
+  - attempts: 2
+    config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
@@ -34,9 +35,12 @@ jobs:
         dir: git/e2e/update-pipeline
         path: update-pipeline
     task: update
-  - params:
+    timeout: 15m
+  - attempts: 2
+    params:
       bump: minor
     put: version
+    timeout: 15m
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
