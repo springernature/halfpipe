@@ -209,7 +209,8 @@ jobs:
         path: /opt/resource/download
     task: get-artifact
     timeout: 15m
-  - params:
+  - attempts: 2
+    params:
       appPath: artifacts/e2e/update-pipeline/target/distribution/artifact.zip
       buildVersionPath: version/version
       cliVersion: cf6
@@ -220,14 +221,18 @@ jobs:
       timeout: 5m
     put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
-  - params:
+    timeout: 5m
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 5m
     put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
-  - params:
+    timeout: 5m
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -235,6 +240,7 @@ jobs:
       timeout: 5m
     put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -298,7 +304,8 @@ jobs:
         path: /opt/resource/download
     task: get-artifact
     timeout: 15m
-  - params:
+  - attempts: 2
+    params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
       cliVersion: cf6
@@ -312,13 +319,16 @@ jobs:
         B: "false"
     put: halfpipe-push
     resource: cf-snpaas-pe-staging
-  - params:
+    timeout: 1h
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-pe-staging
+    timeout: 1h
   - in_parallel:
       fail_fast: true
       steps:
@@ -542,7 +552,8 @@ jobs:
         privileged: true
         task: run-pre-promote-step-in-docker-compose
         timeout: 1h
-  - params:
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -550,6 +561,7 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-snpaas-pe-staging
+    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -605,7 +617,8 @@ jobs:
         path: /opt/resource/download
     task: get-artifact
     timeout: 15m
-  - params:
+  - attempts: 2
+    params:
       appPath: git/e2e/update-pipeline
       buildVersionPath: version/version
       cliVersion: cf6
@@ -619,13 +632,16 @@ jobs:
         B: "false"
     put: halfpipe-push
     resource: cf-snpaas-qa
-  - params:
+    timeout: 1h
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/update-pipeline/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-qa
+    timeout: 1h
   - in_parallel:
       fail_fast: true
       steps:
@@ -749,7 +765,8 @@ jobs:
             path: /bin/sh
         task: restore-artifact-in-pre-promote
         timeout: 1h
-  - params:
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/update-pipeline/manifest.yml
@@ -757,6 +774,7 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-snpaas-qa
+    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

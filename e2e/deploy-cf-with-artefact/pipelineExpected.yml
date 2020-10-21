@@ -131,7 +131,8 @@ jobs:
         path: /opt/resource/download
     task: get-artifact
     timeout: 15m
-  - params:
+  - attempts: 2
+    params:
       appPath: artifacts/e2e/deploy-cf-with-artefact/build/linux/binary
       cliVersion: cf6
       command: halfpipe-push
@@ -141,14 +142,18 @@ jobs:
       timeout: 5m
     put: halfpipe-push
     resource: cf-dev-api-halfpipe-team-dev
-  - params:
+    timeout: 5m
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/deploy-cf-with-artefact/manifest.yml
       timeout: 5m
     put: halfpipe-check
     resource: cf-dev-api-halfpipe-team-dev
-  - params:
+    timeout: 5m
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/deploy-cf-with-artefact/manifest.yml
@@ -156,6 +161,7 @@ jobs:
       timeout: 5m
     put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
   serial: true
 resource_types:
 - name: gcp-resource

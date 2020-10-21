@@ -237,7 +237,8 @@ jobs:
         path: /opt/resource/download
     task: get-artifact
     timeout: 15m
-  - params:
+  - attempts: 2
+    params:
       appPath: git/e2e/artifacts
       cliVersion: cf6
       command: halfpipe-push
@@ -250,13 +251,16 @@ jobs:
         B: "false"
     put: halfpipe-push
     resource: cf-snpaas-pe-staging
-  - params:
+    timeout: 1h
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/artifacts/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-snpaas-pe-staging
+    timeout: 1h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -317,7 +321,8 @@ jobs:
         path: /bin/sh
     task: run-a
     timeout: 1h
-  - params:
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/artifacts/manifest.yml
@@ -325,6 +330,7 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-snpaas-pe-staging
+    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

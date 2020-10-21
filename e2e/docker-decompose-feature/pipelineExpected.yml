@@ -143,7 +143,8 @@ jobs:
     - two-services
     timeout: 15m
     trigger: true
-  - params:
+  - attempts: 2
+    params:
       appPath: git/e2e/docker-decompose-feature
       cliVersion: cf6
       command: halfpipe-push
@@ -153,13 +154,16 @@ jobs:
       timeout: 1h
     put: halfpipe-push
     resource: cf-mp-api-my-org-my-space
-  - params:
+    timeout: 1h
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
       timeout: 1h
     put: halfpipe-check
     resource: cf-mp-api-my-org-my-space
+    timeout: 1h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -213,7 +217,8 @@ jobs:
         path: /bin/sh
     task: test2
     timeout: 1h
-  - params:
+  - attempts: 2
+    params:
       cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/docker-decompose-feature/manifest.yml
@@ -221,6 +226,7 @@ jobs:
       timeout: 1h
     put: halfpipe-promote
     resource: cf-mp-api-my-org-my-space
+    timeout: 1h
   serial: true
 resource_types:
 - name: cf-resource
