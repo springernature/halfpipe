@@ -42,7 +42,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 			steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
 			steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
 			steps = append(steps, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
-			steps = append(steps, p.removeTestApp(resourceName, manifestPath))
+			steps = append(steps, p.removeTestApp(task, resourceName, manifestPath))
 		}
 	}
 
@@ -66,7 +66,6 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 
 	step := stepWithAttemptsAndTimeout(cleanup, task.GetAttempts(), task.GetTimeout())
 	return &step
-
 }
 
 func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
@@ -83,9 +82,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 	if task.Timeout != "" {
 		promote.Params["timeout"] = task.Timeout
 	}
-	return atc.Step{
-		Config: &promote,
-	}
+	return stepWithAttemptsAndTimeout(&promote, task.GetAttempts(), task.GetTimeout())
 }
 
 func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
@@ -101,9 +98,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 	if task.Timeout != "" {
 		check.Params["timeout"] = task.Timeout
 	}
-	return atc.Step{
-		Config: &check,
-	}
+	return stepWithAttemptsAndTimeout(&check, task.GetAttempts(), task.GetTimeout())
 }
 
 func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
@@ -152,22 +147,19 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 		push.Params["instances"] = 1
 	}
 
-	return atc.Step{
-		Config: &push,
-	}
+	return stepWithAttemptsAndTimeout(&push, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) removeTestApp(resourceName string, manifestPath string) atc.Step {
-	return atc.Step{
-		Config: &atc.PutStep{
-			Name:     "remove-test-app",
-			Resource: resourceName,
-			Params: atc.Params{
-				"command":      "halfpipe-delete-test",
-				"manifestPath": manifestPath,
-			},
+func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
+	remove := atc.PutStep{
+		Name:     "remove-test-app",
+		Resource: resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-delete-test",
+			"manifestPath": manifestPath,
 		},
 	}
+	return stepWithAttemptsAndTimeout(&remove, task.GetAttempts(), task.GetTimeout())
 }
 
 func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
@@ -207,9 +199,7 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 		deploy.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 
-	return atc.Step{
-		Config: &deploy,
-	}
+	return stepWithAttemptsAndTimeout(&deploy, task.GetAttempts(), task.GetTimeout())
 }
 
 func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
