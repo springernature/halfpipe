@@ -83,45 +83,41 @@ jobs:
     minimum_succeeded_builds: 1
   name: task2
   on_failure:
+    attempts: 2
     in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        params:
+      - params:
           channel: kehe
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
         put: slack
-        timeout: 15m
-      - attempts: 2
-        params:
+      - params:
           channel: whoop
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
         put: slack
-        timeout: 15m
+    timeout: 15m
   on_success:
+    attempts: 2
     in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        params:
+      - params:
           channel: asdf
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
-        timeout: 15m
-      - attempts: 2
-        params:
+      - params:
           channel: prws
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
-        timeout: 15m
+    timeout: 15m
   plan:
   - attempts: 2
     get: git

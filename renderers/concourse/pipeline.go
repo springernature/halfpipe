@@ -275,16 +275,14 @@ func (p pipeline) onFailure(task manifest.Task) *atc.Step {
 		var sequence []atc.Step
 
 		if task.SavesArtifactsOnFailure() {
-			saveStep := saveArtifactOnFailurePlan()
-			sequence = append(sequence, stepWithAttemptsAndTimeout(&saveStep, defaultStepAttempts, defaultStepTimeout))
+			sequence = append(sequence, saveArtifactOnFailurePlan())
 		}
 
 		for _, onFailureChannel := range onFailureChannels {
-			slackStep := slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage)
-			sequence = append(sequence, stepWithAttemptsAndTimeout(&slackStep, defaultStepAttempts, defaultStepTimeout))
+			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
-		onFailure := parallelizeSteps(sequence)
+		onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
 		return &onFailure
 	}
 	return nil
@@ -296,11 +294,10 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 		var sequence []atc.Step
 
 		for _, onSuccessChannel := range onSuccessChannels {
-			slackStep := slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage)
-			sequence = append(sequence, stepWithAttemptsAndTimeout(&slackStep, defaultStepAttempts, defaultStepTimeout))
+			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
 		}
 
-		onSuccess := parallelizeSteps(sequence)
+		onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
 		return &onSuccess
 	}
 
@@ -537,13 +534,15 @@ func ToString(pipeline atc.Config) (string, error) {
 	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
-func saveArtifactOnFailurePlan() atc.PutStep {
-	return atc.PutStep{
-		Name: artifactsOnFailureName,
-		Params: atc.Params{
-			"folder":       artifactsOutDirOnFailure,
-			"version_file": path.Join(gitDir, ".git", "ref"),
-			"postfix":      "failure",
+func saveArtifactOnFailurePlan() atc.Step {
+	return atc.Step{
+		Config: &atc.PutStep{
+			Name: artifactsOnFailureName,
+			Params: atc.Params{
+				"folder":       artifactsOutDirOnFailure,
+				"version_file": path.Join(gitDir, ".git", "ref"),
+				"postfix":      "failure",
+			},
 		},
 	}
 }
