@@ -129,12 +129,12 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 					"depth": 1,
 				}
 			}
-			getSteps = append(getSteps, stepWithAttemptsAndTimeout(getGit, defaultStepAttempts, defaultStepTimeout))
+			getSteps = append(getSteps, atc.Step{Config: getGit})
 
 		case manifest.TimerTrigger:
 			if isUpdateTask || !versioningEnabled {
 				getTimer := &atc.GetStep{Name: trigger.GetTriggerName()}
-				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getTimer, defaultStepAttempts, defaultStepTimeout))
+				getSteps = append(getSteps, atc.Step{Config: getTimer})
 			}
 
 		case manifest.DockerTrigger:
@@ -145,7 +145,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 						"skip_download": true,
 					},
 				}
-				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getDocker, defaultStepAttempts, defaultStepTimeout))
+				getSteps = append(getSteps, atc.Step{Config: getDocker})
 			}
 
 		case manifest.PipelineTrigger:
@@ -153,19 +153,20 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 				getPipeline := &atc.GetStep{
 					Name: trigger.GetTriggerName(),
 				}
-				getSteps = append(getSteps, stepWithAttemptsAndTimeout(getPipeline, defaultStepAttempts, defaultStepTimeout))
+				getSteps = append(getSteps, atc.Step{Config: getPipeline})
 			}
 		}
 	}
 
 	if !isUpdateTask && man.FeatureToggles.Versioned() {
 		getVersion := &atc.GetStep{Name: versionName}
-		getSteps = append(getSteps, stepWithAttemptsAndTimeout(getVersion, defaultStepAttempts, defaultStepTimeout))
+		getSteps = append(getSteps, atc.Step{Config: getVersion})
 	}
 
-	getStep := p.configureTriggerOnGets(p.addPassedJobsToGets(parallelizeSteps(getSteps), previousTaskNames), task, man)
+	parallelSteps := stepWithAttemptsAndTimeout(parallelizeSteps(getSteps).Config, defaultStepAttempts, defaultStepTimeout)
+	parallelGetStep := p.configureTriggerOnGets(p.addPassedJobsToGets(parallelSteps, previousTaskNames), task, man)
 
-	steps := []atc.Step{getStep}
+	steps := []atc.Step{parallelGetStep}
 
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, restoreArtifactTask(man))

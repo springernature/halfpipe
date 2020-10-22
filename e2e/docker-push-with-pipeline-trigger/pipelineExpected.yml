@@ -4,17 +4,15 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
-        timeout: 15m
+      - get: git
         trigger: true
-      - attempts: 2
-        get: halfpipe-example-docker-push.docker-push
-        timeout: 15m
+      - get: halfpipe-example-docker-push.docker-push
         trigger: true
+    timeout: 15m
   - params:
       build: git/e2e/docker-push-with-pipeline-trigger
       build_args:

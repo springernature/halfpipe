@@ -45,22 +45,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: first job
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - update
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -120,22 +118,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 1 1
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - first job
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - first job
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -195,22 +191,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 1 2
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - first job
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - first job
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -270,22 +264,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 1 3
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - first job
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - first job
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -345,26 +337,24 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 sequence 1 1
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -424,22 +414,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 sequence 1 2
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 1 1
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 2 sequence 1 1
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -499,26 +487,24 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 sequence 2 1
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -578,22 +564,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 sequence 2 2
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 2 1
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 2 sequence 2 1
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -653,22 +637,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 sequence 2 3
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 2 2
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 2 sequence 2 2
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -728,26 +710,24 @@ jobs:
     minimum_succeeded_builds: 1
   name: parallel 2 1
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 1 1
         - parallel 1 2
         - parallel 1 3
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -807,25 +787,23 @@ jobs:
     minimum_succeeded_builds: 1
   name: after parallel
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         params:
           depth: 1
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - parallel 2 sequence 1 2
         - parallel 2 sequence 2 3
         - parallel 2 1
-        timeout: 15m
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

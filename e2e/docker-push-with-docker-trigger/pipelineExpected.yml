@@ -4,19 +4,17 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: alpine.tag
+      - get: alpine.tag
         params:
           skip_download: true
-        timeout: 15m
         trigger: true
-      - attempts: 2
-        get: git
-        timeout: 15m
+      - get: git
         trigger: true
+    timeout: 15m
   - params:
       build: git/e2e/docker-push-with-docker-trigger
       build_args:

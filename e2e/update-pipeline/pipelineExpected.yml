@@ -4,17 +4,15 @@ jobs:
     minimum_succeeded_builds: 1
   name: update
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
-        timeout: 15m
+      - get: git
         trigger: true
-      - attempts: 2
-        get: cron
-        timeout: 15m
+      - get: cron
         trigger: true
+    timeout: 15m
   - attempts: 2
     config:
       image_resource:
@@ -58,20 +56,18 @@ jobs:
     put: artifacts-on-failure
     timeout: 15m
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -169,20 +165,18 @@ jobs:
     timeout: 5m
   name: deploy to cf
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - Test
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - Test
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     config:
       image_resource:
@@ -264,20 +258,18 @@ jobs:
     put: artifacts-on-failure
     timeout: 15m
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     config:
       image_resource:
@@ -577,20 +569,18 @@ jobs:
     timeout: 1h
   name: deploy to qa
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     config:
       image_resource:
@@ -780,22 +770,20 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to staging
         - deploy to qa
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to staging
         - deploy to qa
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - params:
       build: git/e2e/update-pipeline
       build_args:
@@ -814,20 +802,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: run notify.sh
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - push to docker registry
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - push to docker registry
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -899,20 +885,18 @@ jobs:
     put: artifacts-on-failure
     timeout: 15m
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - run notify.sh
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - run notify.sh
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -987,20 +971,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: another-c-name
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - docker-compose
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - docker-compose
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -1097,20 +1079,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy-ml-zip
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - another-c-name
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - another-c-name
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     config:
       image_resource:
@@ -1205,20 +1185,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: Deploy ml-modules artifact
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy-ml-zip
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy-ml-zip
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

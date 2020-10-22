@@ -43,20 +43,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:
@@ -75,20 +73,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: push to docker registry with git ref
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - push to docker registry
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - push to docker registry
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - params:
       build: git/e2e/docker-push-with-update-pipeline
       build_args:

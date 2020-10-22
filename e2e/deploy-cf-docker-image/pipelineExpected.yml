@@ -53,20 +53,18 @@ jobs:
     timeout: 1h
   name: deploy to cf simple
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - update
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - update
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -115,20 +113,18 @@ jobs:
     timeout: 1h
   name: deploy to cf with pre promote
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf simple
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf simple
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -226,20 +222,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy to cf simple - rolling deploy
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf with pre promote
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf with pre promote
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     params:
       buildVersionPath: version/version
@@ -259,20 +253,18 @@ jobs:
     minimum_succeeded_builds: 1
   name: deploy to cf with pre promote - rolling deploy
   plan:
-  - in_parallel:
+  - attempts: 2
+    in_parallel:
       fail_fast: true
       steps:
-      - attempts: 2
-        get: git
+      - get: git
         passed:
         - deploy to cf simple - rolling deploy
-        timeout: 15m
-      - attempts: 2
-        get: version
+      - get: version
         passed:
         - deploy to cf simple - rolling deploy
-        timeout: 15m
         trigger: true
+    timeout: 15m
   - attempts: 2
     params:
       buildVersionPath: version/version
