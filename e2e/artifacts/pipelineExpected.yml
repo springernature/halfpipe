@@ -635,7 +635,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: ""
+    branch: master
     paths:
     - e2e/artifacts
     private_key: ((halfpipe-github.private_key))

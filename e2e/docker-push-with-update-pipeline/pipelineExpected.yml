@@ -103,7 +103,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: ""
+    branch: master
     paths:
     - e2e/docker-push-with-update-pipeline
     private_key: ((halfpipe-github.private_key))
@@ -114,7 +114,7 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-docker-push-with-update-pipeline-
+    key: halfpipe-team-docker-push-with-update-pipeline
   type: semver
 - check_every: 24h
   name: image1

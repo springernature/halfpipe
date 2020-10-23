@@ -64,7 +64,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: ""
+    branch: master
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
