@@ -5,4 +5,5 @@
 vendor
 
 pipelineActual.yml
-e2e/init/.halfpipe.io
+workflowActual.yml
+e2e/concourse/init/.halfpipe.io

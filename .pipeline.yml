@@ -69,6 +69,7 @@ jobs:
         - -ec
         - |
           export GOPATH=/var/halfpipe/cache/go
+          export HALFPIPE_SKIP_COVERAGE_TESTS=true
           cd halfpipe
           ./build.sh ci
       inputs:

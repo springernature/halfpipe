@@ -19,6 +19,7 @@ echo [1/6] fmt
 go fmt ./...
 
 echo [2/6] test
+export HALFPIPE_SKIP_COVERAGE_TESTS=true
 go test $go_opts -cover ./...
 
 echo [3/6] build

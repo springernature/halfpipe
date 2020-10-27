@@ -23,6 +23,7 @@ require (
 	github.com/stretchr/testify v1.4.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.27
+	gopkg.in/yaml.v2 v2.2.8
 	sigs.k8s.io/yaml v1.1.0
 )
 

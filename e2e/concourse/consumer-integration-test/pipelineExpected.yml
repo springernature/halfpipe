@@ -1,0 +1,111 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: another-c-name
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_SERVICE: potato
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GIT_CLONE_OPTIONS: --depth 100
+        K: value
+        K1: value1
+        PROVIDER_HOST: p-host
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_CONSUMER_INTEGRATION_TEST_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-consumer-integration-test
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../../.git/ref`
+
+          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+
+          # write git key to file
+          echo "${CONSUMER_GIT_KEY}" > .gitkey
+          chmod 600 .gitkey
+
+          set -ex
+
+          # get current revision of consumer, revert to HEAD if not found
+          REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
+          if [ "${REVISION}" == "" ]; then
+            echo "Error fetching version of consumer from ${CONSUMER_HOST}/internal/version - using HEAD instead."
+            REVISION=HEAD
+          fi
+
+          # clone consumer into "consumer-repo" dir
+          GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
+          cd consumer-repo/${CONSUMER_PATH}
+
+          # checkout revision
+          git checkout ${REVISION}
+
+          # run the tests with docker-compose
+          # note: old system reads CF manifest env vars and sets them all here
+          docker-compose run --no-deps \
+            --entrypoint "${CONSUMER_SCRIPT}" \
+            -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+            -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+            -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 \
+            -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
+            ${DOCKER_COMPOSE_SERVICE:-code}
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/concourse/consumer-integration-test
+        path: docker.sh
+    privileged: true
+    task: another-c-name
+    timeout: 1h
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: master
+    paths:
+    - e2e/concourse/consumer-integration-test
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+

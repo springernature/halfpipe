@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -24,20 +25,26 @@ func findE2EPaths() []string {
 		}
 		return nil
 	})
-
 	return e2eTestPaths
 }
 
 // does not fail if test output does not match expected pipeline
 // only useful for checking code coverage of e2e tests
 func TestE2EForCoverage(t *testing.T) {
+	if os.Getenv("HALFPIPE_SKIP_COVERAGE_TESTS") == "true" {
+		t.Skip("skipping test; $HALFPIPE_SKIP_COVERAGE_TESTS==true")
+	}
 	defer quiet()()
-
 	config.CheckBranch = "false"
 	for _, testPath := range findE2EPaths() {
-		t.Run(filepath.Base(testPath), func(t *testing.T) {
+		t.Run(testPath, func(t *testing.T) {
 			os.Chdir(testPath)
-			rootCmd.Run(nil, []string{})
+			if strings.Contains(testPath, "e2e/actions/") {
+				actionsCmd.Run(nil, []string{})
+
+			} else {
+				rootCmd.Run(nil, []string{})
+			}
 		})
 	}
 }
