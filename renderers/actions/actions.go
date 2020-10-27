@@ -24,6 +24,11 @@ func (a Actions) On(triggers manifest.TriggerList) (on On) {
 	}
 
 	git := triggers.GetGitTrigger()
+
+	if git.ManualTrigger {
+		return on
+	}
+
 	on.Push = Push{
 		Branches: Branches{git.Branch},
 		Paths:    git.WatchedPaths,

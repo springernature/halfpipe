@@ -62,5 +62,5 @@ func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 4)
+	assert.Len(t, actual.Warnings, 3)
 }

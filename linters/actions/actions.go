@@ -43,9 +43,6 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 			if t.GitCryptKey != "" {
 				addError(i, "git_crypt_key")
 			}
-			if t.ManualTrigger {
-				addError(i, "manual_trigger")
-			}
 			if t.PrivateKey != "" {
 				addError(i, "private_key")
 			}
