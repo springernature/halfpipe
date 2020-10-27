@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	linters "github.com/springernature/halfpipe/linters/actions"
 	"github.com/springernature/halfpipe/renderers/actions"
 )
 
@@ -18,7 +19,9 @@ var actionsCmd = &cobra.Command{
 		man, controller := getManifestAndController(renderer)
 		pipelineConfig, lintResults := controller.Process(man)
 
-		outputErrorsAndWarnings(nil, lintResults)
+		actionsLintResult := linters.ActionsLinter{}.Lint(man)
+
+		outputErrorsAndWarnings(nil, append(lintResults, actionsLintResult))
 		fmt.Println(pipelineConfig)
 	},
 }
