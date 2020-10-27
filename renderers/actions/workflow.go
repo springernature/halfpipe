@@ -12,7 +12,12 @@ type Workflow struct {
 }
 
 type On struct {
-	Push Push `yaml:"push,omitempty"`
+	Push     Push   `yaml:"push,omitempty"`
+	Schedule []Cron `yaml:"schedule,omitempty"`
+}
+
+type Cron struct {
+	Expression string `yaml:"cron,omitempty"`
 }
 
 type Push struct {

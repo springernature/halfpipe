@@ -49,6 +49,8 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 			if t.URI != "" {
 				addError(i, "uri")
 			}
+		case manifest.TimerTrigger:
+			// ok
 		default:
 			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] %T", i, trigger)))
 		}

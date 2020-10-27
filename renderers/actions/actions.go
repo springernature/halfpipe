@@ -13,30 +13,36 @@ func NewActions() Actions {
 func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
-	w.On = a.On(man.Triggers)
-
+	w.On = a.onTriggers(man.Triggers)
 	return w.asYAML()
 }
 
-func (a Actions) On(triggers manifest.TriggerList) (on On) {
-	if !triggers.HasGitTrigger() {
-		return on
+func (a Actions) onTriggers(triggers manifest.TriggerList) (on On) {
+	for _, trigger := range triggers {
+		switch trigger := trigger.(type) {
+		case manifest.GitTrigger:
+			on.Push = a.onPush(trigger)
+		case manifest.TimerTrigger:
+			on.Schedule = a.onSchedule(trigger)
+		}
 	}
+	return on
+}
 
-	git := triggers.GetGitTrigger()
-
+func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
 	if git.ManualTrigger {
-		return on
+		return push
 	}
 
-	on.Push = Push{
-		Branches: Branches{git.Branch},
-		Paths:    git.WatchedPaths,
-	}
+	push.Branches = Branches{git.Branch}
+	push.Paths = git.WatchedPaths
 
 	for _, p := range git.IgnoredPaths {
-		on.Push.Paths = append(on.Push.Paths, "!"+p)
+		push.Paths = append(push.Paths, "!"+p)
 	}
+	return push
+}
 
-	return on
+func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
+	return []Cron{{timer.Cron}}
 }
