@@ -7,3 +7,5 @@ name: git-trigger
     paths:
     - e2e/actions/docker-push
     - e2e/actions
+    - '!README.md'
+    - '!**.js'

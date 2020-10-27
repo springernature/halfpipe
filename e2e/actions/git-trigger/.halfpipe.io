@@ -7,6 +7,10 @@ triggers:
   watched_paths:
   - e2e/actions/docker-push
   - e2e/actions
+  ignored_paths:
+  - README.md
+  - '**.js'
+
 
 tasks:
 - type: docker-push

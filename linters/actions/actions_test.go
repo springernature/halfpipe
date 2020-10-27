@@ -4,7 +4,6 @@ import (
 	linters "github.com/springernature/halfpipe/linters/actions"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"strings"
 	"testing"
 )
 
@@ -45,10 +44,17 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	assert.Len(t, actual.Warnings, 3)
 }
 
-func TestActionsLinter_ManualGitTrigger(t *testing.T) {
+func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
+				URI:           "uri",
+				PrivateKey:    "key",
+				WatchedPaths:  []string{"watch"},
+				IgnoredPaths:  []string{"ignore"},
+				GitCryptKey:   "key",
+				Branch:        "branch",
+				Shallow:       false,
 				ManualTrigger: true,
 			},
 		},
@@ -56,6 +62,5 @@ func TestActionsLinter_ManualGitTrigger(t *testing.T) {
 
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 1)
-	assert.True(t, strings.Contains(actual.Warnings[0].Error(), "manual_trigger"))
+	assert.Len(t, actual.Warnings, 4)
 }

@@ -32,11 +32,25 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 }
 
 func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
+
+	addError := func(i int, name string) {
+		errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] %s", i, name)))
+	}
+
 	for i, trigger := range triggers {
 		switch t := trigger.(type) {
 		case manifest.GitTrigger:
+			if t.GitCryptKey != "" {
+				addError(i, "git_crypt_key")
+			}
 			if t.ManualTrigger {
-				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] manual_trigger", i)))
+				addError(i, "manual_trigger")
+			}
+			if t.PrivateKey != "" {
+				addError(i, "private_key")
+			}
+			if t.URI != "" {
+				addError(i, "uri")
 			}
 		default:
 			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] %T", i, trigger)))

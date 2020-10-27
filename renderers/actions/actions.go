@@ -29,5 +29,9 @@ func (a Actions) On(triggers manifest.TriggerList) (on On) {
 		Paths:    git.WatchedPaths,
 	}
 
+	for _, p := range git.IgnoredPaths {
+		on.Push.Paths = append(on.Push.Paths, "!"+p)
+	}
+
 	return on
 }
