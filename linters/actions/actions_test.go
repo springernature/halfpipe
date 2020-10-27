@@ -28,3 +28,18 @@ func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 	assert.Empty(t, actual.Errors)
 	assert.Len(t, actual.Warnings, 8)
 }
+
+func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.DockerTrigger{},
+			manifest.GitTrigger{},
+			manifest.PipelineTrigger{},
+			manifest.TimerTrigger{},
+		},
+	}
+
+	actual := linter(man)
+	assert.Empty(t, actual.Errors)
+	assert.Len(t, actual.Warnings, 3)
+}
