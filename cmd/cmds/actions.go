@@ -1,6 +1,7 @@
 package cmds
 
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/renderers/actions"
 )
@@ -13,6 +14,11 @@ var actionsCmd = &cobra.Command{
 	Use:   "actions",
 	Short: "Generates a GitHub Actions workflow",
 	Run: func(cmd *cobra.Command, args []string) {
-		render(actions.NewActions())
+		renderer := actions.NewActions()
+		man, controller := getManifestAndController(renderer)
+		pipelineConfig, lintResults := controller.Process(man)
+
+		outputErrorsAndWarnings(nil, lintResults)
+		fmt.Println(pipelineConfig)
 	},
 }

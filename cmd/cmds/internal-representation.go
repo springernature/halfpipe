@@ -22,12 +22,12 @@ var internalRepresentation = &cobra.Command{
 	Short: ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		man, controller := getManifestAndCreateController(nullRenderer{})
+		man, controller := getManifestAndController(nullRenderer{})
 
 		defaultedAndMappedManifest, _ := controller.DefaultAndMap(man)
 
 		updatedManifest, err := yaml.Marshal(defaultedAndMappedManifest)
-		printErrAndResultAndExitOnError(err, nil)
+		outputErrorsAndWarnings(err, nil)
 
 		fmt.Println(string(updatedManifest))
 	},

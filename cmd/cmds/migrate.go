@@ -41,18 +41,18 @@ var migrateCmd = &cobra.Command{
 
 		man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 		if len(manErrors) > 0 {
-			printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
+			outputErrorsAndWarnings(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 		}
 
 		controller := createController(projectData, fs, currentDir, nullRenderer{})
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
 		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
-		printErrAndResultAndExitOnError(err, results)
+		outputErrorsAndWarnings(err, results)
 
 		if migrated {
 			fmt.Println("Migrating manifest")
 			err := fs.WriteFile(projectData.HalfpipeFilePath, migratedYaml, 0777)
-			printErrAndResultAndExitOnError(err, nil)
+			outputErrorsAndWarnings(err, nil)
 			fmt.Println("Done")
 		} else {
 			fmt.Println("Manifest already on latest schema")

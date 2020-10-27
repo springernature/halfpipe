@@ -51,7 +51,7 @@ func printErr(err error) {
 	fmt.Fprintln(os.Stderr, err) // nolint: gas
 }
 
-func printErrAndResultAndExitOnError(err error, lintResults result.LintResults) {
+func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
 	if lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
 		printErr(fmt.Errorf(lintResults.Error()))
 		return
@@ -89,7 +89,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 
 }
 
-func getManifestAndCreateController(renderer halfpipe.Renderer) (manifest.Manifest, halfpipe.Controller) {
+func getManifestAndController(renderer halfpipe.Renderer) (manifest.Manifest, halfpipe.Controller) {
 	if err := checkVersion(); err != nil {
 		printErr(err)
 		os.Exit(1)
@@ -111,19 +111,10 @@ func getManifestAndCreateController(renderer halfpipe.Renderer) (manifest.Manife
 
 	man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 	if len(manErrors) > 0 {
-		printErrAndResultAndExitOnError(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
+		outputErrorsAndWarnings(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 	}
 
 	controller := createController(projectData, fs, currentDir, renderer)
 
 	return man, controller
-}
-
-func render(renderer halfpipe.Renderer) {
-	man, controller := getManifestAndCreateController(renderer)
-
-	pipelineConfig, lintResults := controller.Process(man)
-	printErrAndResultAndExitOnError(nil, lintResults)
-
-	fmt.Println(pipelineConfig)
 }
