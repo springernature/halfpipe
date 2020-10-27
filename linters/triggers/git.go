@@ -54,7 +54,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 		errs = append(errs, linterrors.NewInvalidField("git_crypt_key", "must be a vault secret"))
 	}
 
-	for _, glob := range append(git.WatchedPaths, git.IgnoredPaths...) {
+	for _, glob := range git.WatchedPaths {
 		if err := checkGlob(glob, git.BasePath, workingDir, fs); err != nil {
 			errs = append(errs, err)
 		}

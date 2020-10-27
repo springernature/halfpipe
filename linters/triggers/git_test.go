@@ -79,7 +79,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 	})
 }
 
-func TestItChecksForWatchAndIgnores(t *testing.T) {
+func TestItChecksForWatchedPaths(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI:          "https://github.com/springernature/halfpipe.git",
 		WatchedPaths: []string{"watches/there", "watches/no-there/**"},
@@ -91,15 +91,13 @@ func TestItChecksForWatchAndIgnores(t *testing.T) {
 	workingDir := "/repo"
 
 	fs.Mkdir(path.Join(workingDir, "watches/there"), 0777)
-	fs.Mkdir(path.Join(workingDir, "c/d/e/f/g/h"), 0777)
 
 	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
-	assert.Len(t, errs, 2)
+	assert.Len(t, errs, 1)
 	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
-	linterrors.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
 }
 
-func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
+func TestItChecksForWatchedPathsRelativeToGitRoot(t *testing.T) {
 	trigger := manifest.GitTrigger{
 		URI:          "https://github.com/springernature/halfpipe.git",
 		Branch:       "main",
@@ -111,12 +109,10 @@ func TestItChecksForWatchAndIgnoresRelativeToGitRoot(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	workingDir := "/home/projects/repo-project-name/project-name"
 	fs.Mkdir("/home/projects/repo-project-name/watches/there", 0777)
-	fs.Mkdir("/home/projects/repo-project-name/c/d/e/f/g/h", 0777)
 
 	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
-	assert.Len(t, errs, 2)
+	assert.Len(t, errs, 1)
 	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
-	linterrors.AssertFileErrorInErrors(t, trigger.IgnoredPaths[1], errs)
 }
 
 func TestHasValidGitCryptKey(t *testing.T) {
