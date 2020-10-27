@@ -4,10 +4,11 @@ import (
 	linters "github.com/springernature/halfpipe/linters/actions"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"strings"
 	"testing"
 )
 
-var linter = linters.ActionsLinter{}.Lint
+var lint = linters.ActionsLinter{}.Lint
 
 func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 	man := manifest.Manifest{
@@ -24,7 +25,7 @@ func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 		},
 	}
 
-	actual := linter(man)
+	actual := lint(man)
 	assert.Empty(t, actual.Errors)
 	assert.Len(t, actual.Warnings, 8)
 }
@@ -39,7 +40,22 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 		},
 	}
 
-	actual := linter(man)
+	actual := lint(man)
 	assert.Empty(t, actual.Errors)
 	assert.Len(t, actual.Warnings, 3)
+}
+
+func TestActionsLinter_ManualGitTrigger(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.GitTrigger{
+				ManualTrigger: true,
+			},
+		},
+	}
+
+	actual := lint(man)
+	assert.Empty(t, actual.Errors)
+	assert.Len(t, actual.Warnings, 1)
+	assert.True(t, strings.Contains(actual.Warnings[0].Error(), "manual_trigger"))
 }

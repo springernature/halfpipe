@@ -25,7 +25,7 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 		case manifest.DockerPush:
 			//ok
 		default:
-			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("task[%v] %T", i, task)))
+			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T", i, task)))
 		}
 	}
 	return errors
@@ -33,11 +33,13 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 
 func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 	for i, trigger := range triggers {
-		switch trigger.(type) {
+		switch t := trigger.(type) {
 		case manifest.GitTrigger:
-			//ok
+			if t.ManualTrigger {
+				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] manual_trigger", i)))
+			}
 		default:
-			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("trigger[%v] %T", i, trigger)))
+			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] %T", i, trigger)))
 		}
 	}
 	return errors
