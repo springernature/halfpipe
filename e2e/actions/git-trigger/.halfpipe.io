@@ -1,5 +1,12 @@
 team: halfpipe-team
-pipeline: docker-push
+pipeline: git-trigger
+
+
+triggers:
+- type: git
+  watched_paths:
+  - e2e/actions/docker-push
+  - e2e/actions
 
 tasks:
 - type: docker-push

@@ -7,8 +7,21 @@ import (
 )
 
 type Workflow struct {
-	Name string
+	Name string `yaml:"name,omitempty"`
+	On   On     `yaml:"on,omitempty"`
 }
+
+type On struct {
+	Push Push `yaml:"push,omitempty"`
+}
+
+type Push struct {
+	Branches Branches `yaml:"branches,omitempty"`
+	Paths    Paths    `yaml:"paths,omitempty"`
+}
+
+type Branches []string
+type Paths []string
 
 func (w Workflow) asYAML() (string, error) {
 	output, err := yaml.Marshal(w)
