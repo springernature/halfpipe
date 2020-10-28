@@ -3,5 +3,5 @@ pipeline: docker-push
 
 tasks:
 - type: docker-push
-  name: push to docker registry
+  name: Push to Docker Registry
   image: eu.gcr.io/halfpipe-io/someImage:someTag

@@ -1,7 +1,6 @@
 team: halfpipe-team
 pipeline: git-trigger
 
-
 triggers:
 - type: git
   watched_paths:
@@ -10,9 +9,3 @@ triggers:
   ignored_paths:
   - README.md
   - '**.js'
-
-
-tasks:
-- type: docker-push
-  name: push to docker registry
-  image: eu.gcr.io/halfpipe-io/someImage:someTag

@@ -2,6 +2,7 @@ package actions
 
 import (
 	"github.com/springernature/halfpipe/manifest"
+	"gopkg.in/yaml.v2"
 )
 
 type Actions struct{}
@@ -14,12 +15,13 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.onTriggers(man.Triggers)
+	w.Jobs = a.jobs(man.Tasks)
 	return w.asYAML()
 }
 
 func (a Actions) onTriggers(triggers manifest.TriggerList) (on On) {
-	for _, trigger := range triggers {
-		switch trigger := trigger.(type) {
+	for _, t := range triggers {
+		switch trigger := t.(type) {
 		case manifest.GitTrigger:
 			on.Push = a.onPush(trigger)
 		case manifest.TimerTrigger:
@@ -45,4 +47,55 @@ func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
 
 func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 	return []Cron{{timer.Cron}}
+}
+
+func (a Actions) jobs(tasks manifest.TaskList) (jobs Jobs) {
+	appendJob := func(job Job) {
+		jobs = append(jobs, yaml.MapItem{Key: job.Id(), Value: job})
+	}
+
+	for _, t := range tasks {
+		switch task := t.(type) {
+		case manifest.DockerPush:
+			appendJob(a.dockerPushJob(task))
+		}
+	}
+	return jobs
+}
+
+func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
+	return Job{
+		Name:   task.GetName(),
+		RunsOn: "ubuntu-18.04",
+		Steps: []Step{
+			checkoutCode,
+			{
+				Name: "Set up Docker Buildx",
+				Uses: "docker/setup-buildx-action@v1",
+			},
+			{
+				Name: "Login to registry",
+				Uses: "docker/login-action@v1",
+				With: []yaml.MapItem{
+					{Key: "registry", Value: "eu.gcr.io"},
+					{Key: "username", Value: task.Username},
+					{Key: "password", Value: task.Password},
+				},
+			},
+			{
+				Name: "Build and push",
+				Uses: "docker/build-push-action@v2",
+				With: []yaml.MapItem{
+					{Key: "push", Value: true},
+					{Key: "tags", Value: task.Image},
+					{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
+				},
+			},
+		},
+	}
+}
+
+var checkoutCode = Step{
+	Name: "Checkout code",
+	Uses: "actions/checkout@v2",
 }
