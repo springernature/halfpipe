@@ -3,7 +3,7 @@ package actions
 import (
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
-	"strings"
+	"time"
 )
 
 type Actions struct{}
@@ -66,8 +66,9 @@ func (a Actions) jobs(tasks manifest.TaskList) (jobs Jobs) {
 
 func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
 	return Job{
-		Name:   task.GetName(),
-		RunsOn: "ubuntu-18.04",
+		Name:           task.GetName(),
+		RunsOn:         "ubuntu-18.04",
+		TimeoutMinutes: timeoutMinutes(task.GetTimeout()),
 		Steps: []Step{
 			checkoutCode,
 			{
@@ -78,7 +79,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
 				Name: "Login to registry",
 				Uses: "docker/login-action@v1",
 				With: []yaml.MapItem{
-					{Key: "registry", Value: strings.Split(task.Image, "/")[0]},
+					{Key: "registry", Value: "eu.gcr.io"},
 					{Key: "username", Value: task.Username},
 					{Key: "password", Value: secretMapper(task.Password)},
 				},
@@ -99,4 +100,12 @@ func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
 var checkoutCode = Step{
 	Name: "Checkout code",
 	Uses: "actions/checkout@v2",
+}
+
+func timeoutMinutes(timeout string) int {
+	d, err := time.ParseDuration(timeout)
+	if err != nil {
+		return 60
+	}
+	return int(d.Minutes())
 }

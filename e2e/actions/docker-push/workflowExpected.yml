@@ -25,3 +25,4 @@ jobs:
         push: true
         tags: eu.gcr.io/halfpipe-io/someImage:someTag
         outputs: type=image,oci-mediatypes=true,push=true
+    timeout_minutes: 90
