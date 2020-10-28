@@ -1,5 +1,5 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-name: docker-push
+name: pipeline-name
 "on":
   push:
     branches:

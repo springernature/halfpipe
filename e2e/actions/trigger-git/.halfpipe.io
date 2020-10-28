@@ -1,5 +1,5 @@
 team: halfpipe-team
-pipeline: git-trigger
+pipeline: pipeline-name
 
 triggers:
 - type: git

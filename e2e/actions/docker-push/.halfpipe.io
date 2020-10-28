@@ -1,5 +1,5 @@
 team: halfpipe-team
-pipeline: docker-push
+pipeline: pipeline-name
 
 tasks:
 - type: docker-push

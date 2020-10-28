@@ -1,5 +1,5 @@
 team: halfpipe-team
-pipeline: timer-trigger
+pipeline: pipeline-name
 
 triggers:
 - type: timer
