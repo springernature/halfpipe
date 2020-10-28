@@ -51,7 +51,7 @@ func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 
 func (a Actions) jobs(tasks manifest.TaskList) (jobs Jobs) {
 	appendJob := func(job Job) {
-		jobs = append(jobs, yaml.MapItem{Key: job.Id(), Value: job})
+		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
 	}
 
 	for _, t := range tasks {

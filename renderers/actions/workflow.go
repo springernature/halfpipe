@@ -39,7 +39,7 @@ type Job struct {
 	Steps  []Step `yaml:"steps,omitempty"`
 }
 
-func (j Job) Id() string {
+func (j Job) ID() string {
 	re := regexp.MustCompile(`[^a-z_\-]`)
 	return re.ReplaceAllString(strings.ToLower(j.Name), "_")
 }
