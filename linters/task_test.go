@@ -23,8 +23,8 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "tasks", result.Errors[0])
+	assert.Len(t, result.Warnings, 1)
+	assertMissingField(t, "tasks", result.Warnings[0])
 }
 
 func TestCallsOutToTheLintersCorrectly(t *testing.T) {

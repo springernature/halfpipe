@@ -55,7 +55,7 @@ func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) 
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#tasks"
 
 	if len(man.Tasks) == 0 {
-		result.AddError(linterrors.NewMissingField("tasks"))
+		result.AddWarning(linterrors.NewMissingField("tasks"))
 		return result
 	}
 
