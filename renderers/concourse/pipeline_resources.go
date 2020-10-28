@@ -53,7 +53,7 @@ func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 }
 
 const slackResourceName = "slack"
-const slackResourceTypeName = "slack-resource"
+const slackResourceTypeName = "halfpipe-slack-resource"
 
 func (p pipeline) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
@@ -61,8 +61,10 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": "cfcommunity/slack-notification-resource",
-			"tag":        "v1.5.0",
+			"repository": config.DockerRegistry + "halfpipe-slack-resource",
+			"tag":        "latest",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
 		},
 	}
 }
@@ -73,7 +75,7 @@ func (p pipeline) slackResource() atc.ResourceConfig {
 		Type:       slackResourceTypeName,
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
-			"url": config.SlackWebhook,
+			"token": config.SlackToken,
 		},
 	}
 }

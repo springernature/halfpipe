@@ -309,10 +309,12 @@ jobs:
   serial: true
 resource_types:
 - check_every: 24h
-  name: slack-resource
+  name: halfpipe-slack-resource
   source:
-    repository: cfcommunity/slack-notification-resource
-    tag: v1.5.0
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-slack-resource
+    tag: latest
+    username: _json_key
   type: registry-image
 - name: cf-resource
   source:
@@ -334,8 +336,8 @@ resources:
 - check_every: 24h
   name: slack
   source:
-    url: ((halfpipe-slack.webhook))
-  type: slack-resource
+    token: ((halfpipe-slack.token))
+  type: halfpipe-slack-resource
 - check_every: 24h
   name: cf-snpaas-pe-staging
   source:

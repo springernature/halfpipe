@@ -89,4 +89,4 @@ const VersionJSONKey = "((halfpipe-semver.private_key))"
 const ArtifactsBucket = "((halfpipe-artifacts.bucket))"
 const ArtifactsJSONKey = "((halfpipe-artifacts.private_key))"
 
-const SlackWebhook = "((halfpipe-slack.webhook))"
+const SlackToken = "((halfpipe-slack.token))"
