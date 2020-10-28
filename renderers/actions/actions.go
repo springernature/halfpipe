@@ -3,6 +3,7 @@ package actions
 import (
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"strings"
 )
 
 type Actions struct{}
@@ -77,9 +78,9 @@ func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
 				Name: "Login to registry",
 				Uses: "docker/login-action@v1",
 				With: []yaml.MapItem{
-					{Key: "registry", Value: "eu.gcr.io"},
+					{Key: "registry", Value: strings.Split(task.Image, "/")[0]},
 					{Key: "username", Value: task.Username},
-					{Key: "password", Value: task.Password},
+					{Key: "password", Value: secretMapper(task.Password)},
 				},
 			},
 			{

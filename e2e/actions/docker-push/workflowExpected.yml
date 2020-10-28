@@ -18,7 +18,7 @@ jobs:
       with:
         registry: eu.gcr.io
         username: _json_key
-        password: ((halfpipe-gcr.private_key))
+        password: ${{ secrets.GCR_PRIVATE_KEY }}
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
