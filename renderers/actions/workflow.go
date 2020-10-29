@@ -37,7 +37,7 @@ type Job struct {
 	Name           string `yaml:"name,omitempty"`
 	RunsOn         string `yaml:"runs-on,omitempty"`
 	Steps          []Step `yaml:"steps,omitempty"`
-	TimeoutMinutes int    `yaml:"timeout_minutes,omitempty"`
+	TimeoutMinutes int    `yaml:"timeout-minutes,omitempty"`
 }
 
 func (j Job) ID() string {
