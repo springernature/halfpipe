@@ -9,15 +9,18 @@ import (
 )
 
 type Workflow struct {
-	Name string `yaml:"name,omitempty"`
-	On   On     `yaml:"on,omitempty"`
+	Name string `yaml:"name"`
+	On   On     `yaml:"on"`
 	Jobs Jobs   `yaml:"jobs,omitempty"`
 }
 
 type On struct {
-	Push     Push   `yaml:"push,omitempty"`
-	Schedule []Cron `yaml:"schedule,omitempty"`
+	Push             Push             `yaml:"push,omitempty"`
+	Schedule         []Cron           `yaml:"schedule,omitempty"`
+	WorkflowDispatch WorkflowDispatch `yaml:"workflow_dispatch"`
 }
+
+type WorkflowDispatch struct{}
 
 type Cron struct {
 	Expression string `yaml:"cron,omitempty"`

@@ -4,6 +4,7 @@ name: pipeline-name
   push:
     branches:
     - master
+  workflow_dispatch: {}
 jobs:
   push_to_docker_registry:
     name: Push to Docker Registry

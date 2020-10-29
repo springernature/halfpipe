@@ -9,3 +9,4 @@ name: pipeline-name
     - e2e/actions
     - '!README.md'
     - '!**.js'
+  workflow_dispatch: {}

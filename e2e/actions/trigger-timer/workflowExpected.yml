@@ -6,4 +6,5 @@ name: pipeline-name
     - master
   schedule:
   - cron: '*/15 * * * *'
+  workflow_dispatch: {}
 
