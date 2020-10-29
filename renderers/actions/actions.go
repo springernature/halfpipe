@@ -3,6 +3,7 @@ package actions
 import (
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"path"
 	"time"
 )
 
@@ -13,10 +14,11 @@ func NewActions() Actions {
 }
 
 func (a Actions) Render(man manifest.Manifest) (string, error) {
+	basePath := man.Triggers.GetGitTrigger().BasePath
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.onTriggers(man.Triggers)
-	w.Jobs = a.jobs(man.Tasks)
+	w.Jobs = a.jobs(man.Tasks, basePath)
 	return w.asYAML()
 }
 
@@ -53,7 +55,7 @@ func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 	return []Cron{{timer.Cron}}
 }
 
-func (a Actions) jobs(tasks manifest.TaskList) (jobs Jobs) {
+func (a Actions) jobs(tasks manifest.TaskList, basePath string) (jobs Jobs) {
 	appendJob := func(job Job) {
 		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
 	}
@@ -61,13 +63,13 @@ func (a Actions) jobs(tasks manifest.TaskList) (jobs Jobs) {
 	for _, t := range tasks {
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task))
+			appendJob(a.dockerPushJob(task, basePath))
 		}
 	}
 	return jobs
 }
 
-func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
+func (a Actions) dockerPushJob(task manifest.DockerPush, basePath string) Job {
 	return Job{
 		Name:           task.GetName(),
 		RunsOn:         "ubuntu-18.04",
@@ -91,6 +93,8 @@ func (a Actions) dockerPushJob(task manifest.DockerPush) Job {
 				Name: "Build and push",
 				Uses: "docker/build-push-action@v2",
 				With: []yaml.MapItem{
+					{Key: "context", Value: path.Join(basePath, task.BuildPath)},
+					{Key: "file", Value: path.Join(basePath, task.DockerfilePath)},
 					{Key: "push", Value: true},
 					{Key: "tags", Value: task.Image},
 					{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
