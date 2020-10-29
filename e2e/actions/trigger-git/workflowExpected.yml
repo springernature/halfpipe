@@ -5,8 +5,8 @@ name: pipeline-name
     branches:
     - master
     paths:
-    - e2e/actions/docker-push
-    - e2e/actions
-    - '!README.md'
-    - '!**.js'
+    - e2e/actions/docker-push**
+    - e2e/actions**
+    - '!README.md**'
+    - '!**.js**'
   workflow_dispatch: {}

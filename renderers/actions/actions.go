@@ -38,11 +38,14 @@ func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
 	}
 
 	push.Branches = Branches{git.Branch}
-	push.Paths = git.WatchedPaths
 
-	for _, p := range git.IgnoredPaths {
-		push.Paths = append(push.Paths, "!"+p)
+	for _, p := range git.WatchedPaths {
+		push.Paths = append(push.Paths, p+"**")
 	}
+	for _, p := range git.IgnoredPaths {
+		push.Paths = append(push.Paths, "!"+p+"**")
+	}
+
 	return push
 }
 
