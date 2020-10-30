@@ -264,6 +264,9 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	source := atc.Source{
 		"repository": repo,
 		"tag":        tag,
+		"registry_mirror": map[string]string{
+			"host": "eu-mirror.gcr.io",
+		},
 	}
 
 	if docker.Username != "" && docker.Password != "" {

@@ -13,6 +13,8 @@ jobs:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key

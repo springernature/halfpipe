@@ -17,6 +17,8 @@ jobs:
       - path: ../../../halfpipe-cache
       image_resource:
         source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: alpine
           tag: test
         type: registry-image

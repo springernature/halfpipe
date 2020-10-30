@@ -22,6 +22,8 @@ jobs:
       - path: ../../../halfpipe-cache
       image_resource:
         source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: alpine
           tag: latest
         type: registry-image
@@ -140,6 +142,8 @@ jobs:
       - path: ../../../halfpipe-cache
       image_resource:
         source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: alpine
           tag: latest
         type: registry-image
@@ -268,6 +272,8 @@ jobs:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-fly
           tag: latest
           username: _json_key
@@ -453,6 +459,8 @@ jobs:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
           tag: stable
           username: _json_key
@@ -561,6 +569,8 @@ jobs:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
           tag: latest
           username: _json_key
