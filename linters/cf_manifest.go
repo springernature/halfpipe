@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/defaults"
 	"strings"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
@@ -69,11 +68,6 @@ func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []
 	if app.DockerImage != "" {
 		if task.DeployArtifact != "" {
 			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "you cannot specify both 'deploy_artifact' in the task and 'docker.image' in the manifest"))
-			return
-		}
-
-		if task.API != defaults.DefaultValues.CfAPISnPaas {
-			errs = append(errs, linterrors.NewInvalidField("api", "only SNPaaS supports docker image push"))
 			return
 		}
 

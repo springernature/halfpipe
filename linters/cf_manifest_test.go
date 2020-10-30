@@ -364,30 +364,6 @@ func TestLintDockerImagePush(t *testing.T) {
 
 	})
 
-	t.Run("Errors when other API than SnPaaS specified", func(t *testing.T) {
-		apps := []cfManifest.Application{
-			{
-				Name:        "appName",
-				Routes:      []string{"route"},
-				DockerImage: "nginx",
-			},
-		}
-		linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
-
-		man := manifest.Manifest{
-			Tasks: []manifest.Task{
-				manifest.DeployCF{
-					Manifest: "manifest.yml",
-					API:      "http://someRandomApi.com",
-				},
-			},
-		}
-
-		result := linter.Lint(man)
-		assert.Len(t, result.Errors, 1)
-		assertInvalidFieldInErrors(t, "api", result.Errors)
-	})
-
 	t.Run("Errors when the images isn't from our repo", func(t *testing.T) {
 		apps := []cfManifest.Application{
 			{
