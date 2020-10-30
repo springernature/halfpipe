@@ -1261,10 +1261,12 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- name: cron-resource
+- name: halfpipe-cron-resource
   source:
-    repository: cftoolsmiths/cron-resource
-    tag: v0.3
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
+    tag: stable
+    username: _json_key
   type: registry-image
   unique_version_history: true
 - name: gcp-resource
@@ -1297,7 +1299,7 @@ resources:
     expression: '* * * * *'
     fire_immediately: true
     location: UTC
-  type: cron-resource
+  type: halfpipe-cron-resource
 - check_every: 24h
   name: artifacts
   source:

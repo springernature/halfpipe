@@ -130,7 +130,7 @@ func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceC
 func (p pipeline) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       trigger.GetTriggerName(),
-		Type:       "cron-resource",
+		Type:       cronResourceTypeName,
 		CheckEvery: "1m",
 		Source: atc.Source{
 			"expression":       trigger.Cron,
@@ -140,14 +140,19 @@ func (p pipeline) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig
 	}
 }
 
+const cronResourceTypeName = "halfpipe-cron-resource"
+
 func cronResourceType() atc.ResourceType {
+
 	return atc.ResourceType{
-		Name:                 "cron-resource",
+		Name:                 cronResourceTypeName,
 		Type:                 "registry-image",
 		UniqueVersionHistory: true,
 		Source: atc.Source{
-			"repository": "cftoolsmiths/cron-resource",
-			"tag":        "v0.3",
+			"repository": config.DockerRegistry + cronResourceTypeName,
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
+			"tag":        "stable",
 		},
 	}
 }
