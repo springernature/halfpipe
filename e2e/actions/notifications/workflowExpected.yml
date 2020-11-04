@@ -12,7 +12,7 @@ jobs:
     steps:
     - name: run
       run: echo not implemented yet
-    - name: Notify slack
+    - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4
       with:
@@ -20,14 +20,14 @@ jobs:
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#failure1'
         text: failure message
-    - name: Notify slack
+    - name: 'Notify slack #success1 (success)'
       uses: yukin01/slack-bot-action@v0.0.4
       with:
         status: ${{ job.status }}
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success1'
         text: success message
-    - name: Notify slack
+    - name: 'Notify slack #success2 (success)'
       uses: yukin01/slack-bot-action@v0.0.4
       with:
         status: ${{ job.status }}

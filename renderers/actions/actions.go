@@ -161,7 +161,7 @@ func notify(notifications manifest.Notifications) []Step {
 
 	s := func(channel string, text string) Step {
 		return Step{
-			Name: "Notify slack",
+			Name: "Notify slack " + channel,
 			Uses: "yukin01/slack-bot-action@v0.0.4",
 			With: []yaml.MapItem{
 				{Key: "status", Value: "${{ job.status }}"},
@@ -175,11 +175,13 @@ func notify(notifications manifest.Notifications) []Step {
 	for _, channel := range notifications.OnFailure {
 		step := s(channel, notifications.OnFailureMessage)
 		step.If = "failure()"
+		step.Name += " (failure)"
 		steps = append(steps, step)
 	}
 
 	for _, channel := range notifications.OnSuccess {
 		step := s(channel, notifications.OnSuccessMessage)
+		step.Name += " (success)"
 		steps = append(steps, step)
 	}
 
