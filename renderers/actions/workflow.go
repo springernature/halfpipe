@@ -15,12 +15,17 @@ type Workflow struct {
 }
 
 type On struct {
-	Push             Push             `yaml:"push,omitempty"`
-	Schedule         []Cron           `yaml:"schedule,omitempty"`
-	WorkflowDispatch WorkflowDispatch `yaml:"workflow_dispatch"`
+	Push               Push               `yaml:"push,omitempty"`
+	RepositoryDispatch RepositoryDispatch `yaml:"repository_dispatch,omitempty"`
+	Schedule           []Cron             `yaml:"schedule,omitempty"`
+	WorkflowDispatch   WorkflowDispatch   `yaml:"workflow_dispatch"`
 }
 
 type WorkflowDispatch struct{}
+
+type RepositoryDispatch struct {
+	Types []string `yaml:"types,omitempty"`
+}
 
 type Cron struct {
 	Expression string `yaml:"cron,omitempty"`
@@ -39,8 +44,8 @@ type Jobs yaml.MapSlice
 type Job struct {
 	Name           string `yaml:"name,omitempty"`
 	RunsOn         string `yaml:"runs-on,omitempty"`
-	Steps          []Step `yaml:"steps,omitempty"`
 	TimeoutMinutes int    `yaml:"timeout-minutes,omitempty"`
+	Steps          []Step `yaml:"steps,omitempty"`
 }
 
 func (j Job) ID() string {

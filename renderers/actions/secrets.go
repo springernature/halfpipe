@@ -1,8 +1,10 @@
 package actions
 
+const repoAccessToken = "${{ secrets.EE_REPO_ACCESS_TOKEN }}"
+
 func secretMapper(vaultSecret string) string {
 	secrets := map[string]string{
-		"((halfpipe-gcr.private_key))": "${{ secrets.GCR_PRIVATE_KEY }}",
+		"((halfpipe-gcr.private_key))": "${{ secrets.EE_GCR_PRIVATE_KEY }}",
 	}
 	if actionsSecret, ok := secrets[vaultSecret]; ok {
 		return actionsSecret

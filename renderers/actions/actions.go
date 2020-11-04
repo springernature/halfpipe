@@ -14,11 +14,10 @@ func NewActions() Actions {
 }
 
 func (a Actions) Render(man manifest.Manifest) (string, error) {
-	basePath := man.Triggers.GetGitTrigger().BasePath
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.onTriggers(man.Triggers)
-	w.Jobs = a.jobs(man.Tasks, basePath)
+	w.Jobs = a.jobs(man.Tasks, man)
 	return w.asYAML()
 }
 
@@ -29,6 +28,8 @@ func (a Actions) onTriggers(triggers manifest.TriggerList) (on On) {
 			on.Push = a.onPush(trigger)
 		case manifest.TimerTrigger:
 			on.Schedule = a.onSchedule(trigger)
+		case manifest.DockerTrigger:
+			on.RepositoryDispatch = a.onRepositoryDispatch(trigger.Image)
 		}
 	}
 	return on
@@ -55,7 +56,13 @@ func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 	return []Cron{{timer.Cron}}
 }
 
-func (a Actions) jobs(tasks manifest.TaskList, basePath string) (jobs Jobs) {
+func (a Actions) onRepositoryDispatch(name string) RepositoryDispatch {
+	return RepositoryDispatch{
+		Types: []string{"docker-push:" + name},
+	}
+}
+
+func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
 	appendJob := func(job Job) {
 		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
 	}
@@ -63,13 +70,14 @@ func (a Actions) jobs(tasks manifest.TaskList, basePath string) (jobs Jobs) {
 	for _, t := range tasks {
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task, basePath))
+			appendJob(a.dockerPushJob(task, man))
 		}
 	}
 	return jobs
 }
 
-func (a Actions) dockerPushJob(task manifest.DockerPush, basePath string) Job {
+func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
+	basePath := man.Triggers.GetGitTrigger().BasePath
 	return Job{
 		Name:           task.GetName(),
 		RunsOn:         "ubuntu-18.04",
@@ -100,6 +108,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, basePath string) Job {
 					{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
 				},
 			},
+			repositoryDispatch(man.PipelineName()),
 		},
 	}
 }
@@ -107,6 +116,18 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, basePath string) Job {
 var checkoutCode = Step{
 	Name: "Checkout code",
 	Uses: "actions/checkout@v2",
+}
+
+func repositoryDispatch(name string) Step {
+	return Step{
+		Name: "Repository dispatch",
+		Uses: "peter-evans/repository-dispatch@v1",
+		With: []yaml.MapItem{
+			{Key: "token", Value: repoAccessToken},
+			{Key: "event-type", Value: "docker-push:" + name},
+		},
+	}
+
 }
 
 func timeoutMinutes(timeout string) int {

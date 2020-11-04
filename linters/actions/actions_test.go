@@ -41,7 +41,8 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 2)
+	assert.Len(t, actual.Warnings, 1)
+	assert.Contains(t, actual.Warnings[0].Error(), "PipelineTrigger")
 }
 
 func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
