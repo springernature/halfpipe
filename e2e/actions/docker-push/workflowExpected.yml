@@ -11,26 +11,27 @@ jobs:
     runs-on: ubuntu-18.04
     timeout-minutes: 90
     steps:
-      - name: Checkout code
+    - name: Checkout code
       uses: actions/checkout@v2
-      - name: Set up Docker Buildx
+    - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
-      - name: Login to registry
+    - name: Login to registry
       uses: docker/login-action@v1
       with:
-      registry: eu.gcr.io
-      username: _json_key
-      password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
-      - name: Build and push
+        registry: eu.gcr.io
+        username: _json_key
+        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+    - name: Build and push
       uses: docker/build-push-action@v2
       with:
-      context: e2e/actions/docker-push
-      file: e2e/actions/docker-push/Dockerfile
-      push: true
-      tags: eu.gcr.io/halfpipe-io/someImage:someTag
-      outputs: type=image,oci-mediatypes=true,push=true
-      - name: Repository dispatch
+        context: e2e/actions/docker-push
+        file: e2e/actions/docker-push/Dockerfile
+        push: true
+        tags: eu.gcr.io/halfpipe-io/someImage:someTag
+        outputs: type=image,oci-mediatypes=true,push=true
+    - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
-      token: ${{ secrets.EE_REPO_ACCESS_TOKEN }}
-      event-type: docker-push:pipeline-name
+        token: ${{ secrets.EE_REPO_ACCESS_TOKEN }}
+        event-type: docker-push:pipeline-name
+

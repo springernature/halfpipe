@@ -63,17 +63,35 @@ func (a Actions) onRepositoryDispatch(name string) RepositoryDispatch {
 }
 
 func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
-	appendJob := func(job Job) {
+	appendJob := func(job Job, notifications manifest.Notifications) {
+		if notifications.NotificationsDefined() {
+			job.Steps = append(job.Steps, notify(notifications)...)
+		}
 		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
 	}
 
 	for _, t := range tasks {
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task, man))
+			appendJob(a.dockerPushJob(task, man), task.Notifications)
+		case manifest.Run:
+			appendJob(a.runJob(task, man), task.Notifications)
 		}
 	}
 	return jobs
+}
+
+func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
+	return Job{
+		Name:   task.GetName(),
+		RunsOn: "ubuntu-18.04",
+		Steps: []Step{
+			{
+				Name: "run",
+				Run:  "echo not implemented yet",
+			},
+		},
+	}
 }
 
 func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
@@ -136,4 +154,34 @@ func timeoutMinutes(timeout string) int {
 		return 60
 	}
 	return int(d.Minutes())
+}
+
+func notify(notifications manifest.Notifications) []Step {
+	var steps []Step
+
+	s := func(channel string, text string) Step {
+		return Step{
+			Name: "Notify slack",
+			Uses: "yukin01/slack-bot-action@v0.0.4",
+			With: []yaml.MapItem{
+				{Key: "status", Value: "${{ job.status }}"},
+				{Key: "oauth_token", Value: slackToken},
+				{Key: "channel", Value: channel},
+				{Key: "text", Value: text},
+			},
+		}
+	}
+
+	for _, channel := range notifications.OnFailure {
+		step := s(channel, notifications.OnFailureMessage)
+		step.If = "failure()"
+		steps = append(steps, step)
+	}
+
+	for _, channel := range notifications.OnSuccess {
+		step := s(channel, notifications.OnSuccessMessage)
+		steps = append(steps, step)
+	}
+
+	return steps
 }

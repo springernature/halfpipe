@@ -4,8 +4,11 @@ name: pipeline-name
   push:
     branches:
     - master
-  repository_dispatch:
-    types:
-    - docker-push:some-other-image
   workflow_dispatch: {}
-
+jobs:
+  my_run_task:
+    name: my run task
+    runs-on: ubuntu-18.04
+    steps:
+    - name: run
+      run: echo not implemented yet

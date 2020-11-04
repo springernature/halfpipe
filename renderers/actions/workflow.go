@@ -55,11 +55,16 @@ func (j Job) ID() string {
 
 type Step struct {
 	Name string `yaml:"name,omitempty"`
+	If   string `yaml:"if,omitempty"`
 	Uses string `yaml:"uses,omitempty"`
+	Run  string `yaml:"run,omitempty"`
 	With With   `yaml:"with,omitempty"`
+	Env  Env    `yaml:"env,omitempty"`
 }
 
 type With yaml.MapSlice
+
+type Env yaml.MapSlice
 
 func (w Workflow) asYAML() (string, error) {
 	output, err := yaml.Marshal(w)

@@ -11,7 +11,7 @@ do
             ./test.sh
         else
             ../../../halfpipe actions 1> workflowActual.yml
-            diff --ignore-blank-lines -w workflowActual.yml workflowExpected.yml
+            diff --ignore-blank-lines workflowActual.yml workflowExpected.yml
         fi
     )
 done
