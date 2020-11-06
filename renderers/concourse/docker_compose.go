@@ -10,8 +10,8 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) atc.JobConfig {
-	return p.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
+func (c Concourse) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) atc.JobConfig {
+	return c.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
 }
 
 func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {

@@ -10,7 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
+func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
 	taskInputs := func() []atc.TaskInputConfig {
 		inputs := []atc.TaskInputConfig{{Name: manifest.GitTrigger{}.GetTriggerName()}}
 		if task.RestoreArtifacts {
@@ -61,7 +61,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 		Config: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        taskEnv,
-			ImageResource: p.imageResource(task.Docker),
+			ImageResource: c.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: taskPath,
 				Dir:  path.Join(gitDir, basePath),

@@ -26,7 +26,7 @@ type CFSnPaaS struct {
 	Username string
 	Password string
 	Org      string
-	Api      string
+	API      string
 }
 
 type CFDefaults struct {
@@ -85,12 +85,10 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 	return updated
 }
 
-func New(project project.Data) Defaults {
-	d := DefaultValues
-	d.Project = project
+func New(defaultvValues Defaults, project project.Data) Defaults {
+	defaultvValues.Project = project
+	defaultvValues.triggersDefaulter = NewTriggersDefaulter()
+	defaultvValues.tasksDefaulter = NewTaskDefaulter()
 
-	d.triggersDefaulter = NewTriggersDefaulter()
-	d.tasksDefaulter = NewTaskDefaulter()
-
-	return d
+	return defaultvValues
 }

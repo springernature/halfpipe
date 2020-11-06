@@ -33,7 +33,7 @@ func testController() controller {
 	var fs = afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return controller{
-		defaulter: defaults.New(project.Data{}),
+		defaulter: defaults.New(defaults.Concourse, project.Data{}),
 		mapper:    mapper.New(),
 		renderer:  fakeRenderer{},
 	}

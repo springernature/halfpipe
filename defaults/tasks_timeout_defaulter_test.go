@@ -43,43 +43,43 @@ func TestSetsCorrectTimeout(t *testing.T) {
 	}
 
 	expected := manifest.TaskList{
-		manifest.Update{Timeout: DefaultValues.Timeout},
-		manifest.Run{Timeout: DefaultValues.Timeout},
-		manifest.DockerCompose{Timeout: DefaultValues.Timeout},
+		manifest.Update{Timeout: Concourse.Timeout},
+		manifest.Run{Timeout: Concourse.Timeout},
+		manifest.DockerCompose{Timeout: Concourse.Timeout},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Timeout: DefaultValues.Timeout},
+				manifest.Run{Timeout: Concourse.Timeout},
 				manifest.DeployCF{
-					Timeout: DefaultValues.Timeout,
+					Timeout: Concourse.Timeout,
 					PrePromote: manifest.TaskList{
-						manifest.Run{Timeout: DefaultValues.Timeout},
+						manifest.Run{Timeout: Concourse.Timeout},
 					},
 				},
 			},
 		},
-		manifest.DockerPush{Timeout: DefaultValues.Timeout},
+		manifest.DockerPush{Timeout: Concourse.Timeout},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
-						manifest.ConsumerIntegrationTest{Timeout: DefaultValues.Timeout},
-						manifest.DeployMLModules{Timeout: DefaultValues.Timeout},
+						manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
+						manifest.DeployMLModules{Timeout: Concourse.Timeout},
 					},
 				},
-				manifest.DeployMLModules{Timeout: DefaultValues.Timeout},
+				manifest.DeployMLModules{Timeout: Concourse.Timeout},
 			},
 		},
 		manifest.DeployCF{
-			Timeout: DefaultValues.Timeout,
+			Timeout: Concourse.Timeout,
 			PrePromote: manifest.TaskList{
-				manifest.DeployMLModules{Timeout: DefaultValues.Timeout},
-				manifest.ConsumerIntegrationTest{Timeout: DefaultValues.Timeout},
-				manifest.Run{Timeout: DefaultValues.Timeout},
+				manifest.DeployMLModules{Timeout: Concourse.Timeout},
+				manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
+				manifest.Run{Timeout: Concourse.Timeout},
 			},
 		},
 	}
 
-	assert.Equal(t, expected, NewTasksTimeoutDefaulter().Apply(input, DefaultValues))
+	assert.Equal(t, expected, NewTasksTimeoutDefaulter().Apply(input, Concourse))
 }
 
 func TestDoesntOverrideTimeout(t *testing.T) {
@@ -121,5 +121,5 @@ func TestDoesntOverrideTimeout(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, input, NewTasksTimeoutDefaulter().Apply(input, DefaultValues))
+	assert.Equal(t, input, NewTasksTimeoutDefaulter().Apply(input, Concourse))
 }

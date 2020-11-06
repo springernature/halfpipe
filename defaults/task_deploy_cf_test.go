@@ -12,34 +12,34 @@ func TestCFDeployDefaults(t *testing.T) {
 
 		expected := manifest.DeployCF{
 			Org:        man.Team,
-			Username:   DefaultValues.CF.OnPrem.Username,
-			Password:   DefaultValues.CF.OnPrem.Password,
-			Manifest:   DefaultValues.CF.ManifestPath,
-			CliVersion: DefaultValues.CF.Version,
+			Username:   Concourse.CF.OnPrem.Username,
+			Password:   Concourse.CF.OnPrem.Password,
+			Manifest:   Concourse.CF.ManifestPath,
+			CliVersion: Concourse.CF.Version,
 		}
 
-		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, DefaultValues, man))
+		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, Concourse, man))
 	})
 
 	t.Run("new apis", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 
 		expected := manifest.DeployCF{
-			Org:        DefaultValues.CF.SnPaaS.Org,
-			API:        DefaultValues.CF.SnPaaS.Api,
-			Username:   DefaultValues.CF.SnPaaS.Username,
-			Password:   DefaultValues.CF.SnPaaS.Password,
+			Org:        Concourse.CF.SnPaaS.Org,
+			API:        Concourse.CF.SnPaaS.API,
+			Username:   Concourse.CF.SnPaaS.Username,
+			Password:   Concourse.CF.SnPaaS.Password,
 			TestDomain: "springernature.app",
-			Manifest:   DefaultValues.CF.ManifestPath,
-			CliVersion: DefaultValues.CF.Version,
+			Manifest:   Concourse.CF.ManifestPath,
+			CliVersion: Concourse.CF.Version,
 		}
 
-		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: DefaultValues.CF.SnPaaS.Api}, DefaultValues, man))
+		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: Concourse.CF.SnPaaS.API}, Concourse, man))
 	})
 
 	t.Run("cli version", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
-		assert.Equal(t, "cf6", deployCfDefaulter(manifest.DeployCF{}, DefaultValues, man).CliVersion)
+		assert.Equal(t, "cf6", deployCfDefaulter(manifest.DeployCF{}, Concourse, man).CliVersion)
 	})
 }
 
@@ -54,7 +54,7 @@ func TestDoesntOverride(t *testing.T) {
 		CliVersion: "g",
 	}
 
-	updated := deployCfDefaulter(input, DefaultValues, manifest.Manifest{})
+	updated := deployCfDefaulter(input, Concourse, manifest.Manifest{})
 
 	assert.Equal(t, input, updated)
 }

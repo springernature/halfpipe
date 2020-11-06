@@ -10,7 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.JobConfig {
+func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.JobConfig {
 	resourceName := deployCFResourceName(task)
 	manifestPath := path.Join(gitDir, basePath, task.Manifest)
 	vars := convertVars(task.Vars)
@@ -31,19 +31,19 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 
 	var steps []atc.Step
 	if !task.Rolling {
-		steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-		steps = append(steps, p.checkApp(task, resourceName, manifestPath))
-		steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
-		steps = append(steps, p.promoteCandidateAppToLive(task, resourceName, manifestPath))
-		job.Ensure = p.cleanupOldApps(task, resourceName, manifestPath)
+		steps = append(steps, c.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+		steps = append(steps, c.checkApp(task, resourceName, manifestPath))
+		steps = append(steps, c.prePromoteTasks(task, man, basePath)...)
+		steps = append(steps, c.promoteCandidateAppToLive(task, resourceName, manifestPath))
+		job.Ensure = c.cleanupOldApps(task, resourceName, manifestPath)
 	} else {
 		if len(task.PrePromote) == 0 {
-			steps = append(steps, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			steps = append(steps, c.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
 		} else {
-			steps = append(steps, p.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
-			steps = append(steps, p.prePromoteTasks(task, man, basePath)...)
-			steps = append(steps, p.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
-			steps = append(steps, p.removeTestApp(task, resourceName, manifestPath))
+			steps = append(steps, c.pushCandidateApp(task, resourceName, manifestPath, appPath, vars, man))
+			steps = append(steps, c.prePromoteTasks(task, man, basePath)...)
+			steps = append(steps, c.pushAppRolling(task, resourceName, manifestPath, appPath, vars, man))
+			steps = append(steps, c.removeTestApp(task, resourceName, manifestPath))
 		}
 	}
 
@@ -51,7 +51,7 @@ func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, bas
 	return job
 }
 
-func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.Step {
+func (c Concourse) cleanupOldApps(task manifest.DeployCF, resourceName string, manifestPath string) *atc.Step {
 	cleanup := &atc.PutStep{
 		Name:     "halfpipe-cleanup",
 		Resource: resourceName,
@@ -69,7 +69,7 @@ func (p pipeline) cleanupOldApps(task manifest.DeployCF, resourceName string, ma
 	return &step
 }
 
-func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
+func (c Concourse) promoteCandidateAppToLive(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
 	promote := atc.PutStep{
 		Name:     "halfpipe-promote",
 		Resource: resourceName,
@@ -86,7 +86,7 @@ func (p pipeline) promoteCandidateAppToLive(task manifest.DeployCF, resourceName
 	return stepWithAttemptsAndTimeout(&promote, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
+func (c Concourse) checkApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
 	check := atc.PutStep{
 		Name:     "halfpipe-check",
 		Resource: resourceName,
@@ -102,7 +102,7 @@ func (p pipeline) checkApp(task manifest.DeployCF, resourceName string, manifest
 	return stepWithAttemptsAndTimeout(&check, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
+func (c Concourse) pushCandidateApp(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
 	push := atc.PutStep{
 		Name:     "halfpipe-push",
 		Resource: resourceName,
@@ -116,8 +116,8 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	}
 
 	if task.IsDockerPush {
-		push.Params["dockerUsername"] = defaults.DefaultValues.Docker.Username
-		push.Params["dockerPassword"] = defaults.DefaultValues.Docker.Password
+		push.Params["dockerUsername"] = defaults.Concourse.Docker.Username
+		push.Params["dockerPassword"] = defaults.Concourse.Docker.Password
 		if task.DockerTag != "" {
 			if task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")
@@ -151,7 +151,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	return stepWithAttemptsAndTimeout(&push, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
+func (c Concourse) removeTestApp(task manifest.DeployCF, resourceName string, manifestPath string) atc.Step {
 	remove := atc.PutStep{
 		Name:     "remove-test-app",
 		Resource: resourceName,
@@ -163,7 +163,7 @@ func (p pipeline) removeTestApp(task manifest.DeployCF, resourceName string, man
 	return stepWithAttemptsAndTimeout(&remove, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
+func (c Concourse) pushAppRolling(task manifest.DeployCF, resourceName string, manifestPath string, appPath string, vars map[string]interface{}, man manifest.Manifest) atc.Step {
 	deploy := atc.PutStep{
 		Name:     "rolling-deploy",
 		Resource: resourceName,
@@ -176,8 +176,8 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	}
 
 	if task.IsDockerPush {
-		deploy.Params["dockerUsername"] = defaults.DefaultValues.Docker.Username
-		deploy.Params["dockerPassword"] = defaults.DefaultValues.Docker.Password
+		deploy.Params["dockerUsername"] = defaults.Concourse.Docker.Username
+		deploy.Params["dockerPassword"] = defaults.Concourse.Docker.Password
 		if task.DockerTag != "" {
 			if task.DockerTag == "version" {
 				deploy.Params["dockerTag"] = path.Join(versionName, "version")
@@ -203,7 +203,7 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	return stepWithAttemptsAndTimeout(&deploy, task.GetAttempts(), task.GetTimeout())
 }
 
-func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
+func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest, basePath string) []atc.Step {
 	// saveArtifacts and restoreArtifacts are needed to make sure we don't run pre-promote
 	// tasks in parallel when the first task saves an artifact and the second restores it.
 	if len(task.PrePromote) == 0 {
@@ -212,7 +212,7 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 
 	var prePromoteTasks []atc.Step
 	for _, t := range task.PrePromote {
-		applications, e := p.readCfManifest(task.Manifest, nil, nil)
+		applications, e := c.readCfManifest(task.Manifest, nil, nil)
 		if e != nil {
 			panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
 		}
@@ -224,19 +224,19 @@ func (p pipeline) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest,
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.runJob(ppTask, man, false, basePath)
+			ppJob = c.runJob(ppTask, man, false, basePath)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = p.dockerComposeJob(ppTask, man, basePath)
+			ppJob = c.dockerComposeJob(ppTask, man, basePath)
 
 		case manifest.ConsumerIntegrationTest:
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			ppJob = p.consumerIntegrationTestJob(ppTask, man, basePath)
+			ppJob = c.consumerIntegrationTestJob(ppTask, man, basePath)
 		}
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}

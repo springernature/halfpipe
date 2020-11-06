@@ -37,7 +37,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 		manifest.TimerTrigger{},
 		manifest.PipelineTrigger{},
 		manifest.DockerTrigger{},
-	}, DefaultValues, manifest.Manifest{})
+	}, Concourse, manifest.Manifest{})
 
 	expected := manifest.TriggerList{
 		expectedGitTrigger,
@@ -80,5 +80,5 @@ func TestAddsDefaultGitTriggerIfThereIsntOneInTheTriggerList(t *testing.T) {
 		expectedGitTrigger,
 	}
 
-	assert.Equal(t, expected, defaulter.Apply(input, DefaultValues, manifest.Manifest{}))
+	assert.Equal(t, expected, defaulter.Apply(input, Concourse, manifest.Manifest{}))
 }
