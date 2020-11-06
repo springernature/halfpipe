@@ -12,9 +12,9 @@ func TestPipelineTrigger(t *testing.T) {
 	t.Run("Empty trigger", func(t *testing.T) {
 		expectedTrigger := manifest.PipelineTrigger{
 			Team:         team,
-			ConcourseURL: DefaultValues.ConcourseURL,
-			Username:     DefaultValues.ConcourseUsername,
-			Password:     DefaultValues.ConcoursePassword,
+			ConcourseURL: DefaultValues.Concourse.URL,
+			Username:     DefaultValues.Concourse.Username,
+			Password:     DefaultValues.Concourse.Password,
 			Status:       "succeeded",
 		}
 

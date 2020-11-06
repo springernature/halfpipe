@@ -10,12 +10,12 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 	updated = original
 
 	if strings.HasPrefix(updated.Image, config.DockerRegistry) {
-		updated.Username = defaults.DockerUsername
-		updated.Password = defaults.DockerPassword
+		updated.Username = defaults.Docker.Username
+		updated.Password = defaults.Docker.Password
 	}
 
 	if updated.DockerfilePath == "" {
-		updated.DockerfilePath = defaults.DockerfilePath
+		updated.DockerfilePath = defaults.Docker.FilePath
 	}
 
 	if original.Tag == "" {

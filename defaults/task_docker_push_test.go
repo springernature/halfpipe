@@ -20,8 +20,8 @@ func TestPrivateImage(t *testing.T) {
 	expected := manifest.DockerPush{
 		Image:          path.Join(config.DockerRegistry, "push-me"),
 		DockerfilePath: "something",
-		Username:       DefaultValues.DockerUsername,
-		Password:       DefaultValues.DockerPassword,
+		Username:       DefaultValues.Docker.Username,
+		Password:       DefaultValues.Docker.Password,
 		Tag:            "gitref",
 	}
 

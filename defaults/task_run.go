@@ -9,8 +9,8 @@ import (
 func runDefaulter(original manifest.Run, defaults Defaults) (updated manifest.Run) {
 	updated = original
 	if strings.HasPrefix(updated.Docker.Image, config.DockerRegistry) {
-		updated.Docker.Username = defaults.DockerUsername
-		updated.Docker.Password = defaults.DockerPassword
+		updated.Docker.Username = defaults.Docker.Username
+		updated.Docker.Password = defaults.Docker.Password
 	}
 
 	return updated
