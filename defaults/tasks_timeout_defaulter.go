@@ -22,7 +22,7 @@ func (t tasksTimeoutDefaulter) Apply(original manifest.TaskList, defaults Defaul
 		default:
 			tt = task
 			if task.GetTimeout() == "" {
-				tt = tt.SetTimeout(defaults.Timeout)
+				tt = tt.SetTimeout(defaults.Aux.Timeout)
 			}
 
 			if deployTask, isDeployTask := tt.(manifest.DeployCF); isDeployTask {

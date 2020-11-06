@@ -43,38 +43,38 @@ func TestSetsCorrectTimeout(t *testing.T) {
 	}
 
 	expected := manifest.TaskList{
-		manifest.Update{Timeout: Concourse.Timeout},
-		manifest.Run{Timeout: Concourse.Timeout},
-		manifest.DockerCompose{Timeout: Concourse.Timeout},
+		manifest.Update{Timeout: Concourse.Aux.Timeout},
+		manifest.Run{Timeout: Concourse.Aux.Timeout},
+		manifest.DockerCompose{Timeout: Concourse.Aux.Timeout},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Timeout: Concourse.Timeout},
+				manifest.Run{Timeout: Concourse.Aux.Timeout},
 				manifest.DeployCF{
-					Timeout: Concourse.Timeout,
+					Timeout: Concourse.Aux.Timeout,
 					PrePromote: manifest.TaskList{
-						manifest.Run{Timeout: Concourse.Timeout},
+						manifest.Run{Timeout: Concourse.Aux.Timeout},
 					},
 				},
 			},
 		},
-		manifest.DockerPush{Timeout: Concourse.Timeout},
+		manifest.DockerPush{Timeout: Concourse.Aux.Timeout},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
-						manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
-						manifest.DeployMLModules{Timeout: Concourse.Timeout},
+						manifest.ConsumerIntegrationTest{Timeout: Concourse.Aux.Timeout},
+						manifest.DeployMLModules{Timeout: Concourse.Aux.Timeout},
 					},
 				},
-				manifest.DeployMLModules{Timeout: Concourse.Timeout},
+				manifest.DeployMLModules{Timeout: Concourse.Aux.Timeout},
 			},
 		},
 		manifest.DeployCF{
-			Timeout: Concourse.Timeout,
+			Timeout: Concourse.Aux.Timeout,
 			PrePromote: manifest.TaskList{
-				manifest.DeployMLModules{Timeout: Concourse.Timeout},
-				manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
-				manifest.Run{Timeout: Concourse.Timeout},
+				manifest.DeployMLModules{Timeout: Concourse.Aux.Timeout},
+				manifest.ConsumerIntegrationTest{Timeout: Concourse.Aux.Timeout},
+				manifest.Run{Timeout: Concourse.Aux.Timeout},
 			},
 		},
 	}

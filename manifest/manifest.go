@@ -140,6 +140,12 @@ func (t TriggerList) HasGitTrigger() bool {
 	return false
 }
 
+type DefaultValues struct {
+	// Random default values that does not fit into triggers/tasks
+	SlackToken      string `secretAllowed:"true"`
+	RepoAccessToken string `secretAllowed:"true"`
+}
+
 type Manifest struct {
 	Team           string         `yaml:"team,omitempty"`
 	Pipeline       string         `yaml:"pipeline,omitempty"`
@@ -148,6 +154,8 @@ type Manifest struct {
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks          TaskList       `yaml:"tasks,omitempty"`
+
+	DefaultValues DefaultValues `json:"-" yaml:"-"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

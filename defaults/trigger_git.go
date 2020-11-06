@@ -29,7 +29,7 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 	}
 
 	if updated.URI != "" && !updated.IsPublic() && updated.PrivateKey == "" {
-		updated.PrivateKey = defaults.RepoPrivateKey
+		updated.PrivateKey = defaults.Aux.RepoPrivateKey
 	}
 
 	return updated

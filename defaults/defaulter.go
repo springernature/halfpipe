@@ -17,6 +17,10 @@ type BuildHistoryDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
+type DefaultValuesDefaulter interface {
+	Apply(defaults Defaults) (updated manifest.DefaultValues)
+}
+
 type CFOnPrem struct {
 	Username string
 	Password string
@@ -62,20 +66,26 @@ type MarkLogicDefaults struct {
 	Password string
 }
 
+type Aux struct {
+	RepoPrivateKey  string
+	RepoAccessToken string
+	Timeout         string
+	SlackToken      string
+}
+
 type Defaults struct {
 	Project project.Data
 
-	RepoPrivateKey string
-	CF             CFDefaults
-	Docker         DockerDefaults
-	Artifactory    ArtifactoryDefaults
-	Concourse      ConcourseDefaults
-	MarkLogic      MarkLogicDefaults
+	Aux         Aux
+	CF          CFDefaults
+	Docker      DockerDefaults
+	Artifactory ArtifactoryDefaults
+	Concourse   ConcourseDefaults
+	MarkLogic   MarkLogicDefaults
 
-	Timeout string
-
-	triggersDefaulter TriggersDefaulter
-	tasksDefaulter    TasksDefaulter
+	triggersDefaulter      TriggersDefaulter
+	tasksDefaulter         TasksDefaulter
+	defaultValuesDefaulter DefaultValuesDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
@@ -87,7 +97,7 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
-
+	updated.DefaultValues = d.defaultValuesDefaulter.Apply(d)
 	return updated
 }
 
@@ -95,6 +105,7 @@ func New(defaultvValues Defaults, project project.Data) Defaults {
 	defaultvValues.Project = project
 	defaultvValues.triggersDefaulter = NewTriggersDefaulter()
 	defaultvValues.tasksDefaulter = NewTaskDefaulter()
+	defaultvValues.defaultValuesDefaulter = NewDefaultValuesDefaulter()
 
 	return defaultvValues
 }

@@ -69,13 +69,13 @@ func (c Concourse) slackResourceType() atc.ResourceType {
 	}
 }
 
-func (c Concourse) slackResource() atc.ResourceConfig {
+func (c Concourse) slackResource(man manifest.Manifest) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       slackResourceName,
 		Type:       slackResourceTypeName,
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
-			"token": config.SlackToken,
+			"token": man.DefaultValues.SlackToken,
 		},
 	}
 }

@@ -26,7 +26,7 @@ func TestGit(t *testing.T) {
 
 		t.Run("no private key set", func(t *testing.T) {
 			trigger := manifest.GitTrigger{}
-			assert.Equal(t, defaults.RepoPrivateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver).PrivateKey)
+			assert.Equal(t, defaults.Aux.RepoPrivateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver).PrivateKey)
 		})
 
 		t.Run("private key set", func(t *testing.T) {
@@ -48,7 +48,7 @@ func TestGit(t *testing.T) {
 			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver)
 
 			assert.Equal(t, "git@github.com:springernature/halfpipe.git", updatedTrigger.URI)
-			assert.Equal(t, defaults.RepoPrivateKey, updatedTrigger.PrivateKey)
+			assert.Equal(t, defaults.Aux.RepoPrivateKey, updatedTrigger.PrivateKey)
 		})
 
 		t.Run("https", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestGit(t *testing.T) {
 			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver)
 
 			assert.Equal(t, "git@github.com:springernature/halfpipe.git", updatedTrigger.URI)
-			assert.Equal(t, defaults.RepoPrivateKey, updatedTrigger.PrivateKey)
+			assert.Equal(t, defaults.Aux.RepoPrivateKey, updatedTrigger.PrivateKey)
 		})
 
 	})
@@ -71,7 +71,7 @@ func TestGit(t *testing.T) {
 		defaults.Project = project.Data{BasePath: "foo", GitURI: "bar"}
 
 		expectedTrigger := manifest.GitTrigger{
-			PrivateKey: defaults.RepoPrivateKey,
+			PrivateKey: defaults.Aux.RepoPrivateKey,
 			URI:        "bar",
 			BasePath:   "foo",
 		}

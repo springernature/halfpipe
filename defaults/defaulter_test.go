@@ -14,6 +14,10 @@ type testTasksDefaulter struct {
 	apply func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
+type testDefaultValuesDefaulter struct {
+	apply func(defaults Defaults) manifest.DefaultValues
+}
+
 func (t testTriggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 	return t.apply(original, defaults, man)
 }
@@ -26,6 +30,10 @@ func (t testTasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, def
 	return t.apply(original, defaults)
 }
 
+func (t testDefaultValuesDefaulter) Apply(Defaults) manifest.DefaultValues {
+	return manifest.DefaultValues{}
+}
+
 func TestUpdatePipeline(t *testing.T) {
 	defaults := Defaults{
 		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
@@ -34,6 +42,7 @@ func TestUpdatePipeline(t *testing.T) {
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return original
 		}},
+		defaultValuesDefaulter: testDefaultValuesDefaulter{},
 	}
 
 	t.Run("doesnt do anything when feature toggle is not enabled", func(t *testing.T) {
@@ -70,12 +79,19 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		manifest.DockerPush{},
 	}
 
+	expectedDefaults := manifest.DefaultValues{
+		SlackToken: "meehp",
+	}
+
 	defaults := Defaults{
 		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 			return expectedTriggers
 		}},
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return expectedTasks
+		}},
+		defaultValuesDefaulter: testDefaultValuesDefaulter{func(defaults Defaults) manifest.DefaultValues {
+			return expectedDefaults
 		}},
 	}
 

@@ -65,7 +65,7 @@ func (a Actions) onRepositoryDispatch(name string) RepositoryDispatch {
 func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
 	appendJob := func(job Job, notifications manifest.Notifications) {
 		if notifications.NotificationsDefined() {
-			job.Steps = append(job.Steps, notify(notifications)...)
+			job.Steps = append(job.Steps, notify(man.DefaultValues.SlackToken, notifications)...)
 		}
 		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
 	}
@@ -126,7 +126,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 					{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
 				},
 			},
-			repositoryDispatch(man.PipelineName()),
+			repositoryDispatch(man),
 		},
 	}
 }
@@ -136,13 +136,13 @@ var checkoutCode = Step{
 	Uses: "actions/checkout@v2",
 }
 
-func repositoryDispatch(name string) Step {
+func repositoryDispatch(man manifest.Manifest) Step {
 	return Step{
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
 		With: []yaml.MapItem{
-			{Key: "token", Value: repoAccessToken},
-			{Key: "event-type", Value: "docker-push:" + name},
+			{Key: "token", Value: man.DefaultValues.RepoAccessToken},
+			{Key: "event-type", Value: "docker-push:" + man.PipelineName()},
 		},
 	}
 
@@ -156,7 +156,7 @@ func timeoutMinutes(timeout string) int {
 	return int(d.Minutes())
 }
 
-func notify(notifications manifest.Notifications) []Step {
+func notify(slackToken string, notifications manifest.Notifications) []Step {
 	var steps []Step
 
 	s := func(channel string, text string) Step {

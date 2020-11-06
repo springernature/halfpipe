@@ -239,7 +239,7 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 
 	if man.Tasks.UsesNotifications() {
 		resourceTypes = append(resourceTypes, c.slackResourceType())
-		resourceConfigs = append(resourceConfigs, c.slackResource())
+		resourceConfigs = append(resourceConfigs, c.slackResource(man))
 	}
 
 	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {

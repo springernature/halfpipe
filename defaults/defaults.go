@@ -1,7 +1,11 @@
 package defaults
 
 var Concourse = Defaults{
-	RepoPrivateKey: "((halfpipe-github.private_key))",
+	Aux: Aux{
+		RepoPrivateKey: "((halfpipe-github.private_key))",
+		SlackToken:     "((halfpipe-slack.token))",
+		Timeout:        "1h",
+	},
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
 			Username: "((cloudfoundry.username-snpaas))",
@@ -47,12 +51,14 @@ var Concourse = Defaults{
 		Username: "((halfpipe-ml-deploy.username))",
 		Password: "((halfpipe-ml-deploy.password))",
 	},
-	Timeout: "1h",
 }
 
 var Actions = Defaults{
-	RepoPrivateKey: "this cannot be empty due to linter",
-
+	Aux: Aux{
+		RepoPrivateKey:  "this cannot be empty due to linter",
+		RepoAccessToken: "${{ secrets.EE_REPO_ACCESS_TOKEN }}",
+		SlackToken:      "${{ secrets.EE_SLACK_TOKEN }}",
+	},
 	Docker: DockerDefaults{
 		Username:       "_json_key",
 		Password:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",
