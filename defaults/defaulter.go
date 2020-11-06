@@ -17,38 +17,60 @@ type BuildHistoryDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
+type CFOnPrem struct {
+	Username string
+	Password string
+}
+
+type CFSnPaaS struct {
+	Username string
+	Password string
+	Org      string
+	Api      string
+}
+
+type CFDefaults struct {
+	ManifestPath string
+	OnPrem       CFOnPrem
+	SnPaaS       CFSnPaaS
+	TestDomains  map[string]string
+	Version      string
+}
+
+type DockerDefaults struct {
+	Username       string
+	Password       string
+	FilePath       string
+	ComposeFile    string
+	ComposeService string
+}
+
+type ArtifactoryDefaults struct {
+	Username string
+	Password string
+	URL      string
+}
+
+type ConcourseDefaults struct {
+	URL      string
+	Username string
+	Password string
+}
+
+type MarkLogicDefaults struct {
+	Username string
+	Password string
+}
+
 type Defaults struct {
-	RepoPrivateKey string
-
-	CfUsername       string
-	CfPassword       string
-	CfUsernameSnPaas string
-	CfPasswordSnPaas string
-	CfOrgSnPaas      string
-	CfAPISnPaas      string
-	CfManifest       string
-	CfTestDomains    map[string]string
-	CfCliVersion     string
-
-	DockerUsername string
-	DockerPassword string
-	DockerfilePath string
-
 	Project project.Data
 
-	DockerComposeFile    string
-	DockerComposeService string
-
-	ArtifactoryUsername string
-	ArtifactoryPassword string
-	ArtifactoryURL      string
-
-	ConcourseURL      string
-	ConcourseUsername string
-	ConcoursePassword string
-
-	MarkLogicUsername string
-	MarkLogicPassword string
+	RepoPrivateKey string
+	CF             CFDefaults
+	Docker         DockerDefaults
+	Artifactory    ArtifactoryDefaults
+	Concourse      ConcourseDefaults
+	MarkLogic      MarkLogicDefaults
 
 	Timeout string
 

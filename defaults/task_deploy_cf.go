@@ -5,40 +5,40 @@ import "github.com/springernature/halfpipe/manifest"
 func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF) {
 	updated = original
 
-	if updated.API == defaults.CfAPISnPaas {
+	if updated.API == defaults.CF.SnPaaS.Api {
 		if updated.Org == "" {
-			updated.Org = defaults.CfOrgSnPaas
+			updated.Org = defaults.CF.SnPaaS.Org
 		}
 		if updated.Username == "" {
-			updated.Username = defaults.CfUsernameSnPaas
+			updated.Username = defaults.CF.SnPaaS.Username
 		}
 		if updated.Password == "" {
-			updated.Password = defaults.CfPasswordSnPaas
+			updated.Password = defaults.CF.SnPaaS.Password
 		}
 	} else {
 		if updated.Org == "" {
 			updated.Org = man.Team
 		}
 		if updated.Username == "" {
-			updated.Username = defaults.CfUsername
+			updated.Username = defaults.CF.OnPrem.Username
 		}
 		if updated.Password == "" {
-			updated.Password = defaults.CfPassword
+			updated.Password = defaults.CF.OnPrem.Password
 		}
 	}
 
 	if updated.Manifest == "" {
-		updated.Manifest = defaults.CfManifest
+		updated.Manifest = defaults.CF.ManifestPath
 	}
 
 	if updated.TestDomain == "" {
-		if domain, ok := defaults.CfTestDomains[updated.API]; ok {
+		if domain, ok := defaults.CF.TestDomains[updated.API]; ok {
 			updated.TestDomain = domain
 		}
 	}
 
 	if updated.CliVersion == "" {
-		updated.CliVersion = defaults.CfCliVersion
+		updated.CliVersion = defaults.CF.Version
 	}
 
 	return updated

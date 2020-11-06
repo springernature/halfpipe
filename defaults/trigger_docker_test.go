@@ -24,8 +24,8 @@ func TestDockerTrigger(t *testing.T) {
 
 		expectedTrigger := manifest.DockerTrigger{
 			Image:    path.Join(config.DockerRegistry, "ubuntu"),
-			Username: DefaultValues.DockerUsername,
-			Password: DefaultValues.DockerPassword,
+			Username: DefaultValues.Docker.Username,
+			Password: DefaultValues.Docker.Password,
 		}
 
 		assert.Equal(t, expectedTrigger, defaultDockerTrigger(trigger, DefaultValues))

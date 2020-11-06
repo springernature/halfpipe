@@ -6,11 +6,11 @@ func deployMlModuleDefaulter(original manifest.DeployMLModules, defaults Default
 	updated = original
 
 	if updated.Username == "" {
-		updated.Username = defaults.MarkLogicUsername
+		updated.Username = defaults.MarkLogic.Username
 	}
 
 	if updated.Password == "" {
-		updated.Password = defaults.MarkLogicPassword
+		updated.Password = defaults.MarkLogic.Password
 	}
 
 	return updated

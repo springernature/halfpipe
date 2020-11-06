@@ -116,8 +116,8 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	}
 
 	if task.IsDockerPush {
-		push.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
-		push.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		push.Params["dockerUsername"] = defaults.DefaultValues.Docker.Username
+		push.Params["dockerPassword"] = defaults.DefaultValues.Docker.Password
 		if task.DockerTag != "" {
 			if task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")
@@ -176,8 +176,8 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	}
 
 	if task.IsDockerPush {
-		deploy.Params["dockerUsername"] = defaults.DefaultValues.DockerUsername
-		deploy.Params["dockerPassword"] = defaults.DefaultValues.DockerPassword
+		deploy.Params["dockerUsername"] = defaults.DefaultValues.Docker.Username
+		deploy.Params["dockerPassword"] = defaults.DefaultValues.Docker.Password
 		if task.DockerTag != "" {
 			if task.DockerTag == "version" {
 				deploy.Params["dockerTag"] = path.Join(versionName, "version")

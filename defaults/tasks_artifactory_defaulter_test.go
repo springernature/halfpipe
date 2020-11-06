@@ -8,9 +8,9 @@ import (
 
 func TestSetsCorrectArtifactoryVarsToEmptyVars(t *testing.T) {
 	expectedVars := map[string]string{
-		"ARTIFACTORY_URL":      DefaultValues.ArtifactoryURL,
-		"ARTIFACTORY_USERNAME": DefaultValues.ArtifactoryUsername,
-		"ARTIFACTORY_PASSWORD": DefaultValues.ArtifactoryPassword,
+		"ARTIFACTORY_URL":      DefaultValues.Artifactory.URL,
+		"ARTIFACTORY_USERNAME": DefaultValues.Artifactory.Username,
+		"ARTIFACTORY_PASSWORD": DefaultValues.Artifactory.Password,
 	}
 
 	input := manifest.TaskList{

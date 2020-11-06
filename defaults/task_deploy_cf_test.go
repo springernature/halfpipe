@@ -12,10 +12,10 @@ func TestCFDeployDefaults(t *testing.T) {
 
 		expected := manifest.DeployCF{
 			Org:        man.Team,
-			Username:   DefaultValues.CfUsername,
-			Password:   DefaultValues.CfPassword,
-			Manifest:   DefaultValues.CfManifest,
-			CliVersion: DefaultValues.CfCliVersion,
+			Username:   DefaultValues.CF.OnPrem.Username,
+			Password:   DefaultValues.CF.OnPrem.Password,
+			Manifest:   DefaultValues.CF.ManifestPath,
+			CliVersion: DefaultValues.CF.Version,
 		}
 
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, DefaultValues, man))
@@ -25,16 +25,16 @@ func TestCFDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 
 		expected := manifest.DeployCF{
-			Org:        DefaultValues.CfOrgSnPaas,
-			API:        DefaultValues.CfAPISnPaas,
-			Username:   DefaultValues.CfUsernameSnPaas,
-			Password:   DefaultValues.CfPasswordSnPaas,
+			Org:        DefaultValues.CF.SnPaaS.Org,
+			API:        DefaultValues.CF.SnPaaS.Api,
+			Username:   DefaultValues.CF.SnPaaS.Username,
+			Password:   DefaultValues.CF.SnPaaS.Password,
 			TestDomain: "springernature.app",
-			Manifest:   DefaultValues.CfManifest,
-			CliVersion: DefaultValues.CfCliVersion,
+			Manifest:   DefaultValues.CF.ManifestPath,
+			CliVersion: DefaultValues.CF.Version,
 		}
 
-		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: DefaultValues.CfAPISnPaas}, DefaultValues, man))
+		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: DefaultValues.CF.SnPaaS.Api}, DefaultValues, man))
 	})
 
 	t.Run("cli version", func(t *testing.T) {

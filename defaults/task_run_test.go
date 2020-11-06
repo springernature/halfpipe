@@ -33,8 +33,8 @@ func TestRunTaskDockerDefault(t *testing.T) {
 			Script: "./blah",
 			Docker: manifest.Docker{
 				Image:    config.DockerRegistry + "runImage",
-				Username: DefaultValues.DockerUsername,
-				Password: DefaultValues.DockerPassword,
+				Username: DefaultValues.Docker.Username,
+				Password: DefaultValues.Docker.Password,
 			},
 		}
 

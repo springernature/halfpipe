@@ -7,7 +7,7 @@ import (
 )
 
 func TestSetsDefaultDockerComposeService(t *testing.T) {
-	assert.Equal(t, DefaultValues.DockerComposeService, dockerComposeDefaulter(manifest.DockerCompose{}, DefaultValues).Service)
+	assert.Equal(t, DefaultValues.Docker.ComposeService, dockerComposeDefaulter(manifest.DockerCompose{}, DefaultValues).Service)
 }
 
 func TestDoesntOverrideService(t *testing.T) {
@@ -16,7 +16,7 @@ func TestDoesntOverrideService(t *testing.T) {
 }
 
 func TestSetsDefaultDockerComposeFile(t *testing.T) {
-	assert.Equal(t, DefaultValues.DockerComposeFile, dockerComposeDefaulter(manifest.DockerCompose{}, DefaultValues).ComposeFile)
+	assert.Equal(t, DefaultValues.Docker.ComposeFile, dockerComposeDefaulter(manifest.DockerCompose{}, DefaultValues).ComposeFile)
 }
 
 func TestDoesntOverrideDockerComposeFile(t *testing.T) {
