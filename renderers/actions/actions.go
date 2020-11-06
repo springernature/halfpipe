@@ -112,7 +112,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 				With: []yaml.MapItem{
 					{Key: "registry", Value: "eu.gcr.io"},
 					{Key: "username", Value: task.Username},
-					{Key: "password", Value: secretMapper(task.Password)},
+					{Key: "password", Value: task.Password},
 				},
 			},
 			{

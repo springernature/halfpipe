@@ -100,8 +100,8 @@ func (m dockerComposeMapper) convertToRunTask(dcTask manifest.DockerCompose) man
 
 	//hmm, copied from defaulter :)
 	if strings.HasPrefix(runTask.Docker.Image, config.DockerRegistry) {
-		runTask.Docker.Username = defaults.DefaultValues.Docker.Username
-		runTask.Docker.Password = defaults.DefaultValues.Docker.Password
+		runTask.Docker.Username = defaults.Concourse.Docker.Username
+		runTask.Docker.Password = defaults.Concourse.Docker.Password
 	}
 
 	return runTask

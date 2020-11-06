@@ -1,13 +1,13 @@
 package defaults
 
-var DefaultValues = Defaults{
+var Concourse = Defaults{
 	RepoPrivateKey: "((halfpipe-github.private_key))",
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
 			Username: "((cloudfoundry.username-snpaas))",
 			Password: "((cloudfoundry.password-snpaas))",
 			Org:      "((cloudfoundry.org-snpaas))",
-			Api:      "((cloudfoundry.api-snpaas))",
+			API:      "((cloudfoundry.api-snpaas))",
 		},
 		OnPrem: CFOnPrem{
 			Username: "((cloudfoundry.username))",
@@ -48,4 +48,16 @@ var DefaultValues = Defaults{
 		Password: "((halfpipe-ml-deploy.password))",
 	},
 	Timeout: "1h",
+}
+
+var Actions = Defaults{
+	RepoPrivateKey: "this cannot be empty due to linter",
+
+	Docker: DockerDefaults{
+		Username:       "_json_key",
+		Password:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",
+		ComposeService: "app",
+		ComposeFile:    "docker-compose.yml",
+		FilePath:       "Dockerfile",
+	},
 }

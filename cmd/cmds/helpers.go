@@ -13,6 +13,8 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
+	"github.com/springernature/halfpipe/renderers/actions"
+	"github.com/springernature/halfpipe/renderers/concourse"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
@@ -70,9 +72,20 @@ func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
 	}
 }
 
+func createDefaulter(projectData project.Data, renderer halfpipe.Renderer) defaults.Defaults {
+	switch renderer.(type) {
+	case actions.Actions:
+		return defaults.New(defaults.Actions, projectData)
+	case concourse.Concourse, nullRenderer:
+		return defaults.New(defaults.Concourse, projectData)
+
+	}
+	panic("Ehm, thats strange.")
+}
+
 func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer) halfpipe.Controller {
 	return halfpipe.NewController(
-		defaults.New(projectData),
+		createDefaulter(projectData, renderer),
 		mapper.New(),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),

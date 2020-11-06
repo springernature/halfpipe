@@ -16,7 +16,7 @@ import (
 const longResourceCheckInterval = "24h"
 const webHookAssistedResourceCheckInterval = "10m"
 
-func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
+func (c Concourse) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	sources := atc.Source{
 		"uri": trigger.URI,
 	}
@@ -55,7 +55,7 @@ func (p pipeline) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 const slackResourceName = "slack"
 const slackResourceTypeName = "halfpipe-slack-resource"
 
-func (p pipeline) slackResourceType() atc.ResourceType {
+func (c Concourse) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name:       slackResourceTypeName,
 		Type:       "registry-image",
@@ -69,7 +69,7 @@ func (p pipeline) slackResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) slackResource() atc.ResourceConfig {
+func (c Concourse) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       slackResourceName,
 		Type:       slackResourceTypeName,
@@ -80,7 +80,7 @@ func (p pipeline) slackResource() atc.ResourceConfig {
 	}
 }
 
-func (p pipeline) gcpResourceType() atc.ResourceType {
+func (c Concourse) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name: artifactsResourceName,
 		Type: "registry-image",
@@ -93,7 +93,7 @@ func (p pipeline) gcpResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) artifactResource(man manifest.Manifest) atc.ResourceConfig {
+func (c Concourse) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 	filter := func(str string) string {
 		reg := regexp.MustCompile(`[^a-z0-9\-]+`)
 		return reg.ReplaceAllString(strings.ToLower(str), "")
@@ -121,13 +121,13 @@ func (p pipeline) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 	}
 }
 
-func (p pipeline) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceConfig {
-	config := p.artifactResource(man)
+func (c Concourse) artifactResourceOnFailure(man manifest.Manifest) atc.ResourceConfig {
+	config := c.artifactResource(man)
 	config.Name = artifactsOnFailureName
 	return config
 }
 
-func (p pipeline) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
+func (c Concourse) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       trigger.GetTriggerName(),
 		Type:       cronResourceTypeName,
@@ -171,7 +171,7 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 
 const deployCfResourceTypeName = "cf-resource"
 
-func (p pipeline) halfpipeCfDeployResourceType() atc.ResourceType {
+func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 	image := strings.Join([]string{deployCfResourceTypeName, "v2"}, "-")
 	fullPath := path.Join(config.DockerRegistry + image)
 	return atc.ResourceType{
@@ -186,7 +186,7 @@ func (p pipeline) halfpipeCfDeployResourceType() atc.ResourceType {
 	}
 }
 
-func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
+func (c Concourse) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
 	sources := atc.Source{
 		"concourse_url": pipelineTrigger.ConcourseURL,
 		"username":      pipelineTrigger.Username,
@@ -204,7 +204,7 @@ func (p pipeline) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigg
 	}
 }
 
-func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
+func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName string) atc.ResourceConfig {
 	resourceType := deployCfResourceTypeName
 
 	sources := atc.Source{
@@ -223,7 +223,7 @@ func (p pipeline) deployCFResource(deployCF manifest.DeployCF, resourceName stri
 	}
 }
 
-func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
+func (c Concourse) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: manifest.DockerTrigger{Image: docker.Image}.GetTriggerName(),
 		Type: "docker-image",
@@ -236,7 +236,7 @@ func (p pipeline) dockerPushResource(docker manifest.DockerPush) atc.ResourceCon
 	}
 }
 
-func (p pipeline) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
+func (c Concourse) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
 	config := atc.ResourceConfig{
 		Name: trigger.GetTriggerName(),
 		Type: "docker-image",
@@ -253,7 +253,7 @@ func (p pipeline) dockerTriggerResource(trigger manifest.DockerTrigger) atc.Reso
 	return config
 }
 
-func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
+func (c Concourse) imageResource(docker manifest.Docker) *atc.ImageResource {
 	repo, tag := docker.Image, "latest"
 	if strings.Contains(docker.Image, ":") {
 		split := strings.Split(docker.Image, ":")
@@ -280,7 +280,7 @@ func (p pipeline) imageResource(docker manifest.Docker) *atc.ImageResource {
 	}
 }
 
-func (p pipeline) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
+func (c Concourse) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
 	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.Pipeline)
 	gitTrigger := manifest.Triggers.GetGitTrigger()
 	if gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {

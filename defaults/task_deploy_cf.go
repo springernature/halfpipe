@@ -5,7 +5,7 @@ import "github.com/springernature/halfpipe/manifest"
 func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF) {
 	updated = original
 
-	if updated.API == defaults.CF.SnPaaS.Api {
+	if updated.API == defaults.CF.SnPaaS.API {
 		if updated.Org == "" {
 			updated.Org = defaults.CF.SnPaaS.Org
 		}

@@ -17,12 +17,12 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type pipeline struct {
+type Concourse struct {
 	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader cf.ManifestReader) pipeline {
-	return pipeline{readCfManifest: cfManifestReader}
+func NewPipeline(cfManifestReader cf.ManifestReader) Concourse {
+	return Concourse{readCfManifest: cfManifestReader}
 }
 
 const artifactsResourceName = "gcp-resource"
@@ -113,7 +113,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 	return stepWithAttemptsAndTimeout(taskStep, defaultStepAttempts, defaultStepTimeout)
 }
 
-func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
+func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
 	_, isUpdateTask := task.(manifest.Update)
 	versioningEnabled := man.FeatureToggles.Versioned()
 
@@ -164,7 +164,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 	}
 
 	parallelSteps := stepWithAttemptsAndTimeout(parallelizeSteps(getSteps).Config, defaultStepAttempts, defaultStepTimeout)
-	parallelGetStep := p.configureTriggerOnGets(p.addPassedJobsToGets(parallelSteps, previousTaskNames), task, man)
+	parallelGetStep := c.configureTriggerOnGets(c.addPassedJobsToGets(parallelSteps, previousTaskNames), task, man)
 
 	steps := []atc.Step{parallelGetStep}
 
@@ -175,26 +175,26 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 	return steps
 }
 
-func (p pipeline) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
+func (c Concourse) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.DockerPush:
-			resourceConfigs = append(resourceConfigs, p.dockerPushResource(task))
+			resourceConfigs = append(resourceConfigs, c.dockerPushResource(task))
 		case manifest.Parallel:
-			resourceConfigs = append(resourceConfigs, p.dockerPushResources(task.Tasks)...)
+			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks)...)
 		case manifest.Sequence:
-			resourceConfigs = append(resourceConfigs, p.dockerPushResources(task.Tasks)...)
+			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks)...)
 		}
 	}
 
 	return resourceConfigs
 }
-func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (c Concourse) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, trigger := range triggers {
 		switch trigger := trigger.(type) {
 		case manifest.PipelineTrigger:
-			resourceConfigs = append(resourceConfigs, p.pipelineTriggerResource(trigger))
+			resourceConfigs = append(resourceConfigs, c.pipelineTriggerResource(trigger))
 		}
 	}
 
@@ -205,12 +205,12 @@ func (p pipeline) pipelineResources(triggers manifest.TriggerList) (resourceType
 	return resourceTypes, resourceConfigs
 }
 
-func (p pipeline) cfPushResources(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (c Concourse) cfPushResources(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, task := range man.Tasks.Flatten() {
 		switch task := task.(type) {
 		case manifest.DeployCF:
-			resourceConfig := p.deployCFResource(task, deployCFResourceName(task))
+			resourceConfig := c.deployCFResource(task, deployCFResourceName(task))
 			if _, found := resourceConfigs.Lookup(resourceConfig.Name); !found {
 				resourceConfigs = append(resourceConfigs, resourceConfig)
 			}
@@ -218,58 +218,58 @@ func (p pipeline) cfPushResources(man manifest.Manifest) (resourceTypes atc.Reso
 	}
 
 	if len(resourceConfigs) > 0 {
-		resourceTypes = append(resourceTypes, p.halfpipeCfDeployResourceType())
+		resourceTypes = append(resourceTypes, c.halfpipeCfDeployResourceType())
 	}
 
 	return
 }
 
-func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			resourceConfigs = append(resourceConfigs, p.gitResource(trigger))
+			resourceConfigs = append(resourceConfigs, c.gitResource(trigger))
 		case manifest.TimerTrigger:
 			resourceTypes = append(resourceTypes, cronResourceType())
-			resourceConfigs = append(resourceConfigs, p.cronResource(trigger))
+			resourceConfigs = append(resourceConfigs, c.cronResource(trigger))
 		case manifest.DockerTrigger:
-			resourceConfigs = append(resourceConfigs, p.dockerTriggerResource(trigger))
+			resourceConfigs = append(resourceConfigs, c.dockerTriggerResource(trigger))
 		}
 	}
 
 	if man.Tasks.UsesNotifications() {
-		resourceTypes = append(resourceTypes, p.slackResourceType())
-		resourceConfigs = append(resourceConfigs, p.slackResource())
+		resourceTypes = append(resourceTypes, c.slackResourceType())
+		resourceConfigs = append(resourceConfigs, c.slackResource())
 	}
 
 	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {
-		resourceTypes = append(resourceTypes, p.gcpResourceType())
+		resourceTypes = append(resourceTypes, c.gcpResourceType())
 
 		if man.Tasks.SavesArtifacts() {
-			resourceConfigs = append(resourceConfigs, p.artifactResource(man))
+			resourceConfigs = append(resourceConfigs, c.artifactResource(man))
 		}
 		if man.Tasks.SavesArtifactsOnFailure() {
-			resourceConfigs = append(resourceConfigs, p.artifactResourceOnFailure(man))
+			resourceConfigs = append(resourceConfigs, c.artifactResourceOnFailure(man))
 		}
 	}
 
 	if man.FeatureToggles.Versioned() {
-		resourceConfigs = append(resourceConfigs, p.versionResource(man))
+		resourceConfigs = append(resourceConfigs, c.versionResource(man))
 	}
 
-	resourceConfigs = append(resourceConfigs, p.dockerPushResources(man.Tasks)...)
+	resourceConfigs = append(resourceConfigs, c.dockerPushResources(man.Tasks)...)
 
-	cfResourceTypes, cfResources := p.cfPushResources(man)
+	cfResourceTypes, cfResources := c.cfPushResources(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
 
-	pipelineResourceTypes, pipelineResources := p.pipelineResources(man.Triggers)
+	pipelineResourceTypes, pipelineResources := c.pipelineResources(man.Triggers)
 	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
 	resourceConfigs = append(resourceConfigs, pipelineResources...)
 
 	return resourceTypes, resourceConfigs
 }
-func (p pipeline) onFailure(task manifest.Task) *atc.Step {
+func (c Concourse) onFailure(task manifest.Task) *atc.Step {
 	onFailureChannels := task.GetNotifications().OnFailure
 	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 {
 		var sequence []atc.Step
@@ -288,7 +288,7 @@ func (p pipeline) onFailure(task manifest.Task) *atc.Step {
 	return nil
 }
 
-func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
+func (c Concourse) onSuccess(task manifest.Task) *atc.Step {
 	onSuccessChannels := task.GetNotifications().OnSuccess
 	if len(onSuccessChannels) > 0 {
 		var sequence []atc.Step
@@ -304,49 +304,49 @@ func (p pipeline) onSuccess(task manifest.Task) *atc.Step {
 	return nil
 }
 
-func (p pipeline) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job atc.JobConfig) {
-	initialPlan := p.initialPlan(man, task, previousTaskNames)
+func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job atc.JobConfig) {
+	initialPlan := c.initialPlan(man, task, previousTaskNames)
 	basePath := man.Triggers.GetGitTrigger().BasePath
 
 	switch task := task.(type) {
 	case manifest.Run:
-		job = p.runJob(task, man, false, basePath)
+		job = c.runJob(task, man, false, basePath)
 
 	case manifest.DockerCompose:
-		job = p.dockerComposeJob(task, man, basePath)
+		job = c.dockerComposeJob(task, man, basePath)
 
 	case manifest.DeployCF:
-		job = p.deployCFJob(task, man, basePath)
+		job = c.deployCFJob(task, man, basePath)
 
 	case manifest.DockerPush:
-		job = p.dockerPushJob(task, basePath)
+		job = c.dockerPushJob(task, basePath)
 	case manifest.ConsumerIntegrationTest:
-		job = p.consumerIntegrationTestJob(task, man, basePath)
+		job = c.consumerIntegrationTestJob(task, man, basePath)
 
 	case manifest.DeployMLZip:
 		runTask := ConvertDeployMLZipToRunTask(task, man)
-		job = p.runJob(runTask, man, false, basePath)
+		job = c.runJob(runTask, man, false, basePath)
 
 	case manifest.DeployMLModules:
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
-		job = p.runJob(runTask, man, false, basePath)
+		job = c.runJob(runTask, man, false, basePath)
 	case manifest.Update:
-		job = p.updateJobConfig(task, man.PipelineName(), basePath)
+		job = c.updateJobConfig(task, man.PipelineName(), basePath)
 	}
 
-	job.OnFailure = p.onFailure(task)
-	job.OnSuccess = p.onSuccess(task)
-	job.BuildLogRetention = p.buildLogRetention(task)
+	job.OnFailure = c.onFailure(task)
+	job.OnSuccess = c.onSuccess(task)
+	job.BuildLogRetention = c.buildLogRetention(task)
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
 
 	return job
 }
 
-func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
+func (c Concourse) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 	switch task := task.(type) {
 	case manifest.Parallel:
 		for _, subTask := range task.Tasks {
-			taskNames = append(taskNames, p.taskNamesFromTask(subTask)...)
+			taskNames = append(taskNames, c.taskNamesFromTask(subTask)...)
 		}
 	case manifest.Sequence:
 		taskNames = append(taskNames, task.Tasks[len(task.Tasks)-1].GetName())
@@ -357,19 +357,19 @@ func (p pipeline) taskNamesFromTask(task manifest.Task) (taskNames []string) {
 	return taskNames
 }
 
-func (p pipeline) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
+func (c Concourse) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
 	if currentIndex == 0 {
 		return []string{}
 	}
-	return p.taskNamesFromTask(taskList[currentIndex-1])
+	return c.taskNamesFromTask(taskList[currentIndex-1])
 }
 
-func (p pipeline) Render(man manifest.Manifest) (string, error) {
-	return ToString(p.RenderAtcConfig(man))
+func (c Concourse) Render(man manifest.Manifest) (string, error) {
+	return ToString(c.RenderAtcConfig(man))
 }
 
-func (p pipeline) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
-	resourceTypes, resourceConfigs := p.resourceConfigs(man)
+func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
+	resourceTypes, resourceConfigs := c.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
 
@@ -379,24 +379,24 @@ func (p pipeline) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
 			for _, subTask := range task.Tasks {
 				switch subTask := subTask.(type) {
 				case manifest.Sequence:
-					previousTasksName := p.previousTaskNames(i, man.Tasks)
+					previousTasksName := c.previousTaskNames(i, man.Tasks)
 					for _, subTask := range subTask.Tasks {
-						cfg.Jobs = append(cfg.Jobs, p.taskToJobs(subTask, man, previousTasksName))
-						previousTasksName = p.taskNamesFromTask(subTask)
+						cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, previousTasksName))
+						previousTasksName = c.taskNamesFromTask(subTask)
 					}
 				default:
-					cfg.Jobs = append(cfg.Jobs, p.taskToJobs(subTask, man, p.previousTaskNames(i, man.Tasks)))
+					cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, c.previousTaskNames(i, man.Tasks)))
 				}
 			}
 		default:
-			cfg.Jobs = append(cfg.Jobs, p.taskToJobs(task, man, p.previousTaskNames(i, man.Tasks)))
+			cfg.Jobs = append(cfg.Jobs, c.taskToJobs(task, man, c.previousTaskNames(i, man.Tasks)))
 		}
 	}
 
 	return cfg
 }
 
-func (p pipeline) addPassedJobsToGets(task atc.Step, passedJobs []string) atc.Step {
+func (c Concourse) addPassedJobsToGets(task atc.Step, passedJobs []string) atc.Step {
 	_ = task.Config.Visit(atc.StepRecursor{
 		OnGet: func(step *atc.GetStep) error {
 			step.Passed = passedJobs
@@ -406,7 +406,7 @@ func (p pipeline) addPassedJobsToGets(task atc.Step, passedJobs []string) atc.St
 	return task
 }
 
-func (p pipeline) buildLogRetention(task manifest.Task) *atc.BuildLogRetention {
+func (c Concourse) buildLogRetention(task manifest.Task) *atc.BuildLogRetention {
 	retention := atc.BuildLogRetention{
 		MinimumSucceededBuilds: 1,
 	}
@@ -417,7 +417,7 @@ func (p pipeline) buildLogRetention(task manifest.Task) *atc.BuildLogRetention {
 	return &retention
 }
 
-func (p pipeline) configureTriggerOnGets(step atc.Step, task manifest.Task, man manifest.Manifest) atc.Step {
+func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man manifest.Manifest) atc.Step {
 	if task.IsManualTrigger() {
 		return step
 	}
