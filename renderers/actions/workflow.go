@@ -2,10 +2,11 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/config"
-	"gopkg.in/yaml.v2"
 	"regexp"
 	"strings"
+
+	"github.com/springernature/halfpipe/config"
+	"gopkg.in/yaml.v2"
 )
 
 type Workflow struct {

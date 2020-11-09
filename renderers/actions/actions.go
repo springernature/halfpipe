@@ -1,10 +1,10 @@
 package actions
 
 import (
-	"github.com/springernature/halfpipe/manifest"
-	"gopkg.in/yaml.v2"
 	"path"
 	"time"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type Actions struct{}
@@ -73,7 +73,7 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs
 		if notifications.NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(notifications)...)
 		}
-		jobs = append(jobs, yaml.MapItem{Key: job.ID(), Value: job})
+		jobs = append(jobs, Jobs{{Key: job.ID(), Value: job}}[0])
 	}
 
 	for _, t := range tasks {
@@ -115,7 +115,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 			{
 				Name: "Login to registry",
 				Uses: "docker/login-action@v1",
-				With: []yaml.MapItem{
+				With: With{
 					{Key: "registry", Value: "eu.gcr.io"},
 					{Key: "username", Value: task.Username},
 					{Key: "password", Value: secretMapper(task.Password)},
@@ -124,7 +124,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 			{
 				Name: "Build and push",
 				Uses: "docker/build-push-action@v2",
-				With: []yaml.MapItem{
+				With: With{
 					{Key: "context", Value: path.Join(basePath, task.BuildPath)},
 					{Key: "file", Value: path.Join(basePath, task.DockerfilePath)},
 					{Key: "push", Value: true},
@@ -146,7 +146,7 @@ func repositoryDispatch(name string) Step {
 	return Step{
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
-		With: []yaml.MapItem{
+		With: With{
 			{Key: "token", Value: repoAccessToken},
 			{Key: "event-type", Value: "docker-push:" + name},
 		},
@@ -169,7 +169,7 @@ func notify(notifications manifest.Notifications) []Step {
 		return Step{
 			Name: "Notify slack " + channel,
 			Uses: "yukin01/slack-bot-action@v0.0.4",
-			With: []yaml.MapItem{
+			With: With{
 				{Key: "status", Value: "${{ job.status }}"},
 				{Key: "oauth_token", Value: slackToken},
 				{Key: "channel", Value: channel},
