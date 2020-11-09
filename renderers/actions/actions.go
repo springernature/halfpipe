@@ -45,6 +45,12 @@ func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
 	for _, p := range git.WatchedPaths {
 		push.Paths = append(push.Paths, p+"**")
 	}
+
+	// if there are only ignored paths you first have to include all
+	if len(git.WatchedPaths) == 0 && len(git.IgnoredPaths) > 0 {
+		push.Paths = Paths{"**"}
+	}
+
 	for _, p := range git.IgnoredPaths {
 		push.Paths = append(push.Paths, "!"+p+"**")
 	}
