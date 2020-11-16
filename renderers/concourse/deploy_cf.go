@@ -2,11 +2,12 @@ package concourse
 
 import (
 	"fmt"
+	"path"
+	"strings"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
-	"strings"
 )
 
 func (p pipeline) deployCFJob(task manifest.DeployCF, man manifest.Manifest, basePath string) atc.JobConfig {
@@ -137,7 +138,7 @@ func (p pipeline) pushCandidateApp(task manifest.DeployCF, resourceName string, 
 	if len(task.PreStart) > 0 {
 		push.Params["preStartCommand"] = strings.Join(task.PreStart, "; ")
 	}
-	if man.FeatureToggles.Versioned() {
+	if man.FeatureToggles.UpdatePipeline() {
 		push.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 
@@ -195,7 +196,7 @@ func (p pipeline) pushAppRolling(task manifest.DeployCF, resourceName string, ma
 	if task.Timeout != "" {
 		deploy.Params["timeout"] = task.Timeout
 	}
-	if man.FeatureToggles.Versioned() {
+	if man.FeatureToggles.UpdatePipeline() {
 		deploy.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 

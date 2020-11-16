@@ -2,11 +2,12 @@ package concourse
 
 import (
 	"fmt"
+	"path"
+	"strings"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
-	"strings"
 )
 
 func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
@@ -16,7 +17,7 @@ func (p pipeline) runJob(task manifest.Run, man manifest.Manifest, isDockerCompo
 			inputs = append(inputs, atc.TaskInputConfig{Name: artifactsName})
 		}
 
-		if man.FeatureToggles.Versioned() {
+		if man.FeatureToggles.UpdatePipeline() {
 			inputs = append(inputs, atc.TaskInputConfig{Name: versionName})
 		}
 		return inputs
@@ -153,7 +154,7 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, 
 		fmt.Sprintf("export GIT_REVISION=`cat %s`", pathToGitRef(gitDir, basePath)),
 	)
 
-	if man.FeatureToggles.Versioned() {
+	if man.FeatureToggles.UpdatePipeline() {
 		out = append(out,
 			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, basePath)),
 		)

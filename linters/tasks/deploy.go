@@ -2,13 +2,14 @@ package tasks
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
@@ -88,7 +89,7 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 			errs = append(errs, linterrors.NewInvalidField("docker_tag", "must be either 'gitref' or 'version'"))
 		}
 
-		if cf.DockerTag == "version" && !man.FeatureToggles.Versioned() {
+		if cf.DockerTag == "version" && !man.FeatureToggles.UpdatePipeline() {
 			errs = append(errs, linterrors.NewInvalidField("docker_tag", "'version' requires the update-pipeline feature toggle"))
 		}
 	}

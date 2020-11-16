@@ -2,9 +2,10 @@ package concourse
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/cf"
 	"regexp"
 	"strings"
+
+	"github.com/springernature/halfpipe/cf"
 
 	"path/filepath"
 
@@ -115,7 +116,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 
 func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
 	_, isUpdateTask := task.(manifest.Update)
-	versioningEnabled := man.FeatureToggles.Versioned()
+	versioningEnabled := man.FeatureToggles.UpdatePipeline()
 
 	var getSteps []atc.Step
 	for _, trigger := range man.Triggers {
@@ -158,7 +159,7 @@ func (p pipeline) initialPlan(man manifest.Manifest, task manifest.Task, previou
 		}
 	}
 
-	if !isUpdateTask && man.FeatureToggles.Versioned() {
+	if !isUpdateTask && man.FeatureToggles.UpdatePipeline() {
 		getVersion := &atc.GetStep{Name: versionName}
 		getSteps = append(getSteps, atc.Step{Config: getVersion})
 	}
@@ -253,7 +254,7 @@ func (p pipeline) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Reso
 		}
 	}
 
-	if man.FeatureToggles.Versioned() {
+	if man.FeatureToggles.UpdatePipeline() {
 		resourceConfigs = append(resourceConfigs, p.versionResource(man))
 	}
 
@@ -422,7 +423,7 @@ func (p pipeline) configureTriggerOnGets(step atc.Step, task manifest.Task, man 
 		return step
 	}
 
-	versioningEnabled := man.FeatureToggles.Versioned()
+	versioningEnabled := man.FeatureToggles.UpdatePipeline()
 	manualGitTrigger := man.Triggers.GetGitTrigger().ManualTrigger
 
 	_ = step.Config.Visit(atc.StepRecursor{

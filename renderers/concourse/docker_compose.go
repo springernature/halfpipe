@@ -2,11 +2,12 @@ package concourse
 
 import (
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"sort"
-	"strings"
 )
 
 func (p pipeline) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) atc.JobConfig {
@@ -23,7 +24,7 @@ func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) 
 	return manifest.Run{
 		Retries: task.Retries,
 		Name:    task.GetName(),
-		Script:  dockerComposeScript(task, man.FeatureToggles.Versioned()),
+		Script:  dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
 		Docker: manifest.Docker{
 			Image:    config.DockerRegistry + config.DockerComposeImage,
 			Username: "_json_key",

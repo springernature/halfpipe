@@ -1,9 +1,10 @@
 package defaults
 
 import (
+	"strings"
+
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush) {
@@ -19,7 +20,7 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 	}
 
 	if original.Tag == "" {
-		if man.FeatureToggles.Versioned() {
+		if man.FeatureToggles.UpdatePipeline() {
 			updated.Tag = "version"
 		} else {
 			updated.Tag = "gitref"

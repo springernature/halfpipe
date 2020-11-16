@@ -22,10 +22,6 @@ func (f FeatureToggles) contains(aFeature string) bool {
 	return false
 }
 
-func (f FeatureToggles) Versioned() bool {
-	return f.UpdatePipeline()
-}
-
 func (f FeatureToggles) UpdatePipeline() bool {
 	return f.contains(FeatureUpdatePipeline) || f.contains(FeatureUpdatePipelineAndTag)
 }

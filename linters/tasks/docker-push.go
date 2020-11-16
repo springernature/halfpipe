@@ -2,12 +2,13 @@ package tasks
 
 import (
 	"fmt"
+	"os"
+	"regexp"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
-	"os"
-	"regexp"
 )
 
 func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
@@ -57,7 +58,7 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version'"))
 		}
 
-		if docker.Tag == "version" && !manifest.FeatureToggles.Versioned() {
+		if docker.Tag == "version" && !manifest.FeatureToggles.UpdatePipeline() {
 			errs = append(errs, linterrors.NewInvalidField("tag", "'version' requires the update-pipeline feature toggle"))
 		}
 	}
