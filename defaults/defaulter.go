@@ -59,8 +59,12 @@ type Defaults struct {
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
 	updated = original
 
+	// why is this here and not in mapper?
 	if updated.FeatureToggles.UpdatePipeline() {
-		updated.Tasks = append(manifest.TaskList{manifest.Update{}}, updated.Tasks...)
+		updateTask := manifest.Update{
+			TagRepo: original.FeatureToggles.TagGitRepo(),
+		}
+		updated.Tasks = append(manifest.TaskList{updateTask}, updated.Tasks...)
 	}
 
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)

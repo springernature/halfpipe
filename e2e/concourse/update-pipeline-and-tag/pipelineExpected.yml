@@ -1,0 +1,141 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: update
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_URL: ((concourse.url))
+        CONCOURSE_USERNAME: ((concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: pipeline-name
+      platform: linux
+      run:
+        dir: git/e2e/concourse/update-pipeline-and-tag
+        path: update-pipeline
+    task: update
+    timeout: 15m
+  - attempts: 2
+    params:
+      bump: minor
+    put: version
+    timeout: 15m
+  - attempts: 2
+    params:
+      only_tag: true
+      repository: git
+      tag_prefix: pipeline-name/v
+      tag: version/version
+    put: tag-repo-with-version
+    resource: git
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: test
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: node
+          tag: 9.5.0-alpine
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
+
+          ./../update-pipeline/a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/concourse/update-pipeline-and-tag
+        path: /bin/sh
+    task: test
+    timeout: 1h
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: master
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-pipeline-name
+  type: semver
+

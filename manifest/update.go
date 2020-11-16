@@ -5,6 +5,7 @@ type Update struct {
 	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout       string
 	BuildHistory  int
+	TagRepo       bool
 }
 
 func (u Update) GetBuildHistory() int {

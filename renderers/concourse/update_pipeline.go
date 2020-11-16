@@ -1,10 +1,11 @@
 package concourse
 
 import (
+	"path"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
 )
 
 func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, basePath string) atc.JobConfig {
@@ -45,12 +46,28 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 		Params: atc.Params{"bump": "minor"},
 	}
 
+	steps := []atc.Step{
+		stepWithAttemptsAndTimeout(update, updateTaskAttempts, updateTaskTimeout),
+		stepWithAttemptsAndTimeout(bumpVersion, updateTaskAttempts, updateTaskTimeout),
+	}
+
+	if task.TagRepo {
+		tagRepo := &atc.PutStep{
+			Name:     "tag-git-repository",
+			Resource: manifest.GitTrigger{}.GetTriggerName(),
+			Params: atc.Params{
+				"only_tag":   true,
+				"repository": manifest.GitTrigger{}.GetTriggerName(),
+				"tag":        "version/version",
+				"tag_prefix": pipelineName + "/v",
+			},
+		}
+		steps = append(steps, stepWithAttemptsAndTimeout(tagRepo, updateTaskAttempts, updateTaskTimeout))
+	}
+
 	return atc.JobConfig{
-		Name:   task.GetName(),
-		Serial: true,
-		PlanSequence: []atc.Step{
-			stepWithAttemptsAndTimeout(update, updateTaskAttempts, updateTaskTimeout),
-			stepWithAttemptsAndTimeout(bumpVersion, updateTaskAttempts, updateTaskTimeout),
-		},
+		Name:         task.GetName(),
+		Serial:       true,
+		PlanSequence: steps,
 	}
 }
