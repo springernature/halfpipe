@@ -44,9 +44,9 @@ jobs:
     params:
       only_tag: true
       repository: git
-      tag_prefix: pipeline-name/v
       tag: version/version
-    put: tag-repo-with-version
+      tag_prefix: pipeline-name/v
+    put: tag-git-repository
     resource: git
     timeout: 15m
   serial: true
