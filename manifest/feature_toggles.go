@@ -3,10 +3,13 @@ package manifest
 type FeatureToggles []string
 
 const FeatureUpdatePipeline = "update-pipeline"
+const FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
+
 const FeatureDockerDecompose = "docker-decompose"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
+	FeatureUpdatePipelineAndTag,
 	FeatureDockerDecompose,
 }
 
@@ -24,7 +27,11 @@ func (f FeatureToggles) Versioned() bool {
 }
 
 func (f FeatureToggles) UpdatePipeline() bool {
-	return f.contains(FeatureUpdatePipeline)
+	return f.contains(FeatureUpdatePipeline) || f.contains(FeatureUpdatePipelineAndTag)
+}
+
+func (f FeatureToggles) TagGitRepo() bool {
+	return f.contains(FeatureUpdatePipelineAndTag)
 }
 
 func (f FeatureToggles) DockerDecompose() bool {
