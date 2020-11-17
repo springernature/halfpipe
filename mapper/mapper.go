@@ -29,6 +29,7 @@ func (m mapper) Apply(original manifest.Manifest) (updated manifest.Manifest, er
 func New() Mapper {
 	return mapper{
 		mappers: []Mapper{
+			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
 			NewDockerComposeMapper(afero.Afero{Fs: afero.NewOsFs()}),
 			NewCFDockerPushMapper(),
