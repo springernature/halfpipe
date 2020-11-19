@@ -1,42 +1,63 @@
 package defaults
 
-var DefaultValues = Defaults{
+var Concourse = Defaults{
 	RepoPrivateKey: "((halfpipe-github.private_key))",
-	CfUsername:     "((cloudfoundry.username))",
-	CfPassword:     "((cloudfoundry.password))",
-	CfManifest:     "manifest.yml",
-	CfTestDomains: map[string]string{
-		"https://api.dev.cf.springer-sbm.com": "dev.cf.private.springer.com",
-		"((cloudfoundry.api-dev))":            "dev.cf.private.springer.com",
+	CF: CFDefaults{
+		SnPaaS: CFSnPaaS{
+			Username: "((cloudfoundry.username-snpaas))",
+			Password: "((cloudfoundry.password-snpaas))",
+			Org:      "((cloudfoundry.org-snpaas))",
+			API:      "((cloudfoundry.api-snpaas))",
+		},
+		OnPrem: CFOnPrem{
+			Username: "((cloudfoundry.username))",
+			Password: "((cloudfoundry.password))",
+		},
+		ManifestPath: "manifest.yml",
+		TestDomains: map[string]string{
+			"https://api.dev.cf.springer-sbm.com": "dev.cf.private.springer.com",
+			"((cloudfoundry.api-dev))":            "dev.cf.private.springer.com",
 
-		"https://api.live.cf.springer-sbm.com": "live.cf.private.springer.com",
-		"((cloudfoundry.api-live))":            "live.cf.private.springer.com",
+			"https://api.live.cf.springer-sbm.com": "live.cf.private.springer.com",
+			"((cloudfoundry.api-live))":            "live.cf.private.springer.com",
 
-		"https://api.snpaas.eu":       "springernature.app",
-		"((cloudfoundry.api-snpaas))": "springernature.app",
+			"https://api.snpaas.eu":       "springernature.app",
+			"((cloudfoundry.api-snpaas))": "springernature.app",
+		},
+		Version: "cf6",
 	},
-	CfUsernameSnPaas:     "((cloudfoundry.username-snpaas))",
-	CfPasswordSnPaas:     "((cloudfoundry.password-snpaas))",
-	CfOrgSnPaas:          "((cloudfoundry.org-snpaas))",
-	CfAPISnPaas:          "((cloudfoundry.api-snpaas))",
-	CfCliVersion:         "cf6",
-	DockerUsername:       "_json_key",
-	DockerPassword:       "((halfpipe-gcr.private_key))",
-	DockerComposeService: "app",
-
-	DockerComposeFile: "docker-compose.yml",
-	DockerfilePath:    "Dockerfile",
-
-	ArtifactoryUsername: "((artifactory.username))",
-	ArtifactoryPassword: "((artifactory.password))",
-	ArtifactoryURL:      "((artifactory.url))",
-
-	ConcourseURL:      "((concourse.url))",
-	ConcourseUsername: "((concourse.username))",
-	ConcoursePassword: "((concourse.password))",
-
-	MarkLogicUsername: "((halfpipe-ml-deploy.username))",
-	MarkLogicPassword: "((halfpipe-ml-deploy.password))",
-
+	Docker: DockerDefaults{
+		Username:       "_json_key",
+		Password:       "((halfpipe-gcr.private_key))",
+		ComposeService: "app",
+		ComposeFile:    "docker-compose.yml",
+		FilePath:       "Dockerfile",
+	},
+	Artifactory: ArtifactoryDefaults{
+		Username: "((artifactory.username))",
+		Password: "((artifactory.password))",
+		URL:      "((artifactory.url))",
+	},
+	Concourse: ConcourseDefaults{
+		URL:      "((concourse.url))",
+		Username: "((concourse.username))",
+		Password: "((concourse.password))",
+	},
+	MarkLogic: MarkLogicDefaults{
+		Username: "((halfpipe-ml-deploy.username))",
+		Password: "((halfpipe-ml-deploy.password))",
+	},
 	Timeout: "1h",
+}
+
+var Actions = Defaults{
+	RepoPrivateKey: "this cannot be empty due to linter",
+
+	Docker: DockerDefaults{
+		Username:       "_json_key",
+		Password:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",
+		ComposeService: "app",
+		ComposeFile:    "docker-compose.yml",
+		FilePath:       "Dockerfile",
+	},
 }

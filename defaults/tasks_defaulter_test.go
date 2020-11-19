@@ -160,7 +160,7 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, defaulter.Apply(input, DefaultValues, manifest.Manifest{}))
+	assert.Equal(t, expected, defaulter.Apply(input, Concourse, manifest.Manifest{}))
 	assert.True(t, tasksRenamerCalled)
 	assert.True(t, tasksTimeoutDefaulterCalled)
 	assert.True(t, tasksArtifactoryVarsDefaulterCalled)

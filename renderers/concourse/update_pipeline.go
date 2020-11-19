@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, basePath string) atc.JobConfig {
+func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, basePath string) atc.JobConfig {
 
 	const updateTaskAttempts = 2
 	const updateTaskTimeout = "15m"
@@ -26,7 +26,7 @@ func (p pipeline) updateJobConfig(task manifest.Update, pipelineName string, bas
 				"HALFPIPE_DOMAIN":    config.Domain,
 				"HALFPIPE_PROJECT":   config.Project,
 			},
-			ImageResource: p.imageResource(manifest.Docker{
+			ImageResource: c.imageResource(manifest.Docker{
 				Image:    config.DockerRegistry + "halfpipe-auto-update",
 				Username: "_json_key",
 				Password: "((halfpipe-gcr.private_key))",

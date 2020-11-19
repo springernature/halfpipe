@@ -23,7 +23,7 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 		errs = append(errs, linterrors.NewMissingField("org"))
 	}
 	if cf.TestDomain == "" {
-		_, found := defaults.DefaultValues.CfTestDomains[cf.API]
+		_, found := defaults.Concourse.CF.TestDomains[cf.API]
 		if cf.API != "" && !found {
 			errs = append(errs, linterrors.NewMissingField("testDomain"))
 		}

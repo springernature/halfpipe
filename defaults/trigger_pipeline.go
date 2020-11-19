@@ -12,15 +12,15 @@ func defaultPipelineTrigger(original manifest.PipelineTrigger, defaults Defaults
 	}
 
 	if updated.ConcourseURL == "" {
-		updated.ConcourseURL = defaults.ConcourseURL
+		updated.ConcourseURL = defaults.Concourse.URL
 	}
 
 	if updated.Username == "" {
-		updated.Username = defaults.ConcourseUsername
+		updated.Username = defaults.Concourse.Username
 	}
 
 	if updated.Password == "" {
-		updated.Password = defaults.ConcoursePassword
+		updated.Password = defaults.Concourse.Password
 	}
 
 	if updated.Status == "" {

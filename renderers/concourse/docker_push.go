@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (p pipeline) dockerPushJob(task manifest.DockerPush, basePath string) atc.JobConfig {
+func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string) atc.JobConfig {
 	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
 	if task.RestoreArtifacts {
 		return dockerPushJobWithRestoreArtifacts(task, resourceName, basePath)

@@ -9,8 +9,8 @@ import (
 func defaultDockerTrigger(original manifest.DockerTrigger, defaults Defaults) (updated manifest.DockerTrigger) {
 	updated = original
 	if strings.HasPrefix(updated.Image, config.DockerRegistry) {
-		updated.Username = defaults.DockerUsername
-		updated.Password = defaults.DockerPassword
+		updated.Username = defaults.Docker.Username
+		updated.Password = defaults.Docker.Password
 	}
 	return updated
 }

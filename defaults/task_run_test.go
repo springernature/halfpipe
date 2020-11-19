@@ -17,7 +17,7 @@ func TestRunTaskDockerDefault(t *testing.T) {
 			},
 		}
 
-		updated := runDefaulter(task, DefaultValues)
+		updated := runDefaulter(task, Concourse)
 		assert.Equal(t, task, updated)
 	})
 
@@ -33,12 +33,12 @@ func TestRunTaskDockerDefault(t *testing.T) {
 			Script: "./blah",
 			Docker: manifest.Docker{
 				Image:    config.DockerRegistry + "runImage",
-				Username: DefaultValues.DockerUsername,
-				Password: DefaultValues.DockerPassword,
+				Username: Concourse.Docker.Username,
+				Password: Concourse.Docker.Password,
 			},
 		}
 
-		assert.Equal(t, expectedTask, runDefaulter(task, DefaultValues))
+		assert.Equal(t, expectedTask, runDefaulter(task, Concourse))
 	})
 
 }

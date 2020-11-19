@@ -34,7 +34,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 }
 
 func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
-	t.Run("When DockerfilePath is just Dockerfile", func(t *testing.T) {
+	t.Run("When FilePath is just Dockerfile", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPush{
@@ -49,7 +49,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 		linterrors.AssertFileErrorInErrors(t, "Dockerfile", errors)
 	})
 
-	t.Run("When DockerfilePath is in a different folder", func(t *testing.T) {
+	t.Run("When FilePath is in a different folder", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPush{
@@ -64,7 +64,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 		linterrors.AssertFileErrorInErrors(t, "dockerfiles/Dockerfile", errors)
 	})
 
-	t.Run("When DockerfilePath is in a different folder upwards", func(t *testing.T) {
+	t.Run("When FilePath is in a different folder upwards", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPush{
@@ -82,7 +82,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 func TestDockerPushTaskWithCorrectData(t *testing.T) {
 
-	t.Run("When DockerfilePath is just Dockerfile", func(t *testing.T) {
+	t.Run("When FilePath is just Dockerfile", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -102,7 +102,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 		assert.Len(t, warnings, 0)
 	})
 
-	t.Run("When DockerfilePath is in a different path", func(t *testing.T) {
+	t.Run("When FilePath is in a different path", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("dockerfile/Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -122,7 +122,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 		assert.Len(t, warnings, 0)
 	})
 
-	t.Run("When DockerfilePath is in a different folder upwards", func(t *testing.T) {
+	t.Run("When FilePath is in a different folder upwards", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("../dockerfile/Dockerfile", []byte("FROM ubuntu"), 0777)
 

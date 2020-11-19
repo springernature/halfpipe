@@ -14,7 +14,7 @@ func TestDockerTrigger(t *testing.T) {
 			Image: "ubuntu",
 		}
 
-		assert.Equal(t, trigger, defaultDockerTrigger(trigger, DefaultValues))
+		assert.Equal(t, trigger, defaultDockerTrigger(trigger, Concourse))
 	})
 
 	t.Run("sets the username and password if not set when using private registry", func(t *testing.T) {
@@ -24,10 +24,10 @@ func TestDockerTrigger(t *testing.T) {
 
 		expectedTrigger := manifest.DockerTrigger{
 			Image:    path.Join(config.DockerRegistry, "ubuntu"),
-			Username: DefaultValues.DockerUsername,
-			Password: DefaultValues.DockerPassword,
+			Username: Concourse.Docker.Username,
+			Password: Concourse.Docker.Password,
 		}
 
-		assert.Equal(t, expectedTrigger, defaultDockerTrigger(trigger, DefaultValues))
+		assert.Equal(t, expectedTrigger, defaultDockerTrigger(trigger, Concourse))
 	})
 }
