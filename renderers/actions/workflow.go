@@ -47,6 +47,7 @@ type Job struct {
 	RunsOn         string `yaml:"runs-on,omitempty"`
 	TimeoutMinutes int    `yaml:"timeout-minutes,omitempty"`
 	Steps          []Step `yaml:"steps,omitempty"`
+	Env            Env    `yaml:"env,omitempty"`
 }
 
 func (j Job) ID() string {
@@ -60,12 +61,11 @@ type Step struct {
 	Uses string `yaml:"uses,omitempty"`
 	Run  string `yaml:"run,omitempty"`
 	With With   `yaml:"with,omitempty"`
-	Env  Env    `yaml:"env,omitempty"`
 }
 
 type With yaml.MapSlice
 
-type Env yaml.MapSlice
+type Env map[string]string
 
 func (w Workflow) asYAML() (string, error) {
 	output, err := yaml.Marshal(w)

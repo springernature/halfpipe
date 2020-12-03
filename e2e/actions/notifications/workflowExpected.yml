@@ -34,4 +34,7 @@ jobs:
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success2'
         text: success message
-
+    env:
+      ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+      ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+      ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}

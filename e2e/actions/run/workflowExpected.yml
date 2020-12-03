@@ -12,3 +12,9 @@ jobs:
     steps:
     - name: run
       run: echo not implemented yet
+    env:
+      ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+      ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+      ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+      BAR: bar
+      FOO: foo

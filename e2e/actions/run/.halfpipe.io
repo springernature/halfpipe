@@ -7,5 +7,6 @@ tasks:
   docker:
     image: foo
   script: \foo
-
-
+  vars:
+    FOO: foo
+    BAR: bar

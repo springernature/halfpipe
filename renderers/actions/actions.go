@@ -13,6 +13,8 @@ func NewActions() Actions {
 	return Actions{}
 }
 
+const defaultRunner = "ubuntu-18.04"
+
 func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
@@ -90,13 +92,14 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs
 func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
 	return Job{
 		Name:   task.GetName(),
-		RunsOn: "ubuntu-18.04",
+		RunsOn: defaultRunner,
 		Steps: []Step{
 			{
 				Name: "run",
 				Run:  "echo not implemented yet",
 			},
 		},
+		Env: Env(task.Vars),
 	}
 }
 
@@ -104,7 +107,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 	basePath := man.Triggers.GetGitTrigger().BasePath
 	return Job{
 		Name:           task.GetName(),
-		RunsOn:         "ubuntu-18.04",
+		RunsOn:         defaultRunner,
 		TimeoutMinutes: timeoutMinutes(task.GetTimeout()),
 		Steps: []Step{
 			checkoutCode,
