@@ -12,6 +12,7 @@ import (
 type Workflow struct {
 	Name string `yaml:"name"`
 	On   On     `yaml:"on"`
+	Env  Env    `yaml:"env,omitempty"`
 	Jobs Jobs   `yaml:"jobs,omitempty"`
 }
 

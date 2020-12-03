@@ -5,6 +5,11 @@ name: pipeline-name
     branches:
     - master
   workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  GIT_REVISION: ${{ env.GITHUB_SHA }}
 jobs:
   my_run_task:
     name: my run task
@@ -13,7 +18,7 @@ jobs:
       image: foo
     steps:
     - name: run
-      run: echo not implemented yet
+      run: \foo
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4
@@ -36,7 +41,3 @@ jobs:
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success2'
         text: success message
-    env:
-      ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-      ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
-      ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}

@@ -16,7 +16,7 @@ func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
 		Steps: []Step{
 			{
 				Name: "run",
-				Run:  "echo not implemented yet",
+				Run:  task.Script,
 			},
 		},
 		Env: Env(task.Vars),

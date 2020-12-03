@@ -60,10 +60,4 @@ var Actions = Defaults{
 		ComposeFile:    "docker-compose.yml",
 		FilePath:       "Dockerfile",
 	},
-
-	Artifactory: ArtifactoryDefaults{
-		Username: "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
-		Password: "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
-		URL:      "${{ secrets.EE_ARTIFACTORY_URL }}",
-	},
 }

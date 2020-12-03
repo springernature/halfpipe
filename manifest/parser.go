@@ -72,18 +72,22 @@ func (t *TaskList) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (t *Vars) UnmarshalJSON(b []byte) error {
+func (v *Vars) UnmarshalJSON(b []byte) error {
 	var rawVars map[string]interface{}
 	if err := json.Unmarshal(b, &rawVars); err != nil {
 		return err
 	}
 
 	var tmpVars Vars
-	for key, val := range rawVars {
-		tmpVars = tmpVars.SetVar(key, fmt.Sprintf("%v", val))
+
+	if len(rawVars) > 0 {
+		tmpVars = make(Vars)
+		for key, val := range rawVars {
+			tmpVars[key] = fmt.Sprintf("%v", val)
+		}
 	}
 
-	(*t) = tmpVars
+	*v = tmpVars
 	return nil
 }
 

@@ -5,6 +5,11 @@ name: pipeline-name
     branches:
     - master
   workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  GIT_REVISION: ${{ env.GITHUB_SHA }}
 jobs:
   push_to_docker_registry:
     name: Push to Docker Registry

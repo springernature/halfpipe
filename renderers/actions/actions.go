@@ -10,6 +10,13 @@ const repoAccessToken = "${{ secrets.EE_REPO_ACCESS_TOKEN }}"
 const slackToken = "${{ secrets.EE_SLACK_TOKEN }}"
 const defaultRunner = "ubuntu-18.04"
 
+var globalEnv = Env{
+	"ARTIFACTORY_PASSWORD": "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
+	"ARTIFACTORY_URL":      "${{ secrets.EE_ARTIFACTORY_URL }}",
+	"ARTIFACTORY_USERNAME": "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
+	"GIT_REVISION":         "${{ env.GITHUB_SHA }}",
+}
+
 type Actions struct{}
 
 func NewActions() Actions {
@@ -20,7 +27,10 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.triggers(man.Triggers)
-	w.Jobs = a.jobs(man.Tasks, man)
+	if len(man.Tasks) > 0 {
+		w.Env = globalEnv
+		w.Jobs = a.jobs(man.Tasks, man)
+	}
 	return w.asYAML()
 }
 

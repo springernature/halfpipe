@@ -8,17 +8,6 @@ import (
 
 type Vars map[string]string
 
-func (v Vars) SetVar(key, value string) Vars {
-	if v == nil {
-		return map[string]string{
-			key: value,
-		}
-	}
-
-	v[key] = value
-	return v
-}
-
 type Notifications struct {
 	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
 	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`

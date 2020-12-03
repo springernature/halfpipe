@@ -10,10 +10,16 @@ func NewTasksArtifactoryVarsDefaulter() TasksArtifactoryVarsDefaulter {
 }
 
 func (t tasksArtifactoryVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults Defaults) manifest.Vars {
-	return vars.
-		SetVar("ARTIFACTORY_URL", defaults.Artifactory.URL).
-		SetVar("ARTIFACTORY_USERNAME", defaults.Artifactory.Username).
-		SetVar("ARTIFACTORY_PASSWORD", defaults.Artifactory.Password)
+	if defaults.Artifactory == (ArtifactoryDefaults{}) {
+		return vars
+	}
+	if vars == nil {
+		vars = make(manifest.Vars)
+	}
+	vars["ARTIFACTORY_URL"] = defaults.Artifactory.URL
+	vars["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
+	vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
+	return vars
 }
 
 func (t tasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
