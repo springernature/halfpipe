@@ -14,7 +14,6 @@ import (
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
 	"github.com/springernature/halfpipe/renderers/actions"
-	"github.com/springernature/halfpipe/renderers/concourse"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/tcnksm/go-gitconfig"
 	"os"
@@ -76,11 +75,9 @@ func createDefaulter(projectData project.Data, renderer halfpipe.Renderer) defau
 	switch renderer.(type) {
 	case actions.Actions:
 		return defaults.New(defaults.Actions, projectData)
-	case concourse.Concourse, nullRenderer:
+	default:
 		return defaults.New(defaults.Concourse, projectData)
-
 	}
-	panic("Ehm, thats strange.")
 }
 
 func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer) halfpipe.Controller {
