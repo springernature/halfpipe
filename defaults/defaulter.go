@@ -85,10 +85,10 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 	return updated
 }
 
-func New(defaultvValues Defaults, project project.Data) Defaults {
-	defaultvValues.Project = project
-	defaultvValues.triggersDefaulter = NewTriggersDefaulter()
-	defaultvValues.tasksDefaulter = NewTaskDefaulter()
+func New(defaultValues Defaults, project project.Data) Defaults {
+	defaultValues.Project = project
+	defaultValues.triggersDefaulter = NewTriggersDefaulter()
+	defaultValues.tasksDefaulter = NewTaskDefaulter()
 
-	return defaultvValues
+	return defaultValues
 }
