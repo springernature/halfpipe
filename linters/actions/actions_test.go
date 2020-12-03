@@ -26,7 +26,7 @@ func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 8)
+	assert.Len(t, actual.Warnings, 7)
 }
 
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {

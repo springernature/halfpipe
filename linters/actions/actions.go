@@ -22,7 +22,7 @@ func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResul
 func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 	for i, task := range tasks {
 		switch task.(type) {
-		case manifest.DockerPush:
+		case manifest.DockerPush, manifest.Run:
 			//ok
 		default:
 			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T", i, task)))
