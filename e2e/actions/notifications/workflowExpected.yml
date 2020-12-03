@@ -9,6 +9,8 @@ jobs:
   my_run_task:
     name: my run task
     runs-on: ubuntu-18.04
+    container:
+      image: foo
     steps:
     - name: run
       run: echo not implemented yet

@@ -5,7 +5,7 @@ tasks:
 - type: run
   name: my run task
   docker:
-    image: foo
+    image: eu.gcr.io/halfpipe-io/golang:1.15
   script: \foo
   vars:
     FOO: foo

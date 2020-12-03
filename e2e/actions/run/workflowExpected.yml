@@ -9,6 +9,11 @@ jobs:
   my_run_task:
     name: my run task
     runs-on: ubuntu-18.04
+    container:
+      image: eu.gcr.io/halfpipe-io/golang:1.15
+      credentials:
+        username: _json_key
+        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
     steps:
     - name: run
       run: echo not implemented yet

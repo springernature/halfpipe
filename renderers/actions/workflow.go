@@ -43,16 +43,27 @@ type Paths []string
 type Jobs yaml.MapSlice
 
 type Job struct {
-	Name           string `yaml:"name,omitempty"`
-	RunsOn         string `yaml:"runs-on,omitempty"`
-	TimeoutMinutes int    `yaml:"timeout-minutes,omitempty"`
-	Steps          []Step `yaml:"steps,omitempty"`
-	Env            Env    `yaml:"env,omitempty"`
+	Name           string    `yaml:"name,omitempty"`
+	RunsOn         string    `yaml:"runs-on,omitempty"`
+	Container      Container `yaml:"container,omitempty"`
+	TimeoutMinutes int       `yaml:"timeout-minutes,omitempty"`
+	Steps          []Step    `yaml:"steps,omitempty"`
+	Env            Env       `yaml:"env,omitempty"`
 }
 
 func (j Job) ID() string {
 	re := regexp.MustCompile(`[^a-z_\-]`)
 	return re.ReplaceAllString(strings.ToLower(j.Name), "_")
+}
+
+type Container struct {
+	Image       string
+	Credentials Credentials `yaml:"credentials,omitempty"`
+}
+
+type Credentials struct {
+	Username string
+	Password string
 }
 
 type Step struct {
