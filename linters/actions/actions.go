@@ -23,7 +23,9 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 	for i, task := range tasks {
 		switch task.(type) {
 		case manifest.DockerPush, manifest.Run:
-			//ok
+			if task.IsManualTrigger() {
+				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.manual_trigger", i, task)))
+			}
 		default:
 			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T", i, task)))
 		}
