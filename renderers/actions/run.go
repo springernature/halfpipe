@@ -14,6 +14,7 @@ func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
 			},
 		},
 		Steps: []Step{
+			checkoutCode,
 			{
 				Name: "run",
 				Run:  task.Script,

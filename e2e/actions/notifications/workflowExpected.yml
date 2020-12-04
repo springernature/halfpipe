@@ -12,10 +12,12 @@ env:
 jobs:
   my_run_task:
     name: my run task
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     container:
       image: foo
     steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
     - name: run
       run: \foo
     - name: 'Notify slack #failure1 (failure)'

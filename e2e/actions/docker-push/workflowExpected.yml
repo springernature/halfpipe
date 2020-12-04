@@ -12,7 +12,7 @@ env:
 jobs:
   push_to_docker_registry:
     name: Push to Docker Registry
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     timeout-minutes: 90
     steps:
     - name: Checkout code
