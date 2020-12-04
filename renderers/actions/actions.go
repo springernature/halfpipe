@@ -14,8 +14,6 @@ var globalEnv = Env{
 	"ARTIFACTORY_PASSWORD": "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
 	"ARTIFACTORY_URL":      "${{ secrets.EE_ARTIFACTORY_URL }}",
 	"ARTIFACTORY_USERNAME": "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
-	"BUILD_VERSION":        "${{ env.GITHUB_RUN_NUMBER }}",
-	"GIT_REVISION":         "${{ env.GITHUB_SHA }}",
 }
 
 type Actions struct{}
