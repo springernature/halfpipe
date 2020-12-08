@@ -5,16 +5,11 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (c Concourse) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest, basePath string) atc.JobConfig {
-	return c.runJob(dockerComposeToRunTask(task, man), man, true, basePath)
-}
-
-func dockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
+func ConvertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
 	if task.Vars == nil {
 		task.Vars = make(map[string]string)
 	}

@@ -6,12 +6,11 @@ import (
 
 	"sort"
 
-	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
+func ConvertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
@@ -51,12 +50,6 @@ func consumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man
 	}
 
 	return runTask
-}
-
-func (c Concourse) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest, basePath string) atc.JobConfig {
-	// it is really just a special run job, so let's reuse that
-	job := c.runJob(consumerIntegrationTestToRunTask(task, man), man, true, basePath)
-	return job
 }
 
 func consumerIntegrationTestScript(vars manifest.Vars) string {

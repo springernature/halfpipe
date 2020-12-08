@@ -314,15 +314,18 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.runJob(task, man, false, basePath)
 
 	case manifest.DockerCompose:
-		job = c.dockerComposeJob(task, man, basePath)
+		runTask := ConvertDockerComposeToRunTask(task, man)
+		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployCF:
 		job = c.deployCFJob(task, man, basePath)
 
 	case manifest.DockerPush:
 		job = c.dockerPushJob(task, basePath)
+
 	case manifest.ConsumerIntegrationTest:
-		job = c.consumerIntegrationTestJob(task, man, basePath)
+		runTask := ConvertConsumerIntegrationTestToRunTask(task, man)
+		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployMLZip:
 		runTask := ConvertDeployMLZipToRunTask(task, man)
@@ -331,6 +334,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 	case manifest.DeployMLModules:
 		runTask := ConvertDeployMLModulesToRunTask(task, man)
 		job = c.runJob(runTask, man, false, basePath)
+
 	case manifest.Update:
 		job = c.updateJobConfig(task, man.PipelineName(), basePath)
 	}

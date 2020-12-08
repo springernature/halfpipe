@@ -230,13 +230,13 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = c.dockerComposeJob(ppTask, man, basePath)
+			ppJob = c.runJob(ConvertDockerComposeToRunTask(ppTask, man), man, true, basePath)
 
 		case manifest.ConsumerIntegrationTest:
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			ppJob = c.consumerIntegrationTestJob(ppTask, man, basePath)
+			ppJob = c.runJob(ConvertConsumerIntegrationTestToRunTask(ppTask, man), man, true, basePath)
 		}
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
