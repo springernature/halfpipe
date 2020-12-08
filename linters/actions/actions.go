@@ -20,12 +20,16 @@ func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResul
 }
 
 func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
-	for i, task := range tasks {
-		switch task.(type) {
+	for i, t := range tasks {
+		switch task := t.(type) {
 		case manifest.DockerPush, manifest.Run:
 			if task.IsManualTrigger() {
 				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.manual_trigger", i, task)))
 			}
+		case manifest.Parallel:
+			errors = append(errors, unsupportedTasks(task.Tasks)...)
+		case manifest.Sequence:
+			errors = append(errors, unsupportedTasks(task.Tasks)...)
 		default:
 			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T", i, task)))
 		}

@@ -18,7 +18,18 @@ func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 			manifest.DeployMLZip{},
 			manifest.DockerCompose{},
 			manifest.DockerPush{},
-			manifest.Parallel{},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{},
+					manifest.Sequence{
+						Tasks: manifest.TaskList{
+							manifest.DeployCF{},
+							manifest.DeployMLModules{},
+						},
+					},
+					manifest.DeployCF{},
+				},
+			},
 			manifest.Run{},
 			manifest.Sequence{},
 		},
@@ -26,7 +37,7 @@ func TestActionsLinter_UnsupportedTasks(t *testing.T) {
 
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 7)
+	assert.Len(t, actual.Warnings, 8)
 }
 
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
