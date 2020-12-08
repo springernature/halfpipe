@@ -78,6 +78,28 @@ func (tl TaskList) Flatten() (updated TaskList) {
 	return
 }
 
+func (tl TaskList) PreviousTaskNames(currentIndex int) []string {
+	if currentIndex == 0 {
+		return []string{}
+	}
+	return TaskNamesFromTask(tl[currentIndex-1])
+}
+
+func TaskNamesFromTask(t Task) (taskNames []string) {
+	switch task := t.(type) {
+	case Parallel:
+		for _, subTask := range task.Tasks {
+			taskNames = append(taskNames, TaskNamesFromTask(subTask)...)
+		}
+	case Sequence:
+		taskNames = append(taskNames, task.Tasks[len(task.Tasks)-1].GetName())
+	default:
+		taskNames = append(taskNames, task.GetName())
+	}
+
+	return taskNames
+}
+
 type Task interface {
 	ReadsFromArtifacts() bool
 	GetAttempts() int

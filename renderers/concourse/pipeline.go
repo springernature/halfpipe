@@ -343,28 +343,6 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 	return job
 }
 
-func (c Concourse) taskNamesFromTask(task manifest.Task) (taskNames []string) {
-	switch task := task.(type) {
-	case manifest.Parallel:
-		for _, subTask := range task.Tasks {
-			taskNames = append(taskNames, c.taskNamesFromTask(subTask)...)
-		}
-	case manifest.Sequence:
-		taskNames = append(taskNames, task.Tasks[len(task.Tasks)-1].GetName())
-	default:
-		taskNames = append(taskNames, task.GetName())
-	}
-
-	return taskNames
-}
-
-func (c Concourse) previousTaskNames(currentIndex int, taskList manifest.TaskList) []string {
-	if currentIndex == 0 {
-		return []string{}
-	}
-	return c.taskNamesFromTask(taskList[currentIndex-1])
-}
-
 func (c Concourse) Render(man manifest.Manifest) (string, error) {
 	return ToString(c.RenderAtcConfig(man))
 }
@@ -380,17 +358,17 @@ func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
 			for _, subTask := range task.Tasks {
 				switch subTask := subTask.(type) {
 				case manifest.Sequence:
-					previousTasksName := c.previousTaskNames(i, man.Tasks)
+					previousTasksName := man.Tasks.PreviousTaskNames(i)
 					for _, subTask := range subTask.Tasks {
 						cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, previousTasksName))
-						previousTasksName = c.taskNamesFromTask(subTask)
+						previousTasksName = manifest.TaskNamesFromTask(subTask)
 					}
 				default:
-					cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, c.previousTaskNames(i, man.Tasks)))
+					cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, man.Tasks.PreviousTaskNames(i)))
 				}
 			}
 		default:
-			cfg.Jobs = append(cfg.Jobs, c.taskToJobs(task, man, c.previousTaskNames(i, man.Tasks)))
+			cfg.Jobs = append(cfg.Jobs, c.taskToJobs(task, man, man.Tasks.PreviousTaskNames(i)))
 		}
 	}
 
