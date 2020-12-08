@@ -1,0 +1,72 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+jobs:
+  another-c-name:
+    name: another-c-name
+    runs-on: ubuntu-20.04
+    container:
+      image: eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable
+      credentials:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: |
+        \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+
+        # write git key to file
+        echo "${CONSUMER_GIT_KEY}" > .gitkey
+        chmod 600 .gitkey
+
+        set -ex
+
+        # get current revision of consumer, revert to HEAD if not found
+        REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
+        if [ "${REVISION}" == "" ]; then
+          echo "Error fetching version of consumer from ${CONSUMER_HOST}/internal/version - using HEAD instead."
+          REVISION=HEAD
+        fi
+
+        # clone consumer into "consumer-repo" dir
+        GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
+        cd consumer-repo/${CONSUMER_PATH}
+
+        # checkout revision
+        git checkout ${REVISION}
+
+        # run the tests with docker-compose
+        # note: old system reads CF manifest env vars and sets them all here
+        docker-compose run --no-deps \
+          --entrypoint "${CONSUMER_SCRIPT}" \
+          -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+          -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+          -e K -e K1 \
+          -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
+          ${DOCKER_COMPOSE_SERVICE:-code}
+    env:
+      CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
+      CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+      CONSUMER_HOST: c-host
+      CONSUMER_PATH: ""
+      CONSUMER_SCRIPT: c-script
+      DOCKER_COMPOSE_SERVICE: potato
+      GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+      GIT_CLONE_OPTIONS: --depth 100
+      K: value
+      K1: value1
+      PROVIDER_HOST: p-host
+      PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
+      PROVIDER_NAME: pipeline-name
+

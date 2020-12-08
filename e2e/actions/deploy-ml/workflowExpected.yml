@@ -1,0 +1,73 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+jobs:
+  create_zip_for_ml_task:
+    name: create zip for ml task
+    runs-on: ubuntu-20.04
+    container:
+      image: alpine
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \package.sh
+  deploy-ml-zip:
+    name: deploy-ml-zip
+    needs:
+    - create_zip_for_ml_task
+    runs-on: ubuntu-20.04
+    container:
+      image: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+      credentials:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: /ml-deploy/deploy-local-zip
+    env:
+      APP_NAME: pipeline-name
+      DEPLOY_ZIP: target/xquery.zip
+      MARKLOGIC_HOST: ml.dev.com
+      MARKLOGIC_PASSWORD: ""
+      MARKLOGIC_USERNAME: ""
+      USE_BUILD_VERSION: "true"
+  deploy_ml-modules_artifact:
+    name: Deploy ml-modules artifact
+    needs:
+    - deploy-ml-zip
+    runs-on: ubuntu-20.04
+    container:
+      image: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+      credentials:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: /ml-deploy/deploy-ml-modules
+    env:
+      APP_NAME: my-app
+      APP_VERSION: v1
+      ARTIFACTORY_PASSWORD: ((artifactory.password))
+      ARTIFACTORY_USERNAME: ((artifactory.username))
+      MARKLOGIC_HOST: ml.dev.com,ml.qa.com
+      MARKLOGIC_PASSWORD: ""
+      MARKLOGIC_USERNAME: foo
+      ML_MODULES_VERSION: "2.1425"
+      USE_BUILD_VERSION: "false"
+

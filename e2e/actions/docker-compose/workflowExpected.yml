@@ -1,0 +1,55 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: docker-compose
+"on":
+  push:
+    branches:
+    - master
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+jobs:
+  test:
+    name: test
+    runs-on: ubuntu-20.04
+    container:
+      image: eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable
+      credentials:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: |
+        \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+        docker-compose  run -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+    env:
+      GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+      HALFPIPE_CACHE_TEAM: halfpipe-team
+  custom:
+    name: custom
+    needs:
+    - test
+    runs-on: ubuntu-20.04
+    container:
+      image: eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable
+      credentials:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: |
+        \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+        docker-compose -f custom-docker-compose.yml run -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
+    env:
+      B: bar
+      F: foo
+      GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+      HALFPIPE_CACHE_TEAM: halfpipe-team
+
