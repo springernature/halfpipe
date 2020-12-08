@@ -18,6 +18,7 @@ jobs:
       credentials:
         username: _json_key
         password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+    timeout-minutes: 62
     steps:
     - name: Checkout code
       uses: actions/checkout@v2

@@ -53,7 +53,7 @@ type Job struct {
 }
 
 func (j Job) ID() string {
-	re := regexp.MustCompile(`[^a-z_\-]`)
+	re := regexp.MustCompile(`[^a-z_0-9\-]`)
 	return re.ReplaceAllString(strings.ToLower(j.Name), "_")
 }
 

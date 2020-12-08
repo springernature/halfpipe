@@ -10,3 +10,4 @@ tasks:
   vars:
     FOO: foo
     BAR: bar
+  timeout: 1h2m

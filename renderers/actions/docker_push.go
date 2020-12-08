@@ -8,9 +8,8 @@ import (
 func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
 	basePath := man.Triggers.GetGitTrigger().BasePath
 	return Job{
-		Name:           task.GetName(),
-		RunsOn:         defaultRunner,
-		TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
+		Name:   task.GetName(),
+		RunsOn: defaultRunner,
 		Steps: []Step{
 			checkoutCode,
 			{

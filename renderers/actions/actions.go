@@ -34,19 +34,20 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 }
 
 func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
-	appendJob := func(job Job, notifications manifest.Notifications) {
-		if notifications.NotificationsDefined() {
-			job.Steps = append(job.Steps, notify(notifications)...)
+	appendJob := func(job Job, task manifest.Task) {
+		if task.GetNotifications().NotificationsDefined() {
+			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
 		}
+		job.TimeoutMinutes = timeoutInMinutes(task.GetTimeout())
 		jobs = append(jobs, Jobs{{Key: job.ID(), Value: job}}[0])
 	}
 
 	for _, t := range tasks {
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task, man), task.Notifications)
+			appendJob(a.dockerPushJob(task, man), task)
 		case manifest.Run:
-			appendJob(a.runJob(task, man), task.Notifications)
+			appendJob(a.runJob(task, man), task)
 		}
 	}
 	return jobs
