@@ -1,0 +1,49 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+jobs:
+  task_1:
+    name: task 1
+    runs-on: ubuntu-20.04
+    container:
+      image: img:tag
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \script
+  task_2:
+    name: task 2
+    needs:
+    - task_1
+    runs-on: ubuntu-20.04
+    container:
+      image: img:tag
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \script
+  task_3:
+    name: task 3
+    needs:
+    - task_2
+    runs-on: ubuntu-20.04
+    container:
+      image: img:tag
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \script

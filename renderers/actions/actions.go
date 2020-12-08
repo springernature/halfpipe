@@ -1,6 +1,8 @@
 package actions
 
 import (
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/springernature/halfpipe/manifest"
@@ -34,20 +36,22 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 }
 
 func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
-	appendJob := func(job Job, task manifest.Task) {
+	appendJob := func(job Job, task manifest.Task, needs []string) {
 		if task.GetNotifications().NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
 		}
 		job.TimeoutMinutes = timeoutInMinutes(task.GetTimeout())
-		jobs = append(jobs, Jobs{{Key: job.ID(), Value: job}}[0])
+		job.Needs = needs
+		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 
-	for _, t := range tasks {
+	for i, t := range tasks {
+		needs := idsFromNames(tasks.PreviousTaskNames(i))
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task, man), task)
+			appendJob(a.dockerPushJob(task, man), task, needs)
 		case manifest.Run:
-			appendJob(a.runJob(task, man), task)
+			appendJob(a.runJob(task, man), task, needs)
 		}
 	}
 	return jobs
@@ -64,6 +68,18 @@ func timeoutInMinutes(timeout string) int {
 		return 60
 	}
 	return int(d.Minutes())
+}
+
+func idFromName(name string) string {
+	re := regexp.MustCompile(`[^a-z_0-9\-]`)
+	return re.ReplaceAllString(strings.ToLower(name), "_")
+}
+
+func idsFromNames(names []string) []string {
+	for i, n := range names {
+		names[i] = idFromName(n)
+	}
+	return names
 }
 
 func notify(notifications manifest.Notifications) []Step {

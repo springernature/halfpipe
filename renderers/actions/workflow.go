@@ -2,9 +2,6 @@ package actions
 
 import (
 	"fmt"
-	"regexp"
-	"strings"
-
 	"github.com/springernature/halfpipe/config"
 	"gopkg.in/yaml.v2"
 )
@@ -45,16 +42,12 @@ type Jobs yaml.MapSlice
 
 type Job struct {
 	Name           string    `yaml:"name,omitempty"`
+	Needs          []string  `yaml:"needs,omitempty"`
 	RunsOn         string    `yaml:"runs-on,omitempty"`
 	Container      Container `yaml:"container,omitempty"`
 	TimeoutMinutes int       `yaml:"timeout-minutes,omitempty"`
 	Steps          []Step    `yaml:"steps,omitempty"`
 	Env            Env       `yaml:"env,omitempty"`
-}
-
-func (j Job) ID() string {
-	re := regexp.MustCompile(`[^a-z_0-9\-]`)
-	return re.ReplaceAllString(strings.ToLower(j.Name), "_")
 }
 
 type Container struct {
