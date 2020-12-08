@@ -30,12 +30,17 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w.On = a.triggers(man.Triggers)
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
-		w.Jobs = a.jobs(man.Tasks, man)
+		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
 	return w.asYAML()
 }
 
-func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs) {
+type parentTask struct {
+	isParallel bool
+	needs      []string
+}
+
+func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
 	appendJob := func(job Job, task manifest.Task, needs []string) {
 		if task.GetNotifications().NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
@@ -47,11 +52,20 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest) (jobs Jobs
 
 	for i, t := range tasks {
 		needs := idsFromNames(tasks.PreviousTaskNames(i))
+		if parent != nil {
+			if parent.isParallel || i == 0 {
+				needs = parent.needs
+			}
+		}
 		switch task := t.(type) {
 		case manifest.DockerPush:
 			appendJob(a.dockerPushJob(task, man), task, needs)
 		case manifest.Run:
 			appendJob(a.runJob(task, man), task, needs)
+		case manifest.Parallel:
+			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
+		case manifest.Sequence:
+			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: false, needs: needs})...)
 		}
 	}
 	return jobs
