@@ -1,7 +1,8 @@
-package concourse
+package taskconverters
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"sort"
@@ -10,7 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func ConvertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
+func ConvertConsumerIntegrationTest(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
@@ -99,4 +100,9 @@ docker-compose run --no-deps \
   %s \
   ${DOCKER_COMPOSE_SERVICE:-code}
 `, envOption, volumeOption)
+}
+
+// convert string to uppercase and replace non A-Z 0-9 with underscores
+func toEnvironmentKey(s string) string {
+	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")
 }

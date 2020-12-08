@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/taskconverters"
 	"path"
 	"strings"
 
@@ -230,13 +231,15 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = c.runJob(ConvertDockerComposeToRunTask(ppTask, man), man, true, basePath)
+			runTask := taskconverters.ConvertDockerCompose(ppTask, man)
+			ppJob = c.runJob(runTask, man, true, basePath)
 
 		case manifest.ConsumerIntegrationTest:
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
-			ppJob = c.runJob(ConvertConsumerIntegrationTestToRunTask(ppTask, man), man, true, basePath)
+			runTask := taskconverters.ConvertConsumerIntegrationTest(ppTask, man)
+			ppJob = c.runJob(runTask, man, true, basePath)
 		}
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}

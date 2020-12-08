@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/taskconverters"
 	"regexp"
 	"strings"
 
@@ -314,7 +315,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.runJob(task, man, false, basePath)
 
 	case manifest.DockerCompose:
-		runTask := ConvertDockerComposeToRunTask(task, man)
+		runTask := taskconverters.ConvertDockerCompose(task, man)
 		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployCF:
@@ -324,15 +325,15 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.dockerPushJob(task, basePath)
 
 	case manifest.ConsumerIntegrationTest:
-		runTask := ConvertConsumerIntegrationTestToRunTask(task, man)
+		runTask := taskconverters.ConvertConsumerIntegrationTest(task, man)
 		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployMLZip:
-		runTask := ConvertDeployMLZipToRunTask(task, man)
+		runTask := taskconverters.ConvertDeployMLZip(task, man)
 		job = c.runJob(runTask, man, false, basePath)
 
 	case manifest.DeployMLModules:
-		runTask := ConvertDeployMLModulesToRunTask(task, man)
+		runTask := taskconverters.ConvertDeployMLModules(task, man)
 		job = c.runJob(runTask, man, false, basePath)
 
 	case manifest.Update:
@@ -500,11 +501,6 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 		out[k] = v
 	}
 	return out
-}
-
-// convert string to uppercase and replace non A-Z 0-9 with underscores
-func toEnvironmentKey(s string) string {
-	return regexp.MustCompile(`[^A-Z0-9]`).ReplaceAllString(strings.ToUpper(s), "_")
 }
 
 func ToString(pipeline atc.Config) (string, error) {

@@ -1,4 +1,4 @@
-package concourse
+package taskconverters
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
+func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
 		Retries: mlTask.Retries,
 		Name:    mlTask.Name,
@@ -38,7 +38,7 @@ func ConvertDeployMLModulesToRunTask(mlTask manifest.DeployMLModules, man manife
 	return runTask
 }
 
-func ConvertDeployMLZipToRunTask(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
+func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
 		Retries: mlTask.Retries,
 		Name:    mlTask.Name,
