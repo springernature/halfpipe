@@ -1,5 +1,5 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-name: docker-compose
+name: artifacts
 "on":
   push:
     branches:
@@ -12,48 +12,43 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
   GIT_REVISION: ${{ github.sha }}
-  GIT_WORKING_DIR: e2e/actions/docker-compose
+  GIT_WORKING_DIR: e2e/actions/artifacts
 defaults:
   run:
-    working-directory: e2e/actions/docker-compose
+    working-directory: e2e/actions/artifacts
 jobs:
-  test:
-    name: test
+  build:
+    name: build
     runs-on: ubuntu-20.04
+    container:
+      image: debian:buster-slim
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
-      run: |
-        docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-        docker-compose \
-          -f docker-compose.yml \
-          run \
-          -e BUILD_VERSION \
-          -e GITHUB_RUN_NUMBER \
-          -e GITHUB_SHA \
-          -e GIT_REVISION \
-          app
+      run: \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt
     - name: Save artifacts
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
         path: |
-          ${{ env.GIT_WORKING_DIR }}/foo
-          ${{ env.GIT_WORKING_DIR }}/bar/baz
+          ${{ env.GIT_WORKING_DIR }}/foo.txt
+          ${{ env.GIT_WORKING_DIR }}/target/bar.txt
     - name: Save artifacts (failure)
       if: failure()
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
         path: |
-          ${{ env.GIT_WORKING_DIR }}/foo
-  custom:
-    name: custom
+          ${{ env.GIT_WORKING_DIR }}/foo.txt
+  test:
+    name: test
     needs:
-    - test
+    - build
     runs-on: ubuntu-20.04
+    container:
+      image: debian:buster-slim
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -64,20 +59,4 @@ jobs:
         name: artifacts
         path: ${{ env.GIT_WORKING_DIR }}
     - name: run
-      run: |
-        docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-        docker-compose \
-          -f custom-docker-compose.yml \
-          run \
-          -e B \
-          -e BUILD_VERSION \
-          -e F \
-          -e GITHUB_RUN_NUMBER \
-          -e GITHUB_SHA \
-          -e GIT_REVISION \
-          customservice \
-          echo hello
-    env:
-      B: bar
-      F: foo
-
+      run: \cat foo.txt target/bar.txt

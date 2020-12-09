@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-func (a Actions) dockerComposeJob(task manifest.DockerCompose, man manifest.Manifest) Job {
+func (a Actions) dockerComposeJob(task manifest.DockerCompose) Job {
 	runTask := convertDockerComposeToRunTask(task)
-	return a.runJob(runTask, man)
+	return a.runJob(runTask)
 }
 
 func convertDockerComposeToRunTask(task manifest.DockerCompose) manifest.Run {

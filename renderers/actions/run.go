@@ -1,8 +1,25 @@
 package actions
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"github.com/springernature/halfpipe/manifest"
+)
 
-func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
+func (a Actions) runJob(task manifest.Run) Job {
+	steps := []Step{checkoutCode}
+	if task.ReadsFromArtifacts() {
+		steps = append(steps, restoreArtifacts)
+	}
+	steps = append(steps, Step{
+		Name: "run",
+		Run:  task.Script,
+	})
+	if task.SavesArtifacts() {
+		steps = append(steps, saveArtifacts(task.SaveArtifacts))
+	}
+	if task.SavesArtifactsOnFailure() {
+		steps = append(steps, saveArtifactsOnFailure(task.SaveArtifactsOnFailure))
+	}
+
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
@@ -13,13 +30,7 @@ func (a Actions) runJob(task manifest.Run, man manifest.Manifest) Job {
 				Password: task.Docker.Password,
 			},
 		},
-		Steps: []Step{
-			checkoutCode,
-			{
-				Name: "run",
-				Run:  task.Script,
-			},
-		},
-		Env: Env(task.Vars),
+		Steps: steps,
+		Env:   Env(task.Vars),
 	}
 }

@@ -7,37 +7,42 @@ import (
 
 func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
 	basePath := man.Triggers.GetGitTrigger().BasePath
+	steps := []Step{checkoutCode}
+	if task.ReadsFromArtifacts() {
+		steps = append(steps, restoreArtifacts)
+	}
+	steps = append(steps,
+		Step{
+			Name: "Set up Docker Buildx",
+			Uses: "docker/setup-buildx-action@v1",
+		},
+		Step{
+			Name: "Login to registry",
+			Uses: "docker/login-action@v1",
+			With: With{
+				{Key: "registry", Value: "eu.gcr.io"},
+				{Key: "username", Value: task.Username},
+				{Key: "password", Value: task.Password},
+			},
+		},
+		Step{
+			Name: "Build and push",
+			Uses: "docker/build-push-action@v2",
+			With: With{
+				{Key: "context", Value: path.Join(basePath, task.BuildPath)},
+				{Key: "file", Value: path.Join(basePath, task.DockerfilePath)},
+				{Key: "push", Value: true},
+				{Key: "tags", Value: task.Image},
+				{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
+			},
+		},
+		repositoryDispatch(man.PipelineName()),
+	)
+
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
-		Steps: []Step{
-			checkoutCode,
-			{
-				Name: "Set up Docker Buildx",
-				Uses: "docker/setup-buildx-action@v1",
-			},
-			{
-				Name: "Login to registry",
-				Uses: "docker/login-action@v1",
-				With: With{
-					{Key: "registry", Value: "eu.gcr.io"},
-					{Key: "username", Value: task.Username},
-					{Key: "password", Value: task.Password},
-				},
-			},
-			{
-				Name: "Build and push",
-				Uses: "docker/build-push-action@v2",
-				With: With{
-					{Key: "context", Value: path.Join(basePath, task.BuildPath)},
-					{Key: "file", Value: path.Join(basePath, task.DockerfilePath)},
-					{Key: "push", Value: true},
-					{Key: "tags", Value: task.Image},
-					{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
-				},
-			},
-			repositoryDispatch(man.PipelineName()),
-		},
+		Steps:  steps,
 	}
 }
 

@@ -20,6 +20,7 @@ var globalEnv = Env{
 	"BUILD_VERSION":        "${{ github.run_number }}",
 	"GCR_PRIVATE_KEY":      "${{ secrets.EE_GCR_PRIVATE_KEY  }}",
 	"GIT_REVISION":         "${{ github.sha }}",
+	"GIT_WORKING_DIR":      ".",
 }
 
 type Actions struct{}
@@ -34,7 +35,10 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w.On = a.triggers(man.Triggers)
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
-		w.Defaults.Run.WorkingDirectory = man.Triggers.GetGitTrigger().BasePath
+		if basePath := man.Triggers.GetGitTrigger().BasePath; basePath != "" {
+			w.Env["GIT_WORKING_DIR"] = basePath
+			w.Defaults.Run.WorkingDirectory = basePath
+		}
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
 	return w.asYAML()
@@ -66,17 +70,17 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *pa
 		case manifest.DockerPush:
 			appendJob(a.dockerPushJob(task, man), task, needs)
 		case manifest.Run:
-			appendJob(a.runJob(task, man), task, needs)
+			appendJob(a.runJob(task), task, needs)
 		case manifest.DockerCompose:
-			appendJob(a.dockerComposeJob(task, man), task, needs)
+			appendJob(a.dockerComposeJob(task), task, needs)
 		case manifest.ConsumerIntegrationTest:
 			appendJob(a.consumerIntegrationTestJob(task, man), task, needs)
 		case manifest.DeployMLModules:
 			runTask := shared.ConvertDeployMLModules(task, man)
-			appendJob(a.runJob(runTask, man), task, needs)
+			appendJob(a.runJob(runTask), task, needs)
 		case manifest.DeployMLZip:
 			runTask := shared.ConvertDeployMLZip(task, man)
-			appendJob(a.runJob(runTask, man), task, needs)
+			appendJob(a.runJob(runTask), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
@@ -141,4 +145,34 @@ func notify(notifications manifest.Notifications) []Step {
 	}
 
 	return steps
+}
+
+var restoreArtifacts = Step{
+	Name: "Restore artifacts",
+	Uses: "actions/download-artifact@v2",
+	With: With{
+		{Key: "name", Value: "artifacts"},
+		{Key: "path", Value: "${{ env.GIT_WORKING_DIR }}"},
+	},
+}
+
+func saveArtifacts(paths []string) Step {
+	for i, v := range paths {
+		paths[i] = "${{ env.GIT_WORKING_DIR }}/" + v
+	}
+	return Step{
+		Name: "Save artifacts",
+		Uses: "actions/upload-artifact@v2",
+		With: With{
+			{Key: "name", Value: "artifacts"},
+			{Key: "path", Value: strings.Join(paths, "\n") + "\n"},
+		},
+	}
+}
+
+func saveArtifactsOnFailure(paths []string) Step {
+	step := saveArtifacts(paths)
+	step.Name += " (failure)"
+	step.If = "failure()"
+	return step
 }

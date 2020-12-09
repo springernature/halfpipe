@@ -12,17 +12,42 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
   GIT_REVISION: ${{ github.sha }}
+  GIT_WORKING_DIR: e2e/actions/docker-push
 defaults:
   run:
     working-directory: e2e/actions/docker-push
 jobs:
+  build:
+    name: build
+    runs-on: ubuntu-20.04
+    container:
+      image: foo
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \build
+    - name: Save artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: |
+          ${{ env.GIT_WORKING_DIR }}/target/app.zip
   push_to_docker_registry:
     name: Push to Docker Registry
+    needs:
+    - build
     runs-on: ubuntu-20.04
     timeout-minutes: 90
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Restore artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+        path: ${{ env.GIT_WORKING_DIR }}
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to registry

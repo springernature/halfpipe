@@ -12,6 +12,7 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
   GIT_REVISION: ${{ github.sha }}
+  GIT_WORKING_DIR: e2e/actions/deploy-ml
 defaults:
   run:
     working-directory: e2e/actions/deploy-ml
@@ -27,6 +28,12 @@ jobs:
       uses: actions/checkout@v2
     - name: run
       run: \package.sh
+    - name: Save artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: |
+          ${{ env.GIT_WORKING_DIR }}/target/xquery.zip
   deploy-ml-zip:
     name: deploy-ml-zip
     needs:
@@ -41,6 +48,11 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Restore artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+        path: ${{ env.GIT_WORKING_DIR }}
     - name: run
       run: /ml-deploy/deploy-local-zip
     env:
