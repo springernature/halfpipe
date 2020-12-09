@@ -1,4 +1,4 @@
-package taskconverters
+package shared
 
 import (
 	"fmt"

@@ -2,7 +2,7 @@ package concourse
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/taskconverters"
+	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
 	"strings"
 
@@ -325,15 +325,15 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.dockerPushJob(task, basePath)
 
 	case manifest.ConsumerIntegrationTest:
-		runTask := taskconverters.ConvertConsumerIntegrationTest(task, man)
+		runTask := convertConsumerIntegrationTestToRunTask(task, man)
 		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployMLZip:
-		runTask := taskconverters.ConvertDeployMLZip(task, man)
+		runTask := shared.ConvertDeployMLZip(task, man)
 		job = c.runJob(runTask, man, false, basePath)
 
 	case manifest.DeployMLModules:
-		runTask := taskconverters.ConvertDeployMLModules(task, man)
+		runTask := shared.ConvertDeployMLModules(task, man)
 		job = c.runJob(runTask, man, false, basePath)
 
 	case manifest.Update:

@@ -14,11 +14,6 @@ jobs:
   another-c-name:
     name: another-c-name
     runs-on: ubuntu-20.04
-    container:
-      image: eu.gcr.io/halfpipe-io/halfpipe-docker-compose:stable
-      credentials:
-        username: _json_key
-        password: ((halfpipe-gcr.private_key))
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -54,16 +49,15 @@ jobs:
           -e DEPENDENCY_NAME=${PROVIDER_NAME} \
           -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
           -e K -e K1 \
-          -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
+           \
           ${DOCKER_COMPOSE_SERVICE:-code}
     env:
-      CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
+      CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
       CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
       CONSUMER_HOST: c-host
       CONSUMER_PATH: ""
       CONSUMER_SCRIPT: c-script
       DOCKER_COMPOSE_SERVICE: potato
-      GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
       GIT_CLONE_OPTIONS: --depth 100
       K: value
       K1: value1

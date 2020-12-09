@@ -1,7 +1,7 @@
 package actions
 
 import (
-	"github.com/springernature/halfpipe/renderers/taskconverters"
+	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
 	"strings"
 	"time"
@@ -67,13 +67,12 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *pa
 		case manifest.DockerCompose:
 			appendJob(a.dockerComposeJob(task, man), task, needs)
 		case manifest.ConsumerIntegrationTest:
-			runTask := taskconverters.ConvertConsumerIntegrationTest(task, man)
-			appendJob(a.runJob(runTask, man), task, needs)
+			appendJob(a.consumerIntegrationTestJob(task, man), task, needs)
 		case manifest.DeployMLModules:
-			runTask := taskconverters.ConvertDeployMLModules(task, man)
+			runTask := shared.ConvertDeployMLModules(task, man)
 			appendJob(a.runJob(runTask, man), task, needs)
 		case manifest.DeployMLZip:
-			runTask := taskconverters.ConvertDeployMLZip(task, man)
+			runTask := shared.ConvertDeployMLZip(task, man)
 			appendJob(a.runJob(runTask, man), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
