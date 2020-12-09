@@ -12,6 +12,9 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
   GIT_REVISION: ${{ github.sha }}
+defaults:
+  run:
+    working-directory: e2e/actions/docker-push
 jobs:
   push_to_docker_registry:
     name: Push to Docker Registry

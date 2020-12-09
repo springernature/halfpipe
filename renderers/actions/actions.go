@@ -34,6 +34,7 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w.On = a.triggers(man.Triggers)
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
+		w.Defaults.Run.WorkingDirectory = man.Triggers.GetGitTrigger().BasePath
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
 	return w.asYAML()

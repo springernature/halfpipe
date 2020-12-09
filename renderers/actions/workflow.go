@@ -7,10 +7,11 @@ import (
 )
 
 type Workflow struct {
-	Name string `yaml:"name"`
-	On   On     `yaml:"on"`
-	Env  Env    `yaml:"env,omitempty"`
-	Jobs Jobs   `yaml:"jobs,omitempty"`
+	Name     string   `yaml:"name"`
+	On       On       `yaml:"on"`
+	Env      Env      `yaml:"env,omitempty"`
+	Defaults Defaults `yaml:"defaults,omitempty"`
+	Jobs     Jobs     `yaml:"jobs,omitempty"`
 }
 
 type On struct {
@@ -37,6 +38,14 @@ type Push struct {
 
 type Branches []string
 type Paths []string
+
+type Defaults struct {
+	Run Run `yaml:"run,omitempty"`
+}
+
+type Run struct {
+	WorkingDirectory string `yaml:"working-directory,omitempty"`
+}
 
 type Jobs yaml.MapSlice
 
