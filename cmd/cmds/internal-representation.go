@@ -19,7 +19,7 @@ func (r nullRenderer) Render(manifest manifest.Manifest) (string, error) {
 
 var internalRepresentation = &cobra.Command{
 	Use:   "internal-representation",
-	Short: ``,
+	Short: `Prints the internal representation of the manifest`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		man, controller := getManifestAndController(nullRenderer{})

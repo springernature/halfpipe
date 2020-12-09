@@ -10,7 +10,7 @@ do
         if [[ -f test.sh ]]; then
             ./test.sh
         else
-            ../../../halfpipe actions 1> workflowActual.yml
+            ../../../halfpipe -q actions 1> workflowActual.yml
             diff --ignore-blank-lines workflowActual.yml workflowExpected.yml
         fi
     )

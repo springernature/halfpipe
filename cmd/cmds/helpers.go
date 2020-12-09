@@ -53,7 +53,7 @@ func printErr(err error) {
 }
 
 func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
-	if lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
+	if !Quiet && lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
 		printErr(fmt.Errorf(lintResults.Error()))
 		return
 	}

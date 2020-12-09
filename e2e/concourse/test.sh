@@ -10,10 +10,10 @@ do
         if [[ -f test.sh ]]; then
             ./test.sh
         else
-            ../../../halfpipe 1> pipelineActual.yml
+            ../../../halfpipe -q 1> pipelineActual.yml
             diff --ignore-blank-lines pipelineActual.yml pipelineExpected.yml
             if command -v fly > /dev/null; then
-                fly validate-pipeline -c pipelineActual.yml > /dev/null
+                fly validate-pipeline -c pipelineActual.yml > /dev/null 2>&1
             fi
         fi
     )
