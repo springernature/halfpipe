@@ -9,7 +9,9 @@ env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
   ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
+  GIT_REVISION: ${{ github.sha }}
 jobs:
   test:
     name: test
@@ -24,10 +26,10 @@ jobs:
         docker-compose \
           -f docker-compose.yml \
           run \
-          -e BUILD_VERSION=$GITHUB_RUN_NUMBER \
+          -e BUILD_VERSION \
           -e GITHUB_RUN_NUMBER \
           -e GITHUB_SHA \
-          -e GIT_REVISION=$GITHUB_SHA \
+          -e GIT_REVISION \
           app
   custom:
     name: custom
@@ -45,11 +47,11 @@ jobs:
           -f custom-docker-compose.yml \
           run \
           -e B \
-          -e BUILD_VERSION=$GITHUB_RUN_NUMBER \
+          -e BUILD_VERSION \
           -e F \
           -e GITHUB_RUN_NUMBER \
           -e GITHUB_SHA \
-          -e GIT_REVISION=$GITHUB_SHA \
+          -e GIT_REVISION \
           customservice \
           echo hello
     env:

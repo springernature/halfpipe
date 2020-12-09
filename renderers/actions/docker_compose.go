@@ -27,8 +27,8 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose) manifest.Run {
 
 func dockerComposeScript(task manifest.DockerCompose) string {
 	envVars := []string{
-		"-e BUILD_VERSION=$GITHUB_RUN_NUMBER",
-		"-e GIT_REVISION=$GITHUB_SHA",
+		"-e BUILD_VERSION",
+		"-e GIT_REVISION",
 		"-e GITHUB_RUN_NUMBER",
 		"-e GITHUB_SHA",
 	}
