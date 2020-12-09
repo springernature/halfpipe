@@ -231,7 +231,7 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			runTask := taskconverters.ConvertDockerCompose(ppTask, man)
+			runTask := convertDockerComposeToRunTask(ppTask, man)
 			ppJob = c.runJob(runTask, man, true, basePath)
 
 		case manifest.ConsumerIntegrationTest:

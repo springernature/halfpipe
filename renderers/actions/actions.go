@@ -17,6 +17,7 @@ var globalEnv = Env{
 	"ARTIFACTORY_PASSWORD": "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
 	"ARTIFACTORY_URL":      "${{ secrets.EE_ARTIFACTORY_URL }}",
 	"ARTIFACTORY_USERNAME": "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
+	"GCR_PRIVATE_KEY":      "${{ secrets.EE_GCR_PRIVATE_KEY  }}",
 }
 
 type Actions struct{}
@@ -64,8 +65,7 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *pa
 		case manifest.Run:
 			appendJob(a.runJob(task, man), task, needs)
 		case manifest.DockerCompose:
-			runTask := taskconverters.ConvertDockerCompose(task, man)
-			appendJob(a.runJob(runTask, man), task, needs)
+			appendJob(a.dockerComposeJob(task, man), task, needs)
 		case manifest.ConsumerIntegrationTest:
 			runTask := taskconverters.ConvertConsumerIntegrationTest(task, man)
 			appendJob(a.runJob(runTask, man), task, needs)

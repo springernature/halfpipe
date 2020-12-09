@@ -1,4 +1,4 @@
-package taskconverters
+package concourse
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func ConvertDockerCompose(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
+func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Manifest) manifest.Run {
 	if task.Vars == nil {
 		task.Vars = make(map[string]string)
 	}

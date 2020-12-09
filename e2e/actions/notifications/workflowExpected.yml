@@ -9,6 +9,7 @@ env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
   ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
 jobs:
   my_run_task:
     name: my run task

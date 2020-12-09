@@ -315,7 +315,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.runJob(task, man, false, basePath)
 
 	case manifest.DockerCompose:
-		runTask := taskconverters.ConvertDockerCompose(task, man)
+		runTask := convertDockerComposeToRunTask(task, man)
 		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.DeployCF:
