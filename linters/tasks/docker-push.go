@@ -57,10 +57,6 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		if (docker.Tag != "gitref") && (docker.Tag != "version") {
 			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version'"))
 		}
-
-		if docker.Tag == "version" && !manifest.FeatureToggles.UpdatePipeline() {
-			errs = append(errs, linterrors.NewInvalidField("tag", "'version' requires the update-pipeline feature toggle"))
-		}
 	}
 
 	return errs, warnings

@@ -310,22 +310,6 @@ func TestDockerPushTag(t *testing.T) {
 		assert.Empty(t, warnings)
 	})
 
-	t.Run("Not Ok when with version and pipeline without update pipeline", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Tag:            "version",
-		}
-
-		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
-		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
-		assert.Len(t, errors, 1)
-	})
 	t.Run("Alles ok with empty", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)

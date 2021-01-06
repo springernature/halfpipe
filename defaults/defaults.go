@@ -60,4 +60,6 @@ var Actions = Defaults{
 		ComposeFile:    "docker-compose.yml",
 		FilePath:       "Dockerfile",
 	},
+
+	RemoveUpdatePipelineFeature: true,
 }

@@ -48,3 +48,22 @@ func TestCallsOutToDefaulters(t *testing.T) {
 
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))
 }
+
+func TestApplyFeatureToggleDefaults(t *testing.T) {
+	defaults := Defaults{
+		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
+			return manifest.TriggerList{}
+		}},
+		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
+			return manifest.TaskList{}
+		}},
+	}
+
+	man := manifest.Manifest{
+		FeatureToggles: []string{manifest.FeatureUpdatePipeline, manifest.FeatureDockerDecompose},
+	}
+
+	assert.Equal(t, man.FeatureToggles, defaults.Apply(man).FeatureToggles)
+	defaults.RemoveUpdatePipelineFeature = true
+	assert.Equal(t, manifest.FeatureToggles{manifest.FeatureDockerDecompose}, defaults.Apply(man).FeatureToggles)
+}

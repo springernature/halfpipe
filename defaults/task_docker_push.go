@@ -20,7 +20,7 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 	}
 
 	if original.Tag == "" {
-		if man.FeatureToggles.UpdatePipeline() {
+		if defaults.RemoveUpdatePipelineFeature || man.FeatureToggles.UpdatePipeline() {
 			updated.Tag = "version"
 		} else {
 			updated.Tag = "gitref"

@@ -11,8 +11,17 @@ tasks:
   - target/app.zip
 
 - type: docker-push
-  name: Push to Docker Registry
-  image: eu.gcr.io/halfpipe-io/someImage:someTag
+  name: Push default
+  image: eu.gcr.io/halfpipe-io/someImage
   restore_artifacts: true
-  timeout: 1h30m
 
+- type: docker-push
+  name: Push custom
+  image: eu.gcr.io/halfpipe-io/someImage
+  restore_artifacts: true
+  tag: gitref
+  dockerfile_path: Dockerfile2
+  timeout: 1h30m
+  vars:
+    FOO: foo
+    BAR: bar
