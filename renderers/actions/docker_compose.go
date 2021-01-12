@@ -26,16 +26,24 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose) manifest.Run {
 }
 
 func dockerComposeScript(task manifest.DockerCompose) string {
-	envVars := []string{}
-	for key := range globalEnv {
-		envVars = append(envVars, fmt.Sprintf("-e %s", key))
+	allEnvVars := manifest.Vars{}
+	for k := range task.Vars {
+		allEnvVars[k] = ""
 	}
-	sort.Strings(envVars)
+	for k := range globalEnv {
+		allEnvVars[k] = ""
+	}
+
+	envOptions := []string{}
+	for key := range allEnvVars {
+		envOptions = append(envOptions, fmt.Sprintf("-e %s", key))
+	}
+	sort.Strings(envOptions)
 
 	command := []string{"docker-compose"}
 	command = append(command, "-f "+task.ComposeFile)
 	command = append(command, "run")
-	command = append(command, envVars...)
+	command = append(command, envOptions...)
 	command = append(command, task.Service)
 	if task.Command != "" {
 		command = append(command, task.Command)
