@@ -91,6 +91,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -350,6 +351,7 @@ jobs:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
             ARTIFACTORY_URL: ((artifactory.url))
             ARTIFACTORY_USERNAME: ((artifactory.username))
+            RUNNING_IN_CI: "true"
             TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
           platform: linux
           run:
@@ -423,6 +425,7 @@ jobs:
             PROVIDER_HOST: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
             PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
             PROVIDER_NAME: halfpipe-e2e-update-pipeline
+            RUNNING_IN_CI: "true"
           platform: linux
           run:
             args:
@@ -470,7 +473,7 @@ jobs:
                 --entrypoint "${CONSUMER_SCRIPT}" \
                 -e DEPENDENCY_NAME=${PROVIDER_NAME} \
                 -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-                -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME \
+                -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e RUNNING_IN_CI \
                 -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
                 ${DOCKER_COMPOSE_SERVICE:-code}
 
@@ -507,6 +510,7 @@ jobs:
             ARTIFACTORY_USERNAME: ((artifactory.username))
             GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
             HALFPIPE_CACHE_TEAM: halfpipe-team
+            RUNNING_IN_CI: "true"
             TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
           platform: linux
           run:
@@ -541,7 +545,7 @@ jobs:
               export BUILD_VERSION=`cat ../../../../version/version`
 
               \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-              docker-compose  run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e TEST_ROUTE -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+              docker-compose  run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -e TEST_ROUTE -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
               EXIT_STATUS=$?
               if [ $EXIT_STATUS != 0 ] ; then
@@ -666,6 +670,7 @@ jobs:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
             ARTIFACTORY_URL: ((artifactory.url))
             ARTIFACTORY_USERNAME: ((artifactory.username))
+            RUNNING_IN_CI: "true"
             TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
           platform: linux
           run:
@@ -727,6 +732,7 @@ jobs:
             ARTIFACTORY_PASSWORD: ((artifactory.password))
             ARTIFACTORY_URL: ((artifactory.url))
             ARTIFACTORY_USERNAME: ((artifactory.username))
+            RUNNING_IN_CI: "true"
             TEST_ROUTE: halfpipe-example-kotlin-dev-qa-CANDIDATE.springernature.app
           platform: linux
           run:
@@ -806,6 +812,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/update-pipeline/Dockerfile
       tag_as_latest: true
       tag_file: version/number
@@ -850,6 +857,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -938,6 +946,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -971,7 +980,7 @@ jobs:
           export BUILD_VERSION=`cat ../../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose  run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          docker-compose  run -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -1034,6 +1043,7 @@ jobs:
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: HALFPIPE_E2E_UPDATE_PIPELINE_DEPLOYED_HOST
         PROVIDER_NAME: halfpipe-e2e-update-pipeline
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -1081,7 +1091,7 @@ jobs:
             --entrypoint "${CONSUMER_SCRIPT}" \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-            -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 \
+            -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e RUNNING_IN_CI \
             -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
             ${DOCKER_COMPOSE_SERVICE:-code}
 

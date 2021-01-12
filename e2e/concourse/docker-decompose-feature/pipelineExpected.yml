@@ -25,6 +25,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -96,6 +97,7 @@ jobs:
         F: foo
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -115,7 +117,7 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose -f docker-compose-2-services.yml run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
+          docker-compose -f docker-compose-2-services.yml run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -185,6 +187,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-my-space-CANDIDATE.test.com
       platform: linux
       run:

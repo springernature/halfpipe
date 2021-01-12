@@ -40,6 +40,7 @@ jobs:
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: HALFPIPE_E2E_CONSUMER_INTEGRATION_TEST_DEPLOYED_HOST
         PROVIDER_NAME: halfpipe-e2e-consumer-integration-test
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -86,7 +87,7 @@ jobs:
             --entrypoint "${CONSUMER_SCRIPT}" \
             -e DEPENDENCY_NAME=${PROVIDER_NAME} \
             -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
-            -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 \
+            -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e RUNNING_IN_CI \
             -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache \
             ${DOCKER_COMPOSE_SERVICE:-code}
 

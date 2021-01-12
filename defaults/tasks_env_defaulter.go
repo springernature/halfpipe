@@ -2,14 +2,14 @@ package defaults
 
 import "github.com/springernature/halfpipe/manifest"
 
-type tasksArtifactoryVarsDefaulter struct {
+type tasksEnvVarsDefaulter struct {
 }
 
-func NewTasksArtifactoryVarsDefaulter() TasksArtifactoryVarsDefaulter {
-	return tasksArtifactoryVarsDefaulter{}
+func NewTasksEnvVarsDefaulter() TasksEnvVarsDefaulter {
+	return tasksEnvVarsDefaulter{}
 }
 
-func (t tasksArtifactoryVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults Defaults) manifest.Vars {
+func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults Defaults) manifest.Vars {
 	if defaults.Artifactory == (ArtifactoryDefaults{}) {
 		return vars
 	}
@@ -19,10 +19,12 @@ func (t tasksArtifactoryVarsDefaulter) addDefaultsToVars(vars manifest.Vars, def
 	vars["ARTIFACTORY_URL"] = defaults.Artifactory.URL
 	vars["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
 	vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
+	vars["RUNNING_IN_CI"] = "true"
+
 	return vars
 }
 
-func (t tasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+func (t tasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
 	for _, task := range original {
 		var tt manifest.Task
 		switch task := task.(type) {

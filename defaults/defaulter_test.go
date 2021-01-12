@@ -22,7 +22,7 @@ func (t testTasksDefaulter) Apply(original manifest.TaskList, defaults Defaults,
 	return t.apply(original, defaults, man)
 }
 
-func (t testTasksArtifactoryVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+func (t testTasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
 	return t.apply(original, defaults)
 }
 

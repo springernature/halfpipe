@@ -6,11 +6,12 @@ import (
 	"testing"
 )
 
-func TestSetsCorrectArtifactoryVarsToEmptyVars(t *testing.T) {
+func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 	expectedVars := map[string]string{
 		"ARTIFACTORY_URL":      Concourse.Artifactory.URL,
 		"ARTIFACTORY_USERNAME": Concourse.Artifactory.Username,
 		"ARTIFACTORY_PASSWORD": Concourse.Artifactory.Password,
+		"RUNNING_IN_CI":        "true",
 	}
 
 	input := manifest.TaskList{
@@ -83,5 +84,5 @@ func TestSetsCorrectArtifactoryVarsToEmptyVars(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, NewTasksArtifactoryVarsDefaulter().Apply(input, Concourse))
+	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, Concourse))
 }

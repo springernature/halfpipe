@@ -22,7 +22,7 @@ func (t testTasksTimeoutDefaulter) Apply(original manifest.TaskList, defaults De
 	return t.apply(original, defaults)
 }
 
-type testTasksArtifactoryVarsDefaulter struct {
+type testTasksEnvVarsDefaulter struct {
 	apply func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
@@ -123,7 +123,7 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 
 	var tasksRenamerCalled bool
 	var tasksTimeoutDefaulterCalled bool
-	var tasksArtifactoryVarsDefaulterCalled bool
+	var tasksEnvVarsDefaulterCalled bool
 	defaulter := tasksDefaulter{
 		tasksRenamer: testTasksRenamer{apply: func(original manifest.TaskList) (updated manifest.TaskList) {
 			tasksRenamerCalled = true
@@ -133,8 +133,8 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 			tasksTimeoutDefaulterCalled = true
 			return original
 		}},
-		tasksArtifactoryVarsDefaulter: testTasksArtifactoryVarsDefaulter{apply: func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
-			tasksArtifactoryVarsDefaulterCalled = true
+		tasksEnvVarsDefaulter: testTasksEnvVarsDefaulter{apply: func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+			tasksEnvVarsDefaulterCalled = true
 			return original
 		}},
 		runDefaulter: func(original manifest.Run, defaults Defaults) (updated manifest.Run) {
@@ -163,5 +163,5 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 	assert.Equal(t, expected, defaulter.Apply(input, Concourse, manifest.Manifest{}))
 	assert.True(t, tasksRenamerCalled)
 	assert.True(t, tasksTimeoutDefaulterCalled)
-	assert.True(t, tasksArtifactoryVarsDefaulterCalled)
+	assert.True(t, tasksEnvVarsDefaulterCalled)
 }

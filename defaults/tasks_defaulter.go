@@ -10,7 +10,7 @@ type TasksTimeoutDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
-type TasksArtifactoryVarsDefaulter interface {
+type TasksEnvVarsDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
@@ -23,9 +23,9 @@ type tasksDefaulter struct {
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
 
-	tasksRenamer                  TasksRenamer
-	tasksTimeoutDefaulter         TasksTimeoutDefaulter
-	tasksArtifactoryVarsDefaulter TasksArtifactoryVarsDefaulter
+	tasksRenamer          TasksRenamer
+	tasksTimeoutDefaulter TasksTimeoutDefaulter
+	tasksEnvVarsDefaulter TasksEnvVarsDefaulter
 }
 
 func NewTaskDefaulter() TasksDefaulter {
@@ -38,9 +38,9 @@ func NewTaskDefaulter() TasksDefaulter {
 		deployMlZipDefaulter:                 deployMlZipDefaulter,
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
 
-		tasksRenamer:                  NewTasksRenamer(),
-		tasksTimeoutDefaulter:         NewTasksTimeoutDefaulter(),
-		tasksArtifactoryVarsDefaulter: NewTasksArtifactoryVarsDefaulter(),
+		tasksRenamer:          NewTasksRenamer(),
+		tasksTimeoutDefaulter: NewTasksTimeoutDefaulter(),
+		tasksEnvVarsDefaulter: NewTasksEnvVarsDefaulter(),
 	}
 }
 
@@ -82,7 +82,7 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 	}
 
 	tasksWithTimeoutApplied := t.tasksTimeoutDefaulter.Apply(tasksWithDefaultsApplied, defaults)
-	tasksWithArtifactoryVarsApplied := t.tasksArtifactoryVarsDefaulter.Apply(tasksWithTimeoutApplied, defaults)
+	tasksWithEnvVarsApplied := t.tasksEnvVarsDefaulter.Apply(tasksWithTimeoutApplied, defaults)
 
-	return tasksWithArtifactoryVarsApplied
+	return tasksWithEnvVarsApplied
 }

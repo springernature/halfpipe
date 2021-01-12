@@ -14,6 +14,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref
@@ -36,6 +37,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
       tag_as_latest: true
       tag_file: git/.git/ref

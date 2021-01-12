@@ -79,6 +79,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -154,6 +155,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -229,6 +231,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -304,6 +307,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -383,6 +387,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -458,6 +463,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -537,6 +543,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -612,6 +619,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -687,6 +695,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -766,6 +775,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -844,6 +854,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
