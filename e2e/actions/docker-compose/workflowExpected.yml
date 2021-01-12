@@ -10,9 +10,10 @@ env:
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
   ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
   BUILD_VERSION: ${{ github.run_number }}
-  GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY  }}
+  GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
   GIT_REVISION: ${{ github.sha }}
   GIT_WORKING_DIR: e2e/actions/docker-compose
+  RUNNING_IN_CI: "true"
 defaults:
   run:
     working-directory: e2e/actions/docker-compose
@@ -30,10 +31,14 @@ jobs:
         docker-compose \
           -f docker-compose.yml \
           run \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
-          -e GITHUB_RUN_NUMBER \
-          -e GITHUB_SHA \
+          -e GCR_PRIVATE_KEY \
           -e GIT_REVISION \
+          -e GIT_WORKING_DIR \
+          -e RUNNING_IN_CI \
           app
     - name: Save artifacts
       uses: actions/upload-artifact@v2
@@ -69,12 +74,14 @@ jobs:
         docker-compose \
           -f custom-docker-compose.yml \
           run \
-          -e B \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
-          -e F \
-          -e GITHUB_RUN_NUMBER \
-          -e GITHUB_SHA \
+          -e GCR_PRIVATE_KEY \
           -e GIT_REVISION \
+          -e GIT_WORKING_DIR \
+          -e RUNNING_IN_CI \
           customservice \
           echo hello
     env:

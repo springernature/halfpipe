@@ -26,19 +26,10 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose) manifest.Run {
 }
 
 func dockerComposeScript(task manifest.DockerCompose) string {
-	envVars := []string{
-		"-e BUILD_VERSION",
-		"-e GIT_REVISION",
-		"-e GITHUB_RUN_NUMBER",
-		"-e GITHUB_SHA",
-	}
-	for key := range task.Vars {
-		if key == "GCR_PRIVATE_KEY" {
-			continue
-		}
+	envVars := []string{}
+	for key := range globalEnv {
 		envVars = append(envVars, fmt.Sprintf("-e %s", key))
 	}
-
 	sort.Strings(envVars)
 
 	command := []string{"docker-compose"}
