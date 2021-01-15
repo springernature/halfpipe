@@ -1,8 +1,9 @@
 package actions
 
 import (
-	"github.com/springernature/halfpipe/manifest"
 	"path"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job {
@@ -18,6 +19,10 @@ func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job 
 
 	basePath := man.Triggers.GetGitTrigger().BasePath
 	manifestPath := path.Join(basePath, task.Manifest)
+	appPath := basePath
+	if len(task.DeployArtifact) > 0 {
+		appPath = path.Join(basePath, task.DeployArtifact)
+	}
 
 	deploy := Step{
 		Name: "Deploy",
@@ -30,7 +35,7 @@ func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job 
 			{"username", task.Username},
 			{"password", task.Password},
 			{"command", "halfpipe-all"},
-			{"appPath", basePath},
+			{"appPath", appPath},
 			{"manifestPath", manifestPath},
 			{"testDomain", task.TestDomain},
 			{"cli_version", task.CliVersion},
@@ -53,10 +58,16 @@ func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job 
 		},
 	}
 
+	steps := []Step{checkoutCode, dockerLogin}
+	if task.ReadsFromArtifacts() {
+		steps = append(steps, restoreArtifacts)
+	}
+	steps = append(steps, deploy, cleanup)
+
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
-		Steps:  []Step{checkoutCode, dockerLogin, deploy, cleanup},
+		Steps:  steps,
 		Env:    Env(task.Vars),
 	}
 }

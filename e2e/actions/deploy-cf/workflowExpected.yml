@@ -20,8 +20,27 @@ defaults:
   run:
     working-directory: e2e/actions/deploy-cf
 jobs:
-  deploy_to_dev:
-    name: deploy to dev
+  make_binary:
+    name: make binary
+    runs-on: ubuntu-20.04
+    container:
+      image: ubuntu
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: run
+      run: \echo foo > foo.html
+    - name: Save artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifacts
+        path: |
+          ${{ env.GIT_WORKING_DIR }}/foo.html
+  deploy_to_cf:
+    name: deploy to cf
+    needs:
+    - make_binary
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     steps:
@@ -33,6 +52,11 @@ jobs:
         registry: eu.gcr.io
         username: _json_key
         password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+    - name: Restore artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+        path: ${{ env.GIT_WORKING_DIR }}
     - name: Deploy
       uses: docker://simonjohansson/action-test:latest
       with:
@@ -42,7 +66,7 @@ jobs:
         username: michiel
         password: very-secret
         command: halfpipe-all
-        appPath: e2e/actions/deploy-cf
+        appPath: e2e/actions/deploy-cf/foo.html
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         testDomain: some.random.domain.com
         cli_version: cf7
@@ -58,3 +82,4 @@ jobs:
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
+
