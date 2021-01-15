@@ -1,6 +1,8 @@
 package actions
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"github.com/springernature/halfpipe/manifest"
+)
 
 func (a Actions) triggers(triggers manifest.TriggerList) (on On) {
 	for _, t := range triggers {

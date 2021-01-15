@@ -1,0 +1,49 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+    paths:
+    - e2e/actions/deploy-cf**
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: ${{ github.run_number }}
+  GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+  GIT_REVISION: ${{ github.sha }}
+  GIT_WORKING_DIR: e2e/actions/deploy-cf
+  RUNNING_IN_CI: "true"
+defaults:
+  run:
+    working-directory: e2e/actions/deploy-cf
+jobs:
+  deploy_to_dev:
+    name: deploy to dev
+    runs-on: ubuntu-20.04
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Login to registry
+      uses: docker/login-action@v1
+      with:
+        registry: eu.gcr.io
+        username: _json_key
+        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+    - name: Deploy
+      uses: docker://simonjohansson/action-test:latest
+      with:
+        api: dev-api
+        org: halfpipe-team
+        space: dev
+        username: michiel
+        password: very-secret
+        command: halfpipe-all
+        appPath: e2e/actions/deploy-cf
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: some.random.domain.com
+        cli_version: cf7
+

@@ -61,5 +61,20 @@ var Actions = Defaults{
 		FilePath:       "Dockerfile",
 	},
 
+	CF: CFDefaults{
+		ManifestPath: "manifest.yml",
+		TestDomains: map[string]string{
+			"https://api.dev.cf.springer-sbm.com": "dev.cf.private.springer.com",
+			"((cloudfoundry.api-dev))":            "dev.cf.private.springer.com",
+
+			"https://api.live.cf.springer-sbm.com": "live.cf.private.springer.com",
+			"((cloudfoundry.api-live))":            "live.cf.private.springer.com",
+
+			"https://api.snpaas.eu":       "springernature.app",
+			"((cloudfoundry.api-snpaas))": "springernature.app",
+		},
+		Version: "cf7",
+	},
+
 	RemoveUpdatePipelineFeature: true,
 }

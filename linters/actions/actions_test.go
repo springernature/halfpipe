@@ -9,37 +9,6 @@ import (
 
 var lint = linters.ActionsLinter{}.Lint
 
-func TestActionsLinter_UnsupportedTasks(t *testing.T) {
-	man := manifest.Manifest{
-		Tasks: manifest.TaskList{
-			manifest.ConsumerIntegrationTest{},
-			manifest.DeployCF{},
-			manifest.DeployMLModules{},
-			manifest.DeployMLZip{},
-			manifest.DockerCompose{},
-			manifest.DockerPush{},
-			manifest.Parallel{
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.Sequence{
-						Tasks: manifest.TaskList{
-							manifest.DeployCF{},
-							manifest.DeployMLModules{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			},
-			manifest.Run{},
-			manifest.Sequence{},
-		},
-	}
-
-	actual := lint(man)
-	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 3)
-}
-
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{

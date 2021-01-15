@@ -26,8 +26,6 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 			errors = append(errors, unsupportedTasks(task.Tasks)...)
 		case manifest.Sequence:
 			errors = append(errors, unsupportedTasks(task.Tasks)...)
-		case manifest.DeployCF:
-			errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T", i, task)))
 		default:
 			if task.IsManualTrigger() {
 				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.manual_trigger", i, task)))
