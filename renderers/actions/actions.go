@@ -83,7 +83,7 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *pa
 			runTask := shared.ConvertDeployMLZip(task, man)
 			appendJob(a.runJob(runTask), task, needs)
 		case manifest.DeployCF:
-			appendJob(a.deployCfJob(task, man), task, needs)
+			appendJob(a.deployCFJob(task, man), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
@@ -156,6 +156,16 @@ var restoreArtifacts = Step{
 	With: With{
 		{Key: "name", Value: "artifacts"},
 		{Key: "path", Value: "${{ env.GIT_WORKING_DIR }}"},
+	},
+}
+
+var gcrLogin = Step{
+	Name: "Login to GCR",
+	Uses: "docker/login-action@v1",
+	With: With{
+		{Key: "registry", Value: "eu.gcr.io"},
+		{Key: "username", Value: "_json_key"},
+		{Key: "password", Value: "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
 	},
 }
 

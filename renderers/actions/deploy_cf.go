@@ -6,22 +6,12 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job {
-	dockerLogin := Step{
-		Name: "Login to registry",
-		Uses: "docker/login-action@v1",
-		With: With{
-			{Key: "registry", Value: "eu.gcr.io"},
-			{Key: "username", Value: "_json_key"},
-			{Key: "password", Value: "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
-		},
-	}
-
+func (a Actions) deployCFJob(task manifest.DeployCF, man manifest.Manifest) Job {
 	basePath := man.Triggers.GetGitTrigger().BasePath
 	manifestPath := path.Join(basePath, task.Manifest)
 	appPath := basePath
 	if len(task.DeployArtifact) > 0 {
-		appPath = path.Join(basePath, task.DeployArtifact)
+		appPath = path.Join(appPath, task.DeployArtifact)
 	}
 
 	deploy := Step{
@@ -58,11 +48,11 @@ func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job 
 		},
 	}
 
-	steps := []Step{checkoutCode, dockerLogin}
+	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, restoreArtifacts)
 	}
-	steps = append(steps, deploy, cleanup)
+	steps = append(steps, gcrLogin, deploy, cleanup)
 
 	return Job{
 		Name:   task.GetName(),

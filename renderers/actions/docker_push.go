@@ -17,15 +17,7 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 			Name: "Set up Docker Buildx",
 			Uses: "docker/setup-buildx-action@v1",
 		},
-		Step{
-			Name: "Login to registry",
-			Uses: "docker/login-action@v1",
-			With: With{
-				{Key: "registry", Value: "eu.gcr.io"},
-				{Key: "username", Value: task.Username},
-				{Key: "password", Value: task.Password},
-			},
-		},
+		gcrLogin,
 		Step{
 			Name: "Build and push",
 			Uses: "docker/build-push-action@v2",
