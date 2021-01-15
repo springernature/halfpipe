@@ -39,6 +39,9 @@ func unsupportedTasks(tasks manifest.TaskList) (errors []error) {
 			if len(task.PrePromote) > 0 {
 				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.pre_promote", i, task)))
 			}
+			if task.Rolling {
+				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.rolling", i, task)))
+			}
 		}
 	}
 	return errors
