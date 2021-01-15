@@ -126,10 +126,10 @@ func notify(notifications manifest.Notifications) []Step {
 			Name: "Notify slack " + channel,
 			Uses: "yukin01/slack-bot-action@v0.0.4",
 			With: With{
-				{Key: "status", Value: "${{ job.status }}"},
-				{Key: "oauth_token", Value: slackToken},
-				{Key: "channel", Value: channel},
-				{Key: "text", Value: text},
+				{"status", "${{ job.status }}"},
+				{"oauth_token", slackToken},
+				{"channel", channel},
+				{"text", text},
 			},
 		}
 	}
@@ -154,8 +154,8 @@ var restoreArtifacts = Step{
 	Name: "Restore artifacts",
 	Uses: "actions/download-artifact@v2",
 	With: With{
-		{Key: "name", Value: "artifacts"},
-		{Key: "path", Value: "${{ env.GIT_WORKING_DIR }}"},
+		{"name", "artifacts"},
+		{"path", "${{ env.GIT_WORKING_DIR }}"},
 	},
 }
 
@@ -163,9 +163,9 @@ var gcrLogin = Step{
 	Name: "Login to GCR",
 	Uses: "docker/login-action@v1",
 	With: With{
-		{Key: "registry", Value: "eu.gcr.io"},
-		{Key: "username", Value: "_json_key"},
-		{Key: "password", Value: "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
+		{"registry", "eu.gcr.io"},
+		{"username", "_json_key"},
+		{"password", "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
 	},
 }
 
@@ -177,8 +177,8 @@ func saveArtifacts(paths []string) Step {
 		Name: "Save artifacts",
 		Uses: "actions/upload-artifact@v2",
 		With: With{
-			{Key: "name", Value: "artifacts"},
-			{Key: "path", Value: strings.Join(paths, "\n") + "\n"},
+			{"name", "artifacts"},
+			{"path", strings.Join(paths, "\n") + "\n"},
 		},
 	}
 }

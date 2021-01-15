@@ -22,11 +22,11 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 			Name: "Build and push",
 			Uses: "docker/build-push-action@v2",
 			With: With{
-				{Key: "context", Value: path.Join(basePath, task.BuildPath)},
-				{Key: "file", Value: path.Join(basePath, task.DockerfilePath)},
-				{Key: "push", Value: true},
-				{Key: "tags", Value: tags(task)},
-				{Key: "outputs", Value: "type=image,oci-mediatypes=true,push=true"},
+				{"context", path.Join(basePath, task.BuildPath)},
+				{"file", path.Join(basePath, task.DockerfilePath)},
+				{"push", true},
+				{"tags", tags(task)},
+				{"outputs", "type=image,oci-mediatypes=true,push=true"},
 			},
 		},
 		repositoryDispatch(man.PipelineName()),
@@ -53,8 +53,8 @@ func repositoryDispatch(name string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
 		With: With{
-			{Key: "token", Value: repoAccessToken},
-			{Key: "event-type", Value: "docker-push:" + name},
+			{"token", repoAccessToken},
+			{"event-type", "docker-push:" + name},
 		},
 	}
 
