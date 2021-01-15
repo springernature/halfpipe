@@ -16,3 +16,4 @@ tasks:
   password: very-secret
   test_domain: some.random.domain.com
   cli_version: cf7
+

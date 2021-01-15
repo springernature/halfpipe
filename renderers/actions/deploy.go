@@ -37,10 +37,26 @@ func (a Actions) deployCfJob(task manifest.DeployCF, man manifest.Manifest) Job 
 		},
 	}
 
+	cleanup := Step{
+		Name: "Cleanup",
+		If:   "always()",
+		Uses: "docker://simonjohansson/action-test:latest",
+		With: With{
+			{"api", task.API},
+			{"org", task.Org},
+			{"space", task.Space},
+			{"username", task.Username},
+			{"password", task.Password},
+			{"command", "halfpipe-cleanup"},
+			{"manifestPath", manifestPath},
+			{"cli_version", task.CliVersion},
+		},
+	}
+
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
-		Steps:  []Step{checkoutCode, dockerLogin, deploy},
+		Steps:  []Step{checkoutCode, dockerLogin, deploy, cleanup},
 		Env:    Env(task.Vars),
 	}
 }

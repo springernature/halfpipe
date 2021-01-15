@@ -46,4 +46,15 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         testDomain: some.random.domain.com
         cli_version: cf7
-
+    - name: Cleanup
+      if: always()
+      uses: docker://simonjohansson/action-test:latest
+      with:
+        api: dev-api
+        org: halfpipe-team
+        space: dev
+        username: michiel
+        password: very-secret
+        command: halfpipe-cleanup
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        cli_version: cf7
