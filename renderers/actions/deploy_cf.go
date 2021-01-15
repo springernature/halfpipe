@@ -14,38 +14,38 @@ func (a Actions) deployCFJob(task manifest.DeployCF, man manifest.Manifest) Job 
 		appPath = path.Join(appPath, task.DeployArtifact)
 	}
 
-	deploy := Step{
-		Name: "Deploy",
-		//Uses: "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable",
-		Uses: "docker://simonjohansson/action-test:latest",
-		With: With{
+	addCommonParams := func(params With) With {
+		return append(With{
 			{"api", task.API},
 			{"org", task.Org},
 			{"space", task.Space},
 			{"username", task.Username},
 			{"password", task.Password},
-			{"command", "halfpipe-all"},
-			{"appPath", appPath},
 			{"manifestPath", manifestPath},
-			{"testDomain", task.TestDomain},
 			{"cli_version", task.CliVersion},
-		},
+		}, params...)
+	}
+
+	//uses := "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"
+	uses := "docker://simonjohansson/action-test:latest"
+
+	deploy := Step{
+		Name: "Deploy",
+		Uses: uses,
+		With: addCommonParams(With{
+			{"command", "halfpipe-all"},
+			{"testDomain", task.TestDomain},
+			{"appPath", appPath},
+		}),
 	}
 
 	cleanup := Step{
 		Name: "Cleanup",
 		If:   "always()",
-		Uses: "docker://simonjohansson/action-test:latest",
-		With: With{
-			{"api", task.API},
-			{"org", task.Org},
-			{"space", task.Space},
-			{"username", task.Username},
-			{"password", task.Password},
+		Uses: uses,
+		With: addCommonParams(With{
 			{"command", "halfpipe-cleanup"},
-			{"manifestPath", manifestPath},
-			{"cli_version", task.CliVersion},
-		},
+		}),
 	}
 
 	steps := []Step{checkoutCode}

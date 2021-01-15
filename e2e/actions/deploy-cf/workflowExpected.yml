@@ -65,11 +65,11 @@ jobs:
         space: dev
         username: michiel
         password: very-secret
-        command: halfpipe-all
-        appPath: e2e/actions/deploy-cf/foo.html
         manifestPath: e2e/actions/deploy-cf/manifest.yml
-        testDomain: some.random.domain.com
         cli_version: cf7
+        command: halfpipe-all
+        testDomain: some.random.domain.com
+        appPath: e2e/actions/deploy-cf/foo.html
     - name: Cleanup
       if: always()
       uses: docker://simonjohansson/action-test:latest
@@ -79,7 +79,7 @@ jobs:
         space: dev
         username: michiel
         password: very-secret
-        command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
+        command: halfpipe-cleanup
 
