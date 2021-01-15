@@ -51,11 +51,18 @@ func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 		Tasks: manifest.TaskList{
 			manifest.DockerPush{ManualTrigger: true},
 			manifest.Run{ManualTrigger: true},
+			manifest.DeployCF{
+				ManualTrigger: true,
+				PrePromote:    manifest.TaskList{manifest.Run{}},
+			},
 		},
 	}
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 2)
-	assert.Contains(t, actual.Warnings[0].Error(), "manual_trigger")
-	assert.Contains(t, actual.Warnings[1].Error(), "manual_trigger")
+	if assert.Len(t, actual.Warnings, 4) {
+		assert.Contains(t, actual.Warnings[0].Error(), "manual_trigger")
+		assert.Contains(t, actual.Warnings[1].Error(), "manual_trigger")
+		assert.Contains(t, actual.Warnings[2].Error(), "manual_trigger")
+		assert.Contains(t, actual.Warnings[3].Error(), "pre_promote")
+	}
 }
