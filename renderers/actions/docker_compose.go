@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (a Actions) dockerComposeJob(task manifest.DockerCompose) Job {
+func (a *Actions) dockerComposeJob(task manifest.DockerCompose) Job {
 	runTask := convertDockerComposeToRunTask(task)
 	return a.runJob(runTask)
 }

@@ -12,7 +12,6 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
   GIT_REVISION: ${{ github.sha }}
-  GIT_WORKING_DIR: e2e/actions/docker-compose
   RUNNING_IN_CI: "true"
 defaults:
   run:
@@ -37,7 +36,6 @@ jobs:
           -e BUILD_VERSION \
           -e GCR_PRIVATE_KEY \
           -e GIT_REVISION \
-          -e GIT_WORKING_DIR \
           -e RUNNING_IN_CI \
           app
     - name: Save artifacts
@@ -45,15 +43,15 @@ jobs:
       with:
         name: artifacts
         path: |
-          ${{ env.GIT_WORKING_DIR }}/foo
-          ${{ env.GIT_WORKING_DIR }}/bar/baz
+          e2e/actions/docker-compose/foo
+          e2e/actions/docker-compose/bar/baz
     - name: Save artifacts (failure)
       if: failure()
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
         path: |
-          ${{ env.GIT_WORKING_DIR }}/foo
+          e2e/actions/docker-compose/foo
   custom:
     name: custom
     needs:
@@ -67,7 +65,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: ${{ env.GIT_WORKING_DIR }}
+        path: |
+          e2e/actions/docker-compose/bar/baz
+          e2e/actions/docker-compose/foo
     - name: run
       run: |
         docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
@@ -82,7 +82,6 @@ jobs:
           -e F \
           -e GCR_PRIVATE_KEY \
           -e GIT_REVISION \
-          -e GIT_WORKING_DIR \
           -e RUNNING_IN_CI \
           customservice \
           echo hello

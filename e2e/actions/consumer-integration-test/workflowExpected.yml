@@ -12,7 +12,6 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
   GIT_REVISION: ${{ github.sha }}
-  GIT_WORKING_DIR: e2e/actions/consumer-integration-test
   RUNNING_IN_CI: "true"
 defaults:
   run:

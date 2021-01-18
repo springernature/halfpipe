@@ -6,11 +6,10 @@ import (
 	"path"
 )
 
-func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
-	basePath := man.Triggers.GetGitTrigger().BasePath
+func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, restoreArtifacts)
+		steps = append(steps, a.restoreArtifacts())
 	}
 	steps = append(steps,
 		Step{
@@ -22,8 +21,8 @@ func (a Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) 
 			Name: "Build and push",
 			Uses: "docker/build-push-action@v2",
 			With: With{
-				{"context", path.Join(basePath, task.BuildPath)},
-				{"file", path.Join(basePath, task.DockerfilePath)},
+				{"context", path.Join(a.workingDir, task.BuildPath)},
+				{"file", path.Join(a.workingDir, task.DockerfilePath)},
 				{"push", true},
 				{"tags", tags(task)},
 				{"outputs", "type=image,oci-mediatypes=true,push=true"},

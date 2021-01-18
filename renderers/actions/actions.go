@@ -20,14 +20,18 @@ var globalEnv = Env{
 	"BUILD_VERSION":        "${{ github.run_number }}",
 	"GCR_PRIVATE_KEY":      "${{ secrets.EE_GCR_PRIVATE_KEY }}",
 	"GIT_REVISION":         "${{ github.sha }}",
-	"GIT_WORKING_DIR":      ".",
 	"RUNNING_IN_CI":        "true",
 }
 
-type Actions struct{}
+type Actions struct {
+	workingDir     string
+	savedArtifacts map[string]bool
+}
 
 func NewActions() Actions {
-	return Actions{}
+	return Actions{
+		savedArtifacts: make(map[string]bool),
+	}
 }
 
 func (a Actions) Render(man manifest.Manifest) (string, error) {
@@ -37,8 +41,8 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
 		if basePath := man.Triggers.GetGitTrigger().BasePath; basePath != "" {
-			w.Env["GIT_WORKING_DIR"] = basePath
 			w.Defaults.Run.WorkingDirectory = basePath
+			a.workingDir = basePath
 		}
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
@@ -50,7 +54,7 @@ type parentTask struct {
 	needs      []string
 }
 
-func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
+func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
 	appendJob := func(job Job, task manifest.Task, needs []string) {
 		if task.GetNotifications().NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
@@ -83,7 +87,7 @@ func (a Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *pa
 			runTask := shared.ConvertDeployMLZip(task, man)
 			appendJob(a.runJob(runTask), task, needs)
 		case manifest.DeployCF:
-			appendJob(a.deployCFJob(task, man), task, needs)
+			appendJob(a.deployCFJob(task), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
@@ -150,15 +154,6 @@ func notify(notifications manifest.Notifications) []Step {
 	return steps
 }
 
-var restoreArtifacts = Step{
-	Name: "Restore artifacts",
-	Uses: "actions/download-artifact@v2",
-	With: With{
-		{"name", "artifacts"},
-		{"path", "${{ env.GIT_WORKING_DIR }}"},
-	},
-}
-
 var gcrLogin = Step{
 	Name: "Login to GCR",
 	Uses: "docker/login-action@v1",
@@ -167,25 +162,4 @@ var gcrLogin = Step{
 		{"username", "_json_key"},
 		{"password", "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
 	},
-}
-
-func saveArtifacts(paths []string) Step {
-	for i, v := range paths {
-		paths[i] = "${{ env.GIT_WORKING_DIR }}/" + v
-	}
-	return Step{
-		Name: "Save artifacts",
-		Uses: "actions/upload-artifact@v2",
-		With: With{
-			{"name", "artifacts"},
-			{"path", strings.Join(paths, "\n") + "\n"},
-		},
-	}
-}
-
-func saveArtifactsOnFailure(paths []string) Step {
-	step := saveArtifacts(paths)
-	step.Name += " (failure)"
-	step.If = "failure()"
-	return step
 }

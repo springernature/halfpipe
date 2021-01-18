@@ -4,20 +4,20 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a Actions) runJob(task manifest.Run) Job {
+func (a *Actions) runJob(task manifest.Run) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, restoreArtifacts)
+		steps = append(steps, a.restoreArtifacts())
 	}
 	steps = append(steps, Step{
 		Name: "run",
 		Run:  task.Script,
 	})
 	if task.SavesArtifacts() {
-		steps = append(steps, saveArtifacts(task.SaveArtifacts))
+		steps = append(steps, a.saveArtifacts(task.SaveArtifacts))
 	}
 	if task.SavesArtifactsOnFailure() {
-		steps = append(steps, saveArtifactsOnFailure(task.SaveArtifactsOnFailure))
+		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure))
 	}
 
 	return Job{

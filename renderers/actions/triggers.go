@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a Actions) triggers(triggers manifest.TriggerList) (on On) {
+func (a *Actions) triggers(triggers manifest.TriggerList) (on On) {
 	for _, t := range triggers {
 		switch trigger := t.(type) {
 		case manifest.GitTrigger:
@@ -18,7 +18,7 @@ func (a Actions) triggers(triggers manifest.TriggerList) (on On) {
 	return on
 }
 
-func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
+func (a *Actions) onPush(git manifest.GitTrigger) (push Push) {
 	if git.ManualTrigger {
 		return push
 	}
@@ -41,11 +41,11 @@ func (a Actions) onPush(git manifest.GitTrigger) (push Push) {
 	return push
 }
 
-func (a Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
+func (a *Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 	return []Cron{{timer.Cron}}
 }
 
-func (a Actions) onRepositoryDispatch(name string) RepositoryDispatch {
+func (a *Actions) onRepositoryDispatch(name string) RepositoryDispatch {
 	return RepositoryDispatch{
 		Types: []string{"docker-push:" + name},
 	}

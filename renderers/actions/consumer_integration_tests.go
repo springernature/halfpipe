@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func (a Actions) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Job {
+func (a *Actions) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Job {
 	runTask := convertConsumerIntegrationTestToRunTask(task, man)
 	return a.runJob(runTask)
 }

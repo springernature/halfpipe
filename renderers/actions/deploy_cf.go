@@ -6,10 +6,9 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a Actions) deployCFJob(task manifest.DeployCF, man manifest.Manifest) Job {
-	basePath := man.Triggers.GetGitTrigger().BasePath
-	manifestPath := path.Join(basePath, task.Manifest)
-	appPath := basePath
+func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
+	manifestPath := path.Join(a.workingDir, task.Manifest)
+	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
 		appPath = path.Join(appPath, task.DeployArtifact)
 	}
@@ -50,7 +49,7 @@ func (a Actions) deployCFJob(task manifest.DeployCF, man manifest.Manifest) Job 
 
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, restoreArtifacts)
+		steps = append(steps, a.restoreArtifacts())
 	}
 	steps = append(steps, gcrLogin, deploy, cleanup)
 

@@ -12,7 +12,6 @@ env:
   BUILD_VERSION: ${{ github.run_number }}
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
   GIT_REVISION: ${{ github.sha }}
-  GIT_WORKING_DIR: e2e/actions/docker-push
   RUNNING_IN_CI: "true"
 defaults:
   run:
@@ -34,7 +33,7 @@ jobs:
       with:
         name: artifacts
         path: |
-          ${{ env.GIT_WORKING_DIR }}/target/app.zip
+          e2e/actions/docker-push/target/app.zip
   push_default:
     name: Push default
     needs:
@@ -48,7 +47,8 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: ${{ env.GIT_WORKING_DIR }}
+        path: |
+          e2e/actions/docker-push/target/app.zip
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to GCR
@@ -85,7 +85,8 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: ${{ env.GIT_WORKING_DIR }}
+        path: |
+          e2e/actions/docker-push/target/app.zip
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to GCR
