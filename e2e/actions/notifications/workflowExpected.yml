@@ -20,13 +20,12 @@ jobs:
   my_run_task:
     name: my run task
     runs-on: ubuntu-20.04
-    container:
-      image: foo
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://foo
       run: \foo
     - name: 'Notify slack #failure1 (failure)'
       if: failure()

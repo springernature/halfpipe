@@ -20,91 +20,84 @@ jobs:
   task_1:
     name: task 1
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_2:
     name: task 2
     needs:
     - task_1
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_3:
     name: task 3
     needs:
     - task_2
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_4_1:
     name: task 4.1
     needs:
     - task_3
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_4_2:
     name: task 4.2
     needs:
     - task_3
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_4_3_1:
     name: task 4.3.1
     needs:
     - task_3
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_4_3_2:
     name: task 4.3.2
     needs:
     - task_4_3_1
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
   task_5:
     name: task 5
@@ -113,12 +106,11 @@ jobs:
     - task_4_2
     - task_4_3_2
     runs-on: ubuntu-20.04
-    container:
-      image: alpine:latest
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine:latest
       run: \date
 

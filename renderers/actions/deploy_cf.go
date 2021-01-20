@@ -51,7 +51,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts())
 	}
-	steps = append(steps, gcrLogin, deploy, cleanup)
+	steps = append(steps, loginHalfpipeGCR, deploy, cleanup)
 
 	return Job{
 		Name:   task.GetName(),

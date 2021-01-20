@@ -20,13 +20,12 @@ jobs:
   create_zip_for_ml_task:
     name: create zip for ml task
     runs-on: ubuntu-20.04
-    container:
-      image: alpine
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://alpine
       run: \package.sh
     - name: Save artifacts
       uses: actions/upload-artifact@v2
@@ -39,11 +38,6 @@ jobs:
     needs:
     - create_zip_for_ml_task
     runs-on: ubuntu-20.04
-    container:
-      image: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
-      credentials:
-        username: _json_key
-        password: ((halfpipe-gcr.private_key))
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -54,7 +48,14 @@ jobs:
         name: artifacts
         path: |
           e2e/actions/deploy-ml/target/xquery.zip
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+        registry: eu.gcr.io
     - name: run
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       run: /ml-deploy/deploy-local-zip
     env:
       APP_NAME: pipeline-name
@@ -68,16 +69,18 @@ jobs:
     needs:
     - deploy-ml-zip
     runs-on: ubuntu-20.04
-    container:
-      image: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
-      credentials:
-        username: _json_key
-        password: ((halfpipe-gcr.private_key))
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        username: _json_key
+        password: ((halfpipe-gcr.private_key))
+        registry: eu.gcr.io
     - name: run
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       run: /ml-deploy/deploy-ml-modules
     env:
       APP_NAME: my-app

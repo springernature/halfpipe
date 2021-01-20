@@ -20,18 +20,19 @@ jobs:
   my_run_task:
     name: my run task
     runs-on: ubuntu-20.04
-    container:
-      image: eu.gcr.io/halfpipe-io/golang:1.15
-      credentials:
-        username: _json_key
-        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
     timeout-minutes: 62
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        username: _json_key
+        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+        registry: eu.gcr.io
     - name: run
+      uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
       run: \foo
     env:
       BAR: bar
       FOO: foo
-

@@ -16,7 +16,7 @@ func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest)
 			Name: "Set up Docker Buildx",
 			Uses: "docker/setup-buildx-action@v1",
 		},
-		gcrLogin,
+		dockerLogin(task.Image, task.Username, task.Password),
 		Step{
 			Name: "Build and push",
 			Uses: "docker/build-push-action@v2",

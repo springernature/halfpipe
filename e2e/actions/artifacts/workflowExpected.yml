@@ -20,13 +20,12 @@ jobs:
   build:
     name: build
     runs-on: ubuntu-20.04
-    container:
-      image: debian:buster-slim
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://debian:buster-slim
       run: \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt
     - name: Save artifacts
       uses: actions/upload-artifact@v2
@@ -47,8 +46,6 @@ jobs:
     needs:
     - build
     runs-on: ubuntu-20.04
-    container:
-      image: debian:buster-slim
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -61,5 +58,5 @@ jobs:
           e2e/actions/artifacts/foo.txt
           e2e/actions/artifacts/target/bar.txt
     - name: run
+      uses: docker://debian:buster-slim
       run: \cat foo.txt target/bar.txt
-

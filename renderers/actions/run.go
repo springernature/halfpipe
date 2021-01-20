@@ -9,10 +9,19 @@ func (a *Actions) runJob(task manifest.Run) Job {
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts())
 	}
-	steps = append(steps, Step{
+	run := Step{
 		Name: "run",
 		Run:  task.Script,
-	})
+	}
+	if task.Docker.Image != "" {
+		run.Uses = "docker://" + task.Docker.Image
+	}
+	if task.Docker.Username != "" {
+		login := dockerLogin(task.Docker.Image, task.Docker.Username, task.Docker.Password)
+		steps = append(steps, login)
+	}
+	steps = append(steps, run)
+
 	if task.SavesArtifacts() {
 		steps = append(steps, a.saveArtifacts(task.SaveArtifacts))
 	}
@@ -23,14 +32,7 @@ func (a *Actions) runJob(task manifest.Run) Job {
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
-		Container: Container{
-			Image: task.Docker.Image,
-			Credentials: Credentials{
-				Username: task.Docker.Username,
-				Password: task.Docker.Password,
-			},
-		},
-		Steps: steps,
-		Env:   Env(task.Vars),
+		Steps:  steps,
+		Env:    Env(task.Vars),
 	}
 }

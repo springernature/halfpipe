@@ -22,13 +22,12 @@ jobs:
   make_binary:
     name: make binary
     runs-on: ubuntu-20.04
-    container:
-      image: ubuntu
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
+      uses: docker://ubuntu
       run: \echo foo > foo.html
     - name: Save artifacts
       uses: actions/upload-artifact@v2

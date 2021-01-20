@@ -154,7 +154,27 @@ func notify(notifications manifest.Notifications) []Step {
 	return steps
 }
 
-var gcrLogin = Step{
+func dockerLogin(image, username, password string) Step {
+	step := Step{
+		Name: "Login to Docker Registry",
+		Uses: "docker/login-action@v1",
+		With: With{
+			{"username", username},
+			{"password", password},
+		},
+	}
+
+	// set registry if not docker hub by counting slashes
+	// docker hub format: repository:tag or user/repository:tag
+	// other registries:  another.registry/user/repository:tag
+	if strings.Count(image, "/") > 1 {
+		registry := strings.Split(image, "/")[0]
+		step.With = append(step.With, With{{"registry", registry}}...)
+	}
+	return step
+}
+
+var loginHalfpipeGCR = Step{
 	Name: "Login to GCR",
 	Uses: "docker/login-action@v1",
 	With: With{

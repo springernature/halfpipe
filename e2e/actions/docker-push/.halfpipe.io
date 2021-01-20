@@ -17,7 +17,9 @@ tasks:
 
 - type: docker-push
   name: Push custom
-  image: eu.gcr.io/halfpipe-io/someImage
+  image: dockerhubusername/someImage
+  username: user
+  password: pass
   restore_artifacts: true
   tag: gitref
   dockerfile_path: Dockerfile2
