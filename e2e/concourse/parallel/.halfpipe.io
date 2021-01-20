@@ -51,6 +51,18 @@ tasks:
       script: ./a
       docker:
         image: alpine
+    - type: parallel
+      tasks:
+      - type: run
+        name: parallel 2 sequence 1 2a
+        script: ./a
+        docker:
+          image: alpine
+      - type: run
+        name: parallel 2 sequence 1 2b
+        script: ./a
+        docker:
+          image: alpine
   - type: sequence
     tasks:
     - type: run
