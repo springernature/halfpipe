@@ -16,17 +16,10 @@ func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs [
 		return errs, warnings
 	}
 
-	if len(seqTask.Tasks) == 1 {
-		warnings = append(warnings, linterrors.NewInvalidField("tasks", "it seems unnecessary to have a single task in a sequence"))
-		return errs, warnings
-	}
-
 	for _, task := range seqTask.Tasks {
 		switch task.(type) {
 		case manifest.Sequence:
 			errs = append(errs, linterrors.NewInvalidField("tasks", "a sequence task cannot contain sequence tasks"))
-		case manifest.Parallel:
-			errs = append(errs, linterrors.NewInvalidField("tasks", "a sequence task cannot contain parallel tasks"))
 		}
 	}
 

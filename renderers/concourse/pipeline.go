@@ -357,26 +357,31 @@ func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
 
-	for i, task := range man.Tasks {
-		switch task := task.(type) {
-		case manifest.Parallel:
-			for _, subTask := range task.Tasks {
-				switch subTask := subTask.(type) {
-				case manifest.Sequence:
-					previousTasksName := man.Tasks.PreviousTaskNames(i)
-					for _, subTask := range subTask.Tasks {
-						cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, previousTasksName))
-						previousTasksName = manifest.TaskNamesFromTask(subTask)
-					}
-				default:
-					cfg.Jobs = append(cfg.Jobs, c.taskToJobs(subTask, man, man.Tasks.PreviousTaskNames(i)))
-				}
-			}
-		default:
-			cfg.Jobs = append(cfg.Jobs, c.taskToJobs(task, man, man.Tasks.PreviousTaskNames(i)))
-		}
+	type parentTask struct {
+		isParallel bool
+		passed     []string
 	}
 
+	var jobs func(manifest.TaskList, *parentTask)
+	jobs = func(tasks manifest.TaskList, parent *parentTask) {
+		for i, task := range tasks {
+			passed := tasks.PreviousTaskNames(i)
+			if parent != nil {
+				if parent.isParallel || i == 0 {
+					passed = parent.passed
+				}
+			}
+			switch task := task.(type) {
+			case manifest.Parallel:
+				jobs(task.Tasks, &parentTask{isParallel: true, passed: passed})
+			case manifest.Sequence:
+				jobs(task.Tasks, &parentTask{isParallel: false, passed: passed})
+			default:
+				cfg.Jobs = append(cfg.Jobs, c.taskToJobs(task, man, passed))
+			}
+		}
+	}
+	jobs(man.Tasks, nil)
 	return cfg
 }
 

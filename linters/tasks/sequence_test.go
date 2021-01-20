@@ -23,13 +23,6 @@ func TestSeqIsAtLeastOne(t *testing.T) {
 		assert.Empty(t, warnings)
 	})
 
-	t.Run("warns with one task", func(t *testing.T) {
-		errs, warnings := LintSequenceTask(manifest.Sequence{Tasks: manifest.TaskList{manifest.Run{}}}, true)
-
-		assert.Empty(t, errs)
-		linterrors.AssertInvalidFieldInErrors(t, "tasks", warnings)
-	})
-
 	t.Run("ok with two task", func(t *testing.T) {
 		errs, warnings := LintSequenceTask(manifest.Sequence{Tasks: manifest.TaskList{manifest.Run{}, manifest.Run{}}}, true)
 
@@ -45,19 +38,6 @@ func TestSeqDoesNotContainOtherSeqsOrParallels(t *testing.T) {
 			Tasks: manifest.TaskList{
 				manifest.Run{},
 				manifest.Sequence{},
-			},
-		}, true)
-		assert.Len(t, errs, 1)
-		assert.Len(t, warnings, 0)
-		linterrors.AssertInvalidFieldInErrors(t, "tasks", errs)
-	})
-
-	t.Run("errors when sequence contains parallel", func(t *testing.T) {
-		errs, warnings := LintSequenceTask(manifest.Sequence{
-			Type: "",
-			Tasks: manifest.TaskList{
-				manifest.Run{},
-				manifest.Parallel{},
 			},
 		}, true)
 		assert.Len(t, errs, 1)

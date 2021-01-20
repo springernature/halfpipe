@@ -92,7 +92,8 @@ func TaskNamesFromTask(t Task) (taskNames []string) {
 			taskNames = append(taskNames, TaskNamesFromTask(subTask)...)
 		}
 	case Sequence:
-		taskNames = append(taskNames, task.Tasks[len(task.Tasks)-1].GetName())
+		lastTask := task.Tasks[len(task.Tasks)-1]
+		taskNames = append(taskNames, TaskNamesFromTask(lastTask)...)
 	default:
 		taskNames = append(taskNames, task.GetName())
 	}
