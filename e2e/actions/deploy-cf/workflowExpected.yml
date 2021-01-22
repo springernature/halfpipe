@@ -28,7 +28,9 @@ jobs:
       uses: actions/checkout@v2
     - name: run
       uses: docker://ubuntu
-      run: \echo foo > foo.html
+      with:
+        entrypoint: /bin/sh
+        args: -c "\echo foo > foo.html"
     - name: Save artifacts
       uses: actions/upload-artifact@v2
       with:

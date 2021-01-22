@@ -26,7 +26,9 @@ jobs:
       uses: actions/checkout@v2
     - name: run
       uses: docker://foo
-      run: \foo
+      with:
+        entrypoint: /bin/sh
+        args: -c "\foo"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4

@@ -26,7 +26,9 @@ jobs:
       uses: actions/checkout@v2
     - name: run
       uses: docker://debian:buster-slim
-      run: \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt
+      with:
+        entrypoint: /bin/sh
+        args: -c "\mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
     - name: Save artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -59,4 +61,7 @@ jobs:
           e2e/actions/artifacts/target/bar.txt
     - name: run
       uses: docker://debian:buster-slim
-      run: \cat foo.txt target/bar.txt
+      with:
+        entrypoint: /bin/sh
+        args: -c "\cat foo.txt target/bar.txt"
+
