@@ -32,8 +32,8 @@ jobs:
         secretId: ${{ secrets.VAULT_SECRET_ID }}
         exportEnv: "false"
         secrets: |
-          springernature/halfpipe-team/something cool | SECRET1 ;
-          springernature/halfpipe-team/something cooler | SECRET2 ;
+          springernature/halfpipe-team/something cool | something_cool ;
+          springernature/halfpipe-team/something cooler | something_cooler ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Registry
@@ -50,8 +50,8 @@ jobs:
     env:
       BAR: bar
       FOO: foo
-      SECRET1: ${{ steps.secrets.outputs.SECRET1 }}
-      SECRET2: ${{ steps.secrets.outputs.SECRET2 }}
+      SECRET1: ${{ steps.secrets.outputs.something_cool }}
+      SECRET2: ${{ steps.secrets.outputs.something_cooler }}
   my_run_script:
     name: my run script
     needs:

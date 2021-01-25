@@ -42,6 +42,17 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        exportEnv: "false"
+        secrets: |
+          springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Restore artifacts
@@ -54,7 +65,7 @@ jobs:
       uses: docker/login-action@v1
       with:
         username: _json_key
-        password: ((halfpipe-gcr.private_key))
+        password: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
         registry: eu.gcr.io
     - name: run
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
@@ -75,13 +86,26 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        exportEnv: "false"
+        secrets: |
+          springernature/halfpipe-team/artifactory password | artifactory_password ;
+          springernature/halfpipe-team/artifactory username | artifactory_username ;
+          springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:
         username: _json_key
-        password: ((halfpipe-gcr.private_key))
+        password: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
         registry: eu.gcr.io
     - name: run
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
@@ -91,8 +115,8 @@ jobs:
     env:
       APP_NAME: my-app
       APP_VERSION: v1
-      ARTIFACTORY_PASSWORD: ((artifactory.password))
-      ARTIFACTORY_USERNAME: ((artifactory.username))
+      ARTIFACTORY_PASSWORD: ${{ steps.secrets.outputs.artifactory_password }}
+      ARTIFACTORY_USERNAME: ${{ steps.secrets.outputs.artifactory_username }}
       MARKLOGIC_HOST: ml.dev.com,ml.qa.com
       MARKLOGIC_PASSWORD: ""
       MARKLOGIC_USERNAME: foo
