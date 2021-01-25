@@ -8,6 +8,10 @@ type Update struct {
 	TagRepo       bool
 }
 
+func (u Update) GetSecrets() map[string]string {
+	panic("GetSecrets should never be called on Update")
+}
+
 func (u Update) GetBuildHistory() int {
 	return u.BuildHistory
 }

@@ -18,6 +18,10 @@ type DeployMLModules struct {
 	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r DeployMLModules) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r DeployMLModules) GetBuildHistory() int {
 	return r.BuildHistory
 }

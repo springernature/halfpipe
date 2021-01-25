@@ -18,6 +18,10 @@ type DockerCompose struct {
 	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r DockerCompose) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r DockerCompose) GetBuildHistory() int {
 	return r.BuildHistory
 }

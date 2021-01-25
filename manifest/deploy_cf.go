@@ -28,6 +28,10 @@ type DeployCF struct {
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r DeployCF) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r DeployCF) GetBuildHistory() int {
 	return r.BuildHistory
 }

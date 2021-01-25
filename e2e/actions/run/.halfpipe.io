@@ -10,6 +10,8 @@ tasks:
   vars:
     FOO: foo
     BAR: bar
+    SECRET1: ((something.cool))
+    SECRET2: ((something.cooler))
   timeout: 1h2m
 - type: run
   name: my run script

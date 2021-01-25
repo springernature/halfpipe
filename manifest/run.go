@@ -29,6 +29,10 @@ type Run struct {
 	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r Run) GetSecrets() map[string]string {
+	return findSecrets(r.Vars)
+}
+
 func (r Run) GetBuildHistory() int {
 	return r.BuildHistory
 }

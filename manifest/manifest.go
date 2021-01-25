@@ -121,6 +121,8 @@ type Task interface {
 	GetBuildHistory() int
 	SetBuildHistory(buildHistory int) Task
 
+	GetSecrets() map[string]string
+
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 
@@ -196,4 +198,14 @@ type Repo struct {
 
 func (repo Repo) IsPublic() bool {
 	return len(repo.URI) > 4 && repo.URI[:4] == "http"
+}
+
+func findSecrets(vars map[string]string) (secrets map[string]string) {
+	secrets = make(map[string]string)
+	for k, v := range vars {
+		if regexp.MustCompile(`\(\(.*\)\)`).MatchString(v) {
+			secrets[k] = v
+		}
+	}
+	return
 }

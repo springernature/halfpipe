@@ -18,6 +18,10 @@ type DeployMLZip struct {
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r DeployMLZip) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r DeployMLZip) GetBuildHistory() int {
 	return r.BuildHistory
 }

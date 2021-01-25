@@ -19,6 +19,10 @@ type DockerPush struct {
 	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r DockerPush) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r DockerPush) GetBuildHistory() int {
 	return r.BuildHistory
 }

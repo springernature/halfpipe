@@ -17,6 +17,10 @@ type ConsumerIntegrationTest struct {
 	BuildHistory         int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
+func (r ConsumerIntegrationTest) GetSecrets() map[string]string {
+	return findSecrets(map[string]string{})
+}
+
 func (r ConsumerIntegrationTest) GetBuildHistory() int {
 	return r.BuildHistory
 }

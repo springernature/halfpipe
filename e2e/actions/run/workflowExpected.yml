@@ -22,6 +22,18 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 62
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        exportEnv: "false"
+        secrets: |
+          springernature/halfpipe-team/something cool | SECRET1 ;
+          springernature/halfpipe-team/something cooler | SECRET2 ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Registry
@@ -38,6 +50,8 @@ jobs:
     env:
       BAR: bar
       FOO: foo
+      SECRET1: ${{ steps.secrets.outputs.SECRET1 }}
+      SECRET2: ${{ steps.secrets.outputs.SECRET2 }}
   my_run_script:
     name: my run script
     needs:
