@@ -19,7 +19,7 @@ defaults:
 jobs:
   task_1:
     name: task 1
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -33,7 +33,7 @@ jobs:
     name: task 2
     needs:
     - task_1
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
     name: task 3
     needs:
     - task_2
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -61,7 +61,7 @@ jobs:
     name: task 4.1
     needs:
     - task_3
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -75,7 +75,7 @@ jobs:
     name: task 4.2
     needs:
     - task_3
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -89,7 +89,7 @@ jobs:
     name: task 4.3.1
     needs:
     - task_3
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -103,7 +103,7 @@ jobs:
     name: task 4.3.2
     needs:
     - task_4_3_1
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -119,7 +119,7 @@ jobs:
     - task_4_1
     - task_4_2
     - task_4_3_2
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code

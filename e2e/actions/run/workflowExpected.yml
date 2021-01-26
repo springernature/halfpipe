@@ -19,7 +19,7 @@ defaults:
 jobs:
   my_run_task:
     name: my run task
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 62
     steps:
     - name: Vault secrets
@@ -56,7 +56,7 @@ jobs:
     name: my run script
     needs:
     - my_run_task
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code

@@ -19,7 +19,7 @@ defaults:
 jobs:
   another-c-name:
     name: another-c-name
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code

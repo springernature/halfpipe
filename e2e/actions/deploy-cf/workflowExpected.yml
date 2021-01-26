@@ -21,7 +21,7 @@ defaults:
 jobs:
   make_binary:
     name: make binary
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
     name: deploy to cf
     needs:
     - make_binary
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Vault secrets

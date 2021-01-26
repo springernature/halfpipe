@@ -19,7 +19,7 @@ defaults:
 jobs:
   my_run_task:
     name: my run task
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code

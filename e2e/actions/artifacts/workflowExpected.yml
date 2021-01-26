@@ -19,7 +19,7 @@ defaults:
 jobs:
   build:
     name: build
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -47,7 +47,7 @@ jobs:
     name: test
     needs:
     - build
-    runs-on: ubuntu-20.04
+    runs-on: self-hosted
     timeout-minutes: 60
     steps:
     - name: Checkout code
