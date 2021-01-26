@@ -9,7 +9,7 @@ import (
 func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts())
+		steps = append(steps, a.restoreArtifacts()...)
 	}
 	steps = append(steps,
 		Step{

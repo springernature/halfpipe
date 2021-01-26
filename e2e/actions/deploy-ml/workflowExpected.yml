@@ -31,12 +31,13 @@ jobs:
       with:
         entrypoint: /bin/sh
         args: -c "\package.sh"
-    - name: Save artifacts
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar target/xquery.zip
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/deploy-ml/target/xquery.zip
+        path: /tmp/halfpipe-artifacts.tar
   deploy-ml-zip:
     name: deploy-ml-zip
     needs:
@@ -57,12 +58,13 @@ jobs:
           springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Restore artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/deploy-ml/target/xquery.zip
+        path: e2e/actions/deploy-ml
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:

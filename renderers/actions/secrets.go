@@ -86,21 +86,13 @@ func convertSecrets(job Job, team string) Job {
 			}
 			newWith = append(newWith, item)
 		}
-
-		newEnv := Env{}
+		step.With = newWith
 		for k, v := range step.Env {
-			if isSecret(v) {
-				if s := toSecret(v); s != nil {
-					secrets = append(secrets, s)
-					newEnv[k] = s.actionsVar()
-				}
-			} else {
-				newEnv[k] = v
+			if s := toSecret(v); s != nil {
+				secrets = append(secrets, s)
+				step.Env[k] = s.actionsVar()
 			}
 		}
-
-		step.With = newWith
-		step.Env = newEnv
 		newSteps = append(newSteps, step)
 	}
 	job.Steps = newSteps

@@ -31,20 +31,22 @@ jobs:
       with:
         entrypoint: /bin/sh
         args: -c "\mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
-    - name: Save artifacts
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar foo.txt target/bar.txt
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/artifacts/foo.txt
-          e2e/actions/artifacts/target/bar.txt
-    - name: Save artifacts (failure)
+        path: /tmp/halfpipe-artifacts.tar
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts.tar foo.txt
+    - name: Upload artifacts-failure
       if: failure()
       uses: actions/upload-artifact@v2
       with:
-        name: artifacts
-        path: |
-          e2e/actions/artifacts/foo.txt
+        name: artifacts-failure
+        path: /tmp/halfpipe-artifacts.tar
   test:
     name: test
     needs:
@@ -54,13 +56,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Restore artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/artifacts/foo.txt
-          e2e/actions/artifacts/target/bar.txt
+        path: e2e/actions/artifacts
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: run
       uses: docker://debian:buster-slim
       with:

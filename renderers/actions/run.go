@@ -9,7 +9,7 @@ import (
 func (a *Actions) runJob(task manifest.Run) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts())
+		steps = append(steps, a.restoreArtifacts()...)
 	}
 	run := Step{
 		Name: "run",
@@ -33,10 +33,10 @@ func (a *Actions) runJob(task manifest.Run) Job {
 	steps = append(steps, run)
 
 	if task.SavesArtifacts() {
-		steps = append(steps, a.saveArtifacts(task.SaveArtifacts))
+		steps = append(steps, a.saveArtifacts(task.SaveArtifacts)...)
 	}
 	if task.SavesArtifactsOnFailure() {
-		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure))
+		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure)...)
 	}
 
 	return Job{

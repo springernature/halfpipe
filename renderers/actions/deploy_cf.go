@@ -56,7 +56,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts())
+		steps = append(steps, a.restoreArtifacts()...)
 	}
 	steps = append(steps, loginHalfpipeGCR, deploy, cleanup)
 

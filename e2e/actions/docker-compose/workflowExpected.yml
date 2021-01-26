@@ -42,20 +42,22 @@ jobs:
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
           app
-    - name: Save artifacts
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar foo bar/baz
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/docker-compose/foo
-          e2e/actions/docker-compose/bar/baz
-    - name: Save artifacts (failure)
+        path: /tmp/halfpipe-artifacts.tar
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts.tar foo
+    - name: Upload artifacts-failure
       if: failure()
       uses: actions/upload-artifact@v2
       with:
-        name: artifacts
-        path: |
-          e2e/actions/docker-compose/foo
+        name: artifacts-failure
+        path: /tmp/halfpipe-artifacts.tar
   custom:
     name: custom
     needs:
@@ -65,13 +67,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Restore artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/docker-compose/bar/baz
-          e2e/actions/docker-compose/foo
+        path: e2e/actions/docker-compose
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: run
       run: |
         docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io

@@ -26,14 +26,11 @@ var globalEnv = Env{
 }
 
 type Actions struct {
-	workingDir     string
-	savedArtifacts map[string]bool
+	workingDir string
 }
 
 func NewActions() Actions {
-	return Actions{
-		savedArtifacts: make(map[string]bool),
-	}
+	return Actions{}
 }
 
 func (a Actions) Render(man manifest.Manifest) (string, error) {

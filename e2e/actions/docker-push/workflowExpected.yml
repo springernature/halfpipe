@@ -31,12 +31,13 @@ jobs:
       with:
         entrypoint: /bin/sh
         args: -c "\build"
-    - name: Save artifacts
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar target/app.zip
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/docker-push/target/app.zip
+        path: /tmp/halfpipe-artifacts.tar
   push_default:
     name: Push default
     needs:
@@ -46,12 +47,13 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Restore artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/docker-push/target/app.zip
+        path: e2e/actions/docker-push
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to Docker Registry
@@ -95,12 +97,13 @@ jobs:
           springernature/halfpipe-team/foo bar | foo_bar ;
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Restore artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: |
-          e2e/actions/docker-push/target/app.zip
+        path: e2e/actions/docker-push
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to Docker Registry

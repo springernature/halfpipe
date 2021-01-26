@@ -1,45 +1,50 @@
 package actions
 
 import (
-	"path"
-	"sort"
 	"strings"
 )
 
-func (a *Actions) saveArtifacts(paths []string) Step {
-	for i, v := range paths {
-		paths[i] = path.Join(a.workingDir, v)
-		a.savedArtifacts[paths[i]] = true
-	}
-	return Step{
-		Name: "Save artifacts",
-		Uses: "actions/upload-artifact@v2",
-		With: With{
-			{"name", "artifacts"},
-			{"path", strings.Join(paths, "\n") + "\n"},
+func (a *Actions) saveArtifacts(paths []string) []Step {
+	return saveArtifactSteps(paths, "artifacts")
+}
+
+func (a *Actions) saveArtifactsOnFailure(paths []string) []Step {
+	steps := saveArtifactSteps(paths, "artifacts-failure")
+	steps[0].If = "failure()"
+	steps[1].If = "failure()"
+	return steps
+}
+
+func saveArtifactSteps(paths []string, name string) []Step {
+	return []Step{
+		{
+			Name: "Package " + name,
+			Run:  "tar -cvf /tmp/halfpipe-artifacts.tar " + strings.Join(paths, " "),
+		},
+		{
+			Name: "Upload " + name,
+			Uses: "actions/upload-artifact@v2",
+			With: With{
+				{"name", name},
+				{"path", "/tmp/halfpipe-artifacts.tar"},
+			},
 		},
 	}
 }
 
-func (a *Actions) saveArtifactsOnFailure(paths []string) Step {
-	step := a.saveArtifacts(paths)
-	step.Name += " (failure)"
-	step.If = "failure()"
-	return step
-}
-
-func (a *Actions) restoreArtifacts() Step {
-	paths := []string{}
-	for k := range a.savedArtifacts {
-		paths = append(paths, k)
-	}
-	sort.Strings(paths)
-	return Step{
-		Name: "Restore artifacts",
-		Uses: "actions/download-artifact@v2",
-		With: With{
-			{"name", "artifacts"},
-			{"path", strings.Join(paths, "\n") + "\n"},
+func (a *Actions) restoreArtifacts() []Step {
+	return []Step{
+		{
+			Name: "Download artifacts",
+			Uses: "actions/download-artifact@v2",
+			With: With{
+				{"name", "artifacts"},
+				{"path", a.workingDir},
+			},
+		},
+		{
+			Name: "Extract artifacts",
+			Run:  "tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar",
 		},
 	}
 }
