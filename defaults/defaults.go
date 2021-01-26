@@ -62,6 +62,16 @@ var Actions = Defaults{
 	},
 
 	CF: CFDefaults{
+		SnPaaS: CFSnPaaS{
+			Username: "((cloudfoundry.username-snpaas))",
+			Password: "((cloudfoundry.password-snpaas))",
+			Org:      "((cloudfoundry.org-snpaas))",
+			API:      "((cloudfoundry.api-snpaas))",
+		},
+		OnPrem: CFOnPrem{
+			Username: "((cloudfoundry.username))",
+			Password: "((cloudfoundry.password))",
+		},
 		ManifestPath: "manifest.yml",
 		TestDomains: map[string]string{
 			"https://api.dev.cf.springer-sbm.com": "dev.cf.private.springer.com",

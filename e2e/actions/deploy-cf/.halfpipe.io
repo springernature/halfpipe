@@ -17,13 +17,11 @@ tasks:
 
   - type: deploy-cf
     name: deploy to cf
-    api: ((cf.api))
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
     space: dev
     manifest: manifest.yml
-    username: ((cf.username))
-    password: ((cf.password))
     deploy_artifact: foo.html
-    test_domain: some.random.domain.com
     vars:
       ENV1: 1234
       ENV2: ((secret.value))
