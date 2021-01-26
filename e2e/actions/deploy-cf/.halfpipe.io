@@ -17,10 +17,10 @@ tasks:
 
   - type: deploy-cf
     name: deploy to cf
-    api: dev-api
+    api: ((cf.api))
     space: dev
     manifest: manifest.yml
-    username: michiel
-    password: very-secret
+    username: ((cf.username))
+    password: ((cf.password))
     deploy_artifact: foo.html
     test_domain: some.random.domain.com

@@ -32,14 +32,23 @@ func (s *Secret) actionsVar() string {
 	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar)
 }
 
-func fetchSecrets(secrets []*Secret, team string) Step {
-	secs := []string{}
+func secretsToActionsSecret(secrets []*Secret, team string) string {
+	uniqueSecrets := map[string]string{}
 	for _, s := range secrets {
 		x := fmt.Sprintf("springernature/%s/%s %s | %s ;\n", team, s.vaultMap, s.vaultField, s.outputVar)
-		secs = append(secs, x)
+		uniqueSecrets[s.outputVar] = x
+	}
+
+	var secs []string
+	for _, v := range uniqueSecrets {
+		secs = append(secs, v)
 	}
 	sort.Strings(secs)
 
+	return strings.Join(secs, "")
+}
+
+func fetchSecrets(secrets []*Secret, team string) Step {
 	return Step{
 		Name: "Vault secrets",
 		ID:   "secrets",
@@ -49,8 +58,8 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 			{"method", "approle"},
 			{"roleId", "${{ secrets.VAULT_ROLE_ID }}"},
 			{"secretId", "${{ secrets.VAULT_SECRET_ID }}"},
-			{"exportEnv", "false"},
-			{"secrets", strings.Join(secs, "")},
+			{"exportEnv", false},
+			{"secrets", secretsToActionsSecret(secrets, team)},
 		},
 	}
 }

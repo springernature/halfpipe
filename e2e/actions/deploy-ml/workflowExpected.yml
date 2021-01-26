@@ -50,7 +50,7 @@ jobs:
         method: approle
         roleId: ${{ secrets.VAULT_ROLE_ID }}
         secretId: ${{ secrets.VAULT_SECRET_ID }}
-        exportEnv: "false"
+        exportEnv: false
         secrets: |
           springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
@@ -94,7 +94,7 @@ jobs:
         method: approle
         roleId: ${{ secrets.VAULT_ROLE_ID }}
         secretId: ${{ secrets.VAULT_SECRET_ID }}
-        exportEnv: "false"
+        exportEnv: false
         secrets: |
           springernature/halfpipe-team/artifactory password | artifactory_password ;
           springernature/halfpipe-team/artifactory username | artifactory_username ;

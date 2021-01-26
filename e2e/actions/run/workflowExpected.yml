@@ -30,7 +30,7 @@ jobs:
         method: approle
         roleId: ${{ secrets.VAULT_ROLE_ID }}
         secretId: ${{ secrets.VAULT_SECRET_ID }}
-        exportEnv: "false"
+        exportEnv: false
         secrets: |
           springernature/halfpipe-team/something cool | something_cool ;
           springernature/halfpipe-team/something cooler | something_cooler ;
