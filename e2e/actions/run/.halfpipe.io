@@ -12,6 +12,7 @@ tasks:
     BAR: bar
     SECRET1: ((something.cool))
     SECRET2: ((something.cooler))
+    SHARED_SECRET: ((halfpipe-slack.token))
   timeout: 1h2m
 - type: run
   name: my run script

@@ -12,6 +12,26 @@ type Secret struct {
 	outputVar  string
 }
 
+func (s *Secret) actionsVar() string {
+	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar)
+}
+
+func (s *Secret) isShared() bool {
+	return map[string]bool{
+		"PPG-coco-gateway":   true,
+		"artifactory":        true,
+		"artifactory_test":   true,
+		"contrastsecurity":   true,
+		"grafana":            true,
+		"halfpipe-artifacts": true,
+		"halfpipe-gcr":       true,
+		"halfpipe-github":    true,
+		"halfpipe-ml-deploy": true,
+		"halfpipe-semver":    true,
+		"halfpipe-slack":     true,
+	}[s.vaultMap]
+}
+
 func toSecret(s string) *Secret {
 	if !isSecret(s) {
 		return nil
@@ -28,14 +48,14 @@ func isSecret(s string) bool {
 	return len(strings.Split(s, ".")) == 2 && strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
 }
 
-func (s *Secret) actionsVar() string {
-	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar)
-}
-
 func secretsToActionsSecret(secrets []*Secret, team string) string {
 	uniqueSecrets := map[string]string{}
 	for _, s := range secrets {
-		x := fmt.Sprintf("springernature/%s/%s %s | %s ;\n", team, s.vaultMap, s.vaultField, s.outputVar)
+		dir := team
+		if s.isShared() {
+			dir = "shared"
+		}
+		x := fmt.Sprintf("springernature/%s/%s %s | %s ;\n", dir, s.vaultMap, s.vaultField, s.outputVar)
 		uniqueSecrets[s.outputVar] = x
 	}
 

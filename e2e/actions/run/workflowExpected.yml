@@ -36,6 +36,7 @@ jobs:
         secrets: |
           springernature/halfpipe-team/something cool | something_cool ;
           springernature/halfpipe-team/something cooler | something_cooler ;
+          springernature/shared/halfpipe-slack token | halfpipe-slack_token ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Registry
@@ -54,6 +55,7 @@ jobs:
         FOO: foo
         SECRET1: ${{ steps.secrets.outputs.something_cool }}
         SECRET2: ${{ steps.secrets.outputs.something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs.halfpipe-slack_token }}
   my_run_script:
     name: my run script
     needs:

@@ -55,7 +55,7 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
+          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Download artifacts
@@ -100,9 +100,9 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/artifactory password | artifactory_password ;
-          springernature/halfpipe-team/artifactory username | artifactory_username ;
-          springernature/halfpipe-team/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
+          springernature/shared/artifactory password | artifactory_password ;
+          springernature/shared/artifactory username | artifactory_username ;
+          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Login to Docker Registry
