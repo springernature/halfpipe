@@ -21,6 +21,8 @@ var globalEnv = Env{
 	"GCR_PRIVATE_KEY":      "${{ secrets.EE_GCR_PRIVATE_KEY }}",
 	"GIT_REVISION":         "${{ github.sha }}",
 	"RUNNING_IN_CI":        "true",
+	"VAULT_ROLE_ID":        "${{ secrets.VAULT_ROLE_ID }}",
+	"VAULT_SECRET_ID":      "${{ secrets.VAULT_SECRET_ID }}",
 }
 
 type Actions struct {

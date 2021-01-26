@@ -15,6 +15,8 @@ env:
   GCR_PRIVATE_KEY: ${{ secrets.EE_GCR_PRIVATE_KEY }}
   GIT_REVISION: ${{ github.sha }}
   RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
 defaults:
   run:
     working-directory: e2e/actions/deploy-cf
@@ -50,8 +52,8 @@ jobs:
       with:
         url: https://vault.halfpipe.io
         method: approle
-        roleId: ${{ secrets.VAULT_ROLE_ID }}
-        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
           springernature/halfpipe-team/another secret | another_secret ;
