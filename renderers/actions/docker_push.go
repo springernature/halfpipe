@@ -27,6 +27,7 @@ func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest)
 				{"tags", tags(task)},
 				{"outputs", "type=image,oci-mediatypes=true,push=true"},
 			},
+			Env: Env(task.Vars),
 		},
 		repositoryDispatch(man.PipelineName()),
 	)
@@ -35,7 +36,6 @@ func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest)
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
 		Steps:  steps,
-		Env:    Env(task.Vars),
 	}
 }
 

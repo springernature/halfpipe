@@ -59,17 +59,17 @@ jobs:
           -e K -e K1 \
            \
           ${DOCKER_COMPOSE_SERVICE:-code}
-    env:
-      CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-      CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
-      CONSUMER_HOST: c-host
-      CONSUMER_PATH: ""
-      CONSUMER_SCRIPT: c-script
-      DOCKER_COMPOSE_SERVICE: potato
-      GIT_CLONE_OPTIONS: --depth 100
-      K: value
-      K1: value1
-      PROVIDER_HOST: p-host
-      PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
-      PROVIDER_NAME: pipeline-name
+      env:
+        CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_SERVICE: potato
+        GIT_CLONE_OPTIONS: --depth 100
+        K: value
+        K1: value1
+        PROVIDER_HOST: p-host
+        PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
+        PROVIDER_NAME: pipeline-name
 

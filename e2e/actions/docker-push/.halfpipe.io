@@ -19,7 +19,7 @@ tasks:
   name: Push custom
   image: dockerhubusername/someImage
   username: user
-  password: pass
+  password: ((foo.bar))
   restore_artifacts: true
   tag: gitref
   dockerfile_path: Dockerfile2

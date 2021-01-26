@@ -91,7 +91,7 @@ jobs:
           -e VAULT_SECRET_ID \
           customservice \
           echo hello
-    env:
-      B: bar
-      F: foo
+      env:
+        B: bar
+        F: foo
 

@@ -82,6 +82,17 @@ jobs:
     runs-on: self-hosted
     timeout-minutes: 90
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          springernature/halfpipe-team/foo bar | foo_bar ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Restore artifacts
@@ -96,7 +107,7 @@ jobs:
       uses: docker/login-action@v1
       with:
         username: user
-        password: pass
+        password: ${{ steps.secrets.outputs.foo_bar }}
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
@@ -107,12 +118,12 @@ jobs:
           dockerhubusername/someImage:latest
           dockerhubusername/someImage:${{ env.GIT_REVISION }}
         outputs: type=image,oci-mediatypes=true,push=true
+      env:
+        BAR: bar
+        FOO: foo
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
         token: ${{ secrets.EE_REPO_ACCESS_TOKEN }}
         event-type: docker-push:pipeline-name
-    env:
-      BAR: bar
-      FOO: foo
 

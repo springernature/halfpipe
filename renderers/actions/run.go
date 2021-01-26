@@ -13,6 +13,7 @@ func (a *Actions) runJob(task manifest.Run) Job {
 	}
 	run := Step{
 		Name: "run",
+		Env:  Env(task.Vars),
 	}
 
 	if task.Docker.Image != "" {
@@ -42,6 +43,5 @@ func (a *Actions) runJob(task manifest.Run) Job {
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
 		Steps:  steps,
-		Env:    Env(task.Vars),
 	}
 }

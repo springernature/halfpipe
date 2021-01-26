@@ -74,13 +74,13 @@ jobs:
       with:
         entrypoint: /bin/sh
         args: -c "/ml-deploy/deploy-local-zip"
-    env:
-      APP_NAME: pipeline-name
-      DEPLOY_ZIP: target/xquery.zip
-      MARKLOGIC_HOST: ml.dev.com
-      MARKLOGIC_PASSWORD: ""
-      MARKLOGIC_USERNAME: ""
-      USE_BUILD_VERSION: "true"
+      env:
+        APP_NAME: pipeline-name
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.com
+        MARKLOGIC_PASSWORD: ""
+        MARKLOGIC_USERNAME: ""
+        USE_BUILD_VERSION: "true"
   deploy_ml-modules_artifact:
     name: Deploy ml-modules artifact
     needs:
@@ -114,14 +114,14 @@ jobs:
       with:
         entrypoint: /bin/sh
         args: -c "/ml-deploy/deploy-ml-modules"
-    env:
-      APP_NAME: my-app
-      APP_VERSION: v1
-      ARTIFACTORY_PASSWORD: ${{ steps.secrets.outputs.artifactory_password }}
-      ARTIFACTORY_USERNAME: ${{ steps.secrets.outputs.artifactory_username }}
-      MARKLOGIC_HOST: ml.dev.com,ml.qa.com
-      MARKLOGIC_PASSWORD: ""
-      MARKLOGIC_USERNAME: foo
-      ML_MODULES_VERSION: "2.1425"
-      USE_BUILD_VERSION: "false"
+      env:
+        APP_NAME: my-app
+        APP_VERSION: v1
+        ARTIFACTORY_PASSWORD: ${{ steps.secrets.outputs.artifactory_password }}
+        ARTIFACTORY_USERNAME: ${{ steps.secrets.outputs.artifactory_username }}
+        MARKLOGIC_HOST: ml.dev.com,ml.qa.com
+        MARKLOGIC_PASSWORD: ""
+        MARKLOGIC_USERNAME: foo
+        ML_MODULES_VERSION: "2.1425"
+        USE_BUILD_VERSION: "false"
 
