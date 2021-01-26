@@ -1,10 +1,8 @@
 package actions
 
 import (
-	"fmt"
 	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
-	"sort"
 	"strings"
 	"time"
 
@@ -56,43 +54,9 @@ type parentTask struct {
 	needs      []string
 }
 
-func (a *Actions) secretsToStep(team string, secrets map[string]string) (step Step) {
-	secs := []string{}
-	for k, v := range secrets {
-		raw := strings.Replace(strings.Replace(v, "((", "", -1), "))", "", -1)
-		parts := strings.Split(raw, ".")
-		secs = append(secs, fmt.Sprintf("springernature/%s/%s %s | %s ;", team, parts[0], parts[1], k))
-	}
-	sort.Strings(secs)
-
-	return Step{
-		Name: "Vault secrets",
-		Id:   "secrets",
-		Uses: "hashicorp/vault-action@v2.1.1",
-		With: With{
-			{"url", "https://vault.halfpipe.io"},
-			{"method", "approle"},
-			{"roleId", "${{ secrets.VAULT_ROLE_ID }}"},
-			{"secretId", "${{ secrets.VAULT_SECRET_ID }}"},
-			{"exportEnv", "false"},
-			{"secrets", strings.Join(secs, "\n") + "\n"},
-		},
-	}
-}
-
-func (a *Actions) replaceEnvWithSecrets(env Env, secrets map[string]string) Env {
-	for k := range secrets {
-		env[k] = fmt.Sprintf("${{ steps.secrets.outputs.%s }}", k)
-	}
-	return env
-}
-
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
 	appendJob := func(job Job, task manifest.Task, needs []string) {
-		if len(task.GetSecrets()) != 0 {
-			job.Steps = append([]Step{a.secretsToStep(man.Team, task.GetSecrets())}, job.Steps...)
-			job.Env = a.replaceEnvWithSecrets(job.Env, task.GetSecrets())
-		}
+		job = convertSecrets(job, man.Team)
 
 		if task.GetNotifications().NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(task.GetNotifications())...)

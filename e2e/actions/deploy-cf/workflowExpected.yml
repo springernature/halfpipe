@@ -44,6 +44,19 @@ jobs:
     runs-on: ubuntu-20.04
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          springernature/halfpipe-team/cf api | cf_api ;
+          springernature/halfpipe-team/cf password | cf_password ;
+          springernature/halfpipe-team/cf username | cf_username ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Restore artifacts
@@ -61,11 +74,11 @@ jobs:
     - name: Deploy
       uses: docker://simonjohansson/action-test:latest
       with:
-        api: dev-api
+        api: ${{ steps.secrets.outputs.cf_api }}
         org: halfpipe-team
         space: dev
-        username: michiel
-        password: very-secret
+        username: ${{ steps.secrets.outputs.cf_username }}
+        password: ${{ steps.secrets.outputs.cf_password }}
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
         command: halfpipe-all
@@ -75,11 +88,11 @@ jobs:
       if: always()
       uses: docker://simonjohansson/action-test:latest
       with:
-        api: dev-api
+        api: ${{ steps.secrets.outputs.cf_api }}
         org: halfpipe-team
         space: dev
-        username: michiel
-        password: very-secret
+        username: ${{ steps.secrets.outputs.cf_username }}
+        password: ${{ steps.secrets.outputs.cf_password }}
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
         command: halfpipe-cleanup

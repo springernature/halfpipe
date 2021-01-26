@@ -11,7 +11,8 @@ do
             ./test.sh
         else
             ../../../halfpipe -q actions 1> workflowActual.yml
-            diff --ignore-blank-lines workflowActual.yml workflowExpected.yml
+            sed '6s/\"\"/master/' workflowActual.yml > /tmp/branchFixed.yml
+            diff --ignore-blank-lines /tmp/branchFixed.yml workflowExpected.yml
         fi
     )
 done

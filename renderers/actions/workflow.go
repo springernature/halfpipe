@@ -72,7 +72,7 @@ type Credentials struct {
 type Step struct {
 	Name string `yaml:"name,omitempty"`
 	If   string `yaml:"if,omitempty"`
-	Id   string `yaml:"id,omitempty"`
+	ID   string `yaml:"id,omitempty"`
 	Uses string `yaml:"uses,omitempty"`
 	Run  string `yaml:"run,omitempty"`
 	With With   `yaml:"with,omitempty"`
