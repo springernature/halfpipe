@@ -76,6 +76,7 @@ type Step struct {
 	Uses string `yaml:"uses,omitempty"`
 	Run  string `yaml:"run,omitempty"`
 	With With   `yaml:"with,omitempty"`
+	Env  Env    `yaml:"env,omitempty"`
 }
 
 type With yaml.MapSlice

@@ -87,6 +87,11 @@ jobs:
         command: halfpipe-all
         testDomain: springernature.app
         appPath: e2e/actions/deploy-cf/foo.html
+      env:
+        CF_ENV_VAR_ENV1: "1234"
+        CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
+        CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
+        CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
     - name: Cleanup
       if: always()
       uses: docker://simonjohansson/action-test:latest
@@ -99,9 +104,4 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
         command: halfpipe-cleanup
-    env:
-      CF_ENV_VAR_ENV1: "1234"
-      CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
-      CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
-      CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
 

@@ -29,6 +29,11 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	//uses := "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"
 	uses := "docker://simonjohansson/action-test:latest"
 
+	envVars := map[string]string{}
+	for k, v := range task.Vars {
+		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
+	}
+
 	deploy := Step{
 		Name: "Deploy",
 		Uses: uses,
@@ -37,6 +42,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 			{"testDomain", task.TestDomain},
 			{"appPath", appPath},
 		}),
+		Env: envVars,
 	}
 
 	cleanup := Step{
@@ -54,15 +60,9 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	}
 	steps = append(steps, loginHalfpipeGCR, deploy, cleanup)
 
-	envVars := map[string]string{}
-	for k, v := range task.Vars {
-		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
-	}
-
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
 		Steps:  steps,
-		Env:    envVars,
 	}
 }
