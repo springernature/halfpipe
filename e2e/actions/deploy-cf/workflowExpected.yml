@@ -54,9 +54,11 @@ jobs:
         secretId: ${{ secrets.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
+          springernature/halfpipe-team/another secret | another_secret ;
           springernature/halfpipe-team/cf api | cf_api ;
           springernature/halfpipe-team/cf password | cf_password ;
           springernature/halfpipe-team/cf username | cf_username ;
+          springernature/halfpipe-team/secret value | secret_value ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Restore artifacts
@@ -96,4 +98,9 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         cli_version: cf7
         command: halfpipe-cleanup
+    env:
+      CF_ENV_VAR_ENV1: "1234"
+      CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
+      CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
+      CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
 

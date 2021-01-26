@@ -24,3 +24,8 @@ tasks:
     password: ((cf.password))
     deploy_artifact: foo.html
     test_domain: some.random.domain.com
+    vars:
+      ENV1: 1234
+      ENV2: ((secret.value))
+      ENV3: '{"a": "b", "c": "d"}'
+      ENV4: ((another.secret))

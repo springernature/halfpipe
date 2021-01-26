@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"path"
 
 	"github.com/springernature/halfpipe/manifest"
@@ -53,10 +54,15 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	}
 	steps = append(steps, loginHalfpipeGCR, deploy, cleanup)
 
+	envVars := map[string]string{}
+	for k, v := range task.Vars {
+		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
+	}
+
 	return Job{
 		Name:   task.GetName(),
 		RunsOn: defaultRunner,
 		Steps:  steps,
-		Env:    Env(task.Vars),
+		Env:    envVars,
 	}
 }
