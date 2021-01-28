@@ -21,7 +21,7 @@ defaults:
 jobs:
   another-c-name:
     name: another-c-name
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code

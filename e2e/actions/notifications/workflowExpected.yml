@@ -21,7 +21,7 @@ defaults:
 jobs:
   my_run_task:
     name: my run task
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code

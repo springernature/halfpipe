@@ -21,7 +21,7 @@ defaults:
 jobs:
   test:
     name: test
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -62,7 +62,7 @@ jobs:
     name: custom
     needs:
     - test
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code

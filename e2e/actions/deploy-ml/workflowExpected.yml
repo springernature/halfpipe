@@ -21,7 +21,7 @@ defaults:
 jobs:
   create_zip_for_ml_task:
     name: create zip for ml task
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
     name: deploy-ml-zip
     needs:
     - create_zip_for_ml_task
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Vault secrets
@@ -87,7 +87,7 @@ jobs:
     name: Deploy ml-modules artifact
     needs:
     - deploy-ml-zip
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Vault secrets

@@ -21,7 +21,7 @@ defaults:
 jobs:
   build:
     name: build
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -42,7 +42,7 @@ jobs:
     name: Push default
     needs:
     - build
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
@@ -81,7 +81,7 @@ jobs:
     name: Push custom
     needs:
     - push_default
-    runs-on: self-hosted
+    runs-on: ee-runner
     timeout-minutes: 90
     steps:
     - name: Vault secrets
