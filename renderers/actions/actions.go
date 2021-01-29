@@ -18,7 +18,6 @@ var globalEnv = Env{
 	"ARTIFACTORY_URL":      "${{ secrets.EE_ARTIFACTORY_URL }}",
 	"ARTIFACTORY_USERNAME": "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
 	"BUILD_VERSION":        "${{ github.run_number }}",
-	"GCR_PRIVATE_KEY":      "${{ secrets.EE_GCR_PRIVATE_KEY }}",
 	"GIT_REVISION":         "${{ github.sha }}",
 	"RUNNING_IN_CI":        "true",
 	"VAULT_ROLE_ID":        "${{ secrets.VAULT_ROLE_ID }}",
