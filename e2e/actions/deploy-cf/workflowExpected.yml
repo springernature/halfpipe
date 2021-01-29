@@ -96,6 +96,7 @@ jobs:
         CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
         CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
+        CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Cleanup
       if: always()
       uses: docker://simonjohansson/action-test:latest

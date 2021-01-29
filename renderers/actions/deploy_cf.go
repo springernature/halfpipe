@@ -34,6 +34,8 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
 	}
 
+	envVars["CF_ENV_VAR_GITHUB_WORKFLOW_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+
 	deploy := Step{
 		Name: "Deploy",
 		Uses: uses,
