@@ -26,8 +26,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 		}, params...)
 	}
 
-	//uses := "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"
-	uses := "docker://simonjohansson/action-test:latest"
+	uses := "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"
 
 	envVars := map[string]string{}
 	for k, v := range task.Vars {
