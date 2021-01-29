@@ -26,10 +26,7 @@ func (a *Actions) runJob(task manifest.Run) Job {
 		run.Run = task.Script
 	}
 
-	if task.Docker.Username != "" {
-		login := dockerLogin(task.Docker.Image, task.Docker.Username, task.Docker.Password)
-		steps = append(steps, login)
-	}
+	steps = append(steps, dockerLogin(task.Docker.Image, task.Docker.Username, task.Docker.Password)...)
 	steps = append(steps, run)
 
 	if task.SavesArtifacts() {

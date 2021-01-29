@@ -32,7 +32,6 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	for k, v := range task.Vars {
 		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
 	}
-
 	envVars["CF_ENV_VAR_GITHUB_WORKFLOW_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
 
 	deploy := Step{
@@ -59,7 +58,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
-	steps = append(steps, loginHalfpipeGCR, deploy, cleanup)
+	steps = append(steps, deploy, cleanup)
 
 	return Job{
 		Name:   task.GetName(),

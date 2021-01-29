@@ -17,5 +17,7 @@ tasks:
 - type: run
   name: my run script
   docker:
-    image: eu.gcr.io/halfpipe-io/golang:1.15
+    image: my.private.registry/repo/golang:1.15
+    username: docker-user
+    password: docker-password
   script: \bash -c "echo hello"

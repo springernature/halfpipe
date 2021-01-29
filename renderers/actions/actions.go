@@ -157,7 +157,12 @@ func notify(notifications manifest.Notifications) []Step {
 	return steps
 }
 
-func dockerLogin(image, username, password string) Step {
+func dockerLogin(image, username, password string) []Step {
+	// check login step is needed
+	if username == "" || strings.HasPrefix(image, "eu.gcr.io/halfpipe-io/") {
+		return []Step{}
+	}
+
 	step := Step{
 		Name: "Login to Docker Registry",
 		Uses: "docker/login-action@v1",
@@ -174,15 +179,5 @@ func dockerLogin(image, username, password string) Step {
 		registry := strings.Split(image, "/")[0]
 		step.With = append(step.With, With{{"registry", registry}}...)
 	}
-	return step
-}
-
-var loginHalfpipeGCR = Step{
-	Name: "Login to GCR",
-	Uses: "docker/login-action@v1",
-	With: With{
-		{"registry", "eu.gcr.io"},
-		{"username", "_json_key"},
-		{"password", "${{ secrets.EE_GCR_PRIVATE_KEY }}"},
-	},
+	return []Step{step}
 }

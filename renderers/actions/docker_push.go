@@ -11,26 +11,27 @@ func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest)
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
-	steps = append(steps,
-		Step{
-			Name: "Set up Docker Buildx",
-			Uses: "docker/setup-buildx-action@v1",
+	steps = append(steps, Step{
+		Name: "Set up Docker Buildx",
+		Uses: "docker/setup-buildx-action@v1",
+	})
+
+	steps = append(steps, dockerLogin(task.Image, task.Username, task.Password)...)
+
+	steps = append(steps, Step{
+		Name: "Build and push",
+		Uses: "docker/build-push-action@v2",
+		With: With{
+			{"context", path.Join(a.workingDir, task.BuildPath)},
+			{"file", path.Join(a.workingDir, task.DockerfilePath)},
+			{"push", true},
+			{"tags", tags(task)},
+			{"outputs", "type=image,oci-mediatypes=true,push=true"},
 		},
-		dockerLogin(task.Image, task.Username, task.Password),
-		Step{
-			Name: "Build and push",
-			Uses: "docker/build-push-action@v2",
-			With: With{
-				{"context", path.Join(a.workingDir, task.BuildPath)},
-				{"file", path.Join(a.workingDir, task.DockerfilePath)},
-				{"push", true},
-				{"tags", tags(task)},
-				{"outputs", "type=image,oci-mediatypes=true,push=true"},
-			},
-			Env: Env(task.Vars),
-		},
-		repositoryDispatch(man.PipelineName()),
-	)
+		Env: Env(task.Vars),
+	})
+
+	steps = append(steps, repositoryDispatch(man.PipelineName()))
 
 	return Job{
 		Name:   task.GetName(),

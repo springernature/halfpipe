@@ -39,12 +39,6 @@ jobs:
           springernature/shared/halfpipe-slack token | halfpipe-slack_token ;
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Login to Docker Registry
-      uses: docker/login-action@v1
-      with:
-        username: _json_key
-        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
-        registry: eu.gcr.io
     - name: run
       uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
       with:
@@ -68,11 +62,11 @@ jobs:
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:
-        username: _json_key
-        password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
-        registry: eu.gcr.io
+        username: docker-user
+        password: docker-password
+        registry: my.private.registry
     - name: run
-      uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
+      uses: docker://my.private.registry/repo/golang:1.15
       with:
         entrypoint: /bin/sh
         args: -c "\bash -c \"echo hello\""

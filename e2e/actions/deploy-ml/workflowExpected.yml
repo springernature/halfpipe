@@ -45,17 +45,6 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
-    - name: Vault secrets
-      id: secrets
-      uses: hashicorp/vault-action@v2.1.1
-      with:
-        url: https://vault.halfpipe.io
-        method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
-        exportEnv: false
-        secrets: |
-          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Download artifacts
@@ -65,12 +54,6 @@ jobs:
         path: e2e/actions/deploy-ml
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-    - name: Login to Docker Registry
-      uses: docker/login-action@v1
-      with:
-        username: _json_key
-        password: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
-        registry: eu.gcr.io
     - name: run
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
@@ -102,15 +85,8 @@ jobs:
         secrets: |
           springernature/shared/artifactory password | artifactory_password ;
           springernature/shared/artifactory username | artifactory_username ;
-          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: Login to Docker Registry
-      uses: docker/login-action@v1
-      with:
-        username: _json_key
-        password: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
-        registry: eu.gcr.io
     - name: run
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
