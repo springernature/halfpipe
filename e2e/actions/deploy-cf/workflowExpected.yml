@@ -79,7 +79,7 @@ jobs:
         username: _json_key
         password: ${{ secrets.EE_GCR_PRIVATE_KEY }}
     - name: Deploy
-      uses: docker://simonjohansson/action-test:latest
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
         org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
@@ -99,7 +99,7 @@ jobs:
         CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Cleanup
       if: always()
-      uses: docker://simonjohansson/action-test:latest
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
         org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
