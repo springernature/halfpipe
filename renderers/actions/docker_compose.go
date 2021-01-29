@@ -2,14 +2,25 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"sort"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a *Actions) dockerComposeJob(task manifest.DockerCompose) Job {
 	runTask := convertDockerComposeToRunTask(task)
-	return a.runJob(runTask)
+	job := a.runJob(runTask)
+	job.Steps = append(job.Steps, dockerCleanup(task))
+	return job
+}
+
+func dockerCleanup(task manifest.DockerCompose) Step {
+	return Step{
+		Name: "Docker cleanup",
+		If:   "always()",
+		Run:  fmt.Sprintf("set -x; docker-compose -f %s down; docker ps -a; docker network ls; docker volume ls", task.ComposeFile),
+	}
 }
 
 func convertDockerComposeToRunTask(task manifest.DockerCompose) manifest.Run {
