@@ -45,5 +45,5 @@ tasks:
         script: smoke-test.sh
         vars:
           ENV5: ((some.secret))
-
+      - type: docker-compose
 

@@ -58,12 +58,21 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	for _, ppTask := range task.PrePromote {
 		switch ppTask := ppTask.(type) {
 		case manifest.Run:
+			if ppTask.Vars == nil {
+				ppTask.Vars = make(map[string]string)
+			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			deploySteps = append(deploySteps, a.runSteps(ppTask)...)
 		case manifest.DockerCompose:
+			if ppTask.Vars == nil {
+				ppTask.Vars = make(map[string]string)
+			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			deploySteps = append(deploySteps, a.dockerComposeSteps(ppTask)...)
 		case manifest.ConsumerIntegrationTest:
+			if ppTask.Vars == nil {
+				ppTask.Vars = make(map[string]string)
+			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			deploySteps = append(deploySteps, a.consumerIntegrationTestSteps(ppTask, man)...)
 		}
