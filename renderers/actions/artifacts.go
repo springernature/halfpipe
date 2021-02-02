@@ -4,19 +4,19 @@ import (
 	"strings"
 )
 
-func (a *Actions) saveArtifacts(paths []string) []Step {
+func (a *Actions) saveArtifacts(paths []string) Steps {
 	return saveArtifactSteps(paths, "artifacts")
 }
 
-func (a *Actions) saveArtifactsOnFailure(paths []string) []Step {
+func (a *Actions) saveArtifactsOnFailure(paths []string) Steps {
 	steps := saveArtifactSteps(paths, "artifacts-failure")
 	steps[0].If = "failure()"
 	steps[1].If = "failure()"
 	return steps
 }
 
-func saveArtifactSteps(paths []string, name string) []Step {
-	return []Step{
+func saveArtifactSteps(paths []string, name string) Steps {
+	return Steps{
 		{
 			Name: "Package " + name,
 			Run:  "tar -cvf /tmp/halfpipe-artifacts.tar " + strings.Join(paths, " "),
@@ -32,8 +32,8 @@ func saveArtifactSteps(paths []string, name string) []Step {
 	}
 }
 
-func (a *Actions) restoreArtifacts() []Step {
-	return []Step{
+func (a *Actions) restoreArtifacts() Steps {
+	return Steps{
 		{
 			Name: "Download artifacts",
 			Uses: "actions/download-artifact@v2",

@@ -53,15 +53,19 @@ type parentTask struct {
 }
 
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
-	appendJob := func(job Job, task manifest.Task, needs []string) {
-		job = convertSecrets(job, man.Team)
+	appendJob := func(steps Steps, task manifest.Task, needs []string) {
+		job := Job{
+			Name:   task.GetName(),
+			RunsOn: defaultRunner,
+			Steps:  convertSecrets(steps, man.Team),
+		}
 
 		if task.GetNotifications().NotificationsDefined() {
 			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
 		}
+
 		job.TimeoutMinutes = timeoutInMinutes(task.GetTimeout())
 		job.Needs = needs
-
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 
@@ -74,21 +78,21 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		}
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushJob(task, man), task, needs)
+			appendJob(a.dockerPushSteps(task, man), task, needs)
 		case manifest.Run:
-			appendJob(a.runJob(task), task, needs)
+			appendJob(a.runSteps(task), task, needs)
 		case manifest.DockerCompose:
-			appendJob(a.dockerComposeJob(task), task, needs)
+			appendJob(a.dockerComposeSteps(task), task, needs)
 		case manifest.ConsumerIntegrationTest:
-			appendJob(a.consumerIntegrationTestJob(task, man), task, needs)
+			appendJob(a.consumerIntegrationTestSteps(task, man), task, needs)
 		case manifest.DeployMLModules:
 			runTask := shared.ConvertDeployMLModules(task, man)
-			appendJob(a.runJob(runTask), task, needs)
+			appendJob(a.runSteps(runTask), task, needs)
 		case manifest.DeployMLZip:
 			runTask := shared.ConvertDeployMLZip(task, man)
-			appendJob(a.runJob(runTask), task, needs)
+			appendJob(a.runSteps(runTask), task, needs)
 		case manifest.DeployCF:
-			appendJob(a.deployCFJob(task), task, needs)
+			appendJob(a.deployCFSteps(task), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
@@ -124,9 +128,7 @@ func idsFromNames(names []string) []string {
 	return names
 }
 
-func notify(notifications manifest.Notifications) []Step {
-	var steps []Step
-
+func notify(notifications manifest.Notifications) (steps Steps) {
 	s := func(channel string, text string) Step {
 		return Step{
 			Name: "Notify slack " + channel,
@@ -156,10 +158,10 @@ func notify(notifications manifest.Notifications) []Step {
 	return steps
 }
 
-func dockerLogin(image, username, password string) []Step {
+func dockerLogin(image, username, password string) Steps {
 	// check login step is needed
 	if username == "" || strings.HasPrefix(image, "eu.gcr.io/halfpipe-io/") {
-		return []Step{}
+		return Steps{}
 	}
 
 	step := Step{
@@ -178,5 +180,5 @@ func dockerLogin(image, username, password string) []Step {
 		registry := strings.Split(image, "/")[0]
 		step.With = append(step.With, With{{"registry", registry}}...)
 	}
-	return []Step{step}
+	return Steps{step}
 }

@@ -8,11 +8,10 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) dockerComposeJob(task manifest.DockerCompose) Job {
+func (a *Actions) dockerComposeSteps(task manifest.DockerCompose) Steps {
 	runTask := convertDockerComposeToRunTask(task)
-	job := a.runJob(runTask)
-	job.Steps = append(job.Steps, dockerCleanup(task))
-	return job
+	return append(a.runSteps(runTask), dockerCleanup(task))
+
 }
 
 func dockerCleanup(task manifest.DockerCompose) Step {

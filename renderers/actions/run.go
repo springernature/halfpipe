@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-func (a *Actions) runJob(task manifest.Run) Job {
-	steps := []Step{checkoutCode}
+func (a *Actions) runSteps(task manifest.Run) Steps {
+	steps := Steps{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
@@ -39,10 +39,5 @@ func (a *Actions) runJob(task manifest.Run) Job {
 	if task.SavesArtifactsOnFailure() {
 		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure)...)
 	}
-
-	return Job{
-		Name:   task.GetName(),
-		RunsOn: defaultRunner,
-		Steps:  steps,
-	}
+	return steps
 }

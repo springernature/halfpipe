@@ -55,8 +55,7 @@ type Job struct {
 	RunsOn         string    `yaml:"runs-on,omitempty"`
 	Container      Container `yaml:"container,omitempty"`
 	TimeoutMinutes int       `yaml:"timeout-minutes,omitempty"`
-	Steps          []Step    `yaml:"steps,omitempty"`
-	Env            Env       `yaml:"env,omitempty"`
+	Steps          Steps     `yaml:"steps,omitempty"`
 }
 
 type Container struct {
@@ -78,6 +77,8 @@ type Step struct {
 	With With   `yaml:"with,omitempty"`
 	Env  Env    `yaml:"env,omitempty"`
 }
+
+type Steps []Step
 
 type With yaml.MapSlice
 

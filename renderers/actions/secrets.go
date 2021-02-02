@@ -84,20 +84,10 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 	}
 }
 
-func convertSecrets(job Job, team string) Job {
+func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	secrets := []*Secret{}
 
-	// job.Env
-	for k, v := range job.Env {
-		if s := toSecret(v); s != nil {
-			secrets = append(secrets, s)
-			job.Env[k] = s.actionsVar()
-		}
-	}
-
-	// job.Steps.With and .Env
-	newSteps := []Step{}
-	for _, step := range job.Steps {
+	for _, step := range steps {
 		newWith := With{}
 		for _, item := range step.With {
 			if s := toSecret(fmt.Sprintf("%s", item.Value)); s != nil {
@@ -115,10 +105,9 @@ func convertSecrets(job Job, team string) Job {
 		}
 		newSteps = append(newSteps, step)
 	}
-	job.Steps = newSteps
 
 	if len(secrets) > 0 {
-		job.Steps = append([]Step{fetchSecrets(secrets, team)}, job.Steps...)
+		newSteps = append(Steps{fetchSecrets(secrets, team)}, newSteps...)
 	}
-	return job
+	return newSteps
 }

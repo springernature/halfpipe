@@ -9,7 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
+func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
@@ -38,7 +38,7 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	}
 	envVars["CF_ENV_VAR_GITHUB_WORKFLOW_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
 
-	deploySteps := []Step{}
+	deploySteps := Steps{}
 
 	deploySteps = append(deploySteps, Step{
 		Name: "Push",
@@ -112,15 +112,10 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 		}),
 	})
 
-	steps := []Step{checkoutCode}
+	steps := Steps{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
 	steps = append(steps, deploySteps...)
-
-	return Job{
-		Name:   task.GetName(),
-		RunsOn: defaultRunner,
-		Steps:  steps,
-	}
+	return steps
 }

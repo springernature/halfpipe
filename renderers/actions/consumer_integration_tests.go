@@ -8,9 +8,9 @@ import (
 	"strings"
 )
 
-func (a *Actions) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Job {
+func (a *Actions) consumerIntegrationTestSteps(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Steps {
 	runTask := convertConsumerIntegrationTestToRunTask(task, man)
-	return a.runJob(runTask)
+	return a.runSteps(runTask)
 }
 
 func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {

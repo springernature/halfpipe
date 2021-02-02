@@ -6,8 +6,8 @@ import (
 	"path"
 )
 
-func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest) Job {
-	steps := []Step{checkoutCode}
+func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifest) Steps {
+	steps := Steps{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
@@ -32,12 +32,7 @@ func (a *Actions) dockerPushJob(task manifest.DockerPush, man manifest.Manifest)
 	})
 
 	steps = append(steps, repositoryDispatch(man.PipelineName()))
-
-	return Job{
-		Name:   task.GetName(),
-		RunsOn: defaultRunner,
-		Steps:  steps,
-	}
+	return steps
 }
 
 func tags(task manifest.DockerPush) string {
