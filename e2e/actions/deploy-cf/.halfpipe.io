@@ -27,3 +27,23 @@ tasks:
       ENV2: ((secret.value))
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
+
+  - type: deploy-cf
+    name: deploy to cf with pre-promote
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    space: dev
+    manifest: manifest.yml
+    deploy_artifact: foo.html
+    vars:
+      ENV2: ((secret.value))
+      ENV4: ((another.secret))
+    pre_promote:
+      - type: run
+        docker:
+          image: alpine
+        script: smoke-test.sh
+        vars:
+          ENV5: ((some.secret))
+
+

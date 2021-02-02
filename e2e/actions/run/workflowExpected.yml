@@ -42,7 +42,7 @@ jobs:
       uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
       with:
         entrypoint: /bin/sh
-        args: -c "\foo"
+        args: -c "cd e2e/actions/run; \foo"
       env:
         BAR: bar
         FOO: foo
@@ -68,5 +68,5 @@ jobs:
       uses: docker://my.private.registry/repo/golang:1.15
       with:
         entrypoint: /bin/sh
-        args: -c "\bash -c \"echo hello\""
+        args: -c "cd e2e/actions/run; \bash -c \"echo hello\""
 

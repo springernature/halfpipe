@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (a *Actions) runJob(task manifest.Run) Job {
+func (a *Actions) runJob(task manifest.Run, path string) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
@@ -16,11 +16,15 @@ func (a *Actions) runJob(task manifest.Run) Job {
 		Env:  Env(task.Vars),
 	}
 
+	prefix := ""
+	if path != "" {
+		prefix = fmt.Sprintf("cd %s;", path)
+	}
 	if task.Docker.Image != "" {
 		run.Uses = "docker://" + task.Docker.Image
 		run.With = With{
 			{"entrypoint", "/bin/sh"},
-			{"args", fmt.Sprintf(`-c "%s"`, strings.Replace(task.Script, `"`, `\"`, -1))},
+			{"args", fmt.Sprintf(`-c "%s %s"`, prefix, strings.Replace(task.Script, `"`, `\"`, -1))},
 		}
 	} else {
 		run.Run = task.Script

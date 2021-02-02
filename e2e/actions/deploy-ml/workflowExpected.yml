@@ -29,7 +29,7 @@ jobs:
       uses: docker://alpine
       with:
         entrypoint: /bin/sh
-        args: -c "\package.sh"
+        args: -c "cd e2e/actions/deploy-ml; \package.sh"
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar target/xquery.zip
     - name: Upload artifacts
@@ -57,7 +57,7 @@ jobs:
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
         entrypoint: /bin/sh
-        args: -c "/ml-deploy/deploy-local-zip"
+        args: -c "cd e2e/actions/deploy-ml; /ml-deploy/deploy-local-zip"
       env:
         APP_NAME: pipeline-name
         DEPLOY_ZIP: target/xquery.zip
@@ -90,7 +90,7 @@ jobs:
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
         entrypoint: /bin/sh
-        args: -c "/ml-deploy/deploy-ml-modules"
+        args: -c "cd e2e/actions/deploy-ml; /ml-deploy/deploy-ml-modules"
       env:
         APP_NAME: my-app
         APP_VERSION: v1

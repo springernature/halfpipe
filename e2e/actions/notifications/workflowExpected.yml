@@ -29,7 +29,7 @@ jobs:
       uses: docker://foo
       with:
         entrypoint: /bin/sh
-        args: -c "\foo"
+        args: -c "cd e2e/actions/notifications; \foo"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4

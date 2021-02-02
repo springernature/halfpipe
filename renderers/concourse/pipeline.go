@@ -6,8 +6,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/springernature/halfpipe/cf"
-
 	"path/filepath"
 
 	"path"
@@ -20,11 +18,10 @@ import (
 )
 
 type Concourse struct {
-	readCfManifest cf.ManifestReader
 }
 
-func NewPipeline(cfManifestReader cf.ManifestReader) Concourse {
-	return Concourse{readCfManifest: cfManifestReader}
+func NewPipeline() Concourse {
+	return Concourse{}
 }
 
 const artifactsResourceName = "gcp-resource"

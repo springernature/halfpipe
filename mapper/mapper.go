@@ -32,7 +32,7 @@ func New() Mapper {
 			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
 			NewDockerComposeMapper(afero.Afero{Fs: afero.NewOsFs()}),
-			NewCFDockerPushMapper(),
+			NewCfMapper(),
 		},
 	}
 }

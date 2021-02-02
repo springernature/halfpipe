@@ -2,12 +2,14 @@ package actions
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/concourse"
 	"path"
+	"strings"
 
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
+func (a *Actions) deployCFJob(task manifest.DeployCF, basePath string) Job {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
@@ -21,8 +23,10 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 			{"space", task.Space},
 			{"username", task.Username},
 			{"password", task.Password},
-			{"manifestPath", manifestPath},
 			{"cli_version", task.CliVersion},
+			{"manifestPath", manifestPath},
+			{"testDomain", task.TestDomain},
+			{"appPath", appPath},
 		}, params...)
 	}
 
@@ -34,31 +38,85 @@ func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	}
 	envVars["CF_ENV_VAR_GITHUB_WORKFLOW_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
 
-	deploy := Step{
-		Name: "Deploy",
+	deploySteps := []Step{}
+
+	deploySteps = append(deploySteps, Step{
+		Name: "Push",
 		Uses: uses,
 		With: addCommonParams(With{
-			{"command", "halfpipe-all"},
-			{"testDomain", task.TestDomain},
-			{"appPath", appPath},
+			{"command", "halfpipe-push"},
 		}),
 		Env: envVars,
+	})
+	deploySteps = append(deploySteps, Step{
+		Name: "Check",
+		Uses: uses,
+		With: addCommonParams(With{
+			{"command", "halfpipe-check"},
+		}),
+	})
+
+	for _, prePromote := range task.PrePromote {
+		prefix := ""
+		if basePath != "" {
+			prefix = fmt.Sprintf("cd %s;", basePath)
+		}
+
+		switch prePromote := prePromote.(type) {
+		case manifest.Run:
+			env := prePromote.Vars
+			if len(prePromote.Vars) == 0 {
+				env = make(map[string]string)
+			}
+
+			run := Step{
+				Name: "run",
+				Env:  Env(env),
+			}
+
+			script := prePromote.Script
+			if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
+				script = "./" + script
+			}
+			script = strings.Replace(script, `"`, `\"`, -1)
+
+			if prePromote.Docker.Image != "" {
+				run.Uses = "docker://" + prePromote.Docker.Image
+				run.With = With{
+					{"entrypoint", "/bin/sh"},
+					{"args", fmt.Sprintf(`-c "%s %s"`, prefix, script)},
+				}
+			} else {
+				run.Run = prePromote.Script
+			}
+
+			run.Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+			deploySteps = append(deploySteps, run)
+		}
 	}
 
-	cleanup := Step{
+	deploySteps = append(deploySteps, Step{
+		Name: "Promote",
+		Uses: uses,
+		With: addCommonParams(With{
+			{"command", "halfpipe-promote"},
+		}),
+	})
+
+	deploySteps = append(deploySteps, Step{
 		Name: "Cleanup",
 		If:   "always()",
 		Uses: uses,
 		With: addCommonParams(With{
 			{"command", "halfpipe-cleanup"},
 		}),
-	}
+	})
 
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
 	}
-	steps = append(steps, deploy, cleanup)
+	steps = append(steps, deploySteps...)
 
 	return Job{
 		Name:   task.GetName(),

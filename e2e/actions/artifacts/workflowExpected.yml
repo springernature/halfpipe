@@ -29,7 +29,8 @@ jobs:
       uses: docker://debian:buster-slim
       with:
         entrypoint: /bin/sh
-        args: -c "\mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
+        args: -c "cd e2e/actions/artifacts; \mkdir target; echo foo > foo.txt; echo
+          bar > target/bar.txt"
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar foo.txt target/bar.txt
     - name: Upload artifacts
@@ -66,5 +67,5 @@ jobs:
       uses: docker://debian:buster-slim
       with:
         entrypoint: /bin/sh
-        args: -c "\cat foo.txt target/bar.txt"
+        args: -c "cd e2e/actions/artifacts; \cat foo.txt target/bar.txt"
 

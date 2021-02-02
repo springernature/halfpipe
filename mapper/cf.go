@@ -6,10 +6,10 @@ import (
 	"strings"
 )
 
-type cFDockerPush struct {
+type cf struct {
 }
 
-func (c cFDockerPush) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
+func (c cf) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
 	updated = original
 	u, err := c.updateTasks(updated.Tasks)
 	if err != nil {
@@ -19,7 +19,7 @@ func (c cFDockerPush) Apply(original manifest.Manifest) (updated manifest.Manife
 	return updated, nil
 }
 
-func (c cFDockerPush) updateTasks(tasks manifest.TaskList) (updated manifest.TaskList, err error) {
+func (c cf) updateTasks(tasks manifest.TaskList) (updated manifest.TaskList, err error) {
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.Parallel:
@@ -39,7 +39,7 @@ func (c cFDockerPush) updateTasks(tasks manifest.TaskList) (updated manifest.Tas
 			task.Tasks = u
 			updated = append(updated, task)
 		case manifest.DeployCF:
-			cf, e := c.setIsDockerPush(task)
+			cf, e := c.mapCf(task)
 			if e != nil {
 				err = e
 				return
@@ -52,7 +52,7 @@ func (c cFDockerPush) updateTasks(tasks manifest.TaskList) (updated manifest.Tas
 	return updated, err
 }
 
-func (c cFDockerPush) setIsDockerPush(cf manifest.DeployCF) (updated manifest.DeployCF, err error) {
+func (c cf) mapCf(cf manifest.DeployCF) (updated manifest.DeployCF, err error) {
 	updated = cf
 	if strings.HasPrefix(cf.Manifest, "../") {
 		return
@@ -66,9 +66,11 @@ func (c cFDockerPush) setIsDockerPush(cf manifest.DeployCF) (updated manifest.De
 	if apps[0].DockerImage != "" {
 		updated.IsDockerPush = true
 	}
+
+	updated.CfApplication = apps[0]
 	return
 }
 
-func NewCFDockerPushMapper() Mapper {
-	return cFDockerPush{}
+func NewCfMapper() Mapper {
+	return cf{}
 }

@@ -212,11 +212,7 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 
 	var prePromoteTasks []atc.Step
 	for _, t := range task.PrePromote {
-		applications, e := c.readCfManifest(task.Manifest, nil, nil)
-		if e != nil {
-			panic(fmt.Sprintf("Failed to read manifest at path: %s\n\n%s", task.Manifest, e))
-		}
-		testRoute := buildTestRoute(applications[0].Name, task.Space, task.TestDomain)
+		testRoute := BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
 		var ppJob atc.JobConfig
 		switch ppTask := t.(type) {
 		case manifest.Run:
@@ -246,7 +242,7 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 	return []atc.Step{parallelizeSteps(prePromoteTasks)}
 }
 
-func buildTestRoute(appName, space, testDomain string) string {
+func BuildTestRoute(appName, space, testDomain string) string {
 	return fmt.Sprintf("%s-%s-CANDIDATE.%s", strings.Replace(appName, "_", "-", -1), strings.Replace(space, "_", "-", -1), testDomain)
 }
 

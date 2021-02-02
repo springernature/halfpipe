@@ -29,7 +29,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_2:
     name: task 2
     needs:
@@ -43,7 +43,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_3:
     name: task 3
     needs:
@@ -57,7 +57,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_4_1:
     name: task 4.1
     needs:
@@ -71,7 +71,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_4_2:
     name: task 4.2
     needs:
@@ -85,7 +85,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_4_3_1:
     name: task 4.3.1
     needs:
@@ -99,7 +99,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_4_3_2:
     name: task 4.3.2
     needs:
@@ -113,7 +113,7 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
   task_5:
     name: task 5
     needs:
@@ -129,5 +129,5 @@ jobs:
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
-        args: -c "\date"
+        args: -c "cd e2e/actions/par-seq; \date"
 

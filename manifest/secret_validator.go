@@ -1,6 +1,7 @@
 package manifest
 
 import (
+	"code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
 	"reflect"
 	"regexp"
@@ -134,7 +135,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			}
 		}
 
-	case reflect.TypeOf(true), reflect.TypeOf(0):
+	case reflect.TypeOf(true), reflect.TypeOf(0), reflect.TypeOf(manifest.Application{}):
 		// Stuff that we don't care about as they cannot contain secrets.
 		return
 	case reflect.TypeOf(Update{}):

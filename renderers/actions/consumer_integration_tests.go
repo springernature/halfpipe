@@ -10,7 +10,7 @@ import (
 
 func (a *Actions) consumerIntegrationTestJob(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Job {
 	runTask := convertConsumerIntegrationTestToRunTask(task, man)
-	return a.runJob(runTask)
+	return a.runJob(runTask, man.Triggers.GetGitTrigger().BasePath)
 }
 
 func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {

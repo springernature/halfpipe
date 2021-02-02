@@ -12,7 +12,7 @@ import (
 )
 
 func TestReturnsErrorWhenTheManifestCannotBeOpened(t *testing.T) {
-	mapper := NewCFDockerPushMapper()
+	mapper := NewCfMapper()
 	path := "somePath.txt"
 	_, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{
 		manifest.DeployCF{
@@ -54,7 +54,7 @@ applications:
 	defer fs.Remove(normalDeployPath)
 	defer fs.Remove(dockerManifestPath)
 
-	mapper := NewCFDockerPushMapper()
+	mapper := NewCfMapper()
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{
 		cfWithNormalPush,
 		cfWithDockerPush,
@@ -63,7 +63,11 @@ applications:
 
 	assert.NoError(t, err)
 	assert.False(t, updated.Tasks[0].(manifest.DeployCF).IsDockerPush)
+	assert.Equal(t, updated.Tasks[0].(manifest.DeployCF).CfApplication.Name, "asd")
+
 	assert.True(t, updated.Tasks[1].(manifest.DeployCF).IsDockerPush)
+	assert.Equal(t, updated.Tasks[1].(manifest.DeployCF).CfApplication.Name, "wryy")
+
 	assert.False(t, updated.Tasks[2].(manifest.DeployCF).IsDockerPush)
 }
 
@@ -98,7 +102,7 @@ applications:
 	defer fs.Remove(normalDeployPath)
 	defer fs.Remove(dockerManifestPath)
 
-	mapper := NewCFDockerPushMapper()
+	mapper := NewCfMapper()
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{
 		cfWithNormalPush,
 		cfWithDockerPush,

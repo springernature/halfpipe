@@ -3,6 +3,7 @@ module github.com/springernature/halfpipe
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20180906201452-2aa6f33b730c // indirect
 	code.cloudfoundry.org/cli v6.41.0+incompatible
+	github.com/SermoDigital/jose v0.9.1 // indirect
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/bmatcuk/doublestar v1.1.1 // indirect
 	github.com/cloudfoundry/bosh-cli v5.4.0+incompatible
@@ -13,6 +14,7 @@ require (
 	github.com/gookit/color v1.2.5
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
+	github.com/lunixbochs/vtclean v1.0.0 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/onsi/gomega v1.10.0

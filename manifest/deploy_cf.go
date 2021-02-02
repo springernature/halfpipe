@@ -1,6 +1,9 @@
 package manifest
 
-import "strings"
+import (
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"strings"
+)
 
 type DeployCF struct {
 	Type            string
@@ -26,6 +29,8 @@ type DeployCF struct {
 	CliVersion      string        `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	DockerTag       string        `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+
+	CfApplication cfManifest.Application `json:"-" yaml:"-"`
 }
 
 func (r DeployCF) GetSecrets() map[string]string {
