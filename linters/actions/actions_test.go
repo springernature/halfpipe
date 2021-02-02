@@ -60,11 +60,10 @@ func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 	}
 	actual := lint(man)
 	assert.Empty(t, actual.Errors)
-	if assert.Len(t, actual.Warnings, 5) {
+	if assert.Len(t, actual.Warnings, 4) {
 		assert.Contains(t, actual.Warnings[0].Error(), "manual_trigger")
 		assert.Contains(t, actual.Warnings[1].Error(), "manual_trigger")
 		assert.Contains(t, actual.Warnings[2].Error(), "manual_trigger")
-		assert.Contains(t, actual.Warnings[3].Error(), "pre_promote")
-		assert.Contains(t, actual.Warnings[4].Error(), "rolling")
+		assert.Contains(t, actual.Warnings[3].Error(), "rolling")
 	}
 }
