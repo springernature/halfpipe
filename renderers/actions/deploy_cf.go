@@ -55,12 +55,15 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
 	})
 
 	for _, prePromote := range task.PrePromote {
+		prePromoteSteps := Steps{}
 		switch prePromote := prePromote.(type) {
 		case manifest.Run:
-			prePromoteSteps := a.runSteps(prePromote)
-			prePromoteSteps[0].Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
-			deploySteps = append(deploySteps, prePromoteSteps...)
+			prePromoteSteps = a.runSteps(prePromote)
+		case manifest.DockerCompose:
+			prePromoteSteps = a.dockerComposeSteps(prePromote)
 		}
+		prePromoteSteps[0].Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+		deploySteps = append(deploySteps, prePromoteSteps...)
 	}
 
 	deploySteps = append(deploySteps, Step{
