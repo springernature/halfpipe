@@ -53,19 +53,23 @@ type parentTask struct {
 }
 
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
-	appendJob := func(steps Steps, task manifest.Task, needs []string) {
-		job := Job{
-			Name:   task.GetName(),
-			RunsOn: defaultRunner,
-			Steps:  convertSecrets(steps, man.Team),
+	appendJob := func(taskSteps Steps, task manifest.Task, needs []string) {
+		steps := Steps{checkoutCode}
+		if task.ReadsFromArtifacts() {
+			steps = append(steps, a.restoreArtifacts()...)
 		}
-
+		steps = append(steps, taskSteps...)
 		if task.GetNotifications().NotificationsDefined() {
-			job.Steps = append(job.Steps, notify(task.GetNotifications())...)
+			steps = append(steps, notify(task.GetNotifications())...)
 		}
 
-		job.TimeoutMinutes = timeoutInMinutes(task.GetTimeout())
-		job.Needs = needs
+		job := Job{
+			Name:           task.GetName(),
+			RunsOn:         defaultRunner,
+			Steps:          convertSecrets(steps, man.Team),
+			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
+			Needs:          needs,
+		}
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 

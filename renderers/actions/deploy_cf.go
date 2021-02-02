@@ -9,7 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
+func (a *Actions) deployCFSteps(task manifest.DeployCF) (steps Steps) {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
@@ -112,10 +112,6 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
 		}),
 	})
 
-	steps := Steps{checkoutCode}
-	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts()...)
-	}
 	steps = append(steps, deploySteps...)
 	return steps
 }

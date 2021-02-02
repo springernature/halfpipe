@@ -6,11 +6,7 @@ import (
 	"path"
 )
 
-func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifest) Steps {
-	steps := Steps{checkoutCode}
-	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts()...)
-	}
+func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifest) (steps Steps) {
 	steps = append(steps, Step{
 		Name: "Set up Docker Buildx",
 		Uses: "docker/setup-buildx-action@v1",

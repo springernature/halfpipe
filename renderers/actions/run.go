@@ -6,21 +6,17 @@ import (
 	"strings"
 )
 
-func (a *Actions) runSteps(task manifest.Run) Steps {
-	steps := Steps{checkoutCode}
-	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts()...)
-	}
+func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	run := Step{
 		Name: "run",
 		Env:  Env(task.Vars),
 	}
 
-	prefix := ""
-	if a.workingDir != "" {
-		prefix = fmt.Sprintf("cd %s;", a.workingDir)
-	}
 	if task.Docker.Image != "" {
+		prefix := ""
+		if a.workingDir != "" {
+			prefix = fmt.Sprintf("cd %s;", a.workingDir)
+		}
 		run.Uses = "docker://" + task.Docker.Image
 		run.With = With{
 			{"entrypoint", "/bin/sh"},
