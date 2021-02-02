@@ -2,11 +2,9 @@ package actions
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/concourse"
 	"path"
-	"strings"
-
-	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
@@ -57,41 +55,11 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
 	})
 
 	for _, prePromote := range task.PrePromote {
-		prefix := ""
-		if a.workingDir != "" {
-			prefix = fmt.Sprintf("cd %s;", a.workingDir)
-		}
-
 		switch prePromote := prePromote.(type) {
 		case manifest.Run:
-			env := prePromote.Vars
-			if len(prePromote.Vars) == 0 {
-				env = make(map[string]string)
-			}
-
-			run := Step{
-				Name: "run",
-				Env:  Env(env),
-			}
-
-			script := prePromote.Script
-			if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
-				script = "./" + script
-			}
-			script = strings.Replace(script, `"`, `\"`, -1)
-
-			if prePromote.Docker.Image != "" {
-				run.Uses = "docker://" + prePromote.Docker.Image
-				run.With = With{
-					{"entrypoint", "/bin/sh"},
-					{"args", fmt.Sprintf(`-c "%s %s"`, prefix, script)},
-				}
-			} else {
-				run.Run = prePromote.Script
-			}
-
-			run.Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
-			deploySteps = append(deploySteps, run)
+			prePromoteSteps := a.runSteps(prePromote)
+			prePromoteSteps[0].Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+			deploySteps = append(deploySteps, prePromoteSteps...)
 		}
 	}
 
@@ -112,10 +80,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF) Steps {
 		}),
 	})
 
-	steps := Steps{checkoutCode}
-	if task.ReadsFromArtifacts() {
-		steps = append(steps, a.restoreArtifacts()...)
-	}
+	steps := Steps{}
 	steps = append(steps, deploySteps...)
 	return steps
 }

@@ -53,11 +53,34 @@ type parentTask struct {
 }
 
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
-	appendJob := func(steps Steps, task manifest.Task, needs []string) {
+	appendJob := func(taskSteps Steps, task manifest.Task, needs []string) {
+		steps := Steps{checkoutCode}
+		if task.ReadsFromArtifacts() {
+			steps = append(steps, a.restoreArtifacts()...)
+		}
+		steps = append(steps, taskSteps...)
+
 		job := Job{
 			Name:   task.GetName(),
 			RunsOn: defaultRunner,
 			Steps:  convertSecrets(steps, man.Team),
+		}
+
+		var saveArtifacts []string
+		var saveArtifactsOnFailure []string
+		switch task := task.(type) {
+		case manifest.Run:
+			saveArtifacts = task.SaveArtifacts
+			saveArtifactsOnFailure = task.SaveArtifactsOnFailure
+		case manifest.DockerCompose:
+			saveArtifacts = task.SaveArtifacts
+			saveArtifactsOnFailure = task.SaveArtifactsOnFailure
+		}
+		if task.SavesArtifacts() {
+			job.Steps = append(job.Steps, a.saveArtifacts(saveArtifacts)...)
+		}
+		if task.SavesArtifactsOnFailure() {
+			job.Steps = append(job.Steps, a.saveArtifactsOnFailure(saveArtifactsOnFailure)...)
 		}
 
 		if task.GetNotifications().NotificationsDefined() {

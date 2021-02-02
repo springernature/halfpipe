@@ -40,6 +40,10 @@ jobs:
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
           app
+    - name: Docker cleanup
+      if: always()
+      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker
+        network ls; docker volume ls
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar foo bar/baz
     - name: Upload artifacts
@@ -56,10 +60,6 @@ jobs:
       with:
         name: artifacts-failure
         path: /tmp/halfpipe-artifacts.tar
-    - name: Docker cleanup
-      if: always()
-      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker
-        network ls; docker volume ls
   custom:
     name: custom
     needs:
