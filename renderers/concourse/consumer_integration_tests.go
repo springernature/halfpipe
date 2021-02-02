@@ -18,10 +18,14 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(man.Pipeline))
 
+	dockerLogin := `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
+	cdcScript := shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
+	script := dockerLogin + "\n\n" + cdcScript
+
 	runTask := manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
-		Script:  shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs),
+		Script:  script,
 		Docker: manifest.Docker{
 			Image:    config.DockerRegistry + config.DockerComposeImage,
 			Username: "_json_key",

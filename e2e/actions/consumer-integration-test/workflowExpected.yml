@@ -27,8 +27,6 @@ jobs:
       uses: actions/checkout@v2
     - name: run
       run: |
-        \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-
         # write git key to file
         echo "${CONSUMER_GIT_KEY}" > .gitkey
         chmod 600 .gitkey

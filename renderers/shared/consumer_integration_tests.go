@@ -24,9 +24,7 @@ func ConsumerIntegrationTestScript(vars manifest.Vars, cacheDirs []string) strin
 
 	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
-	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-
-# write git key to file
+	return fmt.Sprintf(`# write git key to file
 echo "${CONSUMER_GIT_KEY}" > .gitkey
 chmod 600 .gitkey
 
