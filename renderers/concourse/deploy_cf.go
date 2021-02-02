@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
 
@@ -212,7 +213,7 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 
 	var prePromoteTasks []atc.Step
 	for _, t := range task.PrePromote {
-		testRoute := BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+		testRoute := shared.BuildTestRoute(task)
 		var ppJob atc.JobConfig
 		switch ppTask := t.(type) {
 		case manifest.Run:
@@ -240,10 +241,6 @@ func (c Concourse) prePromoteTasks(task manifest.DeployCF, man manifest.Manifest
 	}
 
 	return []atc.Step{parallelizeSteps(prePromoteTasks)}
-}
-
-func BuildTestRoute(appName, space, testDomain string) string {
-	return fmt.Sprintf("%s-%s-CANDIDATE.%s", strings.Replace(appName, "_", "-", -1), strings.Replace(space, "_", "-", -1), testDomain)
 }
 
 func deployCFResourceName(task manifest.DeployCF) (name string) {

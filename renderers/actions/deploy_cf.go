@@ -3,7 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/renderers/concourse"
+	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 )
 
@@ -54,7 +54,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		}),
 	})
 
-	testRoute := concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+	testRoute := shared.BuildTestRoute(task)
 	for _, ppTask := range task.PrePromote {
 		switch ppTask := ppTask.(type) {
 		case manifest.Run:
