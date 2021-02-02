@@ -2,14 +2,12 @@ package actions
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/concourse"
 	"path"
-	"strings"
-
-	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployCFSteps(task manifest.DeployCF) (steps Steps) {
+func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (steps Steps) {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
@@ -56,42 +54,18 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF) (steps Steps) {
 		}),
 	})
 
-	for _, prePromote := range task.PrePromote {
-		prefix := ""
-		if a.workingDir != "" {
-			prefix = fmt.Sprintf("cd %s;", a.workingDir)
-		}
-
-		switch prePromote := prePromote.(type) {
+	testRoute := concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
+	for _, ppTask := range task.PrePromote {
+		switch ppTask := ppTask.(type) {
 		case manifest.Run:
-			env := prePromote.Vars
-			if len(prePromote.Vars) == 0 {
-				env = make(map[string]string)
-			}
-
-			run := Step{
-				Name: "run",
-				Env:  Env(env),
-			}
-
-			script := prePromote.Script
-			if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
-				script = "./" + script
-			}
-			script = strings.Replace(script, `"`, `\"`, -1)
-
-			if prePromote.Docker.Image != "" {
-				run.Uses = "docker://" + prePromote.Docker.Image
-				run.With = With{
-					{"entrypoint", "/bin/sh"},
-					{"args", fmt.Sprintf(`-c "%s %s"`, prefix, script)},
-				}
-			} else {
-				run.Run = prePromote.Script
-			}
-
-			run.Env["TEST_ROUTE"] = concourse.BuildTestRoute(task.CfApplication.Name, task.Space, task.TestDomain)
-			deploySteps = append(deploySteps, run)
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			deploySteps = append(deploySteps, a.runSteps(ppTask)...)
+		case manifest.DockerCompose:
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			deploySteps = append(deploySteps, a.dockerComposeSteps(ppTask)...)
+		case manifest.ConsumerIntegrationTest:
+			ppTask.Vars["TEST_ROUTE"] = testRoute
+			deploySteps = append(deploySteps, a.consumerIntegrationTestSteps(ppTask, man)...)
 		}
 	}
 

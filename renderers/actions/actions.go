@@ -96,7 +96,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			runTask := shared.ConvertDeployMLZip(task, man)
 			appendJob(a.runSteps(runTask), task, needs)
 		case manifest.DeployCF:
-			appendJob(a.deployCFSteps(task), task, needs)
+			appendJob(a.deployCFSteps(task, man), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:

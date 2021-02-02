@@ -17,10 +17,14 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 		if a.workingDir != "" {
 			prefix = fmt.Sprintf("cd %s;", a.workingDir)
 		}
+		if !strings.HasPrefix(task.Script, "./") && !strings.HasPrefix(task.Script, "/") && !strings.HasPrefix(task.Script, `\`) {
+			task.Script = "./" + task.Script
+		}
+		task.Script = strings.Replace(task.Script, `"`, `\"`, -1)
 		run.Uses = "docker://" + task.Docker.Image
 		run.With = With{
 			{"entrypoint", "/bin/sh"},
-			{"args", fmt.Sprintf(`-c "%s %s"`, prefix, strings.Replace(task.Script, `"`, `\"`, -1))},
+			{"args", fmt.Sprintf(`-c "%s %s"`, prefix, task.Script)},
 		}
 	} else {
 		run.Run = task.Script
