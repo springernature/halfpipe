@@ -9,7 +9,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployCFJob(task manifest.DeployCF, basePath string) Job {
+func (a *Actions) deployCFJob(task manifest.DeployCF) Job {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
@@ -58,8 +58,8 @@ func (a *Actions) deployCFJob(task manifest.DeployCF, basePath string) Job {
 
 	for _, prePromote := range task.PrePromote {
 		prefix := ""
-		if basePath != "" {
-			prefix = fmt.Sprintf("cd %s;", basePath)
+		if a.workingDir != "" {
+			prefix = fmt.Sprintf("cd %s;", a.workingDir)
 		}
 
 		switch prePromote := prePromote.(type) {

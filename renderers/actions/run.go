@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func (a *Actions) runJob(task manifest.Run, path string) Job {
+func (a *Actions) runJob(task manifest.Run) Job {
 	steps := []Step{checkoutCode}
 	if task.ReadsFromArtifacts() {
 		steps = append(steps, a.restoreArtifacts()...)
@@ -17,8 +17,8 @@ func (a *Actions) runJob(task manifest.Run, path string) Job {
 	}
 
 	prefix := ""
-	if path != "" {
-		prefix = fmt.Sprintf("cd %s;", path)
+	if a.workingDir != "" {
+		prefix = fmt.Sprintf("cd %s;", a.workingDir)
 	}
 	if task.Docker.Image != "" {
 		run.Uses = "docker://" + task.Docker.Image

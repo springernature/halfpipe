@@ -65,8 +65,6 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 
-	basePath := man.Triggers.GetGitTrigger().BasePath
-
 	for i, t := range tasks {
 		needs := idsFromNames(tasks.PreviousTaskNames(i))
 		if parent != nil {
@@ -78,19 +76,19 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		case manifest.DockerPush:
 			appendJob(a.dockerPushJob(task, man), task, needs)
 		case manifest.Run:
-			appendJob(a.runJob(task, basePath), task, needs)
+			appendJob(a.runJob(task), task, needs)
 		case manifest.DockerCompose:
-			appendJob(a.dockerComposeJob(task, basePath), task, needs)
+			appendJob(a.dockerComposeJob(task), task, needs)
 		case manifest.ConsumerIntegrationTest:
 			appendJob(a.consumerIntegrationTestJob(task, man), task, needs)
 		case manifest.DeployMLModules:
 			runTask := shared.ConvertDeployMLModules(task, man)
-			appendJob(a.runJob(runTask, basePath), task, needs)
+			appendJob(a.runJob(runTask), task, needs)
 		case manifest.DeployMLZip:
 			runTask := shared.ConvertDeployMLZip(task, man)
-			appendJob(a.runJob(runTask, basePath), task, needs)
+			appendJob(a.runJob(runTask), task, needs)
 		case manifest.DeployCF:
-			appendJob(a.deployCFJob(task, basePath), task, needs)
+			appendJob(a.deployCFJob(task), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
