@@ -1,8 +1,14 @@
 package cmds
 
 import (
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path"
+	"path/filepath"
+	"runtime"
+
+	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
@@ -16,9 +22,6 @@ import (
 	"github.com/springernature/halfpipe/renderers/actions"
 	"github.com/springernature/halfpipe/sync"
 	"github.com/tcnksm/go-gitconfig"
-	"os"
-	"path"
-	"runtime"
 )
 
 var checkVersion = func() (err error) {
@@ -68,6 +71,28 @@ func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
 		}
 
 		os.Exit(1)
+	}
+}
+
+func renderResponse(r halfpipe.Response, filePath string) {
+	outputErrorsAndWarnings(nil, r.LintResults)
+
+	if filePath == "" {
+		fmt.Println(r.ConfigYaml)
+		return
+	}
+
+	if !Quiet {
+		fmt.Println("writing to " + filePath)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
+		printErr(err)
+		return
+	}
+	if err := ioutil.WriteFile(filePath, []byte(r.ConfigYaml), 0644); err != nil {
+		printErr(err)
+		return
 	}
 }
 

@@ -1,7 +1,6 @@
 package cmds
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -16,9 +15,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a Concour
 		renderer := concourse.NewPipeline()
 		man, controller := getManifestAndController(renderer)
 		response := controller.Process(man)
-
-		outputErrorsAndWarnings(nil, response.LintResults)
-		fmt.Println(response.ConfigYaml)
+		renderResponse(response, "")
 	},
 }
 

@@ -1,9 +1,10 @@
 package project
 
 import (
+	"path/filepath"
+
 	"github.com/springernature/halfpipe/linters/filechecker"
 	errors2 "github.com/springernature/halfpipe/linters/linterrors"
-	"path/filepath"
 
 	"os/exec"
 
@@ -18,6 +19,7 @@ type Data struct {
 	BasePath         string
 	RootName         string
 	GitURI           string
+	GitRootPath      string
 	HalfpipeFilePath string
 }
 
@@ -47,27 +49,27 @@ var (
 )
 
 func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p Data, err error) {
-	var pathRelativeToGit func(string) (basePath string, rootName string, err error)
+	var pathRelativeToGit func(string) (basePath string, rootName string, gitRootPath string, err error)
 
-	pathRelativeToGit = func(path string) (basePath string, rootName string, err error) {
+	pathRelativeToGit = func(path string) (basePath string, rootName string, gitRootPath string, err error) {
 		if !strings.Contains(path, string(filepath.Separator)) {
-			return "", "", ErrNotInRepo
+			return "", "", "", ErrNotInRepo
 		}
 
 		exists, e := c.Fs.DirExists(filepath.Join(path, ".git"))
 		if e != nil {
-			return "", "", e
+			return "", "", "", e
 		}
 
 		switch {
 		case exists && path == workingDir:
-			return "", filepath.Base(path), nil
+			return "", filepath.Base(path), path, nil
 		case exists:
 			basePath, err := filepath.Rel(path, workingDir)
 			rootName := filepath.Base(path)
-			return basePath, rootName, err
+			return basePath, rootName, path, err
 		case path == "/":
-			return "", "", ErrNotInRepo
+			return "", "", "", ErrNotInRepo
 		default:
 			return pathRelativeToGit(filepath.Join(path, ".."))
 		}
@@ -78,7 +80,8 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		return p, err
 	}
 
-	basePath, rootName, err := pathRelativeToGit(workingDir)
+	basePath, rootName, gitRootPath, err := pathRelativeToGit(workingDir)
+
 	if err != nil {
 		return p, err
 	}
@@ -100,6 +103,7 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 	}
 
 	p.GitURI = origin
+	p.GitRootPath = gitRootPath
 	p.BasePath = basePath
 	p.RootName = rootName
 	p.HalfpipeFilePath = halfpipeFilePath

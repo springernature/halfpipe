@@ -6,6 +6,7 @@ import (
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
+	"github.com/springernature/halfpipe/project"
 )
 
 type Controller interface {
@@ -15,7 +16,7 @@ type Controller interface {
 
 type Response struct {
 	ConfigYaml  string
-	FilePath    string
+	Project     project.Data
 	LintResults result.LintResults
 }
 
@@ -58,7 +59,7 @@ func (c controller) Process(man manifest.Manifest) (response Response) {
 
 	config, _ := c.renderer.Render(mappedManifest)
 	response.ConfigYaml = config
-	response.FilePath = "foo/bar"
+	response.Project = c.defaulter.Project
 	return response
 }
 

@@ -1,7 +1,7 @@
 package cmds
 
 import (
-	"fmt"
+	"path"
 
 	"github.com/spf13/cobra"
 	linters "github.com/springernature/halfpipe/linters/actions"
@@ -10,7 +10,10 @@ import (
 
 func init() {
 	rootCmd.AddCommand(actionsCmd)
+	actionsCmd.Flags().StringVarP(&outputPath, "output", "o", "", "override the default output filepath")
 }
+
+var outputPath string
 
 var actionsCmd = &cobra.Command{
 	Use:   "actions",
@@ -21,8 +24,11 @@ var actionsCmd = &cobra.Command{
 		response := controller.Process(man)
 
 		actionsLintResult := linters.ActionsLinter{}.Lint(man)
+		response.LintResults = append(response.LintResults, actionsLintResult)
 
-		outputErrorsAndWarnings(nil, append(response.LintResults, actionsLintResult))
-		fmt.Println(response.ConfigYaml)
+		if outputPath == "" {
+			outputPath = path.Join(response.Project.GitRootPath, ".github/workflows/", man.PipelineName()+".yml")
+		}
+		renderResponse(response, outputPath)
 	},
 }
