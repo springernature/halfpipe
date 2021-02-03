@@ -15,7 +15,7 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	if task.Docker.Image != "" {
 		prefix := ""
 		if a.workingDir != "" {
-			prefix = fmt.Sprintf("cd %s;", a.workingDir)
+			prefix = fmt.Sprintf("cd %s; ", a.workingDir)
 		}
 		if !strings.HasPrefix(task.Script, "./") && !strings.HasPrefix(task.Script, "/") && !strings.HasPrefix(task.Script, `\`) {
 			task.Script = "./" + task.Script
@@ -24,7 +24,7 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 		run.Uses = "docker://" + task.Docker.Image
 		run.With = With{
 			{"entrypoint", "/bin/sh"},
-			{"args", fmt.Sprintf(`-c "%s %s"`, prefix, task.Script)},
+			{"args", fmt.Sprintf(`-c "%s%s"`, prefix, task.Script)},
 		}
 	} else {
 		run.Run = task.Script
