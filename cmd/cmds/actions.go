@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 	linters "github.com/springernature/halfpipe/linters/actions"
 	"github.com/springernature/halfpipe/renderers/actions"
@@ -17,11 +18,11 @@ var actionsCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		renderer := actions.NewActions()
 		man, controller := getManifestAndController(renderer)
-		pipelineConfig, lintResults := controller.Process(man)
+		response := controller.Process(man)
 
 		actionsLintResult := linters.ActionsLinter{}.Lint(man)
 
-		outputErrorsAndWarnings(nil, append(lintResults, actionsLintResult))
-		fmt.Println(pipelineConfig)
+		outputErrorsAndWarnings(nil, append(response.LintResults, actionsLintResult))
+		fmt.Println(response.ConfigYaml)
 	},
 }

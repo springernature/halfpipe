@@ -9,8 +9,14 @@ import (
 )
 
 type Controller interface {
-	Process(man manifest.Manifest) (config string, results result.LintResults)
+	Process(man manifest.Manifest) Response
 	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error)
+}
+
+type Response struct {
+	ConfigYaml  string
+	FilePath    string
+	LintResults result.LintResults
 }
 
 type Renderer interface {
@@ -33,25 +39,27 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 	}
 }
 
-func (c controller) Process(man manifest.Manifest) (config string, results result.LintResults) {
+func (c controller) Process(man manifest.Manifest) (response Response) {
 	defaultedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
-		results = append(results, linter.Lint(defaultedManifest))
+		response.LintResults = append(response.LintResults, linter.Lint(defaultedManifest))
 	}
 
-	if results.HasErrors() {
+	if response.LintResults.HasErrors() {
 		return
 	}
 
 	mappedManifest, err := c.mapper.Apply(defaultedManifest)
 	if err != nil {
-		results = append(results, result.LintResult{Linter: "Internal mapper", Errors: []error{err}})
+		response.LintResults = append(response.LintResults, result.LintResult{Linter: "Internal mapper", Errors: []error{err}})
 		return
 	}
 
-	config, _ = c.renderer.Render(mappedManifest)
-	return config, results
+	config, _ := c.renderer.Render(mappedManifest)
+	response.ConfigYaml = config
+	response.FilePath = "foo/bar"
+	return response
 }
 
 func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {

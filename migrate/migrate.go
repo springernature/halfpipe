@@ -3,10 +3,11 @@ package migrate
 import (
 	"errors"
 	"fmt"
+	"reflect"
+
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
-	"reflect"
 )
 
 type ParseFunc func(manifestYaml string) (manifest.Manifest, []error)
@@ -58,8 +59,8 @@ parsedMigratedManifestYaml:
 
 func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults result.LintResults, migrated bool, err error) {
 	// Checking that the original manifest is ok
-	_, lintResults = m.controller.Process(man)
-	if lintResults.HasErrors() {
+	response := m.controller.Process(man)
+	if response.LintResults.HasErrors() {
 		err = ErrLintingOriginalManifest
 		return
 	}
@@ -75,8 +76,8 @@ func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Mani
 	}
 
 	// check the migrated manifest
-	_, lintResults = m.controller.Process(tmpMigratedManifest)
-	if lintResults.HasErrors() {
+	responseMigrated := m.controller.Process(tmpMigratedManifest)
+	if responseMigrated.LintResults.HasErrors() {
 		migratedManifest = man
 		err = ErrLintingMigratedManifest
 		return

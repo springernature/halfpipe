@@ -1,21 +1,22 @@
 package migrate
 
 import (
-	"github.com/springernature/halfpipe/linters/result"
+	"testing"
+
+	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type MockController struct {
-	processFunc func(man manifest.Manifest) (config string, results result.LintResults)
+	processFunc func(man manifest.Manifest) halfpipe.Response
 }
 
 func (m MockController) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {
 	panic("implement me")
 }
 
-func (m MockController) Process(man manifest.Manifest) (config string, results result.LintResults) {
+func (m MockController) Process(man manifest.Manifest) halfpipe.Response {
 	return m.processFunc(man)
 }
 
@@ -37,7 +38,7 @@ func TestHappyPath(t *testing.T) {
 		}
 
 		mockController := MockController{
-			processFunc: func(man manifest.Manifest) (config string, results result.LintResults) {
+			processFunc: func(man manifest.Manifest) (response halfpipe.Response) {
 				return
 			},
 		}

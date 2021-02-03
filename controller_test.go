@@ -2,9 +2,10 @@ package halfpipe
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
-	"testing"
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
@@ -42,16 +43,16 @@ func testController() controller {
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
 
-	_, results := c.Process(validHalfpipeManifest)
+	response := c.Process(validHalfpipeManifest)
 
-	assert.Len(t, results.Error(), 0)
+	assert.Len(t, response.LintResults.Error(), 0)
 }
 
 func TestWorksForHalfpipeFile(t *testing.T) {
 	c := testController()
-	_, results := c.Process(validHalfpipeManifest)
+	response := c.Process(validHalfpipeManifest)
 
-	assert.Len(t, results.Error(), 0)
+	assert.Len(t, response.LintResults.Error(), 0)
 }
 
 type fakeLinter struct {
@@ -69,20 +70,20 @@ func TestAppliesAllLinters(t *testing.T) {
 	linter2 := fakeLinter{linterrors.NewMissingField("field")}
 	c.linters = []linters.Linter{linter1, linter2}
 
-	pipeline, results := c.Process(validHalfpipeManifest)
+	response := c.Process(validHalfpipeManifest)
 
-	assert.Empty(t, pipeline)
-	assert.Len(t, results, 2)
-	assert.Equal(t, linter1.Error, results[0].Errors[0])
-	assert.Equal(t, linter2.Error, results[1].Errors[0])
+	assert.Empty(t, response.ConfigYaml)
+	assert.Len(t, response.LintResults, 2)
+	assert.Equal(t, linter1.Error, response.LintResults[0].Errors[0])
+	assert.Equal(t, linter2.Error, response.LintResults[1].Errors[0])
 }
 
 func TestGivesBackConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
 
-	pipeline, results := c.Process(validHalfpipeManifest)
-	assert.Len(t, results, 0)
-	assert.Equal(t, "fake output", pipeline)
+	response := c.Process(validHalfpipeManifest)
+	assert.Len(t, response.LintResults, 0)
+	assert.Equal(t, "fake output", response.ConfigYaml)
 }
 
 type FakeMapper struct {
@@ -96,9 +97,9 @@ func (f FakeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest
 func TestGivesBackABadTestResultWhenAMapperFails(t *testing.T) {
 	c := testController()
 	c.mapper = FakeMapper{err: errors.New("blurgh")}
-	_, results := c.Process(validHalfpipeManifest)
+	response := c.Process(validHalfpipeManifest)
 
-	assert.Len(t, results, 1)
-	assert.True(t, results.HasErrors())
-	assert.False(t, results.HasWarnings())
+	assert.Len(t, response.LintResults, 1)
+	assert.True(t, response.LintResults.HasErrors())
+	assert.False(t, response.LintResults.HasWarnings())
 }
