@@ -11,7 +11,7 @@ type ActionsLinter struct{}
 
 func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "GitHub Actions"
-	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/github-actions"
+	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
 
 	result.AddWarning(unsupportedTasks(man.Tasks)...)
 	result.AddWarning(unsupportedTriggers(man.Triggers)...)
