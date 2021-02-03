@@ -4,6 +4,9 @@ name: pipeline-name
   push:
     branches:
     - master
+    paths:
+    - e2e/actions/docker-push**
+    - .github/workflows/pipeline-name.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

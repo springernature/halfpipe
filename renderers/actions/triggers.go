@@ -1,14 +1,15 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) triggers(triggers manifest.TriggerList) (on On) {
-	for _, t := range triggers {
+func (a *Actions) triggers(man manifest.Manifest) (on On) {
+	for _, t := range man.Triggers {
 		switch trigger := t.(type) {
 		case manifest.GitTrigger:
-			on.Push = a.onPush(trigger)
+			on.Push = a.onPush(trigger, man.PipelineName())
 		case manifest.TimerTrigger:
 			on.Schedule = a.onSchedule(trigger)
 		case manifest.DockerTrigger:
@@ -18,15 +19,31 @@ func (a *Actions) triggers(triggers manifest.TriggerList) (on On) {
 	return on
 }
 
-func (a *Actions) onPush(git manifest.GitTrigger) (push Push) {
+func (a *Actions) onPush(git manifest.GitTrigger, pipelineName string) (push Push) {
 	if git.ManualTrigger {
 		return push
 	}
-
 	push.Branches = Branches{git.Branch}
 
+	if git.BasePath != "" {
+		push.Paths = append(push.Paths, fmt.Sprintf("%s**", git.BasePath))
+	}
+
 	for _, p := range git.WatchedPaths {
-		push.Paths = append(push.Paths, p+"**")
+		path := fmt.Sprintf("%s**", p)
+		var found bool
+		for _, pp := range push.Paths {
+			if pp == path {
+				found = true
+			}
+		}
+		if !found {
+			push.Paths = append(push.Paths, p+"**")
+		}
+	}
+
+	if len(push.Paths) > 0 {
+		push.Paths = append(push.Paths, fmt.Sprintf(".github/workflows/%s.yml", pipelineName))
 	}
 
 	// if there are only ignored paths you first have to include all

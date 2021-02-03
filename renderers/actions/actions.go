@@ -35,7 +35,7 @@ func NewActions() Actions {
 func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
-	w.On = a.triggers(man.Triggers)
+	w.On = a.triggers(man)
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
 		if basePath := man.Triggers.GetGitTrigger().BasePath; basePath != "" {
