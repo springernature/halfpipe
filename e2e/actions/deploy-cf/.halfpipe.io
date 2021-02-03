@@ -47,3 +47,9 @@ tasks:
           ENV5: ((some.secret))
       - type: docker-compose
 
+  - type: deploy-cf
+    name: deploy to cf with docker image
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    space: dev
+    manifest: manifest-docker.yml

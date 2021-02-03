@@ -201,7 +201,7 @@ jobs:
         args: -c "cd e2e/actions/deploy-cf; ./smoke-test.sh"
       env:
         ENV5: ${{ steps.secrets.outputs.some_secret }}
-        TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app
+        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: run
       run: |
         docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
@@ -219,7 +219,7 @@ jobs:
           -e VAULT_SECRET_ID \
           app
       env:
-        TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app
+        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: Docker cleanup
       if: always()
       run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker
@@ -250,5 +250,86 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         testDomain: springernature.app
         appPath: e2e/actions/deploy-cf/foo.html
+        command: halfpipe-cleanup
+  deploy_to_cf_with_docker_image:
+    name: deploy to cf with docker image
+    needs:
+    - deploy_to_cf_with_pre-promote
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          springernature/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
+          springernature/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
+          springernature/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
+          springernature/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
+          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Push
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf
+        command: halfpipe-push
+        dockerUsername: _json_key
+        dockerPassword: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
+      env:
+        CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Check
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf
+        command: halfpipe-check
+    - name: Promote
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf
+        command: halfpipe-promote
+    - name: Cleanup
+      if: always()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf
         command: halfpipe-cleanup
 

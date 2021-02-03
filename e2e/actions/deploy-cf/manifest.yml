@@ -1,6 +1,6 @@
 ---
 applications:
-- name: halfpipe-example-kotlin-dev
+- name: halfpipe-example
   instances: 1
   memory: 32M
   routes:
