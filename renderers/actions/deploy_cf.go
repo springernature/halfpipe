@@ -82,6 +82,9 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
+			if ppTask.ProviderHost == "" {
+				ppTask.ProviderHost = testRoute
+			}
 			deploySteps = append(deploySteps, a.consumerIntegrationTestSteps(ppTask, man)...)
 		}
 	}

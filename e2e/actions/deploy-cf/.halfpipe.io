@@ -46,7 +46,11 @@ tasks:
         vars:
           ENV5: ((some.secret))
       - type: docker-compose
-
+      - type: consumer-integration-test
+        name: CDCs
+        consumer: repo/app
+        consumer_host: consumer.host
+        script: ci/run-external-and-cdcs-dev
   - type: deploy-cf
     name: deploy to cf with docker image
     api: ((cloudfoundry.api-snpaas))

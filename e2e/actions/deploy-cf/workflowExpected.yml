@@ -223,6 +223,49 @@ jobs:
       if: always()
       run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker
         network ls; docker volume ls
+    - name: run
+      run: |
+        # write git key to file
+        echo "${CONSUMER_GIT_KEY}" > .gitkey
+        chmod 600 .gitkey
+
+        set -ex
+
+        # get current revision of consumer, revert to HEAD if not found
+        REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
+        if [ "${REVISION}" == "" ]; then
+          echo "Error fetching version of consumer from ${CONSUMER_HOST}/internal/version - using HEAD instead."
+          REVISION=HEAD
+        fi
+
+        # clone consumer into "consumer-repo" dir
+        GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} consumer-repo
+        cd consumer-repo/${CONSUMER_PATH}
+
+        # checkout revision
+        git checkout ${REVISION}
+
+        # run the tests with docker-compose
+        # note: old system reads CF manifest env vars and sets them all here
+        docker-compose run --no-deps \
+          --entrypoint "${CONSUMER_SCRIPT}" \
+          -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+          -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+          -e TEST_ROUTE \
+           \
+          ${DOCKER_COMPOSE_SERVICE:-code}
+      env:
+        CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        CONSUMER_GIT_URI: git@github.com:springernature/repo
+        CONSUMER_HOST: consumer.host
+        CONSUMER_PATH: app
+        CONSUMER_SCRIPT: ci/run-external-and-cdcs-dev
+        DOCKER_COMPOSE_SERVICE: ""
+        GIT_CLONE_OPTIONS: ""
+        PROVIDER_HOST: halfpipe-example-dev-CANDIDATE.springernature.app
+        PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
+        PROVIDER_NAME: pipeline-name
+        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: Promote
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
