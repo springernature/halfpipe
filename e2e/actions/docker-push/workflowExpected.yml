@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: build
       uses: docker://foo
       with:
         entrypoint: /bin/sh

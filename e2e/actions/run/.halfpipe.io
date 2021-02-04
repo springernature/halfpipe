@@ -15,7 +15,6 @@ tasks:
     SHARED_SECRET: ((halfpipe-slack.token))
   timeout: 1h2m
 - type: run
-  name: my run script
   docker:
     image: my.private.registry/repo/golang:1.15
     username: docker-user

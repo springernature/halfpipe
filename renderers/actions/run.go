@@ -8,7 +8,7 @@ import (
 
 func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	run := Step{
-		Name: "run",
+		Name: task.GetName(),
 		Env:  Env(task.Vars),
 	}
 

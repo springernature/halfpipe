@@ -2,4 +2,3 @@
 name: pipeline-name
 "on":
   workflow_dispatch: {}
-

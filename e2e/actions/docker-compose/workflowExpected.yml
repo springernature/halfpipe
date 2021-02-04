@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: test
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -78,7 +78,7 @@ jobs:
         path: e2e/actions/docker-compose
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-    - name: run
+    - name: custom
       run: |-
         docker-compose \
           -f custom-docker-compose.yml \

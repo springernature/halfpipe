@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: build
       uses: docker://debian:buster-slim
       with:
         entrypoint: /bin/sh
@@ -66,9 +66,8 @@ jobs:
         path: e2e/actions/artifacts
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-    - name: run
+    - name: test
       uses: docker://debian:buster-slim
       with:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/artifacts; \cat foo.txt target/bar.txt"
-

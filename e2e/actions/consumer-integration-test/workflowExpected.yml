@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: another-c-name
       run: |
         # write git key to file
         echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -72,4 +72,3 @@ jobs:
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
         PROVIDER_NAME: pipeline-name
-

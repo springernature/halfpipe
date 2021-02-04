@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: my run task
       uses: docker://foo
       with:
         entrypoint: /bin/sh
@@ -55,4 +55,3 @@ jobs:
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success2'
         text: success message
-

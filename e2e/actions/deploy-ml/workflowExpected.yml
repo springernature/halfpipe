@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: create zip for ml task
       uses: docker://alpine
       with:
         entrypoint: /bin/sh
@@ -56,7 +56,7 @@ jobs:
         path: e2e/actions/deploy-ml
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-    - name: run
+    - name: deploy-ml-zip
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
         entrypoint: /bin/sh
@@ -89,7 +89,7 @@ jobs:
           springernature/shared/artifactory username | artifactory_username ;
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: Deploy ml-modules artifact
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
         entrypoint: /bin/sh
@@ -104,4 +104,3 @@ jobs:
         MARKLOGIC_USERNAME: foo
         ML_MODULES_VERSION: "2.1425"
         USE_BUILD_VERSION: "false"
-

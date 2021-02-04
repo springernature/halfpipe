@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: make binary
       uses: docker://ubuntu
       with:
         entrypoint: /bin/sh
@@ -194,7 +194,7 @@ jobs:
         testDomain: springernature.app
         appPath: e2e/actions/deploy-cf/foo.html
         command: halfpipe-check
-    - name: run
+    - name: run smoke-test.sh
       uses: docker://alpine
       with:
         entrypoint: /bin/sh
@@ -202,7 +202,7 @@ jobs:
       env:
         ENV5: ${{ steps.secrets.outputs.some_secret }}
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
-    - name: run
+    - name: docker-compose
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -223,7 +223,7 @@ jobs:
       if: always()
       run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker
         network ls; docker volume ls
-    - name: run
+    - name: CDCs
       run: |
         # write git key to file
         echo "${CONSUMER_GIT_KEY}" > .gitkey
@@ -374,4 +374,3 @@ jobs:
         testDomain: springernature.app
         appPath: e2e/actions/deploy-cf
         command: halfpipe-cleanup
-

@@ -28,7 +28,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 1
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -42,7 +42,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 2
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -56,7 +56,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 3
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -70,7 +70,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 4.1
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -84,7 +84,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 4.2
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -98,7 +98,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 4.3.1
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -112,7 +112,7 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 4.3.2
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
@@ -128,9 +128,8 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: run
+    - name: task 5
       uses: docker://alpine:latest
       with:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/par-seq; \date"
-
