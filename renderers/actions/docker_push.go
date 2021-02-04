@@ -27,7 +27,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		Env: Env(task.Vars),
 	})
 
-	//steps = append(steps, repositoryDispatch(man.PipelineName()))
+	steps = append(steps, repositoryDispatch(man.PipelineName()))
 	return steps
 }
 
@@ -44,7 +44,7 @@ func repositoryDispatch(name string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
 		With: With{
-			{"token", repoAccessToken},
+			{"token", "${{ secrets.GITHUB_TOKEN }}"},
 			{"event-type", "docker-push:" + name},
 		},
 	}
