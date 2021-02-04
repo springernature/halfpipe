@@ -27,7 +27,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		Env: Env(task.Vars),
 	})
 
-	steps = append(steps, repositoryDispatch(man.PipelineName()))
+	//steps = append(steps, repositoryDispatch(man.PipelineName()))
 	return steps
 }
 

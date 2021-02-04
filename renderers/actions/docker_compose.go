@@ -59,7 +59,6 @@ func dockerComposeScript(task manifest.DockerCompose) string {
 		command = append(command, task.Command)
 	}
 
-	login := `docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
 	compose := strings.Join(command, " \\\n  ")
-	return fmt.Sprintf("%s\n%s\n", login, compose)
+	return compose
 }

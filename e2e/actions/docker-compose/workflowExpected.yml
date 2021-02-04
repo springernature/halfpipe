@@ -29,8 +29,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
     - name: run
-      run: |
-        docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+      run: |-
         docker-compose \
           -f docker-compose.yml \
           run \
@@ -80,8 +79,7 @@ jobs:
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
     - name: run
-      run: |
-        docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+      run: |-
         docker-compose \
           -f custom-docker-compose.yml \
           run \
@@ -104,4 +102,3 @@ jobs:
       if: always()
       run: set -x; docker-compose -f custom-docker-compose.yml down; docker ps -a;
         docker network ls; docker volume ls
-

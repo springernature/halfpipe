@@ -203,8 +203,7 @@ jobs:
         ENV5: ${{ steps.secrets.outputs.some_secret }}
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: run
-      run: |
-        docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
+      run: |-
         docker-compose \
           -f docker-compose.yml \
           run \
