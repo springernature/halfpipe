@@ -50,17 +50,13 @@ type Run struct {
 type Jobs yaml.MapSlice
 
 type Job struct {
-	Name           string    `yaml:"name,omitempty"`
-	Needs          []string  `yaml:"needs,omitempty"`
-	RunsOn         string    `yaml:"runs-on,omitempty"`
-	Container      Container `yaml:"container,omitempty"`
-	TimeoutMinutes int       `yaml:"timeout-minutes,omitempty"`
-	Steps          Steps     `yaml:"steps,omitempty"`
-}
-
-type Container struct {
-	Image       string
-	Credentials Credentials `yaml:"credentials,omitempty"`
+	Name           string   `yaml:"name,omitempty"`
+	Needs          []string `yaml:"needs,omitempty"`
+	If             string   `yaml:"if,omitempty"`
+	RunsOn         string   `yaml:"runs-on,omitempty"`
+	TimeoutMinutes int      `yaml:"timeout-minutes,omitempty"`
+	Steps          Steps    `yaml:"steps,omitempty"`
+	Outputs        Outputs  `yaml:"outputs,omitempty"`
 }
 
 type Credentials struct {
@@ -83,6 +79,8 @@ type Steps []Step
 type With yaml.MapSlice
 
 type Env map[string]string
+
+type Outputs map[string]string
 
 func (w Workflow) asYAML() (string, error) {
 	output, err := yaml.Marshal(w)

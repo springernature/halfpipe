@@ -21,8 +21,43 @@ defaults:
   run:
     working-directory: e2e/actions/run
 jobs:
+  update:
+    name: Halfpipe Update
+    runs-on: ee-runner
+    timeout-minutes: 10
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: Update workflow
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-auto-update
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd e2e/actions/run; halfpipe actions"
+    - name: Push workflow changes
+      id: push
+      run: |-
+        #!/usr/bin/env bash
+        if [ -z "$(git status --porcelain)" ]; then
+          echo No changes to commit
+          exit 0
+        fi
+        echo Pushing changes to workflow
+        git diff
+        git config user.name halfpipe.io
+        git config user.email halfpipe@halfpipe.io
+        git commit -am "halfpipe auto-update"
+        git push
+        echo "::set-output name=updated_workflow::true"
+        echo Successfully pushed update to workflow
+    outputs:
+      updated_workflow: ${{ steps.push.outputs.updated_workflow }}
   my_run_task:
     name: my run task
+    needs:
+    - update
+    if: needs.update.outputs.updated_workflow != 'true'
     runs-on: ee-runner
     timeout-minutes: 62
     steps:

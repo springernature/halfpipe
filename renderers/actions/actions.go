@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
 	"strings"
@@ -9,6 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
+const githubKey = "${{ secrets.EE_GITHUB_PRIVATE_KEY }}"
 const slackToken = "${{ secrets.EE_SLACK_TOKEN }}"
 const defaultRunner = "ee-runner"
 
@@ -69,6 +71,11 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
 			Needs:          needs,
 		}
+
+		if len(needs) == 1 && needs[0] == "update" {
+			job.If = "needs.update.outputs.updated_workflow != 'true'"
+		}
+
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 
@@ -80,6 +87,8 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			}
 		}
 		switch task := t.(type) {
+		case manifest.Update:
+			jobs = append(jobs, Jobs{{Key: "update", Value: a.updateJob()}}[0])
 		case manifest.DockerPush:
 			appendJob(a.dockerPushSteps(task, man), task, needs)
 		case manifest.Run:
@@ -184,4 +193,53 @@ func dockerLogin(image, username, password string) Steps {
 		step.With = append(step.With, With{{"registry", registry}}...)
 	}
 	return Steps{step}
+}
+
+func (a *Actions) updateJob() Job {
+	pushScript := `#!/usr/bin/env bash
+if [ -z "$(git status --porcelain)" ]; then
+  echo No changes to commit
+  exit 0
+fi
+echo Pushing changes to workflow
+git diff
+git config user.name halfpipe.io
+git config user.email halfpipe@halfpipe.io
+git commit -am "halfpipe auto-update"
+git push
+echo "::set-output name=updated_workflow::true"
+echo Successfully pushed update to workflow`
+
+	checkout := checkoutCode
+	checkout.With = With{{"ssh-key", githubKey}}
+
+	cdPrefix := ""
+	if a.workingDir != "" {
+		cdPrefix = fmt.Sprintf("cd %s; ", a.workingDir)
+	}
+
+	return Job{
+		Name:           "Halfpipe Update",
+		RunsOn:         defaultRunner,
+		TimeoutMinutes: 10,
+		Steps: Steps{
+			checkout,
+			Step{
+				Name: "Update workflow",
+				Uses: "docker://eu.gcr.io/halfpipe-io/halfpipe-auto-update",
+				With: With{
+					{"entrypoint", "/bin/sh"},
+					{"args", fmt.Sprintf(`-c "%s%s"`, cdPrefix, "halfpipe actions")},
+				},
+			},
+			Step{
+				Name: "Push workflow changes",
+				ID:   "push",
+				Run:  pushScript,
+			},
+		},
+		Outputs: Outputs{
+			"updated_workflow": "${{ steps.push.outputs.updated_workflow }}",
+		},
+	}
 }
