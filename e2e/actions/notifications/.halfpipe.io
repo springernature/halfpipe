@@ -1,5 +1,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
+slack_failure_message: failure msg
 
 tasks:
 - type: run
@@ -14,4 +15,3 @@ tasks:
     on_success_message: success message
     on_failure:
     - '#failure1'
-    on_failure_message: failure message

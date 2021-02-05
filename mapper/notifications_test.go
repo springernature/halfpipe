@@ -192,3 +192,35 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 		assert.Equal(t, expected, updated)
 	})
 }
+
+func TestDefaultNotificationMessages(t *testing.T) {
+	defaultFailureMessage := "failure msg"
+	defaultSuccessMessage := "success msg"
+
+	input := manifest.Manifest{
+		SlackChannel:        "#test",
+		SlackFailureMessage: defaultFailureMessage,
+		SlackSuccessMessage: defaultSuccessMessage,
+		Tasks: manifest.TaskList{
+			manifest.Run{},
+			manifest.DockerPush{},
+			manifest.DeployCF{
+				Notifications: manifest.Notifications{
+					OnSuccess:        []string{"#foo"},
+					OnSuccessMessage: "custom",
+					OnFailureMessage: "custom",
+				},
+			},
+		},
+	}
+
+	updated, _ := NewNotificationsMapper().Apply(input)
+	assert.Equal(t, defaultFailureMessage, updated.Tasks[0].GetNotifications().OnFailureMessage)
+	assert.Equal(t, defaultFailureMessage, updated.Tasks[1].GetNotifications().OnFailureMessage)
+	assert.Equal(t, "custom", updated.Tasks[2].GetNotifications().OnFailureMessage)
+
+	assert.Equal(t, defaultSuccessMessage, updated.Tasks[0].GetNotifications().OnSuccessMessage)
+	assert.Equal(t, defaultSuccessMessage, updated.Tasks[1].GetNotifications().OnSuccessMessage)
+	assert.Equal(t, "custom", updated.Tasks[2].GetNotifications().OnFailureMessage)
+
+}

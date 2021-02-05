@@ -40,7 +40,7 @@ jobs:
         status: ${{ job.status }}
         oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#failure1'
-        text: failure message
+        text: failure msg
     - name: 'Notify slack #success1 (success)'
       uses: yukin01/slack-bot-action@v0.0.4
       with:

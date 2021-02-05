@@ -1,6 +1,8 @@
 package mapper
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"github.com/springernature/halfpipe/manifest"
+)
 
 type notificationsMapper struct {
 }
@@ -15,19 +17,16 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 			task.Tasks = n.updateTasks(task.Tasks, slackChannel, slackSuccessMessage, slackFailureMessage)
 			updated = append(updated, task)
 		default:
-			if !task.GetNotifications().NotificationsDefined() {
+			if slackChannel != "" && !task.GetNotifications().NotificationsDefined() {
 				notifications := manifest.Notifications{
 					OnFailure: []string{slackChannel},
 				}
-
 				if task.NotifiesOnSuccess() {
 					notifications.OnSuccess = []string{slackChannel}
 				}
 				task = task.SetNotifications(notifications)
 			}
-
 			task = updateMessages(task, slackSuccessMessage, slackFailureMessage)
-
 			updated = append(updated, task)
 		}
 	}
@@ -36,25 +35,21 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 
 func updateMessages(task manifest.Task, slackSuccessMessage string, slackFailureMessage string) manifest.Task {
 	notifications := task.GetNotifications()
-	if len(notifications.OnSuccess) > 0 && notifications.OnSuccessMessage == "" && slackSuccessMessage != "" {
+	if notifications.OnSuccessMessage == "" {
 		notifications.OnSuccessMessage = slackSuccessMessage
 	}
-	if notifications.OnFailureMessage == "" && slackFailureMessage != "" {
+	if notifications.OnFailureMessage == "" {
 		notifications.OnFailureMessage = slackFailureMessage
 	}
-	task = task.SetNotifications(notifications)
-	return task
+	return task.SetNotifications(notifications)
 }
 
-func (n notificationsMapper) Apply(original manifest.Manifest) (updated manifest.Manifest, err error) {
-	updated = original
-
-	if updated.SlackChannel != "" {
-		updated.Tasks = n.updateTasks(updated.Tasks, updated.SlackChannel, updated.SlackSuccessMessage, updated.SlackFailureMessage)
-		updated.SlackChannel = ""
-	}
-
-	return updated, nil
+func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
+	man.Tasks = n.updateTasks(man.Tasks, man.SlackChannel, man.SlackSuccessMessage, man.SlackFailureMessage)
+	man.SlackChannel = ""
+	man.SlackSuccessMessage = ""
+	man.SlackFailureMessage = ""
+	return man, nil
 }
 
 func NewNotificationsMapper() Mapper {
