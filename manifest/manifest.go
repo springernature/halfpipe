@@ -155,13 +155,15 @@ func (t TriggerList) HasGitTrigger() bool {
 }
 
 type Manifest struct {
-	Team           string         `yaml:"team,omitempty"`
-	Pipeline       string         `yaml:"pipeline,omitempty"`
-	SlackChannel   string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	ArtifactConfig ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
-	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
-	Triggers       TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
-	Tasks          TaskList       `yaml:"tasks,omitempty"`
+	Team                string         `yaml:"team,omitempty"`
+	Pipeline            string         `yaml:"pipeline,omitempty"`
+	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
+	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
+	ArtifactConfig      ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
+	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
+	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
+	Tasks               TaskList       `yaml:"tasks,omitempty"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

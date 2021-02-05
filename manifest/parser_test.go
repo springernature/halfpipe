@@ -19,6 +19,8 @@ func TestValidYaml_Everything(t *testing.T) {
 team: my team
 pipeline: my pipeline
 slack_channel: "#ee-activity"
+slack_success_message: "success"
+slack_failure_message: "failure"
 artifact_config:
   bucket: myBucket
   json_key: ((some.jsonKey))
@@ -178,7 +180,9 @@ tasks:
 			Bucket:  "myBucket",
 			JSONKey: "((some.jsonKey))",
 		},
-		SlackChannel: "#ee-activity",
+		SlackChannel:        "#ee-activity",
+		SlackSuccessMessage: "success",
+		SlackFailureMessage: "failure",
 		FeatureToggles: FeatureToggles{
 			"feature1",
 			"feature2",
