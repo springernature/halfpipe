@@ -67,3 +67,23 @@ func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 		assert.Contains(t, actual.Warnings[3].Error(), "rolling")
 	}
 }
+
+func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
+	man := manifest.Manifest{
+		Triggers: manifest.TriggerList{
+			manifest.DockerTrigger{
+				Image: "the-same-image",
+			},
+		},
+		Tasks: manifest.TaskList{
+			manifest.DockerPush{
+				Image: "the-same-image",
+			},
+		},
+	}
+
+	actual := lint(man)
+	assert.Empty(t, actual.Errors)
+	assert.Len(t, actual.Warnings, 1)
+	assert.Contains(t, actual.Warnings[0].Error(), "loop")
+}
