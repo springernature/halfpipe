@@ -6,7 +6,7 @@ import (
 	"path"
 )
 
-func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifest) (steps Steps) {
+func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = append(steps, Step{
 		Name: "Set up Docker Buildx",
 		Uses: "docker/setup-buildx-action@v1",
@@ -27,7 +27,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		Env: Env(task.Vars),
 	})
 
-	steps = append(steps, repositoryDispatch(man.PipelineName()))
+	steps = append(steps, repositoryDispatch(task.Image))
 	return steps
 }
 
@@ -39,13 +39,13 @@ func tags(task manifest.DockerPush) string {
 	return fmt.Sprintf("%s:latest\n%s:%s\n", task.Image, task.Image, tagVar)
 }
 
-func repositoryDispatch(name string) Step {
+func repositoryDispatch(eventName string) Step {
 	return Step{
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
 		With: With{
-			{"token", "${{ secrets.GITHUB_TOKEN }}"},
-			{"event-type", "docker-push:" + name},
+			{"token", "${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}"},
+			{"event-type", "docker-push:" + eventName},
 		},
 	}
 

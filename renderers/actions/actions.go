@@ -81,7 +81,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		}
 		switch task := t.(type) {
 		case manifest.DockerPush:
-			appendJob(a.dockerPushSteps(task, man), task, needs)
+			appendJob(a.dockerPushSteps(task), task, needs)
 		case manifest.Run:
 			appendJob(a.runSteps(task), task, needs)
 		case manifest.DockerCompose:

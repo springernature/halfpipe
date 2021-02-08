@@ -1,6 +1,10 @@
 team: halfpipe-team
 pipeline: pipeline-name
 
+triggers:
+- type: docker
+  image: eu.gcr.io/halfpipe-io/baseImage
+
 tasks:
 - type: run
   name: build

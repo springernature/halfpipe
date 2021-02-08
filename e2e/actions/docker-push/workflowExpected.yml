@@ -7,6 +7,9 @@ name: pipeline-name
     paths:
     - e2e/actions/docker-push**
     - .github/workflows/pipeline-name.yml
+  repository_dispatch:
+    types:
+    - docker-push:eu.gcr.io/halfpipe-io/baseImage
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
@@ -71,8 +74,8 @@ jobs:
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        event-type: docker-push:pipeline-name
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
   push_custom:
     name: Push custom
     needs:
@@ -123,5 +126,5 @@ jobs:
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        event-type: docker-push:pipeline-name
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+        event-type: docker-push:dockerhubusername/someImage
