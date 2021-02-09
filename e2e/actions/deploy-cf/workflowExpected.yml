@@ -313,7 +313,7 @@ jobs:
           springernature/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
           springernature/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
           springernature/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
-          springernature/shared/halfpipe-gcr private_key | halfpipe-gcr_private_key ;
+          springernature/shared/halfpipe-gcr private_key_base64 | halfpipe-gcr_private_key_base64 ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Push
@@ -330,7 +330,7 @@ jobs:
         appPath: e2e/actions/deploy-cf
         command: halfpipe-push
         dockerUsername: _json_key
-        dockerPassword: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
+        dockerPassword: ${{ steps.secrets.outputs.halfpipe-gcr_private_key_base64 }}
         dockerTag: ${{ env.BUILD_VERSION }}
       env:
         CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}

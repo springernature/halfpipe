@@ -56,7 +56,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	if task.CfApplication.DockerImage != "" {
 		push.With = append(push.With, With{
 			{"dockerUsername", "_json_key"},
-			{"dockerPassword", "((halfpipe-gcr.private_key))"},
+			{"dockerPassword", "((halfpipe-gcr.private_key_base64))"},
 		}...)
 	}
 	if task.DockerTag == "gitref" {
