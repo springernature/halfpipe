@@ -85,6 +85,7 @@ type With yaml.MapSlice
 type Env map[string]string
 
 func (w Workflow) asYAML() (string, error) {
+	yaml.FutureLineWrap()
 	output, err := yaml.Marshal(w)
 	if err != nil {
 		return "", err
