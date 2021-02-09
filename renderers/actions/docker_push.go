@@ -22,7 +22,6 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 			{"file", path.Join(a.workingDir, task.DockerfilePath)},
 			{"push", true},
 			{"tags", tags(task)},
-			{"outputs", "type=image,oci-mediatypes=true,push=true"},
 		},
 		Env: Env(task.Vars),
 	})

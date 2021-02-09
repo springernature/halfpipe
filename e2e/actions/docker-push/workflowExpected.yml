@@ -70,7 +70,6 @@ jobs:
         tags: |
           eu.gcr.io/halfpipe-io/someImage:latest
           eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
-        outputs: type=image,oci-mediatypes=true,push=true
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v1
       with:
@@ -119,7 +118,6 @@ jobs:
         tags: |
           dockerhubusername/someImage:latest
           dockerhubusername/someImage:${{ env.GIT_REVISION }}
-        outputs: type=image,oci-mediatypes=true,push=true
       env:
         BAR: bar
         FOO: foo
