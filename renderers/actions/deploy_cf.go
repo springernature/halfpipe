@@ -59,6 +59,11 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 			{"dockerPassword", "((halfpipe-gcr.private_key))"},
 		}...)
 	}
+	if task.DockerTag == "gitref" {
+		push.With = append(push.With, With{{"dockerTag", "${{ env.GIT_REVISION }}"}}...)
+	} else if task.DockerTag == "version" {
+		push.With = append(push.With, With{{"dockerTag", "${{ env.BUILD_VERSION }}"}}...)
+	}
 	deploySteps = append(deploySteps, push)
 
 	deploySteps = append(deploySteps, Step{

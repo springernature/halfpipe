@@ -332,6 +332,7 @@ jobs:
         command: halfpipe-push
         dockerUsername: _json_key
         dockerPassword: ${{ steps.secrets.outputs.halfpipe-gcr_private_key }}
+        dockerTag: ${{ env.BUILD_VERSION }}
       env:
         CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Check

@@ -57,3 +57,4 @@ tasks:
     org: ((cloudfoundry.org-snpaas))
     space: dev
     manifest: manifest-docker.yml
+    docker_tag: version

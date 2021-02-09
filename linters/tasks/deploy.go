@@ -89,9 +89,6 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 			errs = append(errs, linterrors.NewInvalidField("docker_tag", "must be either 'gitref' or 'version'"))
 		}
 
-		if cf.DockerTag == "version" && !man.FeatureToggles.UpdatePipeline() {
-			errs = append(errs, linterrors.NewInvalidField("docker_tag", "'version' requires the update-pipeline feature toggle"))
-		}
 	}
 
 	if cf.CliVersion != "cf6" && cf.CliVersion != "cf7" {

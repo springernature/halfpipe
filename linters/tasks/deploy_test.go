@@ -311,81 +311,32 @@ func TestDockerTag(t *testing.T) {
 	t.Run("Docker image is specified in the manifest", func(t *testing.T) {
 		application := cfManifest.Application{Name: "kehe", DockerImage: "asd"}
 		cfManifestReader := manifestReader([]cfManifest.Application{application}, nil)
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
-		t.Run("Unknown", func(t *testing.T) {
-			fs := afero.Afero{Fs: afero.NewMemMapFs()}
-			fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+		task := manifest.DeployCF{
+			API:        "api",
+			Org:        "Something",
+			Space:      "Something",
+			TestDomain: "foo",
+			CliVersion: "cf6",
+		}
 
-			task := manifest.DeployCF{
-				API:        "api",
-				Org:        "Something",
-				Space:      "Something",
-				TestDomain: "foo",
-				DockerTag:  "unknown",
-				CliVersion: "cf6",
-			}
+		task.DockerTag = "gitref"
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
+		assert.Len(t, warnings, 0)
+		assert.Len(t, errors, 0)
 
-			errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
-			assert.Len(t, warnings, 0)
-			assert.Len(t, errors, 1)
-			linterrors.AssertInvalidFieldInErrors(t, "docker_tag", errors)
-		})
+		task.DockerTag = "version"
+		errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
+		assert.Len(t, warnings, 0)
+		assert.Len(t, errors, 0)
 
-		t.Run("gitref", func(t *testing.T) {
-			fs := afero.Afero{Fs: afero.NewMemMapFs()}
-			fs.WriteFile("manifest.yml", []byte("foo"), 0777)
-
-			task := manifest.DeployCF{
-				API:        "api",
-				Org:        "Something",
-				Space:      "Something",
-				TestDomain: "foo",
-				DockerTag:  "gitref",
-				CliVersion: "cf6",
-			}
-
-			errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
-			assert.Len(t, warnings, 0)
-			assert.Len(t, errors, 0)
-		})
-
-		t.Run("version", func(t *testing.T) {
-			t.Run("pipeline is not versioned", func(t *testing.T) {
-				fs := afero.Afero{Fs: afero.NewMemMapFs()}
-				fs.WriteFile("manifest.yml", []byte("foo"), 0777)
-
-				task := manifest.DeployCF{
-					API:        "api",
-					Org:        "Something",
-					Space:      "Something",
-					TestDomain: "foo",
-					DockerTag:  "version",
-					CliVersion: "cf6",
-				}
-
-				errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
-				assert.Len(t, warnings, 0)
-				assert.Len(t, errors, 1)
-				linterrors.AssertInvalidFieldInErrors(t, "docker_tag", errors)
-			})
-
-			t.Run("pipeline is versioned", func(t *testing.T) {
-				fs := afero.Afero{Fs: afero.NewMemMapFs()}
-				fs.WriteFile("manifest.yml", []byte("foo"), 0777)
-
-				task := manifest.DeployCF{
-					API:        "api",
-					Org:        "Something",
-					Space:      "Something",
-					TestDomain: "foo",
-					DockerTag:  "version",
-					CliVersion: "cf6",
-				}
-
-				errors, warnings := LintDeployCFTask(task, manifest.Manifest{FeatureToggles: manifest.FeatureToggles{manifest.FeatureUpdatePipeline}}, cfManifestReader, fs, []string{})
-				assert.Len(t, warnings, 0)
-				assert.Len(t, errors, 0)
-			})
-		})
+		task.DockerTag = "unknown"
+		errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, cfManifestReader, fs, []string{})
+		assert.Len(t, warnings, 0)
+		assert.Len(t, errors, 1)
+		linterrors.AssertInvalidFieldInErrors(t, "docker_tag", errors)
 	})
+
 }
