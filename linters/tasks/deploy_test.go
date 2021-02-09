@@ -208,6 +208,7 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 		API:        "asdf",
 		Space:      "asdf",
 		Org:        "asdf",
+		Manifest:   "manifest.yml",
 		TestDomain: "asdf",
 		PrePromote: manifest.TaskList{
 			manifest.Run{Notifications: manifest.Notifications{OnSuccess: []string{"Meehp"}}},
@@ -231,6 +232,7 @@ func TestCFDeployTaskWithDeprecatedCFApi(t *testing.T) {
 		API:        "deprecated.api",
 		Org:        "Something",
 		Space:      "Something",
+		Manifest:   "manifest.yml",
 		TestDomain: "foo",
 		CliVersion: "cf6",
 	}
@@ -250,6 +252,7 @@ func TestCFDeployTaskWithRollingAndDeprecatedCFApi(t *testing.T) {
 		API:        "deprecated.api",
 		Org:        "Something",
 		Space:      "Something",
+		Manifest:   "manifest.yml",
 		TestDomain: "foo",
 		Rolling:    true,
 		CliVersion: "cf6",
@@ -272,6 +275,7 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 		API:        "api",
 		Org:        "Something",
 		Space:      "Something",
+		Manifest:   "manifest.yml",
 		TestDomain: "foo",
 		Rolling:    true,
 		CliVersion: "cf6",
@@ -298,6 +302,7 @@ func TestDockerTag(t *testing.T) {
 			API:        "api",
 			Org:        "Something",
 			Space:      "Something",
+			Manifest:   "manifest.yml",
 			TestDomain: "foo",
 			DockerTag:  "gitref",
 		}
@@ -318,6 +323,7 @@ func TestDockerTag(t *testing.T) {
 			API:        "api",
 			Org:        "Something",
 			Space:      "Something",
+			Manifest:   "manifest.yml",
 			TestDomain: "foo",
 			CliVersion: "cf6",
 		}
