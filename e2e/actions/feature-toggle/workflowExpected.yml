@@ -1,0 +1,74 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+    paths:
+    - e2e/actions/feature-toggle**
+    - .github/workflows/pipeline-name.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: ${{ github.run_number }}
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/feature-toggle
+jobs:
+  my_run_task:
+    name: my run task
+    runs-on: ee-runner
+    timeout-minutes: 62
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.1.1
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          springernature/halfpipe-team/something cool | something_cool ;
+          springernature/halfpipe-team/something cooler | something_cooler ;
+          springernature/shared/halfpipe-slack token | halfpipe-slack_token ;
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: my run task
+      uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd e2e/actions/feature-toggle; \foo"
+      env:
+        BAR: bar
+        FOO: foo
+        SECRET1: ${{ steps.secrets.outputs.something_cool }}
+        SECRET2: ${{ steps.secrets.outputs.something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs.halfpipe-slack_token }}
+  run__bash_-c__echo_hello_:
+    name: run \bash -c "echo hello"
+    needs:
+    - my_run_task
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        username: docker-user
+        password: docker-password
+        registry: my.private.registry
+    - name: run \bash -c "echo hello"
+      uses: docker://my.private.registry/repo/golang:1.15
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd e2e/actions/feature-toggle; \bash -c \"echo hello\""

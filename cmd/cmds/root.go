@@ -15,8 +15,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a Concour
 		man, controller := getManifestAndController(nil)
 		response := controller.Process(man)
 
-		var outputPath string
-		if man.FeatureToggles.GithubAction() {
+		if man.FeatureToggles.GithubAction() && outputPath == "" {
 			outputPath = path.Join(response.Project.GitRootPath, ".github/workflows/", man.PipelineName()+".yml")
 		}
 
@@ -25,6 +24,8 @@ Invoke without any arguments to lint your .halfpipe.io file and render a Concour
 }
 
 func Execute() {
+	rootCmd.Flags().StringVarP(&outputPath, "output", "o", "", "override the default output filepath")
+
 	if err := rootCmd.Execute(); err != nil {
 		printErr(err)
 		os.Exit(1)
