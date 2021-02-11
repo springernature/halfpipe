@@ -83,7 +83,7 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 	}
 
 	if man.Platform != "" && man.Platform != "concourse" {
-		err = errors.New("halfpipe upload can only be used for output 'concourse'")
+		err = errors.New("halfpipe upload can only be used with platform 'concourse'")
 	}
 
 	return man, err

@@ -10,7 +10,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use: "halfpipe",
 	Short: `halfpipe is a tool to lint and render pipelines
-Invoke without any arguments to lint your .halfpipe.io file and render a Concourse pipeline`,
+Invoke without any arguments to lint your .halfpipe.io file and render a pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
 		man, controller := getManifestAndController()
 		response := controller.Process(man)

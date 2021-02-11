@@ -16,7 +16,7 @@ func init() {
 
 var urlCmd = &cobra.Command{
 	Use:   "url",
-	Short: "Prints the url of the Concourse pipeline",
+	Short: "Prints the pipeline url",
 	Run: func(cmd *cobra.Command, args []string) {
 		fs := afero.Afero{Fs: afero.NewOsFs()}
 
