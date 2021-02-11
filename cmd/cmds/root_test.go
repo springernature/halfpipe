@@ -6,7 +6,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strings"
 	"testing"
 )
 
@@ -39,12 +38,7 @@ func TestE2EForCoverage(t *testing.T) {
 	for _, testPath := range findE2EPaths() {
 		t.Run(testPath, func(t *testing.T) {
 			os.Chdir(testPath)
-			if strings.Contains(testPath, "e2e/actions/") {
-				actionsCmd.Run(nil, []string{})
-
-			} else {
-				rootCmd.Run(nil, []string{})
-			}
+			rootCmd.Run(nil, []string{})
 		})
 	}
 }

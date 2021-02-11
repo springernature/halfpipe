@@ -22,7 +22,7 @@ var internalRepresentation = &cobra.Command{
 	Short: `Prints the internal representation of the manifest`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		man, controller := getManifestAndController(nullRenderer{})
+		man, controller := getManifestAndController()
 
 		defaultedAndMappedManifest, _ := controller.DefaultAndMap(man)
 

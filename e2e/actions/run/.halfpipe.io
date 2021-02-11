@@ -1,5 +1,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
+output: actions
 
 tasks:
 - type: run

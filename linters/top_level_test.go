@@ -10,12 +10,13 @@ import (
 func TestAllMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	result := topLevelLinter{}.Lint(man)
-	assert.Len(t, result.Errors, 2)
+	assert.Len(t, result.Errors, 3)
 }
 
 func TestTeamIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
+	man.Output = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -26,6 +27,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
 	man.Team = "yoLo"
+	man.Output = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Warnings, 1)
@@ -36,6 +38,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 func TestPipelineIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
+	man.Output = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -55,6 +58,7 @@ func TestHappyPath(t *testing.T) {
 	man := manifest.Manifest{
 		Team:     "yolo",
 		Pipeline: "alles-gut",
+		Output:   "actions",
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "someBucket",
 			JSONKey: "someKey",
@@ -89,4 +93,40 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	result2 := topLevelLinter{}.Lint(missingBucket)
 	assert.True(t, result2.HasErrors())
 	assertInvalidFieldInErrors(t, "artifact_config", result2.Errors)
+}
+
+func TestOutput(t *testing.T) {
+	t.Run("set to action", func(t *testing.T) {
+		man := manifest.Manifest{
+			Pipeline: "kehe",
+			Team:     "kehe",
+			Output:   "actions",
+		}
+		result := topLevelLinter{}.Lint(man)
+		assert.Empty(t, result.Errors)
+		assert.Empty(t, result.Warnings)
+	})
+
+	t.Run("set to concourse", func(t *testing.T) {
+		man := manifest.Manifest{
+			Pipeline: "kehe",
+			Team:     "kehe",
+			Output:   "actions",
+		}
+		result := topLevelLinter{}.Lint(man)
+		assert.Empty(t, result.Errors)
+		assert.Empty(t, result.Warnings)
+	})
+
+	t.Run("set to travis", func(t *testing.T) {
+		man := manifest.Manifest{
+			Pipeline: "kehe",
+			Team:     "kehe",
+			Output:   "travis",
+		}
+		result := topLevelLinter{}.Lint(man)
+		assert.Len(t, result.Errors, 1)
+		assert.Empty(t, result.Warnings)
+		assertInvalidFieldInErrors(t, "output", result.Errors)
+	})
 }

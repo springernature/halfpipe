@@ -10,7 +10,7 @@ do
         if [[ -f test.sh ]]; then
             ./test.sh
         else
-            ../../../halfpipe -q actions -o workflowActual.yml
+            ../../../halfpipe -q -o workflowActual.yml
             sed '6s/\"\"/master/' workflowActual.yml > /tmp/branchFixed.yml
             diff --ignore-blank-lines /tmp/branchFixed.yml workflowExpected.yml
         fi

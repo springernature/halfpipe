@@ -164,6 +164,7 @@ type Manifest struct {
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
+	Output              string         `json:"output,omitempty" yaml:"output,omitempty"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

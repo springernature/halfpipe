@@ -1,5 +1,6 @@
 team: team
 pipeline: update-pipeline-and-tag
+output: actions
 
 feature_toggles:
 - update-pipeline-and-tag

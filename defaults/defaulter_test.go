@@ -6,6 +6,14 @@ import (
 	"testing"
 )
 
+type testOutputDefaulter struct {
+	apply func(original manifest.Manifest) (updated manifest.Manifest)
+}
+
+func (t testOutputDefaulter) Apply(original manifest.Manifest) (updated manifest.Manifest) {
+	return t.apply(original)
+}
+
 type testTriggersDefaulter struct {
 	apply func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList)
 }
@@ -44,6 +52,9 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return expectedTasks
 		}},
+		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
+			return original
+		}},
 	}
 
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))
@@ -56,6 +67,9 @@ func TestApplyFeatureToggleDefaults(t *testing.T) {
 		}},
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return manifest.TaskList{}
+		}},
+		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
+			return original
 		}},
 	}
 

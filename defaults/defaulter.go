@@ -13,6 +13,10 @@ type TasksDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
+type OutputDefaulter interface {
+	Apply(original manifest.Manifest) (updated manifest.Manifest)
+}
+
 type BuildHistoryDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
@@ -76,12 +80,13 @@ type Defaults struct {
 
 	triggersDefaulter TriggersDefaulter
 	tasksDefaulter    TasksDefaulter
+	outputDefaulter   OutputDefaulter
 
 	RemoveUpdatePipelineFeature bool
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	updated = original
+	updated = d.outputDefaulter.Apply(original)
 
 	if d.RemoveUpdatePipelineFeature {
 		updated.FeatureToggles = []string{}
@@ -101,6 +106,7 @@ func New(defaultValues Defaults, project project.Data) Defaults {
 	defaultValues.Project = project
 	defaultValues.triggersDefaulter = NewTriggersDefaulter()
 	defaultValues.tasksDefaulter = NewTaskDefaulter()
+	defaultValues.outputDefaulter = NewOutputDefaulter()
 
 	return defaultValues
 }

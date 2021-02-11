@@ -1,5 +1,6 @@
 team: halfpipe-team
 pipeline: par-seq
+output: actions
 
 tasks:
 - type: run

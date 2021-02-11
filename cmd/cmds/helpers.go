@@ -2,6 +2,7 @@ package cmds
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/concourse"
 	"io/ioutil"
 	"os"
 	"path"
@@ -124,7 +125,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 
 }
 
-func getManifestAndController(renderer halfpipe.Renderer) (manifest.Manifest, halfpipe.Controller) {
+func getManifestAndController() (manifest.Manifest, halfpipe.Controller) {
 	if err := checkVersion(); err != nil {
 		printErr(err)
 		os.Exit(1)
@@ -149,6 +150,12 @@ func getManifestAndController(renderer halfpipe.Renderer) (manifest.Manifest, ha
 		outputErrorsAndWarnings(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 	}
 
+	var renderer halfpipe.Renderer
+	if man.Output == "actions" {
+		renderer = actions.NewActions()
+	} else {
+		renderer = concourse.NewPipeline()
+	}
 	controller := createController(projectData, fs, currentDir, renderer)
 
 	return man, controller
