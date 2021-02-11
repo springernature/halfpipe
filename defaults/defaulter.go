@@ -86,7 +86,7 @@ func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) 
 	if d.RemoveUpdatePipelineFeature {
 		updated.FeatureToggles = []string{}
 		for _, f := range original.FeatureToggles {
-			if f != manifest.FeatureUpdatePipeline {
+			if f != manifest.FeatureUpdatePipeline && f != manifest.FeatureUpdatePipelineAndTag {
 				updated.FeatureToggles = append(updated.FeatureToggles, f)
 			}
 		}

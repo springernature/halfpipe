@@ -1,0 +1,99 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: update-pipeline-and-tag
+"on":
+  push:
+    branches:
+    - master
+    paths:
+    - e2e/actions/feature-update-pipeline-and-tag**
+    - .github/workflows/update-pipeline-and-tag.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: ${{ github.run_number }}
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/feature-update-pipeline-and-tag
+jobs:
+  a:
+    name: A
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: A
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          run \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          app
+    - name: Docker cleanup
+      if: always()
+      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
+  b:
+    name: B
+    needs:
+    - a
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: B
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          run \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          app
+    - name: Docker cleanup
+      if: always()
+      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
+  c:
+    name: C
+    needs:
+    - a
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: C
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          run \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          app
+    - name: Docker cleanup
+      if: always()
+      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
