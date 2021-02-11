@@ -18,7 +18,7 @@ func dockerCleanup(task manifest.DockerCompose) Step {
 	return Step{
 		Name: "Docker cleanup",
 		If:   "always()",
-		Run:  fmt.Sprintf("set -x; docker-compose -f %s down; docker ps -a; docker network ls; docker volume ls", task.ComposeFile),
+		Run:  fmt.Sprintf("docker-compose -f %s down", task.ComposeFile),
 	}
 }
 

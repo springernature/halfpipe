@@ -221,7 +221,7 @@ jobs:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: Docker cleanup
       if: always()
-      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
+      run: docker-compose -f docker-compose.yml down
     - name: CDCs
       run: |
         # write git key to file

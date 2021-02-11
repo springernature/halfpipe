@@ -60,7 +60,7 @@ jobs:
         path: /tmp/halfpipe-artifacts.tar
     - name: Docker cleanup
       if: always()
-      run: set -x; docker-compose -f docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
+      run: docker-compose -f docker-compose.yml down
   custom:
     name: custom
     needs:
@@ -99,4 +99,4 @@ jobs:
         F: foo
     - name: Docker cleanup
       if: always()
-      run: set -x; docker-compose -f custom-docker-compose.yml down; docker ps -a; docker network ls; docker volume ls
+      run: docker-compose -f custom-docker-compose.yml down
