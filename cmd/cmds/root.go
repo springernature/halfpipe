@@ -15,7 +15,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a Concour
 		man, controller := getManifestAndController()
 		response := controller.Process(man)
 
-		if man.Output == "actions" && output == "" {
+		if man.IsActions() && output == "" {
 			output = path.Join(response.Project.GitRootPath, ".github/workflows/", man.PipelineName()+".yml")
 		}
 

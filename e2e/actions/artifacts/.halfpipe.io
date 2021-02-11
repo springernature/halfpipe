@@ -1,6 +1,6 @@
 team: halfpipe-team
 pipeline: artifacts
-output: actions
+platform: actions
 
 tasks:
 - type: run

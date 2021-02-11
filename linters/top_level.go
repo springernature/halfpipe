@@ -37,7 +37,7 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult
 		result.AddError(linterrors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
 	}
 
-	if !(manifest.Output == "actions" || manifest.Output == "concourse") {
+	if !(manifest.Platform == "actions" || manifest.Platform == "concourse") {
 		result.AddError(linterrors.NewInvalidField("output", "must be either 'actions' or 'concourse'"))
 	}
 

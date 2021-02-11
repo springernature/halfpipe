@@ -164,7 +164,15 @@ type Manifest struct {
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
-	Output              string         `json:"output,omitempty" yaml:"output,omitempty"`
+	Platform            string         `json:"platform,omitempty" yaml:"platform,omitempty"`
+}
+
+func (m Manifest) IsActions() bool {
+	return m.Platform == "actions"
+}
+
+func (m Manifest) IsConcourse() bool {
+	return !m.IsActions()
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

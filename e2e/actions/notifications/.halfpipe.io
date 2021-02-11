@@ -1,7 +1,7 @@
 team: halfpipe-team
 pipeline: pipeline-name
 slack_failure_message: failure msg
-output: actions
+platform: actions
 
 tasks:
 - type: run

@@ -1,6 +1,6 @@
 team: halfpipe-team
 pipeline: docker-compose
-output: actions
+platform: actions
 
 tasks:
 - type: docker-compose

@@ -16,7 +16,7 @@ func TestAllMissing(t *testing.T) {
 func TestTeamIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
-	man.Output = "concourse"
+	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -27,7 +27,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Pipeline = "yolo"
 	man.Team = "yoLo"
-	man.Output = "concourse"
+	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Warnings, 1)
@@ -38,7 +38,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 func TestPipelineIsMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	man.Team = "yolo"
-	man.Output = "concourse"
+	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
 	assert.Len(t, result.Errors, 1)
@@ -58,7 +58,7 @@ func TestHappyPath(t *testing.T) {
 	man := manifest.Manifest{
 		Team:     "yolo",
 		Pipeline: "alles-gut",
-		Output:   "actions",
+		Platform: "actions",
 		ArtifactConfig: manifest.ArtifactConfig{
 			Bucket:  "someBucket",
 			JSONKey: "someKey",
@@ -100,7 +100,7 @@ func TestOutput(t *testing.T) {
 		man := manifest.Manifest{
 			Pipeline: "kehe",
 			Team:     "kehe",
-			Output:   "actions",
+			Platform: "actions",
 		}
 		result := topLevelLinter{}.Lint(man)
 		assert.Empty(t, result.Errors)
@@ -111,7 +111,7 @@ func TestOutput(t *testing.T) {
 		man := manifest.Manifest{
 			Pipeline: "kehe",
 			Team:     "kehe",
-			Output:   "actions",
+			Platform: "actions",
 		}
 		result := topLevelLinter{}.Lint(man)
 		assert.Empty(t, result.Errors)
@@ -122,7 +122,7 @@ func TestOutput(t *testing.T) {
 		man := manifest.Manifest{
 			Pipeline: "kehe",
 			Team:     "kehe",
-			Output:   "travis",
+			Platform: "travis",
 		}
 		result := topLevelLinter{}.Lint(man)
 		assert.Len(t, result.Errors, 1)

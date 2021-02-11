@@ -7,11 +7,11 @@ import (
 )
 
 func TestDefaultsToConcourseIfNotSet(t *testing.T) {
-	expected := manifest.Manifest{Output: "concourse"}
+	expected := manifest.Manifest{Platform: "concourse"}
 	assert.Equal(t, expected, NewOutputDefaulter().Apply(manifest.Manifest{}))
 }
 
 func TestDoesNothingIfAlreadySet(t *testing.T) {
-	expected := manifest.Manifest{Output: "kehe"}
-	assert.Equal(t, expected, NewOutputDefaulter().Apply(manifest.Manifest{Output: "kehe"}))
+	expected := manifest.Manifest{Platform: "kehe"}
+	assert.Equal(t, expected, NewOutputDefaulter().Apply(manifest.Manifest{Platform: "kehe"}))
 }

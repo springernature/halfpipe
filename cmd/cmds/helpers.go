@@ -152,7 +152,7 @@ func getManifestAndController() (manifest.Manifest, halfpipe.Controller) {
 	}
 
 	var renderer halfpipe.Renderer
-	if man.Output == "actions" {
+	if man.IsActions() {
 		renderer = actions.NewActions()
 	} else {
 		renderer = concourse.NewPipeline()

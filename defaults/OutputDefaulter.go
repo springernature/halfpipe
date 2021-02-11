@@ -7,8 +7,8 @@ type outputDefaulter struct {
 
 func (o outputDefaulter) Apply(original manifest.Manifest) (updated manifest.Manifest) {
 	updated = original
-	if updated.Output == "" {
-		updated.Output = "concourse"
+	if updated.Platform == "" {
+		updated.Platform = "concourse"
 	}
 
 	return

@@ -1,6 +1,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
-output: actions
+platform: actions
 
 tasks:
 - type: consumer-integration-test
