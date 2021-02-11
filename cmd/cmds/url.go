@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
@@ -33,6 +34,13 @@ var urlCmd = &cobra.Command{
 		}
 
 		man, _ := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
-		fmt.Printf("%s/teams/%s/pipelines/%s\n", config.ConcourseURL, man.Team, man.PipelineName())
+		if man.Platform.IsConcourse() {
+			fmt.Printf("%s/teams/%s/pipelines/%s\n", config.ConcourseURL, man.Team, man.PipelineName())
+		} else {
+			url := strings.Replace(projectData.GitURI, "git@github.com:", "https://github.com/", 1)
+			url = strings.TrimSuffix(url, ".git")
+			fmt.Printf("%s/actions?query=workflow:%s\n", url, man.PipelineName())
+		}
+
 	},
 }
