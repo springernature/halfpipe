@@ -18,6 +18,7 @@ type Response struct {
 	ConfigYaml  string
 	Project     project.Data
 	LintResults result.LintResults
+	Platform    manifest.Platform
 }
 
 type Renderer interface {
@@ -60,6 +61,7 @@ func (c controller) Process(man manifest.Manifest) (response Response) {
 	config, _ := c.renderer.Render(mappedManifest)
 	response.ConfigYaml = config
 	response.Project = c.defaulter.Project
+	response.Platform = man.Platform
 	return response
 }
 

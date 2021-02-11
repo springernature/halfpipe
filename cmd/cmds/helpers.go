@@ -84,7 +84,11 @@ func renderResponse(r halfpipe.Response, filePath string) {
 	}
 
 	if !Quiet {
-		fmt.Println("writing to " + filePath)
+		fileType := "Concourse pipeline"
+		if r.Platform.IsActions() {
+			fileType = "GitHub Actions workflow"
+		}
+		fmt.Printf("Writing %s to %s\n", fileType, filePath)
 	}
 
 	if err := os.MkdirAll(filepath.Dir(filePath), 0755); err != nil {
