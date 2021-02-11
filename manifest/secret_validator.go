@@ -140,6 +140,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		return
 	case reflect.TypeOf(Update{}):
 		return
+	case reflect.TypeOf(Platform("")):
+		return
 	case reflect.TypeOf(Notifications{}):
 		notifications := v.Interface().(Notifications)
 

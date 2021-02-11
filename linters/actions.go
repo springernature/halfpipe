@@ -16,7 +16,7 @@ func NewActionsLinter() Linter {
 func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "GitHub Actions"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
-	if man.IsActions() {
+	if man.Platform.IsActions() {
 		result.AddWarning(unsupportedTasks(man.Tasks, man)...)
 		result.AddWarning(unsupportedTriggers(man.Triggers)...)
 	}

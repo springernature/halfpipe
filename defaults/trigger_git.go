@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
+func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver, platform manifest.Platform) (updated manifest.GitTrigger) {
 	updated = original
 	updated.BasePath = defaults.Project.BasePath
 
@@ -20,16 +20,18 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 		}
 	}
 
-	if updated.URI == "" {
-		updated.URI = defaults.Project.GitURI
+	if platform.IsConcourse() {
+		if updated.URI == "" {
+			updated.URI = defaults.Project.GitURI
 
-		for from, to := range config.RewriteGitHTTPToSSH {
-			updated.URI = strings.Replace(updated.URI, from, to, 1)
+			for from, to := range config.RewriteGitHTTPToSSH {
+				updated.URI = strings.Replace(updated.URI, from, to, 1)
+			}
 		}
-	}
 
-	if updated.URI != "" && !updated.IsPublic() && updated.PrivateKey == "" {
-		updated.PrivateKey = defaults.RepoPrivateKey
+		if updated.URI != "" && !updated.IsPublic() && updated.PrivateKey == "" {
+			updated.PrivateKey = defaults.RepoPrivateKey
+		}
 	}
 
 	return updated

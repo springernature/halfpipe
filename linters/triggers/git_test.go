@@ -24,7 +24,7 @@ var defaultRepoURIResolver = func(uri string) func() (string, error) {
 func TestUriIsEmpty(t *testing.T) {
 	trigger := manifest.GitTrigger{}
 
-	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 	assert.Len(t, errs, 1)
 	linterrors.AssertMissingFieldInErrors(t, "uri", errs)
@@ -35,7 +35,7 @@ func TestInvalidUri(t *testing.T) {
 		URI: "goo",
 	}
 
-	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 	assert.Len(t, errs, 1)
 	linterrors.AssertInvalidFieldInErrors(t, "uri", errs)
@@ -47,7 +47,7 @@ func TestUriIsValidHttpsUri(t *testing.T) {
 		Branch: "main",
 	}
 
-	errs, warns := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, warns := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 	assert.Len(t, errs, 0)
 	assert.Len(t, warns, 1)
@@ -60,7 +60,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 			Branch: "main",
 		}
 
-		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		linterrors.AssertMissingFieldInErrors(t, "private_key", errs)
@@ -73,7 +73,7 @@ func TestPrivateRepoHasPrivateKeySet(t *testing.T) {
 			Branch:     "main",
 		}
 
-		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 0)
 	})
@@ -92,7 +92,7 @@ func TestItChecksForWatchedPaths(t *testing.T) {
 
 	fs.Mkdir(path.Join(workingDir, "watches/there"), 0777)
 
-	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 	assert.Len(t, errs, 1)
 	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
 }
@@ -110,7 +110,7 @@ func TestItChecksForWatchedPathsRelativeToGitRoot(t *testing.T) {
 	workingDir := "/home/projects/repo-project-name/project-name"
 	fs.Mkdir("/home/projects/repo-project-name/watches/there", 0777)
 
-	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, fs, workingDir, defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 	assert.Len(t, errs, 1)
 	linterrors.AssertFileErrorInErrors(t, trigger.WatchedPaths[1], errs)
 }
@@ -124,7 +124,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 			GitCryptKey: "((gitcrypt.key))",
 		}
 
-		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 0)
 	})
@@ -137,7 +137,7 @@ func TestHasValidGitCryptKey(t *testing.T) {
 			GitCryptKey: "CLEARTEXTKEY_BADASS",
 		}
 
-		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "git_crypt_key", errs)
@@ -152,7 +152,7 @@ func TestPublicUrIAndPrivateKey(t *testing.T) {
 		PrivateKey: "kehe",
 	}
 
-	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI))
+	errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 	assert.Len(t, errs, 1)
 	linterrors.AssertInvalidFieldInErrors(t, "uri", errs)
@@ -169,7 +169,7 @@ func TestBranch(t *testing.T) {
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
-		}, defaultRepoURIResolver(trigger.URI))
+		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 0)
 	})
@@ -182,7 +182,7 @@ func TestBranch(t *testing.T) {
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
-		}, defaultRepoURIResolver(trigger.URI))
+		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
@@ -197,7 +197,7 @@ func TestBranch(t *testing.T) {
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
-		}, defaultRepoURIResolver(trigger.URI))
+		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
@@ -212,7 +212,7 @@ func TestBranch(t *testing.T) {
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return currentBranch, nil
-		}, defaultRepoURIResolver(trigger.URI))
+		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
@@ -227,7 +227,7 @@ func TestBranch(t *testing.T) {
 
 		errs, _ := LintGitTrigger(trigger, afero.Afero{}, "", func() (branch string, err error) {
 			return "", expectedError
-		}, defaultRepoURIResolver(trigger.URI))
+		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 1)
 		assert.Contains(t, errs, expectedError)
@@ -244,7 +244,7 @@ func TestRepoResolver(t *testing.T) {
 
 		errs, warnings := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
 			return "git@github.com:springernature/someRandomRepo.git", nil
-		})
+		}, manifest.Platform("concourse"))
 
 		assert.Len(t, errs, 0)
 		assert.Len(t, warnings, 1)
@@ -260,7 +260,7 @@ func TestRepoResolver(t *testing.T) {
 
 		errs, warnings := LintGitTrigger(trigger, afero.Afero{}, "", defaultBranchResolver, func() (s string, e error) {
 			return "", expectedError
-		})
+		}, manifest.Platform("concourse"))
 
 		assert.Len(t, warnings, 0)
 		assert.Len(t, errs, 1)

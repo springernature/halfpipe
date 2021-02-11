@@ -51,8 +51,6 @@ var Concourse = Defaults{
 }
 
 var Actions = Defaults{
-	RepoPrivateKey: "this cannot be empty due to linter",
-
 	Docker: DockerDefaults{
 		Username:       "_json_key",
 		Password:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",

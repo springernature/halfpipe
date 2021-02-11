@@ -6,7 +6,7 @@ import (
 )
 
 type triggersDefaulter struct {
-	gitTriggerDefaulter      func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger)
+	gitTriggerDefaulter      func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver, platform manifest.Platform) (updated manifest.GitTrigger)
 	timerTriggerDefaulter    func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger)
 	pipelineTriggerDefaulter func(original manifest.PipelineTrigger, defaults Defaults, man manifest.Manifest) (updated manifest.PipelineTrigger)
 	dockerTriggerDefaulter   func(original manifest.DockerTrigger, defaults Defaults) (updated manifest.DockerTrigger)
@@ -31,7 +31,7 @@ func (t triggersDefaulter) Apply(original manifest.TriggerList, defaults Default
 	for _, trigger := range triggersUnderDefaulting {
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			updated = append(updated, t.gitTriggerDefaulter(trigger, defaults, project.BranchResolver))
+			updated = append(updated, t.gitTriggerDefaulter(trigger, defaults, project.BranchResolver, man.Platform))
 		case manifest.TimerTrigger:
 			updated = append(updated, t.timerTriggerDefaulter(trigger, defaults))
 		case manifest.PipelineTrigger:

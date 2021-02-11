@@ -26,32 +26,34 @@ func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
 	return nil
 }
 
-func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
-	if git.URI == "" {
-		errs = append(errs, linterrors.NewMissingField("uri"))
-		return errs, warnings
-	}
+func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+	if platform.IsConcourse() {
+		if git.URI == "" {
+			errs = append(errs, linterrors.NewMissingField("uri"))
+			return errs, warnings
+		}
 
-	match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, git.URI)
-	if !match {
-		errs = append(errs, linterrors.NewInvalidField("uri", fmt.Sprintf("'%s' is not a valid git URI. If you are using SSH-aliases you must manually specify this field.", git.URI)))
-		return errs, warnings
-	}
+		match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, git.URI)
+		if !match {
+			errs = append(errs, linterrors.NewInvalidField("uri", fmt.Sprintf("'%s' is not a valid git URI. If you are using SSH-aliases you must manually specify this field.", git.URI)))
+			return errs, warnings
+		}
 
-	if strings.HasPrefix(git.URI, "git@") && git.PrivateKey == "" {
-		errs = append(errs, linterrors.NewMissingField("private_key"))
-	}
+		if strings.HasPrefix(git.URI, "git@") && git.PrivateKey == "" {
+			errs = append(errs, linterrors.NewMissingField("private_key"))
+		}
 
-	if strings.HasPrefix(git.URI, "http") && git.PrivateKey != "" {
-		errs = append(errs, linterrors.NewInvalidField("uri", "should be a ssh git url when private_key is set"))
-	}
+		if strings.HasPrefix(git.URI, "http") && git.PrivateKey != "" {
+			errs = append(errs, linterrors.NewInvalidField("uri", "should be a ssh git url when private_key is set"))
+		}
 
-	if strings.HasPrefix(git.URI, "https") {
-		warnings = append(warnings, fmt.Errorf("only public repos are supported with http(s). For private repos specify uri with ssh"))
-	}
+		if strings.HasPrefix(git.URI, "https") {
+			warnings = append(warnings, fmt.Errorf("only public repos are supported with http(s). For private repos specify uri with ssh"))
+		}
 
-	if git.GitCryptKey != "" && !regexp.MustCompile(`\(\([a-zA-Z-_]+\.[a-zA-Z-_]+\)\)`).MatchString(git.GitCryptKey) {
-		errs = append(errs, linterrors.NewInvalidField("git_crypt_key", "must be a vault secret"))
+		if git.GitCryptKey != "" && !regexp.MustCompile(`\(\([a-zA-Z-_]+\.[a-zA-Z-_]+\)\)`).MatchString(git.GitCryptKey) {
+			errs = append(errs, linterrors.NewInvalidField("git_crypt_key", "must be a vault secret"))
+		}
 	}
 
 	for _, glob := range git.WatchedPaths {
@@ -79,7 +81,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 	if resolvedRepoURI, err := repoURIResolver(); err != nil {
 		errs = append(errs, err)
 	} else {
-		if resolvedRepoURI != git.URI {
+		if resolvedRepoURI != git.URI && platform.IsConcourse() {
 			warnings = append(warnings, fmt.Errorf("you have specified 'uri', make sure that its the same repo that you execute halfpipe in"))
 		}
 	}

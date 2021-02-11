@@ -15,7 +15,7 @@ func TestGit(t *testing.T) {
 
 	t.Run("does nothing when URI is not set", func(t *testing.T) {
 		trigger := manifest.GitTrigger{}
-		assert.Equal(t, trigger, defaultGitTrigger(trigger, Concourse, dummyGitBranchResolver))
+		assert.Equal(t, trigger, defaultGitTrigger(trigger, Concourse, dummyGitBranchResolver, manifest.Platform("concourse")))
 	})
 
 	t.Run("private repos", func(t *testing.T) {
@@ -26,13 +26,13 @@ func TestGit(t *testing.T) {
 
 		t.Run("no private key set", func(t *testing.T) {
 			trigger := manifest.GitTrigger{}
-			assert.Equal(t, defaults.RepoPrivateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver).PrivateKey)
+			assert.Equal(t, defaults.RepoPrivateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("concourse")).PrivateKey)
 		})
 
 		t.Run("private key set", func(t *testing.T) {
 			privateKey := "sup"
 			trigger := manifest.GitTrigger{PrivateKey: privateKey}
-			assert.Equal(t, privateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver).PrivateKey)
+			assert.Equal(t, privateKey, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("concourse")).PrivateKey)
 		})
 	})
 
@@ -45,7 +45,7 @@ func TestGit(t *testing.T) {
 			}
 
 			trigger := manifest.GitTrigger{}
-			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver)
+			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("concourse"))
 
 			assert.Equal(t, "git@github.com:springernature/halfpipe.git", updatedTrigger.URI)
 			assert.Equal(t, defaults.RepoPrivateKey, updatedTrigger.PrivateKey)
@@ -58,7 +58,7 @@ func TestGit(t *testing.T) {
 			}
 
 			trigger := manifest.GitTrigger{}
-			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver)
+			updatedTrigger := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("concourse"))
 
 			assert.Equal(t, "git@github.com:springernature/halfpipe.git", updatedTrigger.URI)
 			assert.Equal(t, defaults.RepoPrivateKey, updatedTrigger.PrivateKey)
@@ -76,7 +76,7 @@ func TestGit(t *testing.T) {
 			BasePath:   "foo",
 		}
 
-		assert.Equal(t, expectedTrigger, defaultGitTrigger(manifest.GitTrigger{}, defaults, dummyGitBranchResolver))
+		assert.Equal(t, expectedTrigger, defaultGitTrigger(manifest.GitTrigger{}, defaults, dummyGitBranchResolver, manifest.Platform("concourse")))
 	})
 
 	t.Run("does not overwrite URI when set", func(t *testing.T) {
@@ -87,7 +87,7 @@ func TestGit(t *testing.T) {
 			URI: "git@github.com/foo/bar",
 		}
 
-		updated := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver)
+		updated := defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("concourse"))
 
 		assert.Equal(t, "git@github.com/foo/bar", updated.URI)
 		assert.Equal(t, "foo", updated.BasePath)
@@ -98,7 +98,7 @@ func TestGit(t *testing.T) {
 			trigger := manifest.GitTrigger{
 				Branch: "kehe",
 			}
-			assert.Equal(t, "kehe", defaultGitTrigger(trigger, Concourse, dummyGitBranchResolver).Branch)
+			assert.Equal(t, "kehe", defaultGitTrigger(trigger, Concourse, dummyGitBranchResolver, manifest.Platform("concourse")).Branch)
 		})
 
 		t.Run("Defaults to master when on the master branch", func(t *testing.T) {
@@ -109,7 +109,7 @@ func TestGit(t *testing.T) {
 			trigger := manifest.GitTrigger{
 				Branch: "",
 			}
-			assert.Equal(t, "master", defaultGitTrigger(trigger, Concourse, gitBranchResolver).Branch)
+			assert.Equal(t, "master", defaultGitTrigger(trigger, Concourse, gitBranchResolver, manifest.Platform("concourse")).Branch)
 		})
 
 		t.Run("Defaults to main when on the main branch", func(t *testing.T) {
@@ -118,7 +118,7 @@ func TestGit(t *testing.T) {
 			}
 
 			trigger := manifest.GitTrigger{}
-			assert.Equal(t, "main", defaultGitTrigger(trigger, Concourse, gitBranchResolver).Branch)
+			assert.Equal(t, "main", defaultGitTrigger(trigger, Concourse, gitBranchResolver, manifest.Platform("concourse")).Branch)
 		})
 
 		t.Run("Does nothing when on a random branch and branch is not set", func(t *testing.T) {
@@ -128,7 +128,7 @@ func TestGit(t *testing.T) {
 
 			trigger := manifest.GitTrigger{}
 
-			assert.Equal(t, "", defaultGitTrigger(trigger, Concourse, gitBranchResolver).Branch)
+			assert.Equal(t, "", defaultGitTrigger(trigger, Concourse, gitBranchResolver, manifest.Platform("concourse")).Branch)
 		})
 
 		t.Run("Does nothing if the branch resolver fails", func(t *testing.T) {
@@ -137,8 +137,17 @@ func TestGit(t *testing.T) {
 			}
 
 			trigger := manifest.GitTrigger{}
-			assert.Equal(t, "", defaultGitTrigger(trigger, Concourse, gitBranchResolver).Branch)
+			assert.Equal(t, "", defaultGitTrigger(trigger, Concourse, gitBranchResolver, manifest.Platform("concourse")).Branch)
 		})
 
+	})
+
+	t.Run("actions", func(t *testing.T) {
+		defaults := Actions
+		defaults.Project = project.Data{
+			GitURI: "ssh@github.com:private/repo",
+		}
+		trigger := manifest.GitTrigger{}
+		assert.Equal(t, trigger, defaultGitTrigger(trigger, defaults, dummyGitBranchResolver, manifest.Platform("actions")))
 	})
 }

@@ -154,6 +154,16 @@ func (t TriggerList) HasGitTrigger() bool {
 	return false
 }
 
+type Platform string
+
+func (m Platform) IsActions() bool {
+	return m == "actions"
+}
+
+func (m Platform) IsConcourse() bool {
+	return !m.IsActions()
+}
+
 type Manifest struct {
 	Team                string         `yaml:"team,omitempty"`
 	Pipeline            string         `yaml:"pipeline,omitempty"`
@@ -164,15 +174,7 @@ type Manifest struct {
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
-	Platform            string         `json:"platform,omitempty" yaml:"platform,omitempty"`
-}
-
-func (m Manifest) IsActions() bool {
-	return m.Platform == "actions"
-}
-
-func (m Manifest) IsConcourse() bool {
-	return !m.IsActions()
+	Platform            Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

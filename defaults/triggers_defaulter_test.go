@@ -14,7 +14,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 	expectedDockerTrigger := manifest.DockerTrigger{Image: "asdf"}
 
 	defaulter := triggersDefaulter{
-		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver, platform manifest.Platform) (updated manifest.GitTrigger) {
 			return expectedGitTrigger
 		},
 		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {
@@ -63,7 +63,7 @@ func TestAddsDefaultGitTriggerIfThereIsntOneInTheTriggerList(t *testing.T) {
 	}
 
 	defaulter := triggersDefaulter{
-		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver) (updated manifest.GitTrigger) {
+		gitTriggerDefaulter: func(original manifest.GitTrigger, defaults Defaults, branchResolver project.GitBranchResolver, platform manifest.Platform) (updated manifest.GitTrigger) {
 			return expectedGitTrigger
 		},
 		timerTriggerDefaulter: func(original manifest.TimerTrigger, defaults Defaults) (updated manifest.TimerTrigger) {

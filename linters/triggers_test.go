@@ -14,7 +14,7 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 	linter.dockerLinter = func(docker manifest.DockerTrigger, deprecatedDockerRegistries []string) (errs []error, warnings []error) {
 		return
 	}
-	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
 		return
 	}
 	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
@@ -70,7 +70,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
@@ -108,7 +108,7 @@ func TestCallsOutCorrectly(t *testing.T) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
@@ -154,7 +154,7 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 		warnings = append(warnings, dockerWarning)
 		return
 	}
-	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
 		errs = append(errs, gitError)
 		return
 	}
