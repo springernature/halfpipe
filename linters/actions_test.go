@@ -1,16 +1,17 @@
 package linters_test
 
 import (
-	linters "github.com/springernature/halfpipe/linters/actions"
+	linters2 "github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var lint = linters.ActionsLinter{}.Lint
+var lint = linters2.ActionsLinter{}.Lint
 
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	man := manifest.Manifest{
+		Output: "actions",
 		Triggers: manifest.TriggerList{
 			manifest.DockerTrigger{},
 			manifest.GitTrigger{},
@@ -27,6 +28,7 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 
 func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 	man := manifest.Manifest{
+		Output: "actions",
 		Triggers: manifest.TriggerList{
 			manifest.GitTrigger{
 				URI:           "uri",
@@ -48,6 +50,7 @@ func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 
 func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 	man := manifest.Manifest{
+		Output: "actions",
 		Tasks: manifest.TaskList{
 			manifest.DockerPush{ManualTrigger: true},
 			manifest.Run{ManualTrigger: true},
@@ -70,6 +73,7 @@ func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 
 func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	man := manifest.Manifest{
+		Output: "actions",
 		Triggers: manifest.TriggerList{
 			manifest.DockerTrigger{
 				Image: "the-same-image",

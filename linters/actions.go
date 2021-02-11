@@ -9,13 +9,17 @@ import (
 
 type ActionsLinter struct{}
 
+func NewActionsLinter() Linter {
+	return ActionsLinter{}
+}
+
 func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResult) {
 	result.Linter = "GitHub Actions"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
-
-	result.AddWarning(unsupportedTasks(man.Tasks, man)...)
-	result.AddWarning(unsupportedTriggers(man.Triggers)...)
-
+	if man.Output == "actions" {
+		result.AddWarning(unsupportedTasks(man.Tasks, man)...)
+		result.AddWarning(unsupportedTriggers(man.Triggers)...)
+	}
 	return result
 }
 

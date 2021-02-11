@@ -82,6 +82,10 @@ func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 		err = errors.New("'team' and 'pipeline' must be defined in '.halfpipe.io'")
 	}
 
+	if man.Output != "" && man.Output != "concourse" {
+		err = errors.New("halfpipe upload can only be used for output 'concourse'")
+	}
+
 	return man, err
 }
 
