@@ -2,6 +2,7 @@ package linters
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
@@ -19,6 +20,7 @@ func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResul
 	if man.Platform.IsActions() {
 		result.AddWarning(unsupportedTasks(man.Tasks, man)...)
 		result.AddWarning(unsupportedTriggers(man.Triggers)...)
+		result.AddWarning(unsupportedFeatures(man.FeatureToggles)...)
 	}
 	return result
 }
@@ -79,6 +81,15 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 		default:
 			addError(i, fmt.Sprintf("%T", trigger))
 		}
+	}
+	return errors
+}
+
+var ErrUpdatePiplineNotImplemented = errors.New("the update-pipeline feature is not implemented, so you must always run 'halfpipe' to keep the workflow file up to date")
+
+func unsupportedFeatures(features manifest.FeatureToggles) (errors []error) {
+	if features.UpdatePipeline() {
+		errors = []error{ErrUpdatePiplineNotImplemented}
 	}
 	return errors
 }

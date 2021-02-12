@@ -1,13 +1,13 @@
 package linters_test
 
 import (
-	linters2 "github.com/springernature/halfpipe/linters"
+	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var lint = linters2.ActionsLinter{}.Lint
+var lint = linters.ActionsLinter{}.Lint
 
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	man := manifest.Manifest{
@@ -90,4 +90,26 @@ func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	assert.Empty(t, actual.Errors)
 	assert.Len(t, actual.Warnings, 1)
 	assert.Contains(t, actual.Warnings[0].Error(), "loop")
+}
+
+func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
+	tests := map[string]manifest.FeatureToggles{
+		"all features": {
+			manifest.FeatureUpdatePipeline,
+			manifest.FeatureUpdatePipelineAndTag,
+			manifest.FeatureDockerDecompose,
+		},
+		"update-pipeline":         {manifest.FeatureUpdatePipeline},
+		"update-pipeline-and-tag": {manifest.FeatureUpdatePipelineAndTag},
+	}
+
+	for name, features := range tests {
+		t.Run(name, func(t *testing.T) {
+			actual := lint(manifest.Manifest{Platform: "actions", FeatureToggles: features})
+			assert.Empty(t, actual.Errors)
+			assert.Len(t, actual.Warnings, 1)
+			assert.Equal(t, actual.Warnings[0], linters.ErrUpdatePiplineNotImplemented)
+		})
+	}
+
 }

@@ -1,12 +1,12 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-name: update-pipeline-and-tag
+name: update-pipeline
 "on":
   push:
     branches:
     - master
     paths:
-    - e2e/actions/feature-update-pipeline-and-tag**
-    - .github/workflows/update-pipeline-and-tag.yml
+    - e2e/actions/feature-update-pipeline**
+    - .github/workflows/update-pipeline.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
@@ -19,23 +19,10 @@ env:
   VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
 defaults:
   run:
-    working-directory: e2e/actions/feature-update-pipeline-and-tag
+    working-directory: e2e/actions/feature-update-pipeline
 jobs:
-  update:
-    name: update
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-    - name: Tag commit with update-pipeline-and-tag/v$BUILD_VERSION
-      run: |-
-        git tag update-pipeline-and-tag/v$BUILD_VERSION
-        git push origin update-pipeline-and-tag/v$BUILD_VERSION
   a:
     name: A
-    needs:
-    - update
     runs-on: ee-runner
     timeout-minutes: 60
     steps:

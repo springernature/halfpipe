@@ -76,8 +76,5 @@ func TestApplyFeatureToggleDefaults(t *testing.T) {
 	man := manifest.Manifest{
 		FeatureToggles: []string{manifest.FeatureUpdatePipeline, manifest.FeatureDockerDecompose},
 	}
-
 	assert.Equal(t, man.FeatureToggles, defaults.Apply(man).FeatureToggles)
-	defaults.RemoveUpdatePipelineFeature = true
-	assert.Equal(t, manifest.FeatureToggles{manifest.FeatureDockerDecompose}, defaults.Apply(man).FeatureToggles)
 }

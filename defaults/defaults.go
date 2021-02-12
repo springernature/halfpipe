@@ -83,6 +83,4 @@ var Actions = Defaults{
 		},
 		Version: "cf7",
 	},
-
-	RemoveUpdatePipelineFeature: true,
 }

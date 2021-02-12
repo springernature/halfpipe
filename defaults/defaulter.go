@@ -81,22 +81,10 @@ type Defaults struct {
 	triggersDefaulter TriggersDefaulter
 	tasksDefaulter    TasksDefaulter
 	outputDefaulter   OutputDefaulter
-
-	RemoveUpdatePipelineFeature bool
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
 	updated = d.outputDefaulter.Apply(original)
-
-	if d.RemoveUpdatePipelineFeature {
-		updated.FeatureToggles = []string{}
-		for _, f := range original.FeatureToggles {
-			if f != manifest.FeatureUpdatePipeline && f != manifest.FeatureUpdatePipelineAndTag {
-				updated.FeatureToggles = append(updated.FeatureToggles, f)
-			}
-		}
-	}
-
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 	return updated
