@@ -53,7 +53,7 @@ type parentTask struct {
 
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
 	appendJob := func(taskSteps Steps, task manifest.Task, needs []string) {
-		steps := Steps{checkoutCode}
+		steps := Steps{checkoutCode(man.Triggers.GetGitTrigger())}
 		if task.ReadsFromArtifacts() {
 			steps = append(steps, a.restoreArtifacts()...)
 		}
@@ -108,9 +108,15 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 	return jobs
 }
 
-var checkoutCode = Step{
-	Name: "Checkout code",
-	Uses: "actions/checkout@v2",
+func checkoutCode(gitTrigger manifest.GitTrigger) Step {
+	checkout := Step{
+		Name: "Checkout code",
+		Uses: "actions/checkout@v2",
+	}
+	if !gitTrigger.Shallow {
+		checkout.With = With{{"fetch_depth", 0}}
+	}
+	return checkout
 }
 
 func timeoutInMinutes(timeout string) int {

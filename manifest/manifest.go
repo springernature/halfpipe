@@ -156,12 +156,12 @@ func (t TriggerList) HasGitTrigger() bool {
 
 type Platform string
 
-func (m Platform) IsActions() bool {
-	return m == "actions"
+func (p Platform) IsActions() bool {
+	return p == "actions"
 }
 
-func (m Platform) IsConcourse() bool {
-	return !m.IsActions()
+func (p Platform) IsConcourse() bool {
+	return !p.IsActions()
 }
 
 type Manifest struct {

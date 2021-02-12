@@ -207,10 +207,10 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 
 func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType string) (trigger Trigger, err error) {
 
-	unmarshal := func(rawTrigger json.RawMessage, t Trigger, index int) error {
-		decoder := json.NewDecoder(bytes.NewReader(rawTrigger))
+	unmarshal := func(raw json.RawMessage, output interface{}, index int) error {
+		decoder := json.NewDecoder(bytes.NewReader(raw))
 		decoder.DisallowUnknownFields()
-		if jsonErr := decoder.Decode(t); jsonErr != nil {
+		if jsonErr := decoder.Decode(output); jsonErr != nil {
 			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
 		}
 		return nil
@@ -219,7 +219,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 	// unmarshal into the correct type of Task
 	switch triggerType {
 	case "git":
-		t := GitTrigger{}
+		t := GitTrigger{ShallowDefined: strings.Contains(string(rawTrigger), `"shallow":`)}
 		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
 			return nil, err
 		}

@@ -34,5 +34,10 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 		}
 	}
 
+	// set the default for shallow clone if not defined in manifest
+	if !original.ShallowDefined {
+		updated.Shallow = defaults.ShallowClone
+	}
+
 	return updated
 }

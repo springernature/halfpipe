@@ -2,6 +2,7 @@ package defaults
 
 var Concourse = Defaults{
 	RepoPrivateKey: "((halfpipe-github.private_key))",
+	ShallowClone:   false,
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
 			Username: "((cloudfoundry.username-snpaas))",
@@ -51,6 +52,7 @@ var Concourse = Defaults{
 }
 
 var Actions = Defaults{
+	ShallowClone: true,
 	Docker: DockerDefaults{
 		Username:       "_json_key",
 		Password:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",

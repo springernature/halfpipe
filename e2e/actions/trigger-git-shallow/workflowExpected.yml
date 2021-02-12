@@ -1,0 +1,53 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - master
+    paths:
+    - e2e/actions/trigger-git-shallow**
+    - .github/workflows/pipeline-name.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/trigger-git-shallow
+jobs:
+  run__date:
+    name: run \date
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch_depth: 0
+    - name: run \date
+      uses: docker://alpine
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd e2e/actions/trigger-git-shallow; \date"
+  run__date__1_:
+    name: run \date (1)
+    needs:
+    - run__date
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch_depth: 0
+    - name: run \date (1)
+      uses: docker://alpine
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd e2e/actions/trigger-git-shallow; \date"

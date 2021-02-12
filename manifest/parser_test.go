@@ -402,3 +402,14 @@ tasks:
 		}
 	}
 }
+
+func TestGitTriggerShallowDefined(t *testing.T) {
+	yaml := `
+triggers:
+- type: git
+  shallow: false
+`
+	man, errs := Parse(yaml)
+	assert.Empty(t, errs)
+	assert.Equal(t, GitTrigger{ShallowDefined: true}, man.Triggers[0])
+}

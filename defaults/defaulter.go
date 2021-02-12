@@ -69,6 +69,7 @@ type MarkLogicDefaults struct {
 type Defaults struct {
 	Project project.Data
 
+	ShallowClone   bool
 	RepoPrivateKey string
 	CF             CFDefaults
 	Docker         DockerDefaults
