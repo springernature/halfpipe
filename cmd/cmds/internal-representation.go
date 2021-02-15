@@ -2,9 +2,9 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/simonjohansson/yaml"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/manifest"
+	"gopkg.in/yaml.v2"
 )
 
 func init() {

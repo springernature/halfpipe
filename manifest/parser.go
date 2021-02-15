@@ -8,8 +8,8 @@ import (
 
 	"encoding/json"
 
-	"github.com/ghodss/yaml"
 	"github.com/springernature/halfpipe/linters/linterrors"
+	"sigs.k8s.io/yaml"
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {

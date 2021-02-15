@@ -3,12 +3,10 @@ package concourse
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/renderers/shared"
+	"path"
+	"path/filepath"
 	"regexp"
 	"strings"
-
-	"path/filepath"
-
-	"path"
 
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"

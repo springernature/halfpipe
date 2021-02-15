@@ -2,11 +2,11 @@ package tasks
 
 import (
 	"fmt"
-	"github.com/simonjohansson/yaml"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
+	"gopkg.in/yaml.v2"
 )
 
 func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {

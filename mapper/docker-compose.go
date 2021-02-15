@@ -1,9 +1,9 @@
 package mapper
 
 import (
+	"gopkg.in/yaml.v2"
 	"strings"
 
-	"github.com/simonjohansson/yaml"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
