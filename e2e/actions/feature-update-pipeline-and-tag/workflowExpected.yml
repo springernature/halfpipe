@@ -30,7 +30,7 @@ jobs:
       uses: actions/checkout@v2
     - name: Tag commit with update-pipeline-and-tag/v$BUILD_VERSION
       run: |-
-        git tag update-pipeline-and-tag/v$BUILD_VERSION
+        git tag -f update-pipeline-and-tag/v$BUILD_VERSION
         git push origin update-pipeline-and-tag/v$BUILD_VERSION
   a:
     name: A

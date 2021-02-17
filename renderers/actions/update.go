@@ -10,7 +10,7 @@ func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) (step
 		tag := man.PipelineName() + "/v$BUILD_VERSION"
 		tagStep := Step{
 			Name: "Tag commit with " + tag,
-			Run:  fmt.Sprintf("git tag %s\ngit push origin %s", tag, tag),
+			Run:  fmt.Sprintf("git tag -f %s\ngit push origin %s", tag, tag),
 		}
 		steps = Steps{tagStep}
 	}
