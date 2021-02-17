@@ -9,18 +9,17 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-const slackToken = "${{ secrets.EE_SLACK_TOKEN }}"
-const defaultRunner = "ee-runner"
+const eeRunner = "ee-runner"
 
 var globalEnv = Env{
-	"ARTIFACTORY_PASSWORD": "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
-	"ARTIFACTORY_URL":      "${{ secrets.EE_ARTIFACTORY_URL }}",
-	"ARTIFACTORY_USERNAME": "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
+	"ARTIFACTORY_PASSWORD": githubSecrets.ArtifactoryPassword,
+	"ARTIFACTORY_URL":      githubSecrets.ArtifactoryURL,
+	"ARTIFACTORY_USERNAME": githubSecrets.ArtifactoryUsername,
 	"BUILD_VERSION":        "2.${{ github.run_number }}.0",
 	"GIT_REVISION":         "${{ github.sha }}",
 	"RUNNING_IN_CI":        "true",
-	"VAULT_ROLE_ID":        "${{ secrets.VAULT_ROLE_ID }}",
-	"VAULT_SECRET_ID":      "${{ secrets.VAULT_SECRET_ID }}",
+	"VAULT_ROLE_ID":        githubSecrets.VaultRoleID,
+	"VAULT_SECRET_ID":      githubSecrets.VaultSecretID,
 }
 
 type Actions struct {
@@ -64,7 +63,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 
 		job := Job{
 			Name:           task.GetName(),
-			RunsOn:         defaultRunner,
+			RunsOn:         eeRunner,
 			Steps:          convertSecrets(steps, man.Team),
 			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
 			Needs:          needs,
@@ -146,7 +145,7 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 			Uses: "yukin01/slack-bot-action@v0.0.4",
 			With: With{
 				{"status", "${{ job.status }}"},
-				{"oauth_token", slackToken},
+				{"oauth_token", githubSecrets.SlackToken},
 				{"channel", channel},
 				{"text", text},
 			},

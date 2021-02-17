@@ -30,7 +30,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,
 			"CONSUMER_SCRIPT":        task.Script,
-			"CONSUMER_GIT_KEY":       "${{ secrets.EE_GITHUB_PRIVATE_KEY }}",
+			"CONSUMER_GIT_KEY":       githubSecrets.GitHubPrivateKey,
 			"CONSUMER_HOST":          task.ConsumerHost,
 			"PROVIDER_NAME":          man.Pipeline,
 			"PROVIDER_HOST_KEY":      providerHostKey,

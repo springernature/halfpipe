@@ -43,7 +43,7 @@ func repositoryDispatch(eventName string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v1",
 		With: With{
-			{"token", "${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}"},
+			{"token", githubSecrets.RepositoryDispatchToken},
 			{"event-type", "docker-push:" + eventName},
 		},
 	}
