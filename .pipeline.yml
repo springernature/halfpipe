@@ -95,7 +95,7 @@ jobs:
 - name: Release
   disable_manual_trigger: true
   plan:
-  - aggregate:
+  - in_parallel:
     - get: halfpipe
       passed:
       - Test
