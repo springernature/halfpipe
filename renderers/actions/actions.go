@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
 	"strings"
@@ -170,7 +171,7 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 
 func dockerLogin(image, username, password string) Steps {
 	// check login step is needed
-	if username == "" || strings.HasPrefix(image, "eu.gcr.io/halfpipe-io/") {
+	if username == "" || strings.HasPrefix(image, config.DockerRegistry) {
 		return Steps{}
 	}
 

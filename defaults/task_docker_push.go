@@ -10,7 +10,7 @@ import (
 func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush) {
 	updated = original
 
-	if strings.HasPrefix(updated.Image, config.DockerRegistry) {
+	if man.Platform.IsConcourse() && strings.HasPrefix(updated.Image, config.DockerRegistry) {
 		updated.Username = defaults.Docker.Username
 		updated.Password = defaults.Docker.Password
 	}

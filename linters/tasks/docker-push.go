@@ -12,12 +12,6 @@ import (
 )
 
 func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
-	if docker.Username == "" {
-		errs = append(errs, linterrors.NewMissingField("username"))
-	}
-	if docker.Password == "" {
-		errs = append(errs, linterrors.NewMissingField("password"))
-	}
 	if docker.Image == "" {
 		errs = append(errs, linterrors.NewMissingField("image"))
 	} else {

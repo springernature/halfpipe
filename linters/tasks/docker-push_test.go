@@ -15,9 +15,6 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors, _ := LintDockerPushTask(manifest.DockerPush{}, emptyManifest, fs)
-
-	linterrors.AssertMissingFieldInErrors(t, "username", errors)
-	linterrors.AssertMissingFieldInErrors(t, "password", errors)
 	linterrors.AssertMissingFieldInErrors(t, "image", errors)
 }
 
