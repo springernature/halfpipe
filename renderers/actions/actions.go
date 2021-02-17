@@ -114,7 +114,7 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Step {
 		Uses: "actions/checkout@v2",
 	}
 	if !gitTrigger.Shallow {
-		checkout.With = With{{"fetch_depth", 0}}
+		checkout.With = With{{"fetch-depth", 0}}
 	}
 	return checkout
 }
