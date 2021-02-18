@@ -62,7 +62,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.15-buster
+          tag: 1.16-buster
       run:
         path: /bin/bash
         args:
@@ -108,7 +108,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.15-buster
+          tag: 1.16-buster
       run:
         path: /bin/sh
         args:
