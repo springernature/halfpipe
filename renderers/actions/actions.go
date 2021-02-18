@@ -37,9 +37,13 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w.On = a.triggers(man)
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
-		if basePath := man.Triggers.GetGitTrigger().BasePath; basePath != "" {
-			w.Defaults.Run.WorkingDirectory = basePath
-			a.workingDir = basePath
+		gitTrigger := man.Triggers.GetGitTrigger()
+		if gitTrigger.BasePath != "" {
+			w.Defaults.Run.WorkingDirectory = gitTrigger.BasePath
+			a.workingDir = gitTrigger.BasePath
+		}
+		if gitTrigger.GitCryptKey != "" {
+			w.Env["GIT_CRYPT_KEY"] = gitTrigger.GitCryptKey
 		}
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
@@ -53,7 +57,7 @@ type parentTask struct {
 
 func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *parentTask) (jobs Jobs) {
 	appendJob := func(taskSteps Steps, task manifest.Task, needs []string) {
-		steps := Steps{checkoutCode(man.Triggers.GetGitTrigger())}
+		steps := checkoutCode(man.Triggers.GetGitTrigger())
 		if task.ReadsFromArtifacts() {
 			steps = append(steps, a.restoreArtifacts()...)
 		}
@@ -108,7 +112,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 	return jobs
 }
 
-func checkoutCode(gitTrigger manifest.GitTrigger) Step {
+func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
 		Uses: "actions/checkout@v2",
@@ -116,7 +120,14 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Step {
 	if !gitTrigger.Shallow {
 		checkout.With = With{{"fetch-depth", 0}}
 	}
-	return checkout
+	steps := Steps{checkout}
+	if gitTrigger.GitCryptKey != "" {
+		steps = append(steps, Step{
+			Name: "git-crypt unlock",
+			Run:  "git-crypt unlock <(echo $GIT_CRYPT_KEY | base64 -d)",
+		})
+	}
+	return steps
 }
 
 func timeoutInMinutes(timeout string) int {

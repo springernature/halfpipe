@@ -5,12 +5,15 @@ platform: actions
 triggers:
 - type: git
   shallow: false
+  git_crypt_key: foobar
 
 tasks:
 - type: run
   docker:
     image: alpine
   script: \date
+  vars:
+    FOO: bar
 - type: run
   docker:
     image: alpine
