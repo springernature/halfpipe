@@ -67,9 +67,6 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 	for i, trigger := range triggers {
 		switch t := trigger.(type) {
 		case manifest.GitTrigger:
-			if t.GitCryptKey != "" {
-				addError(i, "git_crypt_key")
-			}
 			if t.PrivateKey != "" {
 				addError(i, "private_key")
 			}
