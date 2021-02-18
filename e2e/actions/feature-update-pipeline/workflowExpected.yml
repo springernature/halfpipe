@@ -30,9 +30,8 @@ jobs:
       uses: actions/checkout@v2
     - name: A
       run: |-
-        docker-compose \
-          -f docker-compose.yml \
-          run \
+        docker-compose -f docker-compose.yml pull
+        docker-compose -f docker-compose.yml run \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
@@ -56,9 +55,8 @@ jobs:
       uses: actions/checkout@v2
     - name: B
       run: |-
-        docker-compose \
-          -f docker-compose.yml \
-          run \
+        docker-compose -f docker-compose.yml pull
+        docker-compose -f docker-compose.yml run \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
@@ -82,9 +80,8 @@ jobs:
       uses: actions/checkout@v2
     - name: C
       run: |-
-        docker-compose \
-          -f docker-compose.yml \
-          run \
+        docker-compose -f docker-compose.yml pull
+        docker-compose -f docker-compose.yml run \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \

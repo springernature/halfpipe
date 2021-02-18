@@ -46,6 +46,7 @@ git checkout ${REVISION}
 
 # run the tests with docker-compose
 # note: old system reads CF manifest env vars and sets them all here
+docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
 docker-compose run --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e DEPENDENCY_NAME=${PROVIDER_NAME} \

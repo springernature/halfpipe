@@ -50,15 +50,14 @@ func dockerComposeScript(task manifest.DockerCompose) string {
 	}
 	sort.Strings(envOptions)
 
-	command := []string{"docker-compose"}
-	command = append(command, "-f "+task.ComposeFile)
-	command = append(command, "run")
-	command = append(command, envOptions...)
-	command = append(command, task.Service)
+	dcPrefix := fmt.Sprintf("docker-compose -f %s ", task.ComposeFile)
+	dcRun := []string{dcPrefix + "run"}
+	dcRun = append(dcRun, envOptions...)
+	dcRun = append(dcRun, task.Service)
 	if task.Command != "" {
-		command = append(command, task.Command)
+		dcRun = append(dcRun, task.Command)
 	}
-
-	compose := strings.Join(command, " \\\n  ")
-	return compose
+	run := strings.Join(dcRun, " \\\n  ")
+	pull := dcPrefix + "pull"
+	return fmt.Sprintf("%s\n%s", pull, run)
 }

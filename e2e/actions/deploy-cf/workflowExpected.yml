@@ -204,9 +204,8 @@ jobs:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: docker-compose
       run: |-
-        docker-compose \
-          -f docker-compose.yml \
-          run \
+        docker-compose -f docker-compose.yml pull
+        docker-compose -f docker-compose.yml run \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
@@ -246,6 +245,7 @@ jobs:
 
         # run the tests with docker-compose
         # note: old system reads CF manifest env vars and sets them all here
+        docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
         docker-compose run --no-deps \
           --entrypoint "${CONSUMER_SCRIPT}" \
           -e DEPENDENCY_NAME=${PROVIDER_NAME} \
