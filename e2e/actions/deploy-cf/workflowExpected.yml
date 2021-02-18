@@ -86,11 +86,11 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         command: halfpipe-push
       env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
         CF_ENV_VAR_ENV1: "1234"
         CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
         CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
-        CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Check
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
@@ -178,9 +178,9 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         command: halfpipe-push
       env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
         CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.secret_value }}
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.another_secret }}
-        CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Check
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
@@ -333,7 +333,7 @@ jobs:
         dockerPassword: ${{ steps.secrets.outputs.halfpipe-gcr_private_key_base64 }}
         dockerTag: ${{ env.BUILD_VERSION }}
       env:
-        CF_ENV_VAR_GITHUB_WORKFLOW_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Check
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:

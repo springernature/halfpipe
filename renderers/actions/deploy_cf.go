@@ -41,7 +41,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	for k, v := range task.Vars {
 		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
 	}
-	envVars["CF_ENV_VAR_GITHUB_WORKFLOW_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+	envVars["CF_ENV_VAR_BUILD_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
 
 	deploySteps := Steps{}
 
