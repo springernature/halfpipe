@@ -215,6 +215,7 @@ jobs:
           -e TEST_ROUTE \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/:/var/halfpipe/shared-cache \
           app
       env:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app

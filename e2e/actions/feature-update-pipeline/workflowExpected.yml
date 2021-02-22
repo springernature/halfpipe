@@ -40,6 +40,7 @@ jobs:
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           app
     - name: Docker cleanup
       if: always()
@@ -65,6 +66,7 @@ jobs:
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           app
     - name: Docker cleanup
       if: always()
@@ -90,6 +92,7 @@ jobs:
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           app
     - name: Docker cleanup
       if: always()

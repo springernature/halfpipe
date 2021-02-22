@@ -40,6 +40,7 @@ jobs:
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           app
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar foo bar/baz
@@ -90,6 +91,7 @@ jobs:
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           customservice \
           echo hello
       env:

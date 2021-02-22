@@ -91,7 +91,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		case manifest.Run:
 			appendJob(a.runSteps(task), task, needs)
 		case manifest.DockerCompose:
-			appendJob(a.dockerComposeSteps(task), task, needs)
+			appendJob(a.dockerComposeSteps(task, man.Team), task, needs)
 		case manifest.ConsumerIntegrationTest:
 			appendJob(a.consumerIntegrationTestSteps(task, man), task, needs)
 		case manifest.DeployMLModules:

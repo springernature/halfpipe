@@ -2,6 +2,7 @@
 /halfpipe
 .idea
 .DS_Store
+.github
 vendor
 
 pipelineActual.yml
