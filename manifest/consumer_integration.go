@@ -7,6 +7,7 @@ type ConsumerIntegrationTest struct {
 	ConsumerHost         string        `json:"consumer_host" yaml:"consumer_host,omitempty"`
 	GitCloneOptions      string        `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
 	ProviderHost         string        `json:"provider_host" yaml:"provider_host,omitempty"`
+	ProviderName         string        `json:"provider_name" yaml:"provider_name,omitempty"`
 	Script               string        `yaml:"script,omitempty"`
 	DockerComposeService string        `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
 	Vars                 Vars          `yaml:"vars,omitempty" secretAllowed:"true"`

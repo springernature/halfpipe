@@ -2,10 +2,11 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/renderers/shared"
 )
 
 func (a *Actions) consumerIntegrationTestSteps(task manifest.ConsumerIntegrationTest, man manifest.Manifest) Steps {
@@ -20,7 +21,12 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	if len(consumerGitParts) > 1 {
 		consumerGitPath = consumerGitParts[1]
 	}
-	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(man.Pipeline))
+
+	providerName := task.ProviderName
+	if providerName == "" {
+		providerName = man.Pipeline
+	}
+	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
 	runTask := manifest.Run{
 		Retries: task.Retries,
@@ -32,7 +38,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"CONSUMER_SCRIPT":        task.Script,
 			"CONSUMER_GIT_KEY":       githubSecrets.GitHubPrivateKey,
 			"CONSUMER_HOST":          task.ConsumerHost,
-			"PROVIDER_NAME":          man.Pipeline,
+			"PROVIDER_NAME":          providerName,
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,

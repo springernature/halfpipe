@@ -71,5 +71,5 @@ jobs:
         K: value
         K1: value1
         PROVIDER_HOST: p-host
-        PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
-        PROVIDER_NAME: pipeline-name
+        PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
+        PROVIDER_NAME: p-name

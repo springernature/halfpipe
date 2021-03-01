@@ -2,10 +2,11 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/renderers/shared"
 )
 
 func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (steps Steps) {

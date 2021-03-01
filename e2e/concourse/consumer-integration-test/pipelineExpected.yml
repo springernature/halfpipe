@@ -38,8 +38,8 @@ jobs:
         K: value
         K1: value1
         PROVIDER_HOST: p-host
-        PROVIDER_HOST_KEY: HALFPIPE_E2E_CONSUMER_INTEGRATION_TEST_DEPLOYED_HOST
-        PROVIDER_NAME: halfpipe-e2e-consumer-integration-test
+        PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
+        PROVIDER_NAME: p-name
         RUNNING_IN_CI: "true"
       platform: linux
       run:

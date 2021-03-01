@@ -2,11 +2,12 @@ package concourse
 
 import (
 	"fmt"
+	"regexp"
+	"strings"
+
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
-	"regexp"
-	"strings"
 )
 
 func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTest, man manifest.Manifest) manifest.Run {
@@ -16,11 +17,16 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	if len(consumerGitParts) > 1 {
 		consumerGitPath = consumerGitParts[1]
 	}
-	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(man.Pipeline))
 
 	dockerLogin := `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
 	cdcScript := shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
 	script := dockerLogin + "\n\n" + cdcScript
+
+	providerName := task.ProviderName
+	if providerName == "" {
+		providerName = man.Pipeline
+	}
+	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
 	runTask := manifest.Run{
 		Retries: task.Retries,
@@ -38,7 +44,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"CONSUMER_SCRIPT":        task.Script,
 			"CONSUMER_GIT_KEY":       "((halfpipe-github.private_key))",
 			"CONSUMER_HOST":          task.ConsumerHost,
-			"PROVIDER_NAME":          man.Pipeline,
+			"PROVIDER_NAME":          providerName,
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
