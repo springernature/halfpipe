@@ -1,6 +1,7 @@
 package filechecker
 
 import (
+	"github.com/springernature/halfpipe/config"
 	"testing"
 
 	"github.com/spf13/afero"
@@ -78,7 +79,7 @@ func TestReadHalfpipeFilesErrorsTwoFileOptionsExist(t *testing.T) {
 	fs.WriteFile(".halfpipe.io", []byte{}, 0700)
 	fs.WriteFile(".halfpipe.io.yml", []byte{}, 0700)
 
-	_, err := GetHalfpipeFileName(fs, "")
+	_, err := GetHalfpipeFileName(fs, "", config.HalfpipeFilenameOptions)
 
 	assert.EqualError(t, err, "found [.halfpipe.io .halfpipe.io.yml] files. Please use only 1 of those")
 }
@@ -86,14 +87,29 @@ func TestReadHalfpipeFilesErrorsTwoFileOptionsExist(t *testing.T) {
 func TestReadHalfpipeFilesErrorsWhenBothOptionsAreNotThere(t *testing.T) {
 	pr := testFs()
 
-	_, err := GetHalfpipeFileName(pr, "")
+	_, err := GetHalfpipeFileName(pr, "", config.HalfpipeFilenameOptions)
 
 	assert.EqualError(t, err, "couldn't find any of the allowed [.halfpipe.io .halfpipe.io.yml .halfpipe.io.yaml] files")
+}
+
+func TestReadHalfpipeFilesErrorsWhenExplicitFilenameGivenButFIleIsMissing(t *testing.T) {
+	pr := testFs()
+
+	_, err := GetHalfpipeFileName(pr, "", []string{"some-other-file.yml"})
+
+	assert.EqualError(t, err, "couldn't find any of the allowed [some-other-file.yml] files")
 }
 
 func TestReadHalfpipeFilesIsHappyWithOneOfTheOptions(t *testing.T) {
 	fs := testFs()
 	fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
-	_, err := GetHalfpipeFileName(fs, "")
+	_, err := GetHalfpipeFileName(fs, "", config.HalfpipeFilenameOptions)
+	assert.Nil(t, err)
+}
+
+func TestReadHalfpipeFilesIsHappyWithExplicitFilenameGiven(t *testing.T) {
+	fs := testFs()
+	fs.WriteFile("some-other-file.yml", []byte("foo"), 0700)
+	_, err := GetHalfpipeFileName(fs, "", []string{"some-other-file.yml"})
 	assert.Nil(t, err)
 }

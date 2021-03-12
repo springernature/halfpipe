@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/migrate"
@@ -33,7 +34,7 @@ var migrateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false)
+		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false, config.HalfpipeFilenameOptions)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)

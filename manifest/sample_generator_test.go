@@ -14,7 +14,7 @@ type FakeProjectResolver struct {
 	err error
 }
 
-func (pr FakeProjectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p project.Data, err error) {
+func (pr FakeProjectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool, halfpipeFilenameOptions []string) (p project.Data, err error) {
 	return pr.p, pr.err
 }
 

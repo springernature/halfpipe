@@ -3,6 +3,7 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
 )
@@ -22,7 +23,7 @@ var internalRepresentation = &cobra.Command{
 	Short: `Prints the internal representation of the manifest`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		man, controller := getManifestAndController()
+		man, controller := getManifestAndController(config.HalfpipeFilenameOptions)
 
 		defaultedAndMappedManifest, _ := controller.DefaultAndMap(man)
 

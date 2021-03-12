@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"errors"
+	"github.com/springernature/halfpipe/config"
 
 	"fmt"
 	"strings"
@@ -57,7 +58,7 @@ func (s sampleGenerator) Generate() (err error) {
 		},
 	}
 
-	proj, err := s.projectResolver.Parse(s.currentDir, true)
+	proj, err := s.projectResolver.Parse(s.currentDir, true, config.HalfpipeFilenameOptions)
 	if err != nil {
 		return err
 	}

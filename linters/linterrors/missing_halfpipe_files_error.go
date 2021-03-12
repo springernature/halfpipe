@@ -2,16 +2,18 @@ package linterrors
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/config"
 )
 
 type MissingHalfpipeFileError struct {
+	HalfpipeFilenameOptions []string
 }
 
-func NewMissingHalfpipeFileError() MissingHalfpipeFileError {
-	return MissingHalfpipeFileError{}
+func NewMissingHalfpipeFileError(halfpipeFilenameOptions []string) MissingHalfpipeFileError {
+	return MissingHalfpipeFileError{
+		HalfpipeFilenameOptions: halfpipeFilenameOptions,
+	}
 }
 
 func (e MissingHalfpipeFileError) Error() string {
-	return fmt.Sprintf("couldn't find any of the allowed %s files", config.HalfpipeFilenameOptions)
+	return fmt.Sprintf("couldn't find any of the allowed %s files", e.HalfpipeFilenameOptions)
 }

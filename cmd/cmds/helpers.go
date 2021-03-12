@@ -130,7 +130,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 
 }
 
-func getManifestAndController() (manifest.Manifest, halfpipe.Controller) {
+func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manifest, halfpipe.Controller) {
 	if err := checkVersion(); err != nil {
 		printErr(err)
 		os.Exit(1)
@@ -144,7 +144,7 @@ func getManifestAndController() (manifest.Manifest, halfpipe.Controller) {
 		os.Exit(1)
 	}
 
-	projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false)
+	projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false, halfpipeFilenameOptions)
 	if err != nil {
 		printErr(err)
 		os.Exit(1)
