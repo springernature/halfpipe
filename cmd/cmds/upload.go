@@ -45,7 +45,7 @@ func init() {
 				os.Exit(1)
 			}
 
-			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, pipelineFile, nonInteractive, currentBranch, osResolver, os.Getenv, currentDir)
+			planner := upload.NewPlanner(afero.Afero{Fs: afero.NewOsFs()}, exec.LookPath, currentUser.HomeDir, pipelineFile, nonInteractive, currentBranch, osResolver, os.Getenv, currentDir, input)
 
 			plan, err := planner.Plan()
 			if err != nil {
@@ -61,5 +61,7 @@ func init() {
 	}
 
 	uploadCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "If this is set, you will not get prompted for action")
+	uploadCmd.Flags().StringVarP(&input, "input", "i", "", "Sets the halfpipe filename to be used")
+
 	rootCmd.AddCommand(uploadCmd)
 }

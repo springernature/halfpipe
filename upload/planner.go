@@ -35,7 +35,7 @@ type Planner interface {
 	Unpause() (plan Plan, err error)
 }
 
-func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver, envResolver EnvResolver, workingDir string) Planner {
+func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipelineFile PipelineFile, nonInteractive bool, currentBranch string, osResolver OSResolver, envResolver EnvResolver, workingDir string, input string) Planner {
 	return planner{
 		fs:             fs,
 		pathResolver:   pathResolver,
@@ -46,6 +46,7 @@ func NewPlanner(fs afero.Afero, pathResolver PathResolver, homedir string, pipel
 		oSResolver:     osResolver,
 		envResolver:    envResolver,
 		workingDir:     workingDir,
+		input:          input,
 	}
 }
 
@@ -59,6 +60,7 @@ type planner struct {
 	oSResolver     OSResolver
 	envResolver    EnvResolver
 	workingDir     string
+	input          string
 }
 
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
@@ -104,7 +106,12 @@ func (p planner) lintAndRender() (cmd Command, err error) {
 		Args:   []string{path},
 		Stdout: file,
 	}
-	cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
+	if p.input != "" {
+		cmd.Cmd.Args = append(cmd.Cmd.Args, []string{"-i", p.input}...)
+		cmd.Printable = fmt.Sprintf("%s -i %s > %s", "halfpipe", p.input, file.Name())
+	} else {
+		cmd.Printable = fmt.Sprintf("%s > %s", "halfpipe", file.Name())
+	}
 
 	return cmd, err
 }

@@ -15,5 +15,8 @@ func NewMissingHalfpipeFileError(halfpipeFilenameOptions []string) MissingHalfpi
 }
 
 func (e MissingHalfpipeFileError) Error() string {
+	if len(e.HalfpipeFilenameOptions) == 1 {
+		return fmt.Sprintf("couldn't find '%s'", e.HalfpipeFilenameOptions[0])
+	}
 	return fmt.Sprintf("couldn't find any of the allowed %s files", e.HalfpipeFilenameOptions)
 }

@@ -97,7 +97,7 @@ func TestReadHalfpipeFilesErrorsWhenExplicitFilenameGivenButFIleIsMissing(t *tes
 
 	_, err := GetHalfpipeFileName(pr, "", []string{"some-other-file.yml"})
 
-	assert.EqualError(t, err, "couldn't find any of the allowed [some-other-file.yml] files")
+	assert.EqualError(t, err, "couldn't find 'some-other-file.yml'")
 }
 
 func TestReadHalfpipeFilesIsHappyWithOneOfTheOptions(t *testing.T) {

@@ -56,7 +56,7 @@ func TestErrors(t *testing.T) {
 	t.Run("when halfpipe file doesnt exist", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "", "")
 		_, err := planner.Plan()
 
 		assert.Error(t, err)
@@ -76,7 +76,7 @@ func TestErrors(t *testing.T) {
 
 		planner := NewPlanner(fs, pathResolverWithoutFly, homedir, func(fs afero.Afero) (afero.File, error) {
 			return file, nil
-		}, false, "master", osResolver, envResolver, "")
+		}, false, "master", osResolver, envResolver, "", "")
 
 		_, err := planner.Plan()
 		assert.Equal(t, ErrFlyNotInstalled(osResolver()), err)
@@ -86,7 +86,7 @@ func TestErrors(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile(".halfpipe.io", []byte(""), 0777)
 
-		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, NullpipelineFile, false, "master", osResolver, envResolver, "", "")
 		_, err := planner.Plan()
 
 		assert.Error(t, err)
@@ -102,7 +102,7 @@ func TestOnMaster(t *testing.T) {
 	}
 
 	t.Run("returns a plan", func(t *testing.T) {
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "master", osResolver, envResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := `halfpipe > pipeline.yml
@@ -114,7 +114,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
 	})
 
 	t.Run("returns a plan when on main", func(t *testing.T) {
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "main", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, "main", osResolver, envResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := `halfpipe > pipeline.yml
@@ -126,7 +126,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
 	})
 
 	t.Run("returns a non-interactive plan", func(t *testing.T) {
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := `halfpipe > pipeline.yml
@@ -143,7 +143,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-i
 			return concourseEndpoint
 		}
 
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, overriddenEnvResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, overriddenEnvResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := fmt.Sprintf(`halfpipe > pipeline.yml
@@ -165,7 +165,7 @@ func TestOnBranch(t *testing.T) {
 	}
 
 	t.Run("returns a plan with security question", func(t *testing.T) {
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, branch, osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, false, branch, osResolver, envResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := `# Security question
@@ -178,7 +178,7 @@ fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-cre
 	})
 
 	t.Run("returns a non interactive plan", func(t *testing.T) {
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "", "")
 		plan, err := planner.Plan()
 
 		expectedPlan := `halfpipe > pipeline.yml
@@ -199,7 +199,7 @@ func TestUnpause(t *testing.T) {
 
 	t.Run("returns a plan on master", func(t *testing.T) {
 		fs.WriteFile(".halfpipe.io", []byte(validPipeline), 0777)
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, "master", osResolver, envResolver, "", "")
 		plan, err := planner.Unpause()
 
 		expectedPlan := `fly -t my-team unpause-pipeline -p my-pipeline`
@@ -212,7 +212,7 @@ func TestUnpause(t *testing.T) {
 	t.Run("returns a plan on a branch", func(t *testing.T) {
 		fs.WriteFile(".halfpipe.io", []byte(validPipelineWithBranch), 0777)
 
-		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "")
+		planner := NewPlanner(fs, pathResolver, homedir, pipelineFile, true, branch, osResolver, envResolver, "", "")
 		plan, err := planner.Unpause()
 
 		expectedPlan := `fly -t my-team unpause-pipeline -p my-pipeline-my-branch`
