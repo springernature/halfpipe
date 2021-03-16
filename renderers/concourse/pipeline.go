@@ -16,10 +16,13 @@ import (
 )
 
 type Concourse struct {
+	halfpipeFilePath string
 }
 
-func NewPipeline() Concourse {
-	return Concourse{}
+func NewPipeline(halfpipeFilePath string) Concourse {
+	return Concourse{
+		halfpipeFilePath: halfpipeFilePath,
+	}
 }
 
 const artifactsResourceName = "gcp-resource"

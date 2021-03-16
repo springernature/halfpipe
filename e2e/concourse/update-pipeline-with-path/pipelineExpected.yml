@@ -32,12 +32,12 @@ jobs:
         CONCOURSE_URL: ((concourse.url))
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
-        HALFPIPE_FILE_PATH: .halfpipe.io
+        HALFPIPE_FILE_PATH: .myCustomHalfpipePath.yml
         HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-update-pipeline
+        PIPELINE_NAME: halfpipe-e2e-update-pipeline-with-path
       platform: linux
       run:
-        dir: git/e2e/concourse/update-pipeline
+        dir: git/e2e/concourse/update-pipeline-with-path
         path: update-pipeline
     task: update
     timeout: 15m
@@ -116,7 +116,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/concourse/update-pipeline
+        dir: git/e2e/concourse/update-pipeline-with-path
         path: /bin/sh
     task: test
     timeout: 1h
@@ -186,7 +186,7 @@ jobs:
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/concourse/update-pipeline
+        dir: git/e2e/concourse/update-pipeline-with-path
         path: docker.sh
     privileged: true
     task: docker-compose
@@ -207,7 +207,7 @@ resources:
   source:
     branch: master
     paths:
-    - e2e/concourse/update-pipeline
+    - e2e/concourse/update-pipeline-with-path
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
@@ -223,6 +223,6 @@ resources:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-update-pipeline
+    key: halfpipe-team-halfpipe-e2e-update-pipeline-with-path
   type: semver
 

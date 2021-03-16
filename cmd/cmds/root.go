@@ -1,11 +1,12 @@
 package cmds
 
 import (
+	"fmt"
+	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/config"
 	"os"
 	"path"
-
-	"github.com/spf13/cobra"
+	"strings"
 )
 
 var rootCmd = &cobra.Command{
@@ -17,6 +18,10 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 		if input == "" {
 			halfpipeFilenameOptions = config.HalfpipeFilenameOptions
 		} else {
+			if strings.Contains(input, string(os.PathSeparator)) {
+				fmt.Println(fmt.Sprintf("Input file '%s' must be in current directory", input))
+				os.Exit(1)
+			}
 			halfpipeFilenameOptions = []string{input}
 		}
 		man, controller := getManifestAndController(halfpipeFilenameOptions)

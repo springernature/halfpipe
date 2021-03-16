@@ -159,7 +159,7 @@ func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manife
 	if man.Platform.IsActions() {
 		renderer = actions.NewActions()
 	} else {
-		renderer = concourse.NewPipeline()
+		renderer = concourse.NewPipeline(projectData.HalfpipeFilePath)
 	}
 	controller := createController(projectData, fs, currentDir, renderer)
 

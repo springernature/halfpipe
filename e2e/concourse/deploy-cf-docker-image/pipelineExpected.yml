@@ -27,6 +27,7 @@ jobs:
         CONCOURSE_URL: ((concourse.url))
         CONCOURSE_USERNAME: ((concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io
         HALFPIPE_PROJECT: halfpipe-io
         PIPELINE_NAME: halfpipe-e2e-deploy-cf-docker-image
       platform: linux
