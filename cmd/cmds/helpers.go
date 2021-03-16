@@ -41,13 +41,13 @@ func formatInput(input string) []string {
 	halfpipeFilenameOptions := config.HalfpipeFilenameOptions
 	if Input == "" {
 		return halfpipeFilenameOptions
-	} else {
-		if strings.Contains(input, string(os.PathSeparator)) {
-			fmt.Printf("Input file '%s' must be in current directory\n", input)
-			os.Exit(1)
-		}
-		return []string{input}
 	}
+	if strings.Contains(input, string(os.PathSeparator)) {
+		fmt.Printf("Input file '%s' must be in current directory\n", input)
+		os.Exit(1)
+	}
+	return []string{input}
+
 }
 
 func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manifest.Manifest, errors []error) {
