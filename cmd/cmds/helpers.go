@@ -8,6 +8,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 
 	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/afero"
@@ -34,6 +35,19 @@ var checkVersion = func() (err error) {
 	syncer := sync.NewSyncer(currentVersion, sync.ResolveLatestVersionFromArtifactory)
 	err = syncer.Check()
 	return
+}
+
+func formatInput(input string) []string {
+	halfpipeFilenameOptions := config.HalfpipeFilenameOptions
+	if Input == "" {
+		return halfpipeFilenameOptions
+	} else {
+		if strings.Contains(input, string(os.PathSeparator)) {
+			fmt.Printf("Input file '%s' must be in current directory\n", input)
+			os.Exit(1)
+		}
+		return []string{input}
+	}
 }
 
 func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manifest.Manifest, errors []error) {

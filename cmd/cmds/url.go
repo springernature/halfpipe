@@ -12,7 +12,6 @@ import (
 )
 
 func init() {
-	urlCmd.Flags().StringVarP(&input, "input", "i", "", "Sets the halfpipe filename to be used")
 	rootCmd.AddCommand(urlCmd)
 }
 
@@ -28,16 +27,7 @@ var urlCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		halfpipeFilenameOptions := config.HalfpipeFilenameOptions
-		if input != "" {
-			if strings.Contains(input, string(os.PathSeparator)) {
-				fmt.Printf("Input file '%s' must be in current directory\n", input)
-				os.Exit(1)
-			}
-			halfpipeFilenameOptions = []string{input}
-		}
-
-		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false, halfpipeFilenameOptions)
+		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false, formatInput(Input))
 		if err != nil {
 			printErr(err)
 			os.Exit(1)
