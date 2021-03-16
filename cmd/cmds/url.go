@@ -27,7 +27,7 @@ var urlCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false)
+		projectData, err := project.NewProjectResolver(fs).Parse(currentDir, false, config.HalfpipeFilenameOptions)
 		if err != nil {
 			printErr(err)
 			os.Exit(1)

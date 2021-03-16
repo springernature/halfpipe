@@ -1,10 +1,11 @@
 package project
 
 import (
+	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"path/filepath"
 
 	"github.com/springernature/halfpipe/linters/filechecker"
-	errors2 "github.com/springernature/halfpipe/linters/linterrors"
+	//errors2 "github.com/springernature/halfpipe/linters/linterrors"
 
 	"os/exec"
 
@@ -24,7 +25,7 @@ type Data struct {
 }
 
 type Project interface {
-	Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p Data, err error)
+	Parse(workingDir string, ignoreMissingHalfpipeFile bool, halfpipeFilenameOptions []string) (p Data, err error)
 }
 
 type projectResolver struct {
@@ -48,7 +49,7 @@ var (
 	ErrNoCommits          = errors.New("looks like you are executing halfpipe in a repo without commits, this is not supported")
 )
 
-func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool) (p Data, err error) {
+func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool, halfpipeFilenameOptions []string) (p Data, err error) {
 	var pathRelativeToGit func(string) (basePath string, rootName string, gitRootPath string, err error)
 
 	pathRelativeToGit = func(path string) (basePath string, rootName string, gitRootPath string, err error) {
@@ -94,11 +95,14 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		return p, err
 	}
 
-	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir)
+	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir, halfpipeFilenameOptions)
 	if e != nil {
-		if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
-			err = e
-			return p, err
+		switch e.(type) {
+		case errors2.MissingHalfpipeFileError:
+			if !ignoreMissingHalfpipeFile {
+				err = e
+				return p, err
+			}
 		}
 	}
 

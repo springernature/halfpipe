@@ -1,6 +1,7 @@
 package project
 
 import (
+	"github.com/springernature/halfpipe/config"
 	"testing"
 
 	"github.com/pkg/errors"
@@ -20,14 +21,14 @@ func TestErrorsIfGitNotFoundOnPath(t *testing.T) {
 	pr := testProjectResolver()
 	pr.LookPath = func(string) (string, error) { return "", errors.New("dummy") }
 
-	_, err := pr.Parse("/project/root", false)
+	_, err := pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrGitNotFound, err)
 }
 
 func TestErrorsIfNotInGitRepo(t *testing.T) {
 	pr := testProjectResolver()
 
-	_, err := pr.Parse("/project/root", false)
+	_, err := pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrNotInRepo, err)
 }
 
@@ -36,7 +37,7 @@ func TestErrorsIfNoGitOriginConfigured(t *testing.T) {
 	pr.OriginURL = func() (string, error) { return "", errors.New("dummy") }
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 
-	_, err := pr.Parse("/project/root", false)
+	_, err := pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrNoOriginConfigured, err)
 }
 
@@ -45,7 +46,7 @@ func TestGetsGitData(t *testing.T) {
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 	pr.Fs.Create("/project/root/.halfpipe.io")
 
-	project, err := pr.Parse("/project/root", false)
+	project, err := pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "git@origin", project.GitURI)
@@ -54,7 +55,7 @@ func TestGetsGitData(t *testing.T) {
 func TestErrorsOutIfStartPathCannotBeRead(t *testing.T) {
 	pr := testProjectResolver()
 
-	_, err := pr.Parse("/home/simon/src/repo", false)
+	_, err := pr.Parse("/home/simon/src/repo", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrNotInRepo, err)
 }
 
@@ -75,7 +76,7 @@ func TestBasePathWhenInGitRepo(t *testing.T) {
 
 func assertBasePath(t *testing.T, pr projectResolver, workingDir string, expectedBasePath string) {
 	t.Helper()
-	project, err := pr.Parse(workingDir, false)
+	project, err := pr.Parse(workingDir, false, config.HalfpipeFilenameOptions)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedBasePath, project.BasePath)
 }
@@ -97,7 +98,7 @@ func TestRootNameWhenInGitRepo(t *testing.T) {
 
 func assertRootName(t *testing.T, pr projectResolver, workingDir string, expectedRootName string) {
 	t.Helper()
-	project, err := pr.Parse(workingDir, false)
+	project, err := pr.Parse(workingDir, false, config.HalfpipeFilenameOptions)
 	assert.Nil(t, err)
 	assert.Equal(t, expectedRootName, project.RootName)
 }
@@ -106,7 +107,7 @@ func TestErrorsOutIfWeReachRootWithoutFindingGit(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/home/simon/src/repo/a/b/c", 0777)
 
-	_, err := pr.Parse("/home/simon/src/repo/a/b/c", false)
+	_, err := pr.Parse("/home/simon/src/repo/a/b/c", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrNotInRepo, err)
 }
 
@@ -116,7 +117,7 @@ func TestErrorsOutIfPassedDodgyPathValue(t *testing.T) {
 	paths := []string{"", "foo", "/..", ".."}
 
 	for _, path := range paths {
-		_, err := pr.Parse(path, false)
+		_, err := pr.Parse(path, false, config.HalfpipeFilenameOptions)
 		assert.Equal(t, ErrNotInRepo, err)
 	}
 }
@@ -125,7 +126,7 @@ func TestDoesntErrorOutIfHalfpipeFileIsMissing(t *testing.T) {
 	pr := testProjectResolver()
 	pr.Fs.MkdirAll("/project/root/.git", 0777)
 
-	project, err := pr.Parse("/project/root", true)
+	project, err := pr.Parse("/project/root", true, config.HalfpipeFilenameOptions)
 
 	assert.Nil(t, err)
 	assert.Equal(t, "git@origin", project.GitURI)

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	errors2 "github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"path"
 )
@@ -48,10 +47,10 @@ func ReadFile(fs afero.Afero, path string) (content string, err error) {
 	return content, err
 }
 
-func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName string, err error) {
+func GetHalfpipeFileName(fs afero.Afero, workingDir string, halfpipeFilenameOptions []string) (halfpipeFileName string, err error) {
 	var foundPaths []string
 
-	for _, p := range config.HalfpipeFilenameOptions {
+	for _, p := range halfpipeFilenameOptions {
 		joinedPath := path.Join(workingDir, p)
 		if exists, fileNotExistErr := fs.Exists(joinedPath); exists && fileNotExistErr == nil {
 			foundPaths = append(foundPaths, p)
@@ -64,7 +63,7 @@ func GetHalfpipeFileName(fs afero.Afero, workingDir string) (halfpipeFileName st
 	}
 
 	if len(foundPaths) == 0 {
-		err = linterrors.NewMissingHalfpipeFileError()
+		err = linterrors.NewMissingHalfpipeFileError(halfpipeFilenameOptions)
 		return halfpipeFileName, err
 	}
 
