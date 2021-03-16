@@ -1,6 +1,7 @@
 package project
 
 import (
+	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"path/filepath"
 
 	"github.com/springernature/halfpipe/linters/filechecker"
@@ -96,11 +97,13 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 
 	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir, halfpipeFilenameOptions)
 	if e != nil {
-		// TODO fix this
-		//if !(e == errors2.NewMissingHalfpipeFileError() && ignoreMissingHalfpipeFile) {
-		//	err = e
-		//	return p, err
-		//}
+		switch e.(type) {
+		case errors2.MissingHalfpipeFileError:
+			if !ignoreMissingHalfpipeFile {
+				err = e
+				return p, err
+			}
+		}
 	}
 
 	p.GitURI = origin
