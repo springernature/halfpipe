@@ -19,7 +19,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			halfpipeFilenameOptions = config.HalfpipeFilenameOptions
 		} else {
 			if strings.Contains(input, string(os.PathSeparator)) {
-				fmt.Println(fmt.Sprintf("Input file '%s' must be in current directory", input))
+				fmt.Printf("Input file '%s' must be in current directory\n", input)
 				os.Exit(1)
 			}
 			halfpipeFilenameOptions = []string{input}
