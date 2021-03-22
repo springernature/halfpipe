@@ -13,7 +13,11 @@ import (
 )
 
 func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
-	repoRoot := strings.TrimSuffix(workingDir, basePath)
+	// todo: fix stupid hack because
+	// basePath always has /
+	// workingDir has win or unix slashes
+	unixWorkingDir := strings.ReplaceAll(workingDir, `\`, `/`)
+	repoRoot := strings.TrimSuffix(unixWorkingDir, basePath)
 
 	matches, err := afero.Glob(fs, filepath.Join(repoRoot, glob))
 	if err != nil {
