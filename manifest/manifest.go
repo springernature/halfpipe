@@ -184,10 +184,13 @@ func (m Manifest) PipelineName() (pipelineName string) {
 	}
 
 	pipelineName = m.Pipeline
-	gitTrigger := m.Triggers.GetGitTrigger()
 
-	if gitTrigger.Branch != "" && gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {
-		pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(gitTrigger.Branch))
+	if m.Platform.IsConcourse() {
+		gitTrigger := m.Triggers.GetGitTrigger()
+
+		if gitTrigger.Branch != "" && gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {
+			pipelineName = fmt.Sprintf("%s-%s", sanitize(m.Pipeline), sanitize(gitTrigger.Branch))
+		}
 	}
 
 	return pipelineName
