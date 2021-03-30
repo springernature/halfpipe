@@ -200,7 +200,6 @@ resource_types:
     tag: stable
     username: _json_key
   type: registry-image
-  unique_version_history: true
 resources:
 - check_every: 10m
   name: git

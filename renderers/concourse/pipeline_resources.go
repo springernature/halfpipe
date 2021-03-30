@@ -145,9 +145,8 @@ const cronResourceTypeName = "halfpipe-cron-resource"
 func cronResourceType() atc.ResourceType {
 
 	return atc.ResourceType{
-		Name:                 cronResourceTypeName,
-		Type:                 "registry-image",
-		UniqueVersionHistory: true,
+		Name: cronResourceTypeName,
+		Type: "registry-image",
 		Source: atc.Source{
 			"repository": config.DockerRegistry + cronResourceTypeName,
 			"password":   "((halfpipe-gcr.private_key))",
