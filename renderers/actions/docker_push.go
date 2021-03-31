@@ -7,12 +7,7 @@ import (
 )
 
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
-	steps = append(steps, Step{
-		Name: "Set up Docker Buildx",
-		Uses: "docker/setup-buildx-action@v1",
-	})
-
-	steps = append(steps, dockerLogin(task.Image, task.Username, task.Password)...)
+	steps = dockerLogin(task.Image, task.Username, task.Password)
 
 	steps = append(steps, Step{
 		Name: "Build and push",
