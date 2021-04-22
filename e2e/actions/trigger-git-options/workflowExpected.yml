@@ -21,6 +21,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/trigger-git-options
+concurrency: ${{ github.workflow }}
 jobs:
   run__date:
     name: run \date

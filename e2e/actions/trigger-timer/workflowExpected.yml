@@ -10,3 +10,4 @@ name: pipeline-name
   schedule:
   - cron: '*/15 * * * *'
   workflow_dispatch: {}
+concurrency: ${{ github.workflow }}

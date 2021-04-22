@@ -35,6 +35,7 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.triggers(man)
+	w.Concurrency = "${{ github.workflow }}"
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv
 		gitTrigger := man.Triggers.GetGitTrigger()

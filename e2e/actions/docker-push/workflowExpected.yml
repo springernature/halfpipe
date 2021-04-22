@@ -23,6 +23,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/docker-push
+concurrency: ${{ github.workflow }}
 jobs:
   build:
     name: build

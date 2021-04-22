@@ -20,6 +20,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/deploy-ml
+concurrency: ${{ github.workflow }}
 jobs:
   create_zip_for_ml_task:
     name: create zip for ml task

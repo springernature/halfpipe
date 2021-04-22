@@ -20,6 +20,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/run
+concurrency: ${{ github.workflow }}
 jobs:
   my_run_task:
     name: my run task

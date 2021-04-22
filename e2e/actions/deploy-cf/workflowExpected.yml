@@ -20,6 +20,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/deploy-cf
+concurrency: ${{ github.workflow }}
 jobs:
   make_binary:
     name: make binary

@@ -20,6 +20,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/par-seq
+concurrency: ${{ github.workflow }}
 jobs:
   task_1:
     name: task 1

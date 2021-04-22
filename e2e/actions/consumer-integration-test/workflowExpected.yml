@@ -20,6 +20,7 @@ env:
 defaults:
   run:
     working-directory: e2e/actions/consumer-integration-test
+concurrency: ${{ github.workflow }}
 jobs:
   another-c-name:
     name: another-c-name

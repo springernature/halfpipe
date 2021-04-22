@@ -11,3 +11,4 @@ name: pipeline-name
     types:
     - docker-push:some-other-image
   workflow_dispatch: {}
+concurrency: ${{ github.workflow }}

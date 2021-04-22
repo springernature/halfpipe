@@ -7,11 +7,12 @@ import (
 )
 
 type Workflow struct {
-	Name     string   `yaml:"name"`
-	On       On       `yaml:"on"`
-	Env      Env      `yaml:"env,omitempty"`
-	Defaults Defaults `yaml:"defaults,omitempty"`
-	Jobs     Jobs     `yaml:"jobs,omitempty"`
+	Name        string   `yaml:"name"`
+	On          On       `yaml:"on"`
+	Env         Env      `yaml:"env,omitempty"`
+	Defaults    Defaults `yaml:"defaults,omitempty"`
+	Concurrency string   `yaml:"concurrency,omitempty"`
+	Jobs        Jobs     `yaml:"jobs,omitempty"`
 }
 
 type On struct {
