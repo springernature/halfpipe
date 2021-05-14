@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/onsi/gomega v1.10.5
+	github.com/onsi/gomega v1.12.0
 	github.com/pkg/errors v0.9.1
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/afero v1.6.0
@@ -26,9 +26,6 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-gitconfig v0.1.2
 	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9 // indirect
-	golang.org/x/text v0.3.5 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
