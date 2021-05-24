@@ -15,7 +15,6 @@ jobs:
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-all
     resource: cf-dev-api-halfpipe-team-dev

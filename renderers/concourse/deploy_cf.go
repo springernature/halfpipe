@@ -222,12 +222,15 @@ func (d deployCF) pushAppRolling() atc.Step {
 }
 
 func (d deployCF) pushAll() atc.Step {
+	command := "halfpipe-all"
+	if d.task.Rolling {
+		command = "halfpipe-rolling-deploy"
+	}
 	push := atc.PutStep{
-		Name:     "halfpipe-all",
+		Name:     command,
 		Resource: d.resourceName,
 		Params: atc.Params{
-			"command":      "halfpipe-all",
-			"testDomain":   d.task.TestDomain,
+			"command":      command,
 			"manifestPath": d.manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   d.task.CliVersion,
