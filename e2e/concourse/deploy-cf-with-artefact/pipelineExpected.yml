@@ -90,16 +90,6 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  ensure:
-    attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
-      timeout: 5m
-    put: halfpipe-cleanup
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   name: deploy to cf
   plan:
   - attempts: 2
@@ -138,31 +128,12 @@ jobs:
     params:
       appPath: artifacts/e2e/concourse/deploy-cf-with-artefact/build/linux/binary
       cliVersion: cf6
-      command: halfpipe-push
+      command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
       testDomain: some.random.domain.com
       timeout: 5m
-    put: halfpipe-push
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-check
-      manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
-      timeout: 5m
-    put: halfpipe-check
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-promote
-      manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
-      testDomain: some.random.domain.com
-      timeout: 5m
-    put: halfpipe-promote
+    put: halfpipe-all
     resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
   serial: true
@@ -207,4 +178,3 @@ resources:
     space: dev
     username: michiel
   type: cf-resource
-

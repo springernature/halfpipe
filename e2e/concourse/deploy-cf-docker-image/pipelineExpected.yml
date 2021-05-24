@@ -44,16 +44,6 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  ensure:
-    attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
-    put: halfpipe-cleanup
-    resource: cf-snpaas-dev
-    timeout: 1h
   name: deploy to cf simple
   plan:
   - attempts: 2
@@ -72,33 +62,14 @@ jobs:
     params:
       buildVersionPath: version/version
       cliVersion: cf6
-      command: halfpipe-push
+      command: halfpipe-all
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
       timeout: 1h
-    put: halfpipe-push
-    resource: cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-check
-      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
-      timeout: 1h
-    put: halfpipe-check
-    resource: cf-snpaas-dev
-    timeout: 1h
-  - attempts: 2
-    params:
-      cliVersion: cf6
-      command: halfpipe-promote
-      manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
-      testDomain: springernature.app
-      timeout: 1h
-    put: halfpipe-promote
+    put: halfpipe-all
     resource: cf-snpaas-dev
     timeout: 1h
   serial: true
@@ -413,4 +384,3 @@ resources:
     space: dev
     username: ((cloudfoundry.username-snpaas))
   type: cf-resource
-

@@ -36,11 +36,15 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 
 	var steps []atc.Step
 	if !task.Rolling {
-		steps = append(steps, deploy.pushCandidateApp())
-		steps = append(steps, deploy.checkApp())
-		steps = append(steps, c.prePromoteTasks(deploy)...)
-		steps = append(steps, deploy.promoteCandidateAppToLive())
-		job.Ensure = deploy.cleanupOldApps()
+		if len(task.PrePromote) == 0 {
+			steps = append(steps, deploy.pushAll())
+		} else {
+			steps = append(steps, deploy.pushCandidateApp())
+			steps = append(steps, deploy.checkApp())
+			steps = append(steps, c.prePromoteTasks(deploy)...)
+			steps = append(steps, deploy.promoteCandidateAppToLive())
+			job.Ensure = deploy.cleanupOldApps()
+		}
 	} else {
 		if len(task.PrePromote) == 0 {
 			steps = append(steps, deploy.pushAppRolling())
@@ -215,6 +219,49 @@ func (d deployCF) pushAppRolling() atc.Step {
 	}
 
 	return stepWithAttemptsAndTimeout(&deploy, d.task.GetAttempts(), d.task.GetTimeout())
+}
+
+func (d deployCF) pushAll() atc.Step {
+	push := atc.PutStep{
+		Name:     "halfpipe-all",
+		Resource: d.resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-all",
+			"testDomain":   d.task.TestDomain,
+			"manifestPath": d.manifestPath,
+			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
+			"cliVersion":   d.task.CliVersion,
+		},
+	}
+
+	if d.task.IsDockerPush {
+		push.Params["dockerUsername"] = defaults.Concourse.Docker.Username
+		push.Params["dockerPassword"] = defaults.Concourse.Docker.Password
+		if d.task.DockerTag != "" {
+			if d.task.DockerTag == "version" {
+				push.Params["dockerTag"] = path.Join(versionName, "version")
+			} else if d.task.DockerTag == "gitref" {
+				push.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
+			}
+		}
+	} else {
+		push.Params["appPath"] = d.appPath
+	}
+
+	if len(d.vars) > 0 {
+		push.Params["vars"] = d.vars
+	}
+	if d.task.Timeout != "" {
+		push.Params["timeout"] = d.task.Timeout
+	}
+	if len(d.task.PreStart) > 0 {
+		push.Params["preStartCommand"] = strings.Join(d.task.PreStart, "; ")
+	}
+	if d.halfpipeManifest.FeatureToggles.UpdatePipeline() {
+		push.Params["buildVersionPath"] = path.Join("version", "version")
+	}
+
+	return stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout())
 }
 
 func (c Concourse) prePromoteTasks(deploy deployCF) []atc.Step {
