@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-[[ -d /var/halfpipe/shared-cache ]] && export GOPATH="/var/halfpipe/shared-cache"
-
 go version | grep -q 'go1.16' || (
     go version
     echo error: go1.16 required
