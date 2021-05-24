@@ -221,7 +221,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
-    put: rolling-deploy
+    put: halfpipe-rolling-deploy
     resource: rolling-cf-snpaas-dev
     timeout: 1h
   serial: true
@@ -329,7 +329,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
-    put: rolling-deploy
+    put: halfpipe-rolling-deploy
     resource: rolling-cf-snpaas-dev
     timeout: 1h
   - attempts: 2

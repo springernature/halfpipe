@@ -16,7 +16,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       timeout: 5m
-    put: rolling-deploy
+    put: halfpipe-rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
     timeout: 5m
   serial: true
@@ -110,7 +110,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       timeout: 5m
-    put: rolling-deploy
+    put: halfpipe-rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
     timeout: 5m
   - attempts: 2
@@ -148,4 +148,3 @@ resources:
     space: dev
     username: michiel
   type: cf-resource
-

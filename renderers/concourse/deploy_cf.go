@@ -37,7 +37,7 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	var steps []atc.Step
 	if !task.Rolling {
 		if len(task.PrePromote) == 0 {
-			steps = append(steps, deploy.pushAll())
+			steps = append(steps, deploy.pushApp())
 		} else {
 			steps = append(steps, deploy.pushCandidateApp())
 			steps = append(steps, deploy.checkApp())
@@ -47,11 +47,11 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 		}
 	} else {
 		if len(task.PrePromote) == 0 {
-			steps = append(steps, deploy.pushAppRolling())
+			steps = append(steps, deploy.pushApp())
 		} else {
 			steps = append(steps, deploy.pushCandidateApp())
 			steps = append(steps, c.prePromoteTasks(deploy)...)
-			steps = append(steps, deploy.pushAppRolling())
+			steps = append(steps, deploy.pushApp())
 			steps = append(steps, deploy.removeTestApp())
 		}
 	}
@@ -181,50 +181,12 @@ func (d deployCF) removeTestApp() atc.Step {
 	return stepWithAttemptsAndTimeout(&remove, d.task.GetAttempts(), d.task.GetTimeout())
 }
 
-func (d deployCF) pushAppRolling() atc.Step {
-	deploy := atc.PutStep{
-		Name:     "rolling-deploy",
-		Resource: d.resourceName,
-		Params: atc.Params{
-			"command":      "halfpipe-rolling-deploy",
-			"manifestPath": d.manifestPath,
-			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-			"cliVersion":   "cf7",
-		},
-	}
-
-	if d.task.IsDockerPush {
-		deploy.Params["dockerUsername"] = defaults.Concourse.Docker.Username
-		deploy.Params["dockerPassword"] = defaults.Concourse.Docker.Password
-		if d.task.DockerTag != "" {
-			if d.task.DockerTag == "version" {
-				deploy.Params["dockerTag"] = path.Join(versionName, "version")
-			} else if d.task.DockerTag == "gitref" {
-				deploy.Params["dockerTag"] = path.Join(gitDir, ".git", "ref")
-			}
-		}
-	} else {
-		deploy.Params["appPath"] = d.appPath
-	}
-
-	if len(d.vars) > 0 {
-		deploy.Params["vars"] = d.vars
-	}
-
-	if d.task.Timeout != "" {
-		deploy.Params["timeout"] = d.task.Timeout
-	}
-	if d.halfpipeManifest.FeatureToggles.UpdatePipeline() {
-		deploy.Params["buildVersionPath"] = path.Join("version", "version")
-	}
-
-	return stepWithAttemptsAndTimeout(&deploy, d.task.GetAttempts(), d.task.GetTimeout())
-}
-
-func (d deployCF) pushAll() atc.Step {
+func (d deployCF) pushApp() atc.Step {
 	command := "halfpipe-all"
+	cliVersion := d.task.CliVersion
 	if d.task.Rolling {
 		command = "halfpipe-rolling-deploy"
+		cliVersion = "cf7"
 	}
 	push := atc.PutStep{
 		Name:     command,
@@ -233,7 +195,7 @@ func (d deployCF) pushAll() atc.Step {
 			"command":      command,
 			"manifestPath": d.manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
-			"cliVersion":   d.task.CliVersion,
+			"cliVersion":   cliVersion,
 		},
 	}
 
