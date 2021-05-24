@@ -67,6 +67,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      testDomain: springernature.app
       timeout: 1h
     put: halfpipe-all
     resource: cf-snpaas-dev
@@ -220,6 +221,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      testDomain: springernature.app
       timeout: 1h
     put: halfpipe-rolling-deploy
     resource: rolling-cf-snpaas-dev
@@ -328,6 +330,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      testDomain: springernature.app
       timeout: 1h
     put: halfpipe-rolling-deploy
     resource: rolling-cf-snpaas-dev

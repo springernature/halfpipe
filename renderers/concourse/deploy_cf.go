@@ -193,6 +193,7 @@ func (d deployCF) pushApp() atc.Step {
 		Resource: d.resourceName,
 		Params: atc.Params{
 			"command":      command,
+			"testDomain":   d.task.TestDomain,
 			"manifestPath": d.manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   cliVersion,

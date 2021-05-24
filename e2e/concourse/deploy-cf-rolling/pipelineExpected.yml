@@ -15,6 +15,7 @@ jobs:
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
+      testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
@@ -109,6 +110,7 @@ jobs:
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
+      testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-rolling-deploy
     resource: rolling-cf-dev-api-halfpipe-team-dev
