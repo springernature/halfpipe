@@ -37,20 +37,13 @@ echo [4/6] e2e test
 (cd e2e; ./test.sh "${1-}")
 
 echo [5/6] lint
-if command -v golint > /dev/null; then
-    golint ./... |
-        grep -v 'should have comment or be unexported' |
-        grep -v 'returns unexported type' \
-    || true
-else
-    echo "golint not installed. to install: go get -u golang.org/x/lint/golint"
-fi
+go get -u golang.org/x/lint/golint
+golint ./... |
+    grep -v 'should have comment or be unexported' |
+    grep -v 'returns unexported type' || true
 
 echo [6/6] staticcheck
-if command -v staticcheck > /dev/null; then
-  staticcheck ./...
-else
-  echo "staticcheck not installed. to install: go get -u honnef.co/go/tools/cmd/staticcheck"
-fi
+go get -u honnef.co/go/tools/cmd/staticcheck
+staticcheck ./...
 
 echo Finished!
