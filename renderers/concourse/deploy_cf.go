@@ -35,25 +35,20 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	}
 
 	var steps []atc.Step
-	if !task.Rolling {
-		if len(task.PrePromote) == 0 {
-			steps = append(steps, deploy.pushApp())
-		} else {
-			steps = append(steps, deploy.pushCandidateApp())
-			steps = append(steps, deploy.checkApp())
-			steps = append(steps, c.prePromoteTasks(deploy)...)
-			steps = append(steps, deploy.promoteCandidateAppToLive())
-			job.Ensure = deploy.cleanupOldApps()
-		}
+
+	if len(task.PrePromote) == 0 {
+		steps = append(steps, deploy.pushApp())
+	} else if task.Rolling {
+		steps = append(steps, deploy.pushCandidateApp())
+		steps = append(steps, c.prePromoteTasks(deploy)...)
+		steps = append(steps, deploy.pushApp())
+		steps = append(steps, deploy.removeTestApp())
 	} else {
-		if len(task.PrePromote) == 0 {
-			steps = append(steps, deploy.pushApp())
-		} else {
-			steps = append(steps, deploy.pushCandidateApp())
-			steps = append(steps, c.prePromoteTasks(deploy)...)
-			steps = append(steps, deploy.pushApp())
-			steps = append(steps, deploy.removeTestApp())
-		}
+		steps = append(steps, deploy.pushCandidateApp())
+		steps = append(steps, deploy.checkApp())
+		steps = append(steps, c.prePromoteTasks(deploy)...)
+		steps = append(steps, deploy.promoteCandidateAppToLive())
+		job.Ensure = deploy.cleanupOldApps()
 	}
 
 	job.PlanSequence = steps
