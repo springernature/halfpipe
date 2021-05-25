@@ -136,7 +136,43 @@ jobs:
       - name: binaries
       caches:
       - path: ../../../var/halfpipe/cache
-
+  - task: Sign
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: quay.io/giantswarm/signcode-util
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+          - -ec
+          - |
+            export VERSION="$(cat version/version)"
+            echo $SIGN_KEY | base64 -d > key.pfx
+            echo $WTF
+            osslsigncode sign \
+              -pkcs12 key.pfx \
+              -pass $SIGN_KEY_PWD \
+              -n "halfpipe" \
+              -i https://www.springernature.com/ \
+              -t http://timestamp.digicert.com \
+              -in binaries/halfpipe_windows_unsigned_$VERSION.exe \
+              -out binaries/halfpipe_windows_$VERSION.exe
+            chmod +x binaries/halfpipe_windows_$VERSION.exe
+            rm binaries/halfpipe_windows_unsigned_$VERSION.exe
+            ls -al binaries
+      inputs:
+        - name: halfpipe
+        - name: version
+        - name: binaries
+      outputs:
+        - name: binaries
+      params:
+        SIGN_KEY: ((halfpipe-cli.sign_key))
+        SIGN_KEY_PWD: ((halfpipe-cli.sign_key_pwd))
+        WTF: ((halfpipe-cli.whats-this))
   - put: halfpipe
     params:
       repository: halfpipe
