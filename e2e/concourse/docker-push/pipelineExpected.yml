@@ -43,7 +43,7 @@ jobs:
         RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push/Dockerfile
       tag_as_latest: true
-      tag_file: git/.git/ref
+      tag_file: git/e2e/concourse/docker-push/tagFile
     put: halfpipe-fly.thisismy-tag2
     timeout: 1h
   serial: true

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"regexp"
+	"strings"
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/linters/filechecker"
@@ -48,8 +49,8 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 	}
 
 	if docker.Tag != "" {
-		if (docker.Tag != "gitref") && (docker.Tag != "version") {
-			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version'"))
+		if (docker.Tag != "gitref") && (docker.Tag != "version") && !strings.HasPrefix(docker.Tag, "file:") {
+			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version' or 'file:path/to/file"))
 		}
 	}
 

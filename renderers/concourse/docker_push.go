@@ -17,13 +17,14 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string) atc.
 }
 
 func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
+	fullBasePath := path.Join(gitDir, basePath)
 	put := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
-			"build":         path.Join(gitDir, basePath, task.BuildPath),
-			"dockerfile":    path.Join(gitDir, basePath, task.DockerfilePath),
+			"build":         path.Join(fullBasePath, task.BuildPath),
+			"dockerfile":    path.Join(fullBasePath, task.DockerfilePath),
 			"tag_as_latest": true,
-			"tag_file":      task.GetTagPath(),
+			"tag_file":      task.GetTagPath(fullBasePath),
 			"build_args":    convertVars(task.Vars),
 		},
 	}
@@ -65,13 +66,14 @@ func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName st
 		},
 	}
 
+	fullBasePath := path.Join(dockerBuildTmpDir, basePath)
 	put := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
 			"build":         path.Join(dockerBuildTmpDir, basePath, task.BuildPath),
 			"dockerfile":    path.Join(dockerBuildTmpDir, basePath, task.DockerfilePath),
 			"tag_as_latest": true,
-			"tag_file":      task.GetTagPath(),
+			"tag_file":      task.GetTagPath(fullBasePath),
 			"build_args":    convertVars(task.Vars),
 		},
 	}

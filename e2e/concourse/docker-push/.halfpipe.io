@@ -20,3 +20,4 @@ tasks:
   password: verysecret
   image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
   retries: 1
+  tag: "file:tagFile"

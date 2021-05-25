@@ -1,5 +1,10 @@
 package manifest
 
+import (
+	"path"
+	"strings"
+)
+
 type DockerPush struct {
 	Type             string
 	Name             string        `yaml:"name,omitempty"`
@@ -91,12 +96,17 @@ func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
 }
 
-func (r DockerPush) GetTagPath() string {
+func (r DockerPush) GetTagPath(basePath string) string {
 	if r.Tag == "gitref" {
 		return "git/.git/ref"
 	}
 	if r.Tag == "version" {
 		return "version/number"
+	}
+
+	if strings.HasPrefix(r.Tag, "file:") {
+		tagFile := strings.Split(r.Tag, "file:")[1]
+		return path.Join(basePath, tagFile)
 	}
 	return ""
 }

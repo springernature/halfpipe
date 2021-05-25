@@ -340,4 +340,22 @@ func TestDockerPushTag(t *testing.T) {
 		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
 		assert.Len(t, errors, 1)
 	})
+
+	t.Run("Alles ok with filepath", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		man := manifest.Manifest{}
+		task := manifest.DockerPush{
+			Image:          "asd/asd",
+			Username:       "asd",
+			Password:       "asdf",
+			DockerfilePath: "Dockerfile",
+			Tag:            "file:../path/to/file",
+		}
+
+		errors, warnings := LintDockerPushTask(task, man, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
 }
