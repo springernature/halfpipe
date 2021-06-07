@@ -18,7 +18,7 @@ func ActionsMigrationHelper(man manifest.Manifest, response halfpipe.Response) (
 	fmt.Printf("\t $ fly -t %s pause-pipeline -p %s\n", man.Team, man.Pipeline)
 
 	fmt.Println("3. Add the necessary Vault tokens to the Github repo's secrets. If you have a mono repo you only need to do this once")
-	fmt.Printf("\t $ vault read springernature/%s/team-ro-app-role\n", man.Team)
+	fmt.Printf("\t $ vault kv get springernature/%s/team-ro-app-role\n", man.Team)
 	fmt.Printf("\t # Write the secrets as VAULT_ROLE_ID and VAULT_SECRET_ID in https://github.com/springernature/%s/settings/secrets/actions\n", response.Project.RootName)
 
 	fmt.Println("4. Update the halfpipe file with the new top level key, 'platform: actions'")
