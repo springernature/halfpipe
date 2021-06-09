@@ -29,7 +29,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.1.1
+      uses: hashicorp/vault-action@v2.2.0
       with:
         url: https://vault.halfpipe.io
         method: approle
