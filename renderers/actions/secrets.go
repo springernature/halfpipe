@@ -77,7 +77,7 @@ func secretsToActionsSecret(secrets []*Secret, team string) string {
 		if s.isShared() {
 			dir = "shared"
 		}
-		x := fmt.Sprintf("springernature/%s/%s %s | %s ;\n", dir, s.vaultMap, s.vaultField, s.outputVar)
+		x := fmt.Sprintf("springernature/data/%s/%s %s | %s ;\n", dir, s.vaultMap, s.vaultField, s.outputVar)
 		uniqueSecrets[s.outputVar] = x
 	}
 

@@ -58,12 +58,12 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/another secret | another_secret ;
-          springernature/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
-          springernature/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
-          springernature/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
-          springernature/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
-          springernature/halfpipe-team/secret value | secret_value ;
+          springernature/data/halfpipe-team/another secret | another_secret ;
+          springernature/data/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
+          springernature/data/halfpipe-team/secret value | secret_value ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Download artifacts
@@ -149,13 +149,13 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/another secret | another_secret ;
-          springernature/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
-          springernature/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
-          springernature/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
-          springernature/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
-          springernature/halfpipe-team/secret value | secret_value ;
-          springernature/halfpipe-team/some secret | some_secret ;
+          springernature/data/halfpipe-team/another secret | another_secret ;
+          springernature/data/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
+          springernature/data/halfpipe-team/secret value | secret_value ;
+          springernature/data/halfpipe-team/some secret | some_secret ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Download artifacts
@@ -311,11 +311,11 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
-          springernature/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
-          springernature/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
-          springernature/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
-          springernature/shared/halfpipe-gcr private_key_base64 | halfpipe-gcr_private_key_base64 ;
+          springernature/data/halfpipe-team/cloudfoundry api-snpaas | cloudfoundry_api-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry org-snpaas | cloudfoundry_org-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry password-snpaas | cloudfoundry_password-snpaas ;
+          springernature/data/halfpipe-team/cloudfoundry username-snpaas | cloudfoundry_username-snpaas ;
+          springernature/data/shared/halfpipe-gcr private_key_base64 | halfpipe-gcr_private_key_base64 ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Push

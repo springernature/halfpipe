@@ -91,7 +91,7 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/foo bar | foo_bar ;
+          springernature/data/halfpipe-team/foo bar | foo_bar ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Download artifacts

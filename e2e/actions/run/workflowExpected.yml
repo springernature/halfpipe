@@ -37,9 +37,9 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/halfpipe-team/something cool | something_cool ;
-          springernature/halfpipe-team/something cooler | something_cooler ;
-          springernature/shared/halfpipe-slack token | halfpipe-slack_token ;
+          springernature/data/halfpipe-team/something cool | something_cool ;
+          springernature/data/halfpipe-team/something cooler | something_cooler ;
+          springernature/data/shared/halfpipe-slack token | halfpipe-slack_token ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: my run task

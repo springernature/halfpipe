@@ -86,8 +86,8 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/shared/artifactory password | artifactory_password ;
-          springernature/shared/artifactory username | artifactory_username ;
+          springernature/data/shared/artifactory password | artifactory_password ;
+          springernature/data/shared/artifactory username | artifactory_username ;
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Deploy ml-modules artifact
