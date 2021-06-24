@@ -643,7 +643,6 @@ resource_types:
   source:
     password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    tag: stable
     username: _json_key
   type: registry-image
 resources:

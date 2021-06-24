@@ -178,7 +178,6 @@ func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 		Type: "registry-image",
 		Source: atc.Source{
 			"repository": fullPath,
-			"tag":        "stable",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
