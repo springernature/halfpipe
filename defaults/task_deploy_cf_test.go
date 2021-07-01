@@ -39,7 +39,7 @@ func TestCFDeployDefaults(t *testing.T) {
 
 	t.Run("cli version", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
-		assert.Equal(t, "cf6", deployCfDefaulter(manifest.DeployCF{}, Concourse, man).CliVersion)
+		assert.Equal(t, "cf7", deployCfDefaulter(manifest.DeployCF{}, Concourse, man).CliVersion)
 	})
 }
 

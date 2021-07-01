@@ -127,7 +127,7 @@ jobs:
   - attempts: 2
     params:
       appPath: artifacts/e2e/concourse/deploy-cf-with-artefact/build/linux/binary
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml

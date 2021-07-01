@@ -34,7 +34,7 @@ jobs:
   - attempts: 2
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-push
       gitRefPath: git/.git/ref
       instances: 1

@@ -2,89 +2,90 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: deploy to cf without any jazz
+  name: update
   plan:
   - attempts: 2
     get: git
     timeout: 15m
     trigger: true
   - attempts: 2
-    params:
-      appPath: git/e2e/concourse/deploy-cf
-      cliVersion: cf7
-      command: halfpipe-all
-      gitRefPath: git/.git/ref
-      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      testDomain: some.random.domain.com
-      timeout: 5m
-    put: halfpipe-all
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  serial: true
-- build_log_retention:
-    minimum_succeeded_builds: 1
-  ensure:
-    attempts: 2
-    params:
-      cliVersion: cf7
-      command: halfpipe-cleanup
-      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      timeout: 5m
-    put: halfpipe-cleanup
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  name: deploy to cf
-  plan:
-  - attempts: 2
-    get: git
-    passed:
-    - deploy to cf without any jazz
-    timeout: 15m
-    trigger: true
-  - attempts: 2
-    params:
-      appPath: git/e2e/concourse/deploy-cf
-      cliVersion: cf7
-      command: halfpipe-push
-      gitRefPath: git/.git/ref
-      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      preStartCommand: cf apps; cf events myapp-CANDIDATE
-      testDomain: some.random.domain.com
-      timeout: 5m
-    put: halfpipe-push
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - attempts: 2
-    params:
-      cliVersion: cf7
-      command: halfpipe-check
-      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      timeout: 5m
-    put: halfpipe-check
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
-  - config:
-      caches:
-      - path: ../../../var/halfpipe/cache
-      - path: ../../../halfpipe-cache
+    config:
       image_resource:
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
           username: _json_key
         type: registry-image
       inputs:
       - name: git
       params:
-        A: blah
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_URL: ((concourse.url))
+        CONCOURSE_USERNAME: ((concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: pipeline-name
+      platform: linux
+      run:
+        dir: git/e2e/concourse/update-pipeline-and-tag
+        path: update-pipeline
+    task: update
+    timeout: 15m
+  - attempts: 2
+    params:
+      bump: minor
+    put: version
+    timeout: 15m
+  - attempts: 2
+    params:
+      only_tag: true
+      repository: git
+      tag: version/version
+      tag_prefix: pipeline-name/v
+    put: tag-git-repository
+    resource: git
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: test
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: node
+          tag: 9.5.0-alpine
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         RUNNING_IN_CI: "true"
-        TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.some.random.domain.com
       platform: linux
       run:
         args:
@@ -112,50 +113,30 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
 
-          ./smoke-test.sh
+          ./../update-pipeline/a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/e2e/concourse/deploy-cf
+        dir: git/e2e/concourse/update-pipeline-and-tag
         path: /bin/sh
-    task: pre-promote-step
+    task: test
     timeout: 1h
-  - attempts: 2
-    params:
-      cliVersion: cf7
-      command: halfpipe-promote
-      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
-      testDomain: some.random.domain.com
-      timeout: 5m
-    put: halfpipe-promote
-    resource: cf-dev-api-halfpipe-team-dev
-    timeout: 5m
   serial: true
-resource_types:
-- name: cf-resource
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    username: _json_key
-  type: registry-image
 resources:
 - check_every: 10m
   name: git
   source:
     branch: master
-    paths:
-    - e2e/concourse/deploy-cf
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
-  name: cf-dev-api-halfpipe-team-dev
+- name: version
   source:
-    api: dev-api
-    org: halfpipe-team
-    password: very-secret
-    space: dev
-    username: michiel
-  type: cf-resource
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-pipeline-name
+  type: semver

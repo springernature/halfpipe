@@ -189,7 +189,7 @@ jobs:
   ensure:
     attempts: 2
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-cleanup
       manifestPath: git/e2e/concourse/notifications/manifest.yml
       timeout: 1h
@@ -225,7 +225,7 @@ jobs:
   - attempts: 2
     params:
       appPath: git/e2e/concourse/notifications
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/notifications/manifest.yml
@@ -239,7 +239,7 @@ jobs:
     timeout: 1h
   - attempts: 2
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/concourse/notifications/manifest.yml
       timeout: 1h
@@ -307,7 +307,7 @@ jobs:
     timeout: 1h
   - attempts: 2
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-promote
       manifestPath: git/e2e/concourse/notifications/manifest.yml
       testDomain: springernature.app
