@@ -25,7 +25,7 @@ var Concourse = Defaults{
 			"https://api.snpaas.eu":       "springernature.app",
 			"((cloudfoundry.api-snpaas))": "springernature.app",
 		},
-		Version: "cf7",
+		Version: "cf6",
 	},
 	Docker: DockerDefaults{
 		Username:       "_json_key",
