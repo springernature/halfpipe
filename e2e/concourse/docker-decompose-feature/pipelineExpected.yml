@@ -134,7 +134,7 @@ jobs:
   ensure:
     attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       timeout: 1h
@@ -152,7 +152,7 @@ jobs:
   - attempts: 2
     params:
       appPath: git/e2e/concourse/docker-decompose-feature
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
@@ -163,7 +163,7 @@ jobs:
     timeout: 1h
   - attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       timeout: 1h
@@ -228,7 +228,7 @@ jobs:
     timeout: 1h
   - attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/concourse/docker-decompose-feature/manifest.yml
       testDomain: test.com

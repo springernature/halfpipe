@@ -26,7 +26,7 @@ jobs:
   ensure:
     attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-cleanup
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
@@ -44,7 +44,7 @@ jobs:
   - attempts: 2
     params:
       appPath: git/e2e/concourse/deploy-cf
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
@@ -56,7 +56,7 @@ jobs:
     timeout: 5m
   - attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-check
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       timeout: 5m
@@ -124,7 +124,7 @@ jobs:
     timeout: 1h
   - attempts: 2
     params:
-      cliVersion: cf7
+      cliVersion: cf6
       command: halfpipe-promote
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       testDomain: some.random.domain.com
