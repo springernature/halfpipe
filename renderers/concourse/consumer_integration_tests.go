@@ -40,6 +40,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 		Privileged: true,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
+			"CONSUMER_NAME":          task.Consumer,
 			"CONSUMER_PATH":          consumerGitPath,
 			"CONSUMER_SCRIPT":        task.Script,
 			"CONSUMER_GIT_KEY":       "((halfpipe-github.private_key))",

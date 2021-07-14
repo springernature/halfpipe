@@ -58,6 +58,10 @@ jobs:
           --entrypoint "${CONSUMER_SCRIPT}" \
           -e DEPENDENCY_NAME=${PROVIDER_NAME} \
           -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+          -e CDC_CONSUMER_NAME=${CONSUMER_NAME} \
+          -e CDC_CONSUMER_VERSION=${REVISION} \
+          -e CDC_PROVIDER_NAME=${PROVIDER_NAME} \
+          -e CDC_PROVIDER_VERSION=${GIT_REVISION} \
           -e K -e K1 \
            \
           ${DOCKER_COMPOSE_SERVICE:-code}
@@ -65,6 +69,7 @@ jobs:
         CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
         CONSUMER_PATH: ""
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
