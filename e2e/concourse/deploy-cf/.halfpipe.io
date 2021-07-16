@@ -38,4 +38,23 @@ tasks:
       image: eu.gcr.io/halfpipe-io/halfpipe-fly
     vars:
       A: "blah"
-
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+  - type: run
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly

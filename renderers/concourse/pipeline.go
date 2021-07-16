@@ -46,12 +46,17 @@ func parallelizeSteps(steps []atc.Step) atc.Step {
 		return steps[0]
 	}
 
+	limit := 0
+	if len(steps) > 5 {
+		limit = 5
+	}
+
 	return atc.Step{
 		Config: &atc.InParallelStep{
 			Config: atc.InParallelConfig{
 				Steps:    steps,
-				Limit:    0,
-				FailFast: true,
+				Limit:    limit,
+				FailFast: limit == 0,
 			},
 		},
 	}
