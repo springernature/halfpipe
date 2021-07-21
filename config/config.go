@@ -38,11 +38,6 @@ var (
 		"docker-registry.dc.springernature.pe",
 	}
 
-	DeprecatedCFApis = []string{
-		"((cloudfoundry.api-dev))",
-		"((cloudfoundry.api-live))",
-	}
-
 	RewriteGitHTTPToSSH = map[string]string{
 		"http://github.com/springernature/":  "git@github.com:springernature/",
 		"https://github.com/springernature/": "git@github.com:springernature/",

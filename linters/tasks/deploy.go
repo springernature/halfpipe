@@ -12,7 +12,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero, deprecatedApis []string) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}
@@ -60,15 +60,6 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 		if prePromoteTask.GetNotifications().NotificationsDefined() {
 			errs = append(errs, linterrors.NewInvalidField(
 				fmt.Sprintf("pre_promote[%d].notifications", i), "pre_promote tasks are not allowed to specify notifications. Please move them up to the 'deploy-cf' task"))
-		}
-	}
-
-	for _, api := range deprecatedApis {
-		if cf.API == api {
-			warnings = append(warnings, linterrors.NewDeprecatedCFApiError(api))
-			if cf.Rolling {
-				errs = append(errs, linterrors.NewInvalidField("rolling", "cannot use rolling deployment with a deprecated api"))
-			}
 		}
 	}
 
