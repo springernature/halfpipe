@@ -21,11 +21,6 @@ type BuildHistoryDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
 }
 
-type CFOnPrem struct {
-	Username string
-	Password string
-}
-
 type CFSnPaaS struct {
 	Username string
 	Password string
@@ -35,7 +30,6 @@ type CFSnPaaS struct {
 
 type CFDefaults struct {
 	ManifestPath string
-	OnPrem       CFOnPrem
 	SnPaaS       CFSnPaaS
 	TestDomains  map[string]string
 	Version      string

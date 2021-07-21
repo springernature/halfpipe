@@ -37,7 +37,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
 	task := manifest.DeployCF{
-		API:        "((cloudfoundry.api-dev))",
+		API:        "((cloudfoundry.api-snpaas))",
 		Org:        "Something",
 		Space:      "Something",
 		Manifest:   "manifest.yml",
@@ -81,7 +81,7 @@ func TestCfCliVersion(t *testing.T) {
 
 	t.Run("not set", func(t *testing.T) {
 		task := manifest.DeployCF{
-			API:      "((cloudfoundry.api-dev))",
+			API:      "((cloudfoundry.api-snpaas))",
 			Org:      "Something",
 			Space:    "Something",
 			Manifest: "manifest.yml",
@@ -95,7 +95,7 @@ func TestCfCliVersion(t *testing.T) {
 
 	t.Run("cf6", func(t *testing.T) {
 		task := manifest.DeployCF{
-			API:        "((cloudfoundry.api-dev))",
+			API:        "((cloudfoundry.api-snpaas))",
 			Org:        "Something",
 			Space:      "Something",
 			Manifest:   "manifest.yml",
@@ -109,7 +109,7 @@ func TestCfCliVersion(t *testing.T) {
 
 	t.Run("cf7", func(t *testing.T) {
 		task := manifest.DeployCF{
-			API:        "((cloudfoundry.api-dev))",
+			API:        "((cloudfoundry.api-snpaas))",
 			Org:        "Something",
 			Space:      "Something",
 			Manifest:   "manifest.yml",

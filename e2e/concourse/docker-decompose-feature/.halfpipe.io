@@ -24,6 +24,8 @@ tasks:
 
 - type: deploy-cf
   api: mp-api
+  username: uname
+  password: pword
   org: my-org
   space: my-space
   test_domain: test.com

@@ -7,21 +7,7 @@ import (
 )
 
 func TestCFDeployDefaults(t *testing.T) {
-	t.Run("old apis", func(t *testing.T) {
-		man := manifest.Manifest{Team: "asdf"}
-
-		expected := manifest.DeployCF{
-			Org:        man.Team,
-			Username:   Concourse.CF.OnPrem.Username,
-			Password:   Concourse.CF.OnPrem.Password,
-			Manifest:   Concourse.CF.ManifestPath,
-			CliVersion: Concourse.CF.Version,
-		}
-
-		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, Concourse, man))
-	})
-
-	t.Run("new apis", func(t *testing.T) {
+	t.Run("snpaas", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 
 		expected := manifest.DeployCF{

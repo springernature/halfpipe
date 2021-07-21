@@ -19,12 +19,6 @@ func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manife
 		if updated.Org == "" {
 			updated.Org = man.Team
 		}
-		if updated.Username == "" {
-			updated.Username = defaults.CF.OnPrem.Username
-		}
-		if updated.Password == "" {
-			updated.Password = defaults.CF.OnPrem.Password
-		}
 	}
 
 	if updated.Manifest == "" {

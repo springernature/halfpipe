@@ -259,8 +259,7 @@ resources:
   source:
     api: mp-api
     org: my-org
-    password: ((cloudfoundry.password))
+    password: pword
     space: my-space
-    username: ((cloudfoundry.username))
+    username: uname
   type: cf-resource
-
