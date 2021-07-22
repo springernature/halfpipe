@@ -47,11 +47,10 @@ jobs:
         # clone consumer into /scratch/consumer. dir may already exist when concourse restarts task
         rm -rf /scratch/consumer
         GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} /scratch/consumer
+        cd /scratch/consumer/${CONSUMER_PATH}
 
         # checkout revision
-        cd /scratch/consumer
         git checkout ${REVISION}
-        cd ${CONSUMER_PATH}
 
         # run the tests with docker-compose
         # note: old system reads CF manifest env vars and sets them all here
