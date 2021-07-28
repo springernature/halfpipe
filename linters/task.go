@@ -131,6 +131,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			warnings = append(warnings, subWarnings...)
 			lintTimeout = false
 			lintArtifact = false
+		case manifest.AutomaticCDC:
+
 		default:
 			errs = append(errs, linterrors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}

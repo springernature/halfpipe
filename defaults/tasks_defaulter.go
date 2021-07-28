@@ -76,6 +76,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 		case manifest.Sequence:
 			task.Tasks = t.Apply(task.Tasks, defaults, man)
 			tt = task
+		default:
+			tt = task
 		}
 
 		tasksWithDefaultsApplied = append(tasksWithDefaultsApplied, tt)

@@ -341,6 +341,9 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 	case manifest.Update:
 		job = c.updateJobConfig(task, man.PipelineName(), basePath)
+
+	case manifest.AutomaticCDC:
+		job = c.automaticCDCConfig(task)
 	}
 
 	job.OnFailure = c.onFailure(task)

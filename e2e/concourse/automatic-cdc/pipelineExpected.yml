@@ -1,0 +1,22 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: Automatic CDCs
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: master
+    paths:
+    - e2e/concourse/automatic-cdc
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+

@@ -197,9 +197,15 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		}
 		t.Type = ""
 		task = t
-
+	case "automatic-cdc":
+		t := AutomaticCDC{}
+		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
+			return nil, err
+		}
+		t.Type = ""
+		task = t
 	default:
-		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
+		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence', 'automatic-cdc'", taskIndex, taskType))
 	}
 
 	return task, err
