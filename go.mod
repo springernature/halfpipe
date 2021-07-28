@@ -5,30 +5,41 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
+	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/charlievieth/fs v0.0.1 // indirect
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
 	github.com/cloudfoundry/bosh-utils v0.0.0-20210206100354-910bbc6b59f7 // indirect
-	github.com/concourse/concourse v1.6.1-0.20200827135536-5edc00f848aa
+	github.com/cockroachdb/cmux v0.0.0-20170110192607-30d10be49292 // indirect
+	github.com/concourse/concourse v1.6.1-0.20210614193118-b8a09591f006
 	github.com/cppforlife/go-patch v0.2.0 // indirect
+	github.com/gobuffalo/packr v1.13.7 // indirect
 	github.com/gookit/color v1.4.2
+	github.com/gophercloud/gophercloud v0.10.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
+	github.com/gtank/cryptopasta v0.0.0-20160720052843-e7e23673cac3 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
+	github.com/joefitzgerald/rainbow-reporter v0.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
 	github.com/mattn/go-runewidth v0.0.10 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/onsi/gomega v1.14.0
 	github.com/pkg/errors v0.9.1
+	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/spf13/afero v1.6.0
 	github.com/spf13/cobra v1.2.1
 	github.com/stretchr/testify v1.7.0
 	github.com/tcnksm/go-gitconfig v0.1.2
-	golang.org/x/crypto v0.0.0-20201221181555-eec23a3978ad // indirect
+	go.opentelemetry.io/otel/exporter/trace/jaeger v0.2.1 // indirect
+	go.opentelemetry.io/otel/exporter/trace/stackdriver v0.2.1 // indirect
 	golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1 // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/yaml.v2 v2.4.0
+	k8s.io/client-go v11.0.0+incompatible // indirect
+	k8s.io/klog v0.3.0 // indirect
+	sigs.k8s.io/structured-merge-diff v0.0.0-20190525122527-15d366b2352e // indirect
 	sigs.k8s.io/yaml v1.2.0
 )
 

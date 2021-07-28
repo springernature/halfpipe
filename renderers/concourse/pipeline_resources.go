@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"strings"
+	"time"
 
 	"regexp"
 
@@ -13,8 +14,12 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-const longResourceCheckInterval = "24h"
-const webHookAssistedResourceCheckInterval = "10m"
+var longResourceCheckInterval = atc.CheckEvery{
+	Interval: 24 * time.Hour,
+}
+var webHookAssistedResourceCheckInterval = atc.CheckEvery{
+	Interval: 10 * time.Minute,
+}
 
 func (c Concourse) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	sources := atc.Source{
@@ -46,7 +51,8 @@ func (c Concourse) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	}
 
 	if strings.HasPrefix(trigger.URI, config.WebHookAssistedGitPrefix) {
-		cfg.CheckEvery = webHookAssistedResourceCheckInterval
+
+		cfg.CheckEvery = &webHookAssistedResourceCheckInterval
 	}
 
 	return cfg
@@ -57,9 +63,10 @@ const slackResourceTypeName = "halfpipe-slack-resource"
 
 func (c Concourse) slackResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name:       slackResourceTypeName,
-		Type:       "registry-image",
-		CheckEvery: longResourceCheckInterval,
+		Name: slackResourceTypeName,
+		Type: "registry-image",
+
+		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": config.DockerRegistry + "halfpipe-slack-resource",
 			"tag":        "latest",
@@ -73,7 +80,7 @@ func (c Concourse) slackResource() atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       slackResourceName,
 		Type:       slackResourceTypeName,
-		CheckEvery: longResourceCheckInterval,
+		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"token": config.SlackToken,
 		},
@@ -112,7 +119,7 @@ func (c Concourse) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name:       artifactsName,
 		Type:       artifactsResourceName,
-		CheckEvery: longResourceCheckInterval,
+		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"bucket":   bucket,
 			"folder":   path.Join(filter(man.Team), filter(man.PipelineName())),
@@ -129,9 +136,11 @@ func (c Concourse) artifactResourceOnFailure(man manifest.Manifest) atc.Resource
 
 func (c Concourse) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfig {
 	return atc.ResourceConfig{
-		Name:       trigger.GetTriggerName(),
-		Type:       cronResourceTypeName,
-		CheckEvery: "1m",
+		Name: trigger.GetTriggerName(),
+		Type: cronResourceTypeName,
+		CheckEvery: &atc.CheckEvery{
+			Interval: 1 * time.Minute,
+		},
 		Source: atc.Source{
 			"expression":       trigger.Cron,
 			"location":         "UTC",
@@ -217,7 +226,7 @@ func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName str
 		Name:       resourceName,
 		Type:       resourceType,
 		Source:     sources,
-		CheckEvery: longResourceCheckInterval,
+		CheckEvery: &longResourceCheckInterval,
 	}
 }
 
@@ -230,7 +239,7 @@ func (c Concourse) dockerPushResource(docker manifest.DockerPush) atc.ResourceCo
 			"password":   docker.Password,
 			"repository": docker.Image,
 		},
-		CheckEvery: longResourceCheckInterval,
+		CheckEvery: &longResourceCheckInterval,
 	}
 }
 
