@@ -1,0 +1,29 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2.3.4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v1
+      with:
+        languages: go
+
+    - name: Build
+      run: go build cmd/halfpipe.go
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v1
