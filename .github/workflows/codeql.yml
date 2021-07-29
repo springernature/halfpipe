@@ -25,7 +25,8 @@ jobs:
     - name: build
       uses: docker://golang:1.16-buster
       with:
-        entrypoint: ./build.sh
+        entrypoint: /bin/sh
+        args: -c "go build cmd/halfpipe.go"
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
