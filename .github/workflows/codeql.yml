@@ -7,11 +7,7 @@ on:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ubuntu-latest
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
+    runs-on: ee-runner
 
     steps:
     - name: Checkout repository
@@ -22,8 +18,12 @@ jobs:
       with:
         languages: go
 
-    - name: Build
-      run: go build cmd/halfpipe.go
+    - name: build
+      uses: docker://golang:1.16-buster
+      with:
+        entrypoint: ./build.sh
+      env:
+        GOMODCACHE: /var/halfpipe/cache/gomodcache
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
