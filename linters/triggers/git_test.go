@@ -174,7 +174,7 @@ func TestBranch(t *testing.T) {
 		assert.Len(t, errs, 0)
 	})
 
-	t.Run("when branch is not set and on non-master branch", func(t *testing.T) {
+	t.Run("when branch is not set and on non-main branch", func(t *testing.T) {
 		currentBranch := "myBranch"
 		trigger := manifest.GitTrigger{
 			URI: "https://github.com/springernature/halfpipe.git",
@@ -203,8 +203,8 @@ func TestBranch(t *testing.T) {
 		linterrors.AssertInvalidFieldInErrors(t, "branch", errs)
 	})
 
-	t.Run("when branch is set but we are on master", func(t *testing.T) {
-		currentBranch := "master"
+	t.Run("when branch is set but we are on main", func(t *testing.T) {
+		currentBranch := "main"
 		trigger := manifest.GitTrigger{
 			URI:    "https://github.com/springernature/halfpipe.git",
 			Branch: "someRandomBranch",

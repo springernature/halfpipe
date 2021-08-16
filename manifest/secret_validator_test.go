@@ -95,7 +95,7 @@ func TestTriggers(t *testing.T) {
 				WatchedPaths: []string{"a", "b"},
 				IgnoredPaths: []string{"d", "e"},
 				GitCryptKey:  "((super.allowed))",
-				Branch:       "master",
+				Branch:       "main",
 			},
 			manifest.DockerTrigger{
 				Image:    "someImage",

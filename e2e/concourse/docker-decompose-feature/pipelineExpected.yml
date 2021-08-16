@@ -248,7 +248,7 @@ resources:
 - check_every: 10m
   name: git
   source:
-    branch: master
+    branch: main
     paths:
     - e2e/concourse/docker-compose
     private_key: ((halfpipe-github.private_key))

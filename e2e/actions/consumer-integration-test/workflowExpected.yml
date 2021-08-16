@@ -3,7 +3,7 @@ name: pipeline-name
 "on":
   push:
     branches:
-    - master
+    - main
     paths:
     - e2e/actions/consumer-integration-test**
     - .github/workflows/pipeline-name.yml

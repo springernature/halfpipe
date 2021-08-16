@@ -3,7 +3,7 @@ name: update-pipeline
 "on":
   push:
     branches:
-    - master
+    - main
     paths:
     - e2e/actions/feature-update-pipeline**
     - .github/workflows/update-pipeline.yml

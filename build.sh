@@ -22,7 +22,7 @@ go test $go_opts -cover ./...
 
 echo [3/5] build
 ldflags=""
-if [ `git branch | grep \* | cut -d ' ' -f2` != "master" ]; then
+if [ `git branch | grep \* | cut -d ' ' -f2` != "main" ]; then
   go build \
     $go_opts \
     -ldflags "-X github.com/springernature/halfpipe/config.CheckBranch=false" \

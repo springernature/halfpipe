@@ -101,15 +101,15 @@ func TestGit(t *testing.T) {
 			assert.Equal(t, "kehe", defaultGitTrigger(trigger, Concourse, dummyGitBranchResolver, "concourse").Branch)
 		})
 
-		t.Run("Defaults to master when on the master branch", func(t *testing.T) {
+		t.Run("Defaults to main when on the main branch", func(t *testing.T) {
 			gitBranchResolver := func() (string, error) {
-				return "master", nil
+				return "main", nil
 			}
 
 			trigger := manifest.GitTrigger{
 				Branch: "",
 			}
-			assert.Equal(t, "master", defaultGitTrigger(trigger, Concourse, gitBranchResolver, "concourse").Branch)
+			assert.Equal(t, "main", defaultGitTrigger(trigger, Concourse, gitBranchResolver, "concourse").Branch)
 		})
 
 		t.Run("Defaults to main when on the main branch", func(t *testing.T) {

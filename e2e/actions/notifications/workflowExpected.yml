@@ -3,7 +3,7 @@ name: pipeline-name
 "on":
   push:
     branches:
-    - master
+    - main
     paths:
     - e2e/actions/notifications**
     - .github/workflows/pipeline-name.yml

@@ -3,7 +3,7 @@ name: par-seq
 "on":
   push:
     branches:
-    - master
+    - main
     paths:
     - e2e/actions/par-seq**
     - .github/workflows/par-seq.yml

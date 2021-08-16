@@ -3,7 +3,7 @@ name: update-pipeline-and-tag
 "on":
   push:
     branches:
-    - master
+    - main
     paths:
     - e2e/actions/feature-update-pipeline-and-tag**
     - .github/workflows/update-pipeline-and-tag.yml

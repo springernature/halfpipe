@@ -11,7 +11,7 @@ resources:
 - name: halfpipe
   type: git
   source:
-    branch: master
+    branch: main
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: version
