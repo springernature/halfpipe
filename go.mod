@@ -1,5 +1,7 @@
 module github.com/springernature/halfpipe
 
+go 1.17
+
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20200131002437-cf55d5288a48 // indirect
 	code.cloudfoundry.org/cli v7.1.0+incompatible
@@ -32,4 +34,19 @@ require (
 	sigs.k8s.io/yaml v1.2.0
 )
 
-go 1.16
+require (
+	github.com/aryann/difflib v0.0.0-20170710044230-e206f873d14a // indirect
+	github.com/bmizerany/pat v0.0.0-20170815010413-6226ea591a40 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/jessevdk/go-flags v1.4.0 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 // indirect
+	github.com/xo/terminfo v0.0.0-20210125001918-ca9a967f8778 // indirect
+	golang.org/x/net v0.0.0-20210428140749-89ef3d95e781 // indirect
+	golang.org/x/text v0.3.6 // indirect
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+)

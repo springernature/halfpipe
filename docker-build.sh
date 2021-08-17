@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
-mkdir -p ~/.halfpipe-shared-cache
-
 docker run -it \
-  -v ~/.halfpipe-shared-cache:/var/halfpipe/shared-cache \
+  -v $(go env GOMODCACHE):/gomodcache \
   -v "$PWD":/halfpipe \
   -w /halfpipe \
-  golang:1.16-buster \
-  ./build.sh
+  -e GOMODCACHE=/gomodcache \
+  golang:1.17-buster \
+  ${1:-./build.sh}
