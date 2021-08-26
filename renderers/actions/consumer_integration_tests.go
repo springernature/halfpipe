@@ -18,6 +18,8 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
+	cdcScript := ""
+
 	if len(consumerGitParts) > 1 {
 		consumerGitPath = consumerGitParts[1]
 	}
@@ -28,10 +30,17 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
+	if task.UseCovenant {
+		cdcScript = shared.ConsumerIntegrationTestScriptv2(task.Vars, []string{})
+	} else {
+		cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, []string{})
+	}
+
 	runTask := manifest.Run{
 		Retries: task.Retries,
 		Name:    task.Name,
-		Script:  shared.ConsumerIntegrationTestScript(task.Vars, []string{}),
+
+		Script: cdcScript,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
 			"CONSUMER_PATH":          consumerGitPath,

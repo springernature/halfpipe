@@ -16,6 +16,7 @@ type ConsumerIntegrationTest struct {
 	Notifications        Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout              string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory         int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	UseCovenant          bool          `json:"use_covenant,omitempty" yaml:"use_covenant,omitempty"`
 }
 
 func (r ConsumerIntegrationTest) GetSecrets() map[string]string {
