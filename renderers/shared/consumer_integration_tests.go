@@ -15,14 +15,15 @@ func ConsumerIntegrationTestScript(vars manifest.Vars, cacheDirs []string) strin
 	sort.Strings(envStrings)
 	envOption := strings.Join(envStrings, " ")
 
-	//var cacheVolumeFlags []string
-	//for _, cacheVolume := range cacheDirs {
-	//	cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
-	//}
-	//
-	//volumeOption := strings.Join(cacheVolumeFlags, " ")
+	var cacheVolumeFlags []string
+	for _, cacheVolume := range cacheDirs {
+		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
+	}
+
+	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
 	return fmt.Sprintf(`
 export ENV_OPTIONS="%s"
-/cdc.sh`, envOption)
+export VOLUME_OPTIONS="%s"
+/cdc.sh`, envOption, volumeOption)
 }

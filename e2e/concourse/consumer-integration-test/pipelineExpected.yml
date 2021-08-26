@@ -62,6 +62,7 @@ jobs:
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
           export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e RUNNING_IN_CI"
+          export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache"
           /cdc.sh
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
