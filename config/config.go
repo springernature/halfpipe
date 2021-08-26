@@ -19,7 +19,7 @@ var (
 
 	DockerRegistry = "eu.gcr.io/" + Project + "/"
 
-	DockerComposeImage = "halfpipe-docker-compose:cdc"
+	DockerComposeImage = "halfpipe-docker-compose:stable"
 
 	ConcourseURL = "https://concourse." + Domain
 

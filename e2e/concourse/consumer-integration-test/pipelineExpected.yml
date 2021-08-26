@@ -18,7 +18,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: cdc
+          tag: stable
           username: _json_key
         type: registry-image
       inputs:
