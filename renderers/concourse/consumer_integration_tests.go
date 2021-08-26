@@ -14,12 +14,18 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
+	cdcScript := ""
 	if len(consumerGitParts) > 1 {
 		consumerGitPath = consumerGitParts[1]
 	}
 
 	dockerLogin := `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
-	cdcScript := shared.ConsumerIntegrationTestScriptv2(task.Vars, config.DockerComposeCacheDirs)
+	if task.UseCovenant {
+		cdcScript = shared.ConsumerIntegrationTestScriptv2(task.Vars, config.DockerComposeCacheDirs)
+	} else {
+		cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
+	}
+
 	script := dockerLogin + "\n\n" + cdcScript
 
 	providerName := task.ProviderName

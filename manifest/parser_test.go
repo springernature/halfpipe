@@ -128,6 +128,7 @@ tasks:
     consumer: cdc-consumer
     consumer_host: cdc-host
     script: cdc-script
+    use_covenant: true
 - type: docker-compose
   name: docker compose task 2
   service: asdf
@@ -301,6 +302,7 @@ tasks:
 						Consumer:     "cdc-consumer",
 						ConsumerHost: "cdc-host",
 						Script:       "cdc-script",
+						UseCovenant:  true,
 					}},
 			},
 			DockerCompose{
