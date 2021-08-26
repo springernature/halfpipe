@@ -11,6 +11,11 @@ do
             ./test.sh
         else
             ../../../halfpipe -q 1> pipelineActual.yml
+
+            # hacky fixes for running tests on a branch
+            sed -i '' 's/    branch: ""/    branch: main/g' pipelineActual.yml
+            sed -i '' -E 's/(key:.+)\-$/\1/g' pipelineActual.yml
+
             diff --ignore-blank-lines pipelineActual.yml pipelineExpected.yml
             if command -v fly > /dev/null; then
                 fly validate-pipeline -c pipelineActual.yml > /dev/null 2>&1
