@@ -21,7 +21,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 
 	dockerLogin := `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
 	if task.UseCovenant {
-		cdcScript = shared.ConsumerIntegrationTestScriptv2(task.Vars, config.DockerComposeCacheDirs)
+		cdcScript = shared.ConsumerIntegrationTestScriptV2(task.Vars, config.DockerComposeCacheDirs)
 	} else {
 		cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
 	}

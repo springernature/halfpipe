@@ -30,11 +30,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
-	if task.UseCovenant {
-		cdcScript = shared.ConsumerIntegrationTestScriptv2(task.Vars, []string{})
-	} else {
-		cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, []string{})
-	}
+	cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, []string{})
 
 	runTask := manifest.Run{
 		Retries: task.Retries,

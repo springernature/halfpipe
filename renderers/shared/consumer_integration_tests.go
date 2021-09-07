@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func ConsumerIntegrationTestScriptv2(vars manifest.Vars, cacheDirs []string) string {
+func ConsumerIntegrationTestScriptV2(vars manifest.Vars, cacheDirs []string) string {
 	var envStrings []string
 	for key := range vars {
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))

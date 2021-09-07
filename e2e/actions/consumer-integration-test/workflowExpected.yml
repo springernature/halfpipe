@@ -22,14 +22,74 @@ defaults:
     working-directory: e2e/actions/consumer-integration-test
 concurrency: ${{ github.workflow }}
 jobs:
-  another-c-name:
-    name: another-c-name
+  c-name:
+    name: c-name
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-    - name: another-c-name
+    - name: c-name
+      run: |
+        # write git key to file
+        echo "${CONSUMER_GIT_KEY}" > .gitkey
+        chmod 600 .gitkey
+
+        set -ex
+
+        # get current revision of consumer, revert to HEAD if not found
+        REVISION=$(curl -fsSL "${CONSUMER_HOST}/internal/version" | jq -r '.revision' || echo "")
+        if [ "${REVISION}" == "" ]; then
+          echo "Error fetching version of consumer from ${CONSUMER_HOST}/internal/version - using HEAD instead."
+          REVISION=HEAD
+        fi
+
+        # clone consumer into /scratch/consumer. dir may already exist when concourse restarts task
+        rm -rf /scratch/consumer
+        GIT_SSH_COMMAND="ssh -o StrictHostKeychecking=no -i .gitkey" git clone ${GIT_CLONE_OPTIONS} ${CONSUMER_GIT_URI} /scratch/consumer
+        cd /scratch/consumer/${CONSUMER_PATH}
+
+        # checkout revision
+        git checkout ${REVISION}
+
+        # run the tests with docker-compose
+        # note: old system reads CF manifest env vars and sets them all here
+        docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
+        docker-compose run --no-deps \
+          --entrypoint "${CONSUMER_SCRIPT}" \
+          -e DEPENDENCY_NAME=${PROVIDER_NAME} \
+          -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
+          -e CDC_CONSUMER_NAME=${CONSUMER_NAME} \
+          -e CDC_CONSUMER_VERSION=${REVISION} \
+          -e CDC_PROVIDER_NAME=${PROVIDER_NAME} \
+          -e CDC_PROVIDER_VERSION=${GIT_REVISION} \
+          -e K -e K1 \
+           \
+          ${DOCKER_COMPOSE_SERVICE:-code}
+      env:
+        CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_SERVICE: potato
+        GIT_CLONE_OPTIONS: --depth 100
+        K: value
+        K1: value1
+        PROVIDER_HOST: p-host
+        PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
+        PROVIDER_NAME: p-name
+  c-name-covenant:
+    name: c-name-covenant
+    needs:
+    - c-name
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: c-name-covenant
       run: |
         # write git key to file
         echo "${CONSUMER_GIT_KEY}" > .gitkey
