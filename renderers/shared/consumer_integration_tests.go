@@ -25,7 +25,7 @@ func ConsumerIntegrationTestScriptV2(vars manifest.Vars, cacheDirs []string) str
 	return fmt.Sprintf(`
 export ENV_OPTIONS="%s"
 export VOLUME_OPTIONS="%s"
-/cdc.sh`, envOption, volumeOption)
+run-cdc.sh`, envOption, volumeOption)
 }
 
 func ConsumerIntegrationTestScript(vars manifest.Vars, cacheDirs []string) string {
