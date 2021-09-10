@@ -211,7 +211,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 1m
+- check_every: 2m
   name: cron
   source:
     expression: '* * * * *'

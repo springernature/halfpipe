@@ -5,8 +5,6 @@ triggers:
 - type: git
   watched_paths:
   - e2e/concourse/update-pipeline-with-path
-- type: timer
-  cron: '* * * * *'
 
 feature_toggles:
 - update-pipeline
