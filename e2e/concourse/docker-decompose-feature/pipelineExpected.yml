@@ -264,3 +264,4 @@ resources:
     space: my-space
     username: uname
   type: cf-resource
+

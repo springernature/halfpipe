@@ -214,3 +214,4 @@ resources:
     folder: halfpipe-team/halfpipe-e2e-deploy-ml-zip
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
+

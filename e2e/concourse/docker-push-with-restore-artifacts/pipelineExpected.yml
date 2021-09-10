@@ -320,7 +320,8 @@ resources:
     folder: halfpipe-team/docker-push-with-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
-- name: version
+- check_every: 24h
+  name: version
   source:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
@@ -341,3 +342,4 @@ resources:
     repository: springerplatformengineering/image2
     username: rob
   type: docker-image
+

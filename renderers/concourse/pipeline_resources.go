@@ -290,8 +290,9 @@ func (c Concourse) versionResource(manifest manifest.Manifest) atc.ResourceConfi
 	}
 
 	return atc.ResourceConfig{
-		Name: versionName,
-		Type: "semver",
+		Name:       versionName,
+		Type:       "semver",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"driver":   "gcs",
 			"key":      key,

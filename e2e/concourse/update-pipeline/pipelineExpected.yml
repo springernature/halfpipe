@@ -218,10 +218,12 @@ resources:
     fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource
-- name: version
+- check_every: 24h
+  name: version
   source:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-update-pipeline
   type: semver
+

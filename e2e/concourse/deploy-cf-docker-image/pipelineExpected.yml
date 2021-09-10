@@ -361,7 +361,8 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- name: version
+- check_every: 24h
+  name: version
   source:
     bucket: ((halfpipe-semver.bucket))
     driver: gcs
@@ -386,3 +387,4 @@ resources:
     space: dev
     username: ((cloudfoundry.username-snpaas))
   type: cf-resource
+
