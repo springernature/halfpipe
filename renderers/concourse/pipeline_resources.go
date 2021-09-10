@@ -82,8 +82,9 @@ func (c Concourse) slackResource() atc.ResourceConfig {
 
 func (c Concourse) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: artifactsResourceName,
-		Type: "registry-image",
+		Name:       artifactsResourceName,
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": config.DockerRegistry + "gcp-resource",
 			"tag":        "stable",
@@ -145,8 +146,9 @@ const cronResourceTypeName = "halfpipe-cron-resource"
 func cronResourceType() atc.ResourceType {
 
 	return atc.ResourceType{
-		Name: cronResourceTypeName,
-		Type: "registry-image",
+		Name:       cronResourceTypeName,
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": config.DockerRegistry + cronResourceTypeName,
 			"password":   "((halfpipe-gcr.private_key))",
@@ -158,8 +160,9 @@ func cronResourceType() atc.ResourceType {
 
 func halfpipePipelineTriggerResourceType() atc.ResourceType {
 	return atc.ResourceType{
-		Name: "halfpipe-pipeline-trigger",
-		Type: "registry-image",
+		Name:       "halfpipe-pipeline-trigger",
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": config.DockerRegistry + "halfpipe-pipeline-trigger-resource",
 			"password":   "((halfpipe-gcr.private_key))",
@@ -174,8 +177,9 @@ func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 	image := strings.Join([]string{deployCfResourceTypeName, "v2"}, "-")
 	fullPath := path.Join(config.DockerRegistry + image)
 	return atc.ResourceType{
-		Name: deployCfResourceTypeName,
-		Type: "registry-image",
+		Name:       deployCfResourceTypeName,
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": fullPath,
 			"password":   "((halfpipe-gcr.private_key))",

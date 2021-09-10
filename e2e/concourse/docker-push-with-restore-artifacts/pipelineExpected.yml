@@ -295,7 +295,8 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- name: gcp-resource
+- check_every: 24h
+  name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -340,4 +341,3 @@ resources:
     repository: springerplatformengineering/image2
     username: rob
   type: docker-image
-

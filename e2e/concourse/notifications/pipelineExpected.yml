@@ -325,7 +325,8 @@ resource_types:
     tag: latest
     username: _json_key
   type: registry-image
-- name: cf-resource
+- check_every: 24h
+  name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/cf-resource-v2
@@ -355,4 +356,3 @@ resources:
     space: staging
     username: michiel
   type: cf-resource
-
