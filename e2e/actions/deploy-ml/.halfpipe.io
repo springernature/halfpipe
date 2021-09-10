@@ -9,10 +9,10 @@ tasks:
   docker:
     image: alpine
   save_artifacts:
-  - target/xquery.zip
+  - ../../target/xquery.zip
 
 - type: deploy-ml-zip
-  deploy_zip: target/xquery.zip
+  deploy_zip: ../../target/xquery.zip
   use_build_version: true
   targets:
   - ml.dev.com

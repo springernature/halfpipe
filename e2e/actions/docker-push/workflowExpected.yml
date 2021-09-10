@@ -38,7 +38,8 @@ jobs:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/docker-push; \build"
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar target/app.zip
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/docker-push/target/app.zip
+      working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -57,9 +58,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/docker-push
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
@@ -98,9 +99,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/docker-push
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:

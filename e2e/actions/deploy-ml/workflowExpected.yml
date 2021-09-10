@@ -35,7 +35,8 @@ jobs:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-ml; \package.sh"
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar target/xquery.zip
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/target/xquery.zip
+      working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -54,9 +55,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/deploy-ml
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: deploy-ml-zip
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
@@ -64,7 +65,7 @@ jobs:
         args: -c "cd e2e/actions/deploy-ml; /ml-deploy/deploy-local-zip"
       env:
         APP_NAME: pipeline-name
-        DEPLOY_ZIP: target/xquery.zip
+        DEPLOY_ZIP: ../../target/xquery.zip
         MARKLOGIC_HOST: ml.dev.com
         MARKLOGIC_PASSWORD: ""
         MARKLOGIC_USERNAME: ""

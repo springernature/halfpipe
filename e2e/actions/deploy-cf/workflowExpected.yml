@@ -35,7 +35,8 @@ jobs:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-cf; \echo foo > foo.html"
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar foo.html
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/deploy-cf/foo.html
+      working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -70,9 +71,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/deploy-cf
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: Push
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
@@ -162,9 +163,9 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/deploy-cf
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: Push
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:

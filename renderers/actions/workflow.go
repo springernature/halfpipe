@@ -70,13 +70,14 @@ type Credentials struct {
 }
 
 type Step struct {
-	Name string `yaml:"name,omitempty"`
-	If   string `yaml:"if,omitempty"`
-	ID   string `yaml:"id,omitempty"`
-	Uses string `yaml:"uses,omitempty"`
-	Run  string `yaml:"run,omitempty"`
-	With With   `yaml:"with,omitempty"`
-	Env  Env    `yaml:"env,omitempty"`
+	Name             string `yaml:"name,omitempty"`
+	If               string `yaml:"if,omitempty"`
+	ID               string `yaml:"id,omitempty"`
+	Uses             string `yaml:"uses,omitempty"`
+	Run              string `yaml:"run,omitempty"`
+	With             With   `yaml:"with,omitempty"`
+	Env              Env    `yaml:"env,omitempty"`
+	WorkingDirectory string `yaml:"working-directory,omitempty"`
 }
 
 type Steps []Step

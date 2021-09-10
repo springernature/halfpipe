@@ -35,7 +35,8 @@ jobs:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/artifacts; \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar foo.txt target/bar.txt
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
+      working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
@@ -43,7 +44,8 @@ jobs:
         path: /tmp/halfpipe-artifacts.tar
     - name: Package artifacts-failure
       if: failure()
-      run: tar -cvf /tmp/halfpipe-artifacts.tar foo.txt
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt
+      working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
       uses: actions/upload-artifact@v2
@@ -63,11 +65,11 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: artifacts
-        path: e2e/actions/artifacts
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
     - name: test
       uses: docker://debian:buster-slim
       with:
         entrypoint: /bin/sh
-        args: -c "cd e2e/actions/artifacts; \cat foo.txt target/bar.txt"
+        args: -c "cd e2e/actions/artifacts; \ls -l ..; cat foo.txt target/bar.txt ../test.sh"
