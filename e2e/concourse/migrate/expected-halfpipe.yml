@@ -7,7 +7,7 @@ triggers:
   watched_paths:
   - e2e/concourse/migrate
 - type: timer
-  cron: '* * * * *'
+  cron: '1 * * * *'
 tasks:
 - type: run
   name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI

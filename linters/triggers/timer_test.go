@@ -8,15 +8,15 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOnlyCronTriggerDefined(t *testing.T) {
-	t.Run("valid trigger", func(t *testing.T) {
-		trigger := manifest.TimerTrigger{Cron: "*/10 * * * *"}
+func TestCronTrigger(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
+		trigger := manifest.TimerTrigger{Cron: "*/30 * * * *"}
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 0)
 	})
 
-	t.Run("empty trigger", func(t *testing.T) {
+	t.Run("empty", func(t *testing.T) {
 		trigger := manifest.TimerTrigger{}
 
 		errs, _ := LintCronTrigger(trigger)
@@ -24,7 +24,7 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 		linterrors.AssertInvalidFieldInErrors(t, "trigger", errs)
 	})
 
-	t.Run("bad trigger", func(t *testing.T) {
+	t.Run("bad", func(t *testing.T) {
 		trigger := manifest.TimerTrigger{Cron: "*/99 * * * *"}
 
 		errs, _ := LintCronTrigger(trigger)
@@ -32,9 +32,8 @@ func TestOnlyCronTriggerDefined(t *testing.T) {
 		linterrors.AssertInvalidFieldInErrors(t, "trigger", errs)
 	})
 
-	t.Run("with seconds in trigger", func(t *testing.T) {
-		// 6 parts means there is seconds.
-		trigger := manifest.TimerTrigger{Cron: "* * * * * *"}
+	t.Run("too frequent", func(t *testing.T) {
+		trigger := manifest.TimerTrigger{Cron: "*/10 * * * *"}
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)

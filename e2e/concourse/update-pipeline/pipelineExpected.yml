@@ -211,10 +211,10 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 2m
+- check_every: 10m
   name: cron
   source:
-    expression: '* * * * *'
+    expression: '*/30 * * * *'
     fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource
@@ -226,4 +226,3 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-update-pipeline
   type: semver
-

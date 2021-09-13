@@ -5,19 +5,21 @@ import (
 	"github.com/mbrevoort/cronexpr"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
-	"regexp"
+	"time"
 )
 
+const minCronIntervalMins = 15
+
 func LintCronTrigger(cron manifest.TimerTrigger) (errs []error, warnings []error) {
-	_, err := cronexpr.Parse(cron.Cron)
+	expr, err := cronexpr.Parse(cron.Cron)
 	if err != nil {
-		errs = append(errs, linterrors.NewInvalidField("trigger", fmt.Sprintf("'%s' is not a valid cron expression", cron.Cron)))
+		errs = append(errs, linterrors.NewInvalidField("trigger", fmt.Sprintf("the cron expression '%s' is not valid", cron.Cron)))
+		return
 	}
 
-	spacer := regexp.MustCompile(`\S+`)
-	if len(spacer.FindAllStringIndex(cron.Cron, -1)) == 6 {
-		errs = append(errs, linterrors.NewInvalidField("trigger", "seconds in cron expression is not supported"))
+	next2 := expr.NextN(time.Now(), 2)
+	if next2[1].Before(next2[0].Add(minCronIntervalMins * time.Minute)) {
+		errs = append(errs, linterrors.NewInvalidField("trigger", fmt.Sprintf("the cron expression '%s' is more frequent than the minimum interval of 15 minutes", cron.Cron)))
 	}
-
 	return errs, warnings
 }

@@ -132,7 +132,7 @@ func (c Concourse) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfi
 	return atc.ResourceConfig{
 		Name:       trigger.GetTriggerName(),
 		Type:       cronResourceTypeName,
-		CheckEvery: "2m",
+		CheckEvery: "10m",
 		Source: atc.Source{
 			"expression":       trigger.Cron,
 			"location":         "UTC",

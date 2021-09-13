@@ -6,7 +6,7 @@ triggers:
   watched_paths:
   - e2e/concourse/update-pipeline
 - type: timer
-  cron: '* * * * *'
+  cron: '*/30 * * * *'
 
 feature_toggles:
 - update-pipeline
