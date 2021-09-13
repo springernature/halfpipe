@@ -2,6 +2,7 @@ groups: []
 resources:
 - name: artifactory-linux
   type: artifactory
+  check_every: 24h
   source:
     endpoint: https://springernature.jfrog.io/springernature
     password: ((artifactory.password))
@@ -10,12 +11,14 @@ resources:
     username: ((artifactory.username))
 - name: halfpipe
   type: git
+  check_every: 10m
   source:
     branch: main
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
 - name: version
   type: semver
+  check_every: 24h
   source:
     branch: version
     driver: git
@@ -24,6 +27,7 @@ resources:
     uri: git@github.com:springernature/halfpipe.git
 - name: artifactory-darwin
   type: artifactory
+  check_every: 24h
   source:
     endpoint: https://springernature.jfrog.io/springernature
     password: ((artifactory.password))
@@ -32,6 +36,7 @@ resources:
     username: ((artifactory.username))
 - name: artifactory-windows
   type: artifactory
+  check_every: 24h
   source:
     endpoint: https://springernature.jfrog.io/springernature
     password: ((artifactory.password))
@@ -41,6 +46,7 @@ resources:
 resource_types:
 - name: artifactory
   type: docker-image
+  check_every: 24h
   source:
     repository: pivotalservices/artifactory-resource
 jobs:
