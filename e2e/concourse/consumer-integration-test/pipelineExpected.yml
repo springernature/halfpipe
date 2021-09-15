@@ -152,6 +152,7 @@ jobs:
         PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
         PROVIDER_NAME: p-name
         RUNNING_IN_CI: "true"
+        USE_COVENANT: "true"
       platform: linux
       run:
         args:
@@ -196,4 +197,3 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-

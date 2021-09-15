@@ -65,6 +65,10 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 		runTask.Vars[key] = val
 	}
 
+	if task.UseCovenant {
+		runTask.Vars["USE_COVENANT"] = "true"
+	}
+
 	return runTask
 }
 

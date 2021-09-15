@@ -30,7 +30,6 @@ tasks:
   script: c-script
   docker_compose_service: potato
   git_clone_options: "--depth 100"
-  use_covenant: true
   vars:
     K: value
     K1: value1
