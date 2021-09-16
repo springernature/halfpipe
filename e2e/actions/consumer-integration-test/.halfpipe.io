@@ -18,7 +18,7 @@ tasks:
 
 - type: consumer-integration-test
   name: c-name-covenant
-  use_covenant: true
+  use_covenant: false
   consumer: c-consumer
   consumer_host: c-host
   provider_host: p-host

@@ -20,11 +20,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 
 	dockerLogin := `\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io`
-	if task.UseCovenant {
-		cdcScript = shared.ConsumerIntegrationTestScriptV2(task.Vars, config.DockerComposeCacheDirs)
-	} else {
-		cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
-	}
+	cdcScript = shared.ConsumerIntegrationTestScriptV2(task.Vars, config.DockerComposeCacheDirs)
 
 	script := dockerLogin + "\n\n" + cdcScript
 
@@ -57,6 +53,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 			"GCR_PRIVATE_KEY":        "((halfpipe-gcr.private_key))",
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
+			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
 		Timeout: task.GetTimeout(),
 	}
@@ -64,11 +61,6 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	for key, val := range task.Vars {
 		runTask.Vars[key] = val
 	}
-
-	if task.UseCovenant {
-		runTask.Vars["USE_COVENANT"] = "true"
-	}
-
 	return runTask
 }
 

@@ -32,6 +32,17 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest) (errors []
 			errors = append(errors, unsupportedTasks(task.Tasks, man)...)
 		case manifest.Sequence:
 			errors = append(errors, unsupportedTasks(task.Tasks, man)...)
+		case manifest.ConsumerIntegrationTest:
+			if task.UseCovenant {
+				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.use_covenant", i, task)))
+			}
+		}
+	}
+
+	for i, t := range tasks {
+		switch task := t.(type) {
+		case manifest.Parallel, manifest.Sequence:
+			//skip
 		default:
 			if task.IsManualTrigger() {
 				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.manual_trigger", i, task)))

@@ -113,3 +113,19 @@ func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
 	}
 
 }
+
+func TestActionsLinter_UnsupportedUseCovenant(t *testing.T) {
+	man := manifest.Manifest{
+		Platform: "actions",
+		Tasks: manifest.TaskList{
+			manifest.ConsumerIntegrationTest{
+				UseCovenant: true,
+			},
+		},
+	}
+	actual := lint(man)
+	assert.Empty(t, actual.Errors)
+	if assert.Len(t, actual.Warnings, 1) {
+		assert.Contains(t, actual.Warnings[0].Error(), "use_covenant")
+	}
+}
