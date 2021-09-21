@@ -59,7 +59,7 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	envOption := strings.Join(envStrings, " ")
 	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
-	composeCommand := fmt.Sprintf("docker-compose %s run %s %s %s",
+	composeCommand := fmt.Sprintf("docker-compose %s run --use-aliases %s %s %s",
 		composeFileOption,
 		envOption,
 		volumeOption,

@@ -180,7 +180,7 @@ jobs:
           export BUILD_VERSION=`cat ../../../../version/version`
 
           \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose  run -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          docker-compose  run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
