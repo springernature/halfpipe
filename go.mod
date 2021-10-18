@@ -10,7 +10,7 @@ require (
 	github.com/cloudfoundry/bosh-utils v0.0.270 // indirect
 	github.com/concourse/concourse v1.6.1-0.20200827135536-5edc00f848aa
 	github.com/cppforlife/go-patch v0.2.0 // indirect
-	github.com/gookit/color v1.4.2
+	github.com/gookit/color v1.5.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
