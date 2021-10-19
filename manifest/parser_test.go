@@ -109,7 +109,6 @@ tasks:
   username: cf.user
   password: cf.pass
   manifest: manifest.yml
-  space: cf.space
   test_domain: asdf.com
   vars:
     FOO: fOo
@@ -401,6 +400,49 @@ tasks:
 		_, errs := Parse(yaml)
 		if assert.NotEmpty(t, errs, fmt.Sprintf("%v. %q", i, yaml)) {
 			assert.Contains(t, fmt.Sprintf("%v", errs), "unknown_field")
+		}
+	}
+}
+
+func TestFailsWithDuplicateKeys(t *testing.T) {
+	tests := []string{
+		`
+team: foo
+platform: concourse
+platform: actions
+tasks:
+- type: run
+  script: foo.sh
+  docker: 
+    image: bash:latest
+- type: docker-compose
+`,
+		`
+team: foo
+tasks:
+- type: docker-compose
+  command: ./run
+  command: ./run`,
+
+		`
+team: foo
+tasks:
+- type: parallel
+  tasks:
+    - type: run
+      name: run1
+    - type: run
+      name: run2
+  tasks:
+     - type: run
+       name: blah
+`,
+	}
+
+	for i, yaml := range tests {
+		_, errs := Parse(yaml)
+		if assert.NotEmpty(t, errs, fmt.Sprintf("%v. %q", i, yaml)) {
+			assert.Contains(t, fmt.Sprintf("%v", errs), "duplicated")
 		}
 	}
 }
