@@ -72,7 +72,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	linterrors.AssertMissingFieldInErrors(t, "testDomain", errors)
+	linterrors.AssertMissingFieldInErrors(t, "test_domain", errors)
 }
 
 func TestCfCliVersion(t *testing.T) {

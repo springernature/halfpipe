@@ -25,7 +25,7 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 	if cf.TestDomain == "" {
 		_, found := defaults.Concourse.CF.TestDomains[cf.API]
 		if cf.API != "" && !found {
-			errs = append(errs, linterrors.NewMissingField("testDomain"))
+			errs = append(errs, linterrors.NewMissingField("test_domain"))
 		}
 	}
 
