@@ -23,12 +23,8 @@ func Parse(manifestYaml string) (man Manifest, errs []error) {
 
 // convert YAML to JSON because JSON parser gives more control that we need to unmarshal into tasks
 func unmarshalAsJSON(yml []byte, out *Manifest) []error {
-	js, err := yaml.YAMLToJSONStrict(yml)
+	js, err := yaml.YAMLToJSON(yml)
 	if err != nil {
-		if strings.Contains(err.Error(), "already set") {
-			msg := strings.Replace(err.Error(), "already set in map", "is duplicated.", -1)
-			return []error{fmt.Errorf(msg)}
-		}
 		return []error{err}
 	}
 
