@@ -9,6 +9,7 @@ import (
 )
 
 const tagName = "secretAllowed"
+var reservedKeyNames =  []string{"value"}
 
 var UnsupportedSecretError = func(fieldName string) error {
 	return fmt.Errorf("'%s' is not allowed to contain a secret", fieldName)
@@ -16,7 +17,10 @@ var UnsupportedSecretError = func(fieldName string) error {
 
 var InvalidSecretError = func(secret, fieldName string) error {
 	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) with allowed characters [a-zA-Z0-9-_]", secret, fieldName)
+}
 
+var ReservedSecretNameError = func(secret, fieldName, reservedName string) error {
+	return fmt.Errorf("'%s' at '%s' uses a reserved name ('%s') as key name. Reserved keywords are: %v", secret, fieldName, reservedName, reservedKeyNames)
 }
 
 type SecretValidator interface {
@@ -129,9 +133,18 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				return
 			}
 
-			if len(strings.Split(secret, ".")) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
+			splitSecret := strings.Split(secret, ".")
+			if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
 				*errs = append(*errs, InvalidSecretError(secret, fieldName))
 				return
+			}
+
+			if len(splitSecret) == 2 {
+				keyName := strings.ReplaceAll(splitSecret[1], ")", "")
+				if s.IsReservedKeyName(keyName) {
+					*errs = append(*errs, ReservedSecretNameError(secret, fieldName, keyName))
+					return
+				}
 			}
 		}
 
@@ -166,4 +179,13 @@ func (s secretValidator) Validate(man Manifest) (errors []error) {
 	var errs []error
 	s.validate(man, "", "", &errs)
 	return errs
+}
+
+func (s secretValidator) IsReservedKeyName(keyName string) bool {
+	for _, name := range reservedKeyNames {
+		if keyName == name {
+			return true
+		}
+	}
+	return false
 }
