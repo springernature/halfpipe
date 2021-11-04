@@ -139,6 +139,7 @@ func TestRun(t *testing.T) {
 				Vars: map[string]string{
 					"ok":         "((super.ok))",
 					"((not.ok))": "blurgh",
+					"notok": "((something.value))",
 				},
 				SaveArtifacts: []string{
 					"ok",
@@ -149,13 +150,14 @@ func TestRun(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 6)
+	assert.Len(t, errors, 7)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].type"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].name"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].script"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].docker.image"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("key tasks[0].vars[((not.ok))]"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].save_artifacts[1]"))
+	assert.Contains(t, errors, manifest.ReservedSecretNameError("((something.value))", "tasks[0].vars[notok]", "value"))
 
 	good := manifest.Manifest{
 		Tasks: manifest.TaskList{
