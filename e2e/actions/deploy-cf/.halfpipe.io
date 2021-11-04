@@ -25,7 +25,7 @@ tasks:
     deploy_artifact: foo.html
     vars:
       ENV1: 1234
-      ENV2: ((secret.value))
+      ENV2: ((secret.something))
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
 
@@ -37,7 +37,7 @@ tasks:
     manifest: manifest.yml
     deploy_artifact: foo.html
     vars:
-      ENV2: ((secret.value))
+      ENV2: ((secret.something))
       ENV4: ((another.secret))
     pre_promote:
       - type: run

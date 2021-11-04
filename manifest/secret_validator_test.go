@@ -139,7 +139,7 @@ func TestRun(t *testing.T) {
 				Vars: map[string]string{
 					"ok":         "((super.ok))",
 					"((not.ok))": "blurgh",
-					"notok": "((something.value))",
+					"notok":      "((something.value))",
 				},
 				SaveArtifacts: []string{
 					"ok",

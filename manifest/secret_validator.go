@@ -9,7 +9,8 @@ import (
 )
 
 const tagName = "secretAllowed"
-var reservedKeyNames =  []string{"value"}
+
+var reservedKeyNames = []string{"value"}
 
 var UnsupportedSecretError = func(fieldName string) error {
 	return fmt.Errorf("'%s' is not allowed to contain a secret", fieldName)
