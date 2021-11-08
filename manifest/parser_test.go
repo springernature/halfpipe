@@ -128,7 +128,7 @@ tasks:
     consumer: cdc-consumer
     consumer_host: cdc-host
     script: cdc-script
-    use_covenant: true
+    use_covenant: false
 - type: docker-compose
   name: docker compose task 2
   service: asdf
@@ -302,7 +302,7 @@ tasks:
 						Consumer:     "cdc-consumer",
 						ConsumerHost: "cdc-host",
 						Script:       "cdc-script",
-						UseCovenant:  true,
+						UseCovenant:  false,
 					}},
 			},
 			DockerCompose{
@@ -315,6 +315,7 @@ tasks:
 				ConsumerHost:    "cdc-host",
 				GitCloneOptions: "--depth 100",
 				Script:          "cdc-script",
+				UseCovenant:     true,
 			},
 			DeployMLZip{
 				Name:            "deploy ml zip",

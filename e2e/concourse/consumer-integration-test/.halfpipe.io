@@ -9,6 +9,7 @@ triggers:
 tasks:
 - type: consumer-integration-test
   name: c-name
+  use_covenant: false
   consumer: c-consumer
   consumer_host: c-host
   provider_host: p-host
@@ -22,7 +23,6 @@ tasks:
 
 - type: consumer-integration-test
   name: c-name-covenant
-  use_covenant: true
   consumer: c-consumer
   consumer_host: c-host
   provider_host: p-host

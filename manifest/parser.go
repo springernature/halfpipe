@@ -167,6 +167,10 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
 			return nil, err
 		}
+		//default use_covenant to true
+		if !strings.Contains(string(rawTask), `"use_covenant"`) {
+			t.UseCovenant = true
+		}
 		t.Type = ""
 		task = t
 	case "deploy-ml-zip":
