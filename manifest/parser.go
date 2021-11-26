@@ -126,12 +126,12 @@ func (t *TriggerList) UnmarshalJSON(b []byte) error {
 }
 
 func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (task Task, err error) {
+	decoder := json.NewDecoder(bytes.NewReader(rawTask))
+	decoder.DisallowUnknownFields()
 
-	unmarshal := func(rawTask json.RawMessage, t Task, index int) error {
-		decoder := json.NewDecoder(bytes.NewReader(rawTask))
-		decoder.DisallowUnknownFields()
+	unmarshal := func(t Task) error {
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", index, jsonErr.Error()))
+			return linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", taskIndex, jsonErr.Error()))
 		}
 		return nil
 	}
@@ -140,37 +140,27 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 	switch taskType {
 	case "run":
 		t := Run{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "deploy-cf":
 		t := DeployCF{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "docker-push":
 		t := DockerPush{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "docker-compose":
 		t := DockerCompose{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "consumer-integration-test":
 		t := ConsumerIntegrationTest{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		//default use_covenant to true
 		if !strings.Contains(string(rawTask), `"use_covenant"`) {
 			t.UseCovenant = true
@@ -179,30 +169,22 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 	case "deploy-ml-zip":
 		t := DeployMLZip{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "deploy-ml-modules":
 		t := DeployMLModules{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "parallel":
 		t := Parallel{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 	case "sequence":
 		t := Sequence{}
-		if err := unmarshal(rawTask, &t, taskIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		task = t
 
@@ -214,44 +196,36 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 }
 
 func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType string) (trigger Trigger, err error) {
+	decoder := json.NewDecoder(bytes.NewReader(rawTrigger))
+	decoder.DisallowUnknownFields()
 
-	unmarshal := func(raw json.RawMessage, output interface{}, index int) error {
-		decoder := json.NewDecoder(bytes.NewReader(raw))
-		decoder.DisallowUnknownFields()
-		if jsonErr := decoder.Decode(output); jsonErr != nil {
-			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", index, jsonErr.Error()))
+	unmarshal := func(t Trigger) error {
+		if jsonErr := decoder.Decode(t); jsonErr != nil {
+			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", triggerIndex, jsonErr.Error()))
 		}
 		return nil
 	}
 
-	// unmarshal into the correct type of Task
+	// unmarshal into the correct type of Trigger
 	switch triggerType {
 	case "git":
 		t := GitTrigger{ShallowDefined: strings.Contains(string(rawTrigger), `"shallow":`)}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		trigger = t
 	case "timer":
 		t := TimerTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		trigger = t
 	case "docker":
 		t := DockerTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		trigger = t
 	case "pipeline":
 		t := PipelineTrigger{}
-		if err := unmarshal(rawTrigger, &t, triggerIndex); err != nil {
-			return nil, err
-		}
+		err = unmarshal(&t)
 		t.Type = ""
 		trigger = t
 	default:
