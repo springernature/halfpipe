@@ -8,6 +8,7 @@ import (
 	"path"
 
 	"fmt"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -134,9 +135,8 @@ func (c Concourse) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfi
 		Type:       cronResourceTypeName,
 		CheckEvery: "10m",
 		Source: atc.Source{
-			"expression":       trigger.Cron,
-			"location":         "UTC",
-			"fire_immediately": true,
+			"expression": trigger.Cron,
+			"location":   "UTC",
 		},
 	}
 }

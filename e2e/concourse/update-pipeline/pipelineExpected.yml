@@ -215,7 +215,6 @@ resources:
   name: cron
   source:
     expression: '*/30 * * * *'
-    fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource
 - check_every: 24h
