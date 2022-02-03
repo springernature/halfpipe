@@ -42,9 +42,9 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 		if gitTrigger.BasePath != "" {
 			w.Defaults.Run.WorkingDirectory = gitTrigger.BasePath
 			a.workingDir = gitTrigger.BasePath
-			if a.workingDir == "" {
-				a.workingDir = "."
-			}
+		}
+		if a.workingDir == "" {
+			a.workingDir = "."
 		}
 		if gitTrigger.GitCryptKey != "" {
 			w.Env["GIT_CRYPT_KEY"] = gitTrigger.GitCryptKey
