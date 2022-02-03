@@ -11,6 +11,6 @@ cp -r ${SCRIPT_DIR} /tmp/halfpipe-test
 cd /tmp/halfpipe-test
 cp -r ${SCRIPT_DIR}/../../../.git .
 
-halfpipe -q -o workflowActual.yml
+${SCRIPT_DIR}/../../../halfpipe -q -o workflowActual.yml
 sed '6s/\"\"/main/' workflowActual.yml > /tmp/branchFixed.yml
 diff --ignore-blank-lines /tmp/branchFixed.yml workflowExpected.yml
