@@ -9,10 +9,7 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 rm -rf /tmp/halfpipe-test
 cp -r ${SCRIPT_DIR} /tmp/halfpipe-test
 cd /tmp/halfpipe-test
-git init > /dev/null
-git add test.sh > /dev/null
-git commit -am"init" > /dev/null
-git remote add origin https://github.com/foo/bar.git > /dev/null
+cp -r ${SCRIPT_DIR}/../../../.git .
 
 halfpipe -q -o workflowActual.yml
 sed '6s/\"\"/main/' workflowActual.yml > /tmp/branchFixed.yml
