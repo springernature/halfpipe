@@ -4,9 +4,6 @@ name: update-pipeline-and-tag
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/feature-update-pipeline-and-tag**
-    - .github/workflows/update-pipeline-and-tag.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

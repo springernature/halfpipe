@@ -4,9 +4,6 @@ name: par-seq
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/par-seq**
-    - .github/workflows/par-seq.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

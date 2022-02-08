@@ -4,9 +4,6 @@ name: pipeline-name
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/deploy-ml**
-    - .github/workflows/pipeline-name.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

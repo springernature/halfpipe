@@ -4,9 +4,6 @@ name: update-pipeline
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/feature-update-pipeline**
-    - .github/workflows/update-pipeline.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

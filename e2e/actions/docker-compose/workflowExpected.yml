@@ -4,9 +4,6 @@ name: docker-compose
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/docker-compose**
-    - .github/workflows/docker-compose.yml
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}

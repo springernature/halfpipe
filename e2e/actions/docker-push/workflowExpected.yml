@@ -4,9 +4,6 @@ name: pipeline-name
   push:
     branches:
     - main
-    paths:
-    - e2e/actions/docker-push**
-    - .github/workflows/pipeline-name.yml
   repository_dispatch:
     types:
     - docker-push:eu.gcr.io/halfpipe-io/baseImage

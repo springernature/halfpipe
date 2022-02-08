@@ -5,7 +5,6 @@ name: pipeline-name
     branches:
     - main
     paths:
-    - e2e/actions/trigger-git**
     - e2e/actions/docker-push**
     - e2e/actions**
     - .github/workflows/pipeline-name.yml

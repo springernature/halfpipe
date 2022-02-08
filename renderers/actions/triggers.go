@@ -25,10 +25,6 @@ func (a *Actions) onPush(git manifest.GitTrigger, pipelineName string) (push Pus
 	}
 	push.Branches = Branches{git.Branch}
 
-	if git.BasePath != "" {
-		push.Paths = append(push.Paths, fmt.Sprintf("%s**", git.BasePath))
-	}
-
 	for _, p := range git.WatchedPaths {
 		path := fmt.Sprintf("%s**", p)
 		var found bool
