@@ -26,6 +26,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: c-name
       run: |
         # write git key to file
@@ -86,6 +89,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: c-name-covenant
       run: |
         # write git key to file

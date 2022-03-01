@@ -29,6 +29,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: build
       uses: docker://foo
       with:
@@ -51,6 +54,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
@@ -92,6 +98,9 @@ jobs:
           springernature/data/halfpipe-team/foo bar | foo_bar ;
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:

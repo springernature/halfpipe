@@ -26,6 +26,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: test
       run: |-
         docker-compose -f docker-compose.yml pull
@@ -70,6 +73,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:

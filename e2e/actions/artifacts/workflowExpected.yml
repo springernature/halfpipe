@@ -26,6 +26,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: build
       uses: docker://debian:buster-slim
       with:
@@ -58,6 +61,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:

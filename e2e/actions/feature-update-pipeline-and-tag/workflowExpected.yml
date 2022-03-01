@@ -26,6 +26,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Tag commit with update-pipeline-and-tag/v$BUILD_VERSION
       run: |-
         git tag -f update-pipeline-and-tag/v$BUILD_VERSION
@@ -39,6 +42,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: A
       run: |-
         docker-compose -f docker-compose.yml pull
@@ -65,6 +71,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: B
       run: |-
         docker-compose -f docker-compose.yml pull
@@ -91,6 +100,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: C
       run: |-
         docker-compose -f docker-compose.yml pull

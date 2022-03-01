@@ -29,6 +29,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: make binary
       uses: docker://ubuntu
       with:
@@ -67,6 +70,9 @@ jobs:
           springernature/data/halfpipe-team/secret something | secret_something ;
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
@@ -159,6 +165,9 @@ jobs:
           springernature/data/halfpipe-team/some secret | some_secret ;
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
@@ -325,6 +334,9 @@ jobs:
           springernature/data/shared/halfpipe-gcr private_key_base64 | halfpipe-gcr_private_key_base64 ;
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Push
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:

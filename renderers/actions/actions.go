@@ -120,9 +120,13 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
 		Uses: "actions/checkout@v2",
+		With: With{
+			{"submodules", "recursive"},
+			{"ssh-key", githubSecrets.GitHubPrivateKey},
+		},
 	}
 	if !gitTrigger.Shallow {
-		checkout.With = With{{"fetch-depth", 0}}
+		checkout.With = append(checkout.With, With{{"fetch-depth", 0}}...)
 	}
 	steps := Steps{checkout}
 	if gitTrigger.GitCryptKey != "" {

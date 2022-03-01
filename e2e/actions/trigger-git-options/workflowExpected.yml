@@ -28,6 +28,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         fetch-depth: 0
     - name: git-crypt unlock
       run: git-crypt unlock <(echo $GIT_CRYPT_KEY | base64 -d)
@@ -48,6 +50,8 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         fetch-depth: 0
     - name: git-crypt unlock
       run: git-crypt unlock <(echo $GIT_CRYPT_KEY | base64 -d)

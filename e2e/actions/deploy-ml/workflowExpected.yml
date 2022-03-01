@@ -26,6 +26,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: create zip for ml task
       uses: docker://alpine
       with:
@@ -48,6 +51,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
       uses: actions/download-artifact@v2
       with:
@@ -88,6 +94,9 @@ jobs:
           springernature/data/shared/artifactory username | artifactory_username ;
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Deploy ml-modules artifact
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
