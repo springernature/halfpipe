@@ -44,9 +44,9 @@ resources:
     repository: /halfpipe
     username: ((artifactory.username))
 - name: release
-  type: github-release
+  type: github-release-latest
   source:
-    access_token: ((api-keys.halfpipe-cli))
+    access_token: ((github-halfpipe-io-user.repo_pat))
     owner: springernature
     repository: halfpipe
 resource_types:
@@ -55,6 +55,10 @@ resource_types:
   check_every: 24h
   source:
     repository: pivotalservices/artifactory-resource
+- name: github-release-latest
+  type: registry-image
+  source:
+    repository: concourse/github-release-resource
 jobs:
 - name: Test
   serial: true
@@ -187,7 +191,7 @@ jobs:
     params:
       globs:
       - binaries/halfpipe_*
-      name: halfpipe/name
+      name: version/version
       tag: version/version
   - put: artifactory-darwin
     params:
