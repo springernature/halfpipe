@@ -43,6 +43,12 @@ resources:
     regex: halfpipe_windows_(?<version>.*).exe
     repository: /halfpipe
     username: ((artifactory.username))
+- name: release
+  type: github-release
+  source:
+    access_token: ((api-keys.halfpipe-cli))
+    owner: springernature
+    repository: halfpipe
 resource_types:
 - name: artifactory
   type: docker-image
@@ -176,6 +182,12 @@ jobs:
   - put: halfpipe
     params:
       repository: halfpipe
+      tag: version/version
+  - put: release
+    params:
+      globs:
+      - binaries/halfpipe_*
+      name: halfpipe/name
       tag: version/version
   - put: artifactory-darwin
     params:
