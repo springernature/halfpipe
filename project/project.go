@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/springernature/halfpipe/linters/filechecker"
-	//errors2 "github.com/springernature/halfpipe/linters/linterrors"
 
 	"os/exec"
 
@@ -50,9 +49,10 @@ var (
 )
 
 func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool, halfpipeFilenameOptions []string) (p Data, err error) {
-	var pathRelativeToGit func(string) (basePath string, rootName string, gitRootPath string, err error)
+	var pathRelativeToGit func(string, int) (basePath string, rootName string, gitRootPath string, err error)
 
-	pathRelativeToGit = func(path string) (basePath string, rootName string, gitRootPath string, err error) {
+	pathRelativeToGit = func(path string, depth int) (basePath string, rootName string, gitRootPath string, err error) {
+		maxDepth := 50
 		if !strings.Contains(path, string(filepath.Separator)) {
 			return "", "", "", ErrNotInRepo
 		}
@@ -69,10 +69,10 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 			basePath, err := filepath.Rel(path, workingDir)
 			rootName := filepath.Base(path)
 			return basePath, rootName, path, err
-		case path == "/":
+		case path == "/" || depth == maxDepth:
 			return "", "", "", ErrNotInRepo
 		default:
-			return pathRelativeToGit(filepath.Join(path, ".."))
+			return pathRelativeToGit(filepath.Join(path, ".."), depth+1)
 		}
 	}
 
@@ -81,7 +81,7 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		return p, err
 	}
 
-	basePath, rootName, gitRootPath, err := pathRelativeToGit(workingDir)
+	basePath, rootName, gitRootPath, err := pathRelativeToGit(workingDir, 0)
 
 	if err != nil {
 		return p, err
