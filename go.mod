@@ -1,6 +1,6 @@
 module github.com/springernature/halfpipe
 
-go 1.17
+go 1.18
 
 require (
 	code.cloudfoundry.org/bytefmt v0.0.0-20210608160410-67692ebc98de // indirect

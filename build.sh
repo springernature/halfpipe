@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-go version | grep -q 'go1.17' || (
+go version | grep -q 'go1.18' || (
     go version
-    echo error: go1.17 required
+    echo error: go1.18 required
     exit 1
 )
 
