@@ -35,7 +35,7 @@ echo [4/5] e2e test
 (cd e2e; ./test.sh "${1-}")
 
 echo [5/5] staticcheck
-go install honnef.co/go/tools/cmd/staticcheck@latest
+go install honnef.co/go/tools/cmd/staticcheck@master
 staticcheck ./...
 
 echo Finished!
