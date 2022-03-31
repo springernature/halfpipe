@@ -134,11 +134,12 @@ jobs:
 
           # Build binaries
           cd halfpipe
-          GOOS=darwin go build -o halfpipe_darwin_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=darwin GOARCH=amd64 go build -o halfpipe_darwin_x86_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=darwin GOARCH=arm64 go build -o halfpipe_darwin_arm_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           GOOS=linux go build -o halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
           GOOS=windows go build -o halfpipe_windows_unsigned_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
 
-          cp halfpipe_darwin_$VERSION halfpipe_linux_$VERSION halfpipe_windows_unsigned_$VERSION.exe $ROOT/binaries
+          cp halfpipe_darwin_x86_$VERSION halfpipe_darwin_arm_$VERSION halfpipe_linux_$VERSION halfpipe_windows_unsigned_$VERSION.exe $ROOT/binaries
       inputs:
       - name: halfpipe
       - name: version
@@ -193,9 +194,12 @@ jobs:
       - binaries/halfpipe_*
       name: version/version
       tag: version/version
-  - put: artifactory-darwin
+  - put: artifactory-darwin-x86
     params:
-      file: binaries/halfpipe_darwin_*
+      file: binaries/halfpipe_darwin_x86_*
+  - put: artifactory-darwin-arm
+    params:
+      file: binaries/halfpipe_darwin_arm_*
   - put: artifactory-linux
     params:
       file: binaries/halfpipe_linux_*
