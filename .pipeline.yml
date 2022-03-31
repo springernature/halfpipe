@@ -193,6 +193,32 @@ jobs:
         SIGN_KEY: ((halfpipe-cli.sign_key))
         SIGN_KEY_PWD: ((halfpipe-cli.sign_key_pwd))
         WTF: ((halfpipe-cli.whats-this))
+  - task: Unversal Binary
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/build-cctools
+          tag: stable
+          username: _json_key
+      run:
+        path: /bin/sh
+        args:
+          - -ec
+          - |
+            export ROOT=`pwd`
+            export VERSION="$(cat version/version)"
+
+            cd $ROOT/binaries
+            lipo -create -output halfpipe_darwin_$VERSION halfpipe_darwin_x86_$VERSION halfpipe_darwin_arm_$VERSION
+            rm -f halfpipe_darwin_x86_$VERSION halfpipe_darwin_arm_$VERSION
+      inputs:
+        - name: version
+        - name: binaries
+      outputs:
+        - name: binaries
   - put: halfpipe
     params:
       repository: halfpipe
@@ -203,12 +229,9 @@ jobs:
       - binaries/halfpipe_*
       name: version/version
       tag: version/version
-  - put: artifactory-darwin-x86
+  - put: artifactory-darwin
     params:
-      file: binaries/halfpipe_darwin_x86_*
-  - put: artifactory-darwin-arm
-    params:
-      file: binaries/halfpipe_darwin_arm_*
+      file: binaries/halfpipe_darwin_*
   - put: artifactory-linux
     params:
       file: binaries/halfpipe_linux_*
