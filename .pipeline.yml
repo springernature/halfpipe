@@ -25,13 +25,22 @@ resources:
     file: version
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
-- name: artifactory-darwin
+- name: artifactory-darwin-x86
   type: artifactory
   check_every: 24h
   source:
     endpoint: https://springernature.jfrog.io/springernature
     password: ((artifactory.password))
-    regex: halfpipe_darwin_(?<version>.*)
+    regex: halfpipe_darwin_x86_(?<version>.*)
+    repository: /halfpipe
+    username: ((artifactory.username))
+- name: artifactory-darwin-arm
+  type: artifactory
+  check_every: 24h
+  source:
+    endpoint: https://springernature.jfrog.io/springernature
+    password: ((artifactory.password))
+    regex: halfpipe_darwin_arm_(?<version>.*)
     repository: /halfpipe
     username: ((artifactory.username))
 - name: artifactory-windows
