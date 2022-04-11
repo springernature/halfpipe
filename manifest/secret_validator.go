@@ -24,10 +24,6 @@ var InvalidSecretActionsError = func(secret, fieldName string) error {
 	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((/path/to/mapName keyName))", secret, fieldName)
 }
 
-var ReservedSecretNameError = func(secret, fieldName, reservedName string) error {
-	return fmt.Errorf("'%s' at '%s' uses a reserved name ('%s') as key name. Reserved keywords are: %v", secret, fieldName, reservedName, reservedKeyNames)
-}
-
 type SecretValidator interface {
 	Validate(Manifest) []error
 }
