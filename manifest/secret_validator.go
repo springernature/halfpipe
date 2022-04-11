@@ -47,7 +47,7 @@ func (s secretValidator) getRealFieldName(fieldName string, jsonTag string) stri
 	return strings.Split(jsonTag, ",")[0]
 }
 
-func (s secretValidator) validate(i interface{}, fieldName string, secretTag string, errs *[]error) {
+func (s secretValidator) validate(i interface{}, fieldName string, secretTag string, errs *[]error, platform Platform) {
 	v := reflect.ValueOf(i)
 
 	switch v.Type() {
@@ -81,47 +81,47 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				realFieldName = fmt.Sprintf("%s.%s", fieldName, s.getRealFieldName(name, jsonTag))
 			}
 
-			s.validate(field.Interface(), realFieldName, secretTag, errs)
+			s.validate(field.Interface(), realFieldName, secretTag, errs, platform)
 		}
 
 	case reflect.TypeOf(TaskList{}):
 		for i, elem := range v.Interface().(TaskList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 	case reflect.TypeOf(TriggerList{}):
 		for i, elem := range v.Interface().(TriggerList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 	case reflect.TypeOf(Parallel{}):
 		for i, elem := range v.Interface().(Parallel).Tasks {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 	case reflect.TypeOf(Sequence{}):
 		for i, elem := range v.Interface().(Sequence).Tasks {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 	case reflect.TypeOf([]string{"stringArray"}):
 		for i, elem := range v.Interface().([]string) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 
 	case reflect.TypeOf(FeatureToggles{}):
 		for i, elem := range v.Interface().(FeatureToggles) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
-			s.validate(elem, realFieldName, secretTag, errs)
+			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 
 	case reflect.TypeOf(Vars{}):
 		for key, value := range v.Interface().(Vars) {
 			realKeyName := fmt.Sprintf("key %s[%s]", fieldName, key)
-			s.validate(key, realKeyName, "false", errs)
+			s.validate(key, realKeyName, "false", errs, "")
 			realValueName := fmt.Sprintf("%s[%s]", fieldName, key)
-			s.validate(value, realValueName, secretTag, errs)
+			s.validate(value, realValueName, secretTag, errs, platform)
 		}
 
 	case reflect.TypeOf("string"):
@@ -134,17 +134,25 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				return
 			}
 
-			splitSecret := strings.Split(secret, ".")
-			if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
-				*errs = append(*errs, InvalidSecretError(secret, fieldName))
-				return
+			if platform.IsConcourse() {
+				if !validateKeyValueSecret(secret) {
+					*errs = append(*errs, InvalidSecretError(secret, fieldName))
+					return
+				}
 			}
 
-			if len(splitSecret) == 2 {
-				keyName := strings.ReplaceAll(splitSecret[1], ")", "")
-				if s.IsReservedKeyName(keyName) {
-					*errs = append(*errs, ReservedSecretNameError(secret, fieldName, keyName))
-					return
+			if platform.IsActions() {
+				splitOnSpaceSecret := strings.Split(secret, " ")
+				if len(splitOnSpaceSecret) == 2 {
+					if !validateSecretAbsolutePath(secret) {
+						*errs = append(*errs, InvalidSecretError(secret, fieldName))
+						return
+					}
+				} else {
+					if !validateKeyValueSecret(secret) {
+						*errs = append(*errs, InvalidSecretError(secret, fieldName))
+						return
+					}
 				}
 			}
 		}
@@ -161,12 +169,12 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 
 		for ni, success := range notifications.OnSuccess {
 			fieldName := fmt.Sprintf("%s.on_success[%d]", fieldName, ni)
-			s.validate(success, fieldName, secretTag, errs)
+			s.validate(success, fieldName, secretTag, errs, platform)
 		}
 
 		for ni, success := range notifications.OnFailure {
 			fieldName := fmt.Sprintf("%s.on_failure[%d]", fieldName, ni)
-			s.validate(success, fieldName, secretTag, errs)
+			s.validate(success, fieldName, secretTag, errs, platform)
 		}
 		return
 
@@ -176,9 +184,28 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 
 }
 
+func validateKeyValueSecret(secret string) bool {
+	splitSecret := strings.Split(secret, ".")
+	if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
+
+		return false
+	}
+
+	return true
+}
+
+func validateSecretAbsolutePath(secret string) bool {
+	splitSecret := strings.Split(secret, " ")
+
+	prefix := strings.HasPrefix(splitSecret[0], "((/")
+	containsSlash := strings.Contains(splitSecret[1], "/")
+
+	return prefix && !containsSlash
+}
+
 func (s secretValidator) Validate(man Manifest) (errors []error) {
 	var errs []error
-	s.validate(man, "", "", &errs)
+	s.validate(man, "", "", &errs, man.Platform)
 	return errs
 }
 

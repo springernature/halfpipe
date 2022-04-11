@@ -12,6 +12,7 @@ tasks:
     FOO: foo
     BAR: bar
     SECRET1: ((something.cool))
+    CUSTOM_PATH: ((/random/secret key))
     SECRET2: ((something.cooler))
     SHARED_SECRET: ((halfpipe-slack.token))
   timeout: 1h2m

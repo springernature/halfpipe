@@ -34,6 +34,7 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
+          /random/secret key | _random_secret_key ;
           springernature/data/halfpipe-team/something cool | something_cool ;
           springernature/data/halfpipe-team/something cooler | something_cooler ;
           springernature/data/shared/halfpipe-slack token | halfpipe-slack_token ;
@@ -49,6 +50,7 @@ jobs:
         args: -c "cd e2e/actions/run; \foo"
       env:
         BAR: bar
+        CUSTOM_PATH: ${{ steps.secrets.outputs._random_secret_key }}
         FOO: foo
         SECRET1: ${{ steps.secrets.outputs.something_cool }}
         SECRET2: ${{ steps.secrets.outputs.something_cooler }}

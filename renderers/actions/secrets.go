@@ -29,16 +29,15 @@ var githubSecrets = struct {
 }
 
 type Secret struct {
-	vaultMap   string
-	vaultField string
-	outputVar  string
+	vaultPath string
+	outputVar string
 }
 
 func (s *Secret) actionsVar() string {
 	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar)
 }
 
-func (s *Secret) isShared() bool {
+func isShared(s string) bool {
 	return map[string]bool{
 		"PPG-coco-gateway":   true,
 		"artifactory":        true,
@@ -51,33 +50,48 @@ func (s *Secret) isShared() bool {
 		"halfpipe-ml-deploy": true,
 		"halfpipe-semver":    true,
 		"halfpipe-slack":     true,
-	}[s.vaultMap]
+	}[s]
 }
 
-func toSecret(s string) *Secret {
-	if !isSecret(s) {
-		return nil
+func toSecret(s string, team string) *Secret {
+
+	if isKeyValueSecret(s) {
+		parts := strings.Split(s[2:len(s)-2], ".")
+		if isShared(parts[0]) {
+			team = "shared"
+		}
+		return &Secret{
+			vaultPath: fmt.Sprintf("springernature/data/%s/%s %s", team, parts[0], parts[1]),
+			outputVar: parts[0] + "_" + parts[1],
+		}
 	}
-	parts := strings.Split(s[2:len(s)-2], ".")
-	return &Secret{
-		vaultMap:   parts[0],
-		vaultField: parts[1],
-		outputVar:  parts[0] + "_" + parts[1],
+
+	if isAbsolutePathSecret(s) {
+		s := s[2 : len(s)-2]
+		ov := strings.ReplaceAll(s, "/", "_")
+		ov = strings.ReplaceAll(ov, " ", "_")
+
+		return &Secret{
+			vaultPath: s,
+			outputVar: ov,
+		}
 	}
+
+	return nil
 }
 
-func isSecret(s string) bool {
+func isAbsolutePathSecret(s string) bool {
+	return len(strings.Split(s, " ")) == 2 && strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
+}
+
+func isKeyValueSecret(s string) bool {
 	return len(strings.Split(s, ".")) == 2 && strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
 }
 
-func secretsToActionsSecret(secrets []*Secret, team string) string {
+func secretsToActionsSecret(secrets []*Secret) string {
 	uniqueSecrets := map[string]string{}
 	for _, s := range secrets {
-		dir := team
-		if s.isShared() {
-			dir = "shared"
-		}
-		x := fmt.Sprintf("springernature/data/%s/%s %s | %s ;\n", dir, s.vaultMap, s.vaultField, s.outputVar)
+		x := fmt.Sprintf("%s | %s ;\n", s.vaultPath, s.outputVar)
 		uniqueSecrets[s.outputVar] = x
 	}
 
@@ -101,7 +115,7 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 			{"roleId", "${{ env.VAULT_ROLE_ID }}"},
 			{"secretId", "${{ env.VAULT_SECRET_ID }}"},
 			{"exportEnv", false},
-			{"secrets", secretsToActionsSecret(secrets, team)},
+			{"secrets", secretsToActionsSecret(secrets)},
 		},
 	}
 }
@@ -112,7 +126,7 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	for _, step := range steps {
 		newWith := With{}
 		for _, item := range step.With {
-			if s := toSecret(fmt.Sprintf("%s", item.Value)); s != nil {
+			if s := toSecret(fmt.Sprintf("%s", item.Value), team); s != nil {
 				secrets = append(secrets, s)
 				item.Value = s.actionsVar()
 			}
@@ -120,7 +134,7 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 		}
 		step.With = newWith
 		for k, v := range step.Env {
-			if s := toSecret(v); s != nil {
+			if s := toSecret(v, team); s != nil {
 				secrets = append(secrets, s)
 				step.Env[k] = s.actionsVar()
 			}

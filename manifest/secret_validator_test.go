@@ -139,7 +139,7 @@ func TestRun(t *testing.T) {
 				Vars: map[string]string{
 					"ok":         "((super.ok))",
 					"((not.ok))": "blurgh",
-					"notok":      "((something.value))",
+					"notok":      "((something.valuex))",
 				},
 				SaveArtifacts: []string{
 					"ok",
@@ -150,14 +150,13 @@ func TestRun(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 7)
+	assert.Len(t, errors, 6)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].type"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].name"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].script"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].docker.image"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("key tasks[0].vars[((not.ok))]"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].save_artifacts[1]"))
-	assert.Contains(t, errors, manifest.ReservedSecretNameError("((something.value))", "tasks[0].vars[notok]", "value"))
 
 	good := manifest.Manifest{
 		Tasks: manifest.TaskList{
@@ -184,6 +183,31 @@ func TestRun(t *testing.T) {
 	}
 
 	assert.Len(t, secretValidator.Validate(good), 0)
+}
+
+func TestRunSecretAbsolutePath(t *testing.T) {
+	actionsRunTask := manifest.Manifest{
+		Platform: "actions",
+		Tasks: manifest.TaskList{
+			manifest.Run{
+				Type:   "run",
+				Script: "./path/to/script",
+				Docker: manifest.Docker{
+					Image:    "image",
+					Username: "((user.name))",
+					Password: "((/some/path key))",
+				},
+			},
+		},
+	}
+
+	errors := secretValidator.Validate(actionsRunTask)
+	assert.Len(t, errors, 0)
+
+	actionsRunTask.Platform = "concourse"
+
+	errors = secretValidator.Validate(actionsRunTask)
+	assert.Len(t, errors, 1)
 }
 
 func TestDockerPush(t *testing.T) {
