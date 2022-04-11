@@ -21,7 +21,7 @@ var InvalidSecretConcourseError = func(secret, fieldName string) error {
 }
 
 var InvalidSecretActionsError = func(secret, fieldName string) error {
-	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((/path/to/mapName keyName))", secret, fieldName)
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((/springernature/data/path/to/mapName keyName))", secret, fieldName)
 }
 
 type SecretValidator interface {
@@ -197,7 +197,7 @@ func validateKeyValueSecret(secret string) bool {
 func validateSecretAbsolutePath(secret string) bool {
 	splitSecret := strings.Split(secret, " ")
 
-	prefix := strings.HasPrefix(splitSecret[0], "((/")
+	prefix := strings.HasPrefix(splitSecret[0], "((/springernature/data/")
 	containsSlash := strings.Contains(splitSecret[1], "/")
 
 	return prefix && !containsSlash

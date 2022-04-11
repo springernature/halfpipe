@@ -195,7 +195,7 @@ func TestRunSecretAbsolutePath(t *testing.T) {
 				Docker: manifest.Docker{
 					Image:    "image",
 					Username: "((user.name))",
-					Password: "((/some/path key))",
+					Password: "((/springernature/data/path key))",
 				},
 				Vars: manifest.Vars{
 					"INVALID_SECRET": "((invalid))",
@@ -212,7 +212,7 @@ func TestRunSecretAbsolutePath(t *testing.T) {
 
 	errors = secretValidator.Validate(man)
 	assert.Len(t, errors, 2)
-	assert.Equal(t, manifest.InvalidSecretConcourseError("((/some/path key))", "tasks[0].docker.password"), errors[0])
+	assert.Equal(t, manifest.InvalidSecretConcourseError("((/springernature/data/path key))", "tasks[0].docker.password"), errors[0])
 	assert.Equal(t, manifest.InvalidSecretConcourseError("((invalid))", "tasks[0].vars[INVALID_SECRET]"), errors[1])
 }
 
