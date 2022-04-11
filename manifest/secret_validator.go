@@ -16,8 +16,12 @@ var UnsupportedSecretError = func(fieldName string) error {
 	return fmt.Errorf("'%s' is not allowed to contain a secret", fieldName)
 }
 
-var InvalidSecretError = func(secret, fieldName string) error {
-	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) with allowed characters [a-zA-Z0-9-_]", secret, fieldName)
+var InvalidSecretConcourseError = func(secret, fieldName string) error {
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName))", secret, fieldName)
+}
+
+var InvalidSecretActionsError = func(secret, fieldName string) error {
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((/path/to/mapName keyName))", secret, fieldName)
 }
 
 var ReservedSecretNameError = func(secret, fieldName, reservedName string) error {
@@ -136,7 +140,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 
 			if platform.IsConcourse() {
 				if !validateKeyValueSecret(secret) {
-					*errs = append(*errs, InvalidSecretError(secret, fieldName))
+					*errs = append(*errs, InvalidSecretConcourseError(secret, fieldName))
 					return
 				}
 			}
@@ -145,12 +149,12 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 				splitOnSpaceSecret := strings.Split(secret, " ")
 				if len(splitOnSpaceSecret) == 2 {
 					if !validateSecretAbsolutePath(secret) {
-						*errs = append(*errs, InvalidSecretError(secret, fieldName))
+						*errs = append(*errs, InvalidSecretActionsError(secret, fieldName))
 						return
 					}
 				} else {
 					if !validateKeyValueSecret(secret) {
-						*errs = append(*errs, InvalidSecretError(secret, fieldName))
+						*errs = append(*errs, InvalidSecretActionsError(secret, fieldName))
 						return
 					}
 				}

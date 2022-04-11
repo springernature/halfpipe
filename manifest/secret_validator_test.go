@@ -186,7 +186,7 @@ func TestRun(t *testing.T) {
 }
 
 func TestRunSecretAbsolutePath(t *testing.T) {
-	actionsRunTask := manifest.Manifest{
+	man := manifest.Manifest{
 		Platform: "actions",
 		Tasks: manifest.TaskList{
 			manifest.Run{
@@ -197,17 +197,23 @@ func TestRunSecretAbsolutePath(t *testing.T) {
 					Username: "((user.name))",
 					Password: "((/some/path key))",
 				},
+				Vars: manifest.Vars{
+					"INVALID_SECRET": "((invalid))",
+				},
 			},
 		},
 	}
 
-	errors := secretValidator.Validate(actionsRunTask)
-	assert.Len(t, errors, 0)
-
-	actionsRunTask.Platform = "concourse"
-
-	errors = secretValidator.Validate(actionsRunTask)
+	errors := secretValidator.Validate(man)
 	assert.Len(t, errors, 1)
+	assert.Equal(t, manifest.InvalidSecretActionsError("((invalid))", "tasks[0].vars[INVALID_SECRET]"), errors[0])
+
+	man.Platform = "concourse"
+
+	errors = secretValidator.Validate(man)
+	assert.Len(t, errors, 2)
+	assert.Equal(t, manifest.InvalidSecretConcourseError("((/some/path key))", "tasks[0].docker.password"), errors[0])
+	assert.Equal(t, manifest.InvalidSecretConcourseError("((invalid))", "tasks[0].vars[INVALID_SECRET]"), errors[1])
 }
 
 func TestDockerPush(t *testing.T) {
@@ -436,10 +442,10 @@ func TestBadKeys(t *testing.T) {
 
 	errors := secretValidator.Validate(bad)
 	assert.Len(t, errors, 4)
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[0].docker.password"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[0].vars[secret]"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].api"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].pre_promote[0].vars[SuperSecret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a))", "tasks[0].docker.password"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a.b.c))", "tasks[0].vars[secret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].api"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].pre_promote[0].vars[SuperSecret]"))
 }
 
 func TestArtifactConfig(t *testing.T) {
@@ -510,13 +516,13 @@ func TestBadKeysInParallel(t *testing.T) {
 
 	errors := secretValidator.Validate(bad)
 	assert.Len(t, errors, 8)
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[0][0].docker.password"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[0][0].vars[secret]"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].api"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].pre_promote[0].vars[SuperSecret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a))", "tasks[0][0].docker.password"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a.b.c))", "tasks[0][0].vars[secret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].api"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[0][1].pre_promote[0].vars[SuperSecret]"))
 
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a))", "tasks[1][0][0].docker.password"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((a.b.c))", "tasks[1][0][0].vars[secret]"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].api"))
-	assert.Contains(t, errors, manifest.InvalidSecretError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].pre_promote[0].vars[SuperSecret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a))", "tasks[1][0][0].docker.password"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((a.b.c))", "tasks[1][0][0].vars[secret]"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].api"))
+	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].pre_promote[0].vars[SuperSecret]"))
 }
