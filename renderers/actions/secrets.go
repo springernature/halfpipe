@@ -30,11 +30,16 @@ var githubSecrets = struct {
 
 type Secret struct {
 	vaultPath string
-	outputVar string
 }
 
 func (s *Secret) actionsVar() string {
-	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar)
+	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar())
+}
+
+func (s *Secret) outputVar() string {
+	ov := strings.ReplaceAll(s.vaultPath, "/", "_")
+	ov = strings.ReplaceAll(ov, " ", "_")
+	return ov
 }
 
 func isShared(s string) bool {
@@ -55,44 +60,48 @@ func isShared(s string) bool {
 
 func toSecret(s string, team string) *Secret {
 
-	if isKeyValueSecret(s) {
-		parts := strings.Split(s[2:len(s)-2], ".")
+	if !isSecret(s) {
+		return nil
+	}
+
+	secretValue := s[2 : len(s)-2]
+
+	if isKeyValueSecret(secretValue) {
+		parts := strings.Split(secretValue, ".")
 		if isShared(parts[0]) {
 			team = "shared"
 		}
 		return &Secret{
-			vaultPath: fmt.Sprintf("springernature/data/%s/%s %s", team, parts[0], parts[1]),
-			outputVar: parts[0] + "_" + parts[1],
+			vaultPath: fmt.Sprintf("/springernature/data/%s/%s %s", team, parts[0], parts[1]),
 		}
 	}
 
-	if isAbsolutePathSecret(s) {
-		s := s[2 : len(s)-2]
-		ov := strings.ReplaceAll(s, "/", "_")
-		ov = strings.ReplaceAll(ov, " ", "_")
-
+	if isAbsolutePathSecret(secretValue) {
 		return &Secret{
-			vaultPath: s,
-			outputVar: ov,
+			vaultPath: secretValue,
 		}
 	}
 
 	return nil
 }
 
+func isSecret(s string) bool {
+	return strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
+}
+
 func isAbsolutePathSecret(s string) bool {
-	return len(strings.Split(s, " ")) == 2 && strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
+	return len(strings.Split(s, " ")) == 2
 }
 
 func isKeyValueSecret(s string) bool {
-	return len(strings.Split(s, ".")) == 2 && strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
+	return len(strings.Split(s, ".")) == 2
 }
 
 func secretsToActionsSecret(secrets []*Secret) string {
 	uniqueSecrets := map[string]string{}
 	for _, s := range secrets {
-		x := fmt.Sprintf("%s | %s ;\n", s.vaultPath, s.outputVar)
-		uniqueSecrets[s.outputVar] = x
+		x := fmt.Sprintf("%s | %s ;\n", s.vaultPath, s.outputVar())
+		uniqueSecrets[s.outputVar()] = x
 	}
 
 	var secs []string

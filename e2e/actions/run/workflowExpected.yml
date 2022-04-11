@@ -35,9 +35,9 @@ jobs:
         exportEnv: false
         secrets: |
           /random/secret key | _random_secret_key ;
-          springernature/data/halfpipe-team/something cool | something_cool ;
-          springernature/data/halfpipe-team/something cooler | something_cooler ;
-          springernature/data/shared/halfpipe-slack token | halfpipe-slack_token ;
+          /springernature/data/halfpipe-team/something cool | _springernature_data_halfpipe-team_something_cool ;
+          /springernature/data/halfpipe-team/something cooler | _springernature_data_halfpipe-team_something_cooler ;
+          /springernature/data/shared/halfpipe-slack token | _springernature_data_shared_halfpipe-slack_token ;
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -52,9 +52,9 @@ jobs:
         BAR: bar
         CUSTOM_PATH: ${{ steps.secrets.outputs._random_secret_key }}
         FOO: foo
-        SECRET1: ${{ steps.secrets.outputs.something_cool }}
-        SECRET2: ${{ steps.secrets.outputs.something_cooler }}
-        SHARED_SECRET: ${{ steps.secrets.outputs.halfpipe-slack_token }}
+        SECRET1: ${{ steps.secrets.outputs._springernature_data_halfpipe-team_something_cool }}
+        SECRET2: ${{ steps.secrets.outputs._springernature_data_halfpipe-team_something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs._springernature_data_shared_halfpipe-slack_token }}
   run__bash_-c__echo_hello_:
     name: run \bash -c "echo hello"
     needs:

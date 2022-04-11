@@ -90,8 +90,8 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/data/shared/artifactory password | artifactory_password ;
-          springernature/data/shared/artifactory username | artifactory_username ;
+          /springernature/data/shared/artifactory password | _springernature_data_shared_artifactory_password ;
+          /springernature/data/shared/artifactory username | _springernature_data_shared_artifactory_username ;
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -105,8 +105,8 @@ jobs:
       env:
         APP_NAME: my-app
         APP_VERSION: v1
-        ARTIFACTORY_PASSWORD: ${{ steps.secrets.outputs.artifactory_password }}
-        ARTIFACTORY_USERNAME: ${{ steps.secrets.outputs.artifactory_username }}
+        ARTIFACTORY_PASSWORD: ${{ steps.secrets.outputs._springernature_data_shared_artifactory_password }}
+        ARTIFACTORY_USERNAME: ${{ steps.secrets.outputs._springernature_data_shared_artifactory_username }}
         MARKLOGIC_HOST: ml.dev.com,ml.qa.com
         MARKLOGIC_PASSWORD: ""
         MARKLOGIC_USERNAME: foo

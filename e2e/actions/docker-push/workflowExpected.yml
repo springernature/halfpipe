@@ -95,7 +95,7 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          springernature/data/halfpipe-team/foo bar | foo_bar ;
+          /springernature/data/halfpipe-team/foo bar | _springernature_data_halfpipe-team_foo_bar ;
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -112,7 +112,7 @@ jobs:
       uses: docker/login-action@v1
       with:
         username: user
-        password: ${{ steps.secrets.outputs.foo_bar }}
+        password: ${{ steps.secrets.outputs._springernature_data_halfpipe-team_foo_bar }}
     - name: Build and push
       uses: docker/build-push-action@v2
       with:
