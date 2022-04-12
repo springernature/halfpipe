@@ -34,10 +34,10 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         exportEnv: false
         secrets: |
-          /springernature/data/halfpipe-team/something cool | _springernature_data_halfpipe-team_something_cool ;
-          /springernature/data/halfpipe-team/something cooler | _springernature_data_halfpipe-team_something_cooler ;
-          /springernature/data/random/secret key | _springernature_data_random_secret_key ;
-          /springernature/data/shared/halfpipe-slack token | _springernature_data_shared_halfpipe-slack_token ;
+          /springernature/data/halfpipe-team/something cool | springernature_data_halfpipe-team_something_cool ;
+          /springernature/data/halfpipe-team/something cooler | springernature_data_halfpipe-team_something_cooler ;
+          /springernature/data/random/secret key | springernature_data_random_secret_key ;
+          /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
     - name: Checkout code
       uses: actions/checkout@v2
       with:
@@ -50,11 +50,11 @@ jobs:
         args: -c "cd e2e/actions/run; \foo"
       env:
         BAR: bar
-        CUSTOM_PATH: ${{ steps.secrets.outputs._springernature_data_random_secret_key }}
+        CUSTOM_PATH: ${{ steps.secrets.outputs.springernature_data_random_secret_key }}
         FOO: foo
-        SECRET1: ${{ steps.secrets.outputs._springernature_data_halfpipe-team_something_cool }}
-        SECRET2: ${{ steps.secrets.outputs._springernature_data_halfpipe-team_something_cooler }}
-        SHARED_SECRET: ${{ steps.secrets.outputs._springernature_data_shared_halfpipe-slack_token }}
+        SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
+        SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
   run__bash_-c__echo_hello_:
     name: run \bash -c "echo hello"
     needs:

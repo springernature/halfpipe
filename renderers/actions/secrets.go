@@ -39,6 +39,7 @@ func (s *Secret) actionsVar() string {
 func (s *Secret) outputVar() string {
 	ov := strings.ReplaceAll(s.vaultPath, "/", "_")
 	ov = strings.ReplaceAll(ov, " ", "_")
+	ov = strings.TrimPrefix(ov, "_")
 	return ov
 }
 
