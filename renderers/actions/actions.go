@@ -46,9 +46,6 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 		if a.workingDir == "" {
 			a.workingDir = "."
 		}
-		if gitTrigger.GitCryptKey != "" {
-			w.Env["GIT_CRYPT_KEY"] = gitTrigger.GitCryptKey
-		}
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
 	return w.asYAML()
@@ -133,6 +130,9 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 		steps = append(steps, Step{
 			Name: "git-crypt unlock",
 			Run:  "git-crypt unlock <(echo $GIT_CRYPT_KEY | base64 -d)",
+			Env: Env{
+				"GIT_CRYPT_KEY": gitTrigger.GitCryptKey,
+			},
 		})
 	}
 	return steps

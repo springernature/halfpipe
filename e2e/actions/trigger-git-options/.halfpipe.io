@@ -5,7 +5,7 @@ platform: actions
 triggers:
 - type: git
   shallow: false
-  git_crypt_key: foobar
+  git_crypt_key: ((foo.bar))
 
 tasks:
 - type: run
