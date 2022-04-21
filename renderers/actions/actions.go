@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"fmt"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/renderers/shared"
 	"regexp"
@@ -24,11 +25,18 @@ var globalEnv = Env{
 }
 
 type Actions struct {
+	gitURI     string
 	workingDir string
 }
 
-func NewActions() Actions {
-	return Actions{}
+func NewActions(gitURI string) Actions {
+	return Actions{gitURI: gitURI}
+}
+
+func (a Actions) PlatformURL(man manifest.Manifest) string {
+	url := strings.Replace(a.gitURI, "git@github.com:", "https://github.com/", 1)
+	url = strings.TrimSuffix(url, ".git")
+	return fmt.Sprintf("%s/actions?query=workflow:%s", url, man.PipelineName())
 }
 
 func (a Actions) Render(man manifest.Manifest) (string, error) {

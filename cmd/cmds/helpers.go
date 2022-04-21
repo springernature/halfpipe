@@ -171,7 +171,7 @@ func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manife
 
 	var renderer halfpipe.Renderer
 	if man.Platform.IsActions() {
-		renderer = actions.NewActions()
+		renderer = actions.NewActions(projectData.GitURI)
 	} else {
 		renderer = concourse.NewPipeline(projectData.HalfpipeFilePath)
 	}

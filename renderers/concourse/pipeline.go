@@ -25,6 +25,10 @@ func NewPipeline(halfpipeFilePath string) Concourse {
 	}
 }
 
+func (c Concourse) PlatformURL(man manifest.Manifest) string {
+	return fmt.Sprintf("%s/teams/%s/pipelines/%s", config.ConcourseURL, man.Team, man.PipelineName())
+}
+
 const artifactsResourceName = "gcp-resource"
 const artifactsName = "artifacts"
 const artifactsOutDir = "artifacts-out"
@@ -352,7 +356,14 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 }
 
 func (c Concourse) Render(man manifest.Manifest) (string, error) {
-	return ToString(c.RenderAtcConfig(man))
+	atcConfig := c.RenderAtcConfig(man)
+	renderedPipeline, err := yaml.Marshal(atcConfig)
+	if err != nil {
+		return "", err
+	}
+
+	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
+	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
 func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
@@ -509,16 +520,6 @@ func convertVars(vars manifest.Vars) map[string]interface{} {
 		out[k] = v
 	}
 	return out
-}
-
-func ToString(pipeline atc.Config) (string, error) {
-	renderedPipeline, err := yaml.Marshal(pipeline)
-	if err != nil {
-		return "", err
-	}
-
-	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
-	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
 }
 
 func saveArtifactOnFailurePlan() atc.Step {
