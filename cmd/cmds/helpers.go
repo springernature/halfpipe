@@ -92,8 +92,10 @@ func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
 func renderResponse(r halfpipe.Response, filePath string) {
 	outputErrorsAndWarnings(nil, r.LintResults)
 
+	outputYaml := fmt.Sprintf("# Generated using halfpipe cli version %s\n%s", config.Version, r.ConfigYaml)
+
 	if filePath == "" {
-		fmt.Println(r.ConfigYaml)
+		fmt.Println(outputYaml)
 		return
 	}
 
@@ -109,7 +111,7 @@ func renderResponse(r halfpipe.Response, filePath string) {
 		printErr(err)
 		return
 	}
-	if err := ioutil.WriteFile(filePath, []byte(r.ConfigYaml), 0644); err != nil {
+	if err := ioutil.WriteFile(filePath, []byte(outputYaml), 0644); err != nil {
 		printErr(err)
 		return
 	}

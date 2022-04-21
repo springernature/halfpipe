@@ -1,8 +1,6 @@
 package actions
 
 import (
-	"fmt"
-	"github.com/springernature/halfpipe/config"
 	"gopkg.in/yaml.v2"
 )
 
@@ -92,5 +90,5 @@ func (w Workflow) asYAML() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("# Generated using halfpipe cli version %s\n%s", config.Version, output), nil
+	return string(output), nil
 }

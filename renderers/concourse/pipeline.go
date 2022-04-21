@@ -357,13 +357,11 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 func (c Concourse) Render(man manifest.Manifest) (string, error) {
 	atcConfig := c.RenderAtcConfig(man)
-	renderedPipeline, err := yaml.Marshal(atcConfig)
+	pipelineYaml, err := yaml.Marshal(atcConfig)
 	if err != nil {
 		return "", err
 	}
-
-	versionComment := fmt.Sprintf("# Generated using halfpipe cli version %s", config.Version)
-	return fmt.Sprintf("%s\n%s", versionComment, renderedPipeline), nil
+	return string(pipelineYaml), nil
 }
 
 func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
