@@ -115,7 +115,7 @@ then
 fi
 `
 
-func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, basePath string) []string {
+func runScriptArgs(task manifest.Run, man manifest.Manifest, enableWarningMessages bool, basePath string) []string {
 
 	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
@@ -124,11 +124,10 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, checkForBash bool, 
 
 	var out []string
 
-	if checkForBash {
-		out = append(out, warningMissingBash)
+	if enableWarningMessages {
+		out = append(out, warningMissingBash, warningAlpineImage)
 	}
 
-	out = append(out, warningAlpineImage)
 	if len(task.SaveArtifacts) != 0 || len(task.SaveArtifactsOnFailure) != 0 {
 		out = append(out, `copyArtifact() {
   ARTIFACT=$1

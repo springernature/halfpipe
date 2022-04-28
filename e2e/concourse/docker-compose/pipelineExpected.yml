@@ -35,21 +35,10 @@ jobs:
         args:
         - -c
         - |
-          if [ -e /etc/alpine-release ]
-          then
-            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-            echo "There is a known issue where DNS resolving does not work as expected"
-            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-            echo "we recommend debian:buster-slim as an alternative"
-            echo ""
-            echo ""
-          fi
-
           export GIT_REVISION=`cat ../../../.git/ref`
 
-          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose  run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose run --quiet-pull --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e DOCKER_HOST="${DIND_HOST}" -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -100,21 +89,10 @@ jobs:
         args:
         - -c
         - |
-          if [ -e /etc/alpine-release ]
-          then
-            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
-            echo "There is a known issue where DNS resolving does not work as expected"
-            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
-            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
-            echo "we recommend debian:buster-slim as an alternative"
-            echo ""
-            echo ""
-          fi
-
           export GIT_REVISION=`cat ../../../.git/ref`
 
-          \docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-          docker-compose -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose -f custom-docker-compose.yml run --quiet-pull --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e DOCKER_HOST="${DIND_HOST}" -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -136,4 +114,3 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-

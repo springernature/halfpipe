@@ -35,7 +35,7 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 }
 
 func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) string {
-	envStrings := []string{"-e GIT_REVISION"}
+	envStrings := []string{"-e GIT_REVISION", `-e DOCKER_HOST="${DIND_HOST}"`}
 	for key := range task.Vars {
 		if key == "GCR_PRIVATE_KEY" {
 			continue
@@ -54,12 +54,12 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 
 	composeFileOption := ""
 	if task.ComposeFile != "docker-compose.yml" {
-		composeFileOption = "-f " + task.ComposeFile
+		composeFileOption = " -f " + task.ComposeFile
 	}
 	envOption := strings.Join(envStrings, " ")
 	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
-	composeCommand := fmt.Sprintf("docker-compose %s run --use-aliases %s %s %s",
+	composeCommand := fmt.Sprintf("docker-compose%s run --quiet-pull --use-aliases %s %s %s",
 		composeFileOption,
 		envOption,
 		volumeOption,
@@ -70,7 +70,7 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, task.Command)
 	}
 
-	return fmt.Sprintf(`\docker login -u _json_key -p "$GCR_PRIVATE_KEY" https://eu.gcr.io
-%s
-`, composeCommand)
+	loginCommand := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`
+	return fmt.Sprintf("%s\n%s\n", loginCommand, composeCommand)
+	return fmt.Sprintf("%s\n%s\n", loginCommand, composeCommand)
 }
