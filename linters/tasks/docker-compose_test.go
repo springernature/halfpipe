@@ -15,6 +15,10 @@ services:
   app:
     image: appropriate/curl`
 
+var invalidDockerCompose = `
+app:
+  image: appropriate/curl`
+
 func TestDockerCompose_Happy(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
@@ -68,6 +72,15 @@ func TestDockerComposeRetries(t *testing.T) {
 	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: 5}, fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
+}
+
+func TestDockerComposeWithoutServicesKey(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("docker-compose.yml", []byte(invalidDockerCompose), 0777)
+
+	_, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml"}, fs)
+	assert.Len(t, warnings, 1)
+	assert.Contains(t, warnings, linterrors.DeprecatedDockerComposeVersionError{})
 }
 
 func TestLintDockerComposeWhenFileIsGarbage(t *testing.T) {

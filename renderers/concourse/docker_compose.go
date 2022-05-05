@@ -72,5 +72,4 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 
 	loginCommand := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`
 	return fmt.Sprintf("%s\n%s\n", loginCommand, composeCommand)
-	return fmt.Sprintf("%s\n%s\n", loginCommand, composeCommand)
 }
