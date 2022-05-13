@@ -147,7 +147,7 @@ jobs:
           eu.gcr.io/halfpipe-io/blah:latest
           eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@v1
+      uses: peter-evans/repository-dispatch@v2
       with:
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
         event-type: docker-push:eu.gcr.io/halfpipe-io/blah
