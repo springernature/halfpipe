@@ -1,0 +1,198 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: for-dependabot-to-check
+"on":
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+concurrency: ${{ github.workflow }}
+jobs:
+  run__exit_1:
+    name: run \exit 1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: run \exit 1
+      uses: docker://eu.gcr.io/halfpipe-io/blah:nonexistent
+      with:
+        entrypoint: /bin/sh
+        args: -c "cd .; \exit 1"
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: yukin01/slack-bot-action@v0.0.4
+      with:
+        status: ${{ job.status }}
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        channel: '#halfpipe-dev'
+        text: ""
+  deploy-cf:
+    name: deploy-cf
+    needs:
+    - run__exit_1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.2.0
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: Push
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: cf-space
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: .
+        command: halfpipe-push
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Check
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: cf-space
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: .
+        command: halfpipe-check
+    - name: Promote
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: cf-space
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: .
+        command: halfpipe-promote
+    - name: Cleanup
+      if: always()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: cf-space
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: .
+        command: halfpipe-cleanup
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: yukin01/slack-bot-action@v0.0.4
+      with:
+        status: ${{ job.status }}
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        channel: '#halfpipe-dev'
+        text: ""
+  docker-push:
+    name: docker-push
+    needs:
+    - deploy-cf
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: e2e/actions/docker-push/Dockerfile
+        push: true
+        tags: |
+          eu.gcr.io/halfpipe-io/blah:latest
+          eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@v1
+      with:
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+        event-type: docker-push:eu.gcr.io/halfpipe-io/blah
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: yukin01/slack-bot-action@v0.0.4
+      with:
+        status: ${{ job.status }}
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        channel: '#halfpipe-dev'
+        text: ""
+  docker-compose:
+    name: docker-compose
+    needs:
+    - docker-push
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: docker-compose
+      run: |-
+        docker-compose -f e2e/actions/docker-compose/docker-compose.yml pull
+        docker-compose -f e2e/actions/docker-compose/docker-compose.yml run \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          app
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: yukin01/slack-bot-action@v0.0.4
+      with:
+        status: ${{ job.status }}
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        channel: '#halfpipe-dev'
+        text: ""
