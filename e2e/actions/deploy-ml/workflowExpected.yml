@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
@@ -50,7 +50,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
@@ -93,7 +93,7 @@ jobs:
           /springernature/data/shared/artifactory password | springernature_data_shared_artifactory_password ;
           /springernature/data/shared/artifactory username | springernature_data_shared_artifactory_username ;
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}

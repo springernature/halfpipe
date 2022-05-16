@@ -39,7 +39,7 @@ jobs:
           /springernature/data/random/secret key | springernature_data_random_secret_key ;
           /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
@@ -63,7 +63,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}

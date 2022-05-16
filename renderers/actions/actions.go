@@ -124,7 +124,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
-		Uses: "actions/checkout@v2",
+		Uses: "actions/checkout@v3",
 		With: With{
 			{"submodules", "recursive"},
 			{"ssh-key", githubSecrets.GitHubPrivateKey},

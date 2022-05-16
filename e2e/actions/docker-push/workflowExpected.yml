@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
@@ -53,7 +53,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
@@ -97,7 +97,7 @@ jobs:
         secrets: |
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}

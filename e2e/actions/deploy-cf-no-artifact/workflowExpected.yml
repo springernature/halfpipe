@@ -36,7 +36,7 @@ jobs:
           /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
           /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
