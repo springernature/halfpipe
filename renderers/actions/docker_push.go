@@ -11,7 +11,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 
 	steps = append(steps, Step{
 		Name: "Build and push",
-		Uses: "docker/build-push-action@v2",
+		Uses: "docker/build-push-action@v3",
 		With: With{
 			{"context", path.Join(a.workingDir, task.BuildPath)},
 			{"file", path.Join(a.workingDir, task.DockerfilePath)},
