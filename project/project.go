@@ -57,15 +57,15 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 			return "", "", "", ErrNotInRepo
 		}
 
-		exists, e := c.Fs.DirExists(filepath.Join(path, ".git"))
+		isGitWorkingTreeRoot, e := c.Fs.Exists(filepath.Join(path, ".git"))
 		if e != nil {
 			return "", "", "", e
 		}
 
 		switch {
-		case exists && path == workingDir:
+		case isGitWorkingTreeRoot && path == workingDir:
 			return "", filepath.Base(path), path, nil
-		case exists:
+		case isGitWorkingTreeRoot:
 			basePath, err := filepath.Rel(path, workingDir)
 			rootName := filepath.Base(path)
 			return basePath, rootName, path, err

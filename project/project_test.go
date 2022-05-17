@@ -27,9 +27,20 @@ func TestErrorsIfGitNotFoundOnPath(t *testing.T) {
 
 func TestErrorsIfNotInGitRepo(t *testing.T) {
 	pr := testProjectResolver()
+	pr.Fs.Create("/project/root/.halfpipe.io")
 
 	_, err := pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
 	assert.Equal(t, ErrNotInRepo, err)
+
+	// .git directory
+	pr.Fs.MkdirAll("/project/root/.git", 0777)
+	_, err = pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
+	assert.Empty(t, err)
+
+	// .git file
+	pr.Fs.Create("/project/root/.git")
+	_, err = pr.Parse("/project/root", false, config.HalfpipeFilenameOptions)
+	assert.Empty(t, err)
 }
 
 func TestErrorsIfNoGitOriginConfigured(t *testing.T) {
