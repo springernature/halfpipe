@@ -156,6 +156,15 @@ jobs:
       with:
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
         event-type: docker-push:eu.gcr.io/halfpipe-io/blah
+    - name: Summary
+      run: |-
+        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[eu.gcr.io/halfpipe-io/blah](https://eu.gcr.io/halfpipe-io/blah)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Tags:" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/blah:latest" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4
