@@ -103,6 +103,11 @@ jobs:
         testDomain: springernature.app
         appPath: .
         command: halfpipe-promote
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: always()
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable

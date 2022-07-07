@@ -110,6 +110,15 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		}),
 	})
 
+	sRun := []string{}
+	sRun = append(sRun, `echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY`)
+	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)
+	sRun = append(sRun, `echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY`)
+	deploySteps = append(deploySteps, Step{
+		Name: "Summary",
+		Run:  strings.Join(sRun, "\n"),
+	})
+
 	deploySteps = append(deploySteps, Step{
 		Name: "Cleanup",
 		If:   "always()",
