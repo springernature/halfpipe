@@ -1,7 +1,10 @@
 package actions
 
 import (
+	"fmt"
 	"gopkg.in/yaml.v2"
+	"sort"
+	"strings"
 )
 
 type Workflow struct {
@@ -83,6 +86,15 @@ type Steps []Step
 type With yaml.MapSlice
 
 type Env map[string]string
+
+func (e Env) ToString() string {
+	out := []string{}
+	for k, v := range e {
+		out = append(out, fmt.Sprintf("%s=%v\n", k, v))
+	}
+	sort.Strings(out)
+	return strings.Join(out, "")
+}
 
 func (w Workflow) asYAML() (string, error) {
 	yaml.FutureLineWrap()

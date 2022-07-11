@@ -73,6 +73,15 @@ jobs:
         tags: |
           eu.gcr.io/halfpipe-io/someImage:latest
           eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
+        build-args: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          BUILD_VERSION=2.${{ github.run_number }}.0
+          GIT_REVISION=${{ github.sha }}
+          RUNNING_IN_CI=true
+          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v2
       with:
@@ -131,9 +140,17 @@ jobs:
         tags: |
           dockerhubusername/someImage:latest
           dockerhubusername/someImage:${{ env.GIT_REVISION }}
-      env:
-        BAR: bar
-        FOO: foo
+        build-args: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          BAR=bar
+          BUILD_VERSION=2.${{ github.run_number }}.0
+          FOO=foo
+          GIT_REVISION=${{ github.sha }}
+          RUNNING_IN_CI=true
+          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v2
       with:

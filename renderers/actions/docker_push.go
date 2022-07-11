@@ -11,6 +11,13 @@ import (
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = dockerLogin(task.Image, task.Username, task.Password)
 	imgTags := tags(task)
+	buildArgs := Env{}
+	for k, v := range globalEnv {
+		buildArgs[k] = v
+	}
+	for k, v := range task.Vars {
+		buildArgs[k] = v
+	}
 
 	steps = append(steps, Step{
 		Name: "Build and push",
@@ -20,8 +27,8 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 			{"file", path.Join(a.workingDir, task.DockerfilePath)},
 			{"push", true},
 			{"tags", imgTags},
+			{"build-args", buildArgs.ToString()},
 		},
-		Env: Env(task.Vars),
 	})
 
 	steps = append(steps, repositoryDispatch(task.Image))
