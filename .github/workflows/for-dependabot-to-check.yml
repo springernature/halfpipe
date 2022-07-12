@@ -142,7 +142,52 @@ jobs:
       with:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-    - name: Build and push
+    - name: Build Image
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        file: e2e/actions/docker-push/Dockerfile
+        push: false
+        tags: |
+          eu.gcr.io/halfpipe-io/blah:latest
+          eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
+        build-args: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          BUILD_VERSION=2.${{ github.run_number }}.0
+          GIT_REVISION=${{ github.sha }}
+          RUNNING_IN_CI=true
+          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+    - name: gCloud Auth
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ secrets.EE_GCR_PRIVATE_KEY }}
+    - name: gCloud Setup
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: halfpipe-io
+        install_components: local-extract
+    - name: Scan image for vulnerabilities
+      run: |-
+        SEVERITY=$(echo "$SEVERITY" | tr '[:lower:]' '[:upper:]')
+        [[ "$SEVERITY" = "SKIP" ]] && echo 'Skipping vulnerability check' && exit 0
+        [[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"
+        [[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"
+        [[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"
+        gcloud artifacts docker images scan eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
+        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
+        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt
+        echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        cat /tmp/severities.txt | grep -v '^$' | sort | uniq -c >> $GITHUB_STEP_SUMMARY
+        echo '```' >> $GITHUB_STEP_SUMMARY
+        echo >> $GITHUB_STEP_SUMMARY
+        if grep -Exq "$SEVERITY" /tmp/severities.txt; then echo 'Failed vulnerability check' && exit 1; fi
+      env:
+        SEVERITY: CRITICAL
+    - name: Push Image
       uses: docker/build-push-action@v3
       with:
         context: .
