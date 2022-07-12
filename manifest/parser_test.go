@@ -45,7 +45,7 @@ triggers:
 - type: pipeline
   pipeline: a
   job: b
-  status: c 
+  status: c
 feature_toggles:
 - feature1
 - feature2
@@ -88,6 +88,7 @@ tasks:
   username: user
   password: pass
   image: golang:latest
+  image_scan_severity: ASD
   notifications:
     on_success:
     - asdf
@@ -114,7 +115,7 @@ tasks:
     FOO: fOo
     BAR: "1"
   deploy_artifact: target/dist/artifact.zip
-  pre_start: 
+  pre_start:
   - cf apps
   - cf events
   pre_promote:
@@ -166,13 +167,14 @@ tasks:
 - type: parallel
   tasks:
   - type: sequence
-    tasks: 
+    tasks:
     - type: run
       name: pr1
     - type: run
       name: pr2
 `)
 
+	fmt.Print(errs)
 	expected := Manifest{
 		Team:     "my team",
 		Pipeline: "my pipeline",
@@ -258,10 +260,11 @@ tasks:
 				},
 			},
 			DockerPush{
-				Name:     "docker push task",
-				Username: "user",
-				Password: "pass",
-				Image:    "golang:latest",
+				Name:              "docker push task",
+				Username:          "user",
+				Password:          "pass",
+				Image:             "golang:latest",
+				ImageScanSeverity: "ASD",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",
@@ -377,7 +380,7 @@ team: foo
 tasks:
 - type: run
   script: foo.sh
-  docker: 
+  docker:
     image: bash:latest
 - type: docker-compose
   unknown_field: wibble`,
@@ -414,7 +417,7 @@ platform: actions
 tasks:
 - type: run
   script: foo.sh
-  docker: 
+  docker:
     image: bash:latest
 - type: docker-compose
 `,
