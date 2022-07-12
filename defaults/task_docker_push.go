@@ -19,6 +19,10 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.DockerfilePath = defaults.Docker.FilePath
 	}
 
+	if original.ImageScanSeverity == "" {
+		updated.ImageScanSeverity = defaults.Docker.ImageScanSeverity
+	}
+
 	if original.Tag == "" {
 		if man.Platform.IsActions() || man.FeatureToggles.UpdatePipeline() {
 			updated.Tag = "version"

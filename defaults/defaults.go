@@ -44,9 +44,10 @@ var Concourse = Defaults{
 var Actions = Defaults{
 	ShallowClone: true,
 	Docker: DockerDefaults{
-		ComposeService: "app",
-		ComposeFile:    "docker-compose.yml",
-		FilePath:       "Dockerfile",
+		ComposeService:    "app",
+		ComposeFile:       "docker-compose.yml",
+		FilePath:          "Dockerfile",
+		ImageScanSeverity: "CRITICAL",
 	},
 
 	CF: CFDefaults{
