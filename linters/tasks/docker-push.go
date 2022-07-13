@@ -19,6 +19,15 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
 		if !matched {
 			errs = append(errs, linterrors.NewInvalidField("image", "must be specified as 'user/image' or 'registry/user/image'"))
+		} else {
+			// validate the team in repo directory only for halfpipe-io registry
+			// Taken from dockerLogin(task.Image, task.Username, task.Password)
+			// set registry if not docker hub by counting slashes
+			// docker hub format: repository:tag or user/repository:tag
+			// other registries:  another.registry/user/repository:tag
+			if strings.Count(docker.Image, "/") < 3 && strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
+				warnings = append(warnings, linterrors.NewInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpip-io/<team>/<imageName>'"))
+			}
 		}
 	}
 
