@@ -32,6 +32,10 @@ func TestSetsTheDockerFilePath(t *testing.T) {
 	assert.Equal(t, "Dockerfile", dockerPushDefaulter(manifest.DockerPush{}, manifest.Manifest{}, Concourse).DockerfilePath)
 }
 
+func TestSetsTheDockerImageScanSeverity(t *testing.T) {
+	assert.Equal(t, "CRITICAL", dockerPushDefaulter(manifest.DockerPush{}, manifest.Manifest{}, Actions).ImageScanSeverity)
+}
+
 func TestTag(t *testing.T) {
 	t.Run("when pipeline isn't versioned", func(t *testing.T) {
 		t.Run("when tag is empty, tag defaults to git", func(t *testing.T) {

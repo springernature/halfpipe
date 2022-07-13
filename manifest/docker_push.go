@@ -6,22 +6,23 @@ import (
 )
 
 type DockerPush struct {
-	Type             string
-	Name             string        `yaml:"name,omitempty"`
-	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Username         string        `yaml:"username,omitempty" secretAllowed:"true"`
-	Password         string        `yaml:"password,omitempty" secretAllowed:"true"`
-	Image            string        `yaml:"image,omitempty"`
-	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	RestoreArtifacts bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	Retries          int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
-	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
-	Tag              string        `json:"tag,omitempty" yaml:"tag,omitempty"`
-	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Type              string
+	Name              string        `yaml:"name,omitempty"`
+	ManualTrigger     bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Username          string        `yaml:"username,omitempty" secretAllowed:"true"`
+	Password          string        `yaml:"password,omitempty" secretAllowed:"true"`
+	Image             string        `yaml:"image,omitempty"`
+	ImageScanSeverity string        `json:"image_scan_severity,omitempty" yaml:"image_scan_severity,omitempty"`
+	Vars              Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	RestoreArtifacts  bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	Retries           int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess   bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications     Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Timeout           string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerfilePath    string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
+	BuildPath         string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+	Tag               string        `json:"tag,omitempty" yaml:"tag,omitempty"`
+	BuildHistory      int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
 func (r DockerPush) GetSecrets() map[string]string {

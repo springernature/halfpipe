@@ -267,6 +267,27 @@ func TestDockerPushRetries(t *testing.T) {
 	assert.Len(t, warnings, 0)
 }
 
+func TestDockerPushScanImageSeverity(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+	task := manifest.DockerPush{
+		Username:       "asd",
+		Password:       "asd",
+		Image:          "asd/asd",
+		DockerfilePath: "Dockerfile",
+	}
+
+	task.ImageScanSeverity = "asd"
+	errors, _ := LintDockerPushTask(task, emptyManifest, fs)
+	linterrors.AssertInvalidFieldInErrors(t, "image_scan_severity", errors)
+
+	task.ImageScanSeverity = "medium"
+	errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+	assert.Len(t, errors, 0)
+	assert.Len(t, warnings, 0)
+}
+
 func TestDockerPushTag(t *testing.T) {
 	t.Run("Alles ok with gitref", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}

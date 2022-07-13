@@ -18,6 +18,7 @@ tasks:
 - type: docker-push
   name: Push default
   image: eu.gcr.io/halfpipe-io/someImage
+  image_scan_severity: low
   restore_artifacts: true
 
 - type: docker-push

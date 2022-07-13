@@ -10,7 +10,6 @@ import (
 
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = dockerLogin(task.Image, task.Username, task.Password)
-	imgTags := tags(task)
 	buildArgs := Env{}
 	for k, v := range globalEnv {
 		buildArgs[k] = v
@@ -19,29 +18,24 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 		buildArgs[k] = v
 	}
 
-	steps = append(steps, Step{
-		Name: "Build and push",
-		Uses: "docker/build-push-action@v3",
-		With: With{
-			{"context", path.Join(a.workingDir, task.BuildPath)},
-			{"file", path.Join(a.workingDir, task.DockerfilePath)},
-			{"push", true},
-			{"tags", imgTags},
-			{"build-args", buildArgs.ToString()},
-		},
-	})
-
+	steps = append(steps, buildImage(a, task, buildArgs))
+	steps = append(steps, gcloudAuth(task)...)
+	steps = append(steps, scanImage(task))
+	steps = append(steps, pushImage(a, task, buildArgs))
 	steps = append(steps, repositoryDispatch(task.Image))
-	steps = append(steps, imageSummary(task.Image, imgTags))
+	steps = append(steps, imageSummary(task.Image, tags(task)))
 	return steps
 }
 
-func tags(task manifest.DockerPush) string {
-	tagVar := "${{ env.BUILD_VERSION }}"
+func buildVersion(task manifest.DockerPush) string {
+	buildVersion := "${{ env.BUILD_VERSION }}"
 	if task.Tag == "gitref" {
-		tagVar = "${{ env.GIT_REVISION }}"
+		buildVersion = "${{ env.GIT_REVISION }}"
 	}
-	return fmt.Sprintf("%s:latest\n%s:%s\n", task.Image, task.Image, tagVar)
+	return buildVersion
+}
+func tags(task manifest.DockerPush) string {
+	return fmt.Sprintf("%s:latest\n%s:%s\n", task.Image, task.Image, buildVersion(task))
 }
 
 func repositoryDispatch(eventName string) Step {
@@ -53,6 +47,81 @@ func repositoryDispatch(eventName string) Step {
 			{"event-type", "docker-push:" + eventName},
 		},
 	}
+}
+
+func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
+	step := Step{
+		Name: "Build Image",
+		Uses: "docker/build-push-action@v3",
+		With: With{
+			{"context", path.Join(a.workingDir, task.BuildPath)},
+			{"file", path.Join(a.workingDir, task.DockerfilePath)},
+			{"push", false},
+			{"tags", tags(task)},
+			{"build-args", buildArgs.ToString()},
+		},
+	}
+	return step
+}
+
+func gcloudAuth(task manifest.DockerPush) []Step {
+	steps := []Step{}
+	steps = append(steps, Step{
+		Name: "gCloud Auth",
+		Uses: "google-github-actions/auth@v0",
+		With: With{
+			{"credentials_json", githubSecrets.GCRPrivateKey},
+		},
+	})
+	steps = append(steps, Step{
+		Name: "gCloud Setup",
+		Uses: "google-github-actions/setup-gcloud@v0",
+		With: With{
+			{"project_id", "halfpipe-io"},
+			{"install_components", "local-extract"},
+		},
+	})
+	return steps
+}
+
+func scanImage(task manifest.DockerPush) Step {
+	run := []string{}
+	run = append(run, `SEVERITY=$(echo "$SEVERITY" | tr '[:lower:]' '[:upper:]')`)
+	run = append(run, `[[ "$SEVERITY" = "SKIP" ]] && echo 'Skipping vulnerability check' && exit 0`)
+	run = append(run, `[[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"`)
+	run = append(run, `[[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"`)
+	run = append(run, `[[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"`)
+	run = append(run, fmt.Sprintf(`gcloud artifacts docker images scan %s:%s --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt`, task.Image, buildVersion(task)))
+	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'`)
+	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt`)
+	run = append(run, `echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY`)
+	run = append(run, "echo '```' >> $GITHUB_STEP_SUMMARY")
+	run = append(run, `cat /tmp/severities.txt | grep -v '^$' | sort | uniq -c >> $GITHUB_STEP_SUMMARY`)
+	run = append(run, "echo '```' >> $GITHUB_STEP_SUMMARY")
+	run = append(run, `echo >> $GITHUB_STEP_SUMMARY`)
+	run = append(run, `if grep -Exq "$SEVERITY" /tmp/severities.txt; then echo 'Failed vulnerability check' && exit 1; fi`)
+
+	step := Step{
+		Name: "Scan image for vulnerabilities",
+		Run:  strings.Join(run, "\n"),
+		Env:  Env{"SEVERITY": task.ImageScanSeverity},
+	}
+	return step
+}
+
+func pushImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
+	step := Step{
+		Name: "Push Image",
+		Uses: "docker/build-push-action@v3",
+		With: With{
+			{"context", path.Join(a.workingDir, task.BuildPath)},
+			{"file", path.Join(a.workingDir, task.DockerfilePath)},
+			{"push", true},
+			{"tags", tags(task)},
+			{"build-args", buildArgs.ToString()},
+		},
+	}
+	return step
 }
 
 func imageSummary(img string, tags string) Step {

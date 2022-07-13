@@ -36,11 +36,12 @@ type CFDefaults struct {
 }
 
 type DockerDefaults struct {
-	Username       string
-	Password       string
-	FilePath       string
-	ComposeFile    string
-	ComposeService string
+	Username          string
+	Password          string
+	FilePath          string
+	ComposeFile       string
+	ComposeService    string
+	ImageScanSeverity string
 }
 
 type ArtifactoryDefaults struct {
