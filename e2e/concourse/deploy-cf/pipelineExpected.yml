@@ -23,6 +23,30 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
+  name: deploy to cf without any jazz with cf8
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - deploy to cf without any jazz
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    params:
+      appPath: git/e2e/concourse/deploy-cf
+      cliVersion: cf8
+      command: halfpipe-all
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 5m
+    put: halfpipe-all
+    resource: cf-dev-api-halfpipe-team-dev
+    timeout: 5m
+  serial: true
+
+- build_log_retention:
+    minimum_succeeded_builds: 1
   ensure:
     attempts: 2
     params:
@@ -38,7 +62,7 @@ jobs:
   - attempts: 2
     get: git
     passed:
-    - deploy to cf without any jazz
+    - deploy to cf without any jazz with cf8
     timeout: 15m
     trigger: true
   - attempts: 2
@@ -453,4 +477,3 @@ resources:
     space: dev
     username: michiel
   type: cf-resource
-

@@ -30,6 +30,20 @@ tasks:
       ENV4: ((another.secret))
 
   - type: deploy-cf
+    name: deploy to cf with cf8
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    space: dev
+    manifest: manifest.yml
+    deploy_artifact: foo.html
+    cli_version: cf8
+    vars:
+      ENV1: 1234
+      ENV2: ((secret.something))
+      ENV3: '{"a": "b", "c": "d"}'
+      ENV4: ((another.secret))
+
+  - type: deploy-cf
     name: deploy to cf with pre-promote
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))

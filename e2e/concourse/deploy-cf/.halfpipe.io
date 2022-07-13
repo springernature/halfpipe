@@ -19,6 +19,17 @@ tasks:
   cli_version: cf7
 
 - type: deploy-cf
+  name: deploy to cf without any jazz with cf8
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  cli_version: cf8
+
+- type: deploy-cf
   name: deploy to cf
   api: dev-api
   space: dev
