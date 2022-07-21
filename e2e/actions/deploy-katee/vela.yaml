@@ -1,0 +1,47 @@
+apiVersion: core.oam.dev/v1beta1
+kind: Application
+metadata:
+  name: ${KATEE_APPLICATION_NAME}
+  namespace: katee-${KATEE_TEAM}
+spec:
+
+  components:
+    - name: ${KATEE_APPLICATION_NAME}
+      type: snstateless
+      properties:
+        image: ${KATEE_APPLICATION_IMAGE}
+        ports:
+          - containerPort: 9080
+            name: web
+            protocol: http
+            servicePort: 9080
+        env:
+          - name: PROTOCOL
+            value: http
+          - name: REVIEWS_HOSTNAME
+            value: book-reviews
+          - name: DETAILS_HOSTNAME
+            value: book-details
+          - name: SERVICES_DOMAIN
+            value: apps.k8s.springernature.io
+          - name: BUILD_VERSION
+            value: ${BUILD_VERSION}
+          - name: VERY_SECRET
+            value: ${VERY_SECRET}
+          - name: GIT_REVISION
+            value: ${GIT_REVISION}
+          - name: BLAH
+            value: BLAH
+
+      traits:
+        - type: sningress
+          properties:
+            routes:
+              - route: ee-actions-test.apps.private.k8s.springernature.io
+                servicePort: 9080
+        - type: snprobe
+          properties:
+            readinessProbe:
+              httpGet:
+                path: /cabbage
+                port: 9080

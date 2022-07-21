@@ -148,6 +148,11 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t
+	case "deploy-katee":
+		t := DeployKatee{}
+		err = unmarshal(&t)
+		t.Type = ""
+		task = t
 	case "docker-push":
 		t := DockerPush{}
 		err = unmarshal(&t)

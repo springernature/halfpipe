@@ -18,6 +18,7 @@ type taskLinter struct {
 	Fs                              afero.Afero
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
 	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error)
+	lintDeployKateeTask             func(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error)
@@ -35,6 +36,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		Fs:                              fs,
 		lintRunTask:                     tasks.LintRunTask,
 		lintDeployCFTask:                tasks.LintDeployCFTask,
+		lintDeployKateeTask:             tasks.LintDeployKateeTask,
 		LintPrePromoteTask:              tasks.LintPrePromoteTask,
 		lintDockerPushTask:              tasks.LintDockerPushTask,
 		lintDockerComposeTask:           tasks.LintDockerComposeTask,
@@ -102,6 +104,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 				errs = append(errs, subErrors...)
 				warnings = append(warnings, subWarnings...)
 			}
+		case manifest.DeployKatee:
+			errs, warnings = linter.lintDeployKateeTask(task, man, linter.Fs)
 		case manifest.DockerPush:
 			errs, warnings = linter.lintDockerPushTask(task, man, linter.Fs)
 		case manifest.DockerCompose:

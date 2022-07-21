@@ -1,0 +1,39 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+name: pipeline-name
+"on":
+  push:
+    branches:
+      - main
+    paths:
+      - e2e/actions/deploy-cf**
+      - .github/workflows/pipeline-name.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/deploy-cf
+concurrency: ${{ github.workflow }}
+jobs:
+  katee-deploy:
+    uses: springernature/ee-github-actions/.github/workflows/katee-deploy-workflow.yml@main
+    secrets: inherit
+    with:
+      team: engineering-enablement
+      applicationName: book-product-page
+      buildVersion: 0.0.${{ github.run_number }}
+
+      # optional
+      imageScanSeverity: SKIP
+      applicationRoot: katee-app
+      environment: live
+      url: https://ee-test-actions.public.springernature.app
+      vaultEnvVars: |
+        springernature/data/engineering-enablement/cloudfoundry-test user | VERY_SECRET

@@ -8,9 +8,10 @@ import (
 
 func TestSetsCorrectTimeout(t *testing.T) {
 	input := manifest.TaskList{
+		manifest.DockerCompose{},
 		manifest.Update{},
 		manifest.Run{},
-		manifest.DockerCompose{},
+		manifest.DeployKatee{},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Run{},
@@ -43,9 +44,10 @@ func TestSetsCorrectTimeout(t *testing.T) {
 	}
 
 	expected := manifest.TaskList{
+		manifest.DockerCompose{Timeout: Concourse.Timeout},
 		manifest.Update{Timeout: Concourse.Timeout},
 		manifest.Run{Timeout: Concourse.Timeout},
-		manifest.DockerCompose{Timeout: Concourse.Timeout},
+		manifest.DeployKatee{Timeout: Concourse.Timeout},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Run{Timeout: Concourse.Timeout},

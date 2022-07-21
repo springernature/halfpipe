@@ -55,6 +55,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = task
 		case manifest.Run:
 			tt = t.runDefaulter(task, defaults)
+		case manifest.DeployKatee:
+			tt = task
 		case manifest.DockerCompose:
 			tt = t.dockerComposeDefaulter(task, defaults)
 		case manifest.DockerPush:
