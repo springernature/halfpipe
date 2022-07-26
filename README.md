@@ -33,9 +33,9 @@ The main pipeline is in [Concourse](https://concourse.halfpipe.io/teams/engineer
 
 It runs the build script on every commit to `main`.
 
-We also use (GitHub Actions)[https://github.com/springernature/halfpipe/actions] for dependabot and CodeQL scanning
+We also use [GitHub Actions](https://github.com/springernature/halfpipe/actions) for dependabot and CodeQL scanning
 
 
 # Releasing
 
-Releasing is triggered by manually bumping the version (major, minor or patch) in Concourse. Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A (GitHub release)[https://github.com/springernature/halfpipe/releases] is also created.
+Releasing is triggered by manually bumping the version (major, minor or patch) in Concourse. Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A [GitHub release])https://github.com/springernature/halfpipe/releases) is also created.
