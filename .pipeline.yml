@@ -1,3 +1,4 @@
+# fly -tee sp -p halfpipe-cli -c .pipeline.yml
 groups: []
 resources:
 - name: artifactory-linux

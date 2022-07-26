@@ -22,4 +22,20 @@ Halfpipe is built with Go
 
 ```
 ./build.sh
+
+# or if you don't have Go installed you can build in docker
+./docker-build.sh
 ```
+
+# CI
+
+The main pipeline is in [Concourse](https://concourse.halfpipe.io/teams/engineering-enablement/pipelines/halfpipe-cli)
+
+It runs the build script on every commit to `main`.
+
+We also use (GitHub Actions)[https://github.com/springernature/halfpipe/actions] for dependabot and CodeQL scanning
+
+
+# Releasing
+
+Releasing is triggered by manually bumping the version (major, minor or patch) in Concourse. Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A (GitHub release)[https://github.com/springernature/halfpipe/releases] is also created.
