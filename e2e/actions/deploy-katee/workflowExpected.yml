@@ -155,3 +155,11 @@ jobs:
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.katee-service-account_key }}
         KATEE_TEAM: halfpipe-team
         PUBLISHED_VERSION: ${{ env.BUILD_VERSION }}
+    - name: 'Notify slack #ee-re (failure)'
+      if: failure()
+      uses: yukin01/slack-bot-action@v0.0.4
+      with:
+        status: ${{ job.status }}
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        channel: '#ee-re'
+        text: ""

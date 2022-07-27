@@ -6,7 +6,6 @@ type DeployKatee struct {
 	ApplicationName string        `yaml:"applicationName,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Image           string        `yaml:"image,omitempty"`
-	SlackChannel    string        `yaml:"slackChannel,omitempty"`
 	Url             string        `yaml:"url,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`

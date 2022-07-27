@@ -19,7 +19,9 @@ tasks:
     image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
     applicationName: BLAHBLAH
-    slackChannel: "#ee-re"
+    notifications:
+      on_failure:
+        - "#ee-re"
     velaAppFile: vela.yaml
     vars:
       ENV1: 1234
