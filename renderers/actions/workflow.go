@@ -52,12 +52,13 @@ type Run struct {
 type Jobs yaml.MapSlice
 
 type Job struct {
-	Name           string    `yaml:"name,omitempty"`
-	Needs          []string  `yaml:"needs,omitempty"`
-	RunsOn         string    `yaml:"runs-on,omitempty"`
-	Container      Container `yaml:"container,omitempty"`
-	TimeoutMinutes int       `yaml:"timeout-minutes,omitempty"`
-	Steps          Steps     `yaml:"steps,omitempty"`
+	Name           string            `yaml:"name,omitempty"`
+	Needs          []string          `yaml:"needs,omitempty"`
+	RunsOn         string            `yaml:"runs-on,omitempty"`
+	Container      Container         `yaml:"container,omitempty"`
+	TimeoutMinutes int               `yaml:"timeout-minutes,omitempty"`
+	Outputs        map[string]string `yaml:"outputs,omitempty"`
+	Steps          Steps             `yaml:"steps,omitempty"`
 }
 
 type Container struct {

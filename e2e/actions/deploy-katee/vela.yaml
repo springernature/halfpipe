@@ -4,7 +4,6 @@ metadata:
   name: ${KATEE_APPLICATION_NAME}
   namespace: katee-${KATEE_TEAM}
 spec:
-
   components:
     - name: ${KATEE_APPLICATION_NAME}
       type: snstateless

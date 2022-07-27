@@ -54,6 +54,7 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 		if a.workingDir == "" {
 			a.workingDir = "."
 		}
+
 		w.Jobs = a.jobs(man.Tasks, man, nil)
 	}
 	return w.asYAML()
@@ -111,6 +112,8 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			appendJob(a.runSteps(runTask), task, needs)
 		case manifest.DeployCF:
 			appendJob(a.deployCFSteps(task, man), task, needs)
+		case manifest.DeployKatee:
+			appendJob(a.deployKateeSteps(task, man), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:
