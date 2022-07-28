@@ -22,7 +22,6 @@ tasks:
     notifications:
       on_failure:
         - "#ee-re"
-    velaAppFile: vela.yaml
     vars:
       ENV1: 1234
       ENV2: ((secret.something))

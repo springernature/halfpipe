@@ -19,6 +19,7 @@ type tasksDefaulter struct {
 	dockerComposeDefaulter               func(original manifest.DockerCompose, defaults Defaults) (updated manifest.DockerCompose)
 	dockerPushDefaulter                  func(original manifest.DockerPush, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPush)
 	deployCfDefaulter                    func(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF)
+	deployKateeDefaulter                 func(original manifest.DeployKatee, defaults Defaults, man manifest.Manifest) (updated manifest.DeployKatee)
 	consumerIntegrationTestTaskDefaulter func(original manifest.ConsumerIntegrationTest, defaults Defaults) (updated manifest.ConsumerIntegrationTest)
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
@@ -34,6 +35,7 @@ func NewTaskDefaulter() TasksDefaulter {
 		dockerComposeDefaulter:               dockerComposeDefaulter,
 		dockerPushDefaulter:                  dockerPushDefaulter,
 		deployCfDefaulter:                    deployCfDefaulter,
+		deployKateeDefaulter:                 deployKateeDefaulter,
 		consumerIntegrationTestTaskDefaulter: consumerIntegration,
 		deployMlZipDefaulter:                 deployMlZipDefaulter,
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
@@ -55,8 +57,6 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = task
 		case manifest.Run:
 			tt = t.runDefaulter(task, defaults)
-		case manifest.DeployKatee:
-			tt = task
 		case manifest.DockerCompose:
 			tt = t.dockerComposeDefaulter(task, defaults)
 		case manifest.DockerPush:
@@ -66,6 +66,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			task = t.deployCfDefaulter(task, defaults, man)
 			task.PrePromote = ppTasks
 			tt = task
+		case manifest.DeployKatee:
+			tt = t.deployKateeDefaulter(task, defaults, man)
 		case manifest.ConsumerIntegrationTest:
 			tt = t.consumerIntegrationTestTaskDefaulter(task, defaults)
 		case manifest.DeployMLModules:
