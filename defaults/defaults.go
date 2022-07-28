@@ -17,6 +17,10 @@ var Concourse = Defaults{
 		},
 		Version: "cf6",
 	},
+	Katee: KateeDefaults{
+		VelaAppFile: "vela.yaml",
+		Tag:         "version",
+	},
 	Docker: DockerDefaults{
 		Username:       "_json_key",
 		Password:       "((halfpipe-gcr.private_key))",
@@ -63,5 +67,9 @@ var Actions = Defaults{
 			"((cloudfoundry.api-snpaas))": "springernature.app",
 		},
 		Version: "cf7",
+	},
+	Katee: KateeDefaults{
+		VelaAppFile: "vela.yaml",
+		Tag:         "version",
 	},
 }

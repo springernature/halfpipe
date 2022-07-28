@@ -35,6 +35,11 @@ type CFDefaults struct {
 	Version      string
 }
 
+type KateeDefaults struct {
+	VelaAppFile string
+	Tag         string
+}
+
 type DockerDefaults struct {
 	Username          string
 	Password          string
@@ -67,6 +72,7 @@ type Defaults struct {
 	ShallowClone   bool
 	RepoPrivateKey string
 	CF             CFDefaults
+	Katee          KateeDefaults
 	Docker         DockerDefaults
 	Artifactory    ArtifactoryDefaults
 	Concourse      ConcourseDefaults
