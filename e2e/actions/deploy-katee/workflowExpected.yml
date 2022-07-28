@@ -116,22 +116,24 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        submodules: recursive
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-    - name: Get Katee Credentials
+    - name: Vault secrets
       id: secrets
       uses: hashicorp/vault-action@v2.4.1
       with:
         url: https://vault.halfpipe.io
         method: approle
-        roleId: ${{ secrets.VAULT_ROLE_ID }}
-        secretId: ${{ secrets.VAULT_SECRET_ID }}
-        exportEnv: true
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
         secrets: |
-          /springernature/data/halfpipe-team/katee-halfpipe-team-service-account-prod key | katee-service-account_key ;
+          /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
+          /springernature/data/halfpipe-team/katee-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key ;
+          /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Deploy to Katee
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
       with:
@@ -140,11 +142,15 @@ jobs:
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
         DOCKER_TAG: ${{ env.BUILD_VERSION }}
+        ENV1: "1234"
+        ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
+        ENV3: '{"a": "b", "c": "d"}'
+        ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
         KATEE_APPLICATION_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}
         KATEE_APPLICATION_NAME: BLAHBLAH
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.katee-service-account_key }}
+        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
         KATEE_TEAM: halfpipe-team
     - name: Check Deployment Status
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
@@ -152,7 +158,7 @@ jobs:
         entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-halfpipe-team BLAHBLAH $PUBLISHED_VERSION
       env:
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.katee-service-account_key }}
+        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
         KATEE_TEAM: halfpipe-team
         PUBLISHED_VERSION: ${{ env.BUILD_VERSION }}
     - name: 'Notify slack #ee-re (failure)'
