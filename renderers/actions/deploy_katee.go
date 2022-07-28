@@ -6,28 +6,9 @@ import (
 )
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manifest) (steps Steps) {
-	getKateeCredentials := createKateeCredentialsFromVaultStep(man)
 	deployKatee := a.createKateeDeployStep(task, man)
 	deploymentStatus := a.createDeploymentStatus(task, man)
-	return append(steps, getKateeCredentials, deployKatee, deploymentStatus)
-}
-
-func createKateeCredentialsFromVaultStep(man manifest.Manifest) Step {
-	return Step{
-		Name: "Get Katee Credentials",
-		Uses: "hashicorp/vault-action@v2.4.1",
-		ID:   "secrets",
-		With: With{
-			{"url", "https://vault.halfpipe.io"},
-			{"method", "approle"},
-			{"roleId", "${{ secrets.VAULT_ROLE_ID }}"},
-			{"secretId", "${{ secrets.VAULT_SECRET_ID }}"},
-			{"exportEnv", true},
-			{"secrets", fmt.Sprintf(
-				`/springernature/data/%s/katee-%s-service-account-prod key | katee-service-account_key ;
-`, man.Team, man.Team)},
-		},
-	}
+	return append(steps, deployKatee, deploymentStatus)
 }
 
 func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.Manifest) Step {
@@ -38,12 +19,13 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 			{"entrypoint", "/bin/sh"},
 			{"args", fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)}},
 		Env: Env{
-			"KATEE_GKE_CREDENTIALS":  "${{ steps.secrets.outputs.katee-service-account_key }}",
 			"KATEE_TEAM":             man.Team,
 			"KATEE_APPFILE":          task.VelaAppFile,
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":           "${{ env.GIT_REVISION }}",
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
+				`((katee-%s-service-account-prod.key))`, man.Team),
 		},
 	}
 
@@ -54,6 +36,11 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 		deployKatee.Env["DOCKER_TAG"] = "${{ env.BUILD_VERSION }}"
 		deployKatee.Env["KATEE_APPLICATION_IMAGE"] = fmt.Sprintf("%s:%s", task.Image, "${{ env.BUILD_VERSION }}")
 	}
+
+	for k, v := range task.Vars {
+		deployKatee.Env[k] = v
+	}
+
 	return deployKatee
 }
 
@@ -65,8 +52,9 @@ func (a Actions) createDeploymentStatus(task manifest.DeployKatee, man manifest.
 			{"entrypoint", "/bin/sh"},
 			{"args", fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, man.Team, task.ApplicationName)}},
 		Env: Env{
-			"KATEE_GKE_CREDENTIALS": "${{ steps.secrets.outputs.katee-service-account_key }}",
-			"KATEE_TEAM":            man.Team,
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
+				`((katee-%s-service-account-prod.key))`, man.Team),
+			"KATEE_TEAM": man.Team,
 		},
 	}
 	if task.Tag == "gitref" {
