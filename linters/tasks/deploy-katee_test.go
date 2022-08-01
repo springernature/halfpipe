@@ -31,3 +31,30 @@ func TestKateeDeployRetries(t *testing.T) {
 	errors, _ = LintDeployKateeTask(task, afero.Afero{Fs: afero.NewMemMapFs()})
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
+
+func TestKateeDeployTag(t *testing.T) {
+	task := manifest.DeployKatee{ApplicationName: "app", VelaAppFile: "vela.yml"}
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("vela.yml", []byte("foo"), 0777)
+
+	t.Run("not set", func(t *testing.T) {
+		errors, warnings := LintDeployKateeTask(task, fs)
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("valid", func(t *testing.T) {
+		task.Tag = "version"
+		errors, warnings := LintDeployKateeTask(task, fs)
+		assert.Len(t, errors, 0)
+		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("invalid", func(t *testing.T) {
+		task.Tag = "bananas"
+		errors, warnings := LintDeployKateeTask(task, fs)
+		assert.Len(t, errors, 1)
+		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
+		assert.Len(t, warnings, 0)
+	})
+}

@@ -20,5 +20,11 @@ func LintDeployKateeTask(task manifest.DeployKatee, fs afero.Afero) (errs []erro
 		errs = append(errs, err)
 	}
 
+	if task.Tag != "" {
+		if task.Tag != "version" && task.Tag != "gitref" {
+			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'version' or 'gitref'"))
+		}
+	}
+
 	return errs, warnings
 }
