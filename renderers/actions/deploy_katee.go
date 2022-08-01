@@ -24,8 +24,7 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":           "${{ env.GIT_REVISION }}",
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
-				`((katee-%s-service-account-prod.key))`, man.Team),
+			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf("((katee-%s-service-account-prod.key))", man.Team),
 		},
 	}
 
@@ -52,9 +51,8 @@ func (a Actions) createDeploymentStatus(task manifest.DeployKatee, man manifest.
 			{"entrypoint", "/bin/sh"},
 			{"args", fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, man.Team, task.ApplicationName)}},
 		Env: Env{
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
-				`((katee-%s-service-account-prod.key))`, man.Team),
-			"KATEE_TEAM": man.Team,
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((katee-%s-service-account-prod.key))", man.Team),
+			"KATEE_TEAM":            man.Team,
 		},
 	}
 	if task.Tag == "gitref" {
