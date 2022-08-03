@@ -33,6 +33,7 @@ jobs:
       run: |-
         docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
+          --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
@@ -62,6 +63,7 @@ jobs:
       run: |-
         docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
+          --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
@@ -91,6 +93,7 @@ jobs:
       run: |-
         docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
+          --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \

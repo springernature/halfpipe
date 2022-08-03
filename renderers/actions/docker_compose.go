@@ -56,6 +56,7 @@ func dockerComposeScript(task manifest.DockerCompose, team string) string {
 
 	dcPrefix := fmt.Sprintf("docker-compose -f %s ", task.ComposeFile)
 	dcRun := []string{dcPrefix + "run"}
+	dcRun = append(dcRun, "--use-aliases")
 	dcRun = append(dcRun, envOptions...)
 	dcRun = append(dcRun, mounts...)
 	dcRun = append(dcRun, task.Service)
