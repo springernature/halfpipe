@@ -38,10 +38,15 @@ jobs:
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
+          -e DOCKER_CERT_PATH \
+          -e DOCKER_HOST=tcp://docker:2376 \
+          -e DOCKER_TLS_CERTDIR \
+          -e DOCKER_TLS_VERIFY \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /certs:/certs \
           -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           app
     - name: Package artifacts
@@ -94,11 +99,16 @@ jobs:
           -e ARTIFACTORY_USERNAME \
           -e B \
           -e BUILD_VERSION \
+          -e DOCKER_CERT_PATH \
+          -e DOCKER_HOST=tcp://docker:2376 \
+          -e DOCKER_TLS_CERTDIR \
+          -e DOCKER_TLS_VERIFY \
           -e F \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
+          -v /certs:/certs \
           -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           customservice \
           echo hello

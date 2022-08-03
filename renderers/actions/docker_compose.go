@@ -44,21 +44,23 @@ func dockerComposeScript(task manifest.DockerCompose, team string) string {
 		allEnvVars[k] = ""
 	}
 
-	envOptions := []string{}
-	for key := range allEnvVars {
-		envOptions = append(envOptions, fmt.Sprintf("-e %s", key))
-	}
-	sort.Strings(envOptions)
-
-	mounts := []string{
+	options := []string{
+		"-e DOCKER_HOST=tcp://docker:2376",
+		"-e DOCKER_TLS_CERTDIR",
+		"-e DOCKER_TLS_VERIFY",
+		"-e DOCKER_CERT_PATH",
+		"-v /certs:/certs",
 		fmt.Sprintf("-v /mnt/halfpipe-cache/%s:/var/halfpipe/shared-cache", team),
 	}
+	for key := range allEnvVars {
+		options = append(options, fmt.Sprintf("-e %s", key))
+	}
+	sort.Strings(options)
 
 	dcPrefix := fmt.Sprintf("docker-compose -f %s ", task.ComposeFile)
 	dcRun := []string{dcPrefix + "run"}
 	dcRun = append(dcRun, "--use-aliases")
-	dcRun = append(dcRun, envOptions...)
-	dcRun = append(dcRun, mounts...)
+	dcRun = append(dcRun, options...)
 	dcRun = append(dcRun, task.Service)
 	if task.Command != "" {
 		dcRun = append(dcRun, task.Command)
