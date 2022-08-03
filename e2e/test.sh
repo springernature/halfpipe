@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-set -e
-
 runTest() {
   dir=${1%*/}
   yml="/tmp/halfpipe-e2e/$dir.yml"
@@ -26,7 +24,6 @@ runTest() {
       fi
     fi
   ) &>> $log
-  cat $log
 }
 
 export -f runTest
@@ -34,3 +31,6 @@ export -f runTest
 rm -rf /tmp/halfpipe-e2e
 mkdir -p /tmp/halfpipe-e2e/{actions,concourse}
 ls -d */*/ | xargs -ID -P16 bash -c "runTest D"
+RET_CODE=$?
+cat /tmp/halfpipe-e2e/*/*.log
+exit $RET_CODE
