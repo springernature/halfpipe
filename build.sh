@@ -35,7 +35,7 @@ echo [4/6] e2e test
 (cd e2e; ./test.sh)
 
 echo [5/6] staticcheck
-go install honnef.co/go/tools/cmd/staticcheck@2022.1.3
+staticcheck -version 2> /dev/null | grep -Fq '2022.1.3' || go install honnef.co/go/tools/cmd/staticcheck@2022.1.3
 staticcheck ./...
 
 echo [6/6] update dependabot workflow
