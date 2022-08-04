@@ -328,6 +328,9 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 	case manifest.DeployCF:
 		job = c.deployCFJob(task, man, basePath)
 
+	case manifest.DeployKatee:
+		job = c.deployKateeJob(task, man, basePath)
+
 	case manifest.DockerPush:
 		job = c.dockerPushJob(task, basePath)
 
