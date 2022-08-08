@@ -31,7 +31,6 @@ func TestNoCfDeployTasks(t *testing.T) {
 	assert.Len(t, result.Errors, 0)
 }
 
-//
 func TestOneCfDeployTask(t *testing.T) {
 	apps := []cfManifest.Application{
 		{
