@@ -7,12 +7,6 @@ import (
 )
 
 func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) atc.JobConfig {
-	deployKatee := deployKatee{}
-	deployKatee.task = task
-	deployKatee.halfpipeManifest = man
-	deployKatee.basePath = basePath
-	deployKatee.vars = convertVars(task.Vars)
-
 	job := atc.JobConfig{
 		Name:   task.GetName(),
 		Serial: true,
@@ -116,11 +110,4 @@ fi
 		deploymentStatus.Vars["DOCKER_TAG"] = "buildVersion"
 	}
 	return deploymentStatus
-}
-
-type deployKatee struct {
-	task             manifest.DeployKatee
-	halfpipeManifest manifest.Manifest
-	basePath         string
-	vars             map[string]interface{}
 }
