@@ -64,7 +64,8 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
-		"CONTEXT": path.Join(fullBasePath, task.BuildPath),
+		"CONTEXT":    path.Join(fullBasePath, task.BuildPath),
+		"DOCKERFILE": task.DockerfilePath,
 	}
 
 	for k, v := range convertVars(task.Vars) {
