@@ -8,37 +8,75 @@ import (
 	"strings"
 )
 
-func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string) atc.JobConfig {
+func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociBuild bool) atc.JobConfig {
 	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
 	if task.RestoreArtifacts {
-		return dockerPushJobWithRestoreArtifacts(task, resourceName, basePath)
+		return dockerPushJobWithRestoreArtifacts(task, resourceName, basePath, ociBuild)
 	}
-	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, basePath)
+	return dockerPushJobWithoutRestoreArtifacts(task, resourceName, basePath, ociBuild)
 }
 
-func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
+func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string, ociBuild bool) atc.JobConfig {
 	fullBasePath := path.Join(gitDir, basePath)
-	put := &atc.PutStep{
-		Name: resourceName,
-		Params: atc.Params{
-			"build":         path.Join(fullBasePath, task.BuildPath),
-			"dockerfile":    path.Join(fullBasePath, task.DockerfilePath),
-			"tag_as_latest": true,
-			"tag_file":      task.GetTagPath(fullBasePath),
-			"build_args":    convertVars(task.Vars),
-		},
+
+	var steps []atc.Step
+	if ociBuild {
+		buildStep := &atc.TaskStep{
+			Name:       "build",
+			Privileged: true,
+			Config: &atc.TaskConfig{
+				Platform: "linux",
+				ImageResource: &atc.ImageResource{
+					Type: "registry-image",
+					Source: atc.Source{
+						"repository": "concourse/oci-build-task",
+					},
+				},
+				Params: atc.TaskEnv{
+					"CONTEXT": fullBasePath,
+				},
+				Run: atc.TaskRunConfig{
+					Path: "build",
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: gitDir},
+				},
+				Outputs: []atc.TaskOutputConfig{
+					{Name: "image"},
+				},
+			},
+		}
+		putStep := &atc.PutStep{
+			Name: resourceName,
+			Params: atc.Params{
+				"image":   "image/image.tar",
+				"version": "6.6.6",
+			},
+		}
+		steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
+		steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
+	} else {
+		step := &atc.PutStep{
+			Name: resourceName,
+			Params: atc.Params{
+				"build":         path.Join(fullBasePath, task.BuildPath),
+				"dockerfile":    path.Join(fullBasePath, task.DockerfilePath),
+				"tag_as_latest": true,
+				"tag_file":      task.GetTagPath(fullBasePath),
+				"build_args":    convertVars(task.Vars),
+			},
+		}
+		steps = append(steps, stepWithAttemptsAndTimeout(step, task.GetAttempts(), task.GetTimeout()))
 	}
 
 	return atc.JobConfig{
-		Name:   task.GetName(),
-		Serial: true,
-		PlanSequence: []atc.Step{
-			stepWithAttemptsAndTimeout(put, task.GetAttempts(), task.GetTimeout()),
-		},
+		Name:         task.GetName(),
+		Serial:       true,
+		PlanSequence: steps,
 	}
 }
 
-func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string) atc.JobConfig {
+func dockerPushJobWithRestoreArtifacts(task manifest.DockerPush, resourceName string, basePath string, ociBuild bool) atc.JobConfig {
 	copyArtifact := &atc.TaskStep{
 		Name: "copying-git-repo-and-artifacts-to-a-temporary-build-dir",
 		Config: &atc.TaskConfig{
