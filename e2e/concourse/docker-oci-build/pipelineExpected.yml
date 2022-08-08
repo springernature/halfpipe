@@ -18,6 +18,10 @@ jobs:
       outputs:
       - name: image
       params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: git/e2e/concourse/docker-oci-build
       platform: linux
       run:

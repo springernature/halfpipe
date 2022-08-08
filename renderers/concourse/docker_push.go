@@ -21,6 +21,15 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 
 	var steps []atc.Step
 	if ociBuild {
+
+		params := atc.TaskEnv{
+			"CONTEXT": fullBasePath,
+		}
+
+		for k, v := range convertVars(task.Vars) {
+			params[fmt.Sprintf("BUILD_ARG_%s", k)] = fmt.Sprintf("%s", v)
+		}
+
 		buildStep := &atc.TaskStep{
 			Name:       "build",
 			Privileged: true,
@@ -32,9 +41,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 						"repository": "concourse/oci-build-task",
 					},
 				},
-				Params: atc.TaskEnv{
-					"CONTEXT": fullBasePath,
-				},
+				Params: params,
 				Run: atc.TaskRunConfig{
 					Path: "build",
 				},
@@ -46,6 +53,7 @@ func dockerPushJobWithoutRestoreArtifacts(task manifest.DockerPush, resourceName
 				},
 			},
 		}
+
 		putStep := &atc.PutStep{
 			Name: resourceName,
 			Params: atc.Params{
