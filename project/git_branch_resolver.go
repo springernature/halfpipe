@@ -2,7 +2,7 @@ package project
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"os/exec"
 	"strings"
 )
@@ -43,7 +43,7 @@ func runGitBranch() (output []string, err error) {
 	var stdout bytes.Buffer
 	cmd := exec.Command("git", "branch")
 	cmd.Stdout = &stdout
-	cmd.Stderr = ioutil.Discard
+	cmd.Stderr = io.Discard
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
@@ -59,7 +59,7 @@ func runGitRevParse() (output []string, err error) {
 	var stdout bytes.Buffer
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD") // nolint
 	cmd.Stdout = &stdout
-	cmd.Stderr = ioutil.Discard
+	cmd.Stderr = io.Discard
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
@@ -84,7 +84,7 @@ func runningInConcourse(gitBranchOutput []string, gitRevParseOutput []string) bo
 func makeSureThereIsCommits() (err error) {
 	var stderr bytes.Buffer
 	cmd := exec.Command("git", "log", "-1")
-	cmd.Stdout = ioutil.Discard
+	cmd.Stdout = io.Discard
 	cmd.Stderr = &stderr
 
 	if runErr := cmd.Run(); runErr != nil {

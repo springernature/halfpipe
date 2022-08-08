@@ -3,7 +3,7 @@ package sync
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"strings"
@@ -69,7 +69,7 @@ func ResolveLatestVersionFromArtifactory(os string, httpGetter HTTPGetter) (rele
 	}
 
 	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return release, wrapArtifactoryError(err)
 	}

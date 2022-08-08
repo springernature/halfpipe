@@ -29,6 +29,57 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 	return job
 }
 
+func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
+	run := manifest.Run{
+		Type:          "run",
+		Name:          "Deploy to Katee",
+		ManualTrigger: false,
+		Script: `\echo "Running vela up..."
+
+if [ "$DOCKER_TAG" == "gitref" ]
+then
+  export TAG="$GIT_REVISION"
+else
+  export TAG="$BUILD_VERSION"
+fi
+
+export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
+
+/exe vela up -f $KATEE_APPFILE --publish-version $TAG`,
+		Docker: manifest.Docker{
+			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
+			Username: "_json_key",
+			Password: "((halfpipe-gcr.private_key))",
+		},
+		Privileged: false,
+		Vars: manifest.Vars{
+			"KATEE_TEAM":             man.Team,
+			"KATEE_APPFILE":          task.VelaAppFile,
+			"KATEE_APPLICATION_NAME": task.ApplicationName,
+			"KATEE_IMAGE":            task.Image,
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
+				`((katee-%s-service-account-prod.key))`, man.Team),
+		},
+		Retries:         task.Retries,
+		NotifyOnSuccess: task.NotifyOnSuccess,
+		Notifications:   task.Notifications,
+		Timeout:         task.Timeout,
+		BuildHistory:    task.BuildHistory,
+	}
+
+	if task.Tag == "gitref" {
+		run.Vars["DOCKER_TAG"] = "gitref"
+	} else if task.Tag == "version" {
+		run.Vars["DOCKER_TAG"] = "buildVersion"
+	}
+
+	for k, v := range task.Vars {
+		run.Vars[k] = v
+	}
+
+	return run
+}
+
 func createDeploymentStatusTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
 	deploymentStatus := manifest.Run{
 		Type:          "run",
@@ -65,58 +116,6 @@ fi
 		deploymentStatus.Vars["DOCKER_TAG"] = "buildVersion"
 	}
 	return deploymentStatus
-}
-
-func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
-	run := manifest.Run{
-		Type:          "run",
-		Name:          "Deploy to Katee",
-		ManualTrigger: false,
-		Script: `\echo "Running vela up..."
-
-if [ "$DOCKER_TAG" == "gitref" ]
-then
-  export TAG="$GIT_REVISION"
-else
-  export TAG="$BUILD_VERSION"
-fi
-
-export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
-
-/exe vela up -f $KATEE_APPFILE --publish-version $TAG
-`,
-		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
-		},
-		Privileged: false,
-		Vars: manifest.Vars{
-			"KATEE_TEAM":             man.Team,
-			"KATEE_APPFILE":          task.VelaAppFile,
-			"KATEE_APPLICATION_NAME": task.ApplicationName,
-			"KATEE_IMAGE":            task.Image,
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
-				`((katee-%s-service-account-prod.key))`, man.Team),
-		},
-		Retries:         task.Retries,
-		NotifyOnSuccess: task.NotifyOnSuccess,
-		Notifications:   task.Notifications,
-		Timeout:         task.Timeout,
-		BuildHistory:    task.BuildHistory,
-	}
-
-	if task.Tag == "gitref" {
-		run.Vars["DOCKER_TAG"] = "gitref"
-	} else if task.Tag == "version" {
-		run.Vars["DOCKER_TAG"] = "buildVersion"
-	}
-
-	for k, v := range task.Vars {
-		run.Vars[k] = v
-	}
-
-	return run
 }
 
 type deployKatee struct {

@@ -3,7 +3,7 @@ package upload
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
-	"io/ioutil"
+	"io"
 	"os/exec"
 	"strings"
 
@@ -130,7 +130,7 @@ func (p planner) statusAndLogin(concourseURL, team string) (cmd Command, err err
 		Cmd: exec.Cmd{
 			Path:   path,
 			Args:   []string{"fly", "-t", team, "status"},
-			Stdout: ioutil.Discard,
+			Stdout: io.Discard,
 		},
 		ExecuteOnFailureFilter: func(outputFromPreviousCommand []byte) bool {
 			knownErrors := []string{

@@ -3,7 +3,6 @@ package cmds
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/renderers/concourse"
-	"io/ioutil"
 	"os"
 	"path"
 	"path/filepath"
@@ -111,7 +110,7 @@ func renderResponse(r halfpipe.Response, filePath string) {
 		printErr(err)
 		return
 	}
-	if err := ioutil.WriteFile(filePath, []byte(outputYaml), 0644); err != nil {
+	if err := os.WriteFile(filePath, []byte(outputYaml), 0644); err != nil {
 		printErr(err)
 		return
 	}
