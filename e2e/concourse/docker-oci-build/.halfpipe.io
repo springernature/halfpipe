@@ -32,3 +32,11 @@ tasks:
   vars:
     PASSED_IN: SIMON
   restore_artifacts: true
+
+- type: docker-push
+  name: different-build-and-file-folder
+  username: uSeRnAmE
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/engineering-enablement/different-folders
+  dockerfile_path: dockerFiles/randomDockerfile
+  build_path: buildFolder

@@ -23,7 +23,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: git/e2e/concourse/docker-oci-build
-        DOCKERFILE: Dockerfile
+        DOCKERFILE: git/e2e/concourse/docker-oci-build/Dockerfile
       platform: linux
       run:
         path: build
@@ -199,6 +199,7 @@ jobs:
         BUILD_ARG_PASSED_IN: SIMON
         BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: docker_build/e2e/concourse/docker-oci-build
+        DOCKERFILE: docker_build/e2e/concourse/docker-oci-build/Dockerfile
       platform: linux
       run:
         path: build
@@ -209,6 +210,44 @@ jobs:
       image: image/image.tar
       version: 6.6.6
     put: simon-test-simple
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: different-build-and-file-folder
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - build-with-artifact-and-vars
+    timeout: 15m
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/docker-oci-build/buildFolder
+        DOCKERFILE: git/e2e/concourse/docker-oci-build/dockerFiles/randomDockerfile
+      platform: linux
+      run:
+        path: build
+    privileged: true
+    task: build
+    timeout: 1h
+  - params:
+      image: image/image.tar
+      version: 6.6.6
+    put: different-folders
     timeout: 1h
   serial: true
 resource_types:
@@ -249,5 +288,12 @@ resources:
   source:
     password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/engineering-enablement/simon-test-simple
+    username: _json_key
+  type: registry-image
+- check_every: 24h
+  name: different-folders
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/engineering-enablement/different-folders
     username: _json_key
   type: registry-image
