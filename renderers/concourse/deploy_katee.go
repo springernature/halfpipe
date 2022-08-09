@@ -88,6 +88,7 @@ func createDeploymentStatusTask(task manifest.DeployKatee, man manifest.Manifest
 		Vars: manifest.Vars{
 			"KATEE_TEAM":       man.Team,
 			"APPLICATION_NAME": task.ApplicationName,
+			"KATEE_APPFILE":    task.VelaAppFile,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
 				`((katee-%s-service-account-prod.key))`, man.Team),
 		},
