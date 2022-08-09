@@ -8,7 +8,11 @@ import (
 	"strings"
 )
 
-func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociBuild bool) atc.JobConfig {
+const tagList_Dir = "tagList"
+
+var tagListFile = path.Join(tagList_Dir, "tagList")
+
+func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociBuild bool, updatePipeline bool) atc.JobConfig {
 	var steps []atc.Step
 	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
 
@@ -18,7 +22,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociB
 	}
 
 	steps = append(steps, restoreArtifacts(task)...)
-	steps = append(steps, buildAndPush(task, resourceName, ociBuild, fullBasePath, task.RestoreArtifacts)...)
+	steps = append(steps, buildAndPush(task, resourceName, ociBuild, fullBasePath, task.RestoreArtifacts, updatePipeline)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -60,7 +64,43 @@ func restoreArtifacts(task manifest.DockerPush) []atc.Step {
 	return []atc.Step{}
 }
 
-func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string, restore bool) []atc.Step {
+func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
+	gitRefFile := path.Join(gitDir, ".git", "short_ref")
+	versionFile := path.Join(versionName, "version")
+
+	createTagList := &atc.TaskStep{
+		Name: "create-tag-list",
+		Config: &atc.TaskConfig{
+			Platform: "linux",
+			ImageResource: &atc.ImageResource{
+				Type: "docker-image",
+				Source: atc.Source{
+					"repository": "alpine",
+				},
+			},
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Args: []string{"-c", strings.Join([]string{
+					fmt.Sprintf("GIT_REF=`[ -f %s ] && cat %s || true`", gitRefFile, gitRefFile),
+					fmt.Sprintf("VERSION=`[ -f %s ] && cat %s || true`", versionFile, versionFile),
+					fmt.Sprintf("%s > %s", `printf "%s %s" "$GIT_REF" "$VERSION"`, tagListFile),
+				}, "\n")},
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+			},
+			Outputs: []atc.TaskOutputConfig{
+				{Name: tagList_Dir},
+			},
+		},
+	}
+	if updatePipeline {
+		createTagList.Config.Inputs = append(createTagList.Config.Inputs, atc.TaskInputConfig{Name: versionName})
+	}
+	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
+}
+
+func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string, restore bool, updatePipeline bool) []atc.Step {
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
@@ -102,18 +142,19 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	putStep := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
-			"image":   "image/image.tar",
-			"version": "6.6.6",
+			"image":           "image/image.tar",
+			"additional_tags": tagListFile,
 		},
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, createTagList(task, updatePipeline)...)
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
 }
 
-func buildAndPush(task manifest.DockerPush, resourceName string, ociBuild bool, fullBasePath string, restore bool) []atc.Step {
+func buildAndPush(task manifest.DockerPush, resourceName string, ociBuild bool, fullBasePath string, restore bool, updatePipeline bool) []atc.Step {
 	if ociBuild {
-		return buildAndPushOci(task, resourceName, fullBasePath, restore)
+		return buildAndPushOci(task, resourceName, fullBasePath, restore, updatePipeline)
 	}
 
 	step := &atc.PutStep{

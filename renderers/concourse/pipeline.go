@@ -332,7 +332,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.deployKateeJob(task, man, basePath)
 
 	case manifest.DockerPush:
-		job = c.dockerPushJob(task, basePath, man.FeatureToggles.DockerOciBuild())
+		job = c.dockerPushJob(task, basePath, man.FeatureToggles.DockerOciBuild(), man.FeatureToggles.UpdatePipeline())
 
 	case manifest.ConsumerIntegrationTest:
 		runTask := convertConsumerIntegrationTestToRunTask(task, man)
