@@ -22,6 +22,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man 
 	}
 
 	steps = append(steps, restoreArtifacts(task)...)
+	steps = append(steps, createTagList(task, man.FeatureToggles.UpdatePipeline())...)
 	steps = append(steps, buildAndPush(task, resourceName, fullBasePath, task.RestoreArtifacts, man)...)
 
 	return atc.JobConfig{
@@ -84,6 +85,7 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 					fmt.Sprintf("GIT_REF=`[ -f %s ] && cat %s || true`", gitRefFile, gitRefFile),
 					fmt.Sprintf("VERSION=`[ -f %s ] && cat %s || true`", versionFile, versionFile),
 					fmt.Sprintf("%s > %s", `printf "%s %s latest" "$GIT_REF" "$VERSION"`, tagListFile),
+					fmt.Sprintf("%s $(cat %s)", `printf "Image will be tagged with: %s\n"`, tagListFile),
 				}, "\n")},
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -147,7 +149,6 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 		},
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
-	steps = append(steps, createTagList(task, updatePipeline)...)
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
 }
@@ -160,11 +161,10 @@ func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath st
 	step := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
-			"build":         path.Join(fullBasePath, task.BuildPath),
-			"dockerfile":    path.Join(fullBasePath, task.DockerfilePath),
-			"tag_as_latest": true,
-			"tag_file":      task.GetTagPath(fullBasePath),
-			"build_args":    convertVars(task.Vars),
+			"build":           path.Join(fullBasePath, task.BuildPath),
+			"dockerfile":      path.Join(fullBasePath, task.DockerfilePath),
+			"additional_tags": tagListFile,
+			"build_args":      convertVars(task.Vars),
 		},
 	}
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(step, task.GetAttempts(), task.GetTimeout()))

@@ -11,6 +11,27 @@ jobs:
   - config:
       image_resource:
         source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
           repository: concourse/oci-build-task
         type: registry-image
       inputs:
@@ -29,26 +50,6 @@ jobs:
         path: build
     privileged: true
     task: build
-    timeout: 1h
-  - config:
-      image_resource:
-        source:
-          repository: alpine
-        type: docker-image
-      inputs:
-      - name: git
-      outputs:
-      - name: tagList
-      platform: linux
-      run:
-        args:
-        - -c
-        - |-
-          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
-          VERSION=`[ -f version/version ] && cat version/version || true`
-          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
-        path: /bin/sh
-    task: create-tag-list
     timeout: 1h
   - params:
       additional_tags: tagList/tagList
@@ -205,6 +206,27 @@ jobs:
   - config:
       image_resource:
         source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
           repository: concourse/oci-build-task
         type: registry-image
       inputs:
@@ -226,6 +248,22 @@ jobs:
     privileged: true
     task: build
     timeout: 1h
+  - params:
+      additional_tags: tagList/tagList
+      image: image/image.tar
+    put: simon-test-simple
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: different-build-and-file-folder
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - build-with-artifact-and-vars
+    timeout: 15m
+    trigger: true
   - config:
       image_resource:
         source:
@@ -243,25 +281,10 @@ jobs:
           GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
           printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
-  - params:
-      additional_tags: tagList/tagList
-      image: image/image.tar
-    put: simon-test-simple
-    timeout: 1h
-  serial: true
-- build_log_retention:
-    minimum_succeeded_builds: 1
-  name: different-build-and-file-folder
-  plan:
-  - attempts: 2
-    get: git
-    passed:
-    - build-with-artifact-and-vars
-    timeout: 15m
-    trigger: true
   - config:
       image_resource:
         source:
@@ -283,26 +306,6 @@ jobs:
         path: build
     privileged: true
     task: build
-    timeout: 1h
-  - config:
-      image_resource:
-        source:
-          repository: alpine
-        type: docker-image
-      inputs:
-      - name: git
-      outputs:
-      - name: tagList
-      platform: linux
-      run:
-        args:
-        - -c
-        - |-
-          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
-          VERSION=`[ -f version/version ] && cat version/version || true`
-          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
-        path: /bin/sh
-    task: create-tag-list
     timeout: 1h
   - params:
       additional_tags: tagList/tagList
