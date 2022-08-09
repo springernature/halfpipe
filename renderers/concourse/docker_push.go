@@ -12,7 +12,7 @@ const tagList_Dir = "tagList"
 
 var tagListFile = path.Join(tagList_Dir, "tagList")
 
-func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociBuild bool, updatePipeline bool) atc.JobConfig {
+func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man manifest.Manifest) atc.JobConfig {
 	var steps []atc.Step
 	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
 
@@ -22,7 +22,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, ociB
 	}
 
 	steps = append(steps, restoreArtifacts(task)...)
-	steps = append(steps, buildAndPush(task, resourceName, ociBuild, fullBasePath, task.RestoreArtifacts, updatePipeline)...)
+	steps = append(steps, buildAndPush(task, resourceName, fullBasePath, task.RestoreArtifacts, man)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -83,7 +83,7 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 				Args: []string{"-c", strings.Join([]string{
 					fmt.Sprintf("GIT_REF=`[ -f %s ] && cat %s || true`", gitRefFile, gitRefFile),
 					fmt.Sprintf("VERSION=`[ -f %s ] && cat %s || true`", versionFile, versionFile),
-					fmt.Sprintf("%s > %s", `printf "%s %s" "$GIT_REF" "$VERSION"`, tagListFile),
+					fmt.Sprintf("%s > %s", `printf "%s %s latest" "$GIT_REF" "$VERSION"`, tagListFile),
 				}, "\n")},
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -152,9 +152,9 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	return steps
 }
 
-func buildAndPush(task manifest.DockerPush, resourceName string, ociBuild bool, fullBasePath string, restore bool, updatePipeline bool) []atc.Step {
-	if ociBuild {
-		return buildAndPushOci(task, resourceName, fullBasePath, restore, updatePipeline)
+func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, restore bool, man manifest.Manifest) []atc.Step {
+	if man.FeatureToggles.DockerOciBuild() {
+		return buildAndPushOci(task, resourceName, fullBasePath, restore, man.FeatureToggles.UpdatePipeline())
 	}
 
 	step := &atc.PutStep{

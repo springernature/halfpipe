@@ -46,7 +46,7 @@ jobs:
         - |-
           GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
-          printf "%s %s" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
@@ -242,7 +242,7 @@ jobs:
         - |-
           GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
-          printf "%s %s" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
@@ -300,7 +300,7 @@ jobs:
         - |-
           GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
-          printf "%s %s" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
