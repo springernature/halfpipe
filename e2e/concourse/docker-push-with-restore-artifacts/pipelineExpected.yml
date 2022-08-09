@@ -217,7 +217,7 @@ jobs:
         args:
         - -c
         - |-
-          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
           printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
           printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
@@ -315,7 +315,7 @@ jobs:
         args:
         - -c
         - |-
-          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
           VERSION=`[ -f version/version ] && cat version/version || true`
           printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
           printf "Image will be tagged with: %s\n" $(cat tagList/tagList)

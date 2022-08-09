@@ -66,7 +66,7 @@ func restoreArtifacts(task manifest.DockerPush) []atc.Step {
 }
 
 func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
-	gitRefFile := path.Join(gitDir, ".git", "short_ref")
+	gitRefFile := path.Join(gitDir, ".git", "ref")
 	versionFile := path.Join(versionName, "version")
 
 	createTagList := &atc.TaskStep{
