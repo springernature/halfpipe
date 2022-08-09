@@ -58,7 +58,30 @@ jobs:
         - update
         trigger: true
     timeout: 15m
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
   - params:
+      additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-push-with-update-pipeline
       build_args:
         A: a
@@ -68,8 +91,6 @@ jobs:
         B: b
         RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile
-      tag_as_latest: true
-      tag_file: version/number
     put: image1
     timeout: 1h
   serial: true
@@ -89,7 +110,30 @@ jobs:
         - push to docker registry
         trigger: true
     timeout: 15m
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      - name: version
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
   - params:
+      additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-push-with-update-pipeline
       build_args:
         A: a
@@ -99,8 +143,6 @@ jobs:
         B: b
         RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile
-      tag_as_latest: true
-      tag_file: git/.git/ref
     put: image2
     timeout: 1h
   serial: true

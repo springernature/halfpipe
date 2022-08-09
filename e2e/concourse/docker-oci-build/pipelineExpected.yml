@@ -2,62 +2,71 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: update
+  name: push to docker registry
   plan:
   - attempts: 2
     get: git
     timeout: 15m
     trigger: true
-  - attempts: 2
-    config:
+  - config:
       image_resource:
         source:
-          password: ((halfpipe-gcr.private_key))
-          registry_mirror:
-            host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
-          tag: latest
-          username: _json_key
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
         type: registry-image
       inputs:
       - name: git
+      outputs:
+      - name: image
       params:
-        CONCOURSE_PASSWORD: ((concourse.password))
-        CONCOURSE_TEAM: ((concourse.team))
-        CONCOURSE_URL: ((concourse.url))
-        CONCOURSE_USERNAME: ((concourse.username))
-        HALFPIPE_DOMAIN: halfpipe.io
-        HALFPIPE_FILE_PATH: .halfpipe.io
-        HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: docker-push-with-update-pipeline
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/docker-oci-build
+        DOCKERFILE: git/e2e/concourse/docker-oci-build/Dockerfile
       platform: linux
       run:
-        dir: git/e2e/concourse/docker-push-with-restore-artifacts
-        path: update-pipeline
-    task: update
-    timeout: 15m
-  - attempts: 2
-    params:
-      bump: minor
-    put: version
-    timeout: 15m
+        path: build
+    privileged: true
+    task: build
+    timeout: 1h
+  - params:
+      additional_tags: tagList/tagList
+      image: image/image.tar
+    put: halfpipe-fly.thisismy-tag
+    timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: run build.sh
+  name: date to file
   plan:
   - attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - get: git
-        passed:
-        - update
-      - get: version
-        passed:
-        - update
-        trigger: true
+    get: git
+    passed:
+    - push to docker registry
     timeout: 15m
+    trigger: true
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -71,7 +80,6 @@ jobs:
         type: registry-image
       inputs:
       - name: git
-      - name: version
       outputs:
       - name: artifacts-out
       params:
@@ -119,19 +127,18 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../../.git/ref`
-          export BUILD_VERSION=`cat ../../../../version/version`
 
-          ./build.sh
+          \date > dateFile
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
 
           # Artifacts to copy from task
-          copyArtifact file1 ../../../../artifacts-out/e2e/concourse/docker-push-with-restore-artifacts
-        dir: git/e2e/concourse/docker-push-with-restore-artifacts
+          copyArtifact dateFile ../../../../artifacts-out/e2e/concourse/docker-oci-build
+        dir: git/e2e/concourse/docker-oci-build
         path: /bin/sh
-    task: run-build.sh
+    task: date-to-file
     timeout: 1h
   - attempts: 2
     params:
@@ -142,20 +149,14 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: push to docker registry
+  name: build-with-artifact-and-vars
   plan:
   - attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - get: git
-        passed:
-        - run build.sh
-      - get: version
-        passed:
-        - run build.sh
-        trigger: true
+    get: git
+    passed:
+    - date to file
     timeout: 15m
+    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -171,7 +172,7 @@ jobs:
       - name: artifacts
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/docker-push-with-update-pipeline
+        FOLDER: halfpipe-team/halfpipe-e2e-docker-oci-build
         JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
@@ -209,7 +210,6 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: version
       outputs:
       - name: tagList
       platform: linux
@@ -224,62 +224,46 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      - name: docker_build
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_PASSED_IN: SIMON
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: docker_build/e2e/concourse/docker-oci-build
+        DOCKERFILE: docker_build/e2e/concourse/docker-oci-build/Dockerfile
+      platform: linux
+      run:
+        path: build
+    privileged: true
+    task: build
+    timeout: 1h
   - params:
       additional_tags: tagList/tagList
-      build: docker_build/e2e/concourse/docker-push-with-restore-artifacts
-      build_args:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
-        RUNNING_IN_CI: "true"
-      dockerfile: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
-    put: image1
+      image: image/image.tar
+    put: simon-test-simple
     timeout: 1h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: push to docker registry with git ref
+  name: different-build-and-file-folder
   plan:
   - attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - get: git
-        passed:
-        - push to docker registry
-      - get: version
-        passed:
-        - push to docker registry
-        trigger: true
+    get: git
+    passed:
+    - build-with-artifact-and-vars
     timeout: 15m
-  - attempts: 2
-    config:
-      image_resource:
-        source:
-          password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/gcp-resource
-          tag: stable
-          username: _json_key
-        type: registry-image
-      inputs:
-      - name: git
-      outputs:
-      - name: artifacts
-      params:
-        BUCKET: ((halfpipe-artifacts.bucket))
-        FOLDER: halfpipe-team/docker-push-with-update-pipeline
-        JSON_KEY: ((halfpipe-artifacts.private_key))
-        VERSION_FILE: git/.git/ref
-      platform: linux
-      run:
-        args:
-        - .
-        dir: artifacts
-        path: /opt/resource/download
-    task: get-artifact
-    timeout: 15m
+    trigger: true
   - config:
       image_resource:
         source:
@@ -287,27 +271,6 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: artifacts
-      outputs:
-      - name: docker_build
-      platform: linux
-      run:
-        args:
-        - -c
-        - |-
-          cp -r git/. docker_build
-          cp -r artifacts/. docker_build
-        path: /bin/sh
-    task: copying-git-repo-and-artifacts-to-a-temporary-build-dir
-    timeout: 1h
-  - config:
-      image_resource:
-        source:
-          repository: alpine
-        type: docker-image
-      inputs:
-      - name: git
-      - name: version
       outputs:
       - name: tagList
       platform: linux
@@ -322,18 +285,32 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/docker-oci-build/buildFolder
+        DOCKERFILE: git/e2e/concourse/docker-oci-build/dockerFiles/randomDockerfile
+      platform: linux
+      run:
+        path: build
+    privileged: true
+    task: build
+    timeout: 1h
   - params:
       additional_tags: tagList/tagList
-      build: docker_build/e2e/concourse/docker-push-with-restore-artifacts
-      build_args:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
-        RUNNING_IN_CI: "true"
-      dockerfile: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
-    put: image2
+      image: image/image.tar
+    put: different-folders
     timeout: 1h
   serial: true
 resource_types:
@@ -351,7 +328,7 @@ resources:
   source:
     branch: main
     paths:
-    - e2e/concourse/docker-push-with-restore-artifacts
+    - e2e/concourse/docker-oci-build
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
@@ -359,29 +336,27 @@ resources:
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
-    folder: halfpipe-team/docker-push-with-update-pipeline
+    folder: halfpipe-team/halfpipe-e2e-docker-oci-build
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 - check_every: 24h
-  name: version
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-docker-push-with-update-pipeline
-  type: semver
-- check_every: 24h
-  name: image1
+  name: halfpipe-fly.thisismy-tag
   source:
     password: verysecret
-    repository: springerplatformengineering/image1
-    username: rob
-  type: docker-image
+    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
+    username: uSeRnAmE
+  type: registry-image
 - check_every: 24h
-  name: image2
+  name: simon-test-simple
   source:
-    password: verysecret
-    repository: springerplatformengineering/image2
-    username: rob
-  type: docker-image
-
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/engineering-enablement/simon-test-simple
+    username: _json_key
+  type: registry-image
+- check_every: 24h
+  name: different-folders
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/engineering-enablement/different-folders
+    username: _json_key
+  type: registry-image

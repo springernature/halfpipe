@@ -8,7 +8,29 @@ jobs:
     get: git
     timeout: 15m
     trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
   - params:
+      additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-push-paths/some/build/dir
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -16,8 +38,6 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
-      tag_as_latest: true
-      tag_file: git/.git/ref
     put: halfpipe-fly
     timeout: 1h
   serial: true
@@ -31,7 +51,29 @@ jobs:
     - push to docker registry
     timeout: 15m
     trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/short_ref ] && cat git/.git/short_ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
   - params:
+      additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-push-paths
       build_args:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -39,8 +81,6 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         RUNNING_IN_CI: "true"
       dockerfile: git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile
-      tag_as_latest: true
-      tag_file: git/.git/ref
     put: halfpipe
     timeout: 1h
   serial: true
