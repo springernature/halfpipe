@@ -7,7 +7,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployKateeTask(task manifest.DeployKatee, fs afero.Afero) (errs []error, warnings []error) {
+func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
 	if task.ApplicationName == "" {
 		errs = append(errs, linterrors.NewMissingField("applicationName"))
 	}
@@ -24,6 +24,10 @@ func LintDeployKateeTask(task manifest.DeployKatee, fs afero.Afero) (errs []erro
 		if task.Tag != "version" && task.Tag != "gitref" {
 			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'version' or 'gitref'"))
 		}
+	}
+
+	if task.Tag == "version" && man.Platform.IsConcourse() && !man.FeatureToggles.UpdatePipeline() {
+		errs = append(errs, linterrors.NewInvalidField("tag", "'version' requires the 'update-pipeline' feature toggle"))
 	}
 
 	return errs, warnings
