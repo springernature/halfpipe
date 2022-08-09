@@ -5,5 +5,5 @@ docker run -it \
   -v "$PWD":/halfpipe \
   -w /halfpipe \
   -e GOMODCACHE=/gomodcache \
-  golang:1.18-buster \
+  golang:1.19-buster \
   ${1:-./build.sh}

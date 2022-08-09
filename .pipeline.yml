@@ -119,7 +119,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: 1.18-buster
+          tag: 1.19-buster
       run:
         path: /bin/sh
         args:
