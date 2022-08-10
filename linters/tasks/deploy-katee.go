@@ -12,6 +12,10 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 		errs = append(errs, linterrors.NewMissingField("application_name"))
 	}
 
+	if task.Image == "" {
+		errs = append(errs, linterrors.NewMissingField("image"))
+	}
+
 	if task.Retries < 0 || task.Retries > 5 {
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
