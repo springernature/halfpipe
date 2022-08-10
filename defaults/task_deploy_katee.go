@@ -9,8 +9,12 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.VelaManifest = defaults.Katee.VelaManifest
 	}
 
-	if updated.Tag == "" {
-		updated.Tag = defaults.Katee.Tag
+	if original.Tag == "" {
+		if man.Platform.IsActions() || man.FeatureToggles.UpdatePipeline() {
+			updated.Tag = "version"
+		} else {
+			updated.Tag = "gitref"
+		}
 	}
 
 	return updated
