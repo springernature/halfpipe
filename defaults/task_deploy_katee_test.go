@@ -11,8 +11,8 @@ func TestKateeDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
 
 		expected := manifest.DeployKatee{
-			VelaAppFile: "vela.yaml",
-			Tag:         "version",
+			VelaManifest: "vela.yaml",
+			Tag:          "version",
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))

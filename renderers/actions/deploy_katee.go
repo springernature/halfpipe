@@ -20,7 +20,7 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 			{"args", fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)}},
 		Env: Env{
 			"KATEE_TEAM":             man.Team,
-			"KATEE_APPFILE":          task.VelaAppFile,
+			"KATEE_APPFILE":          task.VelaManifest,
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":           "${{ env.GIT_REVISION }}",

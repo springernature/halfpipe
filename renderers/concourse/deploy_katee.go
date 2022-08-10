@@ -48,7 +48,7 @@ export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 		Privileged: false,
 		Vars: manifest.Vars{
 			"KATEE_TEAM":             man.Team,
-			"KATEE_APPFILE":          task.VelaAppFile,
+			"KATEE_APPFILE":          task.VelaManifest,
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"KATEE_IMAGE":            task.Image,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
@@ -88,7 +88,7 @@ func createDeploymentStatusTask(task manifest.DeployKatee, man manifest.Manifest
 		Vars: manifest.Vars{
 			"KATEE_TEAM":       man.Team,
 			"APPLICATION_NAME": task.ApplicationName,
-			"KATEE_APPFILE":    task.VelaAppFile,
+			"KATEE_APPFILE":    task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
 				`((katee-%s-service-account-prod.key))`, man.Team),
 		},

@@ -36,8 +36,8 @@ type CFDefaults struct {
 }
 
 type KateeDefaults struct {
-	VelaAppFile string
-	Tag         string
+	VelaManifest string
+	Tag          string
 }
 
 type DockerDefaults struct {

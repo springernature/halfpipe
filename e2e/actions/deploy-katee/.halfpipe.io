@@ -18,7 +18,7 @@ tasks:
     name: deploy to katee
     image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
-    applicationName: BLAHBLAH
+    application_name: BLAHBLAH
     notifications:
       on_failure:
         - "#ee-re"

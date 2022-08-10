@@ -18,8 +18,8 @@ var Concourse = Defaults{
 		Version: "cf6",
 	},
 	Katee: KateeDefaults{
-		VelaAppFile: "vela.yaml",
-		Tag:         "version",
+		VelaManifest: "vela.yaml",
+		Tag:          "version",
 	},
 	Docker: DockerDefaults{
 		Username:       "_json_key",
@@ -69,7 +69,7 @@ var Actions = Defaults{
 		Version: "cf7",
 	},
 	Katee: KateeDefaults{
-		VelaAppFile: "vela.yaml",
-		Tag:         "version",
+		VelaManifest: "vela.yaml",
+		Tag:          "version",
 	},
 }

@@ -3,12 +3,12 @@ package manifest
 type DeployKatee struct {
 	Type            string
 	Name            string        `yaml:"name,omitempty"`
-	ApplicationName string        `yaml:"applicationName,omitempty"`
+	ApplicationName string        `json:"application_name" yaml:"application_name,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Image           string        `yaml:"image,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	VelaAppFile     string        `yaml:"velaAppFile,omitempty"`
+	VelaManifest    string        `yaml:"vela_manifest,omitempty"`
 	Retries         int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`

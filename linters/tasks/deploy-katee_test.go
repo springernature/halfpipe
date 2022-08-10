@@ -9,14 +9,14 @@ import (
 )
 
 func TestKateeDeployTaskWithEmptyTask(t *testing.T) {
-	task := manifest.DeployKatee{VelaAppFile: "vela.yml"}
+	task := manifest.DeployKatee{VelaManifest: "vela.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors, warnings := LintDeployKateeTask(task, emptyManifest, fs)
 	assert.Len(t, errors, 2)
 	assert.Len(t, warnings, 0)
 
-	linterrors.AssertMissingFieldInErrors(t, "applicationName", errors)
+	linterrors.AssertMissingFieldInErrors(t, "application_name", errors)
 	linterrors.AssertFileErrorInErrors(t, "vela.yml", errors)
 }
 
@@ -33,7 +33,7 @@ func TestKateeDeployRetries(t *testing.T) {
 }
 
 func TestKateeDeployTag(t *testing.T) {
-	task := manifest.DeployKatee{ApplicationName: "app", VelaAppFile: "vela.yml"}
+	task := manifest.DeployKatee{ApplicationName: "app", VelaManifest: "vela.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("vela.yml", []byte("foo"), 0777)
 

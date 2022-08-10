@@ -9,14 +9,14 @@ import (
 
 func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
 	if task.ApplicationName == "" {
-		errs = append(errs, linterrors.NewMissingField("applicationName"))
+		errs = append(errs, linterrors.NewMissingField("application_name"))
 	}
 
 	if task.Retries < 0 || task.Retries > 5 {
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if err := filechecker.CheckFile(fs, task.VelaAppFile, false); err != nil {
+	if err := filechecker.CheckFile(fs, task.VelaManifest, false); err != nil {
 		errs = append(errs, err)
 	}
 
