@@ -339,7 +339,7 @@ func TestDockerPushScanImageSeverity(t *testing.T) {
 }
 
 func TestDockerPushTag(t *testing.T) {
-	t.Run("Alles ok with gitref", func(t *testing.T) {
+	t.Run("Alles ok without tag", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -348,7 +348,6 @@ func TestDockerPushTag(t *testing.T) {
 			Username:       "asd",
 			Password:       "asdf",
 			DockerfilePath: "Dockerfile",
-			Tag:            "gitref",
 		}
 
 		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
@@ -356,29 +355,7 @@ func TestDockerPushTag(t *testing.T) {
 		assert.Empty(t, warnings)
 	})
 
-	t.Run("Alles ok with version", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		man := manifest.Manifest{
-			FeatureToggles: []string{
-				manifest.FeatureUpdatePipeline,
-			},
-		}
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Tag:            "version",
-		}
-
-		errors, warnings := LintDockerPushTask(task, man, fs)
-		assert.Empty(t, errors)
-		assert.Empty(t, warnings)
-	})
-
-	t.Run("Alles ok with empty", func(t *testing.T) {
+	t.Run("Should warn about deprecated field", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -387,46 +364,13 @@ func TestDockerPushTag(t *testing.T) {
 			Username:       "asd",
 			Password:       "asdf",
 			DockerfilePath: "Dockerfile",
-			Tag:            "",
+			Tag:            "yolo",
 		}
 
 		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+
+		linterrors.AssertDeprecatedFieldErrorInErrors(t, "tag", warnings)
 		assert.Empty(t, errors)
-		assert.Empty(t, warnings)
-	})
-
-	t.Run("Not ok with something else", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Tag:            "somethingRandom",
-		}
-
-		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
-		linterrors.AssertInvalidFieldInErrors(t, "tag", errors)
-		assert.Len(t, errors, 1)
-	})
-
-	t.Run("Alles ok with filepath", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		man := manifest.Manifest{}
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Tag:            "file:../path/to/file",
-		}
-
-		errors, warnings := LintDockerPushTask(task, man, fs)
-		assert.Empty(t, errors)
-		assert.Empty(t, warnings)
+		assert.Len(t, warnings, 1)
 	})
 }

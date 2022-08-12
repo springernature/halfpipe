@@ -151,6 +151,7 @@ jobs:
         tags: |
           eu.gcr.io/halfpipe-io/blah:latest
           eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
+          eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
         build-args: |
           ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
           ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
@@ -176,7 +177,7 @@ jobs:
         [[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"
         [[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"
         [[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"
-        gcloud artifacts docker images scan eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
+        gcloud artifacts docker images scan eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt
         echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY
@@ -196,6 +197,7 @@ jobs:
         tags: |
           eu.gcr.io/halfpipe-io/blah:latest
           eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
+          eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
         build-args: |
           ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
           ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
@@ -219,6 +221,7 @@ jobs:
         echo "Tags:" >> $GITHUB_STEP_SUMMARY
         echo "- eu.gcr.io/halfpipe-io/blah:latest" >> $GITHUB_STEP_SUMMARY
         echo "- eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4

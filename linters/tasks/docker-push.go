@@ -74,9 +74,7 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 	}
 
 	if docker.Tag != "" {
-		if (docker.Tag != "gitref") && (docker.Tag != "version") && !strings.HasPrefix(docker.Tag, "file:") {
-			errs = append(errs, linterrors.NewInvalidField("tag", "must be either 'gitref' or 'version' or 'file:path/to/file"))
-		}
+		warnings = append(warnings, linterrors.NewDeprecatedField("tag", "this field is not needed anymore"))
 	}
 
 	return errs, warnings

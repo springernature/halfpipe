@@ -27,15 +27,12 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	return steps
 }
 
-func buildVersion(task manifest.DockerPush) string {
-	buildVersion := "${{ env.BUILD_VERSION }}"
-	if task.Tag == "gitref" {
-		buildVersion = "${{ env.GIT_REVISION }}"
-	}
-	return buildVersion
-}
 func tags(task manifest.DockerPush) string {
-	return fmt.Sprintf("%s:latest\n%s:%s\n", task.Image, task.Image, buildVersion(task))
+	tag1 := fmt.Sprintf("%s:latest", task.Image)
+	tag2 := fmt.Sprintf("%s:${{ env.BUILD_VERSION }}", task.Image)
+	tag3 := fmt.Sprintf("%s:${{ env.GIT_REVISION }}", task.Image)
+
+	return fmt.Sprintf("%s\n%s\n%s\n", tag1, tag2, tag3)
 }
 
 func repositoryDispatch(eventName string) Step {
@@ -91,7 +88,7 @@ func scanImage(task manifest.DockerPush) Step {
 	run = append(run, `[[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"`)
 	run = append(run, `[[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"`)
 	run = append(run, `[[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"`)
-	run = append(run, fmt.Sprintf(`gcloud artifacts docker images scan %s:%s --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt`, task.Image, buildVersion(task)))
+	run = append(run, fmt.Sprintf(`gcloud artifacts docker images scan %s:%s --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt`, task.Image, "${{ env.GIT_REVISION }}"))
 	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'`)
 	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt`)
 	run = append(run, `echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY`)

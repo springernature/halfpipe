@@ -9,7 +9,7 @@ import (
 )
 
 func TestWhenPublicImage(t *testing.T) {
-	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", Tag: "git"}
+	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something"}
 
 	assert.Equal(t, task, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
 }
@@ -22,7 +22,6 @@ func TestPrivateImage(t *testing.T) {
 		DockerfilePath: "something",
 		Username:       Concourse.Docker.Username,
 		Password:       Concourse.Docker.Password,
-		Tag:            "gitref",
 	}
 
 	assert.Equal(t, expected, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
@@ -34,57 +33,4 @@ func TestSetsTheDockerFilePath(t *testing.T) {
 
 func TestSetsTheDockerImageScanSeverity(t *testing.T) {
 	assert.Equal(t, "CRITICAL", dockerPushDefaulter(manifest.DockerPush{}, manifest.Manifest{}, Actions).ImageScanSeverity)
-}
-
-func TestTag(t *testing.T) {
-	t.Run("when pipeline isn't versioned", func(t *testing.T) {
-		t.Run("when tag is empty, tag defaults to git", func(t *testing.T) {
-			expected := manifest.DockerPush{
-				DockerfilePath: "Dockerfile",
-				Tag:            "gitref",
-			}
-
-			assert.Equal(t, expected, dockerPushDefaulter(manifest.DockerPush{}, manifest.Manifest{}, Concourse))
-		})
-
-		t.Run("when tag is set, it does nothing", func(t *testing.T) {
-			tag := "NotAThingWillBeCauthByLinter"
-			expected := manifest.DockerPush{
-				DockerfilePath: "Dockerfile",
-				Tag:            tag,
-			}
-
-			assert.Equal(t, expected, dockerPushDefaulter(manifest.DockerPush{Tag: tag}, manifest.Manifest{}, Concourse))
-
-		})
-	})
-
-	t.Run("when pipeline is versioned", func(t *testing.T) {
-		man := manifest.Manifest{
-			FeatureToggles: []string{
-				manifest.FeatureUpdatePipeline,
-			},
-		}
-
-		t.Run("when tag is empty, tag defaults to version", func(t *testing.T) {
-
-			expected := manifest.DockerPush{
-				DockerfilePath: "Dockerfile",
-				Tag:            "version",
-			}
-
-			assert.Equal(t, expected, dockerPushDefaulter(manifest.DockerPush{}, man, Concourse))
-		})
-
-		t.Run("when tag is set, it uses it", func(t *testing.T) {
-			tag := "NotAThingWillBeCauthByLinter"
-			expected := manifest.DockerPush{
-				DockerfilePath: "Dockerfile",
-				Tag:            tag,
-			}
-
-			assert.Equal(t, expected, dockerPushDefaulter(manifest.DockerPush{Tag: tag}, man, Concourse))
-		})
-	})
-
 }

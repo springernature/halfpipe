@@ -59,5 +59,18 @@ func AssertFileErrorInErrors(t *testing.T, path string, errs []error) {
 		}
 	}
 	assert.Fail(t, fmt.Sprintf("Could not find FileError for path '%s' in %s", path, errs))
+}
 
+func AssertDeprecatedFieldErrorInErrors(t *testing.T, field string, errs []error) {
+	t.Helper()
+
+	for _, err := range errs {
+		e, ok := err.(DeprecatedField)
+		if ok {
+			if e.Name == field {
+				return
+			}
+		}
+	}
+	assert.Fail(t, fmt.Sprintf("Could not find DeprecatedField for field '%s' in %s", field, errs))
 }
