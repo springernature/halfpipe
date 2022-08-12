@@ -20,7 +20,9 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 
 	steps = append(steps, buildImage(a, task, buildArgs))
 	steps = append(steps, gcloudAuth(task)...)
-	steps = append(steps, scanImage(task))
+	if task.ShouldScanDockerImage() {
+		steps = append(steps, scanImage(task))
+	}
 	steps = append(steps, pushImage(a, task, buildArgs))
 	steps = append(steps, repositoryDispatch(task.Image))
 	steps = append(steps, imageSummary(task.Image, tags(task)))
@@ -83,11 +85,6 @@ func gcloudAuth(task manifest.DockerPush) []Step {
 
 func scanImage(task manifest.DockerPush) Step {
 	run := []string{}
-	run = append(run, `SEVERITY=$(echo "$SEVERITY" | tr '[:lower:]' '[:upper:]')`)
-	run = append(run, `[[ "$SEVERITY" = "SKIP" ]] && echo 'Skipping vulnerability check' && exit 0`)
-	run = append(run, `[[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"`)
-	run = append(run, `[[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"`)
-	run = append(run, `[[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"`)
 	run = append(run, fmt.Sprintf(`gcloud artifacts docker images scan %s:%s --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt`, task.Image, "${{ env.GIT_REVISION }}"))
 	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'`)
 	run = append(run, `gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt`)
@@ -101,7 +98,7 @@ func scanImage(task manifest.DockerPush) Step {
 	step := Step{
 		Name: "Scan image for vulnerabilities",
 		Run:  strings.Join(run, "\n"),
-		Env:  Env{"SEVERITY": task.ImageScanSeverity},
+		Env:  Env{"SEVERITY": task.SeverityList("|")},
 	}
 	return step
 }

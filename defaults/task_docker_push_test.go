@@ -9,7 +9,7 @@ import (
 )
 
 func TestWhenPublicImage(t *testing.T) {
-	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something"}
+	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", ImageScanSeverity: "CRITICAL"}
 
 	assert.Equal(t, task, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
 }
@@ -18,10 +18,11 @@ func TestPrivateImage(t *testing.T) {
 	task := manifest.DockerPush{Image: path.Join(config.DockerRegistry, "push-me"), DockerfilePath: "something"}
 
 	expected := manifest.DockerPush{
-		Image:          path.Join(config.DockerRegistry, "push-me"),
-		DockerfilePath: "something",
-		Username:       Concourse.Docker.Username,
-		Password:       Concourse.Docker.Password,
+		Image:             path.Join(config.DockerRegistry, "push-me"),
+		DockerfilePath:    "something",
+		Username:          Concourse.Docker.Username,
+		Password:          Concourse.Docker.Password,
+		ImageScanSeverity: "CRITICAL",
 	}
 
 	assert.Equal(t, expected, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))

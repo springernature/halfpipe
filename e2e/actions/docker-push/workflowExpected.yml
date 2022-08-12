@@ -94,11 +94,6 @@ jobs:
         install_components: local-extract
     - name: Scan image for vulnerabilities
       run: |-
-        SEVERITY=$(echo "$SEVERITY" | tr '[:lower:]' '[:upper:]')
-        [[ "$SEVERITY" = "SKIP" ]] && echo 'Skipping vulnerability check' && exit 0
-        [[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"
-        [[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"
-        [[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"
         gcloud artifacts docker images scan eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt
@@ -109,7 +104,7 @@ jobs:
         echo >> $GITHUB_STEP_SUMMARY
         if grep -Exq "$SEVERITY" /tmp/severities.txt; then echo 'Failed vulnerability check' && exit 1; fi
       env:
-        SEVERITY: low
+        SEVERITY: LOW|MEDIUM|HIGH|CRITICAL
     - name: Push Image
       uses: docker/build-push-action@v3
       with:
@@ -211,11 +206,6 @@ jobs:
         install_components: local-extract
     - name: Scan image for vulnerabilities
       run: |-
-        SEVERITY=$(echo "$SEVERITY" | tr '[:lower:]' '[:upper:]')
-        [[ "$SEVERITY" = "SKIP" ]] && echo 'Skipping vulnerability check' && exit 0
-        [[ "$SEVERITY" = "HIGH" ]] && SEVERITY="CRITICAL|HIGH"
-        [[ "$SEVERITY" = "MEDIUM" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM"
-        [[ "$SEVERITY" = "LOW" ]] && SEVERITY="CRITICAL|HIGH|MEDIUM|LOW"
         gcloud artifacts docker images scan dockerhubusername/someImage:${{ env.GIT_REVISION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
         gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt

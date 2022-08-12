@@ -484,16 +484,15 @@ func relativePathToRepoRoot(repoName string, basePath string) (relativePath stri
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), ".git", "ref")
 	return windowsToLinuxPath(p)
+}
 
+func windowsToLinuxPath(path string) (unixPath string) {
+	return strings.Replace(path, `\`, "/", -1)
 }
 
 func pathToVersionFile(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), path.Join("..", "version", "version"))
 	return windowsToLinuxPath(p)
-}
-
-func windowsToLinuxPath(path string) (unixPath string) {
-	return strings.Replace(path, `\`, "/", -1)
 }
 
 func onErrorScript(artifactPaths []string, basePath string) string {

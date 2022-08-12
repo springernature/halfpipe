@@ -23,7 +23,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man 
 
 	steps = append(steps, restoreArtifacts(task)...)
 	steps = append(steps, createTagList(task, man.FeatureToggles.UpdatePipeline())...)
-	steps = append(steps, buildAndPush(task, resourceName, fullBasePath, task.RestoreArtifacts, man)...)
+	steps = append(steps, buildAndPush(task, resourceName, fullBasePath, man)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -39,7 +39,7 @@ func restoreArtifacts(task manifest.DockerPush) []atc.Step {
 			Config: &atc.TaskConfig{
 				Platform: "linux",
 				ImageResource: &atc.ImageResource{
-					Type: "docker-image",
+					Type: "registry-image",
 					Source: atc.Source{
 						"repository": "alpine",
 					},
@@ -102,7 +102,43 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
 }
 
-func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string, restore bool, updatePipeline bool) []atc.Step {
+func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
+	imageFile := path.Join(relativePathToRepoRoot(gitDir, fullBasePath), "image/image.tar")
+
+	step := &atc.TaskStep{
+		Name: "trivy",
+		Config: &atc.TaskConfig{
+			Platform: "linux",
+			ImageResource: &atc.ImageResource{
+				Type: "docker-image",
+				Source: atc.Source{
+					"repository": "aquasec/trivy",
+				},
+			},
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Args: []string{"-c", strings.Join([]string{
+					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
+					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
+					fmt.Sprintf(`trivy image --severity %s --exit-code 0 --input %s`, task.SeverityList(","), imageFile),
+				}, "\n")},
+				Dir: fullBasePath,
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+				{Name: "image"},
+			},
+		},
+	}
+
+	if task.ReadsFromArtifacts() {
+		step.Config.Inputs = append(step.Config.Inputs, atc.TaskInputConfig{Name: dockerBuildTmpDir})
+	}
+
+	return step
+}
+
+func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
@@ -137,7 +173,7 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 			},
 		},
 	}
-	if restore {
+	if task.ReadsFromArtifacts() {
 		buildStep.Config.Inputs = append(buildStep.Config.Inputs, atc.TaskInputConfig{Name: dockerBuildTmpDir})
 	}
 
@@ -149,13 +185,16 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 		},
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
+	if task.ShouldScanDockerImage() {
+		steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
+	}
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
 }
 
-func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, restore bool, man manifest.Manifest) []atc.Step {
+func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, man manifest.Manifest) []atc.Step {
 	if man.FeatureToggles.DockerOciBuild() {
-		return buildAndPushOci(task, resourceName, fullBasePath, restore, man.FeatureToggles.UpdatePipeline())
+		return buildAndPushOci(task, resourceName, fullBasePath)
 	}
 
 	step := &atc.PutStep{

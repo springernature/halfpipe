@@ -381,7 +381,7 @@ jobs:
       image_resource:
         source:
           repository: alpine
-        type: docker-image
+        type: registry-image
       inputs:
       - name: git
       - name: artifacts

@@ -1,5 +1,7 @@
 package manifest
 
+import "strings"
+
 type DockerPush struct {
 	Type              string
 	Name              string        `yaml:"name,omitempty"`
@@ -90,4 +92,23 @@ func (r DockerPush) ReadsFromArtifacts() bool {
 
 func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
+}
+
+func (r DockerPush) ShouldScanDockerImage() bool {
+	return r.ImageScanSeverity != "SKIP"
+}
+
+func (r DockerPush) GetImageScanSeverity() string {
+	return strings.ToUpper(r.ImageScanSeverity)
+}
+
+func (r DockerPush) SeverityList(delimiter string) string {
+	if r.GetImageScanSeverity() == "LOW" {
+		return strings.Join([]string{"LOW", "MEDIUM", "HIGH", "CRITICAL"}, delimiter)
+	} else if r.ImageScanSeverity == "MEDIUM" {
+		return strings.Join([]string{"MEDIUM", "HIGH", "CRITICAL"}, delimiter)
+	} else if r.ImageScanSeverity == "HIGH" {
+		return strings.Join([]string{"HIGH", "CRITICAL"}, delimiter)
+	}
+	return "CRITICAL"
 }
