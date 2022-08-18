@@ -83,28 +83,15 @@ jobs:
           RUNNING_IN_CI=true
           VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
-    - name: gCloud Auth
-      uses: google-github-actions/auth@v0
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.7.0
       with:
-        credentials_json: ${{ secrets.EE_GCR_PRIVATE_KEY }}
-    - name: gCloud Setup
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        project_id: halfpipe-io
-        install_components: local-extract
-    - name: Scan image for vulnerabilities
-      run: |-
-        gcloud artifacts docker images scan eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
-        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
-        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt
-        echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        cat /tmp/severities.txt | grep -v '^$' | sort | uniq -c >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        echo >> $GITHUB_STEP_SUMMARY
-        if grep -Exq "$SEVERITY" /tmp/severities.txt; then echo 'Failed vulnerability check' && exit 1; fi
-      env:
-        SEVERITY: LOW|MEDIUM|HIGH|CRITICAL
+        image-ref: eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
+        format: table
+        exit-code: 1
+        ignore-unfixed: true
+        vuln-type: os,library
+        severity: LOW,MEDIUM,HIGH,CRITICAL
     - name: Push Image
       uses: docker/build-push-action@v3
       with:
@@ -195,28 +182,15 @@ jobs:
           RUNNING_IN_CI=true
           VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
-    - name: gCloud Auth
-      uses: google-github-actions/auth@v0
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@0.7.0
       with:
-        credentials_json: ${{ secrets.EE_GCR_PRIVATE_KEY }}
-    - name: gCloud Setup
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        project_id: halfpipe-io
-        install_components: local-extract
-    - name: Scan image for vulnerabilities
-      run: |-
-        gcloud artifacts docker images scan dockerhubusername/someImage:${{ env.GIT_REVISION }} --location=europe --additional-package-types=GO,MAVEN --format='value(response.scan)' > /tmp/image-scan.txt
-        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='table(vulnerability.effectiveSeverity, vulnerability.cvssScore, noteName, vulnerability.packageIssue[0].affectedPackage, vulnerability.packageIssue[0].affectedVersion.name, vulnerability.packageIssue[0].fixedVersion.name)'
-        gcloud artifacts docker images list-vulnerabilities $(cat /tmp/image-scan.txt) --format='value(vulnerability.effectiveSeverity)' > /tmp/severities.txt
-        echo "Vulnerability Summary:" >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        cat /tmp/severities.txt | grep -v '^$' | sort | uniq -c >> $GITHUB_STEP_SUMMARY
-        echo '```' >> $GITHUB_STEP_SUMMARY
-        echo >> $GITHUB_STEP_SUMMARY
-        if grep -Exq "$SEVERITY" /tmp/severities.txt; then echo 'Failed vulnerability check' && exit 1; fi
-      env:
-        SEVERITY: CRITICAL
+        image-ref: dockerhubusername/someImage:${{ env.GIT_REVISION }}
+        format: table
+        exit-code: 1
+        ignore-unfixed: true
+        vuln-type: os,library
+        severity: CRITICAL
     - name: Push Image
       uses: docker/build-push-action@v3
       with:
