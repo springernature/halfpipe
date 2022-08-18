@@ -95,7 +95,7 @@ func (r DockerPush) GetAttempts() int {
 }
 
 func (r DockerPush) ShouldScanDockerImage() bool {
-	return r.ImageScanSeverity != "SKIP"
+	return r.GetImageScanSeverity() != "SKIP"
 }
 
 func (r DockerPush) GetImageScanSeverity() string {
