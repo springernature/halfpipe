@@ -276,6 +276,11 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
 	resourceConfigs = append(resourceConfigs, pipelineResources...)
 
+	if man.FeatureToggles.GithubStatuses() {
+		resourceTypes = append(resourceTypes, c.githubStatusesResourceType())
+		resourceConfigs = append(resourceConfigs, c.githubStatusesResource(man))
+	}
+
 	return resourceTypes, resourceConfigs
 }
 func (c Concourse) onFailure(task manifest.Task) *atc.Step {

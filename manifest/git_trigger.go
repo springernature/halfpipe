@@ -32,3 +32,10 @@ func (GitTrigger) GetTriggerName() string {
 func (git GitTrigger) IsPublic() bool {
 	return len(git.URI) > 4 && strings.HasPrefix(git.URI, "http")
 }
+
+func (git GitTrigger) GetRepoName() string {
+	parts := strings.Split(git.URI, "/")
+	repo := parts[len(parts)-1]
+
+	return strings.Split(repo, ".git")[0]
+}
