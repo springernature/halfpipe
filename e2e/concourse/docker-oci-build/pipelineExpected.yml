@@ -44,10 +44,17 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: git/e2e/concourse/docker-oci-build
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         DOCKERFILE: git/e2e/concourse/docker-oci-build/Dockerfile
       platform: linux
       run:
-        path: build
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
     privileged: true
     task: build
     timeout: 1h
@@ -241,10 +248,17 @@ jobs:
         BUILD_ARG_PASSED_IN: SIMON
         BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: docker_build/e2e/concourse/docker-oci-build
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         DOCKERFILE: docker_build/e2e/concourse/docker-oci-build/Dockerfile
       platform: linux
       run:
-        path: build
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
     privileged: true
     task: build
     timeout: 1h
@@ -321,10 +335,17 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
         CONTEXT: git/e2e/concourse/docker-oci-build/buildFolder
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         DOCKERFILE: git/e2e/concourse/docker-oci-build/dockerFiles/randomDockerfile
       platform: linux
       run:
-        path: build
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
     privileged: true
     task: build
     timeout: 1h

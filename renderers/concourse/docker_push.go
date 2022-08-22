@@ -142,8 +142,9 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
-		"CONTEXT":    path.Join(fullBasePath, task.BuildPath),
-		"DOCKERFILE": path.Join(fullBasePath, task.DockerfilePath),
+		"CONTEXT":            path.Join(fullBasePath, task.BuildPath),
+		"DOCKERFILE":         path.Join(fullBasePath, task.DockerfilePath),
+		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
 	}
 
 	for k, v := range convertVars(task.Vars) {
@@ -163,7 +164,11 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 			},
 			Params: params,
 			Run: atc.TaskRunConfig{
-				Path: "build",
+				Path: "/bin/sh",
+				Args: []string{
+					"-c",
+					fmt.Sprintf("%s\n%s\n%s", "mkdir ~/.docker", "echo $DOCKER_CONFIG_JSON > ~/.docker/config.json", "build"),
+				},
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
