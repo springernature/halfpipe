@@ -327,10 +327,8 @@ func (c Concourse) githubStatusesResource(manifest manifest.Manifest) atc.Resour
 		Type:       githubStatusesResourceTypeName,
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
-			"owner":        "",
-			"repository":   manifest.Triggers.GetGitTrigger().GetRepoName(),
-			"access_token": "",
-			"context":      manifest.PipelineName(),
+			"repo":         fmt.Sprintf("%s/%s", config.GithubOrg, manifest.Triggers.GetGitTrigger().GetRepoName()),
+			"access_token": config.GithubToken,
 		},
 	}
 }

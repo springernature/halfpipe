@@ -3,6 +3,22 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: test
+  on_failure:
+    attempts: 2
+    params:
+      context: halfpipe-e2e-run/test
+      path: git
+      state: failure
+    put: github-statuses
+    timeout: 15m
+  on_success:
+    attempts: 2
+    params:
+      context: halfpipe-e2e-run/test
+      path: git
+      state: success
+    put: github-statuses
+    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -69,6 +85,22 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: test again
+  on_failure:
+    attempts: 2
+    params:
+      context: halfpipe-e2e-run/test again
+      path: git
+      state: failure
+    put: github-statuses
+    timeout: 15m
+  on_success:
+    attempts: 2
+    params:
+      context: halfpipe-e2e-run/test again
+      path: git
+      state: success
+    put: github-statuses
+    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -153,8 +185,6 @@ resources:
 - check_every: 24h
   name: github-statuses
   source:
-    access_token: ""
-    context: halfpipe-e2e-run
-    owner: ""
-    repository: halfpipe
+    access_token: ((halfpipe-github.statuses-token))
+    repo: springernature/halfpipe
   type: halfpipe-github-statuses-resource
