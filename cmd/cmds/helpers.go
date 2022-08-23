@@ -131,12 +131,11 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 		mapper.New(),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
-			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL, config.DeprecatedDockerRegistries),
+			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS),
 			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
-			linters.NewDeprecatedDockerRegistriesLinter(fs, config.DeprecatedDockerRegistries),
 			linters.NewNexusRepoLinter(fs),
 			linters.NewActionsLinter(),
 		},

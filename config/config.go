@@ -33,11 +33,6 @@ var (
 		"/var/halfpipe/shared-cache",
 	}
 
-	DeprecatedDockerRegistries = []string{
-		"te-docker.docker-registry.tools.springer-sbm.com",
-		"docker-registry.dc.springernature.pe",
-	}
-
 	RewriteGitHTTPToSSH = map[string]string{
 		"http://github.com/springernature/":  "git@github.com:springernature/",
 		"https://github.com/springernature/": "git@github.com:springernature/",
