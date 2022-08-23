@@ -1,25 +1,23 @@
 package manifest
 
-import "strings"
-
 type DockerPush struct {
-	Type              string
-	Name              string        `yaml:"name,omitempty"`
-	ManualTrigger     bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Username          string        `yaml:"username,omitempty" secretAllowed:"true"`
-	Password          string        `yaml:"password,omitempty" secretAllowed:"true"`
-	Image             string        `yaml:"image,omitempty"`
-	ImageScanSeverity string        `json:"image_scan_severity,omitempty" yaml:"image_scan_severity,omitempty"`
-	Vars              Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	RestoreArtifacts  bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	Retries           int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess   bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications     Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Timeout           string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	DockerfilePath    string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
-	BuildPath         string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
-	Tag               string        `json:"tag,omitempty" yaml:"tag,omitempty"`
-	BuildHistory      int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Type                  string
+	Name                  string        `yaml:"name,omitempty"`
+	ManualTrigger         bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Username              string        `yaml:"username,omitempty" secretAllowed:"true"`
+	Password              string        `yaml:"password,omitempty" secretAllowed:"true"`
+	Image                 string        `yaml:"image,omitempty"`
+	IgnoreVulnerabilities bool          `json:"ignore_vulnerabilities,omitempty" yaml:"ignore_vulnerabilities,omitempty"`
+	Vars                  Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	RestoreArtifacts      bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	Retries               int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications         Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Timeout               string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	DockerfilePath        string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
+	BuildPath             string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
+	Tag                   string        `json:"tag,omitempty" yaml:"tag,omitempty"`
+	BuildHistory          int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
 func (r DockerPush) GetSecrets() map[string]string {
@@ -92,23 +90,4 @@ func (r DockerPush) ReadsFromArtifacts() bool {
 
 func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
-}
-
-func (r DockerPush) ShouldScanDockerImage() bool {
-	return r.GetImageScanSeverity() != "SKIP"
-}
-
-func (r DockerPush) GetImageScanSeverity() string {
-	return strings.ToUpper(r.ImageScanSeverity)
-}
-
-func (r DockerPush) SeverityList(delimiter string) string {
-	if r.GetImageScanSeverity() == "LOW" {
-		return strings.Join([]string{"LOW", "MEDIUM", "HIGH", "CRITICAL"}, delimiter)
-	} else if r.ImageScanSeverity == "MEDIUM" {
-		return strings.Join([]string{"MEDIUM", "HIGH", "CRITICAL"}, delimiter)
-	} else if r.ImageScanSeverity == "HIGH" {
-		return strings.Join([]string{"HIGH", "CRITICAL"}, delimiter)
-	}
-	return "CRITICAL"
 }

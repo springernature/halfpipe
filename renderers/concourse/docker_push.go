@@ -104,6 +104,10 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 
 func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	imageFile := path.Join(relativePathToRepoRoot(gitDir, fullBasePath), "image/image.tar")
+	exitCode := 1
+	if task.IgnoreVulnerabilities {
+		exitCode = 0
+	}
 
 	step := &atc.TaskStep{
 		Name: "trivy",
@@ -120,7 +124,7 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 				Args: []string{"-c", strings.Join([]string{
 					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
 					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
-					fmt.Sprintf(`trivy image --severity %s --exit-code 0 --input %s`, task.SeverityList(","), imageFile),
+					fmt.Sprintf(`trivy image --ignore-unfixed --severity CRITICAL --exit-code %d --input %s`, exitCode, imageFile),
 				}, "\n")},
 				Dir: fullBasePath,
 			},
@@ -190,9 +194,7 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 		},
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
-	if task.ShouldScanDockerImage() {
-		steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
-	}
+	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
 }

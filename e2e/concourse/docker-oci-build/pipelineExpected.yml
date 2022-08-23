@@ -58,6 +58,26 @@ jobs:
     privileged: true
     task: build
     timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --ignore-unfixed --severity CRITICAL --exit-code 1 --input ../../../../image/image.tar
+        dir: git/e2e/concourse/docker-oci-build
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
   - params:
       additional_tags: tagList/tagList
       image: image/image.tar
@@ -278,7 +298,7 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --severity LOW,MEDIUM,HIGH,CRITICAL --exit-code 0 --input ../../../../image/image.tar
+          trivy image --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar
         dir: docker_build/e2e/concourse/docker-oci-build
         path: /bin/sh
     task: trivy
@@ -364,7 +384,7 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar
+          trivy image --ignore-unfixed --severity CRITICAL --exit-code 1 --input ../../../../image/image.tar
         dir: git/e2e/concourse/docker-oci-build
         path: /bin/sh
     task: trivy

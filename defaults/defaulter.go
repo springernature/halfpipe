@@ -41,12 +41,11 @@ type KateeDefaults struct {
 }
 
 type DockerDefaults struct {
-	Username          string
-	Password          string
-	FilePath          string
-	ComposeFile       string
-	ComposeService    string
-	ImageScanSeverity string
+	Username       string
+	Password       string
+	FilePath       string
+	ComposeFile    string
+	ComposeService string
 }
 
 type ArtifactoryDefaults struct {

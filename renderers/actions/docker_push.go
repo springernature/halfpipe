@@ -19,9 +19,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	}
 
 	steps = append(steps, buildImage(a, task, buildArgs))
-	if task.ShouldScanDockerImage() {
-		steps = append(steps, scanImage(task))
-	}
+	steps = append(steps, scanImage(task))
 	steps = append(steps, pushImage(a, task, buildArgs))
 	steps = append(steps, repositoryDispatch(task.Image))
 	steps = append(steps, imageSummary(task.Image, tags(task)))
@@ -63,14 +61,18 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 }
 
 func scanImage(task manifest.DockerPush) Step {
+	exitCode := 1
+	if task.IgnoreVulnerabilities {
+		exitCode = 0
+	}
 	step := Step{
 		Name: "Run Trivy vulnerability scanner",
 		Uses: "aquasecurity/trivy-action@0.7.0",
 		With: With{
 			{"image-ref", task.Image + ":${{ env.GIT_REVISION }}"},
-			{"exit-code", 1},
+			{"exit-code", exitCode},
 			{"ignore-unfixed", true},
-			{"severity", task.SeverityList(",")},
+			{"severity", "CRITICAL"},
 		},
 	}
 	return step

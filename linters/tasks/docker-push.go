@@ -35,23 +35,6 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if docker.GetImageScanSeverity() != "" {
-		severities := map[string]bool{
-			"CRITICAL": true,
-			"HIGH":     true,
-			"MEDIUM":   true,
-			"LOW":      true,
-			"SKIP":     true,
-		}
-
-		if !severities[docker.GetImageScanSeverity()] {
-			errs = append(
-				errs,
-				linterrors.NewInvalidField("image_scan_severity",
-					"Unknown image_scan_severity, please use CRITICAL, HIGH, MEDIUM, LOW or SKIP to skip the scan step"))
-		}
-	}
-
 	if docker.DockerfilePath == "" {
 		errs = append(errs, linterrors.NewInvalidField("dockerfile_path", "must not be empty"))
 	}

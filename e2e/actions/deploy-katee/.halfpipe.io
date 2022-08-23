@@ -12,7 +12,6 @@ tasks:
     name: Push default
     image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
-    image_scan_severity: low
 
   - type: deploy-katee
     name: deploy to katee

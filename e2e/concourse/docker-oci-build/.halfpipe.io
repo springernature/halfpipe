@@ -15,7 +15,6 @@ tasks:
   username: uSeRnAmE
   password: verysecret
   image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
-  image_scan_severity: SKIP
 
 - type: run
   name: date to file
@@ -33,7 +32,7 @@ tasks:
   vars:
     PASSED_IN: SIMON
   restore_artifacts: true
-  image_scan_severity: LOW
+  ignore_vulnerabilities: true
 
 - type: docker-push
   name: different-build-and-file-folder

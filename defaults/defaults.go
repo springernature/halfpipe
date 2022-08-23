@@ -22,12 +22,11 @@ var Concourse = Defaults{
 		Tag:          "version",
 	},
 	Docker: DockerDefaults{
-		Username:          "_json_key",
-		Password:          "((halfpipe-gcr.private_key))",
-		ComposeService:    "app",
-		ComposeFile:       "docker-compose.yml",
-		FilePath:          "Dockerfile",
-		ImageScanSeverity: "CRITICAL",
+		Username:       "_json_key",
+		Password:       "((halfpipe-gcr.private_key))",
+		ComposeService: "app",
+		ComposeFile:    "docker-compose.yml",
+		FilePath:       "Dockerfile",
 	},
 	Artifactory: ArtifactoryDefaults{
 		Username: "((artifactory.username))",
@@ -49,10 +48,9 @@ var Concourse = Defaults{
 var Actions = Defaults{
 	ShallowClone: true,
 	Docker: DockerDefaults{
-		ComposeService:    "app",
-		ComposeFile:       "docker-compose.yml",
-		FilePath:          "Dockerfile",
-		ImageScanSeverity: "CRITICAL",
+		ComposeService: "app",
+		ComposeFile:    "docker-compose.yml",
+		FilePath:       "Dockerfile",
 	},
 
 	CF: CFDefaults{

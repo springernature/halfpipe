@@ -89,7 +89,7 @@ jobs:
         image-ref: eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
         exit-code: 1
         ignore-unfixed: true
-        severity: LOW,MEDIUM,HIGH,CRITICAL
+        severity: CRITICAL
     - name: Push Image
       uses: docker/build-push-action@v3
       with:
@@ -184,7 +184,7 @@ jobs:
       uses: aquasecurity/trivy-action@0.7.0
       with:
         image-ref: dockerhubusername/someImage:${{ env.GIT_REVISION }}
-        exit-code: 1
+        exit-code: 0
         ignore-unfixed: true
         severity: CRITICAL
     - name: Push Image

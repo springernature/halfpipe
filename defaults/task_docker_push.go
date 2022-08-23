@@ -19,9 +19,5 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.DockerfilePath = defaults.Docker.FilePath
 	}
 
-	if original.GetImageScanSeverity() == "" {
-		updated.ImageScanSeverity = defaults.Docker.ImageScanSeverity
-	}
-
 	return updated
 }

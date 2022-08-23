@@ -88,7 +88,7 @@ tasks:
   username: user
   password: pass
   image: golang:latest
-  image_scan_severity: ASD
+  ignore_vulnerabilities: true
   notifications:
     on_success:
     - asdf
@@ -260,11 +260,11 @@ tasks:
 				},
 			},
 			DockerPush{
-				Name:              "docker push task",
-				Username:          "user",
-				Password:          "pass",
-				Image:             "golang:latest",
-				ImageScanSeverity: "ASD",
+				Name:                  "docker push task",
+				Username:              "user",
+				Password:              "pass",
+				Image:                 "golang:latest",
+				IgnoreVulnerabilities: true,
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

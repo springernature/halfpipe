@@ -18,7 +18,6 @@ tasks:
 - type: docker-push
   name: Push default
   image: eu.gcr.io/halfpipe-io/someImage
-  image_scan_severity: low
   restore_artifacts: true
 
 - type: docker-push
@@ -27,9 +26,9 @@ tasks:
   username: user
   password: ((foo.bar))
   restore_artifacts: true
-  tag: gitref
   dockerfile_path: Dockerfile2
   timeout: 1h30m
+  ignore_vulnerabilities: true
   vars:
     FOO: foo
     BAR: bar
