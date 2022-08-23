@@ -39,12 +39,14 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		errs = append(errs, linterrors.NewInvalidField("dockerfile_path", "must not be empty"))
 	}
 
-	_, err := filechecker.ReadFile(fs, docker.DockerfilePath)
-	if err != nil {
-		errs = append(errs, err)
+	if !docker.RestoreArtifacts {
+		_, err := filechecker.ReadFile(fs, docker.DockerfilePath)
+		if err != nil {
+			errs = append(errs, err)
+		}
 	}
 
-	if docker.BuildPath != "" {
+	if docker.BuildPath != "" && !docker.RestoreArtifacts {
 		isDir, err := fs.IsDir(docker.BuildPath)
 		if err != nil {
 			if os.IsNotExist(err) {

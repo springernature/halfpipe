@@ -125,6 +125,22 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 		linterrors.AssertFileErrorInErrors(t, "../dockerfiles/Dockerfile", errors)
 	})
+
+	t.Run("don't error when RestoreArtifacts is true", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+		task := manifest.DockerPush{
+			Username:         "asd",
+			Password:         "asd",
+			Image:            "user/image",
+			DockerfilePath:   "Dockerfile",
+			RestoreArtifacts: true,
+		}
+
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
 }
 
 func TestDockerPushTaskWithCorrectData(t *testing.T) {
@@ -284,6 +300,23 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
+	})
+
+	t.Run("don't error when RestoreArtifacts is true", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+		task := manifest.DockerPush{
+			Username:         "asd",
+			Password:         "asd",
+			Image:            "asd/asd",
+			DockerfilePath:   "Dockerfile",
+			BuildPath:        "buildPathDoesntExist",
+			RestoreArtifacts: true,
+		}
+
+		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
 	})
 
 }
