@@ -26,7 +26,7 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 			// docker hub format: repository:tag or user/repository:tag
 			// other registries:  another.registry/user/repository:tag
 			if strings.Count(docker.Image, "/") < 3 && strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
-				warnings = append(warnings, linterrors.NewInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpip-io/<team>/<imageName>'"))
+				warnings = append(warnings, linterrors.NewInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpipe-io/<team>/<imageName>'"))
 			}
 		}
 	}
