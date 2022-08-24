@@ -306,3 +306,29 @@ func (c Concourse) versionResource(manifest manifest.Manifest) atc.ResourceConfi
 		},
 	}
 }
+
+const githubStatusesResourceName = "github-statuses"
+const githubStatusesResourceTypeName = "halfpipe-github-statuses-resource"
+
+func (c Concourse) githubStatusesResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name:       githubStatusesResourceTypeName,
+		Type:       "registry-image",
+		CheckEvery: longResourceCheckInterval,
+		Source: atc.Source{
+			"repository": "resource/github-status",
+		},
+	}
+}
+
+func (c Concourse) githubStatusesResource(manifest manifest.Manifest) atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name:       githubStatusesResourceName,
+		Type:       githubStatusesResourceTypeName,
+		CheckEvery: longResourceCheckInterval,
+		Source: atc.Source{
+			"repo":         fmt.Sprintf("%s/%s", config.GithubOrg, manifest.Triggers.GetGitTrigger().GetRepoName()),
+			"access_token": config.GithubToken,
+		},
+	}
+}

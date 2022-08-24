@@ -276,11 +276,16 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
 	resourceConfigs = append(resourceConfigs, pipelineResources...)
 
+	if man.FeatureToggles.GithubStatuses() {
+		resourceTypes = append(resourceTypes, c.githubStatusesResourceType())
+		resourceConfigs = append(resourceConfigs, c.githubStatusesResource(man))
+	}
+
 	return resourceTypes, resourceConfigs
 }
-func (c Concourse) onFailure(task manifest.Task) *atc.Step {
+func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Step {
 	onFailureChannels := task.GetNotifications().OnFailure
-	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 {
+	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 || man.FeatureToggles.GithubStatuses() {
 		var sequence []atc.Step
 
 		if task.SavesArtifactsOnFailure() {
@@ -291,19 +296,27 @@ func (c Concourse) onFailure(task manifest.Task) *atc.Step {
 			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
 		}
 
+		if man.FeatureToggles.GithubStatuses() {
+			sequence = append(sequence, statusesOnFailurePlan(man, task))
+		}
+
 		onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
 		return &onFailure
 	}
 	return nil
 }
 
-func (c Concourse) onSuccess(task manifest.Task) *atc.Step {
+func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Step {
 	onSuccessChannels := task.GetNotifications().OnSuccess
-	if len(onSuccessChannels) > 0 {
+	if len(onSuccessChannels) > 0 || man.FeatureToggles.GithubStatuses() {
 		var sequence []atc.Step
 
 		for _, onSuccessChannel := range onSuccessChannels {
 			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
+		}
+
+		if man.FeatureToggles.GithubStatuses() {
+			sequence = append(sequence, statusesOnSuccessPlan(man, task))
 		}
 
 		onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
@@ -350,8 +363,8 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.updateJobConfig(task, man.PipelineName(), basePath)
 	}
 
-	job.OnFailure = c.onFailure(task)
-	job.OnSuccess = c.onSuccess(task)
+	job.OnFailure = c.onFailure(task, man)
+	job.OnSuccess = c.onSuccess(task, man)
 	job.BuildLogRetention = c.buildLogRetention(task)
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
 

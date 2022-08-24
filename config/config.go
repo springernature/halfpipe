@@ -17,6 +17,8 @@ var (
 
 	Project = getEnv("HALFPIPE_PROJECT", "halfpipe-io")
 
+	GithubOrg = getEnv("HALFPIPE_GITHUB_ORG", "springernature")
+
 	DockerRegistry = "eu.gcr.io/" + Project + "/"
 
 	DockerComposeImage = "halfpipe-docker-compose:stable"
@@ -80,3 +82,5 @@ const ArtifactsBucket = "((halfpipe-artifacts.bucket))"
 const ArtifactsJSONKey = "((halfpipe-artifacts.private_key))"
 
 const SlackToken = "((halfpipe-slack.token))"
+
+const GithubToken = "((halfpipe-github.statuses-token))"
