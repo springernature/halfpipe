@@ -6,10 +6,6 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func statusesPendingPlan(man manifest.Manifest, task manifest.Task) atc.Step {
-	return statusesPlan("pending", man, task)
-}
-
 func statusesOnFailurePlan(man manifest.Manifest, task manifest.Task) atc.Step {
 	return statusesPlan("failure", man, task)
 }

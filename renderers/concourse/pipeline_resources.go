@@ -316,7 +316,9 @@ func (c Concourse) githubStatusesResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": "resource/github-status",
+			"repository": config.DockerRegistry + "engineering-enablement/github-status-resource",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
 		},
 	}
 }
