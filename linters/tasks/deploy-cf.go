@@ -65,14 +65,14 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 
 	if cf.DockerTag != "" {
 
-		apps, err := readCfManifest(cf.Manifest, nil, nil)
+		cfManifest, err := readCfManifest(cf.Manifest, nil, nil)
 		if err != nil {
 			errs = append(errs, err)
 			return
 		}
 
-		if apps[0].DockerImage == "" {
-			errs = append(errs, linterrors.NewInvalidField("docker_tag", "you must specify a 'docker.image' in the CF manifest if you want to use this feature"))
+		if cfManifest.Applications[0].Docker == nil || cfManifest.Applications[0].Docker.Image == "" {
+			errs = append(errs, linterrors.NewInvalidField("docker_tag", "you must specify 'docker.image' in the CF manifest if you want to use this feature"))
 			return
 		}
 

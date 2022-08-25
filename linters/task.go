@@ -1,7 +1,7 @@
 package linters
 
 import (
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/cf"
@@ -90,7 +90,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Run:
 			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os)
 		case manifest.DeployCF:
-			errs, warnings = linter.lintDeployCFTask(task, man, cfManifest.ReadAndInterpolateManifest, linter.Fs)
+			mp := manifestparser.ManifestParser{}
+			errs, warnings = linter.lintDeployCFTask(task, man, mp.InterpolateAndParse, linter.Fs)
 
 			if len(errs) == 0 && len(task.PrePromote) > 0 {
 				for pI, preTask := range task.PrePromote {

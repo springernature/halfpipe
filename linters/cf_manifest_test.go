@@ -1,22 +1,21 @@
 package linters
 
 import (
-	"code.cloudfoundry.org/cli/types"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/config"
 	errors2 "github.com/springernature/halfpipe/linters/linterrors"
 	"path"
 	"testing"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"errors"
 	"github.com/cloudfoundry/bosh-cli/director/template"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
-func manifestReader(applications []cfManifest.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
-	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
-		return applications, err
+func manifestReader(apps []manifestparser.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
+	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
+		return manifestparser.Manifest{Applications: apps}, err
 	}
 }
 
@@ -24,7 +23,7 @@ func TestNoCfDeployTasks(t *testing.T) {
 	man := manifest.Manifest{}
 
 	linter := cfManifestLinter{
-		readCfManifest: manifestReader(nil, nil),
+		readCfManifest: manifestReader([]manifestparser.Application{{}}, nil),
 	}
 
 	result := linter.Lint(man)
@@ -32,13 +31,12 @@ func TestNoCfDeployTasks(t *testing.T) {
 }
 
 func TestOneCfDeployTask(t *testing.T) {
-	apps := []cfManifest.Application{
-		{
-			Name:   "appName",
-			Routes: []string{"route"},
-		},
+	app := manifestparser.Application{
+		Name:            "appName",
+		NoRoute:         true,
+		HealthCheckType: "process",
 	}
-	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
+	linter := cfManifestLinter{readCfManifest: manifestReader([]manifestparser.Application{app}, nil)}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -54,7 +52,7 @@ func TestOneCfDeployTask(t *testing.T) {
 
 func TestOneCfDeployTaskWithInvalidManifest(t *testing.T) {
 	expectedErr := errors.New("invalid manifest error")
-	linter := cfManifestLinter{readCfManifest: manifestReader(nil, expectedErr)}
+	linter := cfManifestLinter{readCfManifest: manifestReader([]manifestparser.Application{{}}, expectedErr)}
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
@@ -70,14 +68,14 @@ func TestOneCfDeployTaskWithInvalidManifest(t *testing.T) {
 }
 
 func TestOneCfDeployTaskWithTwoApps(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
-			Name:   "app1",
-			Routes: []string{"route"},
+			Name:    "app1",
+			NoRoute: true,
 		},
 		{
-			Name:   "app2",
-			Routes: []string{"route1"},
+			Name:    "app2",
+			NoRoute: true,
 		},
 	}
 
@@ -95,33 +93,8 @@ func TestOneCfDeployTaskWithTwoApps(t *testing.T) {
 	assertTooManyAppsError(t, "manifest.yml", result.Errors[0])
 }
 
-func TestTwoCfDeployTasksWithOneApp(t *testing.T) {
-	apps := []cfManifest.Application{
-		{
-			Name:   "app",
-			Routes: []string{"route"},
-		},
-	}
-
-	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
-
-	man := manifest.Manifest{
-		Tasks: []manifest.Task{
-			manifest.DeployCF{
-				Manifest: "manifest.yml",
-			},
-			manifest.DeployCF{
-				Manifest: "manifest.yml",
-			},
-		},
-	}
-
-	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 0)
-}
-
 func TestOneCfDeployTaskWithAnAppWithoutARoute(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
 			Name: "app",
 		},
@@ -142,9 +115,10 @@ func TestOneCfDeployTaskWithAnAppWithoutARoute(t *testing.T) {
 }
 
 func TestOneCfDeployTaskWithAnAppWithoutAName(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
-			Routes: []string{"route"},
+			NoRoute:         true,
+			HealthCheckType: "process",
 		},
 	}
 	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
@@ -162,7 +136,7 @@ func TestOneCfDeployTaskWithAnAppWithoutAName(t *testing.T) {
 }
 
 func TestWorkerAppGivesErrorIfHealthCheckIsNotProcess(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
 			Name:    "My-app",
 			NoRoute: true,
@@ -184,11 +158,16 @@ func TestWorkerAppGivesErrorIfHealthCheckIsNotProcess(t *testing.T) {
 }
 
 func TestErrorsIfBothNoRouteAndRoutes(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
 			Name:    "My-app",
 			NoRoute: true,
-			Routes:  []string{"route1", "route2"},
+			RemainingManifestFields: map[string]interface{}{
+				"routes": []map[string]string{
+					{"route": "route1"},
+					{"route": "route2"},
+				},
+			},
 		},
 	}
 
@@ -207,7 +186,7 @@ func TestErrorsIfBothNoRouteAndRoutes(t *testing.T) {
 }
 
 func TestWorkerApp(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
 			Name:            "My-app",
 			NoRoute:         true,
@@ -245,11 +224,14 @@ func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
 }
 
 func TestLintsBuildpackField(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
-			Name:      "My-app",
-			Routes:    []string{"route1", "route2"},
-			Buildpack: types.FilteredString{Value: "kehe"},
+			Name:            "My-app",
+			NoRoute:         true,
+			HealthCheckType: "process",
+			RemainingManifestFields: map[string]interface{}{
+				"buildpack": "kehe",
+			},
 		},
 	}
 
@@ -262,18 +244,18 @@ func TestLintsBuildpackField(t *testing.T) {
 	linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
 
 	result := linter.Lint(man)
-	assert.Len(t, result.Warnings, 1)
 	assert.Equal(t, errors2.NewDeprecatedBuildpackError(), result.Warnings[0])
 	assert.Len(t, result.Errors, 0)
 }
 
 func TestLintUnversionedBuildpack(t *testing.T) {
-	buildpacks := []string{"https://versioned.com#v1.1", "https://unversioned.com", "system"}
-
-	apps := []cfManifest.Application{{
-		Name:       "My-app",
-		Routes:     []string{"route1"},
-		Buildpacks: buildpacks,
+	apps := []manifestparser.Application{{
+		Name:            "My-app",
+		NoRoute:         true,
+		HealthCheckType: "process",
+		RemainingManifestFields: map[string]any{
+			"buildpacks": []any{"https://versioned.com#v1.1", "https://unversioned.com", "system"},
+		},
 	}}
 
 	man := manifest.Manifest{
@@ -294,9 +276,10 @@ func TestLintUnversionedBuildpack(t *testing.T) {
 }
 
 func TestLintMissingBuildpack(t *testing.T) {
-	apps := []cfManifest.Application{{
-		Name:   "My-app",
-		Routes: []string{"route1"},
+	apps := []manifestparser.Application{{
+		Name:            "My-app",
+		NoRoute:         true,
+		HealthCheckType: "process",
 	}}
 
 	man := manifest.Manifest{
@@ -316,11 +299,17 @@ func TestLintMissingBuildpack(t *testing.T) {
 }
 
 func TestLintNoHttpInRoutes(t *testing.T) {
-	apps := []cfManifest.Application{
+	apps := []manifestparser.Application{
 		{
-			Name:       "My-app",
-			Routes:     []string{"http://route1", "https://route2", "route1"},
-			Buildpacks: []string{"java"},
+			Name: "My-app",
+			RemainingManifestFields: map[string]any{
+				"buildpacks": []any{"https://versioned.com#v1.1"},
+				"routes": []any{
+					map[any]any{"route": "http://route1"},
+					map[any]any{"route": "https://route2"},
+					map[any]any{"route": "route1"},
+				},
+			},
 		},
 	}
 
@@ -338,12 +327,15 @@ func TestLintNoHttpInRoutes(t *testing.T) {
 }
 
 func TestLintDockerImagePush(t *testing.T) {
-	t.Run("Errors when both docker image and deploy artefact is specified", func(t *testing.T) {
-		apps := []cfManifest.Application{
+	t.Run("Errors when both docker image and deploy artifact is specified", func(t *testing.T) {
+		apps := []manifestparser.Application{
 			{
-				Name:        "appName",
-				Routes:      []string{"route"},
-				DockerImage: "nginx",
+				Name:            "appName",
+				NoRoute:         true,
+				HealthCheckType: "process",
+				Docker: &manifestparser.Docker{
+					Image: "nginx",
+				},
 			},
 		}
 		linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
@@ -363,12 +355,15 @@ func TestLintDockerImagePush(t *testing.T) {
 
 	})
 
-	t.Run("Errors when the images isn't from our repo", func(t *testing.T) {
-		apps := []cfManifest.Application{
+	t.Run("Errors when the image isn't from our repo", func(t *testing.T) {
+		apps := []manifestparser.Application{
 			{
-				Name:        "appName",
-				Routes:      []string{"route"},
-				DockerImage: "nginx",
+				Name:            "appName",
+				NoRoute:         true,
+				HealthCheckType: "process",
+				Docker: &manifestparser.Docker{
+					Image: "nginx",
+				},
 			},
 		}
 		linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}
@@ -388,11 +383,14 @@ func TestLintDockerImagePush(t *testing.T) {
 	})
 
 	t.Run("All is good", func(t *testing.T) {
-		apps := []cfManifest.Application{
+		apps := []manifestparser.Application{
 			{
-				Name:        "appName",
-				Routes:      []string{"route"},
-				DockerImage: path.Join(config.DockerRegistry, "nginx"),
+				Name:            "appName",
+				NoRoute:         true,
+				HealthCheckType: "process",
+				Docker: &manifestparser.Docker{
+					Image: path.Join(config.DockerRegistry, "nginx"),
+				},
 			},
 		}
 		linter := cfManifestLinter{readCfManifest: manifestReader(apps, nil)}

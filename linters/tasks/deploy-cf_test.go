@@ -1,7 +1,7 @@
 package tasks
 
 import (
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/cloudfoundry/bosh-cli/director/template"
 	"testing"
 
@@ -11,9 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func manifestReader(applications []cfManifest.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
-	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) ([]cfManifest.Application, error) {
-		return applications, err
+func manifestReader(application manifestparser.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
+	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
+		return manifestparser.Manifest{Applications: []manifestparser.Application{application}}, err
 	}
 }
 
@@ -249,8 +249,8 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 
 func TestDockerTag(t *testing.T) {
 	t.Run("Docker image is not specified in the manifest", func(t *testing.T) {
-		application := cfManifest.Application{Name: "kehe"}
-		cfManifestReader := manifestReader([]cfManifest.Application{application}, nil)
+		application := manifestparser.Application{Name: "kehe"}
+		cfManifestReader := manifestReader(application, nil)
 
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("manifest.yml", []byte("foo"), 0777)
@@ -271,8 +271,8 @@ func TestDockerTag(t *testing.T) {
 	})
 
 	t.Run("Docker image is specified in the manifest", func(t *testing.T) {
-		application := cfManifest.Application{Name: "kehe", DockerImage: "asd"}
-		cfManifestReader := manifestReader([]cfManifest.Application{application}, nil)
+		application := manifestparser.Application{Name: "kehe", Docker: &manifestparser.Docker{Image: "asd"}}
+		cfManifestReader := manifestReader(application, nil)
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 

@@ -54,7 +54,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		}),
 		Env: envVars,
 	}
-	if task.CfApplication.DockerImage != "" {
+	if task.CfApplication.Docker != nil {
 		push.With = append(push.With, With{
 			{"dockerUsername", "_json_key"},
 			{"dockerPassword", "((halfpipe-gcr.private_key_base64))"},
