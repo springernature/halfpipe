@@ -1,7 +1,7 @@
 package mapper
 
 import (
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
 )
@@ -58,16 +58,16 @@ func (c cf) mapCf(cf manifest.DeployCF) (updated manifest.DeployCF, err error) {
 		return
 	}
 
-	apps, err := cfManifest.ReadAndInterpolateManifest(cf.Manifest, nil, nil)
+	cfManifest, err := manifestparser.ManifestParser{}.InterpolateAndParse(cf.Manifest, nil, nil)
 	if err != nil {
 		return
 	}
 
-	if apps[0].DockerImage != "" {
+	if cfManifest.Applications[0].Docker != nil {
 		updated.IsDockerPush = true
 	}
 
-	updated.CfApplication = apps[0]
+	updated.CfApplication = cfManifest.Applications[0]
 	return
 }
 

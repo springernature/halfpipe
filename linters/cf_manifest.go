@@ -6,7 +6,7 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"strings"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
@@ -40,7 +40,8 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 			return result
 		}
 
-		apps, err := linter.readCfManifest(manifestPath, nil, nil)
+		manifest, err := linter.readCfManifest(manifestPath, nil, nil)
+		apps := manifest.Applications
 
 		if err != nil {
 			result.AddError(fmt.Errorf("cf-manifest error in %s, %s", manifestPath, err.Error()))
@@ -64,14 +65,14 @@ func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintRe
 	return result
 }
 
-func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []error) {
-	if app.DockerImage != "" {
+func lintDockerPush(task manifest.DeployCF, app manifestparser.Application) (errs []error) {
+	if app.Docker != nil {
 		if task.DeployArtifact != "" {
-			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "you cannot specify both 'deploy_artifact' in the task and 'docker.image' in the manifest"))
+			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, "you cannot specify both 'deploy_artifact' in the task and 'docker' in the manifest"))
 			return
 		}
 
-		if !strings.HasPrefix(app.DockerImage, config.DockerRegistry) {
+		if !strings.HasPrefix(app.Docker.Image, config.DockerRegistry) {
 			errs = append(errs, linterrors.NewDockerPushError(task.Manifest, fmt.Sprintf("image must come from '%s'", config.DockerRegistry)))
 			return
 		}
@@ -80,14 +81,14 @@ func lintDockerPush(task manifest.DeployCF, app cfManifest.Application) (errs []
 	return
 }
 
-func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) {
-	if man.NoRoute {
-		if len(man.Routes) != 0 {
+func lintRoutes(manifestPath string, app manifestparser.Application) (errs []error) {
+	if app.NoRoute {
+		if app.RemainingManifestFields["routes"] != nil {
 			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "you cannot specify both 'routes' and 'no-route'"))
 			return errs
 		}
 
-		if man.HealthCheckType != "process" {
+		if app.HealthCheckType != "process" {
 			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "if 'no-route' is true you must set 'health-check-type' to 'process'"))
 			return errs
 		}
@@ -95,12 +96,12 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 		return errs
 	}
 
-	if len(man.Routes) == 0 {
+	if app.RemainingManifestFields["routes"] == nil {
 		errs = append(errs, linterrors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
 		return errs
 	}
 
-	for _, route := range man.Routes {
+	for _, route := range cf.Routes(app) {
 		if strings.HasPrefix(route, "http://") || strings.HasPrefix(route, "https://") {
 			errs = append(errs, linterrors.NewNoRoutesError(manifestPath, fmt.Sprintf("don't put http(s):// at the start of the route: '%s'", route)))
 		}
@@ -109,19 +110,22 @@ func lintRoutes(manifestPath string, man cfManifest.Application) (errs []error) 
 	return errs
 }
 
-func lintBuildpack(man cfManifest.Application) (errs []error) {
-	if man.Buildpack.Value != "" {
+func lintBuildpack(app manifestparser.Application) (errs []error) {
+	if app.RemainingManifestFields["buildpack"] != nil {
 		errs = append(errs, linterrors.NewDeprecatedBuildpackError())
 	}
 
-	for _, bp := range man.Buildpacks {
+	buildpacks := cf.Buildpacks(app)
+
+	if len(buildpacks) == 0 && app.Docker == nil {
+		errs = append(errs, linterrors.NewMissingBuildpackError())
+		return errs
+	}
+
+	for _, bp := range buildpacks {
 		if strings.HasPrefix(bp, "http") && !strings.Contains(bp, "#") {
 			errs = append(errs, linterrors.NewUnversionedBuildpackError(bp))
 		}
-	}
-
-	if man.Buildpack.Value == "" && len(man.Buildpacks) == 0 && man.DockerImage == "" {
-		errs = append(errs, linterrors.NewMissingBuildpackError())
 	}
 
 	return errs

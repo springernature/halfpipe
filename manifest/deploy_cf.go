@@ -1,7 +1,7 @@
 package manifest
 
 import (
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"strings"
 )
 
@@ -30,7 +30,7 @@ type DeployCF struct {
 	DockerTag       string        `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 
-	CfApplication cfManifest.Application `json:"-" yaml:"-"`
+	CfApplication manifestparser.Application `json:"-" yaml:"-"`
 }
 
 func (r DeployCF) GetSecrets() map[string]string {

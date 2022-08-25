@@ -1,6 +1,7 @@
 package cmds
 
 import (
+	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
 	"github.com/springernature/halfpipe/renderers/concourse"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"runtime"
 	"strings"
 
-	cfManifest "code.cloudfoundry.org/cli/util/manifest"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/config"
@@ -135,7 +135,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewVelaManifestLinter(fs),
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS),
-			linters.NewCfManifestLinter(cfManifest.ReadAndInterpolateManifest),
+			linters.NewCfManifestLinter(manifestparser.ManifestParser{}.InterpolateAndParse),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
 			linters.NewNexusRepoLinter(fs),
 			linters.NewActionsLinter(),
