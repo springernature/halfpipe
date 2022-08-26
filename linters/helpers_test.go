@@ -98,7 +98,7 @@ func assertWrongHealthCheck(t *testing.T, name string, err error) {
 
 	mf, ok := err.(linterrors.WrongHealthCheck)
 	if !ok {
-		assert.Fail(t, "error is not an TooManyAppsError", err)
+		assert.Fail(t, "error is not a WrongHealthCheck", err)
 	} else {
 		assert.Equal(t, name, mf.Path)
 	}
