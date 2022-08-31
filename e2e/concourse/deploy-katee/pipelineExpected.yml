@@ -144,6 +144,7 @@ jobs:
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
         KATEE_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         KATEE_TEAM: halfpipe-team
+        VERY_SECRET: blah
       platform: linux
       run:
         args:

@@ -8,7 +8,7 @@ type DeployKatee struct {
 	Image           string        `yaml:"image,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	VelaManifest    string        `yaml:"vela_manifest,omitempty"`
+	VelaManifest    string        `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
 	Retries         int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`

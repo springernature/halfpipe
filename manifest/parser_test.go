@@ -129,6 +129,24 @@ tasks:
     consumer_host: cdc-host
     script: cdc-script
     use_covenant: false
+- type: deploy-katee
+  name: deploy katee task
+  vela_manifest: blah
+  application_name: bl
+  manual_trigger: false
+  timeout: 30s
+  image: blahblah
+  tag: latest
+  notifications:
+    on_success:
+    - asdf
+    - kehe
+    on_failure:
+    - kfds
+    - oasdf
+  vars:
+    FOO: fOo
+    BAR: "1"
 - type: docker-compose
   name: docker compose task 2
   service: asdf
@@ -306,6 +324,24 @@ tasks:
 						Script:       "cdc-script",
 						UseCovenant:  false,
 					}},
+			},
+			DeployKatee{
+				Name:            "deploy katee task",
+				ApplicationName: "bl",
+				ManualTrigger:   false,
+				Image:           "blahblah",
+				Timeout:         "30s",
+				Vars: Vars{
+					"FOO": "fOo",
+					"BAR": "1",
+				},
+				VelaManifest:    "blah",
+				NotifyOnSuccess: false,
+				Notifications: Notifications{
+					OnSuccess: []string{"asdf", "kehe"},
+					OnFailure: []string{"kfds", "oasdf"},
+				},
+				Tag: "latest",
 			},
 			DockerCompose{
 				Name:    "docker compose task 2",

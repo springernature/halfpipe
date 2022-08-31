@@ -20,6 +20,7 @@ tasks:
     image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
     application_name: BLAHBLAH
+    vela_manifest: vela.yaml
     notifications:
       on_failure:
         - "#ee-re"
@@ -28,3 +29,5 @@ tasks:
       ENV2: ((secret.something))
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
+      VERY_SECRET: blah
+

@@ -26,3 +26,4 @@ tasks:
       ENV2: ((secret.something))
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
+      VERY_SECRET: ((another.secret))
