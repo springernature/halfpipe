@@ -18,7 +18,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/onsi/gomega v1.20.0
+	github.com/onsi/gomega v1.20.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.9.2
 	github.com/spf13/cobra v1.5.0
@@ -28,6 +28,8 @@ require (
 	gopkg.in/yaml.v2 v2.4.0
 	sigs.k8s.io/yaml v1.3.0
 )
+
+require gopkg.in/yaml.v3 v3.0.1
 
 require (
 	cloud.google.com/go/trace v1.0.0 // indirect
@@ -54,5 +56,4 @@ require (
 	google.golang.org/api v0.57.0 // indirect
 	google.golang.org/genproto v0.0.0-20210921142501-181ce0d877f6 // indirect
 	google.golang.org/grpc v1.40.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
