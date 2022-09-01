@@ -104,10 +104,14 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 
 func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	imageFile := path.Join(relativePathToRepoRoot(gitDir, fullBasePath), "image/image.tar")
-	exitCode := 1
-	if task.IgnoreVulnerabilities {
-		exitCode = 0
-	}
+
+	//exitCode := 1
+	//if task.IgnoreVulnerabilities {
+	//	exitCode = 0
+	//}
+
+	// temporary: always exit 0 until we have communicated the ignoreVulnerabilites opt-in
+	exitCode := 0
 
 	step := &atc.TaskStep{
 		Name: "trivy",
