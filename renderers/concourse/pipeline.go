@@ -184,15 +184,15 @@ func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previo
 	return steps
 }
 
-func (c Concourse) dockerPushResources(tasks manifest.TaskList, ociBuild bool) (resourceConfigs atc.ResourceConfigs) {
+func (c Concourse) dockerPushResources(tasks manifest.TaskList, oldBuild bool) (resourceConfigs atc.ResourceConfigs) {
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.DockerPush:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResource(task, ociBuild))
+			resourceConfigs = append(resourceConfigs, c.dockerPushResource(task, oldBuild))
 		case manifest.Parallel:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks, ociBuild)...)
+			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks, oldBuild)...)
 		case manifest.Sequence:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks, ociBuild)...)
+			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks, oldBuild)...)
 		}
 	}
 
@@ -266,7 +266,7 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 		resourceConfigs = append(resourceConfigs, c.versionResource(man))
 	}
 
-	resourceConfigs = append(resourceConfigs, c.dockerPushResources(man.Tasks, man.FeatureToggles.DockerOciBuild())...)
+	resourceConfigs = append(resourceConfigs, c.dockerPushResources(man.Tasks, man.FeatureToggles.DockerOldBuild())...)
 
 	cfResourceTypes, cfResources := c.cfPushResources(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)

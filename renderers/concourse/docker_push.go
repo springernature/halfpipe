@@ -203,11 +203,7 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	return steps
 }
 
-func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, man manifest.Manifest) []atc.Step {
-	if man.FeatureToggles.DockerOciBuild() {
-		return buildAndPushOci(task, resourceName, fullBasePath)
-	}
-
+func buildAndPushOld(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
 	step := &atc.PutStep{
 		Name: resourceName,
 		Params: atc.Params{
@@ -218,4 +214,12 @@ func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath st
 		},
 	}
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(step, task.GetAttempts(), task.GetTimeout()))
+}
+
+func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, man manifest.Manifest) []atc.Step {
+	if man.FeatureToggles.DockerOldBuild() {
+		return buildAndPushOld(task, resourceName, fullBasePath)
+	}
+
+	return buildAndPushOci(task, resourceName, fullBasePath)
 }

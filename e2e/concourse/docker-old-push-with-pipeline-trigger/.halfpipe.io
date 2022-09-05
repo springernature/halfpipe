@@ -1,10 +1,13 @@
 team: halfpipe-team
-pipeline: halfpipe-e2e-timer-trigger
+pipeline: halfpipe-e2e-docker-push-with-pipeline-trigger
 
 triggers:
 - type: git
-- type: timer
-  cron: "1 * * * *"
+  watched_paths:
+  - e2e/concourse/docker-old-push-with-pipeline-trigger
+- type: pipeline
+  pipeline: halfpipe-example-docker-push
+  job: docker-push
 
 feature_toggles:
 - docker-old-build
@@ -18,3 +21,4 @@ tasks:
   vars:
     A: a
     B: b
+

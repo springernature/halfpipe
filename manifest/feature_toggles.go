@@ -6,7 +6,7 @@ const FeatureUpdatePipeline = "update-pipeline"
 const FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
 
 const FeatureDockerDecompose = "docker-decompose"
-const FeatureDockerOciBuild = "docker-oci-build"
+const FeatureDockerOldBuild = "docker-old-build"
 
 const FeatureGithubStatuses = "github-statuses"
 
@@ -14,7 +14,7 @@ var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureUpdatePipelineAndTag,
 	FeatureDockerDecompose,
-	FeatureDockerOciBuild,
+	FeatureDockerOldBuild,
 	FeatureGithubStatuses,
 }
 
@@ -39,8 +39,8 @@ func (f FeatureToggles) DockerDecompose() bool {
 	return f.contains(FeatureDockerDecompose)
 }
 
-func (f FeatureToggles) DockerOciBuild() bool {
-	return f.contains(FeatureDockerOciBuild)
+func (f FeatureToggles) DockerOldBuild() bool {
+	return f.contains(FeatureDockerOldBuild)
 }
 
 func (f FeatureToggles) GithubStatuses() bool {

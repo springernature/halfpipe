@@ -1,0 +1,202 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: push to docker registry
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_A: a
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_B: b
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/docker-oci-push
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        DOCKERFILE: git/e2e/concourse/docker-oci-push/Dockerfile
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar
+        dir: git/e2e/concourse/docker-oci-push
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - params:
+      additional_tags: tagList/tagList
+      image: image/image.tar
+    put: halfpipe-fly.thisismy-tag
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: docker-push
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - push to docker registry
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/docker-oci-push
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        DOCKERFILE: git/e2e/concourse/docker-oci-push/Dockerfile
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - attempts: 2
+    config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar
+        dir: git/e2e/concourse/docker-oci-push
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - attempts: 2
+    params:
+      additional_tags: tagList/tagList
+      image: image/image.tar
+    put: halfpipe-fly.thisismy-tag2
+    timeout: 1h
+  serial: true
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: main
+    paths:
+    - e2e/concourse/docker-oci-push
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: halfpipe-fly.thisismy-tag
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
+    username: rob
+  type: registry-image
+- check_every: 24h
+  name: halfpipe-fly.thisismy-tag2
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
+    username: rob
+  type: registry-image

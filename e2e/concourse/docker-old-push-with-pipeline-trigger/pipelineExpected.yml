@@ -1,0 +1,86 @@
+# Generated using halfpipe cli version 0.0.0-DEV
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: push to docker registry
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        trigger: true
+      - get: halfpipe-example-docker-push.docker-push
+        trigger: true
+    timeout: 15m
+  - config:
+      image_resource:
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - params:
+      additional_tags: tagList/tagList
+      build: git/e2e/concourse/docker-old-push-with-pipeline-trigger
+      build_args:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+        RUNNING_IN_CI: "true"
+      dockerfile: git/e2e/concourse/docker-old-push-with-pipeline-trigger/Dockerfile
+    put: halfpipe-fly
+    timeout: 1h
+  serial: true
+resource_types:
+- check_every: 24h
+  name: halfpipe-pipeline-trigger
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-pipeline-trigger-resource
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m
+  name: git
+  source:
+    branch: main
+    paths:
+    - e2e/concourse/docker-old-push-with-pipeline-trigger
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h
+  name: halfpipe-fly
+  source:
+    password: verysecret
+    repository: springerplatformengineering/halfpipe-fly
+    username: rob
+  type: docker-image
+- name: halfpipe-example-docker-push.docker-push
+  source:
+    concourse_url: ((concourse.url))
+    job: docker-push
+    password: ((concourse.password))
+    pipeline: halfpipe-example-docker-push
+    status: succeeded
+    team: halfpipe-team
+    username: ((concourse.username))
+  type: halfpipe-pipeline-trigger
+

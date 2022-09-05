@@ -225,10 +225,10 @@ func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName str
 	}
 }
 
-func (c Concourse) dockerPushResource(docker manifest.DockerPush, ociBuild bool) atc.ResourceConfig {
-	resourceImage := "docker-image"
-	if ociBuild {
-		resourceImage = "registry-image"
+func (c Concourse) dockerPushResource(docker manifest.DockerPush, oldBuild bool) atc.ResourceConfig {
+	resourceImage := "registry-image"
+	if oldBuild {
+		resourceImage = "docker-image"
 	}
 
 	return atc.ResourceConfig{
