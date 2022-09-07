@@ -52,7 +52,7 @@ jobs:
           VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.7.0
+      uses: aquasecurity/trivy-action@0.7.1
       with:
         image-ref: eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.GIT_REVISION }}
         exit-code: 1
