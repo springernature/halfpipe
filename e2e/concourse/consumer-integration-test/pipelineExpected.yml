@@ -36,6 +36,7 @@ jobs:
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         GIT_CLONE_OPTIONS: --depth 100
+        HALFPIPE_CACHE_TEAM: halfpipe-team
         K: value
         K1: value1
         PROVIDER_HOST: p-host
@@ -103,6 +104,7 @@ jobs:
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         GIT_CLONE_OPTIONS: --depth 100
+        HALFPIPE_CACHE_TEAM: halfpipe-team
         K: value
         K1: value1
         PROVIDER_HOST: p-host

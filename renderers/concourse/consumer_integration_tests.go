@@ -53,6 +53,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 			"GCR_PRIVATE_KEY":        "((halfpipe-gcr.private_key))",
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
+			"HALFPIPE_CACHE_TEAM":    man.Team,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
 		Timeout: task.GetTimeout(),
