@@ -54,7 +54,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.1
+      uses: hashicorp/vault-action@v2.4.2
       with:
         url: https://vault.halfpipe.io
         method: approle
@@ -153,7 +153,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.1
+      uses: hashicorp/vault-action@v2.4.2
       with:
         url: https://vault.halfpipe.io
         method: approle
@@ -252,7 +252,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.1
+      uses: hashicorp/vault-action@v2.4.2
       with:
         url: https://vault.halfpipe.io
         method: approle
@@ -434,7 +434,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.1
+      uses: hashicorp/vault-action@v2.4.2
       with:
         url: https://vault.halfpipe.io
         method: approle
