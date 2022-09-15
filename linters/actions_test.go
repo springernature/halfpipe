@@ -97,7 +97,6 @@ func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
 		"all features": {
 			manifest.FeatureUpdatePipeline,
 			manifest.FeatureUpdatePipelineAndTag,
-			manifest.FeatureDockerDecompose,
 		},
 		"update-pipeline":         {manifest.FeatureUpdatePipeline},
 		"update-pipeline-and-tag": {manifest.FeatureUpdatePipelineAndTag},

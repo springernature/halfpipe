@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -31,7 +30,6 @@ func New() Mapper {
 		mappers: []Mapper{
 			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
-			NewDockerComposeMapper(afero.Afero{Fs: afero.NewOsFs()}),
 			NewCfMapper(),
 		},
 	}

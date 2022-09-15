@@ -74,7 +74,7 @@ func TestApplyFeatureToggleDefaults(t *testing.T) {
 	}
 
 	man := manifest.Manifest{
-		FeatureToggles: []string{manifest.FeatureUpdatePipeline, manifest.FeatureDockerDecompose},
+		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
 	}
 	assert.Equal(t, man.FeatureToggles, defaults.Apply(man).FeatureToggles)
 }

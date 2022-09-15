@@ -10,6 +10,9 @@ var ErrNonSupportedFeature = func(feature string) error {
 	if feature == "versioned" {
 		return fmt.Errorf("feature '%s' is no longer supported. The same functionality is included in the 'update-pipeline' feature", feature)
 	}
+	if feature == "docker-decompose" {
+		return fmt.Errorf("feature '%s' is no longer supported. docker-compose tasks will not be modified", feature)
+	}
 	return fmt.Errorf("feature '%s' is not supported", feature)
 }
 
