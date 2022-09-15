@@ -5,6 +5,9 @@ var SupportedFiles = map[string]string{
 	"package-lock.json": "npm",
 	"yarn.lock":         "npm",
 	"Gemfile.lock":      "bundler",
+	"pom.xml":           "maven",
+	"build.gradle":      "gradle",
+	"build.gradle.kt":   "gradle",
 }
 
 type DependabotConfig struct {
