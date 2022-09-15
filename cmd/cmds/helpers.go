@@ -137,7 +137,6 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewTasksLinter(fs, runtime.GOOS),
 			linters.NewCfManifestLinter(manifestparser.ManifestParser{}.InterpolateAndParse),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
-			linters.NewNexusRepoLinter(fs),
 			linters.NewActionsLinter(),
 		},
 		renderer,
