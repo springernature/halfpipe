@@ -99,5 +99,4 @@ func TestWalker(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "1/2/3/3", "1/2/3/4/4", "3/1", "rootFile"}, paths)
 	})
-
 }
