@@ -20,19 +20,19 @@ type mockFilter struct {
 	called          bool
 }
 
-func (m *mockFilter) Filter(paths []string) []string {
+func (m *mockFilter) Filter(paths []string) MatchedPaths {
 	m.calledWithFiles = paths
 	m.called = true
-	return paths
+	return MatchedPaths{}
 }
 
 type mockRender struct {
 	config          Config
-	calledWithFiles []string
+	calledWithPaths MatchedPaths
 }
 
-func (m *mockRender) Render(paths []string) Config {
-	m.calledWithFiles = paths
+func (m *mockRender) Render(paths MatchedPaths) Config {
+	m.calledWithPaths = paths
 	return m.config
 }
 
