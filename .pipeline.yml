@@ -44,6 +44,12 @@ resources:
     regex: halfpipe_windows_(?<version>.*).exe
     repository: /halfpipe
     username: ((artifactory.username))
+- name: github-statuses
+  type: halfpipe-github-statuses-resource
+  check_every: 24h
+  source:
+    access_token: ((halfpipe-github.statuses-token))
+    repo: springernature/halfpipe
 - name: release
   type: github-release-latest
   source:
@@ -60,12 +66,39 @@ resource_types:
   type: registry-image
   source:
     repository: concourse/github-release-resource
+- name: halfpipe-github-statuses-resource
+  type: registry-image
+  check_every: 24h
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/engineering-enablement/github-status-resource
+    username: _json_key
 jobs:
 - name: Test
   serial: true
+  on_failure:
+    put: github-statuses
+    timeout: 1m
+    params:
+      context: test
+      path: halfpipe
+      state: failure
+  on_success:
+    put: github-statuses
+    timeout: 1m
+    params:
+      context: test
+      path: halfpipe
+      state: success
   plan:
   - get: halfpipe
     trigger: true
+  - put: github-statuses
+    timeout: 1m
+    params:
+      context: test
+      path: halfpipe
+      state: pending
   - task: Test
     config:
       platform: linux
@@ -83,6 +116,8 @@ jobs:
           export HALFPIPE_SKIP_COVERAGE_TESTS=true
           cd halfpipe
           ./build.sh ci
+          echo timing build ...
+          time ./build.sh > /dev/null
       inputs:
       - name: halfpipe
       caches:
