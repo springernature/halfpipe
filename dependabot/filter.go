@@ -3,6 +3,7 @@ package dependabot
 import (
 	"github.com/sirupsen/logrus"
 	"path/filepath"
+	"strings"
 )
 
 type Filter interface {
@@ -31,9 +32,15 @@ func (f filter) shouldInclude(path string, skipEcosystems []string) bool {
 }
 
 func (f filter) Filter(paths []string, skipEcosystems []string) (filtered []string) {
+	addedActions := false
 	for _, path := range paths {
 		if f.shouldInclude(path, skipEcosystems) {
 			filtered = append(filtered, path)
+		}
+
+		if strings.HasPrefix(path, ".github/workflows") && !addedActions {
+			filtered = append(filtered, "github-actions")
+			addedActions = true
 		}
 	}
 	return

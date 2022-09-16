@@ -8,6 +8,8 @@ var SupportedFiles = map[string]string{
 	"pom.xml":           "maven",
 	"build.gradle":      "gradle",
 	"build.gradle.kt":   "gradle",
+	"go.mod":            "gomod",
+	"github-actions":    "github-actions",
 }
 
 type DependabotConfig struct {

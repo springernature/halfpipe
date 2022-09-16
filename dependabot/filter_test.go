@@ -36,4 +36,13 @@ func TestFilter(t *testing.T) {
 
 		assert.Equal(t, []string{"Gemfile.lock", "a/Gemfile.lock", "a/b/c/Gemfile.lock"}, found)
 	})
+
+	t.Run("Finds github workflows", func(t *testing.T) {
+		found := NewFilter().Filter([]string{
+			"a", "a/b", ".hidden/asd", ".github/workflows/codeql.yml", ".github/workflows/someOtherWorklow.yml",
+		}, []string{})
+
+		assert.Equal(t, []string{"github-actions"}, found)
+
+	})
 }

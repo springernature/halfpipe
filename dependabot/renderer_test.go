@@ -14,9 +14,10 @@ func TestRender(t *testing.T) {
 				{"docker", "/", schedule},
 				{"docker", "/a", schedule},
 				{"npm", "/a/b/c/d", schedule},
+				{"github-actions", "/", schedule},
 			},
 		}
-		config := NewRender().Render([]string{"Dockerfile", "a/Dockerfile", "a/b/c/d/yarn.lock"})
+		config := NewRender().Render([]string{"Dockerfile", "a/Dockerfile", "a/b/c/d/yarn.lock", "github-actions"})
 		assert.Equal(t, expectedConfig, config)
 	})
 }
