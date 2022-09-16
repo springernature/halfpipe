@@ -7,14 +7,15 @@ import (
 )
 
 type Filter interface {
-	Filter(paths []string, skipEcosystems []string) []string
+	Filter(paths []string) []string
 }
 
 type filter struct {
+	skipEcosystems []string
 }
 
-func (f filter) shouldFilterOutEcosystem(path string, ecosystem string, skipEcosystems []string) bool {
-	for _, skipEcosystem := range skipEcosystems {
+func (f filter) shouldFilterOutEcosystem(path string, ecosystem string) bool {
+	for _, skipEcosystem := range f.skipEcosystems {
 		if skipEcosystem == ecosystem {
 			logrus.Debugf("Removing '%s' due to filtered out ecosystem '%s'", path, ecosystem)
 			return true
@@ -23,18 +24,18 @@ func (f filter) shouldFilterOutEcosystem(path string, ecosystem string, skipEcos
 	return false
 }
 
-func (f filter) shouldInclude(path string, skipEcosystems []string) bool {
+func (f filter) shouldInclude(path string) bool {
 	fileName := filepath.Base(path)
-	if ecosystem, ok := SupportedFiles[fileName]; ok && !f.shouldFilterOutEcosystem(path, ecosystem, skipEcosystems) {
+	if ecosystem, ok := SupportedFiles[fileName]; ok && !f.shouldFilterOutEcosystem(path, ecosystem) {
 		return true
 	}
 	return false
 }
 
-func (f filter) Filter(paths []string, skipEcosystems []string) (filtered []string) {
+func (f filter) Filter(paths []string) (filtered []string) {
 	addedActions := false
 	for _, path := range paths {
-		if f.shouldInclude(path, skipEcosystems) {
+		if f.shouldInclude(path) {
 			filtered = append(filtered, path)
 		}
 
@@ -46,6 +47,6 @@ func (f filter) Filter(paths []string, skipEcosystems []string) (filtered []stri
 	return
 }
 
-func NewFilter() Filter {
-	return filter{}
+func NewFilter(skipEcosystems []string) Filter {
+	return filter{skipEcosystems}
 }

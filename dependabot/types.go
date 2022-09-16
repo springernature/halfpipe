@@ -12,13 +12,6 @@ var SupportedFiles = map[string]string{
 	"github-actions":    "github-actions",
 }
 
-type DependabotConfig struct {
-	Depth         int
-	Verbose       bool
-	SkipFolders   []string
-	SkipEcosystem []string
-}
-
 type Config struct {
 	Version int
 	Updates []Dependency

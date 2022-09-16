@@ -36,9 +36,8 @@ func init() {
 			}
 
 			c, err := dependabot.New(
-				dependabot.DependabotConfig{Depth: depth, Verbose: verbose, SkipFolders: skipFolders, SkipEcosystem: skipEcosystem},
-				dependabot.NewWalker(afero.Afero{Fs: afero.NewBasePathFs(fs, pwd)}),
-				dependabot.NewFilter(),
+				dependabot.NewWalker(afero.Afero{Fs: afero.NewBasePathFs(fs, pwd)}, depth, skipFolders),
+				dependabot.NewFilter(skipEcosystem),
 				dependabot.NewRender(),
 			).Resolve()
 			if err != nil {

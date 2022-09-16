@@ -10,7 +10,7 @@ import (
 func TestWalker(t *testing.T) {
 	t.Run("It errors if not in git root", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		_, err := NewWalker(fs).Walk(3, []string{})
+		_, err := NewWalker(fs, 3, []string{}).Walk()
 		assert.Equal(t, ErrNotInGitRoot, err)
 	})
 
@@ -18,7 +18,7 @@ func TestWalker(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile(".git/blah", []byte(""), os.ModeAppend)
 		fs.WriteFile("rootFile", []byte(""), os.ModeAppend)
-		paths, err := NewWalker(fs).Walk(3, []string{})
+		paths, err := NewWalker(fs, 3, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"rootFile"}, paths)
 	})
@@ -32,23 +32,23 @@ func TestWalker(t *testing.T) {
 		fs.WriteFile("1/2/3/3", []byte(""), os.ModeAppend)
 		fs.WriteFile("1/2/3/4/4", []byte(""), os.ModeAppend)
 
-		paths, err := NewWalker(fs).Walk(0, []string{})
+		paths, err := NewWalker(fs, 0, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"rootFile"}, paths)
 
-		paths, err = NewWalker(fs).Walk(1, []string{})
+		paths, err = NewWalker(fs, 1, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "rootFile"}, paths)
 
-		paths, err = NewWalker(fs).Walk(2, []string{})
+		paths, err = NewWalker(fs, 2, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "rootFile"}, paths)
 
-		paths, err = NewWalker(fs).Walk(3, []string{})
+		paths, err = NewWalker(fs, 3, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "1/2/3/3", "rootFile"}, paths)
 
-		paths, err = NewWalker(fs).Walk(4, []string{})
+		paths, err = NewWalker(fs, 4, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "1/2/3/3", "1/2/3/4/4", "rootFile"}, paths)
 	})
@@ -70,7 +70,7 @@ func TestWalker(t *testing.T) {
 		fs.WriteFile("1/2/3/4/4", []byte(""), os.ModeAppend)
 		fs.WriteFile("1/2/3/4/node_modules/1", []byte(""), os.ModeAppend)
 
-		paths, err := NewWalker(fs).Walk(4, []string{})
+		paths, err := NewWalker(fs, 4, []string{}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "1/2/3/3", "1/2/3/4/4", "rootFile"}, paths)
 	})
@@ -95,7 +95,7 @@ func TestWalker(t *testing.T) {
 		fs.WriteFile("3/2/3/3", []byte(""), os.ModeAppend)
 		fs.WriteFile("3/2/3/4/4", []byte(""), os.ModeAppend)
 
-		paths, err := NewWalker(fs).Walk(4, []string{"2", "3/2/"})
+		paths, err := NewWalker(fs, 4, []string{"2", "3/2/"}).Walk()
 		assert.NoError(t, err)
 		assert.Equal(t, []string{"1/1", "1/2/2", "1/2/3/3", "1/2/3/4/4", "3/1", "rootFile"}, paths)
 	})
