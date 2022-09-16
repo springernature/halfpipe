@@ -17,7 +17,7 @@ func TestRender(t *testing.T) {
 				{"npm", "/a/b/c/d", schedule},
 			},
 		}
-		config := NewRender().Render(MatchedPaths{
+		config := Render(MatchedPaths{
 			"Dockerfile":        "docker",
 			"a/Dockerfile":      "docker",
 			"a/b/c/d/yarn.lock": "npm",

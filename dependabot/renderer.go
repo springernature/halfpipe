@@ -6,14 +6,7 @@ import (
 	"sort"
 )
 
-type Render interface {
-	Render(paths MatchedPaths) Config
-}
-
-type render struct {
-}
-
-func (r render) renderPath(path string, ecosystem string) Dependency {
+func renderPath(path string, ecosystem string) Dependency {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = "/"
@@ -29,7 +22,7 @@ func (r render) renderPath(path string, ecosystem string) Dependency {
 	}
 }
 
-func (r render) Render(matchedPaths MatchedPaths) Config {
+func Render(matchedPaths MatchedPaths) Config {
 	paths := []string{}
 	for path := range matchedPaths {
 		paths = append(paths, path)
@@ -38,14 +31,10 @@ func (r render) Render(matchedPaths MatchedPaths) Config {
 
 	updates := []Dependency{}
 	for _, path := range paths {
-		updates = append(updates, r.renderPath(path, matchedPaths[path]))
+		updates = append(updates, renderPath(path, matchedPaths[path]))
 	}
 	return Config{
 		Version: 2,
 		Updates: updates,
 	}
-}
-
-func NewRender() Render {
-	return render{}
 }

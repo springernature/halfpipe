@@ -16,3 +16,5 @@ type Dependency struct {
 }
 
 type MatchedPaths map[string]string
+
+type Renderer func(paths MatchedPaths) Config

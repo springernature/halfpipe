@@ -42,7 +42,7 @@ func TestDependabot(t *testing.T) {
 		w := mockWalker{err: expectedErr}
 		f := mockFilter{}
 		r := mockRender{}
-		_, err := New(&w, &f, &r).Resolve()
+		_, err := New(&w, &f, r.Render).Resolve()
 		assert.Equal(t, expectedErr, err)
 		assert.False(t, f.called)
 	})
@@ -55,7 +55,7 @@ func TestDependabot(t *testing.T) {
 		f := mockFilter{}
 		r := mockRender{config: expectedConfig}
 
-		config, err := New(&w, &f, &r).Resolve()
+		config, err := New(&w, &f, r.Render).Resolve()
 		assert.NoError(t, err)
 		assert.True(t, f.called)
 		assert.Equal(t, expectedFiles, f.calledWithFiles)

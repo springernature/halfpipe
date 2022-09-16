@@ -38,7 +38,7 @@ func init() {
 			c, err := dependabot.New(
 				dependabot.NewWalker(afero.Afero{Fs: afero.NewBasePathFs(fs, pwd)}, depth, skipFolders),
 				dependabot.NewFilter(skipEcosystem),
-				dependabot.NewRender(),
+				dependabot.Render,
 			).Resolve()
 			if err != nil {
 				logrus.Panic(err)
