@@ -1,24 +1,5 @@
 package dependabot
 
-var SupportedFiles = map[string]string{
-	"Dockerfile":        "docker",
-	"package-lock.json": "npm",
-	"yarn.lock":         "npm",
-	"Gemfile.lock":      "bundler",
-	"pom.xml":           "maven",
-	"build.gradle":      "gradle",
-	"build.gradle.kt":   "gradle",
-	"go.mod":            "gomod",
-	"github-actions":    "github-actions",
-}
-
-type DependabotConfig struct {
-	Depth         int
-	Verbose       bool
-	SkipFolders   []string
-	SkipEcosystem []string
-}
-
 type Config struct {
 	Version int
 	Updates []Dependency
@@ -33,3 +14,7 @@ type Dependency struct {
 	Directory        string
 	Schedule         Schedule
 }
+
+type MatchedPaths map[string]string
+
+type Renderer func(paths MatchedPaths) Config

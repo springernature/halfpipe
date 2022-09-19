@@ -11,11 +11,13 @@ import (
 var ErrNotInGitRoot = errors.New("Must be executed in root of git repo")
 
 type Walker interface {
-	Walk(depth int, skipFolders []string) ([]string, error)
+	Walk() ([]string, error)
 }
 
 type walker struct {
-	fs afero.Afero
+	depth       int
+	skipFolders []string
+	fs          afero.Afero
 }
 
 func (w walker) gitExists() (err error) {
@@ -39,7 +41,7 @@ func (w walker) skipFolder(path string, skipFolders []string) (bool, string) {
 	return false, ""
 }
 
-func (w walker) Walk(depth int, skipFolders []string) (paths []string, err error) {
+func (w walker) Walk() (paths []string, err error) {
 	if err = w.gitExists(); err != nil {
 		return
 	}
@@ -50,7 +52,7 @@ func (w walker) Walk(depth int, skipFolders []string) (paths []string, err error
 			return fs.SkipDir
 		}
 
-		if skip, folder := w.skipFolder(path, skipFolders); skip {
+		if skip, folder := w.skipFolder(path, w.skipFolders); skip {
 			logrus.Debugf("Skipping '%s' because of skip '%s'", path, folder)
 			return fs.SkipDir
 		}
@@ -60,7 +62,7 @@ func (w walker) Walk(depth int, skipFolders []string) (paths []string, err error
 			return fs.SkipDir
 		}
 
-		if strings.Count(path, "/") > depth {
+		if strings.Count(path, "/") > w.depth {
 			logrus.Debugf("Skipping '%s' due to depth", path)
 			return fs.SkipDir
 		}
@@ -79,8 +81,10 @@ func (w walker) Walk(depth int, skipFolders []string) (paths []string, err error
 	return
 }
 
-func NewWalker(fs afero.Afero) Walker {
+func NewWalker(fs afero.Afero, depth int, skipFolders []string) Walker {
 	return walker{
-		fs: fs,
+		fs:          fs,
+		depth:       depth,
+		skipFolders: skipFolders,
 	}
 }

@@ -11,13 +11,18 @@ func TestRender(t *testing.T) {
 		expectedConfig := Config{
 			Version: 2,
 			Updates: []Dependency{
+				{"github-actions", "/", schedule},
 				{"docker", "/", schedule},
 				{"docker", "/a", schedule},
 				{"npm", "/a/b/c/d", schedule},
-				{"github-actions", "/", schedule},
 			},
 		}
-		config := NewRender().Render([]string{"Dockerfile", "a/Dockerfile", "a/b/c/d/yarn.lock", "github-actions"})
+		config := Render(MatchedPaths{
+			"Dockerfile":        "docker",
+			"a/Dockerfile":      "docker",
+			"a/b/c/d/yarn.lock": "npm",
+			"/":                 "github-actions",
+		})
 		assert.Equal(t, expectedConfig, config)
 	})
 }

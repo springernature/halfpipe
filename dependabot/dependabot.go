@@ -7,35 +7,33 @@ type Dependabot interface {
 }
 
 type dependabot struct {
-	config DependabotConfig
 	walker Walker
 	filter Filter
-	render Render
+	render Renderer
 }
 
 func (d dependabot) Resolve() (c Config, err error) {
 	logrus.Debug("Walking the filesystem")
-	files, err := d.walker.Walk(d.config.Depth, d.config.SkipFolders)
+	files, err := d.walker.Walk()
 	if err != nil {
 		return
 	}
 
 	logrus.Debugf("Found '%d' files", len(files))
 	logrus.Debug("Filtering files")
-	filtered := d.filter.Filter(files, d.config.SkipEcosystem)
+	filtered := d.filter.Filter(files)
 	logrus.Debugf("Filtered out '%d' files", len(filtered))
 	for _, filteredFile := range filtered {
 		logrus.Debugf("'%s'", filteredFile)
 	}
 	logrus.Debug("Filtering files")
 
-	c = d.render.Render(filtered)
+	c = d.render(filtered)
 	return
 }
 
-func New(config DependabotConfig, walker Walker, filter Filter, render Render) Dependabot {
+func New(walker Walker, filter Filter, render Renderer) Dependabot {
 	return dependabot{
-		config: config,
 		walker: walker,
 		filter: filter,
 		render: render,

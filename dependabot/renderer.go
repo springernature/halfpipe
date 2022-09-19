@@ -3,47 +3,38 @@ package dependabot
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 )
 
-type Render interface {
-	Render(paths []string) Config
-}
-
-type render struct {
-}
-
-func (r render) renderPath(path string) (d Dependency) {
-	fileName := filepath.Base(path)
+func renderPath(path string, ecosystem string) Dependency {
 	dir := filepath.Dir(path)
 	if dir == "." {
 		dir = "/"
-	} else {
+	}
+	if dir != "/" {
 		dir = fmt.Sprintf("/%s", dir)
 	}
 
-	if ecosystem, ok := SupportedFiles[fileName]; ok {
-		d.PackageEcosystem = ecosystem
-		d.Directory = dir
-		d.Schedule.Interval = "daily"
+	return Dependency{
+		PackageEcosystem: ecosystem,
+		Directory:        dir,
+		Schedule:         Schedule{Interval: "daily"},
 	}
-
-	return
 }
 
-func (r render) renderPaths(paths []string) (d []Dependency) {
+func Render(matchedPaths MatchedPaths) Config {
+	paths := []string{}
+	for path := range matchedPaths {
+		paths = append(paths, path)
+	}
+	sort.Strings(paths)
+
+	updates := []Dependency{}
 	for _, path := range paths {
-		d = append(d, r.renderPath(path))
+		updates = append(updates, renderPath(path, matchedPaths[path]))
 	}
-	return
-}
-
-func (r render) Render(paths []string) Config {
 	return Config{
 		Version: 2,
-		Updates: r.renderPaths(paths),
+		Updates: updates,
 	}
-}
-
-func NewRender() Render {
-	return render{}
 }
