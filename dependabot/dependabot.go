@@ -23,8 +23,8 @@ func (d dependabot) Resolve() (c Config, err error) {
 	logrus.Debug("Filtering files")
 	filtered := d.filter.Filter(files)
 	logrus.Debugf("Filtered out '%d' files", len(filtered))
-	for _, filteredFile := range filtered {
-		logrus.Debugf("'%s'", filteredFile)
+	for path, filteredFile := range filtered {
+		logrus.Debugf("'%s' -> '%s'", path, filteredFile)
 	}
 	logrus.Debug("Filtering files")
 
