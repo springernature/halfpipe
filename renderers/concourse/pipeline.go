@@ -297,7 +297,7 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 		}
 
 		if man.FeatureToggles.GithubStatuses() {
-			sequence = append(sequence, statusesOnFailurePlan(man, task))
+			sequence = append(sequence, statusesOnFailurePlan())
 		}
 
 		onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
@@ -316,7 +316,7 @@ func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Ste
 		}
 
 		if man.FeatureToggles.GithubStatuses() {
-			sequence = append(sequence, statusesOnSuccessPlan(man, task))
+			sequence = append(sequence, statusesOnSuccessPlan())
 		}
 
 		onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)

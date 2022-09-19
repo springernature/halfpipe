@@ -6,16 +6,12 @@ jobs:
   on_failure:
     attempts: 2
     params:
-      context: halfpipe-e2e-run/test
-      path: git
       state: failure
     put: github-statuses
     timeout: 15m
   on_success:
     attempts: 2
     params:
-      context: halfpipe-e2e-run/test
-      path: git
       state: success
     put: github-statuses
     timeout: 15m
@@ -88,16 +84,12 @@ jobs:
   on_failure:
     attempts: 2
     params:
-      context: halfpipe-e2e-run/test again
-      path: git
       state: failure
     put: github-statuses
     timeout: 15m
   on_success:
     attempts: 2
     params:
-      context: halfpipe-e2e-run/test again
-      path: git
       state: success
     put: github-statuses
     timeout: 15m

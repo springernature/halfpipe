@@ -1,28 +1,24 @@
 package concourse
 
 import (
-	"fmt"
 	"github.com/concourse/concourse/atc"
-	"github.com/springernature/halfpipe/manifest"
 )
 
-func statusesOnFailurePlan(man manifest.Manifest, task manifest.Task) atc.Step {
-	return statusesPlan("failure", man, task)
+func statusesOnFailurePlan() atc.Step {
+	return statusesPlan("failure")
 }
 
-func statusesOnSuccessPlan(man manifest.Manifest, task manifest.Task) atc.Step {
-	return statusesPlan("success", man, task)
+func statusesOnSuccessPlan() atc.Step {
+	return statusesPlan("success")
 }
 
-func statusesPlan(status string, man manifest.Manifest, task manifest.Task) atc.Step {
+func statusesPlan(status string) atc.Step {
 
 	return atc.Step{
 		Config: &atc.PutStep{
 			Name: githubStatusesResourceName,
 			Params: atc.Params{
-				"state":   status,
-				"context": fmt.Sprintf("%s/%s", man.PipelineName(), task.GetName()),
-				"path":    gitDir,
+				"state": status,
 			},
 		},
 	}
