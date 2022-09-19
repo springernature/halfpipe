@@ -50,6 +50,7 @@ resources:
   source:
     access_token: ((halfpipe-github.statuses-token))
     repo: springernature/halfpipe
+    path: halfpipe
 - name: release
   type: github-release-latest
   source:
@@ -80,15 +81,11 @@ jobs:
     put: github-statuses
     timeout: 1m
     params:
-      context: test
-      path: halfpipe
       state: failure
   on_success:
     put: github-statuses
     timeout: 1m
     params:
-      context: test
-      path: halfpipe
       state: success
   plan:
   - get: halfpipe
@@ -96,8 +93,6 @@ jobs:
   - put: github-statuses
     timeout: 1m
     params:
-      context: test
-      path: halfpipe
       state: pending
   - task: Test
     config:
