@@ -68,7 +68,6 @@ func (w walker) Walk() (paths []string, err error) {
 		}
 
 		if path != "." && !info.IsDir() {
-			logrus.Debugf("Found '%s'", path)
 			paths = append(paths, path)
 		}
 		return nil
