@@ -61,6 +61,7 @@ func NewFilter(skipEcosystems []string) Filter {
 			"build.gradle":      "gradle",
 			"build.gradle.kt":   "gradle",
 			"go.mod":            "gomod",
+			"Cargo.lock":        "cargo",
 		},
 	}
 }
