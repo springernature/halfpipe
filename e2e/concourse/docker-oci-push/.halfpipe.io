@@ -22,3 +22,4 @@ tasks:
   retries: 1
   tag: "file:tagFile"
   ignore_vulnerabilities: true
+  scan_timeout: 30

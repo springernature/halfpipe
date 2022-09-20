@@ -19,5 +19,9 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.DockerfilePath = defaults.Docker.FilePath
 	}
 
+	if updated.ScanTimeout == 0 {
+		updated.ScanTimeout = 15
+	}
+
 	return updated
 }
