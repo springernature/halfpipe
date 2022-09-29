@@ -111,6 +111,7 @@ tasks:
   password: cf.pass
   manifest: manifest.yml
   test_domain: asdf.com
+  sso_route: some.sso.route
   vars:
     FOO: fOo
     BAR: "1"
@@ -303,6 +304,7 @@ tasks:
 				Username:   "cf.user",
 				Password:   "cf.pass",
 				TestDomain: "asdf.com",
+				SSORoute:   "some.sso.route",
 				Manifest:   "manifest.yml",
 				Vars: Vars{
 					"FOO": "fOo",

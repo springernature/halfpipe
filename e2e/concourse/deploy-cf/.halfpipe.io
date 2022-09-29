@@ -69,3 +69,12 @@ tasks:
     script: smoke-test.sh
     docker:
       image: eu.gcr.io/halfpipe-io/halfpipe-fly
+
+- type: deploy-cf
+  name: deploy to cf with sso route
+  api: dev-api
+  space: dev
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  sso_route: some-route.public.springernature.app

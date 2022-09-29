@@ -29,6 +29,7 @@ type DeployCF struct {
 	CliVersion      string        `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	DockerTag       string        `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	SSORoute        string        `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
 
 	CfApplication manifestparser.Application `json:"-" yaml:"-"`
 }

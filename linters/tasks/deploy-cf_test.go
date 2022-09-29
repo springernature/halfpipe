@@ -301,5 +301,33 @@ func TestDockerTag(t *testing.T) {
 		assert.Len(t, errors, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "docker_tag", errors)
 	})
+}
+
+func TestCFDeployTaskSSORoute(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
+
+	task := manifest.DeployCF{
+		Manifest:   "manifest.yml",
+		API:        "api",
+		Space:      "space",
+		Org:        "org",
+		TestDomain: "foo",
+		CliVersion: "cf6",
+	}
+
+	t.Run("valid route", func(t *testing.T) {
+		task.SSORoute = "my-route.public.springernature.app"
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		assert.Empty(t, errors)
+		assert.Empty(t, warnings)
+	})
+
+	t.Run("invalid route", func(t *testing.T) {
+		task.SSORoute = "my-route.springernature.app"
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		linterrors.AssertInvalidFieldInErrors(t, "sso_route", errors)
+		assert.Empty(t, warnings)
+	})
 
 }

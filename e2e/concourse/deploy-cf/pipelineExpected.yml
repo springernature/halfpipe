@@ -44,7 +44,6 @@ jobs:
     resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
   serial: true
-
 - build_log_retention:
     minimum_succeeded_builds: 1
   ensure:
@@ -449,6 +448,29 @@ jobs:
     put: halfpipe-promote
     resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: deploy to cf with sso route
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - deploy to cf
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    params:
+      appPath: git/e2e/concourse/deploy-cf
+      cliVersion: cf6
+      command: halfpipe-all
+      gitRefPath: git/.git/ref
+      manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      testDomain: some.random.domain.com
+      timeout: 1h
+    put: halfpipe-all
+    resource: cf-dev-api-halfpipe-team-dev
+    timeout: 1h
   serial: true
 resource_types:
 - check_every: 24h

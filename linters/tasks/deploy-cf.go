@@ -2,6 +2,7 @@ package tasks
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -84,6 +85,13 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 
 	if cf.CliVersion != "cf6" && cf.CliVersion != "cf7" && cf.CliVersion != "cf8" {
 		errs = append(errs, linterrors.NewInvalidField("cli_version", "must be either 'cf6', 'cf7' or 'cf8'"))
+	}
+
+	if cf.SSORoute != "" {
+		routePattern := regexp.MustCompile(`^[A-Za-z0-9\-]+\.public\.springernature\.app$`)
+		if !routePattern.MatchString(cf.SSORoute) {
+			errs = append(errs, linterrors.NewInvalidField("sso_route", "must be a sub-domain of public.springernature.app"))
+		}
 	}
 
 	return errs, warnings
