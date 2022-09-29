@@ -460,6 +460,34 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    config:
+      image_resource:
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+          tag: stable
+          username: _json_key
+        type: registry-image
+      params:
+        CF_API: dev-api
+        CF_ORG: halfpipe-team
+        CF_PASSWORD: very-secret
+        CF_SPACE: dev
+        CF_USERNAME: michiel
+        SSO_HOST: some-route
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          cf8 login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE;
+          cf8 service sso || cf8 create-user-provided-service sso -r https://ee-sso.public.springernature.app;
+          cf8 route public.springernature.app -n $SSO_HOST || cf8 create-route public.springernature.app -n $SSO_HOST;
+          cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
+        path: /bin/bash
+    task: configure-sso
+    timeout: 1h
+  - attempts: 2
     params:
       appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf6
