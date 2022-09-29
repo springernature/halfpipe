@@ -515,3 +515,114 @@ jobs:
         testDomain: springernature.app
         appPath: e2e/actions/deploy-cf
         command: halfpipe-cleanup
+  deploy_with_sso:
+    name: deploy with sso
+    needs:
+    - deploy_to_cf_with_docker_image
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.4.2
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        submodules: recursive
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+    - name: Download artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: artifacts
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
+    - name: Configure SSO
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        entrypoint: /bin/bash
+        args: |-
+          -c "
+          cf8 login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE;
+          cf8 service sso || cf8 create-user-provided-service sso -r https://ee-sso.public.springernature.app;
+          cf8 route public.springernature.app -n $SSO_HOST || cf8 create-route public.springernature.app -n $SSO_HOST;
+          cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
+          "
+      env:
+        CF_API: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        CF_ORG: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        CF_PASSWORD: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        CF_SPACE: dev
+        CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        SSO_HOST: my-route
+    - name: Push
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf/foo.html
+        command: halfpipe-push
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Check
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf/foo.html
+        command: halfpipe-check
+    - name: Promote
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf/foo.html
+        command: halfpipe-promote
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+    - name: Cleanup
+      if: always()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        space: dev
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        cli_version: cf7
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        testDomain: springernature.app
+        appPath: e2e/actions/deploy-cf/foo.html
+        command: halfpipe-cleanup

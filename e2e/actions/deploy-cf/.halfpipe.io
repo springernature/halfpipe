@@ -73,3 +73,11 @@ tasks:
     space: dev
     manifest: manifest-docker.yml
     docker_tag: version
+
+  - type: deploy-cf
+    name: deploy with sso
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    space: dev
+    deploy_artifact: foo.html
+    sso_route: my-route.public.springernature.app
