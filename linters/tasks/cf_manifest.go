@@ -1,4 +1,4 @@
-package linters
+package tasks
 
 import (
 	"fmt"
@@ -8,61 +8,41 @@ import (
 
 	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-type cfManifestLinter struct {
-	readCfManifest cf.ManifestReader
-}
+func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (errs []error, warns []error) {
 
-func NewCfManifestLinter(cfManifestReader cf.ManifestReader) cfManifestLinter {
-	return cfManifestLinter{cfManifestReader}
-}
-
-func (linter cfManifestLinter) Lint(man manifest.Manifest) (result result.LintResult) {
-	result.Linter = "CF Manifest"
-	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/cf-deployment/"
-
-	var tasks []manifest.DeployCF
-	for _, task := range man.Tasks {
-		switch t := task.(type) {
-		case manifest.DeployCF:
-			tasks = append(tasks, t)
-		}
+	//skip linting if file provided as an artifact
+	//task linter will warn that file needs to be generated in previous task
+	manifestPath := task.Manifest
+	if strings.HasPrefix(manifestPath, "../artifacts/") {
+		return errs, warns
 	}
 
-	for _, task := range tasks {
-		//skip linting if file provided as an artifact
-		//task linter will warn that file needs to be generated in previous task
-		manifestPath := task.Manifest
-		if strings.HasPrefix(manifestPath, "../artifacts/") {
-			return result
-		}
+	manifest, err := readCfManifest(manifestPath, nil, nil)
+	apps := manifest.Applications
 
-		manifest, err := linter.readCfManifest(manifestPath, nil, nil)
-		apps := manifest.Applications
-
-		if err != nil {
-			result.AddError(fmt.Errorf("cf-manifest error in %s, %s", manifestPath, err.Error()))
-			return result
-		}
-
-		if len(apps) != 1 {
-			result.AddError(linterrors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
-			return result
-		}
-
-		app := apps[0]
-		if app.Name == "" {
-			result.AddError(linterrors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
-		}
-
-		result.AddError(lintRoutes(manifestPath, app)...)
-		result.AddError(lintDockerPush(task, app)...)
-		result.AddWarning(lintBuildpack(app)...)
+	if err != nil {
+		errs = append(errs, fmt.Errorf("cf-manifest error in %s, %s", manifestPath, err.Error()))
+		return errs, warns
 	}
-	return result
+
+	if len(apps) != 1 {
+		errs = append(errs, linterrors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
+		return errs, warns
+	}
+
+	app := apps[0]
+	if app.Name == "" {
+		errs = append(errs, linterrors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
+	}
+
+	errs = append(errs, lintRoutes(manifestPath, app)...)
+	errs = append(errs, lintDockerPush(task, app)...)
+	warns = append(warns, lintBuildpack(app)...)
+
+	return errs, warns
 }
 
 func lintDockerPush(task manifest.DeployCF, app manifestparser.Application) (errs []error) {
@@ -78,7 +58,7 @@ func lintDockerPush(task manifest.DeployCF, app manifestparser.Application) (err
 		}
 	}
 
-	return
+	return errs
 }
 
 func lintRoutes(manifestPath string, app manifestparser.Application) (errs []error) {

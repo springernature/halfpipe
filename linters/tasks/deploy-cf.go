@@ -94,5 +94,9 @@ func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifes
 		}
 	}
 
+	cfManifestErrors, cfManifestWarnings := LintCfManifest(cf, readCfManifest)
+	errs = append(errs, cfManifestErrors...)
+	warnings = append(warnings, cfManifestWarnings...)
+
 	return errs, warnings
 }

@@ -1,7 +1,6 @@
 package cmds
 
 import (
-	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
 	"github.com/springernature/halfpipe/renderers/concourse"
 	"os"
@@ -135,7 +134,6 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewVelaManifestLinter(fs),
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS),
-			linters.NewCfManifestLinter(manifestparser.ManifestParser{}.InterpolateAndParse),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
 			linters.NewActionsLinter(),
 		},

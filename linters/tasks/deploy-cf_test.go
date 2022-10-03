@@ -11,25 +11,28 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func manifestReader(application manifestparser.Application, err error) func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
-	return func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
-		return manifestparser.Manifest{Applications: []manifestparser.Application{application}}, err
-	}
+func validCfManifest() func(pathToManifest string, pathsToVarsFiles []string, vars []template.VarKV) (manifestparser.Manifest, error) {
+	cfManifest := `
+applications:
+- name: test1
+  routes:
+  - route: test1.com
+  buildpacks:
+  - staticfile
+`
+	return cfManifestReader(cfManifest, nil)
 }
 
 func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	task := manifest.DeployCF{Manifest: "manifest.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
-	assert.Len(t, errors, 5)
-	assert.Len(t, warnings, 0)
-
-	linterrors.AssertMissingFieldInErrors(t, "api", errors)
-	linterrors.AssertMissingFieldInErrors(t, "space", errors)
-	linterrors.AssertMissingFieldInErrors(t, "org", errors)
-	linterrors.AssertInvalidFieldInErrors(t, "cli_version", errors)
-	linterrors.AssertFileErrorInErrors(t, "manifest.yml", errors)
+	errs, _ := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
+	linterrors.AssertMissingFieldInErrors(t, "api", errs)
+	linterrors.AssertMissingFieldInErrors(t, "space", errs)
+	linterrors.AssertMissingFieldInErrors(t, "org", errs)
+	linterrors.AssertInvalidFieldInErrors(t, "cli_version", errs)
+	linterrors.AssertFileErrorInErrors(t, "manifest.yml", errs)
 }
 
 func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
@@ -44,7 +47,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 0)
 
@@ -56,7 +59,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	linterrors.AssertMissingFieldInErrors(t, "api", errors)
@@ -69,7 +72,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings = LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
 	linterrors.AssertMissingFieldInErrors(t, "test_domain", errors)
@@ -87,7 +90,7 @@ func TestCfCliVersion(t *testing.T) {
 			Manifest: "manifest.yml",
 		}
 
-		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 		assert.Len(t, errors, 1)
 		linterrors.AssertInvalidFieldInErrors(t, "cli_version", errors)
 		assert.Len(t, warnings, 0)
@@ -102,7 +105,7 @@ func TestCfCliVersion(t *testing.T) {
 			CliVersion: "cf6",
 		}
 
-		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -116,7 +119,7 @@ func TestCfCliVersion(t *testing.T) {
 			CliVersion: "cf7",
 		}
 
-		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 		assert.Len(t, errors, 0)
 		assert.Len(t, warnings, 0)
 	})
@@ -126,11 +129,11 @@ func TestCfPushRetries(t *testing.T) {
 	task := manifest.DeployCF{}
 
 	task.Retries = -1
-	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, nil, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 
 	task.Retries = 6
-	errors, _ = LintDeployCFTask(task, manifest.Manifest{}, nil, afero.Afero{Fs: afero.NewMemMapFs()})
+	errors, _ = LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
 	linterrors.AssertInvalidFieldInErrors(t, "retries", errors)
 }
 
@@ -147,7 +150,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 1)
@@ -170,7 +173,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 		},
 	}
 
-	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 1)
@@ -191,11 +194,11 @@ func TestCfPushPreStart(t *testing.T) {
 	}
 
 	task.PreStart = []string{"cf something good"}
-	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Empty(t, errors)
 
 	task.PreStart = []string{"cf something good", "something bad", "cf something else good", "something else bad"}
-	errors, _ = LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, _ = LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_start", errors)
 }
@@ -218,7 +221,7 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, _ := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	assert.Len(t, errors, 2)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[0].notifications", errors)
 	linterrors.AssertInvalidFieldInErrors(t, "pre_promote[2].notifications", errors)
@@ -239,7 +242,7 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 		PreStart:   []string{"cf logs"},
 	}
 
-	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+	errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 	if assert.Len(t, errors, 1) {
 		assert.Equal(t, linterrors.NewInvalidField("pre_start", "cannot use pre_start with rolling deployment"), errors[0])
 	}
@@ -249,8 +252,14 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 
 func TestDockerTag(t *testing.T) {
 	t.Run("Docker image is not specified in the manifest", func(t *testing.T) {
-		application := manifestparser.Application{Name: "kehe"}
-		cfManifestReader := manifestReader(application, nil)
+		cfManifestReader := cfManifestReader(`
+applications:
+- name: test1
+  routes:
+  - route: test1.com
+  buildpacks:
+  - staticfile
+`, nil)
 
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("manifest.yml", []byte("foo"), 0777)
@@ -271,8 +280,16 @@ func TestDockerTag(t *testing.T) {
 	})
 
 	t.Run("Docker image is specified in the manifest", func(t *testing.T) {
-		application := manifestparser.Application{Name: "kehe", Docker: &manifestparser.Docker{Image: "asd"}}
-		cfManifestReader := manifestReader(application, nil)
+		cfManifestReader := cfManifestReader(`
+applications:
+- name: test1
+  routes:
+  - route: test1.com
+  docker:
+    image: eu.gcr.io/halfpipe-io/asd
+  buildpacks:
+  - staticfile
+`, nil)
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
@@ -318,14 +335,14 @@ func TestCFDeployTaskSSORoute(t *testing.T) {
 
 	t.Run("valid route", func(t *testing.T) {
 		task.SSORoute = "my-route.public.springernature.app"
-		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 		assert.Empty(t, errors)
 		assert.Empty(t, warnings)
 	})
 
 	t.Run("invalid route", func(t *testing.T) {
 		task.SSORoute = "my-route.springernature.app"
-		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, nil, fs)
+		errors, warnings := LintDeployCFTask(task, manifest.Manifest{}, validCfManifest(), fs)
 		linterrors.AssertInvalidFieldInErrors(t, "sso_route", errors)
 		assert.Empty(t, warnings)
 	})
