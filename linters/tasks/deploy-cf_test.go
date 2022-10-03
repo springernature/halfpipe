@@ -324,6 +324,15 @@ func TestCFDeployTaskSSORoute(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
+	cfManifest := `
+applications:
+- name: test1
+  routes:
+  - route: test1.com
+  - route: my-route.public.springernature.app
+  buildpacks:
+  - staticfile
+`
 	task := manifest.DeployCF{
 		Manifest:   "manifest.yml",
 		API:        "api",
@@ -333,18 +342,25 @@ func TestCFDeployTaskSSORoute(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	t.Run("valid route", func(t *testing.T) {
+	t.Run("valid", func(t *testing.T) {
 		task.SSORoute = "my-route.public.springernature.app"
-		errors, warnings := LintDeployCFTask(task, validCfManifest(), fs)
-		assert.Empty(t, errors)
-		assert.Empty(t, warnings)
+		errs, warns := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
+		assert.Empty(t, errs)
+		assert.Empty(t, warns)
 	})
 
 	t.Run("invalid route", func(t *testing.T) {
 		task.SSORoute = "my-route.springernature.app"
-		errors, warnings := LintDeployCFTask(task, validCfManifest(), fs)
-		linterrors.AssertInvalidFieldInErrors(t, "sso_route", errors)
-		assert.Empty(t, warnings)
+		errs, warns := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
+		linterrors.AssertInvalidFieldInErrors(t, "sso_route", errs)
+		assert.Empty(t, warns)
+	})
+
+	t.Run("route not in cf manifest routes", func(t *testing.T) {
+		task.SSORoute = "my-route.public.springernature.app"
+		errs, warns := LintDeployCFTask(task, validCfManifest(), fs)
+		linterrors.AssertInvalidFieldInErrors(t, "sso_route", errs)
+		assert.Empty(t, warns)
 	})
 
 }

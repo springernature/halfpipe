@@ -15,30 +15,29 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 
 	//skip linting if file provided as an artifact
 	//task linter will warn that file needs to be generated in previous task
-	manifestPath := task.Manifest
-	if strings.HasPrefix(manifestPath, "../artifacts/") {
+	if strings.HasPrefix(task.Manifest, "../artifacts/") {
 		return errs, warns
 	}
 
-	manifest, err := readCfManifest(manifestPath, nil, nil)
+	manifest, err := readCfManifest(task.Manifest, nil, nil)
 	apps := manifest.Applications
 
 	if err != nil {
-		errs = append(errs, fmt.Errorf("cf-manifest error in %s, %s", manifestPath, err.Error()))
+		errs = append(errs, fmt.Errorf("cf-manifest error in %s, %s", task.Manifest, err.Error()))
 		return errs, warns
 	}
 
 	if len(apps) != 1 {
-		errs = append(errs, linterrors.NewTooManyAppsError(manifestPath, "cf manifest must have exactly 1 application defined"))
+		errs = append(errs, linterrors.NewTooManyAppsError(task.Manifest, "cf manifest must have exactly 1 application defined"))
 		return errs, warns
 	}
 
 	app := apps[0]
 	if app.Name == "" {
-		errs = append(errs, linterrors.NewNoNameError(manifestPath, "app in cf manifest must have a name"))
+		errs = append(errs, linterrors.NewNoNameError(task.Manifest, "app in cf manifest must have a name"))
 	}
 
-	errs = append(errs, lintRoutes(manifestPath, app)...)
+	errs = append(errs, lintRoutes(task, app)...)
 	errs = append(errs, lintDockerPush(task, app)...)
 	warns = append(warns, lintBuildpack(app)...)
 
@@ -61,15 +60,15 @@ func lintDockerPush(task manifest.DeployCF, app manifestparser.Application) (err
 	return errs
 }
 
-func lintRoutes(manifestPath string, app manifestparser.Application) (errs []error) {
+func lintRoutes(task manifest.DeployCF, app manifestparser.Application) (errs []error) {
 	if app.NoRoute {
 		if app.RemainingManifestFields["routes"] != nil {
-			errs = append(errs, linterrors.NewBadRoutesError(manifestPath, "you cannot specify both 'routes' and 'no-route'"))
+			errs = append(errs, linterrors.NewBadRoutesError(task.Manifest, "you cannot specify both 'routes' and 'no-route'"))
 			return errs
 		}
 
 		if app.HealthCheckType != "process" {
-			errs = append(errs, linterrors.NewWrongHealthCheck(manifestPath, "if 'no-route' is true you must set 'health-check-type' to 'process'"))
+			errs = append(errs, linterrors.NewWrongHealthCheck(task.Manifest, "if 'no-route' is true you must set 'health-check-type' to 'process'"))
 			return errs
 		}
 
@@ -77,13 +76,26 @@ func lintRoutes(manifestPath string, app manifestparser.Application) (errs []err
 	}
 
 	if app.RemainingManifestFields["routes"] == nil {
-		errs = append(errs, linterrors.NewNoRoutesError(manifestPath, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
+		errs = append(errs, linterrors.NewNoRoutesError(task.Manifest, "app in cf Manifest must have at least 1 route defined or in case of a worker app you must set 'no-route' to true"))
 		return errs
 	}
 
 	for _, route := range cf.Routes(app) {
 		if strings.HasPrefix(route, "http://") || strings.HasPrefix(route, "https://") {
-			errs = append(errs, linterrors.NewNoRoutesError(manifestPath, fmt.Sprintf("don't put http(s):// at the start of the route: '%s'", route)))
+			errs = append(errs, linterrors.NewNoRoutesError(task.Manifest, fmt.Sprintf("don't put http(s):// at the start of the route: '%s'", route)))
+		}
+	}
+
+	if task.SSORoute != "" {
+		hasSSORoute := false
+		for _, route := range cf.Routes(app) {
+			if route == task.SSORoute {
+				hasSSORoute = true
+				break
+			}
+		}
+		if !hasSSORoute {
+			errs = append(errs, linterrors.NewInvalidField("sso_route", fmt.Sprintf("'%s' must match a route in CF manifest '%s'", task.SSORoute, task.Manifest)))
 		}
 	}
 

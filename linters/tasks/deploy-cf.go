@@ -13,60 +13,60 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
-	if cf.API == "" {
+func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+	if task.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}
-	if cf.Space == "" {
+	if task.Space == "" {
 		errs = append(errs, linterrors.NewMissingField("space"))
 	}
-	if cf.Org == "" {
+	if task.Org == "" {
 		errs = append(errs, linterrors.NewMissingField("org"))
 	}
-	if cf.TestDomain == "" {
-		_, found := defaults.Concourse.CF.TestDomains[cf.API]
-		if cf.API != "" && !found {
+	if task.TestDomain == "" {
+		_, found := defaults.Concourse.CF.TestDomains[task.API]
+		if task.API != "" && !found {
 			errs = append(errs, linterrors.NewMissingField("test_domain"))
 		}
 	}
 
-	if cf.Retries < 0 || cf.Retries > 5 {
+	if task.Retries < 0 || task.Retries > 5 {
 		errs = append(errs, linterrors.NewInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if strings.HasPrefix(cf.Manifest, "../artifacts/") {
-		warnings = append(warnings, linterrors.NewFileError(cf.Manifest, "this file must be saved as an artifact in a previous task"))
-		if len(cf.PrePromote) > 0 {
+	if strings.HasPrefix(task.Manifest, "../artifacts/") {
+		warnings = append(warnings, linterrors.NewFileError(task.Manifest, "this file must be saved as an artifact in a previous task"))
+		if len(task.PrePromote) > 0 {
 			errs = append(errs, linterrors.NewInvalidField("pre_promote", "if you are using generated manifest you cannot have pre promote tasks"))
 
 		}
 	} else {
 
-		if err := filechecker.CheckFile(fs, cf.Manifest, false); err != nil {
+		if err := filechecker.CheckFile(fs, task.Manifest, false); err != nil {
 			errs = append(errs, err)
 		}
 	}
 
-	if cf.Rolling && len(cf.PreStart) > 0 {
+	if task.Rolling && len(task.PreStart) > 0 {
 		errs = append(errs, linterrors.NewInvalidField("pre_start", "cannot use pre_start with rolling deployment"))
 	} else {
-		for _, preStartCommand := range cf.PreStart {
+		for _, preStartCommand := range task.PreStart {
 			if !strings.HasPrefix(preStartCommand, "cf ") {
 				errs = append(errs, linterrors.NewInvalidField("pre_start", fmt.Sprintf("only cf commands are allowed: %s", preStartCommand)))
 			}
 		}
 	}
 
-	for i, prePromoteTask := range cf.PrePromote {
+	for i, prePromoteTask := range task.PrePromote {
 		if prePromoteTask.GetNotifications().NotificationsDefined() {
 			errs = append(errs, linterrors.NewInvalidField(
 				fmt.Sprintf("pre_promote[%d].notifications", i), "pre_promote tasks are not allowed to specify notifications. Please move them up to the 'deploy-cf' task"))
 		}
 	}
 
-	if cf.DockerTag != "" {
+	if task.DockerTag != "" {
 
-		cfManifest, err := readCfManifest(cf.Manifest, nil, nil)
+		cfManifest, err := readCfManifest(task.Manifest, nil, nil)
 		if err != nil {
 			errs = append(errs, err)
 			return
@@ -77,24 +77,24 @@ func LintDeployCFTask(cf manifest.DeployCF, readCfManifest cf.ManifestReader, fs
 			return
 		}
 
-		if (cf.DockerTag != "gitref") && (cf.DockerTag != "version") {
+		if (task.DockerTag != "gitref") && (task.DockerTag != "version") {
 			errs = append(errs, linterrors.NewInvalidField("docker_tag", "must be either 'gitref' or 'version'"))
 		}
 
 	}
 
-	if cf.CliVersion != "cf6" && cf.CliVersion != "cf7" && cf.CliVersion != "cf8" {
+	if task.CliVersion != "cf6" && task.CliVersion != "cf7" && task.CliVersion != "cf8" {
 		errs = append(errs, linterrors.NewInvalidField("cli_version", "must be either 'cf6', 'cf7' or 'cf8'"))
 	}
 
-	if cf.SSORoute != "" {
+	if task.SSORoute != "" {
 		routePattern := regexp.MustCompile(`^[A-Za-z0-9\-]+\.public\.springernature\.app$`)
-		if !routePattern.MatchString(cf.SSORoute) {
+		if !routePattern.MatchString(task.SSORoute) {
 			errs = append(errs, linterrors.NewInvalidField("sso_route", "must be a sub-domain of public.springernature.app"))
 		}
 	}
 
-	cfManifestErrors, cfManifestWarnings := LintCfManifest(cf, readCfManifest)
+	cfManifestErrors, cfManifestWarnings := LintCfManifest(task, readCfManifest)
 	errs = append(errs, cfManifestErrors...)
 	warnings = append(warnings, cfManifestWarnings...)
 

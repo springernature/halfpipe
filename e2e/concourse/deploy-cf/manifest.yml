@@ -4,6 +4,6 @@ applications:
   instances: 1
   memory: 32M
   routes:
-  - route: "test-route"
+  - route: some-route.public.springernature.app
   buildpacks:
     - java
