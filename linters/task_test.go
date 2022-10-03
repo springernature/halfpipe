@@ -106,7 +106,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintRunTaskNum++
 			return
 		},
-		lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+		lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 			calledLintDeployCFTask = true
 			calledLintDeployCFTaskNum++
 			return
@@ -232,7 +232,7 @@ func TestMergesTheErrorsAndWarningsCorrectly(t *testing.T) {
 		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return []error{runErr1, runErr2}, []error{runWarn1}
 		},
-		lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+		lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 			return []error{deployErr}, []error{}
 		},
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
@@ -309,7 +309,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return []error{runErr1, runErr2}, []error{runWarn1}
 		},
-		lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+		lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 			return
 		},
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
@@ -402,7 +402,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return []error{runErr1, runErr2}, []error{runWarn1}
 		},
-		lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+		lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 			return
 		},
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) {
@@ -562,7 +562,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 				return
 			},
-			lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+			lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
@@ -594,7 +594,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 				return
 			},
-			lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+			lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
@@ -619,7 +619,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 				return
 			},
-			lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+			lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
@@ -645,7 +645,7 @@ func TestLintTimeout(t *testing.T) {
 		lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error) {
 			return
 		},
-		lintDeployCFTask: func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+		lintDeployCFTask: func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 			return
 		},
 		LintPrePromoteTask: func(task manifest.Task) (errs []error, warnings []error) { return },

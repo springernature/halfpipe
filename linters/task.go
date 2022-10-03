@@ -17,7 +17,7 @@ import (
 type taskLinter struct {
 	Fs                              afero.Afero
 	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) (errs []error, warnings []error)
-	lintDeployCFTask                func(task manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error)
+	lintDeployCFTask                func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error)
 	lintDeployKateeTask             func(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
 	LintPrePromoteTask              func(task manifest.Task) (errs []error, warnings []error)
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error)
@@ -90,8 +90,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Run:
 			errs, warnings = linter.lintRunTask(task, linter.Fs, linter.os)
 		case manifest.DeployCF:
-			mp := manifestparser.ManifestParser{}
-			errs, warnings = linter.lintDeployCFTask(task, man, mp.InterpolateAndParse, linter.Fs)
+			errs, warnings = linter.lintDeployCFTask(task, manifestparser.ManifestParser{}.InterpolateAndParse, linter.Fs)
 
 			if len(errs) == 0 && len(task.PrePromote) > 0 {
 				for pI, preTask := range task.PrePromote {

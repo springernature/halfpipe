@@ -13,7 +13,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployCFTask(cf manifest.DeployCF, man manifest.Manifest, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+func LintDeployCFTask(cf manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
 	if cf.API == "" {
 		errs = append(errs, linterrors.NewMissingField("api"))
 	}
