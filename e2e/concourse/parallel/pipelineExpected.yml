@@ -1067,4 +1067,3 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-parallel
   type: semver
-

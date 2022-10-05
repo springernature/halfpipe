@@ -27,6 +27,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: c-name
@@ -90,6 +91,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: c-name-covenant

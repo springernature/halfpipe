@@ -108,4 +108,3 @@ resources:
     repository: springerplatformengineering/halfpipe
     username: rob
   type: docker-image
-

@@ -387,4 +387,3 @@ resources:
     space: dev
     username: ((cloudfoundry.username-snpaas))
   type: cf-resource
-

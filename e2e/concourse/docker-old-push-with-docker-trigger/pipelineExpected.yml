@@ -71,4 +71,3 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   type: docker-image
-

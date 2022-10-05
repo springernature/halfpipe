@@ -112,4 +112,3 @@ resources:
     repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
     username: rob
   type: docker-image
-

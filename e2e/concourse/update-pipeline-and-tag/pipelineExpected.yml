@@ -141,4 +141,3 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-pipeline-name
   type: semver
-

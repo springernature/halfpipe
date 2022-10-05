@@ -129,6 +129,7 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 		Name: "Checkout code",
 		Uses: "actions/checkout@v3",
 		With: With{
+			{"lfs", true},
 			{"submodules", "recursive"},
 			{"ssh-key", githubSecrets.GitHubPrivateKey},
 		},

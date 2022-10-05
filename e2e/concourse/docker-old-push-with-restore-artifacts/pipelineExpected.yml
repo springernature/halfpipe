@@ -384,4 +384,3 @@ resources:
     repository: springerplatformengineering/image2
     username: rob
   type: docker-image
-

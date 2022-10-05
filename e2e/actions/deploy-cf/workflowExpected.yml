@@ -30,6 +30,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: make binary
@@ -71,6 +72,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
@@ -170,6 +172,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
@@ -270,6 +273,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
@@ -450,6 +454,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Push
@@ -539,6 +544,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts

@@ -83,4 +83,3 @@ resources:
     team: halfpipe-team
     username: ((concourse.username))
   type: halfpipe-pipeline-trigger
-

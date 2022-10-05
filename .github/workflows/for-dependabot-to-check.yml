@@ -21,6 +21,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: run \exit 1
@@ -60,6 +61,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Push
@@ -140,6 +142,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Build Image
@@ -220,6 +223,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: docker-compose

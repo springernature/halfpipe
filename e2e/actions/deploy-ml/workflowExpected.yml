@@ -27,6 +27,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: create zip for ml task
@@ -52,6 +53,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
@@ -95,6 +97,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
+        lfs: true
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Deploy ml-modules artifact
