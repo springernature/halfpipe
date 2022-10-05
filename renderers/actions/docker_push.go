@@ -22,7 +22,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = append(steps, scanImage(task))
 	steps = append(steps, pushImage(a, task, buildArgs))
 	steps = append(steps, repositoryDispatch(task.Image))
-	steps = append(steps, imageSummary(task.Image, tags(task)))
+	steps = append(steps, jobSummary(task.Image, tags(task)))
 	return steps
 }
 
@@ -52,6 +52,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 		With: With{
 			{"context", path.Join(a.workingDir, task.BuildPath)},
 			{"file", path.Join(a.workingDir, task.DockerfilePath)},
+			{"load", true},
 			{"push", false},
 			{"tags", tags(task)},
 			{"build-args", buildArgs.ToString()},
@@ -93,7 +94,7 @@ func pushImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 	return step
 }
 
-func imageSummary(img string, tags string) Step {
+func jobSummary(img string, tags string) Step {
 	sRun := []string{}
 	sRun = append(sRun, `echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY`)
 	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)

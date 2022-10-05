@@ -38,6 +38,7 @@ jobs:
       with:
         context: e2e/actions/deploy-katee
         file: e2e/actions/deploy-katee/Dockerfile
+        load: true
         push: false
         tags: |
           eu.gcr.io/halfpipe-io/halfpipe-team/someImage:latest

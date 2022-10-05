@@ -150,6 +150,7 @@ jobs:
       with:
         context: .
         file: e2e/actions/docker-push/Dockerfile
+        load: true
         push: false
         tags: |
           eu.gcr.io/halfpipe-io/blah:latest
