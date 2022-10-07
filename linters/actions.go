@@ -1,10 +1,6 @@
 package linters
 
 import (
-	"fmt"
-	"github.com/pkg/errors"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -14,7 +10,7 @@ func NewActionsLinter() Linter {
 	return ActionsLinter{}
 }
 
-func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResult) {
+func (linter ActionsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "GitHub Actions"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
 	if man.Platform.IsActions() {
@@ -26,7 +22,7 @@ func (linter ActionsLinter) Lint(man manifest.Manifest) (result result.LintResul
 }
 
 func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest) (errors []error) {
-	for i, t := range tasks {
+	for _, t := range tasks {
 		switch task := t.(type) {
 		case manifest.Parallel:
 			errors = append(errors, unsupportedTasks(task.Tasks, man)...)
@@ -34,26 +30,26 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest) (errors []
 			errors = append(errors, unsupportedTasks(task.Tasks, man)...)
 		default:
 			if task.IsManualTrigger() {
-				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.manual_trigger", i, task)))
+				errors = append(errors, ErrUnsupportedManualTrigger)
 			}
 		}
 
 		switch task := t.(type) {
 		case manifest.DeployCF:
 			if task.Rolling {
-				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.rolling", i, task)))
+				errors = append(errors, ErrUnsupportedRolling)
 			}
 		case manifest.DockerPush:
 			for _, trigger := range man.Triggers {
 				if t, ok := trigger.(manifest.DockerTrigger); ok {
 					if t.Image == task.Image {
-						errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.image '%s' is also a trigger. This will create a loop.", i, task, t.Image)))
+						errors = append(errors, ErrDockerTriggerLoop.WithValue(t.Image))
 					}
 				}
 			}
 		case manifest.ConsumerIntegrationTest:
 			if task.UseCovenant {
-				errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("tasks[%v] %T.use_covenant", i, task)))
+				errors = append(errors, ErrUnsupportedCovenant)
 			}
 		}
 
@@ -62,34 +58,27 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest) (errors []
 }
 
 func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
-
-	addError := func(i int, name string) {
-		errors = append(errors, linterrors.NewUnsupportedField(fmt.Sprintf("triggers[%v] %s", i, name)))
-	}
-
-	for i, trigger := range triggers {
+	for _, trigger := range triggers {
 		switch t := trigger.(type) {
 		case manifest.GitTrigger:
 			if t.PrivateKey != "" {
-				addError(i, "private_key")
+				errors = append(errors, ErrUnsupportedGitPrivateKey)
 			}
 			if t.URI != "" {
-				addError(i, "uri")
+				errors = append(errors, ErrUnsupportedGitUri)
 			}
-		case manifest.TimerTrigger, manifest.DockerTrigger:
-			// ok
+		case manifest.PipelineTrigger:
+			errors = append(errors, ErrUnsupportedPipelineTrigger)
 		default:
-			addError(i, fmt.Sprintf("%T", trigger))
+			// ok
 		}
 	}
 	return errors
 }
 
-var ErrUpdatePiplineNotImplemented = errors.New("the update-pipeline feature is not implemented, so you must always run 'halfpipe' to keep the workflow file up to date")
-
 func unsupportedFeatures(features manifest.FeatureToggles) (errors []error) {
 	if features.UpdatePipeline() {
-		errors = []error{ErrUpdatePiplineNotImplemented}
+		errors = []error{ErrUnsupportedUpdatePipeline}
 	}
 	return errors
 }

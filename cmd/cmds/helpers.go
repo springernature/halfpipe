@@ -14,8 +14,6 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/filechecker"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
@@ -49,7 +47,7 @@ func formatInput(input string) []string {
 }
 
 func getManifest(fs afero.Afero, currentDir, halfpipeFilePath string) (man manifest.Manifest, errors []error) {
-	yaml, err := filechecker.ReadFile(fs, path.Join(currentDir, halfpipeFilePath))
+	yaml, err := linters.ReadFile(fs, path.Join(currentDir, halfpipeFilePath))
 	if err != nil {
 		errors = append(errors, err)
 		return
@@ -68,7 +66,7 @@ func printErr(err error) {
 	fmt.Fprintln(os.Stderr, err) // nolint: gas
 }
 
-func outputErrorsAndWarnings(err error, lintResults result.LintResults) {
+func outputErrorsAndWarnings(err error, lintResults linters.LintResults) {
 	if !Quiet && lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
 		printErr(fmt.Errorf(lintResults.Error()))
 		return
@@ -164,7 +162,7 @@ func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manife
 
 	man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 	if len(manErrors) > 0 {
-		outputErrorsAndWarnings(nil, result.LintResults{result.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
+		outputErrorsAndWarnings(nil, linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors, nil)})
 	}
 
 	var renderer halfpipe.Renderer

@@ -1,9 +1,7 @@
 package linters
 
 import (
-	"errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/linterrors"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -31,8 +29,7 @@ func TestLintIfVelaFileDoesNotExist(t *testing.T) {
 	}
 
 	errs := vl.Lint(man)
-	assert.Len(t, errs.Errors, 1)
-	linterrors.AssertFileErrorInErrors(t, "vela.yaml", errs.Errors)
+	AssertContainsError(t, errs.Errors, ErrFileNotFound)
 }
 
 func TestLintReturnsErrorIfVelaFileExistsButInvalid(t *testing.T) {
@@ -50,9 +47,7 @@ func TestLintReturnsErrorIfVelaFileExistsButInvalid(t *testing.T) {
 	}
 
 	errs := vl.Lint(man)
-
-	assert.Len(t, errs.Errors, 1)
-	assert.Equal(t, errors.New("vela manifest is invalid"), errs.Errors[0])
+	AssertContainsError(t, errs.Errors, ErrFileInvalid)
 }
 
 func TestLintReturnsErrorIfEnvInKateeIsNotSetInHalfpipe(t *testing.T) {
@@ -85,9 +80,7 @@ spec:
 	}
 
 	errs := vl.Lint(man)
-
-	assert.Len(t, errs.Errors, 1)
-	assert.Equal(t, errors.New("vela manifest variable BLAH is not specified in halfpipe manifest"), errs.Errors[0])
+	AssertContainsError(t, errs.Errors, ErrVelaVariableMissing)
 }
 
 func TestLintReturnsNoErrorIfEnvInKateeIsSetInHalfpipe(t *testing.T) {
@@ -123,8 +116,7 @@ spec:
 	}
 
 	errs := vl.Lint(man)
-
-	assert.Len(t, errs.Errors, 0)
+	AssertNotContainsError(t, errs.Errors, ErrVelaVariableMissing)
 }
 
 func TestLintReturnsNoErrorIfEnvVarsInKateeAreBuildVersionOrGitRef(t *testing.T) {
@@ -161,7 +153,7 @@ spec:
 
 	errs := vl.Lint(man)
 
-	assert.Len(t, errs.Errors, 0)
+	AssertNotContainsError(t, errs.Errors, ErrVelaVariableMissing)
 }
 
 func TestVelaManifestFileCanBeMarshalled(t *testing.T) {

@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,8 +22,7 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Warnings, 1)
-	assertMissingField(t, "tasks", result.Warnings[0])
+	AssertContainsError(t, result.Warnings, NewErrMissingField("tasks"))
 }
 
 func TestCallsOutToTheLintersCorrectly(t *testing.T) {
@@ -464,7 +462,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			},
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
 			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
-			lintArtifacts: tasks.LintArtifacts,
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -497,7 +495,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			},
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
 			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
-			lintArtifacts: tasks.LintArtifacts,
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -529,7 +527,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			},
 			lintParallel:  func(parallelTask manifest.Parallel) (errs []error, warnings []error) { return },
 			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) { return },
-			lintArtifacts: tasks.LintArtifacts,
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -566,7 +564,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
-			lintArtifacts:      tasks.LintArtifacts,
+			lintArtifacts:      LintArtifacts,
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -598,7 +596,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
-			lintArtifacts:      tasks.LintArtifacts,
+			lintArtifacts:      LintArtifacts,
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -623,7 +621,7 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 				return
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error, warnings []error) { return },
-			lintArtifacts:      tasks.LintArtifacts,
+			lintArtifacts:      LintArtifacts,
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -687,8 +685,8 @@ func TestLintTimeout(t *testing.T) {
 	result := taskLinter.Lint(man)
 
 	assert.Len(t, result.Errors, 4)
-	assert.Equal(t, `tasks[0] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[0].Error())
-	assert.Equal(t, `tasks[1] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[1].Error())
-	assert.Equal(t, `tasks[1].pre_promote[0] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[2].Error())
-	assert.Equal(t, `tasks[2] invalid field 'timeout': time: invalid duration "immaBadTime"`, result.Errors[3].Error())
+	assert.Equal(t, `tasks[0] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[0].Error())
+	assert.Equal(t, `tasks[1] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[1].Error())
+	assert.Equal(t, `tasks[1].pre_promote[0] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[2].Error())
+	assert.Equal(t, `tasks[2] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[3].Error())
 }

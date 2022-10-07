@@ -3,8 +3,6 @@ package linters
 import (
 	"strings"
 
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -14,31 +12,31 @@ func NewTopLevelLinter() topLevelLinter {
 	return topLevelLinter{}
 }
 
-func (topLevelLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+func (topLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Halfpipe Manifest"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/"
 
 	if manifest.Team == "" {
-		result.AddError(linterrors.NewMissingField("team"))
+		result.AddError(NewErrMissingField("team"))
 	} else if strings.ToLower(manifest.Team) != manifest.Team {
-		result.AddWarning(linterrors.NewInvalidField("team", "team should be lower case"))
+		result.AddWarning(NewErrInvalidField("team", "should be lower case"))
 	}
 
 	if manifest.Pipeline == "" {
-		result.AddError(linterrors.NewMissingField("pipeline"))
+		result.AddError(NewErrMissingField("pipeline"))
 	}
 
 	if strings.Contains(manifest.Pipeline, " ") {
-		result.AddError(linterrors.NewInvalidField("pipeline", "pipeline name must not contains spaces!"))
+		result.AddError(NewErrInvalidField("pipeline", "must not contains spaces!"))
 	}
 
 	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JSONKey == "") ||
 		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JSONKey != "") {
-		result.AddError(linterrors.NewInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
+		result.AddError(NewErrInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
 	}
 
 	if !(manifest.Platform == "actions" || manifest.Platform == "concourse") {
-		result.AddError(linterrors.NewInvalidField("output", "must be either 'actions' or 'concourse'"))
+		result.AddError(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
 	}
 
 	return result

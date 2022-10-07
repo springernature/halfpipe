@@ -10,8 +10,6 @@ import (
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -59,15 +57,15 @@ type fakeLinter struct {
 	Error error
 }
 
-func (f fakeLinter) Lint(manifest manifest.Manifest) result.LintResult {
-	return result.NewLintResult("fake", "url", []error{f.Error}, nil)
+func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
+	return linters.NewLintResult("fake", "url", []error{f.Error}, nil)
 }
 
 func TestAppliesAllLinters(t *testing.T) {
 	c := testController()
 
-	linter1 := fakeLinter{linterrors.NewFileError("file", "is missing")}
-	linter2 := fakeLinter{linterrors.NewMissingField("field")}
+	linter1 := fakeLinter{errors.New("error from linter1")}
+	linter2 := fakeLinter{errors.New("error from linter2")}
 	c.linters = []linters.Linter{linter1, linter2}
 
 	response := c.Process(validHalfpipeManifest)

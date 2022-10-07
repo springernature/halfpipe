@@ -2,20 +2,16 @@ package manifest
 
 import (
 	"bytes"
-	"strings"
-
-	"fmt"
-
 	"encoding/json"
-
-	"github.com/springernature/halfpipe/linters/linterrors"
+	"fmt"
 	"sigs.k8s.io/yaml"
+	"strings"
 )
 
 func Parse(manifestYaml string) (man Manifest, errs []error) {
 	if es := unmarshalAsJSON([]byte(manifestYaml), &man); len(es) > 0 {
 		for _, err := range es {
-			errs = append(errs, NewParseError(err.Error()))
+			errs = append(errs, err)
 		}
 	}
 	return man, errs
@@ -131,7 +127,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 
 	unmarshal := func(t Task) error {
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] %s", taskIndex, jsonErr.Error()))
+			return fmt.Errorf("tasks.task[%v] : %w", taskIndex, jsonErr)
 		}
 		return nil
 	}
@@ -194,7 +190,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = linterrors.NewInvalidField("task", fmt.Sprintf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType))
+		err = fmt.Errorf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType)
 	}
 
 	return task, err
@@ -206,7 +202,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 
 	unmarshal := func(t Trigger) error {
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return linterrors.NewInvalidField("trigger", fmt.Sprintf("triggers.trigger[%v] %s", triggerIndex, jsonErr.Error()))
+			return fmt.Errorf("triggers.trigger[%v] : %w", triggerIndex, jsonErr)
 		}
 		return nil
 	}
@@ -234,7 +230,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		t.Type = ""
 		trigger = t
 	default:
-		err = linterrors.NewInvalidField("task", fmt.Sprintf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType))
+		err = fmt.Errorf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType)
 	}
 
 	return trigger, err

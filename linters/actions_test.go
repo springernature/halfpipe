@@ -1,13 +1,12 @@
-package linters_test
+package linters
 
 import (
-	"github.com/springernature/halfpipe/linters"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-var lint = linters.ActionsLinter{}.Lint
+var lint = ActionsLinter{}.Lint
 
 func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	man := manifest.Manifest{
@@ -21,9 +20,7 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	}
 
 	actual := lint(man)
-	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 1)
-	assert.Contains(t, actual.Warnings[0].Error(), "PipelineTrigger")
+	AssertContainsError(t, actual.Warnings, ErrUnsupportedPipelineTrigger)
 }
 
 func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
@@ -44,8 +41,8 @@ func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 	}
 
 	actual := lint(man)
-	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 2)
+	AssertContainsError(t, actual.Warnings, ErrUnsupportedGitPrivateKey)
+	AssertContainsError(t, actual.Warnings, ErrUnsupportedGitUri)
 }
 
 func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
@@ -87,9 +84,7 @@ func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	}
 
 	actual := lint(man)
-	assert.Empty(t, actual.Errors)
-	assert.Len(t, actual.Warnings, 1)
-	assert.Contains(t, actual.Warnings[0].Error(), "loop")
+	AssertContainsError(t, actual.Warnings, ErrDockerTriggerLoop)
 }
 
 func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
@@ -105,9 +100,7 @@ func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
 	for name, features := range tests {
 		t.Run(name, func(t *testing.T) {
 			actual := lint(manifest.Manifest{Platform: "actions", FeatureToggles: features})
-			assert.Empty(t, actual.Errors)
-			assert.Len(t, actual.Warnings, 1)
-			assert.Equal(t, actual.Warnings[0], linters.ErrUpdatePiplineNotImplemented)
+			AssertContainsError(t, actual.Warnings, ErrUnsupportedUpdatePipeline)
 		})
 	}
 
@@ -123,8 +116,5 @@ func TestActionsLinter_UnsupportedUseCovenant(t *testing.T) {
 		},
 	}
 	actual := lint(man)
-	assert.Empty(t, actual.Errors)
-	if assert.Len(t, actual.Warnings, 1) {
-		assert.Contains(t, actual.Warnings[0].Error(), "use_covenant")
-	}
+	AssertContainsError(t, actual.Warnings, ErrUnsupportedCovenant)
 }

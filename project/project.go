@@ -1,18 +1,14 @@
 package project
 
 import (
-	errors2 "github.com/springernature/halfpipe/linters/linterrors"
-	"path/filepath"
-
-	"github.com/springernature/halfpipe/linters/filechecker"
-
-	"os/exec"
-
-	"strings"
-
+	"fmt"
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/tcnksm/go-gitconfig"
+	"os/exec"
+	"path"
+	"path/filepath"
+	"strings"
 )
 
 type Data struct {
@@ -95,15 +91,9 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		return p, err
 	}
 
-	halfpipeFilePath, e := filechecker.GetHalfpipeFileName(c.Fs, workingDir, halfpipeFilenameOptions)
-	if e != nil {
-		switch e.(type) {
-		case errors2.MissingHalfpipeFileError:
-			if !ignoreMissingHalfpipeFile {
-				err = e
-				return p, err
-			}
-		}
+	halfpipeFilePath, e := c.GetHalfpipeFileName(workingDir, halfpipeFilenameOptions)
+	if errors.Is(e, ErrHalfpipeFileNotFound) && !ignoreMissingHalfpipeFile {
+		return p, e
 	}
 
 	p.GitURI = origin
@@ -112,4 +102,30 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 	p.RootName = rootName
 	p.HalfpipeFilePath = halfpipeFilePath
 	return p, err
+}
+
+var ErrHalfpipeFileMultiple = errors.New("found multiple halfpipe manifests")
+var ErrHalfpipeFileNotFound = errors.New("could not find halfpipe manifest")
+
+func (c projectResolver) GetHalfpipeFileName(workingDir string, halfpipeFilenameOptions []string) (halfpipeFileName string, err error) {
+	var foundPaths []string
+
+	for _, p := range halfpipeFilenameOptions {
+		joinedPath := path.Join(workingDir, p)
+		if exists, fileNotExistErr := c.Fs.Exists(joinedPath); exists && fileNotExistErr == nil {
+			foundPaths = append(foundPaths, p)
+		}
+	}
+
+	if len(foundPaths) > 1 {
+		err = fmt.Errorf("%w : %s", ErrHalfpipeFileMultiple, foundPaths)
+		return halfpipeFileName, err
+	}
+
+	if len(foundPaths) == 0 {
+		err = fmt.Errorf("%w : %s", ErrHalfpipeFileNotFound, halfpipeFilenameOptions)
+		return halfpipeFileName, err
+	}
+
+	return foundPaths[0], nil
 }

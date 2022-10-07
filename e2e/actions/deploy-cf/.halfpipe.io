@@ -80,4 +80,5 @@ tasks:
     org: ((cloudfoundry.org-snpaas))
     space: dev
     deploy_artifact: foo.html
-    sso_route: my-route.public.springernature.app
+    sso_route: my-routes.public.springernature.app
+    rolling: true

@@ -1,12 +1,7 @@
 package linters
 
 import (
-	"errors"
-	"fmt"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/filechecker"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v3"
 	"strings"
@@ -20,7 +15,7 @@ func NewVelaManifestLinter(fs afero.Afero) VelaManifestLinter {
 	return VelaManifestLinter{fs}
 }
 
-func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr result.LintResult) {
+func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr LintResult) {
 	var deployKateeTasks []manifest.DeployKatee
 	for _, task := range man.Tasks {
 		switch t := task.(type) {
@@ -30,20 +25,20 @@ func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr result.LintResult) {
 	}
 
 	for _, kateeTask := range deployKateeTasks {
-		err := filechecker.CheckFile(v.Fs, kateeTask.VelaManifest, false)
+		err := CheckFile(v.Fs, kateeTask.VelaManifest, false)
 		if err != nil {
 			lr.AddError(err)
 			return
 		}
 
-		velaAppFile, err := v.Fs.ReadFile(kateeTask.VelaManifest)
+		velaAppFile, err := ReadFile(v.Fs, kateeTask.VelaManifest)
 		if err != nil {
-			lr.AddError(linterrors.NewFileError(kateeTask.VelaManifest, "does not exist"))
+			lr.AddError(err)
 		}
 
-		velaManifest, e := unMarshallVelaManifest(velaAppFile)
+		velaManifest, e := unMarshallVelaManifest([]byte(velaAppFile))
 		if e != nil {
-			lr.AddError(errors.New("vela manifest is invalid"))
+			lr.AddError(ErrFileInvalid.WithValue(e.Error()))
 			return
 		}
 
@@ -56,7 +51,7 @@ func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr result.LintResult) {
 					vars := kateeTask.Vars
 					if _, ok := vars[secretName]; !ok {
 						if secretName != "BUILD_VERSION" && secretName != "GIT_REVISION" {
-							lr.AddError(fmt.Errorf("vela manifest variable %s is not specified in halfpipe manifest", secretName))
+							lr.AddError(ErrVelaVariableMissing.WithValue(secretName).WithFile(kateeTask.VelaManifest))
 						}
 					}
 				}

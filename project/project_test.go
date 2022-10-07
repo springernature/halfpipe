@@ -142,3 +142,42 @@ func TestDoesntErrorOutIfHalfpipeFileIsMissing(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, "git@origin", project.GitURI)
 }
+
+func TestFindsHalfpipeFile(t *testing.T) {
+	t.Run("errors when two options exist", func(t *testing.T) {
+		pr := testProjectResolver()
+		pr.Fs.WriteFile(".halfpipe.io", []byte{}, 0700)
+		pr.Fs.WriteFile(".halfpipe.io.yml", []byte{}, 0700)
+
+		_, err := pr.GetHalfpipeFileName("", config.HalfpipeFilenameOptions)
+		assert.ErrorIs(t, err, ErrHalfpipeFileMultiple)
+	})
+
+	t.Run("errirs when no options exist", func(t *testing.T) {
+		pr := testProjectResolver()
+		_, err := pr.GetHalfpipeFileName("", config.HalfpipeFilenameOptions)
+
+		assert.ErrorIs(t, err, ErrHalfpipeFileNotFound)
+	})
+
+	t.Run("errors when explicit filename given but file is missing", func(t *testing.T) {
+		pr := testProjectResolver()
+		_, err := pr.GetHalfpipeFileName("", []string{"some-other-file.yml"})
+
+		assert.ErrorIs(t, err, ErrHalfpipeFileNotFound)
+	})
+
+	t.Run("happy with one of the options", func(t *testing.T) {
+		pr := testProjectResolver()
+		pr.Fs.WriteFile(".halfpipe.io", []byte("foo"), 0700)
+		_, err := pr.GetHalfpipeFileName("", config.HalfpipeFilenameOptions)
+		assert.NoError(t, err)
+	})
+
+	t.Run("happy with explicit option", func(t *testing.T) {
+		pr := testProjectResolver()
+		pr.Fs.WriteFile("some-other-file.yml", []byte("foo"), 0700)
+		_, err := pr.GetHalfpipeFileName("", []string{"some-other-file.yml"})
+		assert.NoError(t, err)
+	})
+}

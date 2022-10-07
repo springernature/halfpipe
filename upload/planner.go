@@ -3,13 +3,14 @@ package upload
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/linters"
+	"github.com/springernature/halfpipe/project"
 	"io"
 	"os/exec"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/filechecker"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -66,13 +67,13 @@ type planner struct {
 func (p planner) getHalfpipeManifest() (man manifest.Manifest, err error) {
 	halfpipeFilePath := p.input
 	if p.input == "" {
-		halfpipeFilePath, err = filechecker.GetHalfpipeFileName(p.fs, p.workingDir, config.HalfpipeFilenameOptions)
+		halfpipeFilePath, err = project.NewProjectResolver(p.fs).GetHalfpipeFileName(p.workingDir, config.HalfpipeFilenameOptions)
 		if err != nil {
 			return man, err
 		}
 	}
 
-	yamlString, err := filechecker.ReadFile(p.fs, halfpipeFilePath)
+	yamlString, err := linters.ReadFile(p.fs, halfpipeFilePath)
 	if err != nil {
 		return man, err
 	}

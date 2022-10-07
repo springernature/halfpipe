@@ -31,11 +31,11 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		}
 
 		result := linter.Lint(man)
-		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
+		AssertNotContainsError(t, result.Errors, ErrMultipleTriggers)
+		AssertNotContainsError(t, result.Warnings, ErrMultipleTriggers)
 	})
 
-	t.Run("with more than one of each there should be no errors", func(t *testing.T) {
+	t.Run("with more than one of each there should be errors", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				manifest.DockerTrigger{},
@@ -49,10 +49,7 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 3)
-		assert.Len(t, result.Warnings, 0)
-		assertTriggerErrorInErrors(t, manifest.GitTrigger{}.GetTriggerName(), result.Errors)
-		assertTriggerErrorInErrors(t, manifest.TimerTrigger{}.GetTriggerName(), result.Errors)
-		assertTriggerErrorInErrors(t, manifest.DockerTrigger{}.GetTriggerName(), result.Errors)
+		AssertContainsError(t, result.Errors, ErrMultipleTriggers)
 	})
 }
 

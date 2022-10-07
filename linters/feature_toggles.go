@@ -2,7 +2,6 @@ package linters
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -26,7 +25,7 @@ func NewFeatureToggleLinter(availableFeatures manifest.FeatureToggles) featureTo
 	}
 }
 
-func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Feature Toggles"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#feature_toggles"
 

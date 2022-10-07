@@ -19,6 +19,7 @@ tasks:
   name: Push default
   image: eu.gcr.io/halfpipe-io/someImage
   restore_artifacts: true
+  tag: version
 
 - type: docker-push
   name: Push custom

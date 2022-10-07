@@ -5,9 +5,6 @@ import (
 	"fmt"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/cf"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
-	"github.com/springernature/halfpipe/linters/tasks"
 	"github.com/springernature/halfpipe/manifest"
 	"sort"
 	"strings"
@@ -34,28 +31,28 @@ type taskLinter struct {
 func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 	return taskLinter{
 		Fs:                              fs,
-		lintRunTask:                     tasks.LintRunTask,
-		lintDeployCFTask:                tasks.LintDeployCFTask,
-		lintDeployKateeTask:             tasks.LintDeployKateeTask,
-		LintPrePromoteTask:              tasks.LintPrePromoteTask,
-		lintDockerPushTask:              tasks.LintDockerPushTask,
-		lintDockerComposeTask:           tasks.LintDockerComposeTask,
-		lintConsumerIntegrationTestTask: tasks.LintConsumerIntegrationTestTask,
-		lintDeployMLZipTask:             tasks.LintDeployMLZipTask,
-		lintDeployMLModulesTask:         tasks.LintDeployMLModulesTask,
-		lintArtifacts:                   tasks.LintArtifacts,
-		lintParallel:                    tasks.LintParallelTask,
-		lintSequence:                    tasks.LintSequenceTask,
+		lintRunTask:                     LintRunTask,
+		lintDeployCFTask:                LintDeployCFTask,
+		lintDeployKateeTask:             LintDeployKateeTask,
+		LintPrePromoteTask:              LintPrePromoteTask,
+		lintDockerPushTask:              LintDockerPushTask,
+		lintDockerComposeTask:           LintDockerComposeTask,
+		lintConsumerIntegrationTestTask: LintConsumerIntegrationTestTask,
+		lintDeployMLZipTask:             LintDeployMLZipTask,
+		lintDeployMLModulesTask:         LintDeployMLModulesTask,
+		lintArtifacts:                   LintArtifacts,
+		lintParallel:                    LintParallelTask,
+		lintSequence:                    LintSequenceTask,
 		os:                              os,
 	}
 }
 
-func (linter taskLinter) Lint(man manifest.Manifest) (result result.LintResult) {
+func (linter taskLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "Tasks"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#tasks"
 
 	if len(man.Tasks) == 0 {
-		result.AddWarning(linterrors.NewMissingField("tasks"))
+		result.AddWarning(NewErrMissingField("tasks"))
 		return result
 	}
 
@@ -136,7 +133,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			lintTimeout = false
 			lintArtifact = false
 		default:
-			errs = append(errs, linterrors.NewInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
+			errs = append(errs, NewErrInvalidField("task", fmt.Sprintf("%s is not a known task", taskID)))
 		}
 
 		if t.ReadsFromArtifacts() && lintArtifact {
@@ -147,7 +144,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		if lintTimeout && t.GetTimeout() != "" {
 			_, err := time.ParseDuration(t.GetTimeout())
 			if err != nil {
-				errs = append(errs, linterrors.NewInvalidField("timeout", err.Error()))
+				errs = append(errs, NewErrInvalidField("timeout", err.Error()))
 			}
 		}
 

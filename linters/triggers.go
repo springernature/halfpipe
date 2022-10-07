@@ -3,9 +3,6 @@ package linters
 import (
 	"fmt"
 	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/linters/linterrors"
-	"github.com/springernature/halfpipe/linters/result"
-	"github.com/springernature/halfpipe/linters/triggers"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 )
@@ -38,15 +35,15 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 	}
 
 	if numGit > 1 {
-		errs = append(errs, linterrors.NewTriggerError(manifest.GitTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.GitTrigger{}.GetTriggerName()))
 	}
 
 	if numCron > 1 {
-		errs = append(errs, linterrors.NewTriggerError(manifest.TimerTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.TimerTrigger{}.GetTriggerName()))
 	}
 
 	if numDocker > 1 {
-		errs = append(errs, linterrors.NewTriggerError(manifest.DockerTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.DockerTrigger{}.GetTriggerName()))
 	}
 
 	return errs
@@ -75,7 +72,7 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 	return errs, warnings
 }
 
-func (t triggersLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+func (t triggersLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Triggers"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest#triggers"
 
@@ -97,9 +94,9 @@ func NewTriggersLinter(fs afero.Afero, workingDir string, branchResolver project
 		workingDir:      workingDir,
 		branchResolver:  branchResolver,
 		repoURIResolver: repoURIResolver,
-		gitLinter:       triggers.LintGitTrigger,
-		cronLinter:      triggers.LintCronTrigger,
-		dockerLinter:    triggers.LintDockerTrigger,
-		pipelineLinter:  triggers.LintPipelineTrigger,
+		gitLinter:       LintGitTrigger,
+		cronLinter:      LintCronTrigger,
+		dockerLinter:    LintDockerTrigger,
+		pipelineLinter:  LintPipelineTrigger,
 	}
 }

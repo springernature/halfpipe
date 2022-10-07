@@ -3,10 +3,10 @@ package migrate
 import (
 	"errors"
 	"fmt"
+	"github.com/springernature/halfpipe/linters"
 	"reflect"
 
 	"github.com/springernature/halfpipe"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -57,7 +57,7 @@ parsedMigratedManifestYaml:
 	return errors.New(errStr)
 }
 
-func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults result.LintResults, migrated bool, err error) {
+func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults linters.LintResults, migrated bool, err error) {
 	// Checking that the original manifest is ok
 	response := m.controller.Process(man)
 	if response.LintResults.HasErrors() {

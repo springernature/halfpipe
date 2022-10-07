@@ -19,8 +19,7 @@ func TestTeamIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "team", result.Errors[0])
+	AssertContainsError(t, result.Errors, NewErrMissingField("team"))
 }
 
 func TestTeamIsUpperCase(t *testing.T) {
@@ -30,9 +29,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assert.Len(t, result.Warnings, 1)
-	assert.Len(t, result.Errors, 0)
-	assertInvalidField(t, "team", result.Warnings[0])
+	AssertContainsError(t, result.Warnings, ErrInvalidField.WithValue("team"))
 }
 
 func TestPipelineIsMissing(t *testing.T) {
@@ -41,17 +38,7 @@ func TestPipelineIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assert.Len(t, result.Errors, 1)
-	assertMissingField(t, "pipeline", result.Errors[0])
-}
-
-func TestPipelineIsValid(t *testing.T) {
-	man := manifest.Manifest{}
-	man.Team = "yolo"
-	man.Pipeline = "Something with spaces"
-
-	result := topLevelLinter{}.Lint(man)
-	assert.True(t, result.HasErrors())
+	AssertContainsError(t, result.Errors, NewErrMissingField("pipeline"))
 }
 
 func TestHappyPath(t *testing.T) {
@@ -79,8 +66,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result := topLevelLinter{}.Lint(missingJSONKey)
-	assert.True(t, result.HasErrors())
-	assertInvalidFieldInErrors(t, "artifact_config", result.Errors)
+	AssertContainsError(t, result.Errors, ErrInvalidField.WithValue("artifact_config"))
 
 	missingBucket := manifest.Manifest{
 		Team:     "team",
@@ -91,8 +77,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result2 := topLevelLinter{}.Lint(missingBucket)
-	assert.True(t, result2.HasErrors())
-	assertInvalidFieldInErrors(t, "artifact_config", result2.Errors)
+	AssertContainsError(t, result2.Errors, ErrInvalidField.WithValue("artifact_config"))
 }
 
 func TestOutput(t *testing.T) {
@@ -125,8 +110,6 @@ func TestOutput(t *testing.T) {
 			Platform: "travis",
 		}
 		result := topLevelLinter{}.Lint(man)
-		assert.Len(t, result.Errors, 1)
-		assert.Empty(t, result.Warnings)
-		assertInvalidFieldInErrors(t, "output", result.Errors)
+		AssertContainsError(t, result.Errors, ErrInvalidField.WithValue("platform"))
 	})
 }

@@ -3,7 +3,6 @@ package halfpipe
 import (
 	"github.com/springernature/halfpipe/defaults"
 	"github.com/springernature/halfpipe/linters"
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/mapper"
 	"github.com/springernature/halfpipe/project"
@@ -17,7 +16,7 @@ type Controller interface {
 type Response struct {
 	ConfigYaml  string
 	Project     project.Data
-	LintResults result.LintResults
+	LintResults linters.LintResults
 	Platform    manifest.Platform
 }
 
@@ -54,7 +53,7 @@ func (c controller) Process(man manifest.Manifest) (response Response) {
 
 	mappedManifest, err := c.mapper.Apply(defaultedManifest)
 	if err != nil {
-		response.LintResults = append(response.LintResults, result.LintResult{Linter: "Internal mapper", Errors: []error{err}})
+		response.LintResults = append(response.LintResults, linters.LintResult{Linter: "Internal mapper", Errors: []error{err}})
 		return
 	}
 

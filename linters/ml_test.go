@@ -1,0 +1,82 @@
+package linters
+
+import (
+	"testing"
+
+	"github.com/springernature/halfpipe/manifest"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
+	task := manifest.DeployMLZip{}
+
+	errors, _ := LintDeployMLZipTask(task)
+
+	if assert.Len(t, errors, 2) {
+		AssertContainsError(t, errors, NewErrMissingField("target"))
+		AssertContainsError(t, errors, NewErrMissingField("deploy_zip"))
+	}
+}
+
+func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
+	task := manifest.DeployMLModules{}
+
+	errors, _ := LintDeployMLModulesTask(task)
+
+	if assert.Len(t, errors, 2) {
+		AssertContainsError(t, errors, NewErrMissingField("target"))
+		AssertContainsError(t, errors, NewErrMissingField("ml_modules_version"))
+	}
+}
+
+func TestMLRetries(t *testing.T) {
+	mlModule := manifest.DeployMLModules{}
+
+	mlModule.Retries = -1
+	errors, _ := LintDeployMLModulesTask(mlModule)
+	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+
+	mlModule.Retries = 6
+	errors, _ = LintDeployMLModulesTask(mlModule)
+	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+
+	mlZip := manifest.DeployMLZip{}
+
+	mlZip.Retries = -1
+	errors, _ = LintDeployMLZipTask(mlZip)
+	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+
+	mlZip.Retries = 6
+	errors, _ = LintDeployMLZipTask(mlZip)
+	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+}
+
+func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
+	task := manifest.DeployMLModules{
+		Targets:          []string{"localhost"},
+		MLModulesVersion: "2.0",
+		AppVersion:       "1.0",
+		UseBuildVersion:  true,
+	}
+
+	errors, _ := LintDeployMLModulesTask(task)
+
+	if assert.Len(t, errors, 1) {
+		AssertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
+	}
+}
+
+func TestNotBothAppVersionAndUseBuildVersionAreSetMLZip(t *testing.T) {
+	task := manifest.DeployMLZip{
+		Targets:         []string{"localhost"},
+		AppVersion:      "1.0",
+		DeployZip:       "foo.zip",
+		UseBuildVersion: true,
+	}
+
+	errors, _ := LintDeployMLZipTask(task)
+
+	if assert.Len(t, errors, 1) {
+		AssertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
+	}
+}

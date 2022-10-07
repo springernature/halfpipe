@@ -1,7 +1,6 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/linters/result"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -15,7 +14,7 @@ func NewSecretsLinter(secretValidator manifest.SecretValidator) Linter {
 	}
 }
 
-func (s secretsLinter) Lint(manifest manifest.Manifest) (result result.LintResult) {
+func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Secrets"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/vault/"
 
