@@ -124,7 +124,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 
 	unmarshal := func(t Task) error {
 		if jsonErr := decoder.Decode(t); jsonErr != nil {
-			return fmt.Errorf("tasks.task[%v] : %w", taskIndex, jsonErr)
+			return fmt.Errorf("tasks[%v] : %w", taskIndex, jsonErr)
 		}
 		return nil
 	}
@@ -187,7 +187,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = fmt.Errorf("tasks.task[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType)
+		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'parallel', 'sequence'", taskIndex, taskType)
 	}
 
 	return task, err
@@ -227,7 +227,7 @@ func unmarshalTrigger(triggerIndex int, rawTrigger json.RawMessage, triggerType 
 		t.Type = ""
 		trigger = t
 	default:
-		err = fmt.Errorf("triggers.trigger[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType)
+		err = fmt.Errorf("triggers[%v] unknown type '%s'. Must be one of 'git', 'cron', 'docker', 'pipeline'", triggerIndex, triggerType)
 	}
 
 	return trigger, err
