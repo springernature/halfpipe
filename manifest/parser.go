@@ -8,12 +8,9 @@ import (
 	"strings"
 )
 
-func Parse(manifestYaml string) (man Manifest, errs []error) {
-	if es := unmarshalAsJSON([]byte(manifestYaml), &man); len(es) > 0 {
-		for _, err := range es {
-			errs = append(errs, err)
-		}
-	}
+func Parse(manifestYaml string) (Manifest, []error) {
+	var man Manifest
+	errs := unmarshalAsJSON([]byte(manifestYaml), &man)
 	return man, errs
 }
 
