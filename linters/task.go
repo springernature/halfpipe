@@ -77,7 +77,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			taskID = fmt.Sprintf("%s[%v]", listName, index)
 		}
 
-		prefixErrors := prefixErrorsWithIndex(taskID)
+		wrapWithIndex := wrapErrorsWithIndex(taskID)
 
 		lintTimeout := true
 
@@ -91,7 +91,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 
 			if len(errs) == 0 && len(task.PrePromote) > 0 {
 				for pI, preTask := range task.PrePromote {
-					prePromotePrefixer := prefixErrorsWithIndex(fmt.Sprintf("%s.pre_promote[%v]", taskID, pI))
+					prePromotePrefixer := wrapErrorsWithIndex(fmt.Sprintf("%s.pre_promote[%v]", taskID, pI))
 					e, w := linter.LintPrePromoteTask(preTask)
 					errs = append(errs, prePromotePrefixer(e)...)
 					warnings = append(warnings, prePromotePrefixer(w)...)
@@ -148,8 +148,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			}
 		}
 
-		rE = append(rE, prefixErrors(errs)...)
-		rW = append(rW, prefixErrors(warnings)...)
+		rE = append(rE, wrapWithIndex(errs)...)
+		rW = append(rW, wrapWithIndex(warnings)...)
 	}
 
 	return rE, rW
@@ -165,7 +165,7 @@ func sortErrors(errs []error) {
 	})
 }
 
-func prefixErrorsWithIndex(prefix string) func(errs []error) (rE []error) {
+func wrapErrorsWithIndex(prefix string) func(errs []error) (rE []error) {
 	// Since we are calling lintTasks recursively we end up in a situation where
 	// error already contains the prefix.
 	return func(errs []error) (rE []error) {
@@ -173,7 +173,7 @@ func prefixErrorsWithIndex(prefix string) func(errs []error) (rE []error) {
 			if strings.HasPrefix(e.Error(), prefix) {
 				rE = append(rE, e)
 			} else {
-				rE = append(rE, fmt.Errorf("%s %s", prefix, e))
+				rE = append(rE, fmt.Errorf("%s %w", prefix, e))
 			}
 
 		}

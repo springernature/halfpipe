@@ -52,7 +52,7 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnings []error) {
 	for i, trigger := range man.Triggers {
 
-		prefixErrors := prefixErrorsWithIndex(fmt.Sprintf("triggers[%v]", i))
+		wrapWithIndex := wrapErrorsWithIndex(fmt.Sprintf("triggers[%v]", i))
 
 		var e, w []error
 		switch trigger := trigger.(type) {
@@ -66,8 +66,8 @@ func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnin
 			e, w = t.pipelineLinter(man, trigger)
 		}
 
-		errs = append(errs, prefixErrors(e)...)
-		warnings = append(warnings, prefixErrors(w)...)
+		errs = append(errs, wrapWithIndex(e)...)
+		warnings = append(warnings, wrapWithIndex(w)...)
 	}
 	return errs, warnings
 }

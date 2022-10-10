@@ -15,4 +15,5 @@ func Test_ErrorWrapping(t *testing.T) {
 	assert.ErrorIs(t, err, baseErr.WithValue("are").WithValue("tasty").WithFile("fruit.txt"))
 
 	assert.NotErrorIs(t, err, baseErr.WithValue("tasty"))
+	assert.NotErrorIs(t, err, baseErr.WithFile("fruit.txt"))
 }
