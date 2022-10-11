@@ -10,7 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error, warnings []error) {
+func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error) {
 	if task.API == "" {
 		errs = append(errs, NewErrMissingField("api"))
 	}
@@ -29,7 +29,7 @@ func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, 
 	}
 
 	if strings.HasPrefix(task.Manifest, "../artifacts/") {
-		warnings = append(warnings, ErrCFFromArtifact.WithFile(task.Manifest))
+		errs = append(errs, ErrCFFromArtifact.WithFile(task.Manifest).AsWarning())
 		if len(task.PrePromote) > 0 {
 			errs = append(errs, ErrCFPrePromoteArtifact)
 		}
@@ -87,9 +87,8 @@ func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, 
 		}
 	}
 
-	cfManifestErrors, cfManifestWarnings := LintCfManifest(task, readCfManifest)
+	cfManifestErrors := LintCfManifest(task, readCfManifest)
 	errs = append(errs, cfManifestErrors...)
-	warnings = append(warnings, cfManifestWarnings...)
 
-	return errs, warnings
+	return errs
 }

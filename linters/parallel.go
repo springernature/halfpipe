@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []error) {
+func LintParallelTask(parallelTask manifest.Parallel) (errs []error) {
 	var numSavedArtifacts int
 	var numSavedArtifactsOnFailure int
 	for _, task := range parallelTask.Tasks {
@@ -27,16 +27,16 @@ func LintParallelTask(parallelTask manifest.Parallel) (errs []error, warnings []
 	}
 
 	if len(parallelTask.Tasks) == 1 {
-		warnings = append(warnings, NewErrInvalidField("tasks", "it seems unnecessary to have a single parallel task"))
+		errs = append(errs, NewErrInvalidField("tasks", "it seems unnecessary to have a single parallel task").AsWarning())
 	}
 
 	if numSavedArtifacts > 1 {
-		warnings = append(warnings, NewErrInvalidField("tasks", "only one 'parallel' task can save artifacts without ending up in weird race conditions"))
+		errs = append(errs, NewErrInvalidField("tasks", "only one 'parallel' task can save artifacts without ending up in weird race conditions").AsWarning())
 	}
 
 	if numSavedArtifactsOnFailure > 1 {
-		warnings = append(warnings, NewErrInvalidField("tasks", "only one 'parallel' task can save artifacts on failure without ending up in weird race conditions"))
+		errs = append(errs, NewErrInvalidField("tasks", "only one 'parallel' task can save artifacts on failure without ending up in weird race conditions").AsWarning())
 	}
 
-	return errs, warnings
+	return errs
 }

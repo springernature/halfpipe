@@ -12,7 +12,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 		task := manifest.Run{
 			ManualTrigger: true,
 		}
-		errors, _ := LintPrePromoteTask(task)
+		errors := LintPrePromoteTask(task)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("manual_trigger"))
 	})
 
@@ -24,7 +24,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 				},
 			},
 		}
-		errors, _ := LintPrePromoteTask(task)
+		errors := LintPrePromoteTask(task)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("notifications"))
 	})
 
@@ -39,7 +39,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 		}
 
 		for _, nonSupportedTask := range nonSupportedTasks {
-			errors, _ := LintPrePromoteTask(nonSupportedTask)
+			errors := LintPrePromoteTask(nonSupportedTask)
 			assertContainsError(t, errors, ErrInvalidField.WithValue("type"))
 		}
 

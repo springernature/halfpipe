@@ -53,22 +53,32 @@ var (
 type Error struct {
 	err   error
 	value string
+	level string
 }
 
 func newError(msg string) Error {
-	return Error{err: errors.New(msg)}
+	return Error{err: errors.New(msg), level: "error"}
 }
 
 func (e Error) WithFile(file string) Error {
-	return Error{err: e, value: " (" + file + ")"}
+	return Error{err: e, level: e.level, value: " (" + file + ")"}
 }
 
 func (e Error) WithValue(value string) Error {
-	return Error{err: e, value: ": " + value}
+	return Error{err: e, level: e.level, value: ": " + value}
 }
 
 func (e Error) Error() string {
 	return fmt.Sprintf("%s%s", e.err.Error(), e.value)
+}
+
+func (e Error) AsWarning() Error {
+	e.level = "warning"
+	return e
+}
+
+func (e Error) IsWarning() bool {
+	return e.level == "warning"
 }
 
 func (e Error) Unwrap() error {

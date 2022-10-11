@@ -8,38 +8,32 @@ import (
 
 func TestCurrentTaskDoesNotRequireArtifactAndThereAreNoPreviousTasks(t *testing.T) {
 	currentTask := manifest.DockerPush{}
-	errors, warnings := LintArtifacts(currentTask, nil)
-	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
+	errs := LintArtifacts(currentTask, nil)
+	assert.Len(t, errs, 0)
 }
 
 func TestCurrentTaskDoesNotRequireArtifactAndThereArePreviousTasks(t *testing.T) {
 	currentTask := manifest.DockerPush{}
-	errors, warnings := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{}, manifest.Run{}})
+	errors := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{}, manifest.Run{}})
 	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
 }
 
 func TestCurrentTaskRequiresArtifactAndThereArePreviousTasks(t *testing.T) {
 	currentTask := manifest.DockerPush{RestoreArtifacts: true}
-	errors, _ := LintArtifacts(currentTask, nil)
-	assert.Len(t, errors, 1)
-
-	assert.Equal(t, "reads from saved artifacts, but there are no previous tasks that saves any", errors[0].Error())
+	errs := LintArtifacts(currentTask, nil)
+	assertContainsError(t, errs, ErrReadsFromSavedArtifacts)
 }
 
 func TestCurrentTaskRequiresArtifactAndThereArePreviousTasksThatDoesntSaveAny(t *testing.T) {
 	currentTask := manifest.DockerPush{RestoreArtifacts: true}
-	errors, _ := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{}, manifest.Run{}})
-	assert.Len(t, errors, 1)
-
-	assert.Equal(t, "reads from saved artifacts, but there are no previous tasks that saves any", errors[0].Error())
+	errs := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{}, manifest.Run{}})
+	assertContainsError(t, errs, ErrReadsFromSavedArtifacts)
 }
 
 func TestCurrentTaskRequiresArtifactAndThereIsAPreviousTasksThatSavesOne(t *testing.T) {
 	currentTask := manifest.DockerPush{RestoreArtifacts: true}
-	errors, _ := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{SaveArtifacts: []string{"path/to/artifact/to/save"}}, manifest.Run{}})
-	assert.Len(t, errors, 0)
+	errs := LintArtifacts(currentTask, []manifest.Task{manifest.DockerCompose{SaveArtifacts: []string{"path/to/artifact/to/save"}}, manifest.Run{}})
+	assert.Len(t, errs, 0)
 }
 
 func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
@@ -52,9 +46,10 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 			},
 		}
 
-		errors, _ := LintArtifacts(man, []manifest.Task{})
-		assert.Len(t, errors, 2)
-		assertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
+		errs := LintArtifacts(man, []manifest.Task{})
+		assert.Len(t, errs, 2)
+		assert.ErrorIs(t, errs[0], ErrInvalidField.WithValue("save_artifact"))
+		assert.ErrorIs(t, errs[1], ErrInvalidField.WithValue("save_artifact"))
 	})
 
 	t.Run("docker-compose", func(t *testing.T) {
@@ -66,7 +61,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 			},
 		}
 
-		errors, _ := LintArtifacts(man, []manifest.Task{})
+		errors := LintArtifacts(man, []manifest.Task{})
 		assert.Len(t, errors, 2)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
 	})
@@ -76,7 +71,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 			DeployArtifact: "path/to/$BUILD_VERSION/blah",
 		}
 
-		errors, _ := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
+		errors := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
 		assert.Len(t, errors, 1)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("deploy_artifact"))
 	})

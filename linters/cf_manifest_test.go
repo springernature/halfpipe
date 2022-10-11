@@ -24,7 +24,7 @@ func cfManifestReader(manifestYaml string, err error) func(pathToManifest string
 
 func TestInvalidManifest(t *testing.T) {
 	expectedErr := errors.New("invalid manifest error")
-	errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader("", expectedErr))
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader("", expectedErr))
 
 	assert.Len(t, errs, 1)
 	assert.Contains(t, errs[0].Error(), expectedErr.Error())
@@ -42,7 +42,7 @@ applications:
 `
 
 	task := manifest.DeployCF{Manifest: "some-manifest.yml"}
-	errs, _ := LintCfManifest(task, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(task, cfManifestReader(cfManifest, nil))
 	assertContainsError(t, errs, ErrCFMultipleApps)
 }
 
@@ -52,7 +52,7 @@ applications:
 - name: test
 `
 
-	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
 	assertContainsError(t, errs, ErrCFMissingRoutes)
 }
 
@@ -62,7 +62,7 @@ applications:
 - routes:
   - route: test.com
 `
-	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
 	assertContainsError(t, errs, ErrCFMissingName)
 }
 
@@ -73,7 +73,7 @@ applications:
   no-route: true
 `
 
-	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
 	assertContainsError(t, errs, ErrCFNoRouteHealthcheck)
 }
 
@@ -86,7 +86,7 @@ applications:
   - route: test.com
 `
 
-	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
 	assertContainsError(t, errs, ErrCFRoutesAndNoRoute)
 }
 
@@ -98,15 +98,14 @@ applications:
   health-check-type: process
 `
 
-	errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
 	assertNotContainsError(t, errs, ErrCFMissingRoutes)
 }
 
 func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
 	task := manifest.DeployCF{Manifest: "../artifacts/manifest.yml"}
-	errs, warns := LintCfManifest(task, cfManifestReader("", errors.New("manifest not found")))
+	errs := LintCfManifest(task, cfManifestReader("", errors.New("manifest not found")))
 	assert.Empty(t, errs)
-	assert.Empty(t, warns)
 }
 
 func TestLintsBuildpackField(t *testing.T) {
@@ -118,8 +117,8 @@ applications:
   buildpack: kehe
 `
 
-	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	assertContainsError(t, warns, ErrCFBuildpackDeprecated)
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+	assertContainsError(t, errs, ErrCFBuildpackDeprecated)
 }
 
 func TestLintUnversionedBuildpack(t *testing.T) {
@@ -135,8 +134,8 @@ applications:
   - system
 `
 
-	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	assertContainsError(t, warns, ErrCFBuildpackUnversioned)
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+	assertContainsError(t, errs, ErrCFBuildpackUnversioned)
 }
 
 func TestLintMissingBuildpack(t *testing.T) {
@@ -146,8 +145,8 @@ applications:
   routes:
   - route: test.com
 `
-	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	assertContainsError(t, warns, ErrCFBuildpackMissing)
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+	assertContainsError(t, errs, ErrCFBuildpackMissing)
 }
 
 func TestLintNoHttpInRoutes(t *testing.T) {
@@ -162,7 +161,7 @@ applications:
   - java
 `
 
-	errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+	errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
 	assert.Contains(t, errs[0].Error(), "http://test.com")
 	assert.Contains(t, errs[1].Error(), "https://test.com")
 }
@@ -182,7 +181,7 @@ applications:
 			DeployArtifact: "somePath/file.jar",
 		}
 
-		errs, _ := LintCfManifest(task, cfManifestReader(cfManifest, nil))
+		errs := LintCfManifest(task, cfManifestReader(cfManifest, nil))
 		assertContainsError(t, errs, ErrCFArtifactAndDocker)
 	})
 
@@ -195,7 +194,7 @@ applications:
   routes:
   - route: test.com
 `
-		errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+		errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
 		assertContainsError(t, errs, ErrUnsupportedRegistry)
 	})
 
@@ -209,9 +208,8 @@ applications:
   - route: test.com
 `, config.DockerRegistry)
 
-		errs, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+		errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
 		assert.Empty(t, errs)
-		assert.Empty(t, warns)
 	})
 
 }

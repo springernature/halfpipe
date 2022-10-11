@@ -14,7 +14,7 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 		manifest.Run{},
 	}
 
-	errors, _ := LintRunTask(manifest.Run{}, afero.Afero{}, "")
+	errors := LintRunTask(manifest.Run{}, afero.Afero{}, "")
 	assertContainsError(t, errors, NewErrMissingField("script"))
 	assertContainsError(t, errors, NewErrMissingField("docker.image"))
 }
@@ -27,7 +27,7 @@ func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
 		},
 	}
 
-	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
+	errors := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assert.Len(t, errors, 1)
 	assertContainsError(t, errors, ErrFileNotFound)
 }
@@ -45,9 +45,8 @@ func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs, "")
+	errors := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
 }
 
 func TestRunTaskWithScriptWithoutDotSlashAndImageWithPasswordAndUsername(t *testing.T) {
@@ -63,9 +62,8 @@ func TestRunTaskWithScriptWithoutDotSlashAndImageWithPasswordAndUsername(t *test
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs, "")
+	errors := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
 }
 
 func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
@@ -80,7 +78,7 @@ func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 		},
 	}
 
-	errors, _ := LintRunTask(task, fs, "")
+	errors := LintRunTask(task, fs, "")
 	assertContainsError(t, errors, NewErrMissingField("docker.username"))
 }
 
@@ -96,7 +94,7 @@ func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
 		},
 	}
 
-	errors, _ := LintRunTask(task, fs, "")
+	errors := LintRunTask(task, fs, "")
 	assertContainsError(t, errors, NewErrMissingField("docker.password"))
 }
 
@@ -111,9 +109,8 @@ func TestRunTaskScriptFileExists(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs, "")
+	errors := LintRunTask(task, fs, "")
 	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 0)
 }
 
 func TestRunTaskScriptAcceptsArguments(t *testing.T) {
@@ -128,9 +125,8 @@ func TestRunTaskScriptAcceptsArguments(t *testing.T) {
 			},
 		}
 
-		errors, warnings := LintRunTask(task, fs, "")
+		errors := LintRunTask(task, fs, "")
 		assert.Len(t, errors, 0)
-		assert.Len(t, warnings, 0)
 	}
 }
 
@@ -144,10 +140,8 @@ func TestRunTaskWithScriptThatStartsWithBackSlackShouldNotError(t *testing.T) {
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs, "")
-	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 1)
-	assert.Contains(t, warnings, WarnScriptMustExistInDockerImage("make"))
+	errs := LintRunTask(task, fs, "")
+	assertContainsError(t, errs, ErrScriptMustExistInDockerImage.WithFile("make"))
 
 	taskWithArgs := manifest.Run{
 		Script: `\ls -al`,
@@ -156,21 +150,19 @@ func TestRunTaskWithScriptThatStartsWithBackSlackShouldNotError(t *testing.T) {
 		},
 	}
 
-	errors2, warnings2 := LintRunTask(taskWithArgs, fs, "")
-	assert.Len(t, errors2, 0)
-	assert.Len(t, warnings2, 1)
-	assert.Contains(t, warnings2, WarnScriptMustExistInDockerImage("ls"))
+	errs = LintRunTask(taskWithArgs, fs, "")
+	assertContainsError(t, errs, ErrScriptMustExistInDockerImage.WithFile("ls"))
 }
 
 func TestRetries(t *testing.T) {
 	task := manifest.Run{}
 
 	task.Retries = -1
-	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
+	errors := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
-	errors, _ = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
+	errors = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
@@ -187,8 +179,6 @@ func TestShouldSkipExecutableTestAndProduceWarningIfRunningOnWindows(t *testing.
 		},
 	}
 
-	errors, warnings := LintRunTask(task, fs, "windows")
-	assert.Len(t, errors, 0)
-	assert.Len(t, warnings, 1)
-	assert.Equal(t, WarnMakeSureScriptIsExecutable("build.sh"), warnings[0])
+	errs := LintRunTask(task, fs, "windows")
+	assertContainsError(t, errs, ErrWindowsScriptMustBeExecutable.WithFile("build.sh"))
 }

@@ -4,15 +4,15 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error, warnings []error) {
+func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) {
 	if !cameFromAParallel {
 		errs = append(errs, NewErrInvalidField("type", "you are only allowed to use 'sequence' inside 'parallel'"))
-		return errs, warnings
+		return errs
 	}
 
 	if len(seqTask.Tasks) == 0 {
 		errs = append(errs, NewErrInvalidField("tasks", "you are not allowed to use a empty 'sequence'"))
-		return errs, warnings
+		return errs
 	}
 
 	for _, task := range seqTask.Tasks {
@@ -22,5 +22,5 @@ func LintSequenceTask(seqTask manifest.Sequence, cameFromAParallel bool) (errs [
 		}
 	}
 
-	return errs, warnings
+	return errs
 }

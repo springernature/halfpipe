@@ -18,6 +18,6 @@ func (s secretsLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Secrets"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/vault/"
 
-	result.AddError(s.secretValidator.Validate(manifest)...)
+	result.Add(s.secretValidator.Validate(manifest)...)
 	return result
 }

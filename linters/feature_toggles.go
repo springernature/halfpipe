@@ -1,19 +1,14 @@
 package linters
 
 import (
-	"fmt"
 	"github.com/springernature/halfpipe/manifest"
 )
 
-var ErrNonSupportedFeature = func(feature string) error {
-	if feature == "versioned" {
-		return fmt.Errorf("feature '%s' is no longer supported. The same functionality is included in the 'update-pipeline' feature", feature)
-	}
-	if feature == "docker-decompose" {
-		return fmt.Errorf("feature '%s' is no longer supported. docker-compose tasks will not be modified", feature)
-	}
-	return fmt.Errorf("feature '%s' is not supported", feature)
-}
+var (
+	ErrUnsupportedFeature          = newError("unsupported feature")
+	ErrUnsupportedFeatureVersioned = newError("feature 'versioned' is no longer supported. The same functionality is included in the 'update-pipeline' feature")
+	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
+)
 
 type featureToggleLinter struct {
 	availableFeatures manifest.FeatureToggles
@@ -31,7 +26,13 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result LintResult
 
 	for _, feature := range manifest.FeatureToggles {
 		if !f.featureInAvailableFeatures(feature) {
-			result.AddWarning(ErrNonSupportedFeature(feature))
+			if feature == "versioned" {
+				result.Add(ErrUnsupportedFeatureVersioned.AsWarning())
+			} else if feature == "docker-decompose" {
+				result.Add(ErrUnsupportedDockerDecompose.AsWarning())
+			} else {
+				result.Add(ErrUnsupportedFeature.WithValue(feature).AsWarning())
+			}
 		}
 	}
 	return result

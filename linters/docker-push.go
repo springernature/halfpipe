@@ -10,7 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error) {
 	if docker.Image == "" {
 		errs = append(errs, NewErrMissingField("image"))
 	} else {
@@ -24,7 +24,7 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 			// docker hub format: repository:tag or user/repository:tag
 			// other registries:  another.registry/user/repository:tag
 			if strings.Count(docker.Image, "/") < 3 && strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
-				warnings = append(warnings, NewErrInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpipe-io/<team>/<imageName>'"))
+				errs = append(errs, NewErrInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpipe-io/<team>/<imageName>'").AsWarning())
 			}
 		}
 	}
@@ -58,8 +58,8 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 	}
 
 	if docker.Tag != "" {
-		warnings = append(warnings, ErrDockerPushTag)
+		errs = append(errs, ErrDockerPushTag.AsWarning())
 	}
 
-	return errs, warnings
+	return errs
 }

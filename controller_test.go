@@ -58,7 +58,7 @@ type fakeLinter struct {
 }
 
 func (f fakeLinter) Lint(manifest manifest.Manifest) linters.LintResult {
-	return linters.NewLintResult("fake", "url", []error{f.Error}, nil)
+	return linters.NewLintResult("fake", "url", []error{f.Error})
 }
 
 func TestAppliesAllLinters(t *testing.T) {

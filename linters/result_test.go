@@ -10,14 +10,14 @@ import (
 
 func TestHasErrors(t *testing.T) {
 
-	lintResult := NewLintResult("blah", "url", []error{}, nil)
+	lintResult := NewLintResult("blah", "url", []error{})
 	lintResults := LintResults{
 		lintResult,
 	}
 
 	assert.False(t, lintResults.HasErrors())
 
-	lintResult.AddError(errors.New("Blurg"))
+	lintResult.Add(errors.New("Blurg"))
 	lintResults = LintResults{
 		lintResult,
 	}
@@ -28,7 +28,7 @@ func TestError(t *testing.T) {
 	e1 := errors.New("error1")
 	e2 := errors.New("error2")
 	documentedError := NewErrMissingField("blurgh")
-	hasErrors := NewLintResult("blah", "url", []error{e1, e2, documentedError}, nil)
+	hasErrors := NewLintResult("blah", "url", []error{e1, e2, documentedError})
 
 	assert.Contains(t, hasErrors.Error(), e1.Error())
 	assert.Contains(t, hasErrors.Error(), e2.Error())
@@ -36,47 +36,38 @@ func TestError(t *testing.T) {
 
 func TestDeduplicatesErrors(t *testing.T) {
 	err := errors.New("This should only appear once in the output")
-	lintResult := NewLintResult(
-		"linter",
-		"url",
-		[]error{
-			err,
-			err,
-			err,
-		},
-		nil,
-	)
+	lintResult := NewLintResult("linter", "url", []error{err, err, err})
 
 	numTimesErrInLintResultStr := strings.Count(lintResult.Error(), err.Error())
 	assert.Equal(t, 1, numTimesErrInLintResultStr)
 }
 
 func TestDifferenceBetweenErrorsAndWarnings(t *testing.T) {
-	err := errors.New("some error")
-	warn := errors.New("some warning")
+	err := newError("some error")
+	warn := newError("some warning").AsWarning()
 
-	lintResult := NewLintResult("linter", "url", nil, nil)
+	lintResult := NewLintResult("linter", "url", nil)
 	assert.False(t, lintResult.HasErrors())
 	assert.False(t, lintResult.HasWarnings())
 
-	lintResult.AddWarning(warn)
+	lintResult.Add(warn)
 	assert.False(t, lintResult.HasErrors())
 	assert.True(t, lintResult.HasWarnings())
 
-	lintResult.AddError(err)
+	lintResult.Add(err)
 	assert.True(t, lintResult.HasErrors())
 	assert.True(t, lintResult.HasWarnings())
 }
 
 func TestDeduplicateErrorsAndWarnings(t *testing.T) {
-	err1 := errors.New("some error1")
-	err2 := errors.New("some error2")
-	warn1 := errors.New("some warning1")
-	warn2 := errors.New("some warning2")
-	lintResult := NewLintResult("linter", "url", []error{err1, err2, err1}, []error{warn1, warn2, warn1})
+	error1 := newError("some error1")
+	error2 := newError("some error2")
+	warn1 := newError("some warning1").AsWarning()
+	warn2 := newError("some warning2").AsWarning()
+	lintResult := NewLintResult("linter", "url", []error{error1, error2, error1, warn1, warn2, warn1})
 
-	assert.Equal(t, 1, strings.Count(lintResult.Error(), err1.Error()))
-	assert.Equal(t, 1, strings.Count(lintResult.Error(), err2.Error()))
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), error1.Error()))
+	assert.Equal(t, 1, strings.Count(lintResult.Error(), error2.Error()))
 	assert.Equal(t, 1, strings.Count(lintResult.Error(), warn1.Error()))
 	assert.Equal(t, 1, strings.Count(lintResult.Error(), warn2.Error()))
 

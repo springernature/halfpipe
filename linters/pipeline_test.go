@@ -18,10 +18,8 @@ func TestTeamIsDifferentFromTriggerTeam(t *testing.T) {
 			trigger,
 		},
 	}
-	errs, warns := LintPipelineTrigger(man, trigger)
 
-	assert.Len(t, errs, 1)
-	assert.Len(t, warns, 0)
+	errs := LintPipelineTrigger(man, trigger)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("team"))
 }
 
@@ -37,10 +35,7 @@ func TestEmptyPipeline(t *testing.T) {
 		},
 	}
 
-	errs, warns := LintPipelineTrigger(man, trigger)
-
-	assert.Len(t, errs, 1)
-	assert.Len(t, warns, 0)
+	errs := LintPipelineTrigger(man, trigger)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("pipeline"))
 }
 
@@ -57,10 +52,9 @@ func TestEmptyJob(t *testing.T) {
 		},
 	}
 
-	errs, warns := LintPipelineTrigger(man, trigger)
+	errs := LintPipelineTrigger(man, trigger)
 
 	assert.Len(t, errs, 1)
-	assert.Len(t, warns, 0)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("job"))
 }
 
@@ -79,9 +73,6 @@ func TestBadStatus(t *testing.T) {
 		},
 	}
 
-	errs, warns := LintPipelineTrigger(man, trigger)
-
-	assert.Len(t, errs, 1)
-	assert.Len(t, warns, 0)
+	errs := LintPipelineTrigger(man, trigger)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("status"))
 }

@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintPrePromoteTask(task manifest.Task) (errs []error, warnings []error) {
+func LintPrePromoteTask(task manifest.Task) (errs []error) {
 	switch task.(type) {
 	case manifest.Run,
 		manifest.DockerCompose,
@@ -19,5 +19,5 @@ func LintPrePromoteTask(task manifest.Task) (errs []error, warnings []error) {
 		errs = append(errs, NewErrInvalidField("type", "you are only allowed to use 'run', 'consumer-integration-test' or 'docker-compose' tasks as pre promotes"))
 	}
 
-	return errs, warnings
+	return errs
 }

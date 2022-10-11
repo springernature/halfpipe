@@ -24,7 +24,7 @@ func TestWarningIfUnknownFeatureToggle(t *testing.T) {
 
 	result := NewFeatureToggleLinter(availableFeatures).Lint(man)
 	assert.True(t, result.HasWarnings())
-	assert.Equal(t, ErrNonSupportedFeature("featureb"), result.Warnings[0])
+	assert.ErrorIs(t, result.Warnings[0], ErrUnsupportedFeature.WithValue("featureb"))
 }
 
 func TestDoesNothingIfAllFeaturesAreAvailable(t *testing.T) {

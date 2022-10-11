@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployMLZipTask(mlTask manifest.DeployMLZip) (errs []error, warnings []error) {
+func LintDeployMLZipTask(mlTask manifest.DeployMLZip) (errs []error) {
 	if len(mlTask.Targets) == 0 {
 		errs = append(errs, NewErrMissingField("target"))
 	}
@@ -20,10 +20,10 @@ func LintDeployMLZipTask(mlTask manifest.DeployMLZip) (errs []error, warnings []
 	if mlTask.AppVersion != "" && mlTask.UseBuildVersion {
 		errs = append(errs, NewErrInvalidField("use_build_version", "cannot set both app_version and use_build_version"))
 	}
-	return errs, warnings
+	return errs
 }
 
-func LintDeployMLModulesTask(mlTask manifest.DeployMLModules) (errs []error, warnings []error) {
+func LintDeployMLModulesTask(mlTask manifest.DeployMLModules) (errs []error) {
 	if len(mlTask.Targets) == 0 {
 		errs = append(errs, NewErrMissingField("target"))
 	}
@@ -39,5 +39,5 @@ func LintDeployMLModulesTask(mlTask manifest.DeployMLModules) (errs []error, war
 	if mlTask.AppVersion != "" && mlTask.UseBuildVersion {
 		errs = append(errs, NewErrInvalidField("use_build_version", "cannot set both app_version and use_build_version"))
 	}
-	return errs, warnings
+	return errs
 }

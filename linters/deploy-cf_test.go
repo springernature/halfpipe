@@ -25,7 +25,7 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	task := manifest.DeployCF{Manifest: "manifest.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errs, _ := LintDeployCFTask(task, validCfManifest(), fs)
+	errs := LintDeployCFTask(task, validCfManifest(), fs)
 	assertContainsError(t, errs, NewErrMissingField("api"))
 	assertContainsError(t, errs, NewErrMissingField("space"))
 	assertContainsError(t, errs, NewErrMissingField("org"))
@@ -45,7 +45,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
+	errors := LintDeployCFTask(task, validCfManifest(), fs)
 	assertContainsError(t, errors, NewErrMissingField("test_domain"))
 }
 
@@ -56,7 +56,7 @@ func TestCfCliVersion(t *testing.T) {
 	t.Run("not set", func(t *testing.T) {
 		task := manifest.DeployCF{}
 
-		errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
+		errors := LintDeployCFTask(task, validCfManifest(), fs)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
 	})
 
@@ -65,7 +65,7 @@ func TestCfCliVersion(t *testing.T) {
 			CliVersion: "cf6",
 		}
 
-		errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
+		errors := LintDeployCFTask(task, validCfManifest(), fs)
 		assertNotContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
 	})
 }
@@ -74,12 +74,12 @@ func TestCfPushRetries(t *testing.T) {
 	task := manifest.DeployCF{}
 
 	task.Retries = -1
-	errors, _ := LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
+	errors := LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
-	errors, _ = LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
-	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	errs := LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
+	assertContainsError(t, errs, ErrInvalidField.WithValue("retries"))
 }
 
 func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
@@ -95,9 +95,9 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	_, warnings := LintDeployCFTask(task, validCfManifest(), fs)
+	errs := LintDeployCFTask(task, validCfManifest(), fs)
 
-	assertContainsError(t, warnings, ErrCFFromArtifact)
+	assertContainsError(t, errs, ErrCFFromArtifact)
 }
 
 func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testing.T) {
@@ -116,7 +116,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 		},
 	}
 
-	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
+	errors := LintDeployCFTask(task, validCfManifest(), fs)
 
 	assertContainsError(t, errors, ErrCFPrePromoteArtifact)
 }
@@ -125,23 +125,15 @@ func TestCfPushPreStart(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("manifest.yml", []byte("foo"), 0777)
 
-	task := manifest.DeployCF{
-		Manifest:   "../artifacts/manifest.yml",
-		API:        "api",
-		Space:      "space",
-		Org:        "org",
-		TestDomain: "test.domain",
-		CliVersion: "cf6",
-	}
+	task := manifest.DeployCF{}
 
 	task.PreStart = []string{"cf something good"}
-	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
-	assert.Empty(t, errors)
+	errs := LintDeployCFTask(task, validCfManifest(), fs)
+	assertNotContainsError(t, errs, ErrInvalidField.WithValue("pre_start"))
 
 	task.PreStart = []string{"cf something good", "something bad", "cf something else good", "something else bad"}
-	errors, _ = LintDeployCFTask(task, validCfManifest(), fs)
-	assert.Len(t, errors, 2)
-	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_start"))
+	errs = LintDeployCFTask(task, validCfManifest(), fs)
+	assertContainsError(t, errs, ErrInvalidField.WithValue("pre_start"))
 }
 
 func TestSubTasksDoesntDefineNotifications(t *testing.T) {
@@ -162,7 +154,7 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 		CliVersion: "cf6",
 	}
 
-	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
+	errors := LintDeployCFTask(task, validCfManifest(), fs)
 	assert.Len(t, errors, 2)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[0].notifications"))
 	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[2].notifications"))
@@ -183,12 +175,8 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 		PreStart:   []string{"cf logs"},
 	}
 
-	errors, warnings := LintDeployCFTask(task, validCfManifest(), fs)
-	if assert.Len(t, errors, 1) {
-		assert.Equal(t, NewErrInvalidField("pre_start", "cannot use pre_start with rolling deployment"), errors[0])
-	}
-	assert.Len(t, warnings, 0)
-
+	errs := LintDeployCFTask(task, validCfManifest(), fs)
+	assertContainsError(t, errs, ErrInvalidField.WithValue("pre_start"))
 }
 
 func TestDockerTag(t *testing.T) {
@@ -214,9 +202,7 @@ applications:
 			DockerTag:  "gitref",
 		}
 
-		errors, warnings := LintDeployCFTask(task, cfManifestReader, fs)
-		assert.Len(t, warnings, 0)
-		assert.Len(t, errors, 1)
+		errors := LintDeployCFTask(task, cfManifestReader, fs)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
 	})
 
@@ -243,21 +229,19 @@ applications:
 			CliVersion: "cf6",
 		}
 
+		tagError := ErrInvalidField.WithValue("docker_tag")
+
 		task.DockerTag = "gitref"
-		errors, warnings := LintDeployCFTask(task, cfManifestReader, fs)
-		assert.Len(t, warnings, 0)
-		assert.Len(t, errors, 0)
+		errors := LintDeployCFTask(task, cfManifestReader, fs)
+		assertNotContainsError(t, errors, tagError)
 
 		task.DockerTag = "version"
-		errors, warnings = LintDeployCFTask(task, cfManifestReader, fs)
-		assert.Len(t, warnings, 0)
-		assert.Len(t, errors, 0)
+		errors = LintDeployCFTask(task, cfManifestReader, fs)
+		assertNotContainsError(t, errors, tagError)
 
 		task.DockerTag = "unknown"
-		errors, warnings = LintDeployCFTask(task, cfManifestReader, fs)
-		assert.Len(t, warnings, 0)
-		assert.Len(t, errors, 1)
-		assertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
+		errors = LintDeployCFTask(task, cfManifestReader, fs)
+		assertContainsError(t, errors, tagError)
 	})
 }
 
@@ -285,21 +269,19 @@ applications:
 
 	t.Run("valid", func(t *testing.T) {
 		task.SSORoute = "my-route.public.springernature.app"
-		errs, warns := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
+		errs := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
 		assert.Empty(t, errs)
-		assert.Empty(t, warns)
 	})
 
 	t.Run("invalid route", func(t *testing.T) {
 		task.SSORoute = "my-route.springernature.app"
-		errs, warns := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
+		errs := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
 		assertContainsError(t, errs, ErrInvalidField.WithValue("sso_route"))
-		assert.Empty(t, warns)
 	})
 
 	t.Run("route not in cf manifest routes", func(t *testing.T) {
 		task.SSORoute = "my-route.public.springernature.app"
-		errs, _ := LintDeployCFTask(task, validCfManifest(), fs)
+		errs := LintDeployCFTask(task, validCfManifest(), fs)
 		assertContainsError(t, errs, ErrCFRouteMissing)
 	})
 

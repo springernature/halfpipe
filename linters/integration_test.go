@@ -10,7 +10,7 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsOutsidePrePromote(t *testin
 
 	task := manifest.ConsumerIntegrationTest{}
 
-	errors, _ := LintConsumerIntegrationTestTask(task, true)
+	errors := LintConsumerIntegrationTestTask(task, true)
 	if assert.Len(t, errors, 4) {
 		assertContainsError(t, errors, NewErrMissingField("consumer"))
 		assertContainsError(t, errors, NewErrMissingField("consumer_host"))
@@ -23,7 +23,7 @@ func TestConsumerIntegrationTestTaskHasRequiredFieldsFromPrePromote(t *testing.T
 
 	task := manifest.ConsumerIntegrationTest{}
 
-	errors, _ := LintConsumerIntegrationTestTask(task, false)
+	errors := LintConsumerIntegrationTestTask(task, false)
 	if assert.Len(t, errors, 3) {
 		assertContainsError(t, errors, NewErrMissingField("consumer"))
 		assertContainsError(t, errors, NewErrMissingField("consumer_host"))
@@ -35,10 +35,10 @@ func TestConsumerIntegrationRetries(t *testing.T) {
 	task := manifest.ConsumerIntegrationTest{}
 
 	task.Retries = -1
-	errors, _ := LintConsumerIntegrationTestTask(task, false)
+	errors := LintConsumerIntegrationTestTask(task, false)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
-	errors, _ = LintConsumerIntegrationTestTask(task, false)
+	errors = LintConsumerIntegrationTestTask(task, false)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }

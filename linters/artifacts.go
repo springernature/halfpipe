@@ -2,14 +2,15 @@ package linters
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"github.com/springernature/halfpipe/manifest"
 	"regexp"
 )
 
-func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error, warnings []error) {
+var ErrReadsFromSavedArtifacts = newError("reads from saved artifacts, but there are no previous tasks that saves any")
+
+func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 	if currentTask.ReadsFromArtifacts() && !previousTasksSavesArtifact(previousTasks) {
-		errs = append(errs, errors.New("reads from saved artifacts, but there are no previous tasks that saves any"))
+		errs = append(errs, ErrReadsFromSavedArtifacts)
 	}
 
 	var saveArtifacts []string
@@ -37,7 +38,7 @@ func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (er
 		}
 	}
 
-	return errs, warnings
+	return errs
 }
 
 func previousTasksSavesArtifact(tasks []manifest.Task) bool {

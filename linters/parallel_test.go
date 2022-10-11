@@ -19,7 +19,7 @@ func TestParallelTaskInParallelTask(t *testing.T) {
 			},
 		},
 	}
-	errs, _ := LintParallelTask(task)
+	errs := LintParallelTask(task)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("type"))
 }
 
@@ -27,9 +27,8 @@ func TestErrorIfParallelIsEmpty(t *testing.T) {
 	task := manifest.Parallel{
 		Tasks: manifest.TaskList{},
 	}
-	errs, warns := LintParallelTask(task)
+	errs := LintParallelTask(task)
 	assert.Len(t, errs, 1)
-	assert.Len(t, warns, 0)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 }
 
@@ -39,10 +38,8 @@ func TestWarningIfParallelOnlyContainsOneItem(t *testing.T) {
 			manifest.Run{},
 		},
 	}
-	errs, warns := LintParallelTask(task)
-	assert.Len(t, errs, 0)
-	assert.Len(t, warns, 1)
-	assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+	errs := LintParallelTask(task)
+	assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 }
 
 func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
@@ -55,9 +52,8 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 			},
 		}
 
-		errs, warns := LintParallelTask(task)
+		errs := LintParallelTask(task)
 		assert.Len(t, errs, 0)
-		assert.Len(t, warns, 0)
 	})
 
 	t.Run("bad", func(t *testing.T) {
@@ -71,10 +67,8 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 			},
 		}
 
-		errs, warns := LintParallelTask(task)
-		assert.Len(t, errs, 0)
-		assert.Len(t, warns, 1)
-		assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+		errs := LintParallelTask(task)
+		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 	})
 }
 
@@ -88,9 +82,8 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 			},
 		}
 
-		errs, warns := LintParallelTask(task)
+		errs := LintParallelTask(task)
 		assert.Len(t, errs, 0)
-		assert.Len(t, warns, 0)
 	})
 
 	t.Run("bad", func(t *testing.T) {
@@ -104,9 +97,7 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 			},
 		}
 
-		errs, warns := LintParallelTask(task)
-		assert.Len(t, errs, 0)
-		assert.Len(t, warns, 1)
-		assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+		errs := LintParallelTask(task)
+		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 	})
 }

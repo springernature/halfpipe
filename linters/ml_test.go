@@ -10,7 +10,7 @@ import (
 func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 	task := manifest.DeployMLZip{}
 
-	errors, _ := LintDeployMLZipTask(task)
+	errors := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 2) {
 		assertContainsError(t, errors, NewErrMissingField("target"))
@@ -21,7 +21,7 @@ func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
 	task := manifest.DeployMLModules{}
 
-	errors, _ := LintDeployMLModulesTask(task)
+	errors := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 2) {
 		assertContainsError(t, errors, NewErrMissingField("target"))
@@ -33,21 +33,21 @@ func TestMLRetries(t *testing.T) {
 	mlModule := manifest.DeployMLModules{}
 
 	mlModule.Retries = -1
-	errors, _ := LintDeployMLModulesTask(mlModule)
+	errors := LintDeployMLModulesTask(mlModule)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlModule.Retries = 6
-	errors, _ = LintDeployMLModulesTask(mlModule)
+	errors = LintDeployMLModulesTask(mlModule)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlZip := manifest.DeployMLZip{}
 
 	mlZip.Retries = -1
-	errors, _ = LintDeployMLZipTask(mlZip)
+	errors = LintDeployMLZipTask(mlZip)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlZip.Retries = 6
-	errors, _ = LintDeployMLZipTask(mlZip)
+	errors = LintDeployMLZipTask(mlZip)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
@@ -59,7 +59,7 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
 		UseBuildVersion:  true,
 	}
 
-	errors, _ := LintDeployMLModulesTask(task)
+	errors := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 1) {
 		assertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
@@ -74,7 +74,7 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLZip(t *testing.T) {
 		UseBuildVersion: true,
 	}
 
-	errors, _ := LintDeployMLZipTask(task)
+	errors := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 1) {
 		assertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))

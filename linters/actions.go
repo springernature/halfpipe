@@ -15,9 +15,9 @@ func (linter ActionsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "GitHub Actions"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
 	if man.Platform.IsActions() {
-		result.AddWarning(unsupportedTasks(man.Tasks, man, "tasks")...)
-		result.AddWarning(unsupportedTriggers(man.Triggers)...)
-		result.AddWarning(unsupportedFeatures(man.FeatureToggles)...)
+		result.Add(unsupportedTasks(man.Tasks, man, "tasks")...)
+		result.Add(unsupportedTriggers(man.Triggers)...)
+		result.Add(unsupportedFeatures(man.FeatureToggles)...)
 	}
 	return result
 }
@@ -37,26 +37,26 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest, taskListId
 			errors = append(errors, unsupportedTasks(task.Tasks, man, taskIdx)...)
 		default:
 			if task.IsManualTrigger() {
-				appendError(ErrUnsupportedManualTrigger)
+				appendError(ErrUnsupportedManualTrigger.AsWarning())
 			}
 		}
 
 		switch task := t.(type) {
 		case manifest.DeployCF:
 			if task.Rolling {
-				appendError(ErrUnsupportedRolling)
+				appendError(ErrUnsupportedRolling.AsWarning())
 			}
 		case manifest.DockerPush:
 			for _, trigger := range man.Triggers {
 				if t, ok := trigger.(manifest.DockerTrigger); ok {
 					if t.Image == task.Image {
-						appendError(ErrDockerTriggerLoop.WithValue(t.Image))
+						appendError(ErrDockerTriggerLoop.WithValue(t.Image).AsWarning())
 					}
 				}
 			}
 		case manifest.ConsumerIntegrationTest:
 			if task.UseCovenant {
-				appendError(ErrUnsupportedCovenant)
+				appendError(ErrUnsupportedCovenant.AsWarning())
 			}
 		}
 
@@ -73,13 +73,13 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 		switch t := trigger.(type) {
 		case manifest.GitTrigger:
 			if t.PrivateKey != "" {
-				appendError(ErrUnsupportedGitPrivateKey)
+				appendError(ErrUnsupportedGitPrivateKey.AsWarning())
 			}
 			if t.URI != "" {
-				appendError(ErrUnsupportedGitUri)
+				appendError(ErrUnsupportedGitUri.AsWarning())
 			}
 		case manifest.PipelineTrigger:
-			appendError(ErrUnsupportedPipelineTrigger)
+			appendError(ErrUnsupportedPipelineTrigger.AsWarning())
 		default:
 			// ok
 		}
@@ -89,7 +89,7 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 
 func unsupportedFeatures(features manifest.FeatureToggles) (errors []error) {
 	if features.UpdatePipeline() {
-		errors = []error{ErrUnsupportedUpdatePipeline}
+		errors = []error{ErrUnsupportedUpdatePipeline.AsWarning()}
 	}
 	return errors
 }

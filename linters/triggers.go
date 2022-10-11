@@ -12,10 +12,10 @@ type triggersLinter struct {
 	workingDir      string
 	branchResolver  project.GitBranchResolver
 	repoURIResolver project.RepoURIResolver
-	gitLinter       func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error)
-	cronLinter      func(cron manifest.TimerTrigger) (errs []error, warnings []error)
-	dockerLinter    func(docker manifest.DockerTrigger) (errs []error, warnings []error)
-	pipelineLinter  func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error)
+	gitLinter       func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) []error
+	cronLinter      func(cron manifest.TimerTrigger) []error
+	dockerLinter    func(docker manifest.DockerTrigger) []error
+	pipelineLinter  func(man manifest.Manifest, pipeline manifest.PipelineTrigger) []error
 }
 
 func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs []error) {
@@ -49,27 +49,26 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 	return errs
 }
 
-func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error, warnings []error) {
+func (t triggersLinter) lintTrigger(man manifest.Manifest) (errs []error) {
 	for i, trigger := range man.Triggers {
 
 		wrapWithIndex := wrapErrorsWithIndex(fmt.Sprintf("triggers[%v]", i))
 
-		var e, w []error
+		var e []error
 		switch trigger := trigger.(type) {
 		case manifest.GitTrigger:
-			e, w = t.gitLinter(trigger, t.fs, t.workingDir, t.branchResolver, t.repoURIResolver, man.Platform)
+			e = t.gitLinter(trigger, t.fs, t.workingDir, t.branchResolver, t.repoURIResolver, man.Platform)
 		case manifest.TimerTrigger:
-			e, w = t.cronLinter(trigger)
+			e = t.cronLinter(trigger)
 		case manifest.DockerTrigger:
-			e, w = t.dockerLinter(trigger)
+			e = t.dockerLinter(trigger)
 		case manifest.PipelineTrigger:
-			e, w = t.pipelineLinter(man, trigger)
+			e = t.pipelineLinter(man, trigger)
 		}
 
 		errs = append(errs, wrapWithIndex(e)...)
-		warnings = append(warnings, wrapWithIndex(w)...)
 	}
-	return errs, warnings
+	return errs
 }
 
 func (t triggersLinter) Lint(manifest manifest.Manifest) (result LintResult) {
@@ -81,10 +80,8 @@ func (t triggersLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		return result
 	}
 
-	errs, warnings := t.lintTrigger(manifest)
-	result.Errors = append(result.Errors, errs...)
-	result.Warnings = append(result.Warnings, warnings...)
-
+	errs := t.lintTrigger(manifest)
+	result.Add(errs...)
 	return result
 }
 

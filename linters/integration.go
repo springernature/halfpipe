@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error, warnings []error) {
+func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, providerHostRequired bool) (errs []error) {
 	if cit.Consumer == "" {
 		errs = append(errs, NewErrMissingField("consumer"))
 	}
@@ -24,5 +24,5 @@ func LintConsumerIntegrationTestTask(cit manifest.ConsumerIntegrationTest, provi
 		errs = append(errs, NewErrInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	return errs, warnings
+	return errs
 }

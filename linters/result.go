@@ -1,26 +1,12 @@
 package linters
 
 import (
+	"errors"
 	"fmt"
 	"github.com/gookit/color"
 )
 
 type LintResults []LintResult
-type LintResult struct {
-	Linter   string
-	DocsURL  string
-	Errors   []error
-	Warnings []error
-}
-
-func NewLintResult(linter string, docsURL string, errs []error, warns []error) LintResult {
-	return LintResult{
-		Linter:   linter,
-		DocsURL:  docsURL,
-		Errors:   errs,
-		Warnings: warns,
-	}
-}
 
 func (lrs LintResults) HasWarnings() bool {
 	for _, lintResult := range lrs {
@@ -50,6 +36,21 @@ func (lrs LintResults) Error() (out string) {
 	return out
 }
 
+type LintResult struct {
+	Linter   string
+	DocsURL  string
+	Errors   []error
+	Warnings []error
+}
+
+func NewLintResult(linter string, docsURL string, errs []error) LintResult {
+	return LintResult{
+		Linter:  linter,
+		DocsURL: docsURL,
+		Errors:  errs,
+	}
+}
+
 func (lr LintResult) Error() (out string) {
 	if lr.HasWarnings() || lr.HasErrors() {
 		out += fmt.Sprintf("\n%s <%s>\n", lr.Linter, lr.DocsURL)
@@ -74,12 +75,19 @@ func (lr LintResult) HasWarnings() bool {
 	return len(lr.Warnings) != 0
 }
 
-func (lr *LintResult) AddError(err ...error) {
-	lr.Errors = append(lr.Errors, err...)
-}
-
-func (lr *LintResult) AddWarning(err ...error) {
-	lr.Warnings = append(lr.Warnings, err...)
+func (lr *LintResult) Add(errs ...error) {
+	for _, err := range errs {
+		var lintError Error
+		var isWarning bool
+		if ok := errors.As(err, &lintError); ok {
+			isWarning = lintError.IsWarning()
+		}
+		if isWarning {
+			lr.Warnings = append(lr.Warnings, err)
+		} else {
+			lr.Errors = append(lr.Errors, err)
+		}
+	}
 }
 
 func deduplicate(errs []error) (errors []error) {

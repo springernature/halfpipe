@@ -5,7 +5,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error, warnings []error) {
+func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error) {
 	if task.ApplicationName == "" {
 		errs = append(errs, NewErrMissingField("application_name"))
 	}
@@ -32,5 +32,5 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 		errs = append(errs, NewErrInvalidField("tag", "'version' requires the 'update-pipeline' feature toggle"))
 	}
 
-	return errs, warnings
+	return errs
 }

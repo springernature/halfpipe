@@ -27,18 +27,18 @@ func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr LintResult) {
 	for _, kateeTask := range deployKateeTasks {
 		err := CheckFile(v.Fs, kateeTask.VelaManifest, false)
 		if err != nil {
-			lr.AddError(err)
+			lr.Add(err)
 			return
 		}
 
 		velaAppFile, err := ReadFile(v.Fs, kateeTask.VelaManifest)
 		if err != nil {
-			lr.AddError(err)
+			lr.Add(err)
 		}
 
 		velaManifest, e := unMarshallVelaManifest([]byte(velaAppFile))
 		if e != nil {
-			lr.AddError(ErrFileInvalid.WithValue(e.Error()))
+			lr.Add(ErrFileInvalid.WithValue(e.Error()))
 			return
 		}
 
@@ -51,7 +51,7 @@ func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr LintResult) {
 					vars := kateeTask.Vars
 					if _, ok := vars[secretName]; !ok {
 						if secretName != "BUILD_VERSION" && secretName != "GIT_REVISION" {
-							lr.AddError(ErrVelaVariableMissing.WithValue(secretName).WithFile(kateeTask.VelaManifest))
+							lr.Add(ErrVelaVariableMissing.WithValue(secretName).WithFile(kateeTask.VelaManifest))
 						}
 					}
 				}

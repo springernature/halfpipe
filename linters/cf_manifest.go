@@ -9,12 +9,12 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (errs []error, warns []error) {
+func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (errs []error) {
 
 	//skip linting if file provided as an artifact
 	//task linter will warn that file needs to be generated in previous task
 	if strings.HasPrefix(task.Manifest, "../artifacts/") {
-		return errs, warns
+		return errs
 	}
 
 	manifest, err := readCfManifest(task.Manifest, nil, nil)
@@ -22,12 +22,12 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 
 	if err != nil {
 		errs = append(errs, ErrFileInvalid.WithValue(err.Error()).WithFile(task.Manifest))
-		return errs, warns
+		return errs
 	}
 
 	if len(apps) != 1 {
 		errs = append(errs, ErrCFMultipleApps.WithFile(task.Manifest))
-		return errs, warns
+		return errs
 	}
 
 	app := apps[0]
@@ -37,9 +37,9 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 
 	errs = append(errs, lintRoutes(task, app)...)
 	errs = append(errs, lintDockerPush(task, app)...)
-	warns = append(warns, lintBuildpack(app, task.Manifest)...)
+	errs = append(errs, lintBuildpack(app, task.Manifest)...)
 
-	return errs, warns
+	return errs
 }
 
 func lintDockerPush(task manifest.DeployCF, app manifestparser.Application) (errs []error) {
@@ -102,7 +102,7 @@ func lintRoutes(task manifest.DeployCF, app manifestparser.Application) (errs []
 
 func lintBuildpack(app manifestparser.Application, manifestPath string) (errs []error) {
 	if app.RemainingManifestFields["buildpack"] != nil {
-		errs = append(errs, ErrCFBuildpackDeprecated.WithFile(manifestPath))
+		errs = append(errs, ErrCFBuildpackDeprecated.WithFile(manifestPath).AsWarning())
 	}
 
 	buildpacks := cf.Buildpacks(app)

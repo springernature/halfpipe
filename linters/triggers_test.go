@@ -11,13 +11,13 @@ import (
 
 func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error) {
 		return
 	}
-	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error) {
 		return
 	}
-	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
+	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error) {
 		return
 	}
 
@@ -32,7 +32,6 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 
 		result := linter.Lint(man)
 		assertNotContainsError(t, result.Errors, ErrMultipleTriggers)
-		assertNotContainsError(t, result.Warnings, ErrMultipleTriggers)
 	})
 
 	t.Run("with more than one of each there should be errors", func(t *testing.T) {
@@ -63,15 +62,15 @@ func TestCallsOutCorrectly(t *testing.T) {
 		man := manifest.Manifest{}
 
 		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
-		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
+		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error) {
 			numCallsCronTriggerLinter++
 			return
 		}
@@ -101,19 +100,19 @@ func TestCallsOutCorrectly(t *testing.T) {
 		}
 
 		linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+		linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error) {
 			numCallsDockerTriggerLinter++
 			return
 		}
-		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+		linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error) {
 			numCallsGitTriggerLinter++
 			return
 		}
-		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
+		linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error) {
 			numCallsCronTriggerLinter++
 			return
 		}
-		linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error) {
+		linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error) {
 			numCallsPipelineTriggerLinter++
 			return
 		}
@@ -128,13 +127,10 @@ func TestCallsOutCorrectly(t *testing.T) {
 }
 
 func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
-	gitError := errors.New("gitError")
-	cronError := errors.New("cronError")
-	cronWarning := errors.New("cronWarning")
-	dockerError := errors.New("dockerError")
-	dockerWarning := errors.New("dockerWarning")
-	pipelineError := errors.New("pipelineError")
-	pipelineWarning := errors.New("pipelineWarning")
+	gitError := newError("gitError")
+	cronError := newError("cronError")
+	dockerError := newError("dockerError")
+	pipelineError := newError("pipelineError")
 
 	man := manifest.Manifest{
 		Triggers: manifest.TriggerList{
@@ -146,36 +142,27 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 	}
 
 	linter := NewTriggersLinter(afero.Afero{}, "", nil, nil)
-	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error, warnings []error) {
+	linter.dockerLinter = func(docker manifest.DockerTrigger) (errs []error) {
 		errs = append(errs, dockerError)
-		warnings = append(warnings, dockerWarning)
 		return
 	}
-	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+	linter.gitLinter = func(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error) {
 		errs = append(errs, gitError)
 		return
 	}
-	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error, warnings []error) {
+	linter.cronLinter = func(cron manifest.TimerTrigger) (errs []error) {
 		errs = append(errs, cronError)
-		warnings = append(warnings, cronWarning)
 		return
 	}
-	linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error, warnings []error) {
+	linter.pipelineLinter = func(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error) {
 		errs = append(errs, pipelineError)
-		warnings = append(warnings, pipelineWarning)
 		return
 	}
 
 	result := linter.Lint(man)
 	assert.Len(t, result.Errors, 4)
-	assert.Len(t, result.Warnings, 3)
-
 	assert.Equal(t, result.Errors[0].Error(), errors.New("triggers[0] gitError").Error())
 	assert.Equal(t, result.Errors[1].Error(), errors.New("triggers[1] cronError").Error())
 	assert.Equal(t, result.Errors[2].Error(), errors.New("triggers[2] dockerError").Error())
 	assert.Equal(t, result.Errors[3].Error(), errors.New("triggers[3] pipelineError").Error())
-
-	assert.Equal(t, result.Warnings[0].Error(), errors.New("triggers[1] cronWarning").Error())
-	assert.Equal(t, result.Warnings[1].Error(), errors.New("triggers[2] dockerWarning").Error())
-	assert.Equal(t, result.Warnings[2].Error(), errors.New("triggers[3] pipelineWarning").Error())
 }

@@ -29,17 +29,17 @@ func checkGlob(glob string, basePath, workingDir string, fs afero.Afero) error {
 	return nil
 }
 
-func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error, warnings []error) {
+func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, branchResolver project.GitBranchResolver, repoURIResolver project.RepoURIResolver, platform manifest.Platform) (errs []error) {
 	if platform.IsConcourse() {
 		if git.URI == "" {
 			errs = append(errs, NewErrMissingField("uri"))
-			return errs, warnings
+			return errs
 		}
 
 		match, _ := regexp.MatchString(`((git|ssh|http(s)?)|(git@[\w\.]+))(:(//)?)([\w\.@\:/\-~]+)(\.git)?(/)?`, git.URI)
 		if !match {
 			errs = append(errs, NewErrInvalidField("uri", fmt.Sprintf("'%s' is not a valid git URI. If you are using SSH-aliases you must manually specify this field.", git.URI)))
-			return errs, warnings
+			return errs
 		}
 
 		if strings.HasPrefix(git.URI, "git@") && git.PrivateKey == "" {
@@ -51,7 +51,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 		}
 
 		if strings.HasPrefix(git.URI, "https") {
-			warnings = append(warnings, fmt.Errorf("only public repos are supported with http(s). For private repos specify uri with ssh"))
+			errs = append(errs, NewErrInvalidField("uri", "only public repos are supported with http(s). For private repos specify uri with ssh").AsWarning())
 		}
 
 		if git.GitCryptKey != "" && !regexp.MustCompile(`\(\([a-zA-Z-_]+\.[a-zA-Z-_]+\)\)`).MatchString(git.GitCryptKey) {
@@ -85,9 +85,9 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 		errs = append(errs, err)
 	} else {
 		if resolvedRepoURI != git.URI && platform.IsConcourse() {
-			warnings = append(warnings, fmt.Errorf("you have specified 'uri', make sure that its the same repo that you execute halfpipe in"))
+			errs = append(errs, NewErrInvalidField("uri", "must be uri of the repo that you execute halfpipe in").AsWarning())
 		}
 	}
 
-	return errs, warnings
+	return errs
 }

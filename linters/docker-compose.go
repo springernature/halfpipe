@@ -8,30 +8,29 @@ import (
 	"strings"
 )
 
-func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []error, warnings []error) {
+func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []error) {
 	if dc.Retries < 0 || dc.Retries > 5 {
 		errs = append(errs, NewErrInvalidField("retries", "must be between 0 and 5"))
 	}
 
 	if err := CheckFile(fs, dc.ComposeFile, false); err != nil {
 		errs = append(errs, err)
-		return errs, warnings
+		return errs
 	}
 
 	composeContent, err := fs.ReadFile(dc.ComposeFile)
 	if err != nil {
 		errs = append(errs, err)
-		return errs, warnings
+		return errs
 	}
 
-	e, w := lintDockerComposeService(dc.Service, dc.ComposeFile, composeContent)
+	e := lintDockerComposeService(dc.Service, dc.ComposeFile, composeContent)
 	errs = append(errs, e...)
-	warnings = append(warnings, w...)
 
-	return errs, warnings
+	return errs
 }
 
-func lintDockerComposeService(service string, composeFile string, composeContent []byte) (errs []error, warnings []error) {
+func lintDockerComposeService(service string, composeFile string, composeContent []byte) (errs []error) {
 	var compose struct {
 		Version  string
 		Services map[string]interface{}
@@ -40,18 +39,17 @@ func lintDockerComposeService(service string, composeFile string, composeContent
 	if err != nil {
 		err = ErrFileInvalid.WithValue(err.Error())
 		errs = append(errs, err)
-		return errs, warnings
+		return errs
 	}
 
 	if compose.Services == nil || strings.HasPrefix(compose.Version, "1") {
-		err = ErrDockerComposeVersion.WithFile(composeFile)
-		warnings = append(warnings, err)
-		return errs, warnings
+		errs = append(errs, ErrDockerComposeVersion.WithFile(composeFile).AsWarning())
+		return errs
 	}
 
 	if _, ok := compose.Services[service]; !ok {
 		errs = append(errs, NewErrInvalidField("service", fmt.Sprintf("could not find service '%s' in %s", service, composeFile)))
-		return errs, warnings
+		return errs
 	}
 
 	return

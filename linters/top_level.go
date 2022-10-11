@@ -17,26 +17,26 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/"
 
 	if manifest.Team == "" {
-		result.AddError(NewErrMissingField("team"))
+		result.Add(NewErrMissingField("team"))
 	} else if strings.ToLower(manifest.Team) != manifest.Team {
-		result.AddWarning(NewErrInvalidField("team", "should be lower case"))
+		result.Add(NewErrInvalidField("team", "should be lower case").AsWarning())
 	}
 
 	if manifest.Pipeline == "" {
-		result.AddError(NewErrMissingField("pipeline"))
+		result.Add(NewErrMissingField("pipeline"))
 	}
 
 	if strings.Contains(manifest.Pipeline, " ") {
-		result.AddError(NewErrInvalidField("pipeline", "must not contains spaces!"))
+		result.Add(NewErrInvalidField("pipeline", "must not contains spaces!"))
 	}
 
 	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JSONKey == "") ||
 		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JSONKey != "") {
-		result.AddError(NewErrInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
+		result.Add(NewErrInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
 	}
 
 	if !(manifest.Platform == "actions" || manifest.Platform == "concourse") {
-		result.AddError(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
+		result.Add(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
 	}
 
 	return result
