@@ -37,10 +37,9 @@ func (lrs LintResults) Error() (out string) {
 }
 
 type LintResult struct {
-	Linter   string
-	DocsURL  string
-	Errors   []error
-	Warnings []error
+	Linter  string
+	DocsURL string
+	Errors  []error
 }
 
 func NewLintResult(linter string, docsURL string, errs []error) LintResult {
@@ -54,40 +53,45 @@ func NewLintResult(linter string, docsURL string, errs []error) LintResult {
 func (lr LintResult) Error() (out string) {
 	if lr.HasWarnings() || lr.HasErrors() {
 		out += fmt.Sprintf("\n%s <%s>\n", lr.Linter, lr.DocsURL)
-		out += formatErrors("ERROR", lr.Errors, color.FgRed)
-		out += formatErrors("WARNING", lr.Warnings, color.FgYellow)
-	}
-	return out
-}
-
-func formatErrors(typeOfError string, errs []error, color color.Color) (out string) {
-	for _, err := range deduplicate(errs) {
-		out += color.Sprintf("  [%s] %s\n", typeOfError, err)
+		for _, err := range deduplicate(lr.Errors) {
+			if isWarning(err) {
+				out += color.FgYellow.Sprintf("  [WARNING] %s\n", err)
+			} else {
+				out += color.FgRed.Sprintf("  [ERROR] %s\n", err)
+			}
+		}
 	}
 	return out
 }
 
 func (lr LintResult) HasErrors() bool {
-	return len(lr.Errors) != 0
+	for _, e := range lr.Errors {
+		if !isWarning(e) {
+			return true
+		}
+	}
+	return false
 }
 
 func (lr LintResult) HasWarnings() bool {
-	return len(lr.Warnings) != 0
+	for _, e := range lr.Errors {
+		if isWarning(e) {
+			return true
+		}
+	}
+	return false
+}
+
+func isWarning(e error) bool {
+	var lintError Error
+	if ok := errors.As(e, &lintError); ok {
+		return lintError.IsWarning()
+	}
+	return false
 }
 
 func (lr *LintResult) Add(errs ...error) {
-	for _, err := range errs {
-		var lintError Error
-		var isWarning bool
-		if ok := errors.As(err, &lintError); ok {
-			isWarning = lintError.IsWarning()
-		}
-		if isWarning {
-			lr.Warnings = append(lr.Warnings, err)
-		} else {
-			lr.Errors = append(lr.Errors, err)
-		}
-	}
+	lr.Errors = append(lr.Errors, errs...)
 }
 
 func deduplicate(errs []error) (errors []error) {

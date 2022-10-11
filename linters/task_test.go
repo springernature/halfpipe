@@ -21,7 +21,7 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
-	assertContainsError(t, result.Warnings, NewErrMissingField("tasks"))
+	assertContainsError(t, result.Errors, NewErrMissingField("tasks"))
 }
 
 func TestCallsOutToTheLintersCorrectly(t *testing.T) {
@@ -155,7 +155,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	}
 
 	result := taskLinter.Lint(man)
-	assert.Len(t, result.Warnings, 0)
 	assert.Len(t, result.Errors, 0)
 
 	assert.True(t, calledLintRunTask)
@@ -260,21 +259,19 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 	assert.Equal(t, []string{
 		fmt.Sprintf("tasks[0] %s", runErr1),
 		fmt.Sprintf("tasks[0] %s", runErr2),
+		fmt.Sprintf("tasks[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr1),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", runErr2),
 		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteErr),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteErr),
-		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushErr),
-		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
-	}, errorsToStrings(result.Errors))
-	assert.Equal(t, []string{
-		fmt.Sprintf("tasks[0] %s", runWarn1),
-		fmt.Sprintf("tasks[1].pre_promote[0] %s", runWarn1),
-		fmt.Sprintf("tasks[1].pre_promote[0] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushErr),
 		fmt.Sprintf("tasks[1].pre_promote[1] %s", dockerPushWarn),
+		fmt.Sprintf("tasks[2] %s", deployMlZipErr),
 		fmt.Sprintf("tasks[3] %s", deployMlModulesWarn),
-	}, errorsToStrings(result.Warnings))
+	}, errorsToStrings(result.Errors))
 }
 
 func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
@@ -356,21 +353,20 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 	assert.Equal(t, []string{
 		fmt.Sprintf("tasks[0][0] %s", runErr1),
 		fmt.Sprintf("tasks[0][0] %s", runErr2),
+		fmt.Sprintf("tasks[0][0] %s", runWarn1),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runWarn1),
+		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runErr1),
 		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runErr2),
 		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", prePromoteErr),
 		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", prePromoteErr),
-		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushErr),
-		fmt.Sprintf("tasks[1][0] %s", deployMlZipErr),
-	}, errorsToStrings(result.Errors))
-	assert.Equal(t, []string{
-		fmt.Sprintf("tasks[0][0] %s", runWarn1),
-		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", runWarn1),
-		fmt.Sprintf("tasks[0][1].pre_promote[0] %s", prePromoteWarn),
 		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", prePromoteWarn),
+		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushErr),
 		fmt.Sprintf("tasks[0][1].pre_promote[1] %s", dockerPushWarn),
+		fmt.Sprintf("tasks[1][0] %s", deployMlZipErr),
 		fmt.Sprintf("tasks[1][1] %s", deployMlModulesWarn),
-	}, errorsToStrings(result.Warnings))
+	}, errorsToStrings(result.Errors))
+
 }
 
 func TestLintArtifactsWithParallelSeq(t *testing.T) {
@@ -404,7 +400,6 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 1)
-		assert.Len(t, result.Warnings, 0)
 		assert.Equal(t, "tasks[1][0][1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
 	})
 
@@ -437,7 +432,6 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
 	})
 
 	t.Run("a previous steps in the sequence saves artifacts", func(t *testing.T) {
@@ -469,7 +463,6 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
 	})
 }
 
@@ -503,7 +496,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
 
 	})
 
@@ -528,7 +520,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 1)
-		assert.Len(t, result.Warnings, 0)
 		assert.Equal(t, "tasks[1] reads from saved artifacts, but there are no previous tasks that saves any", result.Errors[0].Error())
 	})
 
@@ -553,7 +544,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 		result := taskLinter.Lint(man)
 
 		assert.Len(t, result.Errors, 0)
-		assert.Len(t, result.Warnings, 0)
 	})
 
 }

@@ -29,7 +29,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assertContainsError(t, result.Warnings, ErrInvalidField.WithValue("team"))
+	assertContainsError(t, result.Errors, ErrInvalidField.WithValue("team"))
 }
 
 func TestPipelineIsMissing(t *testing.T) {
@@ -89,7 +89,6 @@ func TestOutput(t *testing.T) {
 		}
 		result := topLevelLinter{}.Lint(man)
 		assert.Empty(t, result.Errors)
-		assert.Empty(t, result.Warnings)
 	})
 
 	t.Run("set to concourse", func(t *testing.T) {
@@ -100,7 +99,6 @@ func TestOutput(t *testing.T) {
 		}
 		result := topLevelLinter{}.Lint(man)
 		assert.Empty(t, result.Errors)
-		assert.Empty(t, result.Warnings)
 	})
 
 	t.Run("set to travis", func(t *testing.T) {
