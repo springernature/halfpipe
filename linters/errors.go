@@ -52,7 +52,6 @@ var (
 
 type Error struct {
 	err   error
-	file  string
 	value string
 }
 
@@ -61,22 +60,15 @@ func newError(msg string) Error {
 }
 
 func (e Error) WithFile(file string) Error {
-	return Error{err: e, file: file}
+	return Error{err: e, value: " (" + file + ")"}
 }
 
 func (e Error) WithValue(value string) Error {
-	return Error{err: e, value: value}
+	return Error{err: e, value: ": " + value}
 }
 
 func (e Error) Error() string {
-	s := e.err.Error()
-	if e.value != "" {
-		s = fmt.Sprintf("%s : %s", s, e.value)
-	}
-	if e.file != "" {
-		s = fmt.Sprintf("%s (%s)", s, e.file)
-	}
-	return s
+	return fmt.Sprintf("%s%s", e.err.Error(), e.value)
 }
 
 func (e Error) Unwrap() error {
@@ -88,7 +80,5 @@ func (e Error) Is(target error) bool {
 	if !ok {
 		return false
 	}
-	return t.err == e.err &&
-		(t.file == "" || t.file == e.file) &&
-		(t.value == "" || t.value == e.value)
+	return t.err == e.err && (t.value == "" || t.value == e.value)
 }
