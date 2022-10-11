@@ -24,5 +24,5 @@ func (FakeSecretValidator) Validate(manifest.Manifest) []error {
 func TestCallsOutToSecretValidator(t *testing.T) {
 	linter := NewSecretsLinter(FakeSecretValidator{})
 	lintResult := linter.Lint(manifest.Manifest{})
-	assert.Equal(t, []error{err1, err2}, lintResult.Errors)
+	assert.Equal(t, []error{err1, err2}, lintResult.Issues)
 }

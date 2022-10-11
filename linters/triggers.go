@@ -75,12 +75,13 @@ func (t triggersLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "Triggers"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest#triggers"
 
-	result.Errors = append(result.Errors, t.lintOnlyOneOfEach(manifest.Triggers)...)
-	if len(result.Errors) > 0 {
+	errs := t.lintOnlyOneOfEach(manifest.Triggers)
+	if len(errs) > 0 {
+		result.Add(errs...)
 		return result
 	}
 
-	errs := t.lintTrigger(manifest)
+	errs = t.lintTrigger(manifest)
 	result.Add(errs...)
 	return result
 }

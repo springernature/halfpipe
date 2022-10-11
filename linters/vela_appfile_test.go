@@ -13,7 +13,7 @@ func TestLintsNothingIfNoDeployKateeTask(t *testing.T) {
 
 	res := vl.Lint(man)
 
-	assert.Len(t, res.Errors, 0)
+	assert.Len(t, res.Issues, 0)
 }
 
 func TestLintIfVelaFileDoesNotExist(t *testing.T) {
@@ -29,7 +29,7 @@ func TestLintIfVelaFileDoesNotExist(t *testing.T) {
 	}
 
 	errs := vl.Lint(man)
-	assertContainsError(t, errs.Errors, ErrFileNotFound)
+	assertContainsError(t, errs.Issues, ErrFileNotFound)
 }
 
 func TestLintReturnsErrorIfVelaFileExistsButInvalid(t *testing.T) {
@@ -47,7 +47,7 @@ func TestLintReturnsErrorIfVelaFileExistsButInvalid(t *testing.T) {
 	}
 
 	errs := vl.Lint(man)
-	assertContainsError(t, errs.Errors, ErrFileInvalid)
+	assertContainsError(t, errs.Issues, ErrFileInvalid)
 }
 
 func TestLintReturnsErrorIfEnvInKateeIsNotSetInHalfpipe(t *testing.T) {
@@ -80,7 +80,7 @@ spec:
 	}
 
 	errs := vl.Lint(man)
-	assertContainsError(t, errs.Errors, ErrVelaVariableMissing)
+	assertContainsError(t, errs.Issues, ErrVelaVariableMissing)
 }
 
 func TestLintReturnsNoErrorIfEnvInKateeIsSetInHalfpipe(t *testing.T) {
@@ -116,7 +116,7 @@ spec:
 	}
 
 	errs := vl.Lint(man)
-	assertNotContainsError(t, errs.Errors, ErrVelaVariableMissing)
+	assertNotContainsError(t, errs.Issues, ErrVelaVariableMissing)
 }
 
 func TestLintReturnsNoErrorIfEnvVarsInKateeAreBuildVersionOrGitRef(t *testing.T) {
@@ -153,7 +153,7 @@ spec:
 
 	errs := vl.Lint(man)
 
-	assertNotContainsError(t, errs.Errors, ErrVelaVariableMissing)
+	assertNotContainsError(t, errs.Issues, ErrVelaVariableMissing)
 }
 
 func TestVelaManifestFileCanBeMarshalled(t *testing.T) {

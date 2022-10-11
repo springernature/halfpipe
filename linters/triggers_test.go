@@ -31,7 +31,7 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		}
 
 		result := linter.Lint(man)
-		assertNotContainsError(t, result.Errors, ErrMultipleTriggers)
+		assertNotContainsError(t, result.Issues, ErrMultipleTriggers)
 	})
 
 	t.Run("with more than one of each there should be errors", func(t *testing.T) {
@@ -47,8 +47,8 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		}
 
 		result := linter.Lint(man)
-		assert.Len(t, result.Errors, 3)
-		assertContainsError(t, result.Errors, ErrMultipleTriggers)
+		assert.Len(t, result.Issues, 3)
+		assertContainsError(t, result.Issues, ErrMultipleTriggers)
 	})
 }
 
@@ -160,9 +160,9 @@ func TestReturnsErrorsCorrectlyAndWithIndexedPrefix(t *testing.T) {
 	}
 
 	result := linter.Lint(man)
-	assert.Len(t, result.Errors, 4)
-	assert.Equal(t, result.Errors[0].Error(), errors.New("triggers[0] gitError").Error())
-	assert.Equal(t, result.Errors[1].Error(), errors.New("triggers[1] cronError").Error())
-	assert.Equal(t, result.Errors[2].Error(), errors.New("triggers[2] dockerError").Error())
-	assert.Equal(t, result.Errors[3].Error(), errors.New("triggers[3] pipelineError").Error())
+	assert.Len(t, result.Issues, 4)
+	assert.Equal(t, result.Issues[0].Error(), errors.New("triggers[0] gitError").Error())
+	assert.Equal(t, result.Issues[1].Error(), errors.New("triggers[1] cronError").Error())
+	assert.Equal(t, result.Issues[2].Error(), errors.New("triggers[2] dockerError").Error())
+	assert.Equal(t, result.Issues[3].Error(), errors.New("triggers[3] pipelineError").Error())
 }

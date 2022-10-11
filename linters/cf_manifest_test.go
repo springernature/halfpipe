@@ -167,7 +167,7 @@ applications:
 }
 
 func TestLintDockerImagePush(t *testing.T) {
-	t.Run("Errors when both docker image and deploy artifact is specified", func(t *testing.T) {
+	t.Run("when both docker image and deploy artifact is specified", func(t *testing.T) {
 		cfManifest := `
 applications:
 - name: test
@@ -185,7 +185,7 @@ applications:
 		assertContainsError(t, errs, ErrCFArtifactAndDocker)
 	})
 
-	t.Run("Errors when the image isn't from our repo", func(t *testing.T) {
+	t.Run("when the image isn't from our repo", func(t *testing.T) {
 		cfManifest := `
 applications:
 - name: test

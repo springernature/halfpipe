@@ -10,7 +10,7 @@ import (
 func TestAllMissing(t *testing.T) {
 	man := manifest.Manifest{}
 	result := topLevelLinter{}.Lint(man)
-	assert.Len(t, result.Errors, 3)
+	assert.Len(t, result.Issues, 3)
 }
 
 func TestTeamIsMissing(t *testing.T) {
@@ -19,7 +19,7 @@ func TestTeamIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assertContainsError(t, result.Errors, NewErrMissingField("team"))
+	assertContainsError(t, result.Issues, NewErrMissingField("team"))
 }
 
 func TestTeamIsUpperCase(t *testing.T) {
@@ -29,7 +29,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assertContainsError(t, result.Errors, ErrInvalidField.WithValue("team"))
+	assertContainsError(t, result.Issues, ErrInvalidField.WithValue("team"))
 }
 
 func TestPipelineIsMissing(t *testing.T) {
@@ -38,7 +38,7 @@ func TestPipelineIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	assertContainsError(t, result.Errors, NewErrMissingField("pipeline"))
+	assertContainsError(t, result.Issues, NewErrMissingField("pipeline"))
 }
 
 func TestHappyPath(t *testing.T) {
@@ -66,7 +66,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result := topLevelLinter{}.Lint(missingJSONKey)
-	assertContainsError(t, result.Errors, ErrInvalidField.WithValue("artifact_config"))
+	assertContainsError(t, result.Issues, ErrInvalidField.WithValue("artifact_config"))
 
 	missingBucket := manifest.Manifest{
 		Team:     "team",
@@ -77,7 +77,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result2 := topLevelLinter{}.Lint(missingBucket)
-	assertContainsError(t, result2.Errors, ErrInvalidField.WithValue("artifact_config"))
+	assertContainsError(t, result2.Issues, ErrInvalidField.WithValue("artifact_config"))
 }
 
 func TestOutput(t *testing.T) {
@@ -88,7 +88,7 @@ func TestOutput(t *testing.T) {
 			Platform: "actions",
 		}
 		result := topLevelLinter{}.Lint(man)
-		assert.Empty(t, result.Errors)
+		assert.Empty(t, result.Issues)
 	})
 
 	t.Run("set to concourse", func(t *testing.T) {
@@ -98,7 +98,7 @@ func TestOutput(t *testing.T) {
 			Platform: "actions",
 		}
 		result := topLevelLinter{}.Lint(man)
-		assert.Empty(t, result.Errors)
+		assert.Empty(t, result.Issues)
 	})
 
 	t.Run("set to travis", func(t *testing.T) {
@@ -108,6 +108,6 @@ func TestOutput(t *testing.T) {
 			Platform: "travis",
 		}
 		result := topLevelLinter{}.Lint(man)
-		assertContainsError(t, result.Errors, ErrInvalidField.WithValue("platform"))
+		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("platform"))
 	})
 }

@@ -72,8 +72,8 @@ func TestAppliesAllLinters(t *testing.T) {
 
 	assert.Empty(t, response.ConfigYaml)
 	assert.Len(t, response.LintResults, 2)
-	assert.Equal(t, linter1.Error, response.LintResults[0].Errors[0])
-	assert.Equal(t, linter2.Error, response.LintResults[1].Errors[0])
+	assert.Equal(t, linter1.Error, response.LintResults[0].Issues[0])
+	assert.Equal(t, linter2.Error, response.LintResults[1].Issues[0])
 }
 
 func TestGivesBackConfigWhenLinterPasses(t *testing.T) {

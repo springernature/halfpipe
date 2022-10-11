@@ -53,7 +53,7 @@ func (c controller) Process(man manifest.Manifest) (response Response) {
 
 	mappedManifest, err := c.mapper.Apply(defaultedManifest)
 	if err != nil {
-		response.LintResults = append(response.LintResults, linters.LintResult{Linter: "Internal mapper", Errors: []error{err}})
+		response.LintResults = append(response.LintResults, linters.NewLintResult("Internal mapper", "", []error{err}))
 		return
 	}
 

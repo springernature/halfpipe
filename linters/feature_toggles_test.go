@@ -7,7 +7,8 @@ import (
 )
 
 func TestDoesNothingIfNoFeaturesAvailable(t *testing.T) {
-	assert.False(t, NewFeatureToggleLinter(manifest.FeatureToggles{}).Lint(manifest.Manifest{}).HasErrors())
+	result := NewFeatureToggleLinter(manifest.FeatureToggles{}).Lint(manifest.Manifest{})
+	assert.False(t, result.HasErrors())
 }
 
 func TestWarningIfUnknownFeatureToggle(t *testing.T) {
@@ -23,7 +24,7 @@ func TestWarningIfUnknownFeatureToggle(t *testing.T) {
 	}
 
 	result := NewFeatureToggleLinter(availableFeatures).Lint(man)
-	assert.ErrorIs(t, result.Errors[0], ErrUnsupportedFeature.WithValue("featureb"))
+	assert.ErrorIs(t, result.Issues[0], ErrUnsupportedFeature.WithValue("featureb"))
 }
 
 func TestDoesNothingIfAllFeaturesAreAvailable(t *testing.T) {
