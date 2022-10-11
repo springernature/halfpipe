@@ -66,27 +66,20 @@ func printErr(err error) {
 	fmt.Fprintln(os.Stderr, err) // nolint: gas
 }
 
-func outputErrorsAndWarnings(err error, lintResults linters.LintResults) {
-	if !Quiet && lintResults.HasWarnings() && !lintResults.HasErrors() && err == nil {
-		printErr(fmt.Errorf(lintResults.Error()))
+func outputLintResults(lintResults linters.LintResults) {
+	if lintResults.HasWarnings() && !lintResults.HasErrors() && !Quiet {
+		printErr(lintResults)
 		return
 	}
 
-	if err != nil || lintResults.HasErrors() {
-		if err != nil {
-			printErr(err)
-		}
-
-		if lintResults.HasErrors() {
-			printErr(fmt.Errorf(lintResults.Error()))
-		}
-
+	if lintResults.HasErrors() {
+		printErr(lintResults)
 		os.Exit(1)
 	}
 }
 
 func renderResponse(r halfpipe.Response, filePath string) {
-	outputErrorsAndWarnings(nil, r.LintResults)
+	outputLintResults(r.LintResults)
 
 	outputYaml := fmt.Sprintf("# Generated using halfpipe cli version %s\n%s", config.Version, r.ConfigYaml)
 
@@ -162,7 +155,7 @@ func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manife
 
 	man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 	if len(manErrors) > 0 {
-		outputErrorsAndWarnings(nil, linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors)})
+		outputLintResults(linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors)})
 	}
 
 	var renderer halfpipe.Renderer

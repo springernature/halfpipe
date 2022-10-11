@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
+	"os"
 )
 
 func init() {
@@ -27,7 +28,10 @@ var internalRepresentation = &cobra.Command{
 		defaultedAndMappedManifest, _ := controller.DefaultAndMap(man)
 
 		updatedManifest, err := yaml.Marshal(defaultedAndMappedManifest)
-		outputErrorsAndWarnings(err, nil)
+		if err != nil {
+			printErr(err)
+			os.Exit(1)
+		}
 
 		fmt.Println(string(updatedManifest))
 	},
