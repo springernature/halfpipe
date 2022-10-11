@@ -49,10 +49,10 @@ var migrateCmd = &cobra.Command{
 		migrator := migrate.NewMigrator(controller, manifest.Parse, manifest.Render)
 		_, migratedYaml, results, migrated, err := migrator.Migrate(man)
 		if err != nil {
+			outputLintResults(results)
 			printErr(err)
 			os.Exit(1)
 		}
-		outputLintResults(results)
 
 		if migrated {
 			fmt.Println("Migrating manifest")

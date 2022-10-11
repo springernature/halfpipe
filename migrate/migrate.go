@@ -60,6 +60,7 @@ parsedMigratedManifestYaml:
 func (m migrator) Migrate(man manifest.Manifest) (migratedManifest manifest.Manifest, migratedYaml []byte, lintResults linters.LintResults, migrated bool, err error) {
 	// Checking that the original manifest is ok
 	response := m.controller.Process(man)
+	lintResults = response.LintResults
 	if response.LintResults.HasErrors() {
 		err = ErrLintingOriginalManifest
 		return
