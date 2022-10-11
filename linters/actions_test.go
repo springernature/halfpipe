@@ -20,7 +20,7 @@ func TestActionsLinter_UnsupportedTriggers(t *testing.T) {
 	}
 
 	actual := lint(man)
-	AssertContainsError(t, actual.Warnings, ErrUnsupportedPipelineTrigger)
+	assertContainsError(t, actual.Warnings, ErrUnsupportedPipelineTrigger)
 }
 
 func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
@@ -41,8 +41,8 @@ func TestActionsLinter_UnsupportedGitTriggerOptions(t *testing.T) {
 	}
 
 	actual := lint(man)
-	AssertContainsError(t, actual.Warnings, ErrUnsupportedGitPrivateKey)
-	AssertContainsError(t, actual.Warnings, ErrUnsupportedGitUri)
+	assertContainsError(t, actual.Warnings, ErrUnsupportedGitPrivateKey)
+	assertContainsError(t, actual.Warnings, ErrUnsupportedGitUri)
 }
 
 func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
@@ -84,7 +84,7 @@ func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	}
 
 	actual := lint(man)
-	AssertContainsError(t, actual.Warnings, ErrDockerTriggerLoop)
+	assertContainsError(t, actual.Warnings, ErrDockerTriggerLoop)
 }
 
 func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
@@ -100,7 +100,7 @@ func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
 	for name, features := range tests {
 		t.Run(name, func(t *testing.T) {
 			actual := lint(manifest.Manifest{Platform: "actions", FeatureToggles: features})
-			AssertContainsError(t, actual.Warnings, ErrUnsupportedUpdatePipeline)
+			assertContainsError(t, actual.Warnings, ErrUnsupportedUpdatePipeline)
 		})
 	}
 
@@ -116,5 +116,5 @@ func TestActionsLinter_UnsupportedUseCovenant(t *testing.T) {
 		},
 	}
 	actual := lint(man)
-	AssertContainsError(t, actual.Warnings, ErrUnsupportedCovenant)
+	assertContainsError(t, actual.Warnings, ErrUnsupportedCovenant)
 }

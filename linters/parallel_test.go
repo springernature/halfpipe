@@ -20,7 +20,7 @@ func TestParallelTaskInParallelTask(t *testing.T) {
 		},
 	}
 	errs, _ := LintParallelTask(task)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("type"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("type"))
 }
 
 func TestErrorIfParallelIsEmpty(t *testing.T) {
@@ -30,7 +30,7 @@ func TestErrorIfParallelIsEmpty(t *testing.T) {
 	errs, warns := LintParallelTask(task)
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 }
 
 func TestWarningIfParallelOnlyContainsOneItem(t *testing.T) {
@@ -42,7 +42,7 @@ func TestWarningIfParallelOnlyContainsOneItem(t *testing.T) {
 	errs, warns := LintParallelTask(task)
 	assert.Len(t, errs, 0)
 	assert.Len(t, warns, 1)
-	AssertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+	assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
 }
 
 func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
@@ -74,7 +74,7 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 		errs, warns := LintParallelTask(task)
 		assert.Len(t, errs, 0)
 		assert.Len(t, warns, 1)
-		AssertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+		assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
 	})
 }
 
@@ -107,6 +107,6 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 		errs, warns := LintParallelTask(task)
 		assert.Len(t, errs, 0)
 		assert.Len(t, warns, 1)
-		AssertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
+		assertContainsError(t, warns, ErrInvalidField.WithValue("tasks"))
 	})
 }

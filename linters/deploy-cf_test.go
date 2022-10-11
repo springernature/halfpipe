@@ -26,11 +26,11 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errs, _ := LintDeployCFTask(task, validCfManifest(), fs)
-	AssertContainsError(t, errs, NewErrMissingField("api"))
-	AssertContainsError(t, errs, NewErrMissingField("space"))
-	AssertContainsError(t, errs, NewErrMissingField("org"))
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("cli_version"))
-	AssertContainsError(t, errs, ErrFileNotFound)
+	assertContainsError(t, errs, NewErrMissingField("api"))
+	assertContainsError(t, errs, NewErrMissingField("space"))
+	assertContainsError(t, errs, NewErrMissingField("org"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("cli_version"))
+	assertContainsError(t, errs, ErrFileNotFound)
 }
 
 func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
@@ -46,7 +46,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 	}
 
 	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
-	AssertContainsError(t, errors, NewErrMissingField("test_domain"))
+	assertContainsError(t, errors, NewErrMissingField("test_domain"))
 }
 
 func TestCfCliVersion(t *testing.T) {
@@ -57,7 +57,7 @@ func TestCfCliVersion(t *testing.T) {
 		task := manifest.DeployCF{}
 
 		errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
 	})
 
 	t.Run("valid", func(t *testing.T) {
@@ -66,7 +66,7 @@ func TestCfCliVersion(t *testing.T) {
 		}
 
 		errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
-		AssertNotContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
+		assertNotContainsError(t, errors, ErrInvalidField.WithValue("cli_version"))
 	})
 }
 
@@ -75,11 +75,11 @@ func TestCfPushRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
 	errors, _ = LintDeployCFTask(task, validCfManifest(), afero.Afero{Fs: afero.NewMemMapFs()})
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
 func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
@@ -97,7 +97,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 
 	_, warnings := LintDeployCFTask(task, validCfManifest(), fs)
 
-	AssertContainsError(t, warnings, ErrCFFromArtifact)
+	assertContainsError(t, warnings, ErrCFFromArtifact)
 }
 
 func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testing.T) {
@@ -118,7 +118,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 
 	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
 
-	AssertContainsError(t, errors, ErrCFPrePromoteArtifact)
+	assertContainsError(t, errors, ErrCFPrePromoteArtifact)
 }
 
 func TestCfPushPreStart(t *testing.T) {
@@ -141,7 +141,7 @@ func TestCfPushPreStart(t *testing.T) {
 	task.PreStart = []string{"cf something good", "something bad", "cf something else good", "something else bad"}
 	errors, _ = LintDeployCFTask(task, validCfManifest(), fs)
 	assert.Len(t, errors, 2)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("pre_start"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_start"))
 }
 
 func TestSubTasksDoesntDefineNotifications(t *testing.T) {
@@ -164,8 +164,8 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 
 	errors, _ := LintDeployCFTask(task, validCfManifest(), fs)
 	assert.Len(t, errors, 2)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[0].notifications"))
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[2].notifications"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[0].notifications"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[2].notifications"))
 }
 
 func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
@@ -217,7 +217,7 @@ applications:
 		errors, warnings := LintDeployCFTask(task, cfManifestReader, fs)
 		assert.Len(t, warnings, 0)
 		assert.Len(t, errors, 1)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
 	})
 
 	t.Run("Docker image is specified in the manifest", func(t *testing.T) {
@@ -257,7 +257,7 @@ applications:
 		errors, warnings = LintDeployCFTask(task, cfManifestReader, fs)
 		assert.Len(t, warnings, 0)
 		assert.Len(t, errors, 1)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("docker_tag"))
 	})
 }
 
@@ -293,14 +293,14 @@ applications:
 	t.Run("invalid route", func(t *testing.T) {
 		task.SSORoute = "my-route.springernature.app"
 		errs, warns := LintDeployCFTask(task, cfManifestReader(cfManifest, nil), fs)
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("sso_route"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("sso_route"))
 		assert.Empty(t, warns)
 	})
 
 	t.Run("route not in cf manifest routes", func(t *testing.T) {
 		task.SSORoute = "my-route.public.springernature.app"
 		errs, _ := LintDeployCFTask(task, validCfManifest(), fs)
-		AssertContainsError(t, errs, ErrCFRouteMissing)
+		assertContainsError(t, errs, ErrCFRouteMissing)
 	})
 
 }

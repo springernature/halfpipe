@@ -14,7 +14,7 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors, _ := LintDockerPushTask(manifest.DockerPush{}, emptyManifest, fs)
-	AssertContainsError(t, errors, NewErrMissingField("image"))
+	assertContainsError(t, errors, NewErrMissingField("image"))
 }
 
 func TestDockerPushTaskWithBadRepo(t *testing.T) {
@@ -26,7 +26,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 	}
 
 	errors, _ := LintDockerPushTask(task, emptyManifest, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("image"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("image"))
 }
 
 func TestDockerPushTaskWithoutTeamDirectoryInHalfpipeRepo(t *testing.T) {
@@ -44,7 +44,7 @@ func TestDockerPushTaskWithoutTeamDirectoryInHalfpipeRepo(t *testing.T) {
 	assert.Len(t, errors, 0)
 	assert.Len(t, warnings, 1)
 
-	AssertContainsError(t, warnings, ErrInvalidField.WithValue("image"))
+	assertContainsError(t, warnings, ErrInvalidField.WithValue("image"))
 }
 
 func TestDockerPushTaskWithTeamDirectoryInHalfpipeRepo(t *testing.T) {
@@ -92,7 +92,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 
 		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
 
-		AssertContainsError(t, errors, ErrFileNotFound)
+		assertContainsError(t, errors, ErrFileNotFound)
 	})
 
 	t.Run("don't error when RestoreArtifacts is true", func(t *testing.T) {
@@ -107,7 +107,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 		}
 
 		errors, _ := LintDockerPushTask(task, emptyManifest, fs)
-		AssertNotContainsError(t, errors, ErrFileNotFound)
+		assertNotContainsError(t, errors, ErrFileNotFound)
 	})
 }
 
@@ -194,7 +194,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
 	})
 
 	t.Run("errors when build path is a file", func(t *testing.T) {
@@ -219,7 +219,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 		errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assert.Len(t, warnings, 0)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
 	})
 
 	t.Run("ok when build path is a directory", func(t *testing.T) {
@@ -306,11 +306,11 @@ func TestDockerPushRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintDockerPushTask(task, emptyManifest, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
 	errors, _ = LintDockerPushTask(task, emptyManifest, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 4
 	errors, warnings := LintDockerPushTask(task, emptyManifest, fs)
@@ -348,6 +348,6 @@ func TestDockerPushTag(t *testing.T) {
 		}
 
 		_, warnings := LintDockerPushTask(task, emptyManifest, fs)
-		AssertContainsError(t, warnings, ErrDockerPushTag)
+		assertContainsError(t, warnings, ErrDockerPushTag)
 	})
 }

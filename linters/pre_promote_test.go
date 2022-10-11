@@ -13,7 +13,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 			ManualTrigger: true,
 		}
 		errors, _ := LintPrePromoteTask(task)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("manual_trigger"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("manual_trigger"))
 	})
 
 	t.Run("Notifications", func(t *testing.T) {
@@ -25,7 +25,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 			},
 		}
 		errors, _ := LintPrePromoteTask(task)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("notifications"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("notifications"))
 	})
 
 	t.Run("Non supported task", func(t *testing.T) {
@@ -40,7 +40,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 
 		for _, nonSupportedTask := range nonSupportedTasks {
 			errors, _ := LintPrePromoteTask(nonSupportedTask)
-			AssertContainsError(t, errors, ErrInvalidField.WithValue("type"))
+			assertContainsError(t, errors, ErrInvalidField.WithValue("type"))
 		}
 
 	})

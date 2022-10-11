@@ -6,7 +6,7 @@ import (
 )
 
 func Test_ErrorWrapping(t *testing.T) {
-	baseErr := NewError("bananas")
+	baseErr := newError("bananas")
 	err := baseErr.WithValue("are").WithValue("tasty").WithFile("fruit.txt")
 
 	assert.ErrorIs(t, err, baseErr)

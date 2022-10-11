@@ -10,7 +10,7 @@ import (
 func TestSeqMustComeFromAParallelTask(t *testing.T) {
 	errs, warnings := LintSequenceTask(manifest.Sequence{Tasks: manifest.TaskList{manifest.Run{}, manifest.Run{}}}, false)
 
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("type"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("type"))
 	assert.Empty(t, warnings)
 }
 
@@ -18,7 +18,7 @@ func TestSeqIsAtLeastOne(t *testing.T) {
 	t.Run("errors with empty sequence", func(t *testing.T) {
 		errs, warnings := LintSequenceTask(manifest.Sequence{}, true)
 
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 		assert.Empty(t, warnings)
 	})
 
@@ -41,6 +41,6 @@ func TestSeqDoesNotContainOtherSeqsOrParallels(t *testing.T) {
 		}, true)
 		assert.Len(t, errs, 1)
 		assert.Len(t, warnings, 0)
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 	})
 }

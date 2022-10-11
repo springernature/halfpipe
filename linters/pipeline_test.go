@@ -22,7 +22,7 @@ func TestTeamIsDifferentFromTriggerTeam(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("team"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("team"))
 }
 
 func TestEmptyPipeline(t *testing.T) {
@@ -41,7 +41,7 @@ func TestEmptyPipeline(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("pipeline"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("pipeline"))
 }
 
 func TestEmptyJob(t *testing.T) {
@@ -61,7 +61,7 @@ func TestEmptyJob(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("job"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("job"))
 }
 
 func TestBadStatus(t *testing.T) {
@@ -83,5 +83,5 @@ func TestBadStatus(t *testing.T) {
 
 	assert.Len(t, errs, 1)
 	assert.Len(t, warns, 0)
-	AssertContainsError(t, errs, ErrInvalidField.WithValue("status"))
+	assertContainsError(t, errs, ErrInvalidField.WithValue("status"))
 }

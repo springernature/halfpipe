@@ -45,7 +45,7 @@ func TestDockerCompose_MissingFile(t *testing.T) {
 
 	emptyTask := manifest.DockerCompose{ComposeFile: "docker-compose.yml"}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
-	AssertContainsError(t, errors, ErrFileNotFound)
+	assertContainsError(t, errors, ErrFileNotFound)
 }
 
 func TestDockerCompose_UnknownService(t *testing.T) {
@@ -54,7 +54,7 @@ func TestDockerCompose_UnknownService(t *testing.T) {
 
 	emptyTask := manifest.DockerCompose{Service: "asdf", ComposeFile: "docker-compose.yml"}
 	errors, _ := LintDockerComposeTask(emptyTask, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("service"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("service"))
 }
 
 func TestDockerComposeRetries(t *testing.T) {
@@ -62,10 +62,10 @@ func TestDockerComposeRetries(t *testing.T) {
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
 	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: -1}, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	errors, _ = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: 6}, fs)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	errors, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml", Retries: 5}, fs)
 	assert.Len(t, errors, 0)
@@ -77,7 +77,7 @@ func TestDockerComposeWithoutServicesKey(t *testing.T) {
 	fs.WriteFile("docker-compose.yml", []byte(invalidDockerCompose), 0777)
 
 	_, warnings := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "docker-compose.yml"}, fs)
-	AssertContainsError(t, warnings, ErrDockerComposeVersion)
+	assertContainsError(t, warnings, ErrDockerComposeVersion)
 }
 
 func TestLintDockerComposeWhenFileIsGarbage(t *testing.T) {
@@ -85,5 +85,5 @@ func TestLintDockerComposeWhenFileIsGarbage(t *testing.T) {
 	fs.WriteFile("foo.yml", []byte("not valid yaml"), 0777)
 
 	errors, _ := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFile: "foo.yml", Retries: 1}, fs)
-	AssertContainsError(t, errors, ErrFileInvalid)
+	assertContainsError(t, errors, ErrFileInvalid)
 }

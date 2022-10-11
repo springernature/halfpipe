@@ -15,9 +15,9 @@ func TestKateeDeployTaskWithEmptyTask(t *testing.T) {
 	assert.Len(t, errors, 3)
 	assert.Len(t, warnings, 0)
 
-	AssertContainsError(t, errors, NewErrMissingField("application_name"))
-	AssertContainsError(t, errors, NewErrMissingField("image"))
-	AssertContainsError(t, errors, ErrFileNotFound)
+	assertContainsError(t, errors, NewErrMissingField("application_name"))
+	assertContainsError(t, errors, NewErrMissingField("image"))
+	assertContainsError(t, errors, ErrFileNotFound)
 }
 
 func TestKateeDeployRetries(t *testing.T) {
@@ -25,11 +25,11 @@ func TestKateeDeployRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintDeployKateeTask(task, emptyManifest, afero.Afero{Fs: afero.NewMemMapFs()})
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
 	errors, _ = LintDeployKateeTask(task, emptyManifest, afero.Afero{Fs: afero.NewMemMapFs()})
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
 func TestKateeDeployTag(t *testing.T) {
@@ -78,7 +78,7 @@ func TestKateeDeployTag(t *testing.T) {
 		task.Tag = "bananas"
 		errors, warnings := LintDeployKateeTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("tag"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("tag"))
 		assert.Len(t, warnings, 0)
 	})
 }

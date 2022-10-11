@@ -22,7 +22,7 @@ func TestAtLeastOneTaskExists(t *testing.T) {
 	taskLinter := testTaskLinter()
 
 	result := taskLinter.Lint(man)
-	AssertContainsError(t, result.Warnings, NewErrMissingField("tasks"))
+	assertContainsError(t, result.Warnings, NewErrMissingField("tasks"))
 }
 
 func TestCallsOutToTheLintersCorrectly(t *testing.T) {
@@ -685,8 +685,8 @@ func TestLintTimeout(t *testing.T) {
 	result := taskLinter.Lint(man)
 
 	assert.Len(t, result.Errors, 4)
-	assert.Equal(t, `tasks[0] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[0].Error())
-	assert.Equal(t, `tasks[1] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[1].Error())
-	assert.Equal(t, `tasks[1].pre_promote[0] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[2].Error())
-	assert.Equal(t, `tasks[2] invalid field : timeout : time: invalid duration "immaBadTime"`, result.Errors[3].Error())
+	assert.ErrorIs(t, result.Errors[0], ErrInvalidField.WithValue("timeout"))
+	assert.ErrorIs(t, result.Errors[1], ErrInvalidField.WithValue("timeout"))
+	assert.ErrorIs(t, result.Errors[2], ErrInvalidField.WithValue("timeout"))
+	assert.ErrorIs(t, result.Errors[3], ErrInvalidField.WithValue("timeout"))
 }

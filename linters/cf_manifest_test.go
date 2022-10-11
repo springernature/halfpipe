@@ -43,7 +43,7 @@ applications:
 
 	task := manifest.DeployCF{Manifest: "some-manifest.yml"}
 	errs, _ := LintCfManifest(task, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, errs, ErrCFMultipleApps)
+	assertContainsError(t, errs, ErrCFMultipleApps)
 }
 
 func TestWithoutARoute(t *testing.T) {
@@ -53,7 +53,7 @@ applications:
 `
 
 	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, errs, ErrCFMissingRoutes)
+	assertContainsError(t, errs, ErrCFMissingRoutes)
 }
 
 func TestWithoutAName(t *testing.T) {
@@ -63,7 +63,7 @@ applications:
   - route: test.com
 `
 	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, errs, ErrCFMissingName)
+	assertContainsError(t, errs, ErrCFMissingName)
 }
 
 func TestWorkerAppGivesErrorIfHealthCheckIsNotProcess(t *testing.T) {
@@ -74,7 +74,7 @@ applications:
 `
 
 	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, errs, ErrCFNoRouteHealthcheck)
+	assertContainsError(t, errs, ErrCFNoRouteHealthcheck)
 }
 
 func TestErrorsIfBothNoRouteAndRoutes(t *testing.T) {
@@ -87,7 +87,7 @@ applications:
 `
 
 	errs, _ := LintCfManifest(manifest.DeployCF{Manifest: "some-manifest.yml"}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, errs, ErrCFRoutesAndNoRoute)
+	assertContainsError(t, errs, ErrCFRoutesAndNoRoute)
 }
 
 func TestWorkerAppDoesNotNeedRoute(t *testing.T) {
@@ -99,7 +99,7 @@ applications:
 `
 
 	errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	AssertNotContainsError(t, errs, ErrCFMissingRoutes)
+	assertNotContainsError(t, errs, ErrCFMissingRoutes)
 }
 
 func TestDoesNotLintWhenManifestFromArtifacts(t *testing.T) {
@@ -119,7 +119,7 @@ applications:
 `
 
 	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, warns, ErrCFBuildpackDeprecated)
+	assertContainsError(t, warns, ErrCFBuildpackDeprecated)
 }
 
 func TestLintUnversionedBuildpack(t *testing.T) {
@@ -136,7 +136,7 @@ applications:
 `
 
 	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, warns, ErrCFBuildpackUnversioned)
+	assertContainsError(t, warns, ErrCFBuildpackUnversioned)
 }
 
 func TestLintMissingBuildpack(t *testing.T) {
@@ -147,7 +147,7 @@ applications:
   - route: test.com
 `
 	_, warns := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-	AssertContainsError(t, warns, ErrCFBuildpackMissing)
+	assertContainsError(t, warns, ErrCFBuildpackMissing)
 }
 
 func TestLintNoHttpInRoutes(t *testing.T) {
@@ -183,7 +183,7 @@ applications:
 		}
 
 		errs, _ := LintCfManifest(task, cfManifestReader(cfManifest, nil))
-		AssertContainsError(t, errs, ErrCFArtifactAndDocker)
+		assertContainsError(t, errs, ErrCFArtifactAndDocker)
 	})
 
 	t.Run("Errors when the image isn't from our repo", func(t *testing.T) {
@@ -196,7 +196,7 @@ applications:
   - route: test.com
 `
 		errs, _ := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
-		AssertContainsError(t, errs, ErrUnsupportedRegistry)
+		assertContainsError(t, errs, ErrUnsupportedRegistry)
 	})
 
 	t.Run("All is good", func(t *testing.T) {

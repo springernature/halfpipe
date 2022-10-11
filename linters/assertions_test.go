@@ -5,14 +5,14 @@ import (
 	"testing"
 )
 
-func AssertContainsError(t *testing.T, errs []error, expected error) {
+func assertContainsError(t *testing.T, errs []error, expected error) {
 	t.Helper()
 	if !containsError(errs, expected) {
 		t.Fatalf("%s does not contain '%s'", errs, expected)
 	}
 }
 
-func AssertNotContainsError(t *testing.T, errs []error, expected error) {
+func assertNotContainsError(t *testing.T, errs []error, expected error) {
 	t.Helper()
 	if containsError(errs, expected) {
 		t.Fatalf("%s should not contain '%s'", errs, expected)

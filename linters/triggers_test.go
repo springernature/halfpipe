@@ -31,8 +31,8 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		}
 
 		result := linter.Lint(man)
-		AssertNotContainsError(t, result.Errors, ErrMultipleTriggers)
-		AssertNotContainsError(t, result.Warnings, ErrMultipleTriggers)
+		assertNotContainsError(t, result.Errors, ErrMultipleTriggers)
+		assertNotContainsError(t, result.Warnings, ErrMultipleTriggers)
 	})
 
 	t.Run("with more than one of each there should be errors", func(t *testing.T) {
@@ -49,7 +49,7 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 
 		result := linter.Lint(man)
 		assert.Len(t, result.Errors, 3)
-		AssertContainsError(t, result.Errors, ErrMultipleTriggers)
+		assertContainsError(t, result.Errors, ErrMultipleTriggers)
 	})
 }
 

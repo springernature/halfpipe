@@ -19,7 +19,7 @@ func TestTeamIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	AssertContainsError(t, result.Errors, NewErrMissingField("team"))
+	assertContainsError(t, result.Errors, NewErrMissingField("team"))
 }
 
 func TestTeamIsUpperCase(t *testing.T) {
@@ -29,7 +29,7 @@ func TestTeamIsUpperCase(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	AssertContainsError(t, result.Warnings, ErrInvalidField.WithValue("team"))
+	assertContainsError(t, result.Warnings, ErrInvalidField.WithValue("team"))
 }
 
 func TestPipelineIsMissing(t *testing.T) {
@@ -38,7 +38,7 @@ func TestPipelineIsMissing(t *testing.T) {
 	man.Platform = "concourse"
 
 	result := topLevelLinter{}.Lint(man)
-	AssertContainsError(t, result.Errors, NewErrMissingField("pipeline"))
+	assertContainsError(t, result.Errors, NewErrMissingField("pipeline"))
 }
 
 func TestHappyPath(t *testing.T) {
@@ -66,7 +66,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result := topLevelLinter{}.Lint(missingJSONKey)
-	AssertContainsError(t, result.Errors, ErrInvalidField.WithValue("artifact_config"))
+	assertContainsError(t, result.Errors, ErrInvalidField.WithValue("artifact_config"))
 
 	missingBucket := manifest.Manifest{
 		Team:     "team",
@@ -77,7 +77,7 @@ func TestMissingFieldInArtifactConfig(t *testing.T) {
 	}
 
 	result2 := topLevelLinter{}.Lint(missingBucket)
-	AssertContainsError(t, result2.Errors, ErrInvalidField.WithValue("artifact_config"))
+	assertContainsError(t, result2.Errors, ErrInvalidField.WithValue("artifact_config"))
 }
 
 func TestOutput(t *testing.T) {
@@ -110,6 +110,6 @@ func TestOutput(t *testing.T) {
 			Platform: "travis",
 		}
 		result := topLevelLinter{}.Lint(man)
-		AssertContainsError(t, result.Errors, ErrInvalidField.WithValue("platform"))
+		assertContainsError(t, result.Errors, ErrInvalidField.WithValue("platform"))
 	})
 }

@@ -13,8 +13,8 @@ func TestDeployMLZipTaskHasRequiredFields(t *testing.T) {
 	errors, _ := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 2) {
-		AssertContainsError(t, errors, NewErrMissingField("target"))
-		AssertContainsError(t, errors, NewErrMissingField("deploy_zip"))
+		assertContainsError(t, errors, NewErrMissingField("target"))
+		assertContainsError(t, errors, NewErrMissingField("deploy_zip"))
 	}
 }
 
@@ -24,8 +24,8 @@ func TestDeployMLModulesTaskHasRequiredFields(t *testing.T) {
 	errors, _ := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 2) {
-		AssertContainsError(t, errors, NewErrMissingField("target"))
-		AssertContainsError(t, errors, NewErrMissingField("ml_modules_version"))
+		assertContainsError(t, errors, NewErrMissingField("target"))
+		assertContainsError(t, errors, NewErrMissingField("ml_modules_version"))
 	}
 }
 
@@ -34,21 +34,21 @@ func TestMLRetries(t *testing.T) {
 
 	mlModule.Retries = -1
 	errors, _ := LintDeployMLModulesTask(mlModule)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlModule.Retries = 6
 	errors, _ = LintDeployMLModulesTask(mlModule)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlZip := manifest.DeployMLZip{}
 
 	mlZip.Retries = -1
 	errors, _ = LintDeployMLZipTask(mlZip)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	mlZip.Retries = 6
 	errors, _ = LintDeployMLZipTask(mlZip)
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
 func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
@@ -62,7 +62,7 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLModules(t *testing.T) {
 	errors, _ := LintDeployMLModulesTask(task)
 
 	if assert.Len(t, errors, 1) {
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
 	}
 }
 
@@ -77,6 +77,6 @@ func TestNotBothAppVersionAndUseBuildVersionAreSetMLZip(t *testing.T) {
 	errors, _ := LintDeployMLZipTask(task)
 
 	if assert.Len(t, errors, 1) {
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("use_build_version"))
 	}
 }

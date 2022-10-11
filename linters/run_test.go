@@ -15,8 +15,8 @@ func TestRunTaskWithoutScriptAndImage(t *testing.T) {
 	}
 
 	errors, _ := LintRunTask(manifest.Run{}, afero.Afero{}, "")
-	AssertContainsError(t, errors, NewErrMissingField("script"))
-	AssertContainsError(t, errors, NewErrMissingField("docker.image"))
+	assertContainsError(t, errors, NewErrMissingField("script"))
+	assertContainsError(t, errors, NewErrMissingField("docker.image"))
 }
 
 func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
@@ -29,7 +29,7 @@ func TestRunTaskWithScriptAndImageErrorsIfScriptIsNotThere(t *testing.T) {
 
 	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
 	assert.Len(t, errors, 1)
-	AssertContainsError(t, errors, ErrFileNotFound)
+	assertContainsError(t, errors, ErrFileNotFound)
 }
 
 func TestRunTaskWithScriptAndImageWithPasswordAndUsername(t *testing.T) {
@@ -81,7 +81,7 @@ func TestRunTaskWithScriptAndImageAndOnlyPassword(t *testing.T) {
 	}
 
 	errors, _ := LintRunTask(task, fs, "")
-	AssertContainsError(t, errors, NewErrMissingField("docker.username"))
+	assertContainsError(t, errors, NewErrMissingField("docker.username"))
 }
 
 func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
@@ -97,7 +97,7 @@ func TestRunTaskWithScriptAndImageAndOnlyUsername(t *testing.T) {
 	}
 
 	errors, _ := LintRunTask(task, fs, "")
-	AssertContainsError(t, errors, NewErrMissingField("docker.password"))
+	assertContainsError(t, errors, NewErrMissingField("docker.password"))
 }
 
 func TestRunTaskScriptFileExists(t *testing.T) {
@@ -167,11 +167,11 @@ func TestRetries(t *testing.T) {
 
 	task.Retries = -1
 	errors, _ := LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
 	errors, _ = LintRunTask(task, afero.Afero{Fs: afero.NewMemMapFs()}, "")
-	AssertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
+	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 }
 
 func TestShouldSkipExecutableTestAndProduceWarningIfRunningOnWindows(t *testing.T) {

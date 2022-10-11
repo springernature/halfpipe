@@ -13,7 +13,7 @@ func TestEmptyImage(t *testing.T) {
 
 	assert.Len(t, errors, 1)
 	assert.Len(t, warnings, 0)
-	AssertContainsError(t, errors, NewErrMissingField("image"))
+	assertContainsError(t, errors, NewErrMissingField("image"))
 }
 
 func TestOk(t *testing.T) {

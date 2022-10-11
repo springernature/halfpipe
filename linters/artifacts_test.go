@@ -54,7 +54,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{})
 		assert.Len(t, errors, 2)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
 	})
 
 	t.Run("docker-compose", func(t *testing.T) {
@@ -68,7 +68,7 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{})
 		assert.Len(t, errors, 2)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
 	})
 
 	t.Run("deploy-cf", func(t *testing.T) {
@@ -78,6 +78,6 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 
 		errors, _ := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
 		assert.Len(t, errors, 1)
-		AssertContainsError(t, errors, ErrInvalidField.WithValue("deploy_artifact"))
+		assertContainsError(t, errors, ErrInvalidField.WithValue("deploy_artifact"))
 	})
 }

@@ -20,7 +20,7 @@ func TestCronTrigger(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
 	})
 
 	t.Run("bad", func(t *testing.T) {
@@ -28,7 +28,7 @@ func TestCronTrigger(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
 	})
 
 	t.Run("too frequent", func(t *testing.T) {
@@ -36,6 +36,6 @@ func TestCronTrigger(t *testing.T) {
 
 		errs, _ := LintCronTrigger(trigger)
 		assert.Len(t, errs, 1)
-		AssertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
+		assertContainsError(t, errs, ErrInvalidField.WithValue("trigger"))
 	})
 }
