@@ -42,7 +42,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/docker-push/target/app.zip
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
@@ -60,7 +60,7 @@ jobs:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
     - name: Extract artifacts
@@ -152,7 +152,7 @@ jobs:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
     - name: Extract artifacts
