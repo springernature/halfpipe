@@ -39,7 +39,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
@@ -49,7 +49,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v3
       with:
         name: artifacts-failure
         path: /tmp/halfpipe-artifacts.tar
@@ -67,7 +67,7 @@ jobs:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Download artifacts
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v3
       with:
         name: artifacts
     - name: Extract artifacts
