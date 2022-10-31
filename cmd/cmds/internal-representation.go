@@ -3,19 +3,12 @@ package cmds
 import (
 	"fmt"
 	"github.com/spf13/cobra"
-	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v2"
 	"os"
 )
 
 func init() {
 	rootCmd.AddCommand(internalRepresentation)
-}
-
-type nullRenderer struct{}
-
-func (r nullRenderer) Render(manifest manifest.Manifest) (string, error) {
-	return "", nil
 }
 
 var internalRepresentation = &cobra.Command{
