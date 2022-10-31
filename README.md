@@ -36,6 +36,24 @@ It runs the build script on every commit to `main`.
 We also use [GitHub Actions](https://github.com/springernature/halfpipe/actions) for dependabot and CodeQL scanning
 
 
+# Updating Dependencies
+
+
+### go
+
+dependabot will raise PRs. Alternatively, to manually update all deps:
+
+```bash
+go get -t -u ./...
+go mod tidy
+```
+
+### GitHub actions 
+
+For third party actions we use in halfpipe rendered workflows - 
+dependabot will raise PRs but these are just informational, we have to manually update the halfpipe actions renderer. 
+
+
 # Releasing
 
 Releasing is triggered by manually bumping the version (major, minor or patch) in Concourse. Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A [GitHub release](https://github.com/springernature/halfpipe/releases) is also created.
