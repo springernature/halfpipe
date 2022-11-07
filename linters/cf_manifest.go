@@ -108,7 +108,7 @@ func lintBuildpack(app manifestparser.Application, manifestPath string) (errs []
 	buildpacks := cf.Buildpacks(app)
 
 	if len(buildpacks) == 0 && app.Docker == nil {
-		errs = append(errs, ErrCFBuildpackMissing.WithFile(manifestPath))
+		errs = append(errs, ErrCFBuildpackMissing.WithFile(manifestPath).AsWarning())
 		return errs
 	}
 
