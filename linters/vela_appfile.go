@@ -1,65 +1,8 @@
 package linters
 
 import (
-	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/manifest"
 	"gopkg.in/yaml.v3"
-	"strings"
 )
-
-type VelaManifestLinter struct {
-	Fs afero.Afero
-}
-
-func NewVelaManifestLinter(fs afero.Afero) VelaManifestLinter {
-	return VelaManifestLinter{fs}
-}
-
-func (v VelaManifestLinter) Lint(man manifest.Manifest) (lr LintResult) {
-	var deployKateeTasks []manifest.DeployKatee
-	for _, task := range man.Tasks {
-		switch t := task.(type) {
-		case manifest.DeployKatee:
-			deployKateeTasks = append(deployKateeTasks, t)
-		}
-	}
-
-	for _, kateeTask := range deployKateeTasks {
-		err := CheckFile(v.Fs, kateeTask.VelaManifest, false)
-		if err != nil {
-			lr.Add(err)
-			return
-		}
-
-		velaAppFile, err := ReadFile(v.Fs, kateeTask.VelaManifest)
-		if err != nil {
-			lr.Add(err)
-		}
-
-		velaManifest, e := unMarshallVelaManifest([]byte(velaAppFile))
-		if e != nil {
-			lr.Add(ErrFileInvalid.WithValue(e.Error()))
-			return
-		}
-
-		for _, com := range velaManifest.Spec.Components {
-			for _, sec := range com.Properties.Env {
-				if strings.HasPrefix(sec.Value, "${") {
-					secretName := strings.ReplaceAll(sec.Value, "${", "")
-					secretName = strings.ReplaceAll(secretName, "}", "")
-
-					vars := kateeTask.Vars
-					if _, ok := vars[secretName]; !ok {
-						if secretName != "BUILD_VERSION" && secretName != "GIT_REVISION" {
-							lr.Add(ErrVelaVariableMissing.WithValue(secretName).WithFile(kateeTask.VelaManifest))
-						}
-					}
-				}
-			}
-		}
-	}
-	return lr
-}
 
 type VelaManifest struct {
 	Kind string     `yaml:"kind"`
