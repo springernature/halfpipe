@@ -68,7 +68,7 @@ func scanImage(task manifest.DockerPush) Step {
 	}
 	step := Step{
 		Name: "Run Trivy vulnerability scanner",
-		Uses: "aquasecurity/trivy-action@0.7.1",
+		Uses: "aquasecurity/trivy-action@0.8.0",
 		With: With{
 			{"image-ref", task.Image + ":${{ env.GIT_REVISION }}"},
 			{"exit-code", exitCode},
