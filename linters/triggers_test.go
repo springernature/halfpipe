@@ -34,20 +34,32 @@ func TestLintOnlyOneOfEachAllowed(t *testing.T) {
 		assertNotContainsError(t, result.Issues, ErrMultipleTriggers)
 	})
 
-	t.Run("with more than one of each there should be errors", func(t *testing.T) {
+	t.Run("multiple pipeline and docker triggers is ok", func(t *testing.T) {
 		man := manifest.Manifest{
 			Triggers: manifest.TriggerList{
 				manifest.DockerTrigger{},
+				manifest.PipelineTrigger{},
+				manifest.DockerTrigger{},
+				manifest.PipelineTrigger{},
+			},
+		}
+
+		result := linter.Lint(man)
+		assertNotContainsError(t, result.Issues, ErrMultipleTriggers)
+	})
+
+	t.Run("with more than one of each there should be errors", func(t *testing.T) {
+		man := manifest.Manifest{
+			Triggers: manifest.TriggerList{
 				manifest.GitTrigger{},
 				manifest.TimerTrigger{},
 				manifest.GitTrigger{},
-				manifest.DockerTrigger{},
 				manifest.TimerTrigger{},
 			},
 		}
 
 		result := linter.Lint(man)
-		assert.Len(t, result.Issues, 3)
+		assert.Len(t, result.Issues, 2)
 		assertContainsError(t, result.Issues, ErrMultipleTriggers)
 	})
 }

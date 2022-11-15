@@ -20,17 +20,14 @@ type triggersLinter struct {
 
 func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs []error) {
 	numGit := 0
-	numCron := 0
-	numDocker := 0
+	numTimer := 0
 
 	for _, trigger := range triggers {
 		switch trigger.(type) {
 		case manifest.GitTrigger:
 			numGit++
 		case manifest.TimerTrigger:
-			numCron++
-		case manifest.DockerTrigger:
-			numDocker++
+			numTimer++
 		}
 	}
 
@@ -38,12 +35,8 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 		errs = append(errs, ErrMultipleTriggers.WithValue("git"))
 	}
 
-	if numCron > 1 {
-		errs = append(errs, ErrMultipleTriggers.WithValue("cron"))
-	}
-
-	if numDocker > 1 {
-		errs = append(errs, ErrMultipleTriggers.WithValue("docker"))
+	if numTimer > 1 {
+		errs = append(errs, ErrMultipleTriggers.WithValue("timer"))
 	}
 
 	return errs
