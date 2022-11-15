@@ -114,7 +114,7 @@ func lintBuildpack(app manifestparser.Application, manifestPath string) (errs []
 
 	for _, bp := range buildpacks {
 		if strings.HasPrefix(bp, "http") && !strings.Contains(bp, "#") {
-			errs = append(errs, ErrCFBuildpackUnversioned.WithValue(bp).WithFile(manifestPath))
+			errs = append(errs, ErrCFBuildpackUnversioned.WithValue(bp).WithFile(manifestPath).AsWarning())
 		}
 	}
 
