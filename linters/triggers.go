@@ -35,15 +35,15 @@ func (t triggersLinter) lintOnlyOneOfEach(triggers manifest.TriggerList) (errs [
 	}
 
 	if numGit > 1 {
-		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.GitTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue("git"))
 	}
 
 	if numCron > 1 {
-		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.TimerTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue("cron"))
 	}
 
 	if numDocker > 1 {
-		errs = append(errs, ErrMultipleTriggers.WithValue(manifest.DockerTrigger{}.GetTriggerName()))
+		errs = append(errs, ErrMultipleTriggers.WithValue("docker"))
 	}
 
 	return errs
