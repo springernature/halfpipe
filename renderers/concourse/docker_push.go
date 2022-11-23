@@ -113,6 +113,18 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	// temporary: always exit 0 until we have communicated the ignoreVulnerabilites opt-in
 	exitCode := 0
 
+	// First bit could either be git or docker_build (in the case of build with artifact.. We only care about the path
+	//inside the git repository
+	dockerFilePath := strings.Join(strings.Split(path.Join(fullBasePath, task.DockerfilePath), "/")[1:], "/")
+
+	// Now we need to escape the / so we can use it in a sed..
+	escapedDockerPath := strings.Replace(dockerFilePath, `/`, `\/`, -1)
+	upload := fmt.Sprintf(`if ! grep -q '"results": \[\],' report.sarif; then
+  echo "Uploading results to Github"
+  sed -i 's/image\/image.tar/%s/g' report.sarif
+  RESULT=$(gzip -c report.sarif | base64 -w0)
+fi`, escapedDockerPath)
+
 	step := &atc.TaskStep{
 		Name: "trivy",
 		Config: &atc.TaskConfig{
@@ -129,6 +141,8 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
 					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
 					fmt.Sprintf(`trivy image --timeout %dm --ignore-unfixed --severity CRITICAL --exit-code %d --input %s`, task.ScanTimeout, exitCode, imageFile),
+					fmt.Sprintf(`trivy image --timeout %dm --ignore-unfixed --severity CRITICAL --exit-code %d --input %s --format sarif -o report.sarif > /dev/null`, task.ScanTimeout, exitCode, imageFile),
+					upload,
 				}, "\n")},
 				Dir: fullBasePath,
 			},
