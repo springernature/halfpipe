@@ -117,13 +117,19 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	//inside the git repository
 	dockerFilePath := strings.Join(strings.Split(path.Join(fullBasePath, task.DockerfilePath), "/")[1:], "/")
 
-	// Now we need to escape the / so we can use it in a sed..
+	// Now we need to escape the / so we can use it to replace image/image.tar in the result.
+	// We scan image/image.tar so "artifactLocation.uri" ends up saying "image/image.tar"
+	// But we want it to be the full path to the Dockerfile so we can click trough in the Github UI
+	// And get taken directly to the src of the file.
 	escapedDockerPath := strings.Replace(dockerFilePath, `/`, `\/`, -1)
-	upload := fmt.Sprintf(`if ! grep -q '"results": \[\],' report.sarif; then
+
+	// First we check if there were any results in the scan. No need to do the needful if we are green.
+	upload := fmt.Sprintf(`if jq '.runs[].results | length != 0' report2.sarif | grep true > /dev/null; then
   echo "Uploading results to Github"
   sed -i 's/image\/image.tar/%s/g' report.sarif
   RESULT=$(gzip -c report.sarif | base64 -w0)
-fi`, escapedDockerPath)
+fi
+exit 1`, escapedDockerPath)
 
 	step := &atc.TaskStep{
 		Name: "trivy",
@@ -132,7 +138,9 @@ fi`, escapedDockerPath)
 			ImageResource: &atc.ImageResource{
 				Type: "docker-image",
 				Source: atc.Source{
-					"repository": "aquasec/trivy",
+					"repository": "eu.gcr.io/halfpipe-io/engineering-enablement/ee-trivy",
+					"username":   "_json_key",
+					"password":   "((halfpipe-gcr.private_key))",
 				},
 			},
 			Run: atc.TaskRunConfig{
