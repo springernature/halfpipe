@@ -102,7 +102,7 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
 }
 
-func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
+func trivyTask(task manifest.DockerPush, man manifest.Manifest, fullBasePath string) atc.StepConfig {
 	imageFile := path.Join(relativePathToRepoRoot(gitDir, fullBasePath), "image/image.tar")
 
 	//exitCode := 1
@@ -113,6 +113,7 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	// temporary: always exit 0 until we have communicated the ignoreVulnerabilites opt-in
 	exitCode := 0
 
+	man.Triggers.GetGitTrigger().GetOrgRepo()
 	// First bit could either be git or docker_build (in the case of build with artifact.. We only care about the path
 	//inside the git repository
 	dockerFilePath := strings.Join(strings.Split(path.Join(fullBasePath, task.DockerfilePath), "/")[1:], "/")
@@ -128,8 +129,14 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
   echo "Uploading results to Github"
   sed -i 's/image\/image.tar/%s/g' report.sarif
   RESULT=$(gzip -c report.sarif | base64 -w0)
+  BRANCH=%s
+  curl \
+    -X POST \
+    -H "Accept: application/vnd.github+json" \
+    -H "Authorization: Bearer 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" \
+    https://api.github.com/repos/%s/code-scanning/sarifs
 fi
-exit 1`, escapedDockerPath)
+exit 1`, escapedDockerPath, man.Triggers.GetGitTrigger().Branch, man.Triggers.GetGitTrigger().GetOrgRepo())
 
 	step := &atc.TaskStep{
 		Name: "trivy",
@@ -168,7 +175,7 @@ exit 1`, escapedDockerPath)
 	return step
 }
 
-func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
+func buildAndPushOci(task manifest.DockerPush, man manifest.Manifest, resourceName string, fullBasePath string) []atc.Step {
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
@@ -220,7 +227,7 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 		},
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
-	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, man, fullBasePath), task.GetAttempts(), task.GetTimeout()))
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
 }
@@ -243,5 +250,5 @@ func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath st
 		return buildAndPushOld(task, resourceName, fullBasePath)
 	}
 
-	return buildAndPushOci(task, resourceName, fullBasePath)
+	return buildAndPushOci(task, man, resourceName, fullBasePath)
 }

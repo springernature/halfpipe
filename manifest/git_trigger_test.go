@@ -25,3 +25,25 @@ func TestFindsRepoNameWithoutDotGit(t *testing.T) {
 	}
 	assert.Equal(t, "halfpipe", git.GetRepoName())
 }
+
+func TestFindsOrgAndRepoName(t *testing.T) {
+	t.Run("https", func(t *testing.T) {
+		assert.Equal(t, "springernature/halfpipe", GitTrigger{
+			URI: "https://github.com/springernature/halfpipe.git",
+		}.GetOrgRepo())
+
+		assert.Equal(t, "springernature/halfpipe", GitTrigger{
+			URI: "https://github.com/springernature/halfpipe",
+		}.GetOrgRepo())
+	})
+
+	t.Run("ssh", func(t *testing.T) {
+		assert.Equal(t, "springernature/halfpipe", GitTrigger{
+			URI: "git@github.com:springernature/halfpipe.git",
+		}.GetOrgRepo())
+
+		assert.Equal(t, "springernature/halfpipe", GitTrigger{
+			URI: "git@github.com:springernature/halfpipe.git",
+		}.GetOrgRepo())
+	})
+}

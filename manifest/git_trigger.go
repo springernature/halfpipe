@@ -39,3 +39,9 @@ func (git GitTrigger) GetRepoName() string {
 
 	return strings.Split(repo, ".git")[0]
 }
+
+func (git GitTrigger) GetOrgRepo() string {
+	withoutHTTPS := strings.Replace(git.URI, "https://github.com/", "", 1)
+	withoutSSH := strings.Replace(withoutHTTPS, "git@github.com:", "", 1)
+	return strings.Replace(withoutSSH, ".git", "", 1)
+}
