@@ -33,3 +33,12 @@ tasks:
   vars:
     FOO: foo
     BAR: bar
+
+- type: docker-push
+  name: Push multiple platforms
+  image: eu.gcr.io/halfpipe-io/someImage
+  restore_artifacts: true
+  tag: version
+  platforms:
+  - "linux/amd64"
+  - "linux/arm64"

@@ -150,12 +150,8 @@ jobs:
       with:
         context: .
         file: e2e/actions/docker-push/Dockerfile
-        load: true
-        push: false
-        tags: |
-          eu.gcr.io/halfpipe-io/blah:latest
-          eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
-          eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
+        push: true
+        tags: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
         build-args: |
           ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
           ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
@@ -165,32 +161,19 @@ jobs:
           RUNNING_IN_CI=true
           VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+        platforms: linux/amd64
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@0.8.0
       with:
-        image-ref: eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
+        image-ref: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
         exit-code: 1
         ignore-unfixed: true
         severity: CRITICAL
     - name: Push Image
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        file: e2e/actions/docker-push/Dockerfile
-        push: true
-        tags: |
-          eu.gcr.io/halfpipe-io/blah:latest
-          eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
-          eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
-        build-args: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
-          BUILD_VERSION=2.${{ github.run_number }}.0
-          GIT_REVISION=${{ github.sha }}
-          RUNNING_IN_CI=true
-          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
-          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+      run: |-
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:latest
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@v2
       with:

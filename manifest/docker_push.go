@@ -19,6 +19,7 @@ type DockerPush struct {
 	BuildPath             string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 	Tag                   string        `json:"tag,omitempty" yaml:"tag,omitempty"`
 	BuildHistory          int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Platforms             []string      `json:"platforms,omitempty" yaml:"platforms,omitempty"`
 }
 
 func (r DockerPush) GetSecrets() map[string]string {

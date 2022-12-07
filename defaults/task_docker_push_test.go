@@ -11,7 +11,9 @@ import (
 func TestWhenPublicImage(t *testing.T) {
 	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", ScanTimeout: 15}
 
-	assert.Equal(t, task, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
+	defaultedTask := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", ScanTimeout: 15, Platforms: []string{"linux/amd64"}}
+
+	assert.Equal(t, defaultedTask, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
 }
 
 func TestPrivateImage(t *testing.T) {
@@ -23,6 +25,7 @@ func TestPrivateImage(t *testing.T) {
 		Username:       Concourse.Docker.Username,
 		Password:       Concourse.Docker.Password,
 		ScanTimeout:    15,
+		Platforms:      []string{"linux/amd64"},
 	}
 
 	assert.Equal(t, expected, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))

@@ -40,14 +40,15 @@ var (
 
 	ErrVelaVariableMissing = newError("vela manifest variable is not specified in halfpipe manifest")
 
-	ErrUnsupportedManualTrigger   = newError("manual_trigger on individual tasks is not supported in GitHub Actions. It is supported at the workflow level in git trigger options")
-	ErrUnsupportedRolling         = newError("cf rolling deploys are not supported in GitHub Actions")
-	ErrDockerTriggerLoop          = newError("cannot push docker image that is also a trigger as it will create a loop")
-	ErrUnsupportedCovenant        = newError("covenant is not supported in GitHub Actions")
-	ErrUnsupportedGitPrivateKey   = newError("git private_key is not supported in GitHub Actions")
-	ErrUnsupportedGitUri          = newError("git uri is not supported in GitHub Actions")
-	ErrUnsupportedPipelineTrigger = newError("pipeline triggers are not supported in GitHub Actions")
-	ErrUnsupportedUpdatePipeline  = newError("the update-pipeline feature is not supported, so you must always run 'halfpipe' to keep the workflow file up to date")
+	ErrUnsupportedManualTrigger     = newError("manual_trigger on individual tasks is not supported in GitHub Actions. It is supported at the workflow level in git trigger options")
+	ErrUnsupportedRolling           = newError("cf rolling deploys are not supported in GitHub Actions")
+	ErrDockerTriggerLoop            = newError("cannot push docker image that is also a trigger as it will create a loop")
+	ErrUnsupportedCovenant          = newError("covenant is not supported in GitHub Actions")
+	ErrUnsupportedGitPrivateKey     = newError("git private_key is not supported in GitHub Actions")
+	ErrUnsupportedGitUri            = newError("git uri is not supported in GitHub Actions")
+	ErrUnsupportedPipelineTrigger   = newError("pipeline triggers are not supported in GitHub Actions")
+	ErrUnsupportedMultiplePlatforms = newError("multiple platforms for docker builds feature is not supported in Concourse")
+	ErrUnsupportedUpdatePipeline    = newError("the update-pipeline feature is not supported, so you must always run 'halfpipe' to keep the workflow file up to date")
 )
 
 type Error struct {

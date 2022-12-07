@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/config"
 	"path"
 	"strings"
 
@@ -20,18 +21,28 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 
 	steps = append(steps, buildImage(a, task, buildArgs))
 	steps = append(steps, scanImage(task))
-	steps = append(steps, pushImage(a, task, buildArgs))
+	steps = append(steps, pushImage(task))
 	steps = append(steps, repositoryDispatch(task.Image))
 	steps = append(steps, jobSummary(task.Image, tags(task)))
 	return steps
 }
 
-func tags(task manifest.DockerPush) string {
+func tags(task manifest.DockerPush) []string {
 	tag1 := fmt.Sprintf("%s:latest", task.Image)
 	tag2 := fmt.Sprintf("%s:${{ env.BUILD_VERSION }}", task.Image)
 	tag3 := fmt.Sprintf("%s:${{ env.GIT_REVISION }}", task.Image)
 
-	return fmt.Sprintf("%s\n%s\n%s\n", tag1, tag2, tag3)
+	return []string{tag1, tag2, tag3}
+}
+
+func tagWithCachePath(task manifest.DockerPush) string {
+	tag := ":${{ env.GIT_REVISION }}"
+	if strings.HasPrefix(task.Image, config.DockerRegistry) {
+		r := strings.Replace(task.Image, config.DockerRegistry, fmt.Sprintf("%scache/", config.DockerRegistry), 1)
+		return r + tag
+	} else {
+		return config.DockerRegistry + "cache/" + task.Image + tag
+	}
 }
 
 func repositoryDispatch(eventName string) Step {
@@ -52,10 +63,10 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 		With: With{
 			{"context", path.Join(a.workingDir, task.BuildPath)},
 			{"file", path.Join(a.workingDir, task.DockerfilePath)},
-			{"load", true},
-			{"push", false},
-			{"tags", tags(task)},
+			{"push", true},
+			{"tags", tagWithCachePath(task)},
 			{"build-args", buildArgs.ToString()},
+			{"platforms", strings.Join(task.Platforms, ",")},
 		},
 	}
 	return step
@@ -70,7 +81,7 @@ func scanImage(task manifest.DockerPush) Step {
 		Name: "Run Trivy vulnerability scanner",
 		Uses: "aquasecurity/trivy-action@0.8.0",
 		With: With{
-			{"image-ref", task.Image + ":${{ env.GIT_REVISION }}"},
+			{"image-ref", tagWithCachePath(task)},
 			{"exit-code", exitCode},
 			{"ignore-unfixed", true},
 			{"severity", "CRITICAL"},
@@ -79,22 +90,21 @@ func scanImage(task manifest.DockerPush) Step {
 	return step
 }
 
-func pushImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
+func pushImage(task manifest.DockerPush) Step {
+	sRun := []string{}
+	for _, tag := range tags(task) {
+		sRun = append(sRun, fmt.Sprintf("docker buildx imagetools create %s --tag %s", tagWithCachePath(task), tag))
+	}
+
 	step := Step{
 		Name: "Push Image",
-		Uses: "docker/build-push-action@v3",
-		With: With{
-			{"context", path.Join(a.workingDir, task.BuildPath)},
-			{"file", path.Join(a.workingDir, task.DockerfilePath)},
-			{"push", true},
-			{"tags", tags(task)},
-			{"build-args", buildArgs.ToString()},
-		},
+		Run:  strings.Join(sRun, "\n"),
 	}
+
 	return step
 }
 
-func jobSummary(img string, tags string) Step {
+func jobSummary(img string, tags []string) Step {
 	sRun := []string{}
 	sRun = append(sRun, `echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY`)
 	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)
@@ -114,8 +124,7 @@ func jobSummary(img string, tags string) Step {
 	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)
 	sRun = append(sRun, `echo "Tags:" >> $GITHUB_STEP_SUMMARY`)
 	// Split the tag lines, remove the last empty line and add the tags to summary
-	imgTags := strings.Split(tags, "\n")
-	for _, tag := range imgTags[0 : len(imgTags)-1] {
+	for _, tag := range tags {
 		sRun = append(sRun, fmt.Sprintf(`echo "- %s" >> $GITHUB_STEP_SUMMARY`, tag))
 	}
 

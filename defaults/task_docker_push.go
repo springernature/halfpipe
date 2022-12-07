@@ -23,5 +23,9 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.ScanTimeout = 15
 	}
 
+	if len(original.Platforms) == 0 {
+		updated.Platforms = []string{"linux/amd64"}
+	}
+
 	return updated
 }
