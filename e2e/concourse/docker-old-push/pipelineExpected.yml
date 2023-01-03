@@ -10,6 +10,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -29,7 +30,8 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-old-push
       build_args:
@@ -56,6 +58,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -76,6 +79,7 @@ jobs:
     task: create-tag-list
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       additional_tags: tagList/tagList
       build: git/e2e/concourse/docker-old-push
@@ -89,7 +93,7 @@ jobs:
     timeout: 1h
   serial: true
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -98,14 +102,14 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly.thisismy-tag
   source:
     password: verysecret
     repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
     username: rob
   type: docker-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly.thisismy-tag2
   source:
     password: verysecret

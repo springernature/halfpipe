@@ -12,6 +12,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -64,7 +65,7 @@ jobs:
     timeout: 1h
   serial: true
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main

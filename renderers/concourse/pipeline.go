@@ -544,6 +544,7 @@ func saveArtifactOnFailurePlan() atc.Step {
 				"version_file": path.Join(gitDir, ".git", "ref"),
 				"postfix":      "failure",
 			},
+			NoGet: true,
 		},
 	}
 }

@@ -13,6 +13,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -81,6 +82,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -135,7 +137,7 @@ jobs:
     timeout: 1h
   serial: true
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main

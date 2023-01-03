@@ -15,6 +15,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -34,7 +35,8 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       build: git/e2e/concourse/timer-trigger
       build_args:
@@ -49,7 +51,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-cron-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -58,21 +60,21 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 10m
+- check_every: 10m0s
   name: cron
   source:
     expression: 1 * * * *
     fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly
   source:
     password: verysecret

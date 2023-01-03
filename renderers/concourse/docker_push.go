@@ -196,6 +196,7 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 			"image":           "image/image.tar",
 			"additional_tags": tagListFile,
 		},
+		NoGet: true,
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
 	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
@@ -212,6 +213,7 @@ func buildAndPushOld(task manifest.DockerPush, resourceName string, fullBasePath
 			"additional_tags": tagListFile,
 			"build_args":      convertVars(task.Vars),
 		},
+		NoGet: true,
 	}
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(step, task.GetAttempts(), task.GetTimeout()))
 }

@@ -31,6 +31,7 @@ func slackPlan(channel string, status string, message string) atc.Step {
 				"icon_url": icon,
 				"text":     text,
 			},
+			NoGet: true,
 		},
 	}
 }

@@ -20,6 +20,7 @@ func statusesPlan(status string) atc.Step {
 			Params: atc.Params{
 				"state": status,
 			},
+			NoGet: true,
 		},
 	}
 }

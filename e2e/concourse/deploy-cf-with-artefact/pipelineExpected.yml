@@ -13,6 +13,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -82,6 +83,7 @@ jobs:
     task: make-binary
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -101,6 +103,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -125,6 +128,7 @@ jobs:
     task: get-artifact
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       appPath: artifacts/e2e/concourse/deploy-cf-with-artefact/build/linux/binary
       cliVersion: cf6
@@ -138,7 +142,7 @@ jobs:
     timeout: 5m
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -146,7 +150,7 @@ resource_types:
     tag: stable
     username: _json_key
   type: registry-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -154,7 +158,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -163,14 +167,14 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: halfpipe-team/halfpipe-e2e-deploy-cf
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-dev-api-halfpipe-team-dev
   source:
     api: dev-api

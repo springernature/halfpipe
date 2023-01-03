@@ -9,6 +9,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
@@ -32,6 +33,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf6
@@ -49,6 +51,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -104,6 +107,7 @@ jobs:
     task: pre-promote-step
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
@@ -116,6 +120,7 @@ jobs:
     resource: rolling-cf-dev-api-halfpipe-team-dev
     timeout: 5m
   - attempts: 2
+    no_get: true
     params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
@@ -124,7 +129,7 @@ jobs:
     timeout: 5m
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -132,7 +137,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -141,7 +146,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: rolling-cf-dev-api-halfpipe-team-dev
   source:
     api: dev-api

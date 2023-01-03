@@ -11,6 +11,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -37,6 +38,7 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       bump: minor
     put: version
@@ -60,6 +62,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -80,7 +83,8 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       build: git/e2e/concourse/deploy-katee
       build_args:
@@ -97,6 +101,7 @@ jobs:
   name: deploy to katee
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -122,6 +127,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -200,6 +206,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -265,7 +272,7 @@ jobs:
     timeout: ""
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-slack-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -274,7 +281,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -283,12 +290,12 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: slack
   source:
     token: ((halfpipe-slack.token))
   type: halfpipe-slack-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: version
   source:
     bucket: ((halfpipe-semver.bucket))
@@ -296,7 +303,7 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-pipeline-name
   type: semver
-- check_every: 24h
+- check_every: 24h0m0s
   name: someimage
   source:
     password: ((halfpipe-gcr.private_key))

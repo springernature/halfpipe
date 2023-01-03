@@ -10,6 +10,7 @@ jobs:
     trigger: true
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -31,6 +32,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -62,6 +64,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -80,7 +83,8 @@ jobs:
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       image: image/image.tar
     put: halfpipe-fly.thisismy-tag
@@ -99,6 +103,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -121,6 +126,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -151,6 +157,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -170,6 +177,7 @@ jobs:
     task: trivy
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       additional_tags: tagList/tagList
       image: image/image.tar
@@ -177,7 +185,7 @@ jobs:
     timeout: 1h
   serial: true
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -186,14 +194,14 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly.thisismy-tag
   source:
     password: verysecret
     repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
     username: rob
   type: registry-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly.thisismy-tag2
   source:
     password: verysecret

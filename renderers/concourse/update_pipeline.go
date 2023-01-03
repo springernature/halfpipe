@@ -45,6 +45,7 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 	bumpVersion := &atc.PutStep{
 		Name:   versionName,
 		Params: atc.Params{"bump": "minor"},
+		NoGet:  true,
 	}
 
 	steps := []atc.Step{
@@ -62,6 +63,7 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 				"tag":        "version/version",
 				"tag_prefix": pipelineName + "/v",
 			},
+			NoGet: true,
 		}
 		steps = append(steps, stepWithAttemptsAndTimeout(tagRepo, updateTaskAttempts, updateTaskTimeout))
 	}
