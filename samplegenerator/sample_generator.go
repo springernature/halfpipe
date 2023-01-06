@@ -34,12 +34,11 @@ func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, current
 func (s sampleGenerator) Generate() (err error) {
 	exists, err := s.fs.Exists(".halfpipe.io")
 	if err != nil {
-		return
+		return err
 	}
 
 	if exists {
-		err = ErrHalfpipeAlreadyExists
-		return
+		return ErrHalfpipeAlreadyExists
 	}
 
 	man := manifest.Manifest{
@@ -76,7 +75,7 @@ func (s sampleGenerator) Generate() (err error) {
 		return err
 	}
 
-	return s.fs.WriteFile(".halfpipe.io", out, 0777)
+	return s.fs.WriteFile(".halfpipe.io", out, 0644)
 }
 
 func createPipelineName(project project.Data) string {
