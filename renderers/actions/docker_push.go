@@ -20,7 +20,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	}
 
 	steps = append(steps, buildImage(a, task, buildArgs))
-	steps = append(steps, scanImage(task))
+	steps = append(steps, scanImage(a, task))
 	steps = append(steps, pushImage(task))
 	steps = append(steps, repositoryDispatch(task.Image))
 	steps = append(steps, jobSummary(task.Image, tags(task)))
@@ -72,19 +72,22 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 	return step
 }
 
-func scanImage(task manifest.DockerPush) Step {
+func scanImage(a *Actions, task manifest.DockerPush) Step {
 	exitCode := 1
 	if task.IgnoreVulnerabilities {
 		exitCode = 0
 	}
+	prefix := ""
+	if a.workingDir != "" {
+		prefix = fmt.Sprintf("cd %s; ", a.workingDir)
+	}
+
 	step := Step{
 		Name: "Run Trivy vulnerability scanner",
-		Uses: "aquasecurity/trivy-action@0.8.0",
+		Uses: "docker://aquasec/trivy",
 		With: With{
-			{"image-ref", tagWithCachePath(task)},
-			{"exit-code", exitCode},
-			{"ignore-unfixed", true},
-			{"severity", "CRITICAL"},
+			{"entrypoint", "/bin/sh"},
+			{"args", fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task))},
 		},
 	}
 	return step

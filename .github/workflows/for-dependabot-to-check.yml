@@ -163,12 +163,10 @@ jobs:
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
         platforms: linux/amd64
     - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@0.8.0
+      uses: docker://aquasec/trivy
       with:
-        image-ref: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
-        exit-code: 1
-        ignore-unfixed: true
-        severity: CRITICAL
+        entrypoint: /bin/sh
+        args: -c "cd .;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code 1 eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}"
     - name: Push Image
       run: |-
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:latest
