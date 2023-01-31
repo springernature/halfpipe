@@ -146,7 +146,7 @@ jobs:
         submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
     - name: Build Image
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       with:
         context: .
         file: e2e/actions/docker-push/Dockerfile
