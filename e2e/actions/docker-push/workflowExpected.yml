@@ -126,6 +126,7 @@ jobs:
         exportEnv: false
         secrets: |
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
+          /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -156,6 +157,7 @@ jobs:
           ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
           ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
           BAR=bar
+          BLAH=${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
           BUILD_VERSION=2.${{ github.run_number }}.0
           FOO=foo
           GIT_REVISION=${{ github.sha }}

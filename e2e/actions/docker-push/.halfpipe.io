@@ -33,6 +33,7 @@ tasks:
   vars:
     FOO: foo
     BAR: bar
+    BLAH: ((very.secret))
 
 - type: docker-push
   name: Push multiple platforms

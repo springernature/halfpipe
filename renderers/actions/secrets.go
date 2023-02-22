@@ -136,9 +136,14 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	for _, step := range steps {
 		newWith := With{}
 		for _, item := range step.With {
+			split := strings.Split(fmt.Sprintf("%s", item.Value), "\n")
 			if s := toSecret(fmt.Sprintf("%s", item.Value), team); s != nil {
 				secrets = append(secrets, s)
 				item.Value = s.actionsVar()
+			} else if len(split) > 1 {
+				sec, newBuildArgs := stringListToSecret(split, team)
+				secrets = append(secrets, sec...)
+				item.Value = newBuildArgs
 			}
 			newWith = append(newWith, item)
 		}
@@ -156,4 +161,22 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 		newSteps = append(Steps{fetchSecrets(secrets, team)}, newSteps...)
 	}
 	return newSteps
+}
+
+func stringListToSecret(split []string, team string) (sec []*Secret, newBuildArgs string) {
+	var newBuildArgsArray []string
+	for _, s := range split {
+		strArray := strings.Split(s, "=")
+		if len(strArray) > 1 {
+			if a := toSecret(strArray[1], team); a != nil {
+				sec = append(sec, a)
+				newBuildArgsArray = append(newBuildArgsArray, fmt.Sprintf("%s=%s", strArray[0], a.actionsVar()))
+			} else {
+				newBuildArgsArray = append(newBuildArgsArray, strings.Join(strArray, "="))
+			}
+		} else {
+			newBuildArgsArray = append(newBuildArgsArray, strArray[0])
+		}
+	}
+	return sec, strings.Join(newBuildArgsArray, "\n")
 }
