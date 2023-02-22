@@ -50,8 +50,8 @@ func repositoryDispatch(eventName string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v2",
 		With: With{
-			{"token", githubSecrets.RepositoryDispatchToken},
-			{"event-type", "docker-push:" + eventName},
+			"token":      githubSecrets.RepositoryDispatchToken,
+			"event-type": "docker-push:" + eventName,
 		},
 	}
 }
@@ -61,12 +61,12 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 		Name: "Build Image",
 		Uses: "docker/build-push-action@v3",
 		With: With{
-			{"context", path.Join(a.workingDir, task.BuildPath)},
-			{"file", path.Join(a.workingDir, task.DockerfilePath)},
-			{"push", true},
-			{"tags", tagWithCachePath(task)},
-			{"build-args", buildArgs.ToString()},
-			{"platforms", strings.Join(task.Platforms, ",")},
+			"context":    path.Join(a.workingDir, task.BuildPath),
+			"file":       path.Join(a.workingDir, task.DockerfilePath),
+			"push":       true,
+			"tags":       tagWithCachePath(task),
+			"build-args": buildArgs.ToString(),
+			"platforms":  strings.Join(task.Platforms, ","),
 		},
 	}
 	return step
@@ -86,15 +86,15 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 		Name: "Run Trivy vulnerability scanner",
 		Uses: "docker://aquasec/trivy",
 		With: With{
-			{"entrypoint", "/bin/sh"},
-			{"args", fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task))},
+			"entrypoint": "/bin/sh",
+			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
 		},
 	}
 	return step
 }
 
 func pushImage(task manifest.DockerPush) Step {
-	sRun := []string{}
+	var sRun []string
 	for _, tag := range tags(task) {
 		sRun = append(sRun, fmt.Sprintf("docker buildx imagetools create %s --tag %s", tagWithCachePath(task), tag))
 	}
@@ -108,7 +108,7 @@ func pushImage(task manifest.DockerPush) Step {
 }
 
 func jobSummary(img string, tags []string) Step {
-	sRun := []string{}
+	var sRun []string
 	sRun = append(sRun, `echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY`)
 	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)
 

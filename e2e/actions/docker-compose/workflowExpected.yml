@@ -28,8 +28,8 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: test
       run: |-
         docker-compose -f docker-compose.yml pull
@@ -82,19 +82,19 @@ jobs:
       id: secrets
       uses: hashicorp/vault-action@v2.4.3
       with:
-        url: https://vault.halfpipe.io
+        exportEnv: false
         method: approle
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
-        exportEnv: false
         secrets: |
           /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
+        url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:

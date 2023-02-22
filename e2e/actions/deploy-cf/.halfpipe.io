@@ -82,3 +82,11 @@ tasks:
     deploy_artifact: foo.html
     sso_route: my-route.public.springernature.app
     rolling: true
+
+  - type: deploy-cf
+    name: deploy without artifact
+    api: ((cloudfoundry.api-snpaas))
+    org: ((cloudfoundry.org-snpaas))
+    space: dev
+    sso_route: my-route.public.springernature.app
+    rolling: true

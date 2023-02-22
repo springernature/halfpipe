@@ -84,7 +84,7 @@ type Step struct {
 
 type Steps []Step
 
-type With yaml.MapSlice
+type With map[string]any
 
 type Env map[string]string
 

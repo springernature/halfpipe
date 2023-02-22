@@ -28,13 +28,13 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: create zip for ml task
       uses: docker://alpine
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-ml; \package.sh"
+        entrypoint: /bin/sh
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/target/xquery.zip
       working-directory: ${{ github.workspace }}
@@ -54,8 +54,8 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
@@ -66,8 +66,8 @@ jobs:
     - name: deploy-ml-zip
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-ml; /ml-deploy/deploy-local-zip"
+        entrypoint: /bin/sh
       env:
         APP_NAME: pipeline-name
         DEPLOY_ZIP: ../../target/xquery.zip
@@ -86,25 +86,25 @@ jobs:
       id: secrets
       uses: hashicorp/vault-action@v2.4.3
       with:
-        url: https://vault.halfpipe.io
+        exportEnv: false
         method: approle
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
-        exportEnv: false
         secrets: |
           /springernature/data/shared/artifactory password | springernature_data_shared_artifactory_password ;
           /springernature/data/shared/artifactory username | springernature_data_shared_artifactory_username ;
+        url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: Deploy ml-modules artifact
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/deploy-ml; /ml-deploy/deploy-ml-modules"
+        entrypoint: /bin/sh
       env:
         APP_NAME: my-app
         APP_VERSION: v1

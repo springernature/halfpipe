@@ -28,27 +28,27 @@ jobs:
       id: secrets
       uses: hashicorp/vault-action@v2.4.3
       with:
-        url: https://vault.halfpipe.io
+        exportEnv: false
         method: approle
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
-        exportEnv: false
         secrets: |
           /springernature/data/halfpipe-team/something cool | springernature_data_halfpipe-team_something_cool ;
           /springernature/data/halfpipe-team/something cooler | springernature_data_halfpipe-team_something_cooler ;
           /springernature/data/random/secret key | springernature_data_random_secret_key ;
           /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
+        url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: my run task
       uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/run; \foo"
+        entrypoint: /bin/sh
       env:
         BAR: bar
         CUSTOM_PATH: ${{ steps.secrets.outputs.springernature_data_random_secret_key }}
@@ -67,16 +67,16 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: Login to Docker Registry
       uses: docker/login-action@v1
       with:
-        username: docker-user
         password: docker-password
         registry: my.private.registry
+        username: docker-user
     - name: run \bash -c "echo hello"
       uses: docker://my.private.registry/repo/golang:1.15
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/run; \bash -c \"echo hello\""
+        entrypoint: /bin/sh
