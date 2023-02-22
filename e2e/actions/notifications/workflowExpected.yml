@@ -28,32 +28,32 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: my run task
       uses: docker://foo
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/notifications; \foo"
+        entrypoint: /bin/sh
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4
       with:
-        status: ${{ job.status }}
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#failure1'
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        status: ${{ job.status }}
         text: failure msg
     - name: 'Notify slack #success1 (success)'
       uses: yukin01/slack-bot-action@v0.0.4
       with:
-        status: ${{ job.status }}
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success1'
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        status: ${{ job.status }}
         text: success message
     - name: 'Notify slack #success2 (success)'
       uses: yukin01/slack-bot-action@v0.0.4
       with:
-        status: ${{ job.status }}
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
         channel: '#success2'
+        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
+        status: ${{ job.status }}
         text: success message

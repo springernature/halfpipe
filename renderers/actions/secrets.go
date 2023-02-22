@@ -120,12 +120,12 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 		ID:   "secrets",
 		Uses: "hashicorp/vault-action@v2.4.3",
 		With: With{
-			{"url", "https://vault.halfpipe.io"},
-			{"method", "approle"},
-			{"roleId", "${{ env.VAULT_ROLE_ID }}"},
-			{"secretId", "${{ env.VAULT_SECRET_ID }}"},
-			{"exportEnv", false},
-			{"secrets", secretsToActionsSecret(secrets)},
+			"url":       "https://vault.halfpipe.io",
+			"method":    "approle",
+			"roleId":    "${{ env.VAULT_ROLE_ID }}",
+			"secretId":  "${{ env.VAULT_SECRET_ID }}",
+			"exportEnv": false,
+			"secrets":   secretsToActionsSecret(secrets),
 		},
 	}
 }
@@ -135,17 +135,17 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 
 	for _, step := range steps {
 		newWith := With{}
-		for _, item := range step.With {
-			multiLineStringArray := strings.Split(fmt.Sprintf("%s", item.Value), "\n")
-			if s := toSecret(fmt.Sprintf("%s", item.Value), team); s != nil {
+		for key, value := range step.With {
+			multiLineStringArray := strings.Split(fmt.Sprintf("%s", value), "\n")
+			if s := toSecret(fmt.Sprintf("%s", value), team); s != nil {
 				secrets = append(secrets, s)
-				item.Value = s.actionsVar()
+				value = s.actionsVar()
 			} else if len(multiLineStringArray) > 1 {
 				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(multiLineStringArray, team)
 				secrets = append(secrets, secretList...)
-				item.Value = multiLineStringWithActionSecret
+				value = multiLineStringWithActionSecret
 			}
-			newWith = append(newWith, item)
+			newWith[key] = value
 		}
 		step.With = newWith
 		for k, v := range step.Env {

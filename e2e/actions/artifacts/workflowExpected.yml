@@ -28,13 +28,13 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: build
       uses: docker://debian:buster-slim
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/artifacts; \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
+        entrypoint: /bin/sh
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
       working-directory: ${{ github.workspace }}
@@ -64,8 +64,8 @@ jobs:
       uses: actions/checkout@v3
       with:
         lfs: true
-        submodules: recursive
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
     - name: Download artifacts
       uses: actions/download-artifact@v3
       with:
@@ -76,5 +76,5 @@ jobs:
     - name: test
       uses: docker://debian:buster-slim
       with:
-        entrypoint: /bin/sh
         args: -c "cd e2e/actions/artifacts; \ls -l ..; cat foo.txt target/bar.txt ../test.sh"
+        entrypoint: /bin/sh
