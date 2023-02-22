@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-go version | grep -q 'go1.19' || (
+go version | grep -q 'go1.20' || (
     go version
-    echo error: go1.19 required
+    echo error: go1.20 required
     exit 1
 )
 
@@ -35,7 +35,7 @@ echo [4/6] e2e test
 (cd e2e; ./test.sh)
 
 echo [5/6] staticcheck
-staticcheck -version 2> /dev/null | grep -Fq '2022.1.3' || go install honnef.co/go/tools/cmd/staticcheck@2022.1.3
+staticcheck -version 2> /dev/null | grep -Fq '2023.1.2' || go install honnef.co/go/tools/cmd/staticcheck@2023.1.2
 staticcheck ./...
 
 echo [6/6] update dependabot workflow
