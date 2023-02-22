@@ -20,3 +20,4 @@ tasks:
   vars:
     F: foo
     B: bar
+    S: ((very.secret))

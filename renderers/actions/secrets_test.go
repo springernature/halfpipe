@@ -26,7 +26,7 @@ SECRET=${{ steps.secrets.outputs.springernature_data_blah_a_b }}
 VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
 VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}`
 
-	got, args := stringListToSecret(strings.Split(buildArgs, "\n"), "blah")
+	got, args := multiLineStringToSecret(strings.Split(buildArgs, "\n"), "blah")
 
 	if len(got) == 0 {
 		t.Errorf("Expected a secret but got none")

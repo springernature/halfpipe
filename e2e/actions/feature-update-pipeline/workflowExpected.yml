@@ -60,6 +60,17 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.4.3
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          /springernature/data/team/very secret | springernature_data_team_very_secret ;
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -81,11 +92,14 @@ jobs:
           -e DOCKER_TLS_VERIFY \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
+          -e S \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
           -v /certs:/certs \
           -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           app
+      env:
+        S: ${{ steps.secrets.outputs.springernature_data_team_very_secret }}
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down
@@ -96,6 +110,17 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.4.3
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          /springernature/data/team/very secret1 | springernature_data_team_very_secret1 ;
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -117,11 +142,14 @@ jobs:
           -e DOCKER_TLS_VERIFY \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
+          -e S1 \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
           -v /certs:/certs \
           -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           app
+      env:
+        S1: ${{ steps.secrets.outputs.springernature_data_team_very_secret1 }}
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down

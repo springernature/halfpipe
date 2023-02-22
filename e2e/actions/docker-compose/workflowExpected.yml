@@ -78,6 +78,17 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.4.3
+      with:
+        url: https://vault.halfpipe.io
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        exportEnv: false
+        secrets: |
+          /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
     - name: Checkout code
       uses: actions/checkout@v3
       with:
@@ -108,6 +119,7 @@ jobs:
           -e F \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
+          -e S \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
           -v /certs:/certs \
@@ -117,6 +129,7 @@ jobs:
       env:
         B: bar
         F: foo
+        S: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
     - name: Docker cleanup
       if: always()
       run: docker-compose -f custom-docker-compose.yml down

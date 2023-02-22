@@ -136,14 +136,14 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	for _, step := range steps {
 		newWith := With{}
 		for _, item := range step.With {
-			split := strings.Split(fmt.Sprintf("%s", item.Value), "\n")
+			multiLineStringArray := strings.Split(fmt.Sprintf("%s", item.Value), "\n")
 			if s := toSecret(fmt.Sprintf("%s", item.Value), team); s != nil {
 				secrets = append(secrets, s)
 				item.Value = s.actionsVar()
-			} else if len(split) > 1 {
-				sec, newBuildArgs := stringListToSecret(split, team)
-				secrets = append(secrets, sec...)
-				item.Value = newBuildArgs
+			} else if len(multiLineStringArray) > 1 {
+				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(multiLineStringArray, team)
+				secrets = append(secrets, secretList...)
+				item.Value = multiLineStringWithActionSecret
 			}
 			newWith = append(newWith, item)
 		}
@@ -163,19 +163,19 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	return newSteps
 }
 
-func stringListToSecret(split []string, team string) (sec []*Secret, newBuildArgs string) {
+func multiLineStringToSecret(multiLineStringArray []string, team string) (sec []*Secret, newBuildArgs string) {
 	var newBuildArgsArray []string
-	for _, s := range split {
-		strArray := strings.Split(s, "=")
-		if len(strArray) > 1 {
-			if a := toSecret(strArray[1], team); a != nil {
+	for _, line := range multiLineStringArray {
+		keyValueArray := strings.Split(line, "=")
+		if len(keyValueArray) > 1 {
+			if a := toSecret(keyValueArray[1], team); a != nil {
 				sec = append(sec, a)
-				newBuildArgsArray = append(newBuildArgsArray, fmt.Sprintf("%s=%s", strArray[0], a.actionsVar()))
+				newBuildArgsArray = append(newBuildArgsArray, fmt.Sprintf("%s=%s", keyValueArray[0], a.actionsVar()))
 			} else {
-				newBuildArgsArray = append(newBuildArgsArray, strings.Join(strArray, "="))
+				newBuildArgsArray = append(newBuildArgsArray, strings.Join(keyValueArray, "="))
 			}
 		} else {
-			newBuildArgsArray = append(newBuildArgsArray, strArray[0])
+			newBuildArgsArray = append(newBuildArgsArray, keyValueArray[0])
 		}
 	}
 	return sec, strings.Join(newBuildArgsArray, "\n")

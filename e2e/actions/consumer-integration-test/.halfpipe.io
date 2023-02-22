@@ -15,6 +15,7 @@ tasks:
   vars:
     K: value
     K1: value1
+    S1: ((very.secret))
 
 - type: consumer-integration-test
   name: c-name-covenant
@@ -29,3 +30,4 @@ tasks:
   vars:
     K: value
     K1: value1
+    S1: ((very.secret))

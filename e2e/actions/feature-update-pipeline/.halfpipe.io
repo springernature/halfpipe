@@ -12,5 +12,9 @@ tasks:
   tasks:
   - type: docker-compose
     name: B
+    vars:
+      S: ((very.secret))
   - type: docker-compose
     name: C
+    vars:
+      S1: ((very.secret1))
