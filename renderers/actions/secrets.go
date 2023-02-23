@@ -43,19 +43,31 @@ func (s *Secret) outputVar() string {
 	return ov
 }
 
+// check if a secret matches one of the shared secrets
+// vault kv list /springernature/shared
 func isShared(s string) bool {
 	return map[string]bool{
-		"PPG-coco-gateway":   true,
-		"artifactory":        true,
-		"artifactory_test":   true,
-		"contrastsecurity":   true,
-		"grafana":            true,
-		"halfpipe-artifacts": true,
-		"halfpipe-gcr":       true,
-		"halfpipe-github":    true,
-		"halfpipe-ml-deploy": true,
-		"halfpipe-semver":    true,
-		"halfpipe-slack":     true,
+		"PPG-gradle-version-reporter":   true,
+		"PPG-owasp-dependency-reporter": true,
+		"artifactory":                   true,
+		"artifactory-support":           true,
+		"artifactory_test":              true,
+		"bla":                           true,
+		"burpsuiteenterprise":           true,
+		"contrastsecurity":              true,
+		"ee-sso-route-service":          true,
+		"fastly":                        true,
+		"grafana":                       true,
+		"halfpipe-artifacts":            true,
+		"halfpipe-docker-config":        true,
+		"halfpipe-gcr":                  true,
+		"halfpipe-github":               true,
+		"halfpipe-ml-deploy":            true,
+		"halfpipe-semver":               true,
+		"halfpipe-slack":                true,
+		"katee-tls-dev":                 true,
+		"katee-tls-prod":                true,
+		"sentry-release-integration":    true,
 	}[s]
 }
 
