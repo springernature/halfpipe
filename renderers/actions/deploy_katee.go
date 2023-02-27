@@ -16,8 +16,8 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 		Name: "Deploy to Katee",
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 		With: With{
-			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)},
+			"entrypoint": WithOneLine{"/bin/sh"},
+			"args":       WithOneLine{fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)}},
 		Env: Env{
 			"KATEE_TEAM":             man.Team,
 			"KATEE_APPFILE":          task.VelaManifest,
@@ -48,8 +48,8 @@ func (a Actions) createDeploymentStatus(task manifest.DeployKatee, man manifest.
 		Name: "Check Deployment Status",
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 		With: With{
-			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, man.Team, task.ApplicationName)},
+			"entrypoint": WithOneLine{"/bin/sh"},
+			"args":       WithOneLine{fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, man.Team, task.ApplicationName)}},
 		Env: Env{
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((katee-%s-service-account-prod.key))", man.Team),
 			"KATEE_TEAM":            man.Team,

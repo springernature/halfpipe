@@ -84,7 +84,35 @@ type Step struct {
 
 type Steps []Step
 
-type With map[string]any
+type WithValue interface {
+	MarshalYAML() (interface{}, error)
+}
+
+type WithOneLine struct {
+	withValue any
+}
+
+func (withOneLine WithOneLine) MarshalYAML() (interface{}, error) {
+	return withOneLine.withValue, nil
+}
+
+type BuildArgs struct {
+	buildArgs map[string]string
+}
+
+func (m BuildArgs) MarshalYAML() (interface{}, error) {
+	var out []string
+	for k, v := range m.buildArgs {
+		out = append(out, fmt.Sprintf("%s=%s\n", k, v))
+	}
+	sort.Strings(out)
+
+	return strings.Join(out, ""), nil
+}
+
+type With WithMap
+
+type WithMap map[string]WithValue
 
 type Env map[string]string
 

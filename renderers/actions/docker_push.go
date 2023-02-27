@@ -11,7 +11,7 @@ import (
 
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = dockerLogin(task.Image, task.Username, task.Password)
-	buildArgs := Env{}
+	buildArgs := map[string]string{}
 	for k, v := range globalEnv {
 		buildArgs[k] = v
 	}
@@ -50,23 +50,23 @@ func repositoryDispatch(eventName string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v2",
 		With: With{
-			"token":      githubSecrets.RepositoryDispatchToken,
-			"event-type": "docker-push:" + eventName,
+			"token":      WithOneLine{githubSecrets.RepositoryDispatchToken},
+			"event-type": WithOneLine{"docker-push:" + eventName},
 		},
 	}
 }
 
-func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
+func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]string) Step {
 	step := Step{
 		Name: "Build Image",
 		Uses: "docker/build-push-action@v4",
 		With: With{
-			"context":    path.Join(a.workingDir, task.BuildPath),
-			"file":       path.Join(a.workingDir, task.DockerfilePath),
-			"push":       true,
-			"tags":       tagWithCachePath(task),
-			"build-args": buildArgs.ToString(),
-			"platforms":  strings.Join(task.Platforms, ","),
+			"context":    WithOneLine{path.Join(a.workingDir, task.BuildPath)},
+			"file":       WithOneLine{path.Join(a.workingDir, task.DockerfilePath)},
+			"push":       WithOneLine{true},
+			"tags":       WithOneLine{tagWithCachePath(task)},
+			"build-args": BuildArgs{buildArgs},
+			"platforms":  WithOneLine{strings.Join(task.Platforms, ",")},
 		},
 	}
 	return step
@@ -86,8 +86,8 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 		Name: "Run Trivy vulnerability scanner",
 		Uses: "docker://aquasec/trivy",
 		With: With{
-			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
+			"entrypoint": WithOneLine{"/bin/sh"},
+			"args":       WithOneLine{fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task))},
 		},
 	}
 	return step

@@ -23,8 +23,8 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 		task.Script = strings.Replace(task.Script, `"`, `\"`, -1)
 		run.Uses = "docker://" + task.Docker.Image
 		run.With = With{
-			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "%s%s"`, prefix, task.Script),
+			"entrypoint": WithOneLine{"/bin/sh"},
+			"args":       WithOneLine{fmt.Sprintf(`-c "%s%s"`, prefix, task.Script)},
 		}
 	} else {
 		run.Run = task.Script

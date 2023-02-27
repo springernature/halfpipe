@@ -72,7 +72,6 @@ func isShared(s string) bool {
 }
 
 func toSecret(s string, team string) *Secret {
-
 	if !isSecret(s) {
 		return nil
 	}
@@ -132,12 +131,12 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 		ID:   "secrets",
 		Uses: "hashicorp/vault-action@v2.5.0",
 		With: With{
-			"url":       "https://vault.halfpipe.io",
-			"method":    "approle",
-			"roleId":    "${{ env.VAULT_ROLE_ID }}",
-			"secretId":  "${{ env.VAULT_SECRET_ID }}",
-			"exportEnv": false,
-			"secrets":   secretsToActionsSecret(secrets),
+			"url":       WithOneLine{"https://vault.halfpipe.io"},
+			"method":    WithOneLine{"approle"},
+			"roleId":    WithOneLine{"${{ env.VAULT_ROLE_ID }}"},
+			"secretId":  WithOneLine{"${{ env.VAULT_SECRET_ID }}"},
+			"exportEnv": WithOneLine{false},
+			"secrets":   WithOneLine{secretsToActionsSecret(secrets)},
 		},
 	}
 }
@@ -148,14 +147,16 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	for _, step := range steps {
 		newWith := With{}
 		for key, value := range step.With {
-			multiLineStringArray := strings.Split(fmt.Sprintf("%s", value), "\n")
-			if s := toSecret(fmt.Sprintf("%s", value), team); s != nil {
-				secrets = append(secrets, s)
-				value = s.actionsVar()
-			} else if len(multiLineStringArray) > 1 {
-				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(multiLineStringArray, team)
+			switch v := value.(type) {
+			case WithOneLine:
+				if s := toSecret(fmt.Sprintf("%s", v.withValue), team); s != nil {
+					secrets = append(secrets, s)
+					value = WithOneLine{withValue: s.actionsVar()}
+				}
+			case BuildArgs:
+				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(v.buildArgs, team)
 				secrets = append(secrets, secretList...)
-				value = multiLineStringWithActionSecret
+				value = BuildArgs{multiLineStringWithActionSecret}
 			}
 			newWith[key] = value
 		}
@@ -175,20 +176,16 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	return newSteps
 }
 
-func multiLineStringToSecret(multiLineStringArray []string, team string) (sec []*Secret, newBuildArgs string) {
-	var newBuildArgsArray []string
-	for _, line := range multiLineStringArray {
-		keyValueArray := strings.Split(line, "=")
-		if len(keyValueArray) > 1 {
-			if a := toSecret(keyValueArray[1], team); a != nil {
-				sec = append(sec, a)
-				newBuildArgsArray = append(newBuildArgsArray, fmt.Sprintf("%s=%s", keyValueArray[0], a.actionsVar()))
-			} else {
-				newBuildArgsArray = append(newBuildArgsArray, strings.Join(keyValueArray, "="))
-			}
+func multiLineStringToSecret(ml map[string]string, team string) ([]*Secret, map[string]string) {
+	m := make(map[string]string)
+	var sec []*Secret
+	for k, v := range ml {
+		if a := toSecret(v, team); a != nil {
+			sec = append(sec, a)
+			m[k] = a.actionsVar()
 		} else {
-			newBuildArgsArray = append(newBuildArgsArray, keyValueArray[0])
+			m[k] = v
 		}
 	}
-	return sec, strings.Join(newBuildArgsArray, "\n")
+	return sec, m
 }
