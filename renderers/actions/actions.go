@@ -128,10 +128,10 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
 		Uses: "actions/checkout@v3",
-		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey},
+		With: With{"lfs": WithOneLine{true}, "submodules": WithOneLine{"recursive"}, "ssh-key": WithOneLine{githubSecrets.GitHubPrivateKey}},
 	}
 	if !gitTrigger.Shallow {
-		checkout.With["fetch-depth"] = 0
+		checkout.With["fetch-depth"] = WithOneLine{0}
 	}
 	steps := Steps{checkout}
 	if gitTrigger.GitCryptKey != "" {
@@ -172,10 +172,11 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 			Name: "Notify slack " + channel,
 			Uses: "yukin01/slack-bot-action@v0.0.4",
 			With: With{
-				"status":      "${{ job.status }}",
-				"oauth_token": githubSecrets.SlackToken,
-				"channel":     channel,
-				"text":        text},
+				"status":      WithOneLine{"${{ job.status }}"},
+				"oauth_token": WithOneLine{githubSecrets.SlackToken},
+				"channel":     WithOneLine{channel},
+				"text":        WithOneLine{text},
+			},
 		}
 	}
 
@@ -205,8 +206,8 @@ func dockerLogin(image, username, password string) Steps {
 		Name: "Login to Docker Registry",
 		Uses: "docker/login-action@v1",
 		With: With{
-			"username": username,
-			"password": password,
+			"username": WithOneLine{username},
+			"password": WithOneLine{password},
 		},
 	}
 
@@ -215,7 +216,7 @@ func dockerLogin(image, username, password string) Steps {
 	// other registries:  another.registry/user/repository:tag
 	if strings.Count(image, "/") > 1 {
 		registry := strings.Split(image, "/")[0]
-		step.With["registry"] = registry
+		step.With["registry"] = WithOneLine{registry}
 	}
 	return Steps{step}
 }
