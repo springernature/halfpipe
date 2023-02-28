@@ -34,7 +34,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v3
+      uses: docker/build-push-action@v4
       with:
         build-args: |
           ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
@@ -84,7 +84,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.3
+      uses: hashicorp/vault-action@v2.5.0
       with:
         exportEnv: false
         method: approle
