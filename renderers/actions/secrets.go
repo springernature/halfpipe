@@ -131,12 +131,12 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 		ID:   "secrets",
 		Uses: "hashicorp/vault-action@v2.5.0",
 		With: With{
-			"url":       WithOneLine{"https://vault.halfpipe.io"},
-			"method":    WithOneLine{"approle"},
-			"roleId":    WithOneLine{"${{ env.VAULT_ROLE_ID }}"},
-			"secretId":  WithOneLine{"${{ env.VAULT_SECRET_ID }}"},
-			"exportEnv": WithOneLine{false},
-			"secrets":   WithOneLine{secretsToActionsSecret(secrets)},
+			"url":       "https://vault.halfpipe.io",
+			"method":    "approle",
+			"roleId":    "${{ env.VAULT_ROLE_ID }}",
+			"secretId":  "${{ env.VAULT_SECRET_ID }}",
+			"exportEnv": false,
+			"secrets":   secretsToActionsSecret(secrets),
 		},
 	}
 }
@@ -148,15 +148,15 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 		newWith := With{}
 		for key, value := range step.With {
 			switch v := value.(type) {
-			case WithOneLine:
-				if s := toSecret(fmt.Sprintf("%s", v.withValue), team); s != nil {
-					secrets = append(secrets, s)
-					value = WithOneLine{withValue: s.actionsVar()}
-				}
-			case BuildArgs:
-				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(v.buildArgs, team)
+			case MultiLine:
+				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(v.m, team)
 				secrets = append(secrets, secretList...)
-				value = BuildArgs{multiLineStringWithActionSecret}
+				value = MultiLine{multiLineStringWithActionSecret}
+			default:
+				if s := toSecret(fmt.Sprintf("%v", value), team); s != nil {
+					secrets = append(secrets, s)
+					value = s.actionsVar()
+				}
 			}
 			newWith[key] = value
 		}

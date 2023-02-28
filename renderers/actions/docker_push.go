@@ -50,8 +50,8 @@ func repositoryDispatch(eventName string) Step {
 		Name: "Repository dispatch",
 		Uses: "peter-evans/repository-dispatch@v2",
 		With: With{
-			"token":      WithOneLine{githubSecrets.RepositoryDispatchToken},
-			"event-type": WithOneLine{"docker-push:" + eventName},
+			"token":      githubSecrets.RepositoryDispatchToken,
+			"event-type": "docker-push:" + eventName,
 		},
 	}
 }
@@ -61,12 +61,12 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 		Name: "Build Image",
 		Uses: "docker/build-push-action@v4",
 		With: With{
-			"context":    WithOneLine{path.Join(a.workingDir, task.BuildPath)},
-			"file":       WithOneLine{path.Join(a.workingDir, task.DockerfilePath)},
-			"push":       WithOneLine{true},
-			"tags":       WithOneLine{tagWithCachePath(task)},
-			"build-args": BuildArgs{buildArgs},
-			"platforms":  WithOneLine{strings.Join(task.Platforms, ",")},
+			"context":    path.Join(a.workingDir, task.BuildPath),
+			"file":       path.Join(a.workingDir, task.DockerfilePath),
+			"push":       true,
+			"tags":       tagWithCachePath(task),
+			"build-args": MultiLine{buildArgs},
+			"platforms":  strings.Join(task.Platforms, ","),
 		},
 	}
 	return step
@@ -86,8 +86,8 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 		Name: "Run Trivy vulnerability scanner",
 		Uses: "docker://aquasec/trivy",
 		With: With{
-			"entrypoint": WithOneLine{"/bin/sh"},
-			"args":       WithOneLine{fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task))},
+			"entrypoint": "/bin/sh",
+			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
 		},
 	}
 	return step

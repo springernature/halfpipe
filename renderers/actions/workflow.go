@@ -84,25 +84,13 @@ type Step struct {
 
 type Steps []Step
 
-type WithValue interface {
-	MarshalYAML() (interface{}, error)
+type MultiLine struct {
+	m map[string]string
 }
 
-type WithOneLine struct {
-	withValue any
-}
-
-func (withOneLine WithOneLine) MarshalYAML() (interface{}, error) {
-	return withOneLine.withValue, nil
-}
-
-type BuildArgs struct {
-	buildArgs map[string]string
-}
-
-func (m BuildArgs) MarshalYAML() (interface{}, error) {
+func (ml MultiLine) MarshalYAML() (interface{}, error) {
 	var out []string
-	for k, v := range m.buildArgs {
+	for k, v := range ml.m {
 		out = append(out, fmt.Sprintf("%s=%s\n", k, v))
 	}
 	sort.Strings(out)
@@ -110,9 +98,7 @@ func (m BuildArgs) MarshalYAML() (interface{}, error) {
 	return strings.Join(out, ""), nil
 }
 
-type With WithMap
-
-type WithMap map[string]WithValue
+type With map[string]any
 
 type Env map[string]string
 
