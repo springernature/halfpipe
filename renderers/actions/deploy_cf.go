@@ -24,15 +24,15 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 
 	addCommonParams := func(params With) With {
 		commonMap := With{
-			"api":          WithOneLine{task.API},
-			"org":          WithOneLine{task.Org},
-			"space":        WithOneLine{task.Space},
-			"username":     WithOneLine{task.Username},
-			"password":     WithOneLine{task.Password},
-			"cli_version":  WithOneLine{task.CliVersion},
-			"manifestPath": WithOneLine{manifestPath},
-			"testDomain":   WithOneLine{task.TestDomain},
-			"appPath":      WithOneLine{appPath},
+			"api":          task.API,
+			"org":          task.Org,
+			"space":        task.Space,
+			"username":     task.Username,
+			"password":     task.Password,
+			"cli_version":  task.CliVersion,
+			"manifestPath": manifestPath,
+			"testDomain":   task.TestDomain,
+			"appPath":      appPath,
 		}
 
 		for k, v := range params {
@@ -60,18 +60,18 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		Name: "Push",
 		Uses: uses,
 		With: addCommonParams(With{
-			"command": WithOneLine{"halfpipe-push"},
+			"command": "halfpipe-push",
 		}),
 		Env: envVars,
 	}
 	if task.CfApplication.Docker != nil {
-		push.With["dockerUsername"] = WithOneLine{"_json_key"}
-		push.With["dockerPassword"] = WithOneLine{"((halfpipe-gcr.private_key_base64))"}
+		push.With["dockerUsername"] = "_json_key"
+		push.With["dockerPassword"] = "((halfpipe-gcr.private_key_base64))"
 	}
 	if task.DockerTag == "gitref" {
-		push.With["dockerTag"] = WithOneLine{"${{ env.GIT_REVISION }}"}
+		push.With["dockerTag"] = "${{ env.GIT_REVISION }}"
 	} else if task.DockerTag == "version" {
-		push.With["dockerTag"] = WithOneLine{"${{ env.BUILD_VERSION }}"}
+		push.With["dockerTag"] = "${{ env.BUILD_VERSION }}"
 	}
 	deploySteps = append(deploySteps, push)
 
@@ -79,7 +79,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		Name: "Check",
 		Uses: uses,
 		With: addCommonParams(With{
-			"command": WithOneLine{"halfpipe-check"},
+			"command": "halfpipe-check",
 		}),
 	})
 
@@ -114,7 +114,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		Name: "Promote",
 		Uses: uses,
 		With: addCommonParams(With{
-			"command": WithOneLine{"halfpipe-promote"},
+			"command": "halfpipe-promote",
 		}),
 	})
 
@@ -132,7 +132,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		If:   "always()",
 		Uses: uses,
 		With: addCommonParams(With{
-			"command": WithOneLine{"halfpipe-cleanup"},
+			"command": "halfpipe-cleanup",
 		}),
 	})
 
@@ -152,8 +152,8 @@ cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
 		Name: "Configure SSO",
 		Uses: uses,
 		With: With{
-			"entrypoint": WithOneLine{"/bin/bash"},
-			"args":       WithOneLine{args},
+			"entrypoint": "/bin/bash",
+			"args":       args,
 		},
 		Env: Env{
 			"CF_API":      task.API,
