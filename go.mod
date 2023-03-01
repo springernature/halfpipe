@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
-	github.com/cloudfoundry/bosh-utils v0.0.355 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.356 // indirect
 	github.com/concourse/concourse v1.6.1-0.20200827135536-5edc00f848aa
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/gookit/color v1.5.2
@@ -17,11 +17,11 @@ require (
 	github.com/mattn/go-runewidth v0.0.14 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/onsi/gomega v1.27.1
+	github.com/onsi/gomega v1.27.2
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.9.4
 	github.com/spf13/cobra v1.6.1
-	github.com/stretchr/testify v1.8.1
+	github.com/stretchr/testify v1.8.2
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
 	gopkg.in/yaml.v2 v2.4.0
