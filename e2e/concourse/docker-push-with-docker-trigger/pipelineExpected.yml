@@ -8,9 +8,11 @@ jobs:
     in_parallel:
       fail_fast: true
       steps:
-      - get: git
+      - get: alpine.tag
+        params:
+          skip_download: true
         trigger: true
-      - get: cron
+      - get: git
         trigger: true
     timeout: 15m
   - config:
@@ -50,9 +52,9 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/timer-trigger
+        CONTEXT: git/e2e/concourse/docker-push-with-docker-trigger
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/timer-trigger/Dockerfile
+        DOCKERFILE: git/e2e/concourse/docker-push-with-docker-trigger/Dockerfile
       platform: linux
       run:
         args:
@@ -81,7 +83,7 @@ jobs:
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
           trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
-        dir: git/e2e/concourse/timer-trigger
+        dir: git/e2e/concourse/docker-push-with-docker-trigger
         path: /bin/sh
     task: trivy
     timeout: 1h
@@ -91,30 +93,20 @@ jobs:
     put: halfpipe-fly
     timeout: 1h
   serial: true
-resource_types:
-- check_every: 24h
-  name: halfpipe-cron-resource
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
-    tag: stable
-    username: _json_key
-  type: registry-image
 resources:
+- name: alpine.tag
+  source:
+    repository: springernature/alpine:tag
+  type: docker-image
 - check_every: 10m
   name: git
   source:
     branch: main
+    paths:
+    - e2e/concourse/docker-push-with-docker-trigger
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 10m
-  name: cron
-  source:
-    expression: 1 * * * *
-    fire_immediately: true
-    location: UTC
-  type: halfpipe-cron-resource
 - check_every: 24h
   name: halfpipe-fly
   source:

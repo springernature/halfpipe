@@ -8,7 +8,6 @@ triggers:
 
 feature_toggles:
 - update-pipeline
-- docker-old-build
 
 tasks:
   - type: docker-push

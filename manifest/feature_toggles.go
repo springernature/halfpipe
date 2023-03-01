@@ -4,15 +4,11 @@ type FeatureToggles []string
 
 const FeatureUpdatePipeline = "update-pipeline"
 const FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
-
-const FeatureDockerOldBuild = "docker-old-build"
-
 const FeatureGithubStatuses = "github-statuses"
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureUpdatePipelineAndTag,
-	FeatureDockerOldBuild,
 	FeatureGithubStatuses,
 }
 
@@ -31,10 +27,6 @@ func (f FeatureToggles) UpdatePipeline() bool {
 
 func (f FeatureToggles) TagGitRepo() bool {
 	return f.contains(FeatureUpdatePipelineAndTag)
-}
-
-func (f FeatureToggles) DockerOldBuild() bool {
-	return f.contains(FeatureDockerOldBuild)
 }
 
 func (f FeatureToggles) GithubStatuses() bool {

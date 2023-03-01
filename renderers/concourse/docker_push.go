@@ -23,7 +23,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man 
 
 	steps = append(steps, restoreArtifacts(task)...)
 	steps = append(steps, createTagList(task, man.FeatureToggles.UpdatePipeline())...)
-	steps = append(steps, buildAndPush(task, resourceName, fullBasePath, man)...)
+	steps = append(steps, buildAndPush(task, resourceName, fullBasePath)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -146,7 +146,7 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 	return step
 }
 
-func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
+func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
 	var steps []atc.Step
 
 	params := atc.TaskEnv{
@@ -201,25 +201,4 @@ func buildAndPushOci(task manifest.DockerPush, resourceName string, fullBasePath
 	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
 	steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
 	return steps
-}
-
-func buildAndPushOld(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
-	step := &atc.PutStep{
-		Name: resourceName,
-		Params: atc.Params{
-			"build":           path.Join(fullBasePath, task.BuildPath),
-			"dockerfile":      path.Join(fullBasePath, task.DockerfilePath),
-			"additional_tags": tagListFile,
-			"build_args":      convertVars(task.Vars),
-		},
-	}
-	return append([]atc.Step{}, stepWithAttemptsAndTimeout(step, task.GetAttempts(), task.GetTimeout()))
-}
-
-func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string, man manifest.Manifest) []atc.Step {
-	if man.FeatureToggles.DockerOldBuild() {
-		return buildAndPushOld(task, resourceName, fullBasePath)
-	}
-
-	return buildAndPushOci(task, resourceName, fullBasePath)
 }

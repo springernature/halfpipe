@@ -225,15 +225,10 @@ func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName str
 	}
 }
 
-func (c Concourse) dockerPushResource(docker manifest.DockerPush, oldBuild bool) atc.ResourceConfig {
-	resourceImage := "registry-image"
-	if oldBuild {
-		resourceImage = "docker-image"
-	}
-
+func (c Concourse) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
 	return atc.ResourceConfig{
 		Name: manifest.DockerTrigger{Image: docker.Image}.GetTriggerName(),
-		Type: resourceImage,
+		Type: "registry-image",
 		Source: atc.Source{
 			"username":   docker.Username,
 			"password":   docker.Password,

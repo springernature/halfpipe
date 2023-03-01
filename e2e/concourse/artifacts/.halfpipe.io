@@ -6,9 +6,6 @@ triggers:
   watched_paths:
   - e2e/concourse/artifacts
 
-feature_toggles:
-- docker-old-build
-
 tasks:
 - type: run
   name: create-artifact

@@ -10,7 +10,7 @@ jobs:
       steps:
       - get: git
         trigger: true
-      - get: cron
+      - get: halfpipe-example-docker-push.docker-push
         trigger: true
     timeout: 15m
   - config:
@@ -50,9 +50,9 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/timer-trigger
+        CONTEXT: git/e2e/concourse/docker-push-with-pipeline-trigger
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/timer-trigger/Dockerfile
+        DOCKERFILE: git/e2e/concourse/docker-push-with-pipeline-trigger/Dockerfile
       platform: linux
       run:
         args:
@@ -81,7 +81,7 @@ jobs:
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
           trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
-        dir: git/e2e/concourse/timer-trigger
+        dir: git/e2e/concourse/docker-push-with-pipeline-trigger
         path: /bin/sh
     task: trivy
     timeout: 1h
@@ -93,11 +93,10 @@ jobs:
   serial: true
 resource_types:
 - check_every: 24h
-  name: halfpipe-cron-resource
+  name: halfpipe-pipeline-trigger
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
-    tag: stable
+    repository: eu.gcr.io/halfpipe-io/halfpipe-pipeline-trigger-resource
     username: _json_key
   type: registry-image
 resources:
@@ -105,16 +104,11 @@ resources:
   name: git
   source:
     branch: main
+    paths:
+    - e2e/concourse/docker-push-with-pipeline-trigger
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 10m
-  name: cron
-  source:
-    expression: 1 * * * *
-    fire_immediately: true
-    location: UTC
-  type: halfpipe-cron-resource
 - check_every: 24h
   name: halfpipe-fly
   source:
@@ -122,3 +116,13 @@ resources:
     repository: springerplatformengineering/halfpipe-fly
     username: rob
   type: registry-image
+- name: halfpipe-example-docker-push.docker-push
+  source:
+    concourse_url: ((concourse.url))
+    job: docker-push
+    password: ((concourse.password))
+    pipeline: halfpipe-example-docker-push
+    status: succeeded
+    team: halfpipe-team
+    username: ((concourse.username))
+  type: halfpipe-pipeline-trigger

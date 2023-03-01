@@ -418,17 +418,62 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      - name: docker_build
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_A: a
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_B: b
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: docker_build/e2e/concourse/artifacts
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        DOCKERFILE: docker_build/e2e/concourse/artifacts/Dockerfile
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      - name: docker_build
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
+        dir: docker_build/e2e/concourse/artifacts
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
   - params:
       additional_tags: tagList/tagList
-      build: docker_build/e2e/concourse/artifacts
-      build_args:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
-        RUNNING_IN_CI: "true"
-      dockerfile: docker_build/e2e/concourse/artifacts/Dockerfile
+      image: image/image.tar
     put: halfpipe-fly
     timeout: 1h
   serial: true
@@ -686,7 +731,7 @@ resources:
     password: verysecret
     repository: springerplatformengineering/halfpipe-fly
     username: rob
-  type: docker-image
+  type: registry-image
 - check_every: 24h
   name: cf-snpaas-pe-staging
   source:

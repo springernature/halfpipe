@@ -80,15 +80,58 @@ jobs:
         path: /bin/sh
     task: create-tag-list
     timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: concourse/oci-build-task
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: image
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        CONTEXT: git/e2e/concourse/deploy-katee
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        DOCKERFILE: git/e2e/concourse/deploy-katee/Dockerfile
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          mkdir ~/.docker
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          build
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      - name: image
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
+        dir: git/e2e/concourse/deploy-katee
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
   - params:
       additional_tags: tagList/tagList
-      build: git/e2e/concourse/deploy-katee
-      build_args:
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        RUNNING_IN_CI: "true"
-      dockerfile: git/e2e/concourse/deploy-katee/Dockerfile
+      image: image/image.tar
     put: someimage
     timeout: 1h
   serial: true
@@ -302,4 +345,4 @@ resources:
     password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     username: _json_key
-  type: docker-image
+  type: registry-image
