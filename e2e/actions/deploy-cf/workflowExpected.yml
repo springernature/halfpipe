@@ -641,7 +641,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.4.3
+      uses: hashicorp/vault-action@v2.5.0
       with:
         exportEnv: false
         method: approle
