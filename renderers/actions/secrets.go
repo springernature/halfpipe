@@ -72,7 +72,6 @@ func isShared(s string) bool {
 }
 
 func toSecret(s string, team string) *Secret {
-
 	if !isSecret(s) {
 		return nil
 	}
@@ -148,14 +147,16 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	for _, step := range steps {
 		newWith := With{}
 		for key, value := range step.With {
-			multiLineStringArray := strings.Split(fmt.Sprintf("%s", value), "\n")
-			if s := toSecret(fmt.Sprintf("%s", value), team); s != nil {
-				secrets = append(secrets, s)
-				value = s.actionsVar()
-			} else if len(multiLineStringArray) > 1 {
-				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(multiLineStringArray, team)
+			switch v := value.(type) {
+			case MultiLine:
+				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(v.m, team)
 				secrets = append(secrets, secretList...)
-				value = multiLineStringWithActionSecret
+				value = MultiLine{multiLineStringWithActionSecret}
+			default:
+				if s := toSecret(fmt.Sprintf("%v", value), team); s != nil {
+					secrets = append(secrets, s)
+					value = s.actionsVar()
+				}
 			}
 			newWith[key] = value
 		}
@@ -175,20 +176,16 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 	return newSteps
 }
 
-func multiLineStringToSecret(multiLineStringArray []string, team string) (sec []*Secret, newBuildArgs string) {
-	var newBuildArgsArray []string
-	for _, line := range multiLineStringArray {
-		keyValueArray := strings.Split(line, "=")
-		if len(keyValueArray) > 1 {
-			if a := toSecret(keyValueArray[1], team); a != nil {
-				sec = append(sec, a)
-				newBuildArgsArray = append(newBuildArgsArray, fmt.Sprintf("%s=%s", keyValueArray[0], a.actionsVar()))
-			} else {
-				newBuildArgsArray = append(newBuildArgsArray, strings.Join(keyValueArray, "="))
-			}
+func multiLineStringToSecret(ml map[string]string, team string) ([]*Secret, map[string]string) {
+	m := make(map[string]string)
+	var sec []*Secret
+	for k, v := range ml {
+		if a := toSecret(v, team); a != nil {
+			sec = append(sec, a)
+			m[k] = a.actionsVar()
 		} else {
-			newBuildArgsArray = append(newBuildArgsArray, keyValueArray[0])
+			m[k] = v
 		}
 	}
-	return sec, strings.Join(newBuildArgsArray, "\n")
+	return sec, m
 }

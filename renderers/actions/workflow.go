@@ -84,6 +84,20 @@ type Step struct {
 
 type Steps []Step
 
+type MultiLine struct {
+	m map[string]string
+}
+
+func (ml MultiLine) MarshalYAML() (interface{}, error) {
+	var out []string
+	for k, v := range ml.m {
+		out = append(out, fmt.Sprintf("%s=%s\n", k, v))
+	}
+	sort.Strings(out)
+
+	return strings.Join(out, ""), nil
+}
+
 type With map[string]any
 
 type Env map[string]string

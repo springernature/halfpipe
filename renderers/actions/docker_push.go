@@ -11,7 +11,7 @@ import (
 
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = dockerLogin(task.Image, task.Username, task.Password)
-	buildArgs := Env{}
+	buildArgs := map[string]string{}
 	for k, v := range globalEnv {
 		buildArgs[k] = v
 	}
@@ -56,7 +56,7 @@ func repositoryDispatch(eventName string) Step {
 	}
 }
 
-func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
+func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]string) Step {
 	step := Step{
 		Name: "Build Image",
 		Uses: "docker/build-push-action@v4",
@@ -65,7 +65,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs Env) Step {
 			"file":       path.Join(a.workingDir, task.DockerfilePath),
 			"push":       true,
 			"tags":       tagWithCachePath(task),
-			"build-args": buildArgs.ToString(),
+			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
 		},
 	}

@@ -175,7 +175,8 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 				"status":      "${{ job.status }}",
 				"oauth_token": githubSecrets.SlackToken,
 				"channel":     channel,
-				"text":        text},
+				"text":        text,
+			},
 		}
 	}
 
