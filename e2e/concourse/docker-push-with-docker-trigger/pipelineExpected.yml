@@ -17,6 +17,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -38,6 +39,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -69,6 +71,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -87,7 +90,8 @@ jobs:
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       image: image/image.tar
     put: halfpipe-fly
@@ -98,7 +102,7 @@ resources:
   source:
     repository: springernature/alpine:tag
   type: docker-image
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -107,7 +111,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-fly
   source:
     password: verysecret

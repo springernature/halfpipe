@@ -13,6 +13,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -39,6 +40,7 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       bump: minor
     put: version
@@ -67,6 +69,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -143,6 +146,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -219,6 +223,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -295,6 +300,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -375,6 +381,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -451,6 +458,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -527,6 +535,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -603,6 +612,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -683,6 +693,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -759,6 +770,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -835,6 +847,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -915,6 +928,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -996,6 +1010,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -1050,7 +1065,7 @@ jobs:
     timeout: 1h
   serial: true
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -1059,7 +1074,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: version
   source:
     bucket: ((halfpipe-semver.bucket))

@@ -5,12 +5,14 @@ jobs:
   name: test
   on_failure:
     attempts: 2
+    no_get: true
     params:
       state: failure
     put: github-statuses
     timeout: 15m
   on_success:
     attempts: 2
+    no_get: true
     params:
       state: success
     put: github-statuses
@@ -27,6 +29,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -83,12 +86,14 @@ jobs:
   name: test again
   on_failure:
     attempts: 2
+    no_get: true
     params:
       state: failure
     put: github-statuses
     timeout: 15m
   on_success:
     attempts: 2
+    no_get: true
     params:
       state: success
     put: github-statuses
@@ -107,6 +112,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -159,7 +165,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-github-statuses-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -167,7 +173,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -176,7 +182,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: github-statuses
   source:
     access_token: ((halfpipe-github.statuses-token))

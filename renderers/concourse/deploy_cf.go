@@ -78,6 +78,7 @@ func (d deployCF) cleanupOldApps() *atc.Step {
 			"manifestPath": d.manifestPath,
 			"cliVersion":   d.task.CliVersion,
 		},
+		NoGet: true,
 	}
 	if d.task.Timeout != "" {
 		cleanup.Params["timeout"] = d.task.Timeout
@@ -97,6 +98,7 @@ func (d deployCF) promoteCandidateAppToLive() atc.Step {
 			"manifestPath": d.manifestPath,
 			"cliVersion":   d.task.CliVersion,
 		},
+		NoGet: true,
 	}
 	if d.task.Timeout != "" {
 		promote.Params["timeout"] = d.task.Timeout
@@ -113,6 +115,7 @@ func (d deployCF) checkApp() atc.Step {
 			"manifestPath": d.manifestPath,
 			"cliVersion":   d.task.CliVersion,
 		},
+		NoGet: true,
 	}
 	if d.task.Timeout != "" {
 		check.Params["timeout"] = d.task.Timeout
@@ -131,6 +134,7 @@ func (d deployCF) pushCandidateApp() atc.Step {
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   d.task.CliVersion,
 		},
+		NoGet: true,
 	}
 
 	if d.task.IsDockerPush {
@@ -176,6 +180,7 @@ func (d deployCF) removeTestApp() atc.Step {
 			"command":      "halfpipe-delete-test",
 			"manifestPath": d.manifestPath,
 		},
+		NoGet: true,
 	}
 	return stepWithAttemptsAndTimeout(&remove, d.task.GetAttempts(), d.task.GetTimeout())
 }
@@ -197,6 +202,7 @@ func (d deployCF) pushApp() atc.Step {
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   cliVersion,
 		},
+		NoGet: true,
 	}
 
 	if d.task.IsDockerPush {

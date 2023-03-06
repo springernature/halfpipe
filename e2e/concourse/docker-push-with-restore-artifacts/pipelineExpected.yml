@@ -11,6 +11,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -37,6 +38,7 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       bump: minor
     put: version
@@ -63,6 +65,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -134,6 +137,7 @@ jobs:
     task: run-build.sh
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -159,6 +163,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -184,6 +189,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: registry-image
@@ -204,6 +210,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -226,6 +233,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -258,6 +266,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -277,7 +286,8 @@ jobs:
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       image: image/image.tar
     put: image1
@@ -302,6 +312,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -327,6 +338,7 @@ jobs:
     timeout: 15m
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: registry-image
@@ -347,6 +359,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: alpine
         type: docker-image
@@ -369,6 +382,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: concourse/oci-build-task
         type: registry-image
@@ -401,6 +415,7 @@ jobs:
     timeout: 1h
   - config:
       image_resource:
+        name: ""
         source:
           repository: aquasec/trivy
         type: docker-image
@@ -420,14 +435,15 @@ jobs:
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - params:
+  - no_get: true
+    params:
       additional_tags: tagList/tagList
       image: image/image.tar
     put: image2
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -436,7 +452,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -445,14 +461,14 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: halfpipe-team/docker-push-with-update-pipeline
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: version
   source:
     bucket: ((halfpipe-semver.bucket))
@@ -460,14 +476,14 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-docker-push-with-update-pipeline
   type: semver
-- check_every: 24h
+- check_every: 24h0m0s
   name: image1
   source:
     password: verysecret
     repository: springerplatformengineering/image1
     username: rob
   type: registry-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: image2
   source:
     password: verysecret

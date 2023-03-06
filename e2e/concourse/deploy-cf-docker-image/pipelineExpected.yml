@@ -11,6 +11,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -37,6 +38,7 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       bump: minor
     put: version
@@ -59,6 +61,7 @@ jobs:
         trigger: true
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -77,6 +80,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -100,6 +104,7 @@ jobs:
         trigger: true
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -115,6 +120,7 @@ jobs:
     resource: cf-snpaas-dev
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -128,6 +134,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -185,6 +192,7 @@ jobs:
     task: pre-promote-step
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -212,6 +220,7 @@ jobs:
         trigger: true
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -244,6 +253,7 @@ jobs:
         trigger: true
     timeout: 15m
   - attempts: 2
+    no_get: true
     params:
       buildVersionPath: version/version
       cliVersion: cf6
@@ -264,6 +274,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -321,6 +332,7 @@ jobs:
     task: pre-promote-step
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       buildVersionPath: version/version
       cliVersion: cf7
@@ -336,6 +348,7 @@ jobs:
     resource: rolling-cf-snpaas-dev
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       command: halfpipe-delete-test
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
@@ -344,7 +357,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -352,7 +365,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -361,7 +374,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: version
   source:
     bucket: ((halfpipe-semver.bucket))
@@ -369,7 +382,7 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-deploy-cf-docker-image
   type: semver
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-snpaas-dev
   source:
     api: ((cloudfoundry.api-snpaas))
@@ -378,7 +391,7 @@ resources:
     space: dev
     username: ((cloudfoundry.username-snpaas))
   type: cf-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: rolling-cf-snpaas-dev
   source:
     api: ((cloudfoundry.api-snpaas))

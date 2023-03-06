@@ -84,6 +84,7 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerComp
 				"folder":       artifactsOutDir,
 				"version_file": path.Join(gitDir, ".git", "ref"),
 			},
+			NoGet: true,
 		}
 
 		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithAttemptsAndTimeout(artifactPut, defaultStepAttempts, defaultStepTimeout))

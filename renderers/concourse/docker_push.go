@@ -196,6 +196,7 @@ func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath st
 			"image":           "image/image.tar",
 			"additional_tags": tagListFile,
 		},
+		NoGet: true,
 	}
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
 	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))

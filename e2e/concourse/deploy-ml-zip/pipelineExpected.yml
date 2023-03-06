@@ -13,6 +13,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -82,6 +83,7 @@ jobs:
     task: create-zip-for-ml-task
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       folder: artifacts-out
       version_file: git/.git/ref
@@ -101,6 +103,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/gcp-resource
@@ -129,6 +132,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -189,7 +193,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -198,7 +202,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -207,7 +211,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: artifacts
   source:
     bucket: ((halfpipe-artifacts.bucket))

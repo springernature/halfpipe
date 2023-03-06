@@ -5,6 +5,7 @@ jobs:
   name: task1
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -14,6 +15,7 @@ jobs:
     timeout: 15m
   on_success:
     attempts: 2
+    no_get: true
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
@@ -31,6 +33,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -90,13 +93,15 @@ jobs:
     in_parallel:
       fail_fast: true
       steps:
-      - params:
+      - no_get: true
+        params:
           channel: kehe
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
           username: Halfpipe
         put: slack
-      - params:
+      - no_get: true
+        params:
           channel: whoop
           icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Nooooes >:c
@@ -108,13 +113,15 @@ jobs:
     in_parallel:
       fail_fast: true
       steps:
-      - params:
+      - no_get: true
+        params:
           channel: asdf
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
-      - params:
+      - no_get: true
+        params:
           channel: prws
           icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Wiiiie! \o/
@@ -133,6 +140,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           registry_mirror:
             host: eu-mirror.gcr.io
@@ -188,6 +196,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -199,6 +208,7 @@ jobs:
   name: deploy to staging
   on_failure:
     attempts: 2
+    no_get: true
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
@@ -208,6 +218,7 @@ jobs:
     timeout: 15m
   on_success:
     attempts: 2
+    no_get: true
     params:
       channel: '#yo'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
@@ -223,6 +234,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/notifications
       cliVersion: cf6
@@ -238,6 +250,7 @@ jobs:
     resource: cf-snpaas-pe-staging
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -251,6 +264,7 @@ jobs:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           registry_mirror:
@@ -306,6 +320,7 @@ jobs:
     task: run-a
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -317,7 +332,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: halfpipe-slack-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -325,7 +340,7 @@ resource_types:
     tag: latest
     username: _json_key
   type: registry-image
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -333,7 +348,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -342,12 +357,12 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: slack
   source:
     token: ((halfpipe-slack.token))
   type: halfpipe-slack-resource
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-snpaas-pe-staging
   source:
     api: ((cloudfoundry.api-snpaas))

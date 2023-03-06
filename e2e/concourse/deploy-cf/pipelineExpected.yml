@@ -9,6 +9,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf7
@@ -32,6 +33,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf8
@@ -48,6 +50,7 @@ jobs:
     minimum_succeeded_builds: 1
   ensure:
     attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-cleanup
@@ -65,6 +68,7 @@ jobs:
     timeout: 15m
     trigger: true
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf6
@@ -78,6 +82,7 @@ jobs:
     resource: cf-dev-api-halfpipe-team-dev
     timeout: 5m
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-check
@@ -94,6 +99,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -153,6 +159,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -211,6 +218,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -269,6 +277,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -327,6 +336,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -385,6 +395,7 @@ jobs:
           - path: ../../../var/halfpipe/cache
           - path: ../../../halfpipe-cache
           image_resource:
+            name: ""
             source:
               password: ((halfpipe-gcr.private_key))
               registry_mirror:
@@ -439,6 +450,7 @@ jobs:
         task: run-smoke-test.sh-4
         timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       cliVersion: cf6
       command: halfpipe-promote
@@ -462,6 +474,7 @@ jobs:
   - attempts: 2
     config:
       image_resource:
+        name: ""
         source:
           password: ((halfpipe-gcr.private_key))
           repository: eu.gcr.io/halfpipe-io/cf-resource-v2
@@ -488,6 +501,7 @@ jobs:
     task: configure-sso
     timeout: 1h
   - attempts: 2
+    no_get: true
     params:
       appPath: git/e2e/concourse/deploy-cf
       cliVersion: cf6
@@ -501,7 +515,7 @@ jobs:
     timeout: 1h
   serial: true
 resource_types:
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -509,7 +523,7 @@ resource_types:
     username: _json_key
   type: registry-image
 resources:
-- check_every: 10m
+- check_every: 10m0s
   name: git
   source:
     branch: main
@@ -518,7 +532,7 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h
+- check_every: 24h0m0s
   name: cf-dev-api-halfpipe-team-dev
   source:
     api: dev-api
