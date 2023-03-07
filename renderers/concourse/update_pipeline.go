@@ -54,6 +54,8 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 	}
 
 	if task.TagRepo {
+		bumpVersion.NoGet = false
+
 		tagRepo := &atc.PutStep{
 			Name:     "tag-git-repository",
 			Resource: manifest.GitTrigger{}.GetTriggerName(),

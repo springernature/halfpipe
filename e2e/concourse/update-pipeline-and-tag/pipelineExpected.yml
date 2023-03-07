@@ -38,7 +38,6 @@ jobs:
     task: update
     timeout: 15m
   - attempts: 2
-    no_get: true
     params:
       bump: minor
     put: version
