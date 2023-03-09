@@ -5,13 +5,13 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manifest) (steps Steps) {
-	deployKatee := a.createKateeDeployStep(task, man)
-	deploymentStatus := a.createDeploymentStatus(task, man)
+func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
+	deployKatee := a.createKateeDeployStep(task)
+	deploymentStatus := a.createDeploymentStatus(task)
 	return append(steps, deployKatee, deploymentStatus)
 }
 
-func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.Manifest) Step {
+func (a *Actions) createKateeDeployStep(task manifest.DeployKatee) Step {
 	deployKatee := Step{
 		Name: "Deploy to Katee",
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
@@ -19,12 +19,12 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 			"entrypoint": "/bin/sh",
 			"args":       fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)},
 		Env: Env{
-			"KATEE_TEAM":             man.Team,
+			"KATEE_TEAM":             task.Team,
 			"KATEE_APPFILE":          task.VelaManifest,
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":           "${{ env.GIT_REVISION }}",
-			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf("((katee-%s-service-account-prod.key))", man.Team),
+			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf("((katee-%s-service-account-prod.key))", task.Team),
 		},
 	}
 
@@ -43,16 +43,16 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee, man manifest.
 	return deployKatee
 }
 
-func (a Actions) createDeploymentStatus(task manifest.DeployKatee, man manifest.Manifest) Step {
+func (a Actions) createDeploymentStatus(task manifest.DeployKatee) Step {
 	createDeploymentStatus := Step{
 		Name: "Check Deployment Status",
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 		With: With{
 			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, man.Team, task.ApplicationName)},
+			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status katee-%s %s $PUBLISHED_VERSION`, a.workingDir, task.Team, task.ApplicationName)},
 		Env: Env{
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((katee-%s-service-account-prod.key))", man.Team),
-			"KATEE_TEAM":            man.Team,
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((katee-%s-service-account-prod.key))", task.Team),
+			"KATEE_TEAM":            task.Team,
 		},
 	}
 	if task.Tag == "gitref" {

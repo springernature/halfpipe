@@ -135,6 +135,7 @@ tasks:
   vela_manifest: blah
   application_name: bl
   manual_trigger: false
+  team: some-team
   timeout: 30s
   image: blahblah
   tag: latest
@@ -333,6 +334,7 @@ tasks:
 				ManualTrigger:   false,
 				Image:           "blahblah",
 				Timeout:         "30s",
+				Team:            "some-team",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

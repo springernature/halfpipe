@@ -12,8 +12,8 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 		Serial: true,
 	}
 
-	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task, man), man, false, basePath)
-	deploymentStatusRunJob := c.runJob(createDeploymentStatusTask(task, man), man, false, basePath)
+	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task), man, false, basePath)
+	deploymentStatusRunJob := c.runJob(createDeploymentStatusTask(task), man, false, basePath)
 
 	var steps []atc.Step
 	steps = append(steps, deployKateeRunJob.PlanSequence...)
@@ -23,7 +23,7 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 	return job
 }
 
-func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
+func createDeployKateeRunTask(task manifest.DeployKatee) manifest.Run {
 	run := manifest.Run{
 		Type:          "run",
 		Name:          "Deploy to Katee",
@@ -47,12 +47,11 @@ export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":             man.Team,
+			"KATEE_TEAM":             task.Team,
 			"KATEE_APPFILE":          task.VelaManifest,
 			"KATEE_APPLICATION_NAME": task.ApplicationName,
 			"KATEE_IMAGE":            task.Image,
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
-				`((katee-%s-service-account-prod.key))`, man.Team),
+			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf(`((katee-%s-service-account-prod.key))`, task.Team),
 		},
 		Retries:         task.Retries,
 		NotifyOnSuccess: task.NotifyOnSuccess,
@@ -74,7 +73,7 @@ export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 	return run
 }
 
-func createDeploymentStatusTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
+func createDeploymentStatusTask(task manifest.DeployKatee) manifest.Run {
 	deploymentStatus := manifest.Run{
 		Type:          "run",
 		Name:          "Check Deployment Status",
@@ -86,11 +85,11 @@ func createDeploymentStatusTask(task manifest.DeployKatee, man manifest.Manifest
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":       man.Team,
+			"KATEE_TEAM":       task.Team,
 			"APPLICATION_NAME": task.ApplicationName,
 			"KATEE_APPFILE":    task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(
-				`((katee-%s-service-account-prod.key))`, man.Team),
+				`((katee-%s-service-account-prod.key))`, task.Team),
 		},
 		Retries:         1,
 		NotifyOnSuccess: task.NotifyOnSuccess,

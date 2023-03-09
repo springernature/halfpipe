@@ -27,3 +27,19 @@ tasks:
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
       VERY_SECRET: ((another.secret))
+
+  - type: deploy-katee
+    name: deploy to katee different team
+    image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+    tag: version
+    team: different-team
+    application_name: BLAHBLAH
+    notifications:
+      on_failure:
+        - "#ee-re"
+    vars:
+      ENV1: 1234
+      ENV2: ((secret.something))
+      ENV3: '{"a": "b", "c": "d"}'
+      ENV4: ((another.secret))
+      VERY_SECRET: ((another.secret))

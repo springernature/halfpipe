@@ -113,7 +113,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		case manifest.DeployCF:
 			appendJob(a.deployCFSteps(task, man), task, needs)
 		case manifest.DeployKatee:
-			appendJob(a.deployKateeSteps(task, man), task, needs)
+			appendJob(a.deployKateeSteps(task), task, needs)
 		case manifest.Parallel:
 			jobs = append(jobs, a.jobs(task.Tasks, man, &parentTask{isParallel: true, needs: needs})...)
 		case manifest.Sequence:

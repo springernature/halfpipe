@@ -17,5 +17,9 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		}
 	}
 
+	if original.Team == "" {
+		updated.Team = man.Team
+	}
+
 	return updated
 }

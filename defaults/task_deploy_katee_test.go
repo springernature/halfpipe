@@ -13,6 +13,7 @@ func TestKateeDeployDefaults(t *testing.T) {
 		expected := manifest.DeployKatee{
 			VelaManifest: "vela.yaml",
 			Tag:          "version",
+			Team:         man.Team,
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))
@@ -24,6 +25,7 @@ func TestKateeDeployDefaults(t *testing.T) {
 		expected := manifest.DeployKatee{
 			VelaManifest: "vela.yaml",
 			Tag:          "version",
+			Team:         man.Team,
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))
@@ -35,6 +37,19 @@ func TestKateeDeployDefaults(t *testing.T) {
 		expected := manifest.DeployKatee{
 			VelaManifest: "vela.yaml",
 			Tag:          "gitref",
+			Team:         man.Team,
+		}
+
+		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))
+	})
+
+	t.Run("default katee team to halfpipe team", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf"}
+
+		expected := manifest.DeployKatee{
+			VelaManifest: "vela.yaml",
+			Tag:          "gitref",
+			Team:         man.Team,
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))

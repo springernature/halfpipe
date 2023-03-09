@@ -316,6 +316,181 @@ jobs:
     task: check-deployment-status
     timeout: ""
   serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: deploy to katee different team
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      channel: '#ee-re'
+      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      username: Halfpipe
+    put: slack
+    timeout: 15m
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy to katee
+      - get: version
+        passed:
+        - deploy to katee
+        trigger: true
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/ee-katee-vela-cli
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      params:
+        DOCKER_TAG: buildVersion
+        ENV1: "1234"
+        ENV2: ((secret.something))
+        ENV3: '{"a": "b", "c": "d"}'
+        ENV4: ((another.secret))
+        KATEE_APPFILE: vela.yaml
+        KATEE_APPLICATION_NAME: BLAHBLAH
+        KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))
+        KATEE_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        KATEE_TEAM: different-team
+        VERY_SECRET: blah
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
+
+          \echo "Running vela up..."
+
+          if [ "$DOCKER_TAG" == "gitref" ]
+          then
+            export TAG="$GIT_REVISION"
+          else
+            export TAG="$BUILD_VERSION"
+          fi
+
+          export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
+
+          /exe vela up -f $KATEE_APPFILE --publish-version $TAG
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/concourse/deploy-katee
+        path: /bin/sh
+    task: deploy-to-katee
+    timeout: 1h
+  - attempts: 2
+    config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/ee-katee-vela-cli
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      params:
+        APPLICATION_NAME: BLAHBLAH
+        DOCKER_TAG: buildVersion
+        KATEE_APPFILE: vela.yaml
+        KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))
+        KATEE_TEAM: different-team
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
+
+          \echo "Checking Deployment Status.."
+          if [ "$DOCKER_TAG" == "gitref" ]
+          then
+            export PUBLISHED_VERSION=$GIT_REVISION
+          else
+            export PUBLISHED_VERSION=$BUILD_VERSION
+          fi
+
+          /exe deployment-status katee-$KATEE_TEAM $APPLICATION_NAME $PUBLISHED_VERSION
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/concourse/deploy-katee
+        path: /bin/sh
+    task: check-deployment-status
+    timeout: ""
+  serial: true
 resource_types:
 - check_every: 24h0m0s
   name: halfpipe-slack-resource
