@@ -14,7 +14,7 @@ type DeployKatee struct {
 	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Tag             string        `json:"tag,omitempty" yaml:"tag,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Team            string        `json:"team,omitempty" yaml:"team,omitempty"`
+	Namespace       string        `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {

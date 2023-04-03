@@ -17,8 +17,8 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		}
 	}
 
-	if original.Team == "" {
-		updated.Team = man.Team
+	if original.Namespace == "" {
+		updated.Namespace = "katee-" + man.Team
 	}
 
 	return updated

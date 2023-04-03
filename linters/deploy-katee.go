@@ -59,8 +59,8 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 	}
 
 	//vela namespace must start with 'katee-'
-	if !strings.HasPrefix(task.Team, "katee-") {
-		errs = append(errs, ErrVelaNamespace.WithValue(task.Team))
+	if !strings.HasPrefix(task.Namespace, "katee-") {
+		errs = append(errs, ErrVelaNamespace.WithValue(task.Namespace))
 	}
 
 	return errs

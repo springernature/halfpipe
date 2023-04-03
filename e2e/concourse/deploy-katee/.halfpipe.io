@@ -35,7 +35,7 @@ tasks:
     name: deploy to katee different team
     image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
-    team: different-team
+    namespace: katee-different-team
     application_name: BLAHBLAH
     vela_manifest: vela.yaml
     notifications:

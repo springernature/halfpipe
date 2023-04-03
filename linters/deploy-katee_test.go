@@ -181,14 +181,14 @@ func TestKateeNamespace(t *testing.T) {
 	_ = fs.WriteFile("vela.yml", []byte("---"), 0777)
 
 	t.Run("starts with katee-", func(t *testing.T) {
-		task.Team = "katee-foo"
+		task.Namespace = "katee-foo"
 		errors := LintDeployKateeTask(task, emptyManifest, fs)
 		assertNotContainsError(t, errors, ErrVelaNamespace)
 	})
 
 	t.Run("does not starts with katee-", func(t *testing.T) {
-		task.Team = "foo"
+		task.Namespace = "foo"
 		errors := LintDeployKateeTask(task, emptyManifest, fs)
-		assertContainsError(t, errors, ErrVelaNamespace.WithValue(task.Team))
+		assertContainsError(t, errors, ErrVelaNamespace.WithValue(task.Namespace))
 	})
 }
