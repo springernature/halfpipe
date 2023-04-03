@@ -174,3 +174,21 @@ components:
 	errors := LintDeployKateeTask(task, emptyManifest, fs)
 	assertNotContainsError(t, errors, ErrVelaVariableMissing.WithValue("BLAH"))
 }
+
+func TestKateeNamespace(t *testing.T) {
+	task := manifest.DeployKatee{ApplicationName: "app", VelaManifest: "vela.yml", Image: "my-image"}
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	_ = fs.WriteFile("vela.yml", []byte("---"), 0777)
+
+	t.Run("starts with katee-", func(t *testing.T) {
+		task.Team = "katee-foo"
+		errors := LintDeployKateeTask(task, emptyManifest, fs)
+		assertNotContainsError(t, errors, ErrVelaNamespace)
+	})
+
+	t.Run("does not starts with katee-", func(t *testing.T) {
+		task.Team = "foo"
+		errors := LintDeployKateeTask(task, emptyManifest, fs)
+		assertContainsError(t, errors, ErrVelaNamespace.WithValue(task.Team))
+	})
+}
