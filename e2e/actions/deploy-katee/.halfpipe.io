@@ -29,7 +29,8 @@ tasks:
   - type: deploy-katee
     name: deploy to katee different team
     tag: version
-    namespace: katee-different-team
+    namespace: katee-different-namespace
+    environment: katee-different-environment
     notifications:
       on_failure:
         - "#ee-re"

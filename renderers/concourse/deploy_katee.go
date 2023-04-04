@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) atc.JobConfig {
@@ -48,7 +47,7 @@ export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
+			"KATEE_TEAM":            task.Environment,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
 		},
@@ -84,7 +83,7 @@ func createDeploymentStatusTask(task manifest.DeployKatee) manifest.Run {
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
+			"KATEE_TEAM":            task.Environment,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
 		},

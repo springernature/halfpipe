@@ -3,7 +3,6 @@ package actions
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
@@ -20,7 +19,7 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee) Step {
 			"entrypoint": "/bin/sh",
 			"args":       fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)},
 		Env: Env{
-			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
+			"KATEE_TEAM":            task.Environment,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"BUILD_VERSION":         "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":          "${{ env.GIT_REVISION }}",
@@ -50,7 +49,7 @@ func (a Actions) createDeploymentStatus(task manifest.DeployKatee) Step {
 			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status %s $PUBLISHED_VERSION`, a.workingDir, task.Namespace)},
 		Env: Env{
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
-			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
+			"KATEE_TEAM":            task.Environment,
 		},
 	}
 	if task.Tag == "gitref" {

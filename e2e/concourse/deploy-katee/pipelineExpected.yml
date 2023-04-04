@@ -363,8 +363,8 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
-        KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))
-        KATEE_TEAM: different-team
+        KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
+        KATEE_TEAM: katee-different-environment
         VERY_SECRET: blah
       platform: linux
       run:
@@ -436,8 +436,8 @@ jobs:
       params:
         DOCKER_TAG: buildVersion
         KATEE_APPFILE: vela.yaml
-        KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))
-        KATEE_TEAM: different-team
+        KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
+        KATEE_TEAM: katee-different-environment
       platform: linux
       run:
         args:
