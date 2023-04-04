@@ -39,7 +39,7 @@ fi
 
 export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 
-/exe vela up -f $KATEE_APPFILE --publish-version $TAG`,
+halfpipe-deploy`,
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 			Username: "_json_key",
@@ -47,7 +47,8 @@ export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":            task.Environment,
+			"KATEE_ENVIRONMENT":     task.Environment,
+			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
 		},
@@ -83,7 +84,8 @@ func createDeploymentStatusTask(task manifest.DeployKatee) manifest.Run {
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_TEAM":            task.Environment,
+			"KATEE_ENVIRONMENT":     task.Environment,
+			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
 		},

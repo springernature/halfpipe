@@ -17,9 +17,10 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee) Step {
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 		With: With{
 			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)},
+			"args":       fmt.Sprintf(`-c "cd %s; halfpipe-deploy`, a.workingDir)},
 		Env: Env{
-			"KATEE_TEAM":            task.Environment,
+			"KATEE_ENVIRONMENT":     task.Environment,
+			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"BUILD_VERSION":         "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":          "${{ env.GIT_REVISION }}",
@@ -28,9 +29,9 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee) Step {
 	}
 
 	if task.Tag == "gitref" {
-		deployKatee.Env["DOCKER_TAG"] = "${{ env.GIT_REVISION }}"
+		deployKatee.Env["TAG"] = "${{ env.GIT_REVISION }}"
 	} else if task.Tag == "version" {
-		deployKatee.Env["DOCKER_TAG"] = "${{ env.BUILD_VERSION }}"
+		deployKatee.Env["TAG"] = "${{ env.BUILD_VERSION }}"
 	}
 
 	for k, v := range task.Vars {

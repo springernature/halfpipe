@@ -191,8 +191,9 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
-        KATEE_TEAM: halfpipe-team
+        KATEE_NAMESPACE: katee-halfpipe-team
         VERY_SECRET: blah
       platform: linux
       run:
@@ -234,7 +235,7 @@ jobs:
 
           export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 
-          /exe vela up -f $KATEE_APPFILE --publish-version $TAG
+          halfpipe-deploy
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
@@ -264,8 +265,9 @@ jobs:
       params:
         DOCKER_TAG: buildVersion
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
-        KATEE_TEAM: halfpipe-team
+        KATEE_NAMESPACE: katee-halfpipe-team
       platform: linux
       run:
         args:
@@ -363,8 +365,9 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: katee-different-environment
         KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
-        KATEE_TEAM: katee-different-environment
+        KATEE_NAMESPACE: katee-different-namespace
         VERY_SECRET: blah
       platform: linux
       run:
@@ -406,7 +409,7 @@ jobs:
 
           export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 
-          /exe vela up -f $KATEE_APPFILE --publish-version $TAG
+          halfpipe-deploy
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
@@ -436,8 +439,9 @@ jobs:
       params:
         DOCKER_TAG: buildVersion
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: katee-different-environment
         KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
-        KATEE_TEAM: katee-different-environment
+        KATEE_NAMESPACE: katee-different-namespace
       platform: linux
       run:
         args:

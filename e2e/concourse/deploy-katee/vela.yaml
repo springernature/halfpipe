@@ -2,7 +2,7 @@ apiVersion: core.oam.dev/v1beta1
 kind: Application
 metadata:
   name: ${KATEE_APPLICATION_NAME}
-  namespace: katee-${KATEE_TEAM}
+  namespace: katee-engineering-enablement
 spec:
   components:
     - name: ${KATEE_APPLICATION_NAME}

@@ -104,19 +104,20 @@ jobs:
     - name: Deploy to Katee
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
       with:
-        args: -c "cd e2e/actions/deploy-katee; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG
+        args: -c "cd e2e/actions/deploy-katee; halfpipe-deploy
         entrypoint: /bin/sh
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
-        DOCKER_TAG: ${{ env.BUILD_VERSION }}
         ENV1: "1234"
         ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
-        KATEE_TEAM: halfpipe-team
+        KATEE_NAMESPACE: katee-halfpipe-team
+        TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: Check Deployment Status
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
@@ -164,19 +165,20 @@ jobs:
     - name: Deploy to Katee
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
       with:
-        args: -c "cd e2e/actions/deploy-katee; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG
+        args: -c "cd e2e/actions/deploy-katee; halfpipe-deploy
         entrypoint: /bin/sh
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
-        DOCKER_TAG: ${{ env.BUILD_VERSION }}
         ENV1: "1234"
         ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
+        KATEE_ENVIRONMENT: katee-different-environment
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
-        KATEE_TEAM: katee-different-environment
+        KATEE_NAMESPACE: katee-different-namespace
+        TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: Check Deployment Status
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
