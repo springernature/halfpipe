@@ -15,6 +15,7 @@ func TestEmptyManifest(t *testing.T) {
 }
 
 func TestValidYaml_Everything(t *testing.T) {
+
 	man, errs := Parse(`
 team: my team
 pipeline: my pipeline
@@ -133,11 +134,9 @@ tasks:
 - type: deploy-katee
   name: deploy katee task
   vela_manifest: blah
-  application_name: bl
   manual_trigger: false
   namespace: some-team
   timeout: 30s
-  image: blahblah
   tag: latest
   notifications:
     on_success:
@@ -329,12 +328,10 @@ tasks:
 					}},
 			},
 			DeployKatee{
-				Name:            "deploy katee task",
-				ApplicationName: "bl",
-				ManualTrigger:   false,
-				Image:           "blahblah",
-				Timeout:         "30s",
-				Namespace:       "some-team",
+				Name:          "deploy katee task",
+				ManualTrigger: false,
+				Timeout:       "30s",
+				Namespace:     "some-team",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",

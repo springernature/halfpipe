@@ -7,14 +7,6 @@ import (
 )
 
 func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error) {
-	if task.ApplicationName == "" {
-		errs = append(errs, NewErrMissingField("application_name"))
-	}
-
-	if task.Image == "" {
-		errs = append(errs, NewErrMissingField("image"))
-	}
-
 	if task.Retries < 0 || task.Retries > 5 {
 		errs = append(errs, NewErrInvalidField("retries", "must be between 0 and 5"))
 	}

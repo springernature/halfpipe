@@ -11,8 +11,6 @@ func TestKateeDeployTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors := LintDeployKateeTask(task, emptyManifest, fs)
-	assertContainsError(t, errors, NewErrMissingField("application_name"))
-	assertContainsError(t, errors, NewErrMissingField("image"))
 	assertContainsError(t, errors, ErrFileNotFound)
 }
 
@@ -29,7 +27,7 @@ func TestKateeDeployRetries(t *testing.T) {
 }
 
 func TestKateeDeployTag(t *testing.T) {
-	task := manifest.DeployKatee{ApplicationName: "app", VelaManifest: "vela.yml", Image: "my-image"}
+	task := manifest.DeployKatee{VelaManifest: "vela.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.WriteFile("vela.yml", []byte("foo"), 0777)
 	expectedTagError := ErrInvalidField.WithValue("tag")
@@ -176,7 +174,7 @@ components:
 }
 
 func TestKateeNamespace(t *testing.T) {
-	task := manifest.DeployKatee{ApplicationName: "app", VelaManifest: "vela.yml", Image: "my-image"}
+	task := manifest.DeployKatee{VelaManifest: "vela.yml"}
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	_ = fs.WriteFile("vela.yml", []byte("---"), 0777)
 

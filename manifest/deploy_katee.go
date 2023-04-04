@@ -3,9 +3,7 @@ package manifest
 type DeployKatee struct {
 	Type            string
 	Name            string        `yaml:"name,omitempty"`
-	ApplicationName string        `json:"application_name" yaml:"application_name,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Image           string        `yaml:"image,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	VelaManifest    string        `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`

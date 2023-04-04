@@ -15,9 +15,7 @@ tasks:
 
   - type: deploy-katee
     name: deploy to katee
-    image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
-    application_name: BLAHBLAH
     notifications:
       on_failure:
         - "#ee-re"
@@ -30,10 +28,8 @@ tasks:
 
   - type: deploy-katee
     name: deploy to katee different team
-    image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
     namespace: katee-different-team
-    application_name: BLAHBLAH
     notifications:
       on_failure:
         - "#ee-re"

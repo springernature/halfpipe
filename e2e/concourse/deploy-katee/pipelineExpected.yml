@@ -191,9 +191,7 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
-        KATEE_APPLICATION_NAME: BLAHBLAH
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
-        KATEE_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         KATEE_TEAM: halfpipe-team
         VERY_SECRET: blah
       platform: linux
@@ -264,7 +262,6 @@ jobs:
       - name: git
       - name: version
       params:
-        APPLICATION_NAME: BLAHBLAH
         DOCKER_TAG: buildVersion
         KATEE_APPFILE: vela.yaml
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
@@ -366,9 +363,7 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
-        KATEE_APPLICATION_NAME: BLAHBLAH
         KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))
-        KATEE_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         KATEE_TEAM: different-team
         VERY_SECRET: blah
       platform: linux
@@ -439,7 +434,6 @@ jobs:
       - name: git
       - name: version
       params:
-        APPLICATION_NAME: BLAHBLAH
         DOCKER_TAG: buildVersion
         KATEE_APPFILE: vela.yaml
         KATEE_GKE_CREDENTIALS: ((katee-different-team-service-account-prod.key))

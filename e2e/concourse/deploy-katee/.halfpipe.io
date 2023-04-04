@@ -17,9 +17,7 @@ tasks:
 
   - type: deploy-katee
     name: deploy to katee
-    image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
-    application_name: BLAHBLAH
     vela_manifest: vela.yaml
     notifications:
       on_failure:
@@ -33,10 +31,8 @@ tasks:
 
   - type: deploy-katee
     name: deploy to katee different team
-    image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
     tag: version
     namespace: katee-different-team
-    application_name: BLAHBLAH
     vela_manifest: vela.yaml
     notifications:
       on_failure:

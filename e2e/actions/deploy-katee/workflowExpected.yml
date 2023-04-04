@@ -115,15 +115,13 @@ jobs:
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
-        KATEE_APPLICATION_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}
-        KATEE_APPLICATION_NAME: BLAHBLAH
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
         KATEE_TEAM: halfpipe-team
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: Check Deployment Status
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
       with:
-        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-halfpipe-team BLAHBLAH $PUBLISHED_VERSION
+        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-halfpipe-team $PUBLISHED_VERSION
         entrypoint: /bin/sh
       env:
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
@@ -177,15 +175,13 @@ jobs:
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
-        KATEE_APPLICATION_IMAGE: eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}
-        KATEE_APPLICATION_NAME: BLAHBLAH
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-team-service-account-prod_key }}
         KATEE_TEAM: different-team
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: Check Deployment Status
       uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
       with:
-        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-different-team BLAHBLAH $PUBLISHED_VERSION
+        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-different-team $PUBLISHED_VERSION
         entrypoint: /bin/sh
       env:
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-team-service-account-prod_key }}

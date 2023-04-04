@@ -20,21 +20,18 @@ func (a *Actions) createKateeDeployStep(task manifest.DeployKatee) Step {
 			"entrypoint": "/bin/sh",
 			"args":       fmt.Sprintf(`-c "cd %s; /exe vela up -f $KATEE_APPFILE --publish-version $DOCKER_TAG`, a.workingDir)},
 		Env: Env{
-			"KATEE_TEAM":             strings.TrimPrefix(task.Namespace, "katee-"),
-			"KATEE_APPFILE":          task.VelaManifest,
-			"KATEE_APPLICATION_NAME": task.ApplicationName,
-			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
-			"GIT_REVISION":           "${{ env.GIT_REVISION }}",
-			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
+			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
+			"KATEE_APPFILE":         task.VelaManifest,
+			"BUILD_VERSION":         "${{ env.BUILD_VERSION }}",
+			"GIT_REVISION":          "${{ env.GIT_REVISION }}",
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
 		},
 	}
 
 	if task.Tag == "gitref" {
 		deployKatee.Env["DOCKER_TAG"] = "${{ env.GIT_REVISION }}"
-		deployKatee.Env["KATEE_APPLICATION_IMAGE"] = fmt.Sprintf("%s:%s", task.Image, "${{ env.GIT_REVISION }}")
 	} else if task.Tag == "version" {
 		deployKatee.Env["DOCKER_TAG"] = "${{ env.BUILD_VERSION }}"
-		deployKatee.Env["KATEE_APPLICATION_IMAGE"] = fmt.Sprintf("%s:%s", task.Image, "${{ env.BUILD_VERSION }}")
 	}
 
 	for k, v := range task.Vars {
@@ -50,7 +47,7 @@ func (a Actions) createDeploymentStatus(task manifest.DeployKatee) Step {
 		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
 		With: With{
 			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status %s %s $PUBLISHED_VERSION`, a.workingDir, task.Namespace, task.ApplicationName)},
+			"args":       fmt.Sprintf(`-c "cd %s; /exe deployment-status %s $PUBLISHED_VERSION`, a.workingDir, task.Namespace)},
 		Env: Env{
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
 			"KATEE_TEAM":            strings.TrimPrefix(task.Namespace, "katee-"),
