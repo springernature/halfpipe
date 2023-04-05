@@ -119,15 +119,6 @@ jobs:
         KATEE_NAMESPACE: katee-halfpipe-team
         TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
-    - name: Check Deployment Status
-      uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
-      with:
-        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-halfpipe-team $PUBLISHED_VERSION
-        entrypoint: /bin/sh
-      env:
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
-        KATEE_TEAM: halfpipe-team
-        PUBLISHED_VERSION: ${{ env.BUILD_VERSION }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4
@@ -180,15 +171,6 @@ jobs:
         KATEE_NAMESPACE: katee-different-namespace
         TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
-    - name: Check Deployment Status
-      uses: docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest
-      with:
-        args: -c "cd e2e/actions/deploy-katee; /exe deployment-status katee-different-namespace $PUBLISHED_VERSION
-        entrypoint: /bin/sh
-      env:
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
-        KATEE_TEAM: katee-different-environment
-        PUBLISHED_VERSION: ${{ env.BUILD_VERSION }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
       uses: yukin01/slack-bot-action@v0.0.4

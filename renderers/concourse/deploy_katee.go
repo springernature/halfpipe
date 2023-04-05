@@ -6,21 +6,14 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) atc.JobConfig {
-	job := atc.JobConfig{
-		Name:   task.GetName(),
-		Serial: true,
-	}
+func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) (job atc.JobConfig) {
+	job.Name = task.GetName()
+	job.Serial = true
 
 	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task), man, false, basePath)
-	deploymentStatusRunJob := c.runJob(createDeploymentStatusTask(task), man, false, basePath)
+	job.PlanSequence = deployKateeRunJob.PlanSequence
 
-	var steps []atc.Step
-	steps = append(steps, deployKateeRunJob.PlanSequence...)
-	steps = append(steps, deploymentStatusRunJob.PlanSequence...)
-
-	job.PlanSequence = steps
-	return job
+	return
 }
 
 func createDeployKateeRunTask(task manifest.DeployKatee) manifest.Run {
