@@ -233,8 +233,6 @@ jobs:
             export TAG="$BUILD_VERSION"
           fi
 
-          export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
-
           halfpipe-deploy
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -336,8 +334,6 @@ jobs:
           else
             export TAG="$BUILD_VERSION"
           fi
-
-          export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
 
           halfpipe-deploy
           EXIT_STATUS=$?

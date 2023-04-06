@@ -30,8 +30,6 @@ else
   export TAG="$BUILD_VERSION"
 fi
 
-export KATEE_APPLICATION_IMAGE=$KATEE_IMAGE:$TAG
-
 halfpipe-deploy`,
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
@@ -63,42 +61,4 @@ halfpipe-deploy`,
 	}
 
 	return run
-}
-
-func createDeploymentStatusTask(task manifest.DeployKatee) manifest.Run {
-	deploymentStatus := manifest.Run{
-		Type:          "run",
-		Name:          "Check Deployment Status",
-		ManualTrigger: false,
-		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
-		},
-		Privileged: false,
-		Vars: manifest.Vars{
-			"KATEE_ENVIRONMENT":     task.Environment,
-			"KATEE_NAMESPACE":       task.Namespace,
-			"KATEE_APPFILE":         task.VelaManifest,
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
-		},
-		Retries:         1,
-		NotifyOnSuccess: task.NotifyOnSuccess,
-		Script: `\echo "Checking Deployment Status.."
-if [ "$DOCKER_TAG" == "gitref" ]
-then
-  export PUBLISHED_VERSION=$GIT_REVISION
-else
-  export PUBLISHED_VERSION=$BUILD_VERSION
-fi
-
-/exe deployment-status katee-$KATEE_TEAM $APPLICATION_NAME $PUBLISHED_VERSION`,
-	}
-
-	if task.Tag == "gitref" {
-		deploymentStatus.Vars["DOCKER_TAG"] = "gitref"
-	} else if task.Tag == "version" {
-		deploymentStatus.Vars["DOCKER_TAG"] = "buildVersion"
-	}
-	return deploymentStatus
 }
