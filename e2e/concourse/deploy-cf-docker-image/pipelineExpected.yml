@@ -64,7 +64,7 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-all
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
@@ -82,7 +82,7 @@ jobs:
     attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-cleanup
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -107,7 +107,7 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
@@ -122,7 +122,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       timeout: 1h
@@ -194,7 +194,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-promote
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       testDomain: springernature.app
@@ -256,7 +256,7 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-push
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref

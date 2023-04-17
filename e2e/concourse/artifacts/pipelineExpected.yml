@@ -208,7 +208,7 @@ jobs:
     attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-cleanup
       manifestPath: git/e2e/concourse/artifacts/manifest.yml
       timeout: 1h
@@ -254,7 +254,7 @@ jobs:
     no_get: true
     params:
       appPath: git/e2e/concourse/artifacts
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/artifacts/manifest.yml
@@ -269,7 +269,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-check
       manifestPath: git/e2e/concourse/artifacts/manifest.yml
       timeout: 1h
@@ -343,7 +343,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
-      cliVersion: cf6
+      cliVersion: cf7
       command: halfpipe-promote
       manifestPath: git/e2e/concourse/artifacts/manifest.yml
       testDomain: springernature.app
