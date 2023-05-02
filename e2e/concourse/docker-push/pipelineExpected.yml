@@ -78,7 +78,7 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 --input ../../../../image/image.tar || true
         dir: git/e2e/concourse/docker-push
         path: /bin/sh
     task: trivy
@@ -171,7 +171,7 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code 0 --input ../../../../image/image.tar || true
+          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 --input ../../../../image/image.tar || true
         dir: git/e2e/concourse/docker-push
         path: /bin/sh
     task: trivy

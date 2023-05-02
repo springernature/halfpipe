@@ -87,7 +87,7 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 		Uses: "docker://aquasec/trivy",
 		With: With{
 			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
+			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
 		},
 	}
 	return step

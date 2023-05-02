@@ -128,7 +128,7 @@ func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
 				Args: []string{"-c", strings.Join([]string{
 					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
 					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
-					fmt.Sprintf(`trivy image --timeout %dm --ignore-unfixed --severity CRITICAL --exit-code %d --input %s || true`, task.ScanTimeout, exitCode, imageFile),
+					fmt.Sprintf(`trivy image --timeout %dm --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code %d --input %s || true`, task.ScanTimeout, exitCode, imageFile),
 				}, "\n")},
 				Dir: fullBasePath,
 			},
