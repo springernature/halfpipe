@@ -150,7 +150,8 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+        Pipeline>
       username: Halfpipe
     put: slack
     timeout: 15m
@@ -252,7 +253,8 @@ jobs:
     params:
       channel: '#ee-re'
       icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME/builds/$BUILD_NAME>
+      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+        Pipeline>
       username: Halfpipe
     put: slack
     timeout: 15m
