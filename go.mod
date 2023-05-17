@@ -29,7 +29,7 @@ require (
 )
 
 require (
-	github.com/sirupsen/logrus v1.9.0
+	github.com/sirupsen/logrus v1.9.2
 	gopkg.in/yaml.v3 v3.0.1
 )
 
