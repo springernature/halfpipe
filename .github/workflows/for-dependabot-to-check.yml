@@ -31,12 +31,12 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: yukin01/slack-bot-action@v0.0.4
+      uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel: '#halfpipe-dev'
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
-        status: ${{ job.status }}
-        text: ""
+        channel-id: '#halfpipe-dev'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
   deploy-cf:
     name: deploy-cf
     needs:
@@ -126,12 +126,12 @@ jobs:
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: yukin01/slack-bot-action@v0.0.4
+      uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel: '#halfpipe-dev'
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
-        status: ${{ job.status }}
-        text: ""
+        channel-id: '#halfpipe-dev'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
   docker-push:
     name: docker-push
     needs:
@@ -189,12 +189,12 @@ jobs:
         echo "- eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: yukin01/slack-bot-action@v0.0.4
+      uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel: '#halfpipe-dev'
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
-        status: ${{ job.status }}
-        text: ""
+        channel-id: '#halfpipe-dev'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
   docker-compose:
     name: docker-compose
     needs:
@@ -233,9 +233,9 @@ jobs:
       run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: yukin01/slack-bot-action@v0.0.4
+      uses: slackapi/slack-github-action@v1.23.0
       with:
-        channel: '#halfpipe-dev'
-        oauth_token: ${{ secrets.EE_SLACK_TOKEN }}
-        status: ${{ job.status }}
-        text: ""
+        channel-id: '#halfpipe-dev'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
