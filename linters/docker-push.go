@@ -61,17 +61,5 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 		errs = append(errs, ErrDockerPushTag.AsWarning())
 	}
 
-	for _, platform := range docker.Platforms {
-		if manifest.Platform.IsConcourse() {
-			if len(docker.Platforms) != 1 && platform != "linux/amd64" {
-				errs = append(errs, ErrUnsupportedMultiplePlatforms)
-			}
-		} else {
-			if platform != "linux/amd64" && platform != "linux/arm64" {
-				errs = append(errs, NewErrInvalidField(platform, "currently only linux/amd64 or linux/arm64 are allowed"))
-			}
-		}
-	}
-
 	return errs
 }

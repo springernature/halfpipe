@@ -2,7 +2,7 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
 
@@ -35,16 +35,6 @@ func tags(task manifest.DockerPush) []string {
 	return []string{tag1, tag2, tag3}
 }
 
-func tagWithCachePath(task manifest.DockerPush) string {
-	tag := ":${{ env.GIT_REVISION }}"
-	if strings.HasPrefix(task.Image, config.DockerRegistry) {
-		r := strings.Replace(task.Image, config.DockerRegistry, fmt.Sprintf("%scache/", config.DockerRegistry), 1)
-		return r + tag
-	} else {
-		return config.DockerRegistry + "cache/" + task.Image + tag
-	}
-}
-
 func repositoryDispatch(eventName string) Step {
 	return Step{
 		Name: "Repository dispatch",
@@ -64,7 +54,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"file":       path.Join(a.workingDir, task.DockerfilePath),
 			"push":       true,
-			"tags":       tagWithCachePath(task),
+			"tags":       shared.CachePath(task, ":${{ env.GIT_REVISION }}"),
 			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
 		},
@@ -87,7 +77,7 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 		Uses: "docker://aquasec/trivy",
 		With: With{
 			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), tagWithCachePath(task)),
+			"args":       fmt.Sprintf(`-c "%s [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code %s %s"`, prefix, fmt.Sprint(exitCode), shared.CachePath(task, ":${{ env.GIT_REVISION }}")),
 		},
 	}
 	return step
@@ -96,7 +86,7 @@ func scanImage(a *Actions, task manifest.DockerPush) Step {
 func pushImage(task manifest.DockerPush) Step {
 	var sRun []string
 	for _, tag := range tags(task) {
-		sRun = append(sRun, fmt.Sprintf("docker buildx imagetools create %s --tag %s", tagWithCachePath(task), tag))
+		sRun = append(sRun, fmt.Sprintf("docker buildx imagetools create %s --tag %s", shared.CachePath(task, ":${{ env.GIT_REVISION }}"), tag))
 	}
 
 	step := Step{

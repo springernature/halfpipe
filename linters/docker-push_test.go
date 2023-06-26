@@ -337,24 +337,6 @@ func TestDockerPushTag(t *testing.T) {
 }
 
 func TestMultiplePlatforms(t *testing.T) {
-	t.Run("Errors when unsupported platform is put in", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Platforms:      []string{"rubbish", "linux/amd64"},
-		}
-
-		m := manifest.Manifest{Platform: "actions"}
-
-		errors := LintDockerPushTask(task, m, fs)
-		assertContainsError(t, errors, ErrInvalidField)
-	})
-
 	t.Run("Alles ok when actions", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
@@ -371,24 +353,6 @@ func TestMultiplePlatforms(t *testing.T) {
 
 		errors := LintDockerPushTask(task, m, fs)
 		assert.Empty(t, errors)
-	})
-
-	t.Run("Errors for concourse as not supported yet", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-		task := manifest.DockerPush{
-			Image:          "asd/asd",
-			Username:       "asd",
-			Password:       "asdf",
-			DockerfilePath: "Dockerfile",
-			Platforms:      []string{"linux/arm64", "linux/amd64"},
-		}
-
-		m := manifest.Manifest{Platform: "concourse"}
-
-		errors := LintDockerPushTask(task, m, fs)
-		assertContainsError(t, errors, ErrUnsupportedMultiplePlatforms)
 	})
 
 	t.Run("only linux/amd64 for concourse is fine", func(t *testing.T) {

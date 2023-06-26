@@ -188,7 +188,9 @@ func (c Concourse) dockerPushResources(tasks manifest.TaskList) (resourceConfigs
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.DockerPush:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResource(task))
+			if len(task.Platforms) == 1 {
+				resourceConfigs = append(resourceConfigs, c.dockerPushResource(task))
+			}
 		case manifest.Parallel:
 			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks)...)
 		case manifest.Sequence:
