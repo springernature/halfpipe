@@ -21,7 +21,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	cdcScript := ""
 
 	if len(consumerGitParts) > 1 {
-		consumerGitPath = consumerGitParts[1]
+		consumerGitPath = strings.Join(consumerGitParts[1:], "/")
 	}
 
 	providerName := task.ProviderName

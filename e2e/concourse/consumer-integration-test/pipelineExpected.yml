@@ -31,8 +31,8 @@ jobs:
         CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
-        CONSUMER_NAME: c-consumer
-        CONSUMER_PATH: ""
+        CONSUMER_NAME: c-consumer/sub/dir
+        CONSUMER_PATH: sub/dir
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_SERVICE: potato
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))

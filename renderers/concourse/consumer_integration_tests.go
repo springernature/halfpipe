@@ -16,7 +16,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	consumerGitPath := ""
 	cdcScript := ""
 	if len(consumerGitParts) > 1 {
-		consumerGitPath = consumerGitParts[1]
+		consumerGitPath = strings.Join(consumerGitParts[1:], "/")
 	}
 
 	dockerLogin := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`

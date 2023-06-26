@@ -5,7 +5,7 @@ platform: actions
 tasks:
 - type: consumer-integration-test
   name: c-name
-  consumer: c-consumer
+  consumer: c-consumer/sub/dir
   consumer_host: c-host
   provider_host: p-host
   provider_name: p-name
