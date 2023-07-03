@@ -288,7 +288,7 @@ func (c Concourse) imageResource(docker manifest.Docker) *atc.ImageResource {
 }
 
 func (c Concourse) versionResource(manifest manifest.Manifest) atc.ResourceConfig {
-	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.Pipeline)
+	key := fmt.Sprintf("%s-%s", manifest.Team, manifest.PipelineId)
 	gitTrigger := manifest.Triggers.GetGitTrigger()
 	if gitTrigger.Branch != "master" && gitTrigger.Branch != "main" {
 		key = fmt.Sprintf("%s-%s", key, gitTrigger.Branch)

@@ -19,6 +19,7 @@ func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
 pipeline: my pipeline
+pipeline_id: mypipelineid
 slack_channel: "#ee-activity"
 slack_success_message: "success"
 slack_failure_message: "failure"
@@ -193,10 +194,13 @@ tasks:
       name: pr2
 `)
 
-	fmt.Print(errs)
+	if len(errs) > 0 {
+		fmt.Println("error parsing", errs)
+	}
 	expected := Manifest{
-		Team:     "my team",
-		Pipeline: "my pipeline",
+		Team:       "my team",
+		Pipeline:   "my pipeline",
+		PipelineId: "mypipelineid",
 		ArtifactConfig: ArtifactConfig{
 			Bucket:  "myBucket",
 			JSONKey: "((some.jsonKey))",

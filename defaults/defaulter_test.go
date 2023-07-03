@@ -52,7 +52,7 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return expectedTasks
 		}},
-		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
+		topLevelDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
 			return original
 		}},
 	}
@@ -68,7 +68,7 @@ func TestApplyFeatureToggleDefaults(t *testing.T) {
 		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			return manifest.TaskList{}
 		}},
-		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
+		topLevelDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
 			return original
 		}},
 	}

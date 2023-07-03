@@ -167,6 +167,7 @@ func (p Platform) IsConcourse() bool {
 type Manifest struct {
 	Team                string         `yaml:"team,omitempty"`
 	Pipeline            string         `yaml:"pipeline,omitempty"`
+	PipelineId          string         `json:"pipeline_id,omitempty" yaml:"pipeline_id,omitempty"`
 	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
 	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
 	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`

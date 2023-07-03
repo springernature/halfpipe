@@ -13,7 +13,7 @@ type TasksDefaulter interface {
 	Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
-type OutputDefaulter interface {
+type TopLevelDefaulter interface {
 	Apply(original manifest.Manifest) (updated manifest.Manifest)
 }
 
@@ -81,11 +81,11 @@ type Defaults struct {
 
 	triggersDefaulter TriggersDefaulter
 	tasksDefaulter    TasksDefaulter
-	outputDefaulter   OutputDefaulter
+	topLevelDefaulter TopLevelDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	updated = d.outputDefaulter.Apply(original)
+	updated = d.topLevelDefaulter.Apply(original)
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 	return updated
@@ -95,7 +95,7 @@ func New(defaultValues Defaults, project project.Data) Defaults {
 	defaultValues.Project = project
 	defaultValues.triggersDefaulter = NewTriggersDefaulter()
 	defaultValues.tasksDefaulter = NewTaskDefaulter()
-	defaultValues.outputDefaulter = NewOutputDefaulter()
+	defaultValues.topLevelDefaulter = newTopLevelDefaulter()
 
 	return defaultValues
 }
