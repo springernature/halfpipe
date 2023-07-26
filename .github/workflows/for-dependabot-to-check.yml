@@ -160,6 +160,7 @@ jobs:
         context: .
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
+        provenance: false
         push: true
         tags: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner

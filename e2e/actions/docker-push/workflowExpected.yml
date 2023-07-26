@@ -81,6 +81,7 @@ jobs:
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
+        provenance: false
         push: true
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
@@ -163,6 +164,7 @@ jobs:
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile2
         platforms: linux/amd64
+        provenance: false
         push: true
         tags: eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
@@ -225,6 +227,7 @@ jobs:
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64,linux/arm64
+        provenance: false
         push: true
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner

@@ -57,6 +57,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 			"tags":       shared.CachePath(task, ":${{ env.GIT_REVISION }}"),
 			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
+			"provenance": false,
 		},
 	}
 	return step

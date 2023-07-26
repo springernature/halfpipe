@@ -48,6 +48,7 @@ jobs:
         context: e2e/actions/deploy-katee
         file: e2e/actions/deploy-katee/Dockerfile
         platforms: linux/amd64
+        provenance: false
         push: true
         tags: eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
