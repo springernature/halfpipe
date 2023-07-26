@@ -223,7 +223,7 @@ func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath st
 					Path: "/bin/sh",
 					Args: []string{"-c", strings.Join([]string{
 						`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
-						fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t %s:%s --push $CONTEXT`, dockerImageWithCachePath, gitRef)}, "\n"),
+						fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t %s:%s --push --provenance=false $CONTEXT`, dockerImageWithCachePath, gitRef)}, "\n"),
 					},
 				},
 				Inputs: []atc.TaskInputConfig{
