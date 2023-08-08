@@ -46,6 +46,7 @@ jobs:
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
   push_default:
     name: Push default
     needs:

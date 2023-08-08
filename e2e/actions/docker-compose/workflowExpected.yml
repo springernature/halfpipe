@@ -58,6 +58,7 @@ jobs:
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
     - name: Package artifacts-failure
       if: failure()
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/docker-compose/foo
@@ -68,6 +69,7 @@ jobs:
       with:
         name: artifacts-failure
         path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down

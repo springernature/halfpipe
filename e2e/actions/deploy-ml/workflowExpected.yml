@@ -43,6 +43,7 @@ jobs:
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
   deploy-ml-zip:
     name: deploy-ml-zip
     needs:
