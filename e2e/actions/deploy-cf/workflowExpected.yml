@@ -56,7 +56,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
@@ -156,7 +156,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
@@ -256,7 +256,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
@@ -439,7 +439,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
@@ -530,7 +530,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
@@ -642,7 +642,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.5.0
+      uses: hashicorp/vault-action@v2.7.3
       with:
         exportEnv: false
         method: approle
