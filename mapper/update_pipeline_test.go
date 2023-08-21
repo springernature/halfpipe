@@ -51,17 +51,4 @@ func TestUpdatePipeline(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, expectedTasks, updated.Tasks)
 	})
-
-	t.Run("in actions only adds update job for tag-repo", func(t *testing.T) {
-		man := originalManifest
-		man.Platform = "actions"
-
-		man.FeatureToggles = manifest.FeatureToggles{manifest.FeatureUpdatePipeline}
-		updated, _ := mapper.Apply(man)
-		assert.Len(t, updated.Tasks, 2)
-
-		man.FeatureToggles = manifest.FeatureToggles{manifest.FeatureUpdatePipelineAndTag}
-		updated, _ = mapper.Apply(man)
-		assert.Len(t, updated.Tasks, 3)
-	})
 }

@@ -54,6 +54,7 @@ type Jobs yaml.MapSlice
 type Job struct {
 	Name           string            `yaml:"name,omitempty"`
 	Needs          []string          `yaml:"needs,omitempty"`
+	If             string            `yaml:"if,omitempty"`
 	RunsOn         string            `yaml:"runs-on,omitempty"`
 	Container      Container         `yaml:"container,omitempty"`
 	TimeoutMinutes int               `yaml:"timeout-minutes,omitempty"`
@@ -101,6 +102,8 @@ func (ml MultiLine) MarshalYAML() (interface{}, error) {
 type With map[string]any
 
 type Env map[string]string
+
+type Outputs map[string]string
 
 func (e Env) ToString() string {
 	out := []string{}

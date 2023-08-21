@@ -6,11 +6,11 @@ feature_toggles:
 - update-pipeline-and-tag
 
 tasks:
-- type: docker-compose
-  name: A
 - type: parallel
   tasks:
   - type: docker-compose
-    name: B
+    name: A1
   - type: docker-compose
-    name: C
+    name: A2
+- type: docker-compose
+  name: B

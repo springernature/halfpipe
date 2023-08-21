@@ -23,6 +23,8 @@ jobs:
     name: update
     runs-on: ee-runner
     timeout-minutes: 60
+    outputs:
+      synced: ${{ steps.sync.synced }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -30,14 +32,23 @@ jobs:
         lfs: true
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+    - name: Sync workflow with halfpipe manifest
+      id: sync
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-auto-update
+      with:
+        args: -c "cd e2e/actions/feature-update-pipeline-and-tag; update-actions-workflow"
+        entrypoint: /bin/bash
+      env:
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
     - name: Tag commit with update-pipeline-and-tag/v$BUILD_VERSION
       run: |-
         git tag -f update-pipeline-and-tag/v$BUILD_VERSION
         git push origin update-pipeline-and-tag/v$BUILD_VERSION
-  a:
-    name: A
+  a1:
+    name: A1
     needs:
     - update
+    if: needs.update.outputs.synced
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
@@ -47,7 +58,44 @@ jobs:
         lfs: true
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: A
+    - name: A1
+      run: |-
+        docker-compose -f docker-compose.yml pull
+        docker-compose -f docker-compose.yml run \
+          --use-aliases \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e DOCKER_CERT_PATH \
+          -e DOCKER_HOST=tcp://docker:2376 \
+          -e DOCKER_TLS_CERTDIR \
+          -e DOCKER_TLS_VERIFY \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /certs:/certs \
+          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
+          app
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f docker-compose.yml down
+  a2:
+    name: A2
+    needs:
+    - update
+    if: needs.update.outputs.synced
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: A2
       run: |-
         docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
@@ -73,7 +121,8 @@ jobs:
   b:
     name: B
     needs:
-    - a
+    - a1
+    - a2
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
@@ -84,42 +133,6 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: B
-      run: |-
-        docker-compose -f docker-compose.yml pull
-        docker-compose -f docker-compose.yml run \
-          --use-aliases \
-          -e ARTIFACTORY_PASSWORD \
-          -e ARTIFACTORY_URL \
-          -e ARTIFACTORY_USERNAME \
-          -e BUILD_VERSION \
-          -e DOCKER_CERT_PATH \
-          -e DOCKER_HOST=tcp://docker:2376 \
-          -e DOCKER_TLS_CERTDIR \
-          -e DOCKER_TLS_VERIFY \
-          -e GIT_REVISION \
-          -e RUNNING_IN_CI \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
-          -v /certs:/certs \
-          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
-          app
-    - name: Docker cleanup
-      if: always()
-      run: docker-compose -f docker-compose.yml down
-  c:
-    name: C
-    needs:
-    - a
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        lfs: true
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: C
       run: |-
         docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \

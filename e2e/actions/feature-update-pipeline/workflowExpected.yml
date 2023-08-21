@@ -1,5 +1,5 @@
 # Generated using halfpipe cli version 0.0.0-DEV
-name: update-pipeline
+name: pipeline-name
 "on":
   push:
     branches:
@@ -19,10 +19,12 @@ defaults:
     working-directory: e2e/actions/feature-update-pipeline
 concurrency: ${{ github.workflow }}
 jobs:
-  a:
-    name: A
+  update:
+    name: update
     runs-on: ee-runner
     timeout-minutes: 60
+    outputs:
+      synced: ${{ steps.sync.synced }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -30,126 +32,30 @@ jobs:
         lfs: true
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: A
-      run: |-
-        docker-compose -f docker-compose.yml pull
-        docker-compose -f docker-compose.yml run \
-          --use-aliases \
-          -e ARTIFACTORY_PASSWORD \
-          -e ARTIFACTORY_URL \
-          -e ARTIFACTORY_USERNAME \
-          -e BUILD_VERSION \
-          -e DOCKER_CERT_PATH \
-          -e DOCKER_HOST=tcp://docker:2376 \
-          -e DOCKER_TLS_CERTDIR \
-          -e DOCKER_TLS_VERIFY \
-          -e GIT_REVISION \
-          -e RUNNING_IN_CI \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
-          -v /certs:/certs \
-          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
-          app
-    - name: Docker cleanup
-      if: always()
-      run: docker-compose -f docker-compose.yml down
-  b:
-    name: B
-    needs:
-    - a
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Vault secrets
-      id: secrets
-      uses: hashicorp/vault-action@v2.7.3
+    - name: Sync workflow with halfpipe manifest
+      id: sync
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-auto-update
       with:
-        exportEnv: false
-        method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
-        secrets: |
-          /springernature/data/team/very secret | springernature_data_team_very_secret ;
-        url: https://vault.halfpipe.io
-    - name: Checkout code
-      uses: actions/checkout@v3
-      with:
-        lfs: true
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: B
-      run: |-
-        docker-compose -f docker-compose.yml pull
-        docker-compose -f docker-compose.yml run \
-          --use-aliases \
-          -e ARTIFACTORY_PASSWORD \
-          -e ARTIFACTORY_URL \
-          -e ARTIFACTORY_USERNAME \
-          -e BUILD_VERSION \
-          -e DOCKER_CERT_PATH \
-          -e DOCKER_HOST=tcp://docker:2376 \
-          -e DOCKER_TLS_CERTDIR \
-          -e DOCKER_TLS_VERIFY \
-          -e GIT_REVISION \
-          -e RUNNING_IN_CI \
-          -e S \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
-          -v /certs:/certs \
-          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
-          app
+        args: -c "cd e2e/actions/feature-update-pipeline; update-actions-workflow"
+        entrypoint: /bin/bash
       env:
-        S: ${{ steps.secrets.outputs.springernature_data_team_very_secret }}
-    - name: Docker cleanup
-      if: always()
-      run: docker-compose -f docker-compose.yml down
-  c:
-    name: C
+        HALFPIPE_FILE_PATH: .halfpipe.io
+  run__echo_hello:
+    name: run \echo hello
     needs:
-    - a
+    - update
+    if: needs.update.outputs.synced
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
-    - name: Vault secrets
-      id: secrets
-      uses: hashicorp/vault-action@v2.7.3
-      with:
-        exportEnv: false
-        method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
-        secrets: |
-          /springernature/data/team/very secret1 | springernature_data_team_very_secret1 ;
-        url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@v3
       with:
         lfs: true
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: C
-      run: |-
-        docker-compose -f docker-compose.yml pull
-        docker-compose -f docker-compose.yml run \
-          --use-aliases \
-          -e ARTIFACTORY_PASSWORD \
-          -e ARTIFACTORY_URL \
-          -e ARTIFACTORY_USERNAME \
-          -e BUILD_VERSION \
-          -e DOCKER_CERT_PATH \
-          -e DOCKER_HOST=tcp://docker:2376 \
-          -e DOCKER_TLS_CERTDIR \
-          -e DOCKER_TLS_VERIFY \
-          -e GIT_REVISION \
-          -e RUNNING_IN_CI \
-          -e S1 \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
-          -v /certs:/certs \
-          -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
-          app
-      env:
-        S1: ${{ steps.secrets.outputs.springernature_data_team_very_secret1 }}
-    - name: Docker cleanup
-      if: always()
-      run: docker-compose -f docker-compose.yml down
+    - name: run \echo hello
+      uses: docker://alpine
+      with:
+        args: -c "cd e2e/actions/feature-update-pipeline; \echo hello"
+        entrypoint: /bin/sh

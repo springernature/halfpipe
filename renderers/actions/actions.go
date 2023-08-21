@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"golang.org/x/exp/slices"
 	"regexp"
 	"strings"
 	"time"
@@ -26,12 +27,13 @@ var globalEnv = Env{
 }
 
 type Actions struct {
-	gitURI     string
-	workingDir string
+	gitURI           string
+	workingDir       string
+	halfpipeFilePath string
 }
 
-func NewActions(gitURI string) Actions {
-	return Actions{gitURI: gitURI}
+func NewActions(gitURI string, halfpipeFilePath string) Actions {
+	return Actions{gitURI: gitURI, halfpipeFilePath: halfpipeFilePath}
 }
 
 func (a Actions) PlatformURL(man manifest.Manifest) string {
@@ -84,6 +86,14 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
 			Needs:          needs,
 		}
+
+		if job.Name == "update" {
+			job.Outputs = Outputs{"synced": "${{ steps.sync.synced }}"}
+		}
+		if slices.Contains(needs, "update") {
+			job.If = "needs.update.outputs.synced"
+		}
+
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 

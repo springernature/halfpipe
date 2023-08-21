@@ -1,20 +1,12 @@
-team: team
-pipeline: update-pipeline
+team: halfpipe-team
+pipeline: pipeline-name
 platform: actions
 
 feature_toggles:
 - update-pipeline
 
 tasks:
-- type: docker-compose
-  name: A
-- type: parallel
-  tasks:
-  - type: docker-compose
-    name: B
-    vars:
-      S: ((very.secret))
-  - type: docker-compose
-    name: C
-    vars:
-      S1: ((very.secret1))
+- type: run
+  script: \echo hello
+  docker:
+    image: alpine

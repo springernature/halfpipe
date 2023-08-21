@@ -37,7 +37,7 @@ var urlCmd = &cobra.Command{
 		if man.Platform.IsConcourse() {
 			fmt.Println(concourse.NewPipeline(projectData.HalfpipeFilePath).PlatformURL(man))
 		} else {
-			fmt.Println(actions.NewActions(projectData.GitURI).PlatformURL(man))
+			fmt.Println(actions.NewActions(projectData.GitURI, projectData.HalfpipeFilePath).PlatformURL(man))
 		}
 	},
 }

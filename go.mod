@@ -30,6 +30,7 @@ require (
 
 require (
 	github.com/sirupsen/logrus v1.9.3
+	golang.org/x/exp v0.0.0-20221004215720-b9f4876ce741
 	gopkg.in/yaml.v3 v3.0.1
 )
 

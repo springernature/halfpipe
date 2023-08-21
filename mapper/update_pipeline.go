@@ -17,8 +17,7 @@ func (up updatePipeline) Apply(original manifest.Manifest) (updated manifest.Man
 		TagRepo: original.FeatureToggles.TagGitRepo(),
 	}
 
-	if (original.Platform.IsConcourse() && original.FeatureToggles.UpdatePipeline()) ||
-		(original.Platform.IsActions() && original.FeatureToggles.TagGitRepo()) {
+	if original.FeatureToggles.UpdatePipeline() {
 		updated.Tasks = append(manifest.TaskList{updateTask}, updated.Tasks...)
 	}
 
