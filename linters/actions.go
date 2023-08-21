@@ -88,8 +88,5 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 }
 
 func unsupportedFeatures(features manifest.FeatureToggles) (errors []error) {
-	if features.UpdatePipeline() {
-		errors = []error{ErrUnsupportedUpdatePipeline.AsWarning()}
-	}
-	return errors
+	return []error{}
 }

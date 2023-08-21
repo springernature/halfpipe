@@ -87,25 +87,6 @@ func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	assertContainsError(t, errs, ErrDockerTriggerLoop)
 }
 
-func TestActionsFeatures_WarnAboutUpdatePipelineNotImplemented(t *testing.T) {
-	tests := map[string]manifest.FeatureToggles{
-		"all features": {
-			manifest.FeatureUpdatePipeline,
-			manifest.FeatureUpdatePipelineAndTag,
-		},
-		"update-pipeline":         {manifest.FeatureUpdatePipeline},
-		"update-pipeline-and-tag": {manifest.FeatureUpdatePipelineAndTag},
-	}
-
-	for name, features := range tests {
-		t.Run(name, func(t *testing.T) {
-			errs := lint(manifest.Manifest{Platform: "actions", FeatureToggles: features}).Issues
-			assertContainsError(t, errs, ErrUnsupportedUpdatePipeline)
-		})
-	}
-
-}
-
 func TestActionsLinter_UnsupportedUseCovenant(t *testing.T) {
 	man := manifest.Manifest{
 		Platform: "actions",
