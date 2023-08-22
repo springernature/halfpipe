@@ -26,8 +26,17 @@ func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) Steps
 		},
 	}
 
+	push := Step{
+		Name: "Commit and push changes to workflow",
+		If:   "steps.sync.outputs.synced == 'false'",
+		Run: `git config user.name halfpipe-io
+git config user.email halfpipe-io@springernature.com
+git commit -am 'sync workflow with halfpipe manifest'
+git push`,
+	}
+
 	if man.FeatureToggles.UpdateActions() {
-		steps = Steps{update}
+		steps = Steps{update, push}
 	}
 
 	if task.TagRepo {

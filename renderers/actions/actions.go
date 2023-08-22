@@ -88,10 +88,10 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		}
 
 		if job.Name == "update" {
-			job.Outputs = Outputs{"synced": "${{ steps.sync.synced }}"}
+			job.Outputs = Outputs{"synced": "${{ steps.sync.outputs.synced }}"}
 		}
 		if slices.Contains(needs, "update") {
-			job.If = "needs.update.outputs.synced"
+			job.If = "needs.update.outputs.synced == 'true'"
 		}
 
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])

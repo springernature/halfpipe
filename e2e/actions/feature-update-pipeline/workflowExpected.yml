@@ -24,7 +24,7 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     outputs:
-      synced: ${{ steps.sync.synced }}
+      synced: ${{ steps.sync.outputs.synced }}
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
@@ -40,11 +40,18 @@ jobs:
         entrypoint: /bin/bash
       env:
         HALFPIPE_FILE_PATH: .halfpipe.io
+    - name: Commit and push changes to workflow
+      if: steps.sync.outputs.synced == 'false'
+      run: |-
+        git config user.name halfpipe-io
+        git config user.email halfpipe-io@springernature.com
+        git commit -am 'sync workflow with halfpipe manifest'
+        git push
   run__echo_hello:
     name: run \echo hello
     needs:
     - update
-    if: needs.update.outputs.synced
+    if: needs.update.outputs.synced == 'true'
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
