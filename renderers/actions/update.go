@@ -32,7 +32,13 @@ func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) Steps
 		Run: `git config user.name halfpipe-io
 git config user.email halfpipe-io@springernature.com
 git commit -am 'sync workflow with halfpipe manifest'
-git push`,
+git push
+echo 'Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
+echo >> $GITHUB_STEP_SUMMARY
+echo 'This happened because the workflow was generated from a halfpipe manifest with the ` + "`update-pipeline`" + ` feature enabled. It keeps the workflow in sync with the halfpipe manifest.' >> $GITHUB_STEP_SUMMARY
+echo >> $GITHUB_STEP_SUMMARY
+echo '[Halfpipe Documentation](https://ee.public.springernature.app/rel-eng/halfpipe/features/#update_pipeline)' >> $GITHUB_STEP_SUMMARY
+`,
 	}
 
 	if man.FeatureToggles.UpdateActions() {
