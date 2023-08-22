@@ -4,6 +4,7 @@ platform: actions
 
 feature_toggles:
 - update-pipeline
+- update-actions
 
 tasks:
 - type: run

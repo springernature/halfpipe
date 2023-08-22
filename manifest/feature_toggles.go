@@ -2,14 +2,18 @@ package manifest
 
 type FeatureToggles []string
 
-const FeatureUpdatePipeline = "update-pipeline"
-const FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
-const FeatureGithubStatuses = "github-statuses"
+const (
+	FeatureUpdatePipeline       = "update-pipeline"
+	FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
+	FeatureGithubStatuses       = "github-statuses"
+	FeatureUpdateActions        = "update-actions"
+)
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureUpdatePipelineAndTag,
 	FeatureGithubStatuses,
+	FeatureUpdateActions,
 }
 
 func (f FeatureToggles) contains(aFeature string) bool {
@@ -31,4 +35,8 @@ func (f FeatureToggles) TagGitRepo() bool {
 
 func (f FeatureToggles) GithubStatuses() bool {
 	return f.contains(FeatureGithubStatuses)
+}
+
+func (f FeatureToggles) UpdateActions() bool {
+	return f.contains(FeatureUpdateActions)
 }

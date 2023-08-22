@@ -4,6 +4,7 @@ platform: actions
 
 feature_toggles:
 - update-pipeline-and-tag
+- update-actions
 
 tasks:
 - type: parallel

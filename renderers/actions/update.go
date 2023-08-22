@@ -6,6 +6,7 @@ import (
 )
 
 func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) Steps {
+	steps := Steps{}
 
 	cdPrefix := ""
 	if a.workingDir != "" {
@@ -25,7 +26,9 @@ func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) Steps
 		},
 	}
 
-	steps := Steps{update}
+	if man.FeatureToggles.UpdateActions() {
+		steps = Steps{update}
+	}
 
 	if task.TagRepo {
 		tag := man.PipelineName() + "/v$BUILD_VERSION"
