@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
-	github.com/cloudfoundry/bosh-utils v0.0.382 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.386 // indirect
 	github.com/concourse/concourse v1.6.1-0.20230204041300-d289c02f878d
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/gookit/color v1.5.4
@@ -30,7 +30,7 @@ require (
 
 require (
 	github.com/sirupsen/logrus v1.9.3
-	golang.org/x/exp v0.0.0-20221004215720-b9f4876ce741
+	golang.org/x/exp v0.0.0-20230817173708-d852ddb80c63
 	gopkg.in/yaml.v3 v3.0.1
 )
 
