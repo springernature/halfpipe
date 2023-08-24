@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-go version | grep -q 'go1.20' || (
+go version | grep -q 'go1.21' || (
     go version
-    echo error: go1.20 required
+    echo error: go1.21 required
     exit 1
 )
 
@@ -22,7 +22,7 @@ go test $go_opts -cover ./...
 
 echo [3/6] build
 ldflags=""
-if [ `git branch | grep \* | cut -d ' ' -f2` != "main" ]; then
+if [ "$(git branch | grep "\*" | cut -d ' ' -f2)" != "main" ]; then
   go build \
     $go_opts \
     -ldflags "-X github.com/springernature/halfpipe/config.CheckBranch=false" \

@@ -23,7 +23,7 @@ jobs:
         languages: go
 
     - name: build
-      uses: docker://golang:1.20
+      uses: docker://golang:1.21
       with:
         entrypoint: /bin/sh
         args: -c "go build cmd/halfpipe.go"
