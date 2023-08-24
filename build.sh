@@ -21,7 +21,6 @@ export HALFPIPE_SKIP_COVERAGE_TESTS=true
 go test $go_opts -cover ./...
 
 echo [3/6] build
-ldflags=""
 if [ "$(git branch | grep "\*" | cut -d ' ' -f2)" != "main" ]; then
   go build \
     $go_opts \
