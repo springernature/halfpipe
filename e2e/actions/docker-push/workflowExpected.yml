@@ -256,3 +256,68 @@ jobs:
         echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
         echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
         echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
+  push_multiple_platforms_and_use_cache:
+    name: Push multiple platforms and use cache
+    needs:
+    - push_multiple_platforms
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        lfs: true
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: artifacts
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
+    - name: Build Image
+      uses: docker/build-push-action@v4
+      with:
+        build-args: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          BUILD_VERSION=2.${{ github.run_number }}.0
+          GIT_REVISION=${{ github.sha }}
+          RUNNING_IN_CI=true
+          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
+          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+        cache-from: type=registry,ref=eu.gcr.io/halfpipe-io/cache/someImage
+        cache-to: type=inline
+        context: e2e/actions/docker-push
+        file: e2e/actions/docker-push/Dockerfile
+        platforms: linux/amd64,linux/arm64
+        provenance: false
+        push: true
+        tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
+    - name: Run Trivy vulnerability scanner
+      uses: docker://aquasec/trivy
+      with:
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
+        entrypoint: /bin/sh
+    - name: Push Image
+      run: |-
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:latest
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+    - name: Summary
+      run: |-
+        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[eu.gcr.io/halfpipe-io/someImage](https://eu.gcr.io/halfpipe-io/someImage)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Tags:" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY

@@ -20,6 +20,7 @@ type DockerPush struct {
 	Tag                   string        `json:"tag,omitempty" yaml:"tag,omitempty"`
 	BuildHistory          int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	Platforms             []string      `json:"platforms,omitempty" yaml:"platforms,omitempty"`
+	UseCache              bool          `json:"use_cache,omitempty" yaml:"use_cache,omitempty"`
 }
 
 func (r DockerPush) GetSecrets() map[string]string {

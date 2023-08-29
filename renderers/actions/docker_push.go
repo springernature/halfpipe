@@ -60,6 +60,12 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 			"provenance": false,
 		},
 	}
+
+	if task.UseCache {
+		step.With["cache-from"] = fmt.Sprintf("type=registry,ref=%s", shared.CachePath(task, ""))
+		step.With["cache-to"] = "type=inline"
+	}
+
 	return step
 }
 

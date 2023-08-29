@@ -43,3 +43,13 @@ tasks:
   platforms:
   - "linux/amd64"
   - "linux/arm64"
+
+- type: docker-push
+  name: Push multiple platforms and use cache
+  image: eu.gcr.io/halfpipe-io/someImage
+  restore_artifacts: true
+  tag: version
+  use_cache: true
+  platforms:
+  - "linux/amd64"
+  - "linux/arm64"
