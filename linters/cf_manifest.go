@@ -3,6 +3,7 @@ package linters
 import (
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
+	"golang.org/x/exp/slices"
 	"strings"
 
 	"code.cloudfoundry.org/cli/util/manifestparser"
@@ -85,13 +86,7 @@ func lintRoutes(task manifest.DeployCF, app manifestparser.Application) (errs []
 	}
 
 	if task.SSORoute != "" {
-		hasSSORoute := false
-		for _, route := range cf.Routes(app) {
-			if route == task.SSORoute {
-				hasSSORoute = true
-				break
-			}
-		}
+		hasSSORoute := slices.Contains(cf.Routes(app), task.SSORoute)
 		if !hasSSORoute {
 			errs = append(errs, ErrCFRouteMissing.WithValue(task.SSORoute).WithFile(task.Manifest))
 		}
