@@ -31,7 +31,7 @@ func (a *Actions) updateSteps(task manifest.Update, man manifest.Manifest) Steps
 		If:   "steps.sync.outputs.synced == 'false'",
 		Run: `git config user.name halfpipe-io
 git config user.email halfpipe-io@springernature.com
-git commit -am 'sync workflow with halfpipe manifest'
+git commit -am "[halfpipe] synced workflow $GITHUB_WORKFLOW with halfpipe manifest"
 git push
 echo 'Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
 echo >> $GITHUB_STEP_SUMMARY
