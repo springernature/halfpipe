@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"fmt"
+	"golang.org/x/exp/slices"
 	"regexp"
 	"strings"
 )
@@ -22,21 +23,11 @@ func (n Notifications) NotificationsDefined() bool {
 type TaskList []Task
 
 func (tl TaskList) SavesArtifacts() bool {
-	for _, task := range tl {
-		if task.SavesArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(tl, func(t Task) bool { return t.SavesArtifacts() })
 }
 
 func (tl TaskList) SavesArtifactsOnFailure() bool {
-	for _, task := range tl {
-		if task.SavesArtifactsOnFailure() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(tl, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
 func (tl TaskList) UsesNotifications() bool {

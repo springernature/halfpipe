@@ -1,5 +1,7 @@
 package manifest
 
+import "golang.org/x/exp/slices"
+
 type Sequence struct {
 	Type  string
 	Tasks TaskList
@@ -34,12 +36,7 @@ func (s Sequence) SetName(name string) Task {
 }
 
 func (s Sequence) ReadsFromArtifacts() bool {
-	for _, task := range s.Tasks {
-		if task.ReadsFromArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.ReadsFromArtifacts() })
 }
 
 func (s Sequence) GetAttempts() int {
@@ -47,21 +44,11 @@ func (s Sequence) GetAttempts() int {
 }
 
 func (s Sequence) SavesArtifacts() bool {
-	for _, task := range s.Tasks {
-		if task.SavesArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.SavesArtifacts() })
 }
 
 func (s Sequence) SavesArtifactsOnFailure() bool {
-	for _, task := range s.Tasks {
-		if task.SavesArtifactsOnFailure() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
 func (s Sequence) IsManualTrigger() bool {

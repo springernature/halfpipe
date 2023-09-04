@@ -4,26 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gookit/color"
+	"golang.org/x/exp/slices"
 )
 
 type LintResults []LintResult
 
 func (lrs LintResults) HasWarnings() bool {
-	for _, lintResult := range lrs {
-		if lintResult.HasWarnings() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(lrs, func(lr LintResult) bool { return lr.HasWarnings() })
 }
 
 func (lrs LintResults) HasErrors() bool {
-	for _, lintResult := range lrs {
-		if lintResult.HasErrors() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(lrs, func(lr LintResult) bool { return lr.HasErrors() })
 }
 
 func (lrs LintResults) Error() (out string) {
@@ -65,21 +56,11 @@ func (lr *LintResult) Error() (out string) {
 }
 
 func (lr *LintResult) HasErrors() bool {
-	for _, e := range lr.Issues {
-		if !isWarning(e) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(lr.Issues, func(e error) bool { return !isWarning(e) })
 }
 
 func (lr *LintResult) HasWarnings() bool {
-	for _, e := range lr.Issues {
-		if isWarning(e) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(lr.Issues, func(e error) bool { return isWarning(e) })
 }
 
 func isWarning(e error) bool {

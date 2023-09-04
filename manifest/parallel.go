@@ -1,5 +1,7 @@
 package manifest
 
+import "golang.org/x/exp/slices"
+
 type Parallel struct {
 	Type  string
 	Tasks TaskList `yaml:"tasks,omitempty"`
@@ -39,12 +41,7 @@ func (p Parallel) MarshalYAML() (interface{}, error) {
 }
 
 func (p Parallel) ReadsFromArtifacts() bool {
-	for _, task := range p.Tasks {
-		if task.ReadsFromArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(p.Tasks, func(t Task) bool { return t.ReadsFromArtifacts() })
 }
 
 func (Parallel) GetAttempts() int {
@@ -52,21 +49,11 @@ func (Parallel) GetAttempts() int {
 }
 
 func (p Parallel) SavesArtifacts() bool {
-	for _, task := range p.Tasks {
-		if task.SavesArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(p.Tasks, func(t Task) bool { return t.SavesArtifacts() })
 }
 
 func (p Parallel) SavesArtifactsOnFailure() bool {
-	for _, task := range p.Tasks {
-		if task.SavesArtifactsOnFailure() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(p.Tasks, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
 func (Parallel) IsManualTrigger() bool {

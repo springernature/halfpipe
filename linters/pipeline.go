@@ -3,17 +3,9 @@ package linters
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"golang.org/x/exp/slices"
 	"strings"
 )
-
-func contains(allowedStatus []string, status string) bool {
-	for _, a := range allowedStatus {
-		if a == status {
-			return true
-		}
-	}
-	return false
-}
 
 func LintPipelineTrigger(man manifest.Manifest, pipeline manifest.PipelineTrigger) (errs []error) {
 	if man.Team != pipeline.Team {
@@ -32,7 +24,7 @@ func LintPipelineTrigger(man manifest.Manifest, pipeline manifest.PipelineTrigge
 	}
 
 	allowedStatus := []string{"succeeded", "failed", "errored", "aborted"}
-	if !contains(allowedStatus, pipeline.Status) {
+	if !slices.Contains(allowedStatus, pipeline.Status) {
 		errs = append(errs, NewErrInvalidField("status", fmt.Sprintf("must be one of %s", strings.Join(allowedStatus, ", "))))
 	}
 	return errs

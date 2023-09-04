@@ -3,6 +3,7 @@ package linters
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"golang.org/x/exp/slices"
 	"regexp"
 )
 
@@ -42,10 +43,5 @@ func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (er
 }
 
 func previousTasksSavesArtifact(tasks []manifest.Task) bool {
-	for _, task := range tasks {
-		if task.SavesArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(tasks, func(t manifest.Task) bool { return t.SavesArtifacts() })
 }

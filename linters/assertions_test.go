@@ -2,6 +2,7 @@ package linters
 
 import (
 	"errors"
+	"golang.org/x/exp/slices"
 	"testing"
 )
 
@@ -20,10 +21,5 @@ func assertNotContainsError(t *testing.T, errs []error, expected error) {
 }
 
 func containsError(errs []error, expected error) bool {
-	for _, e := range errs {
-		if errors.Is(e, expected) {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(errs, func(e error) bool { return errors.Is(e, expected) })
 }

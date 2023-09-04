@@ -2,6 +2,7 @@ package manifest
 
 import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
+	"golang.org/x/exp/slices"
 	"strings"
 )
 
@@ -87,12 +88,7 @@ func (r DeployCF) NotifiesOnSuccess() bool {
 }
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {
-	for _, task := range r.PrePromote {
-		if task.SavesArtifactsOnFailure() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(r.PrePromote, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
 func (r DeployCF) IsManualTrigger() bool {
@@ -108,12 +104,7 @@ func (r DeployCF) ReadsFromArtifacts() bool {
 		return true
 	}
 
-	for _, pp := range r.PrePromote {
-		if pp.ReadsFromArtifacts() {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(r.PrePromote, func(t Task) bool { return t.ReadsFromArtifacts() })
 }
 
 func (r DeployCF) GetAttempts() int {

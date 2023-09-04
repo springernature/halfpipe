@@ -3,6 +3,7 @@ package manifest
 import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
+	"golang.org/x/exp/slices"
 	"reflect"
 	"regexp"
 	"strings"
@@ -211,10 +212,5 @@ func (s secretValidator) Validate(man Manifest) (errors []error) {
 }
 
 func (s secretValidator) IsReservedKeyName(keyName string) bool {
-	for _, name := range reservedKeyNames {
-		if keyName == name {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(reservedKeyNames, func(s string) bool { return s == keyName })
 }

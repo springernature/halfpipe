@@ -2,6 +2,7 @@ package linters
 
 import (
 	"github.com/springernature/halfpipe/manifest"
+	"golang.org/x/exp/slices"
 )
 
 var (
@@ -39,10 +40,5 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result LintResult
 }
 
 func (f featureToggleLinter) featureInAvailableFeatures(feature string) bool {
-	for _, availableFeature := range f.availableFeatures {
-		if feature == availableFeature {
-			return true
-		}
-	}
-	return false
+	return slices.ContainsFunc(f.availableFeatures, func(availableFeature string) bool { return availableFeature == feature })
 }

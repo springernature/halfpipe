@@ -512,13 +512,15 @@ func pathToVersionFile(repoName string, basePath string) (gitRefPath string) {
 
 func onErrorScript(artifactPaths []string, basePath string) string {
 	var returnScript []string
+
 	if len(artifactPaths) != 0 {
 		returnScript = append(returnScript, "  # Artifacts to copy in case of failure")
 	}
+
 	for _, artifactPath := range artifactPaths {
 		returnScript = append(returnScript, fmt.Sprintf("  copyArtifact %s %s", artifactPath, fullPathToArtifactsDir(gitDir, basePath, artifactsOutDirOnFailure, artifactPath)))
-
 	}
+
 	returnScript = append(returnScript, "  exit 1")
 	return strings.Join(returnScript, "\n")
 }
