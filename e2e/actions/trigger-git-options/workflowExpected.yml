@@ -36,10 +36,11 @@ jobs:
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: git-crypt unlock
@@ -72,10 +73,11 @@ jobs:
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: git-crypt unlock

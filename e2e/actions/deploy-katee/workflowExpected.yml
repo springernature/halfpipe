@@ -28,9 +28,10 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
@@ -97,9 +98,10 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Deploy to Katee
@@ -149,9 +151,10 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Deploy to Katee

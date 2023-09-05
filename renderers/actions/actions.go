@@ -138,8 +138,8 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
-		Uses: "actions/checkout@v3",
-		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey},
+		Uses: "actions/checkout@v4",
+		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey, "show-progress": false},
 	}
 	if !gitTrigger.Shallow {
 		checkout.With["fetch-depth"] = 0

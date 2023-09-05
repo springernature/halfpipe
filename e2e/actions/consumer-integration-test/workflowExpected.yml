@@ -36,9 +36,10 @@ jobs:
           /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: c-name
@@ -112,9 +113,10 @@ jobs:
           /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         lfs: true
+        show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: c-name-covenant
