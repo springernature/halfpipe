@@ -230,19 +230,6 @@ func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName str
 	}
 }
 
-func (c Concourse) dockerPushResource(docker manifest.DockerPush) atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name: manifest.DockerTrigger{Image: docker.Image}.GetTriggerName(),
-		Type: "registry-image",
-		Source: atc.Source{
-			"username":   docker.Username,
-			"password":   docker.Password,
-			"repository": docker.Image,
-		},
-		CheckEvery: &longResourceCheckInterval,
-	}
-}
-
 func (c Concourse) dockerTriggerResource(trigger manifest.DockerTrigger) atc.ResourceConfig {
 	config := atc.ResourceConfig{
 		Name: trigger.GetTriggerName(),
