@@ -300,7 +300,7 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --push --provenance=false --cache-from=type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --cache-to=type=inline $CONTEXT
         path: /bin/sh
     privileged: true
     task: build

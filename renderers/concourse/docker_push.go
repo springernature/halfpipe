@@ -99,16 +99,8 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 }
 
 func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) atc.StepConfig {
-	var imageFile string
-	var gitRef string
-	imageFile = shared.CachePath(task, "")
-
-	gitRef = fmt.Sprintf(":$(cat %s)", pathToGitRef(gitDir, basePath))
-
-	//exitCode := 1
-	//if task.IgnoreVulnerabilities {
-	//	exitCode = 0
-	//}
+	imageFile := shared.CachePath(task, "")
+	gitRef := fmt.Sprintf(":$(cat %s)", pathToGitRef(gitDir, basePath))
 
 	// temporary: always exit 0 until we have communicated the ignoreVulnerabilites opt-in
 	exitCode := 0
@@ -152,6 +144,7 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 	var steps []atc.Step
 	image, tag := shared.SplitTag(task.Image)
 	dockerImageWithCachePath := shared.CachePath(task, "")
+	buildCachePath := shared.CachePath(task, "buildcache")
 
 	fullBasePath := path.Join(gitDir, basePath)
 	if task.RestoreArtifacts {
@@ -172,6 +165,20 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 
 	platforms := strings.Join(task.Platforms, ",")
 
+	tags := []string{
+		fmt.Sprintf("-t %s:$(cat git/.git/ref)", dockerImageWithCachePath),
+	}
+	if task.UseCache {
+		tags = append(tags, fmt.Sprintf("-t %s", buildCachePath))
+	}
+
+	buildCommand := fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform %s %s --push --provenance=false`, platforms, strings.Join(tags, " "))
+	if task.UseCache {
+		buildCommand = fmt.Sprintf(`%s --cache-from=type=registry,ref=%s`, buildCommand, buildCachePath)
+		buildCommand = fmt.Sprintf(`%s --cache-to=type=inline`, buildCommand)
+	}
+	buildCommand = fmt.Sprintf(`%s $CONTEXT`, buildCommand)
+
 	buildStep = &atc.TaskStep{
 		Name:       "build",
 		Privileged: true,
@@ -191,7 +198,7 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 				Path: "/bin/sh",
 				Args: []string{"-c", strings.Join([]string{
 					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
-					fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform %s -t %s:$(cat git/.git/ref) --push --provenance=false $CONTEXT`, platforms, dockerImageWithCachePath)}, "\n"),
+					buildCommand}, "\n"),
 				},
 			},
 			Inputs: []atc.TaskInputConfig{

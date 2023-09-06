@@ -28,6 +28,7 @@ tasks:
   retries: 1
   ignore_vulnerabilities: true
   scan_timeout: 30
+  use_cache: true
   platforms:
   - "linux/amd64"
   - "linux/arm64"

@@ -54,7 +54,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"file":       path.Join(a.workingDir, task.DockerfilePath),
 			"push":       true,
-			"tags":       shared.CachePath(task, ":${{ env.GIT_REVISION }}"),
+			"tags":       shared.CachePath(task, "${{ env.GIT_REVISION }}"),
 			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
 			"provenance": false,
@@ -62,7 +62,8 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 	}
 
 	if task.UseCache {
-		step.With["cache-from"] = fmt.Sprintf("type=registry,ref=%s", shared.CachePath(task, ""))
+		step.With["tags"] = fmt.Sprintf("%s\n%s", step.With["tags"], shared.CachePath(task, "buildcache"))
+		step.With["cache-from"] = fmt.Sprintf("type=registry,ref=%s", shared.CachePath(task, "buildcache"))
 		step.With["cache-to"] = "type=inline"
 	}
 

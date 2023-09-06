@@ -293,14 +293,16 @@ jobs:
           RUNNING_IN_CI=true
           VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
           VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
-        cache-from: type=registry,ref=eu.gcr.io/halfpipe-io/cache/someImage
+        cache-from: type=registry,ref=eu.gcr.io/halfpipe-io/cache/someImage:buildcache
         cache-to: type=inline
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64,linux/arm64
         provenance: false
         push: true
-        tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
+        tags: |-
+          eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
+          eu.gcr.io/halfpipe-io/cache/someImage:buildcache
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:

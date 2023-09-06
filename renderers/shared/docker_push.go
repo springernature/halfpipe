@@ -9,6 +9,9 @@ import (
 
 func CachePath(task manifest.DockerPush, tag string) string {
 	image, _ := SplitTag(task.Image)
+	if tag != "" && !strings.HasPrefix(tag, ":") {
+		tag = fmt.Sprintf(":%s", tag)
+	}
 
 	if strings.HasPrefix(task.Image, config.DockerRegistry) {
 		r := strings.Replace(image, config.DockerRegistry, fmt.Sprintf("%scache/", config.DockerRegistry), 1)
