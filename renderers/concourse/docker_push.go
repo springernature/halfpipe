@@ -144,15 +144,12 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 	var steps []atc.Step
 	image, tag := shared.SplitTag(task.Image)
 	dockerImageWithCachePath := shared.CachePath(task, "")
-	buildCachePath := shared.CachePath(task, "buildcache")
 
 	fullBasePath := path.Join(gitDir, basePath)
 	if task.RestoreArtifacts {
 		fullBasePath = path.Join(dockerBuildTmpDir, basePath)
 	}
 
-	dockerFilePath := path.Join(fullBasePath, task.DockerfilePath)
-	dockerContext := path.Join(fullBasePath, task.BuildPath)
 	params := atc.TaskEnv{
 		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
 	}
@@ -163,22 +160,23 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 
 	var buildStep *atc.TaskStep
 
-	platforms := strings.Join(task.Platforms, ",")
-
-	tags := []string{
-		fmt.Sprintf("-t %s:$(cat git/.git/ref)", dockerImageWithCachePath),
+	buildCommand := []string{
+		"docker buildx build",
+		fmt.Sprintf("-f %s", path.Join(fullBasePath, task.DockerfilePath)),
+		"--push",
+		"--provenance false",
+		fmt.Sprintf("--platform %s", strings.Join(task.Platforms, ",")),
+		fmt.Sprintf("--tag %s", shared.CachePath(task, "$(cat git/.git/ref)")),
 	}
 	if task.UseCache {
-		tags = append(tags, fmt.Sprintf("-t %s", buildCachePath))
+		buildCommand = append(buildCommand, fmt.Sprintf("--tag %s", shared.CachePath(task, "buildcache")))
+		buildCommand = append(buildCommand, fmt.Sprintf("--cache-from type=registry,ref=%s", shared.CachePath(task, "buildcache")))
+		buildCommand = append(buildCommand, "--cache-to type=inline")
 	}
+	buildCommand = append(buildCommand, path.Join(fullBasePath, task.BuildPath))
 
-	buildCommand := fmt.Sprintf(`docker buildx build -f %s --platform %s %s --push --provenance=false`, dockerFilePath, platforms, strings.Join(tags, " "))
-	if task.UseCache {
-		buildCommand = fmt.Sprintf(`%s --cache-from=type=registry,ref=%s`, buildCommand, buildCachePath)
-		buildCommand = fmt.Sprintf(`%s --cache-to=type=inline`, buildCommand)
-	}
-	buildCommand = fmt.Sprintf(`%s %s`, buildCommand, dockerContext)
-
+	buildCommandStr := strings.Join(buildCommand, ` \
+  `)
 	buildStep = &atc.TaskStep{
 		Name:       "build",
 		Privileged: true,
@@ -198,7 +196,8 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 				Path: "/bin/sh",
 				Args: []string{"-c", strings.Join([]string{
 					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
-					buildCommand}, "\n"),
+					fmt.Sprintf(`echo $ %s`, buildCommandStr),
+					buildCommandStr}, "\n"),
 				},
 			},
 			Inputs: []atc.TaskInputConfig{
