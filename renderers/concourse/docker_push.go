@@ -151,9 +151,9 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 		fullBasePath = path.Join(dockerBuildTmpDir, basePath)
 	}
 
+	dockerFilePath := path.Join(fullBasePath, task.DockerfilePath)
+	dockerContext := path.Join(fullBasePath, task.BuildPath)
 	params := atc.TaskEnv{
-		"CONTEXT":            path.Join(fullBasePath, task.BuildPath),
-		"DOCKERFILE":         path.Join(fullBasePath, task.DockerfilePath),
 		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
 	}
 
@@ -172,12 +172,12 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 		tags = append(tags, fmt.Sprintf("-t %s", buildCachePath))
 	}
 
-	buildCommand := fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform %s %s --push --provenance=false`, platforms, strings.Join(tags, " "))
+	buildCommand := fmt.Sprintf(`docker buildx build -f %s --platform %s %s --push --provenance=false`, dockerFilePath, platforms, strings.Join(tags, " "))
 	if task.UseCache {
 		buildCommand = fmt.Sprintf(`%s --cache-from=type=registry,ref=%s`, buildCommand, buildCachePath)
 		buildCommand = fmt.Sprintf(`%s --cache-to=type=inline`, buildCommand)
 	}
-	buildCommand = fmt.Sprintf(`%s $CONTEXT`, buildCommand)
+	buildCommand = fmt.Sprintf(`%s %s`, buildCommand, dockerContext)
 
 	buildStep = &atc.TaskStep{
 		Name:       "build",

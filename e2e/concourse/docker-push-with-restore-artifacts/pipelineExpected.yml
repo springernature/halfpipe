@@ -251,16 +251,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: docker_build/e2e/concourse/docker-push-with-restore-artifacts
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image1:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image1:$(cat git/.git/ref) --push --provenance=false docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
     task: build
@@ -307,9 +305,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: docker_build/e2e/concourse/docker-push-with-restore-artifacts
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
       platform: linux
       run:
         args:
@@ -429,16 +425,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: docker_build/e2e/concourse/docker-push-with-restore-artifacts
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image2:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image2:$(cat git/.git/ref) --push --provenance=false docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
     task: build
@@ -485,9 +479,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: docker_build/e2e/concourse/docker-push-with-restore-artifacts
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile
       platform: linux
       run:
         args:

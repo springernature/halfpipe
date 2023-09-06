@@ -54,16 +54,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/timer-trigger
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/timer-trigger/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f git/e2e/concourse/timer-trigger/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/timer-trigger
         path: /bin/sh
     privileged: true
     task: build
@@ -109,9 +107,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/timer-trigger
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/timer-trigger/Dockerfile
       platform: linux
       run:
         args:

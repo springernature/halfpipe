@@ -49,16 +49,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -104,9 +102,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
@@ -170,16 +166,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -225,9 +219,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
@@ -291,16 +283,14 @@ jobs:
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --push --provenance=false --cache-from=type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --cache-to=type=inline $CONTEXT
+          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --push --provenance=false --cache-from=type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --cache-to=type=inline git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -346,9 +336,7 @@ jobs:
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
