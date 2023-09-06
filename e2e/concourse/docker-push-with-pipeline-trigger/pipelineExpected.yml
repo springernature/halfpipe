@@ -61,7 +61,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push-with-pipeline-trigger/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push-with-pipeline-trigger
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push-with-pipeline-trigger/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-with-pipeline-trigger
+          docker buildx build \
+            -f git/e2e/concourse/docker-push-with-pipeline-trigger/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-with-pipeline-trigger
         path: /bin/sh
     privileged: true
     task: build

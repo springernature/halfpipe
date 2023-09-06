@@ -54,7 +54,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push-paths/some/build/dir
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-paths/some/build/dir
+          docker buildx build \
+            -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-paths/some/build/dir
         path: /bin/sh
     privileged: true
     task: build
@@ -167,7 +180,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push-paths
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-paths
+          docker buildx build \
+            -f git/e2e/concourse/docker-push-paths/dockerfiles/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push-paths
         path: /bin/sh
     privileged: true
     task: build

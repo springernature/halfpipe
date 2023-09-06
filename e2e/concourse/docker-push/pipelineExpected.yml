@@ -56,7 +56,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -173,7 +186,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/docker-push
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -290,7 +316,26 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/docker-push/Dockerfile --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --push --provenance=false --cache-from=type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache --cache-to=type=inline git/e2e/concourse/docker-push
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64,linux/arm64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-from type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-to type=inline \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64,linux/arm64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-from type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-to type=inline \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build

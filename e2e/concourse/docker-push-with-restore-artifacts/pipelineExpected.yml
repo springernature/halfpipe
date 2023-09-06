@@ -258,7 +258,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image1:$(cat git/.git/ref) --push --provenance=false docker_build/e2e/concourse/docker-push-with-restore-artifacts
+          echo $ docker buildx build \
+            -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image1:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/docker-push-with-restore-artifacts
+          docker buildx build \
+            -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image1:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
     task: build
@@ -432,7 +445,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image2:$(cat git/.git/ref) --push --provenance=false docker_build/e2e/concourse/docker-push-with-restore-artifacts
+          echo $ docker buildx build \
+            -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image2:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/docker-push-with-restore-artifacts
+          docker buildx build \
+            -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/image2:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
     task: build

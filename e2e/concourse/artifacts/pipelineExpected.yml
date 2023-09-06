@@ -459,7 +459,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f docker_build/e2e/concourse/artifacts/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --push --provenance=false docker_build/e2e/concourse/artifacts
+          echo $ docker buildx build \
+            -f docker_build/e2e/concourse/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/artifacts
+          docker buildx build \
+            -f docker_build/e2e/concourse/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            docker_build/e2e/concourse/artifacts
         path: /bin/sh
     privileged: true
     task: build

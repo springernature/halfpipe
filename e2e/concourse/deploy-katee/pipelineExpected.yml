@@ -107,7 +107,20 @@ jobs:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f git/e2e/concourse/deploy-katee/Dockerfile --platform linux/amd64 -t eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) --push --provenance=false git/e2e/concourse/deploy-katee
+          echo $ docker buildx build \
+            -f git/e2e/concourse/deploy-katee/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) \
+            git/e2e/concourse/deploy-katee
+          docker buildx build \
+            -f git/e2e/concourse/deploy-katee/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) \
+            git/e2e/concourse/deploy-katee
         path: /bin/sh
     privileged: true
     task: build
