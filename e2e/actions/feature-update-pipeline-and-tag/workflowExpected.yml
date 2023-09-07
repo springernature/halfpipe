@@ -35,7 +35,10 @@ jobs:
         submodules: recursive
     - name: Sync workflow with halfpipe manifest
       id: sync
-      run: halfpipe-update-workflow
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-auto-update
+      with:
+        args: -c "cd e2e/actions/feature-update-pipeline-and-tag; update-actions-workflow"
+        entrypoint: /bin/bash
       env:
         HALFPIPE_FILE_PATH: .halfpipe.io.yml
     - name: Commit and push changes to workflow

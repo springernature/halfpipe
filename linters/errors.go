@@ -33,12 +33,10 @@ var (
 	ErrCFFromArtifact         = newError("this file must be saved as an artifact in a previous task")
 	ErrCFPrePromoteArtifact   = newError("cannot have pre promote tasks with CF manifest restored from artifact")
 
-	ErrUnsupportedRegistry = newError("image must be from halfpipe registry. Please see <https://ee.public.springernature.app/rel-eng/docker-registry/>")
-	ErrDockerPushTag       = newError("the field 'tag' is no longer used and is safe to delete")
-
-	ErrDockerPlatformUnknown = newError("only linux/amd64 and/or linux/arm64 are supported")
-	ErrDockerComposeVersion  = newError("the docker-compose file version used is deprecated. All services must be under the 'services' key and 'Version' must be '2' or higher. Please see <https://docs.docker.com/compose/compose-file/compose-versioning/#versioning>")
-	ErrMultipleTriggers      = newError("cannot have multiple triggers of this type")
+	ErrUnsupportedRegistry  = newError("image must be from halfpipe registry. Please see <https://ee.public.springernature.app/rel-eng/docker-registry/>")
+	ErrDockerPushTag        = newError("the field 'tag' is no longer used and is safe to delete")
+	ErrDockerComposeVersion = newError("the docker-compose file version used is deprecated. All services must be under the 'services' key and 'Version' must be '2' or higher. Please see <https://docs.docker.com/compose/compose-file/compose-versioning/#versioning>")
+	ErrMultipleTriggers     = newError("cannot have multiple triggers of this type")
 
 	ErrVelaVariableMissing = newError("vela manifest variable is not specified in halfpipe manifest")
 	ErrVelaNamespace       = newError("vela namespace must start with 'katee-'")

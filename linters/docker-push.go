@@ -2,7 +2,6 @@ package linters
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
 	"os"
 	"regexp"
 	"strings"
@@ -60,12 +59,6 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 
 	if docker.Tag != "" {
 		errs = append(errs, ErrDockerPushTag.AsWarning())
-	}
-
-	for _, platform := range docker.Platforms {
-		if !slices.Contains([]string{"linux/amd64", "linux/arm64"}, platform) {
-			errs = append(errs, ErrDockerPlatformUnknown)
-		}
 	}
 
 	return errs

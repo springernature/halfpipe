@@ -355,7 +355,7 @@ func TestMultiplePlatforms(t *testing.T) {
 		assert.Empty(t, errors)
 	})
 
-	t.Run("errors when unknown platform in docker push", func(t *testing.T) {
+	t.Run("only linux/amd64 for concourse is fine", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -364,12 +364,12 @@ func TestMultiplePlatforms(t *testing.T) {
 			Username:       "asd",
 			Password:       "asdf",
 			DockerfilePath: "Dockerfile",
-			Platforms:      []string{"linux/ad64"},
+			Platforms:      []string{"linux/amd64"},
 		}
 
 		m := manifest.Manifest{Platform: "actions"}
 
 		errors := LintDockerPushTask(task, m, fs)
-		assertContainsError(t, errors, ErrDockerPlatformUnknown)
+		assert.Empty(t, errors)
 	})
 }

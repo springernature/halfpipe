@@ -16,10 +16,16 @@ var tagListFile = path.Join(tagList_Dir, "tagList")
 
 func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man manifest.Manifest) atc.JobConfig {
 	var steps []atc.Step
+	resourceName := manifest.DockerTrigger{Image: task.Image}.GetTriggerName()
+
+	fullBasePath := path.Join(gitDir, basePath)
+	if task.RestoreArtifacts {
+		fullBasePath = path.Join(dockerBuildTmpDir, basePath)
+	}
 
 	steps = append(steps, restoreArtifacts(task)...)
 	steps = append(steps, createTagList(task, man.FeatureToggles.UpdatePipeline())...)
-	steps = append(steps, buildAndPush(task, basePath)...)
+	steps = append(steps, buildAndPush(task, resourceName, fullBasePath)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -98,9 +104,21 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
 }
 
-func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) atc.StepConfig {
-	imageFile := shared.CachePath(task, "")
-	gitRef := fmt.Sprintf(":$(cat %s)", pathToGitRef(gitDir, basePath))
+func trivyTask(task manifest.DockerPush, fullBasePath string) atc.StepConfig {
+	var imageFile string
+	var gitRef string
+	if !multiPlatform(task) {
+		imageFile = fmt.Sprintf("--input %s", path.Join(relativePathToRepoRoot(gitDir, fullBasePath), "image/image.tar"))
+	} else {
+		imageFile = shared.CachePath(task, "")
+		gitRef = fmt.Sprintf(":$(cat %s)", path.Join(gitDir, ".git", "ref"))
+		fullBasePath = ""
+	}
+
+	//exitCode := 1
+	//if task.IgnoreVulnerabilities {
+	//	exitCode = 0
+	//}
 
 	// temporary: always exit 0 until we have communicated the ignoreVulnerabilites opt-in
 	exitCode := 0
@@ -124,11 +142,9 @@ func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) a
 				}, "\n")},
 				Dir: fullBasePath,
 			},
-			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
-			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
+				{Name: "image"},
 			},
 		},
 	}
@@ -140,17 +156,14 @@ func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) a
 	return step
 }
 
-func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
+func buildAndPush(task manifest.DockerPush, resourceName string, fullBasePath string) []atc.Step {
 	var steps []atc.Step
 	image, tag := shared.SplitTag(task.Image)
 	dockerImageWithCachePath := shared.CachePath(task, "")
 
-	fullBasePath := path.Join(gitDir, basePath)
-	if task.RestoreArtifacts {
-		fullBasePath = path.Join(dockerBuildTmpDir, basePath)
-	}
-
 	params := atc.TaskEnv{
+		"CONTEXT":            path.Join(fullBasePath, task.BuildPath),
+		"DOCKERFILE":         path.Join(fullBasePath, task.DockerfilePath),
 		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
 	}
 
@@ -160,51 +173,68 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 
 	var buildStep *atc.TaskStep
 
-	buildCommand := []string{
-		"docker buildx build",
-		fmt.Sprintf("-f %s", path.Join(fullBasePath, task.DockerfilePath)),
-		"--push",
-		"--provenance false",
-		fmt.Sprintf("--platform %s", strings.Join(task.Platforms, ",")),
-		fmt.Sprintf("--tag %s", shared.CachePath(task, "$(cat git/.git/ref)")),
-	}
-	if task.UseCache {
-		buildCommand = append(buildCommand, fmt.Sprintf("--tag %s", shared.CachePath(task, "buildcache")))
-		buildCommand = append(buildCommand, fmt.Sprintf("--cache-from type=registry,ref=%s", shared.CachePath(task, "buildcache")))
-		buildCommand = append(buildCommand, "--cache-to type=inline")
-	}
-	buildCommand = append(buildCommand, path.Join(fullBasePath, task.BuildPath))
+	if !multiPlatform(task) {
+		buildStep = &atc.TaskStep{
+			Name:       "build",
+			Privileged: true,
+			Config: &atc.TaskConfig{
+				Platform: "linux",
+				ImageResource: &atc.ImageResource{
+					Type: "registry-image",
+					Source: atc.Source{
+						"repository": "concourse/oci-build-task",
+					},
+				},
+				Params: params,
+				Run: atc.TaskRunConfig{
+					Path: "/bin/sh",
+					Args: []string{
+						"-c",
+						fmt.Sprintf("%s\n%s\n%s", "mkdir ~/.docker", "echo $DOCKER_CONFIG_JSON > ~/.docker/config.json", "build"),
+					},
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: gitDir},
+				},
+				Outputs: []atc.TaskOutputConfig{
+					{Name: "image"},
+				},
+			},
+		}
+	} else {
+		gitRef := fmt.Sprintf("$(cat %s)", path.Join(gitDir, ".git", "ref"))
 
-	buildCommandStr := strings.Join(buildCommand, ` \
-  `)
-	buildStep = &atc.TaskStep{
-		Name:       "build",
-		Privileged: true,
-		Config: &atc.TaskConfig{
-			Platform: "linux",
-			ImageResource: &atc.ImageResource{
-				Type: "registry-image",
-				Source: atc.Source{
-					"repository": config.DockerRegistry + "halfpipe-buildx",
-					"tag":        "latest",
-					"password":   "((halfpipe-gcr.private_key))",
-					"username":   "_json_key",
+		buildStep = &atc.TaskStep{
+			Name:       "build",
+			Privileged: true,
+			Config: &atc.TaskConfig{
+				Platform: "linux",
+				ImageResource: &atc.ImageResource{
+					Type: "registry-image",
+					Source: atc.Source{
+						"repository": config.DockerRegistry + "halfpipe-buildx",
+						"tag":        "latest",
+						"password":   "((halfpipe-gcr.private_key))",
+						"username":   "_json_key",
+					},
+				},
+				Params: params,
+				Run: atc.TaskRunConfig{
+					Path: "/bin/sh",
+					Args: []string{"-c", strings.Join([]string{
+						`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
+						fmt.Sprintf(`docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t %s:%s --push --provenance=false $CONTEXT`, dockerImageWithCachePath, gitRef)}, "\n"),
+					},
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: gitDir},
+					{Name: tagList_Dir},
+				},
+				Outputs: []atc.TaskOutputConfig{
+					{Name: "image"},
 				},
 			},
-			Params: params,
-			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
-				Args: []string{"-c", strings.Join([]string{
-					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
-					fmt.Sprintf(`echo $ %s`, buildCommandStr),
-					buildCommandStr}, "\n"),
-				},
-			},
-			Inputs: []atc.TaskInputConfig{
-				{Name: gitDir},
-				{Name: tagList_Dir},
-			},
-		},
+		}
 	}
 
 	if task.ReadsFromArtifacts() {
@@ -212,40 +242,59 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 	}
 
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
-	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath, basePath), task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath), task.GetAttempts(), task.GetTimeout()))
 
-	publishCommand := fmt.Sprintf(`for tag in $(cat %s) %s; do docker buildx imagetools create %s:$(cat git/.git/ref) --tag %s:$tag; done`, tagListFile, tag, dockerImageWithCachePath, image)
+	if !multiPlatform(task) {
+		putStep := &atc.PutStep{
+			Name: resourceName,
+			Params: atc.Params{
+				"image":           "image/image.tar",
+				"additional_tags": tagListFile,
+			},
+			NoGet: true,
+		}
+		steps = append(steps, stepWithAttemptsAndTimeout(putStep, task.GetAttempts(), task.GetTimeout()))
+	} else {
+		gitRef := fmt.Sprintf("$(cat %s)", path.Join(gitDir, ".git", "ref"))
+		publishCommand := fmt.Sprintf(`for tag in $(cat %s) %s; do docker buildx imagetools create %s:%s --tag %s:$tag; done`, tagListFile, tag, dockerImageWithCachePath, gitRef, image)
 
-	pushStep := &atc.TaskStep{
-		Name:       "publish-final-image",
-		Privileged: true,
-		Config: &atc.TaskConfig{
-			Platform: "linux",
-			ImageResource: &atc.ImageResource{
-				Type: "registry-image",
-				Source: atc.Source{
-					"repository": config.DockerRegistry + "halfpipe-buildx",
-					"tag":        "latest",
-					"password":   "((halfpipe-gcr.private_key))",
-					"username":   "_json_key",
+		pushStep := &atc.TaskStep{
+			Name:       "publish-final-image",
+			Privileged: true,
+			Config: &atc.TaskConfig{
+				Platform: "linux",
+				ImageResource: &atc.ImageResource{
+					Type: "registry-image",
+					Source: atc.Source{
+						"repository": config.DockerRegistry + "halfpipe-buildx",
+						"tag":        "latest",
+						"password":   "((halfpipe-gcr.private_key))",
+						"username":   "_json_key",
+					},
+				},
+				Params: params,
+				Run: atc.TaskRunConfig{
+					Path: "/bin/sh",
+					Args: []string{"-c", strings.Join([]string{
+						`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
+						publishCommand,
+					}, "\n"),
+					},
+				},
+				Inputs: []atc.TaskInputConfig{
+					{Name: gitDir},
+					{Name: tagList_Dir},
+				},
+				Outputs: []atc.TaskOutputConfig{
+					{Name: "image"},
 				},
 			},
-			Params: params,
-			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
-				Args: []string{"-c", strings.Join([]string{
-					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
-					publishCommand,
-				}, "\n"),
-				},
-			},
-			Inputs: []atc.TaskInputConfig{
-				{Name: gitDir},
-				{Name: tagList_Dir},
-			},
-		},
+		}
+		steps = append(steps, stepWithAttemptsAndTimeout(pushStep, task.GetAttempts(), task.GetTimeout()))
 	}
-	steps = append(steps, stepWithAttemptsAndTimeout(pushStep, task.GetAttempts(), task.GetTimeout()))
-
 	return steps
+}
+
+func multiPlatform(task manifest.DockerPush) bool {
+	return !(len(task.Platforms) == 1 && task.Platforms[0] == "linux/amd64")
 }
