@@ -184,22 +184,6 @@ func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previo
 	return steps
 }
 
-func (c Concourse) dockerPushResources(tasks manifest.TaskList) (resourceConfigs atc.ResourceConfigs) {
-	for _, task := range tasks {
-		switch task := task.(type) {
-		case manifest.DockerPush:
-			if len(task.Platforms) == 1 {
-				resourceConfigs = append(resourceConfigs, c.dockerPushResource(task))
-			}
-		case manifest.Parallel:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks)...)
-		case manifest.Sequence:
-			resourceConfigs = append(resourceConfigs, c.dockerPushResources(task.Tasks)...)
-		}
-	}
-
-	return resourceConfigs
-}
 func (c Concourse) pipelineResources(triggers manifest.TriggerList) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 
 	for _, trigger := range triggers {
@@ -267,8 +251,6 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 	if man.FeatureToggles.UpdatePipeline() {
 		resourceConfigs = append(resourceConfigs, c.versionResource(man))
 	}
-
-	resourceConfigs = append(resourceConfigs, c.dockerPushResources(man.Tasks)...)
 
 	cfResourceTypes, cfResources := c.cfPushResources(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)

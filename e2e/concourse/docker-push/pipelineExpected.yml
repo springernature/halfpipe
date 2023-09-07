@@ -34,12 +34,14 @@ jobs:
       image_resource:
         name: ""
         source:
-          repository: concourse/oci-build-task
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
         type: registry-image
       inputs:
       - name: git
-      outputs:
-      - name: image
+      - name: tagList
       params:
         BUILD_ARG_A: a
         BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -47,17 +49,27 @@ jobs:
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_B: b
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
-          mkdir ~/.docker
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          build
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -70,7 +82,8 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: image
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
       platform: linux
       run:
         args:
@@ -78,16 +91,41 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 --input ../../../../image/image.tar || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat ../../../.git/ref) || true
         dir: git/e2e/concourse/docker-push
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - no_get: true
-    params:
-      additional_tags: tagList/tagList
-      image: image/image.tar
-    put: halfpipe-fly.thisismy-tag
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        BUILD_ARG_A: a
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_B: b
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          for tag in $(cat tagList/tagList) thisIsMy_Tag; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --tag springerplatformengineering/halfpipe_fly:$tag; done
+        path: /bin/sh
+    privileged: true
+    task: publish-final-image
     timeout: 1h
   serial: true
 - build_log_retention:
@@ -128,28 +166,40 @@ jobs:
       image_resource:
         name: ""
         source:
-          repository: concourse/oci-build-task
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
         type: registry-image
       inputs:
       - name: git
-      outputs:
-      - name: image
+      - name: tagList
       params:
         BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
-          mkdir ~/.docker
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          build
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -163,7 +213,8 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: image
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
       platform: linux
       run:
         args:
@@ -171,17 +222,40 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 --input ../../../../image/image.tar || true
+          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat ../../../.git/ref) || true
         dir: git/e2e/concourse/docker-push
         path: /bin/sh
     task: trivy
     timeout: 1h
   - attempts: 2
-    no_get: true
-    params:
-      additional_tags: tagList/tagList
-      image: image/image.tar
-    put: halfpipe-fly.thisismy-tag2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
+        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
+        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
+        BUILD_ARG_RUNNING_IN_CI: "true"
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          for tag in $(cat tagList/tagList) thisIsMy_Tag2; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --tag springerplatformengineering/halfpipe_fly:$tag; done
+        path: /bin/sh
+    privileged: true
+    task: publish-final-image
     timeout: 1h
   serial: true
 - build_log_retention:
@@ -230,23 +304,38 @@ jobs:
       inputs:
       - name: git
       - name: tagList
-      outputs:
-      - name: image
       params:
         BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
         - -c
         - |-
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          docker buildx build -f $DOCKERFILE --platform linux/amd64,linux/arm64 -t eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) --push --provenance=false $CONTEXT
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64,linux/arm64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-from type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-to type=inline \
+            git/e2e/concourse/docker-push
+          docker buildx build \
+            -f git/e2e/concourse/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64,linux/arm64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-from type=registry,ref=eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:buildcache \
+            --cache-to type=inline \
+            git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
     task: build
@@ -260,7 +349,8 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: image
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
       platform: linux
       run:
         args:
@@ -268,7 +358,8 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat git/.git/ref) || true
+          trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe_fly:$(cat ../../../.git/ref) || true
+        dir: git/e2e/concourse/docker-push
         path: /bin/sh
     task: trivy
     timeout: 1h
@@ -285,16 +376,12 @@ jobs:
       inputs:
       - name: git
       - name: tagList
-      outputs:
-      - name: image
       params:
         BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
         BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
         BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
         BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: git/e2e/concourse/docker-push
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: git/e2e/concourse/docker-push/Dockerfile
       platform: linux
       run:
         args:
@@ -317,17 +404,3 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h0m0s
-  name: halfpipe-fly.thisismy-tag
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag
-    username: rob
-  type: registry-image
-- check_every: 24h0m0s
-  name: halfpipe-fly.thisismy-tag2
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
-    username: rob
-  type: registry-image
