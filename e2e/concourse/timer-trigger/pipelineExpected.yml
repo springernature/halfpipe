@@ -48,13 +48,13 @@ jobs:
       - name: git
       - name: tagList
       params:
-        BUILD_ARG_A: a
-        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
-        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
-        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
-        BUILD_ARG_B: b
-        BUILD_ARG_RUNNING_IN_CI: "true"
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -67,6 +67,12 @@ jobs:
             --provenance false \
             --platform linux/amd64 \
             --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg RUNNING_IN_CI \
             git/e2e/concourse/timer-trigger
           docker buildx build \
             -f git/e2e/concourse/timer-trigger/Dockerfile \
@@ -74,6 +80,12 @@ jobs:
             --provenance false \
             --platform linux/amd64 \
             --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg RUNNING_IN_CI \
             git/e2e/concourse/timer-trigger
         path: /bin/sh
     privileged: true
@@ -114,13 +126,13 @@ jobs:
       - name: git
       - name: tagList
       params:
-        BUILD_ARG_A: a
-        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
-        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
-        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
-        BUILD_ARG_B: b
-        BUILD_ARG_RUNNING_IN_CI: "true"
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:

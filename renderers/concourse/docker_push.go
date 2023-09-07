@@ -6,6 +6,7 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
+	"golang.org/x/exp/slices"
 	"path"
 	"strings"
 )
@@ -154,10 +155,6 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
 	}
 
-	for k, v := range convertVars(task.Vars) {
-		params[fmt.Sprintf("BUILD_ARG_%s", k)] = fmt.Sprintf("%s", v)
-	}
-
 	var buildStep *atc.TaskStep
 
 	buildCommand := []string{
@@ -168,11 +165,22 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 		fmt.Sprintf("--platform %s", strings.Join(task.Platforms, ",")),
 		fmt.Sprintf("--tag %s", shared.CachePath(task, "$(cat git/.git/ref)")),
 	}
+
+	buildArgs := []string{}
+	for k, v := range convertVars(task.Vars) {
+		params[k] = v.(string)
+		buildArgs = append(buildArgs, fmt.Sprintf("--build-arg %s", k))
+	}
+
+	slices.Sort(buildArgs)
+
+	buildCommand = append(buildCommand, buildArgs...)
 	if task.UseCache {
 		buildCommand = append(buildCommand, fmt.Sprintf("--tag %s", shared.CachePath(task, "buildcache")))
 		buildCommand = append(buildCommand, fmt.Sprintf("--cache-from type=registry,ref=%s", shared.CachePath(task, "buildcache")))
 		buildCommand = append(buildCommand, "--cache-to type=inline")
 	}
+
 	buildCommand = append(buildCommand, path.Join(fullBasePath, task.BuildPath))
 
 	buildCommandStr := strings.Join(buildCommand, ` \
