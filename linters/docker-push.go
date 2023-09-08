@@ -11,7 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, fs afero.Afero) (errs []error) {
+func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []error) {
 	if docker.Image == "" {
 		errs = append(errs, NewErrMissingField("image"))
 	} else {
@@ -65,6 +65,12 @@ func LintDockerPushTask(docker manifest.DockerPush, manifest manifest.Manifest, 
 	for _, platform := range docker.Platforms {
 		if !slices.Contains([]string{"linux/amd64", "linux/arm64"}, platform) {
 			errs = append(errs, ErrDockerPlatformUnknown)
+		}
+	}
+
+	for k, v := range docker.Vars {
+		if strings.HasPrefix(v, "((") && strings.HasSuffix(v, "))") && !strings.HasPrefix(k, "ARTIFACTORY_") {
+			errs = append(errs, ErrDockerVarSecret.WithValue(k).AsWarning())
 		}
 	}
 

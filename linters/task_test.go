@@ -113,7 +113,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			calledLintPrePromoteTasksNum++
 			return
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error) {
 			calledLintDockerPushTask = true
 			calledLintDockerPushTaskNum++
 			return
@@ -232,7 +232,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error) {
 			return []error{prePromoteErr, prePromoteWarn}
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error) {
 			return []error{dockerPushErr, dockerPushWarn}
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error) {
@@ -323,7 +323,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		LintPrePromoteTask: func(tasks manifest.Task) (errs []error) {
 			return []error{prePromoteErr, prePromoteWarn}
 		},
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error) {
 			return []error{dockerPushErr, dockerPushWarn}
 		},
 		lintDeployMLZipTask: func(task manifest.DeployMLZip) (errs []error) {
@@ -557,7 +557,7 @@ func TestLintTimeout(t *testing.T) {
 			return
 		},
 		LintPrePromoteTask: func(task manifest.Task) (errs []error) { return },
-		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
+		lintDockerPushTask: func(task manifest.DockerPush, fs afero.Afero) (errs []error) {
 			return
 		},
 		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error) {

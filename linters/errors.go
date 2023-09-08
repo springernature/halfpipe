@@ -38,7 +38,9 @@ var (
 
 	ErrDockerPlatformUnknown = newError("only linux/amd64 and/or linux/arm64 are supported")
 	ErrDockerComposeVersion  = newError("the docker-compose file version used is deprecated. All services must be under the 'services' key and 'Version' must be '2' or higher. Please see <https://docs.docker.com/compose/compose-file/compose-versioning/#versioning>")
-	ErrMultipleTriggers      = newError("cannot have multiple triggers of this type")
+	ErrDockerVarSecret       = newError("docker build var uses secret")
+
+	ErrMultipleTriggers = newError("cannot have multiple triggers of this type")
 
 	ErrVelaVariableMissing = newError("vela manifest variable is not specified in halfpipe manifest")
 	ErrVelaNamespace       = newError("vela namespace must start with 'katee-'")
@@ -75,8 +77,7 @@ func (e Error) Error() string {
 }
 
 func (e Error) AsWarning() Error {
-	e.level = "warning"
-	return e
+	return Error{err: e.err, level: "warning", value: e.value}
 }
 
 func (e Error) IsWarning() bool {
