@@ -38,7 +38,7 @@ var (
 
 	ErrDockerPlatformUnknown = newError("only linux/amd64 and/or linux/arm64 are supported")
 	ErrDockerComposeVersion  = newError("the docker-compose file version used is deprecated. All services must be under the 'services' key and 'Version' must be '2' or higher. Please see <https://docs.docker.com/compose/compose-file/compose-versioning/#versioning>")
-	ErrDockerVarSecret       = newError("docker build var uses secret")
+	ErrDockerVarSecret       = newError("using a secret in docker build vars is not secure. See the 'secrets' option of the docker-push task")
 
 	ErrMultipleTriggers = newError("cannot have multiple triggers of this type")
 

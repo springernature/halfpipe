@@ -14,12 +14,6 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		"RUNNING_IN_CI":        "true",
 	}
 
-	expectedSecrets := map[string]string{
-		"ARTIFACTORY_URL":      Concourse.Artifactory.URL,
-		"ARTIFACTORY_USERNAME": Concourse.Artifactory.Username,
-		"ARTIFACTORY_PASSWORD": Concourse.Artifactory.Password,
-	}
-
 	input := manifest.TaskList{
 		manifest.Update{},
 		manifest.Run{},
@@ -69,7 +63,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 				},
 			},
 		},
-		manifest.DockerPush{Vars: expectedVars, Secrets: expectedSecrets},
+		manifest.DockerPush{Vars: expectedVars},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Sequence{

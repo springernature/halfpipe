@@ -27,5 +27,20 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.Platforms = []string{"linux/amd64"}
 	}
 
+	if updated.Secrets == nil {
+		updated.Secrets = make(manifest.Vars)
+	}
+
+	if man.Platform.IsConcourse() {
+		updated.Secrets["ARTIFACTORY_URL"] = defaults.Artifactory.URL
+		updated.Secrets["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
+		updated.Secrets["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
+	}
+	if man.Platform.IsActions() {
+		updated.Secrets["ARTIFACTORY_URL"] = "${{ secrets.EE_ARTIFACTORY_URL }}"
+		updated.Secrets["ARTIFACTORY_USERNAME"] = "${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+		updated.Secrets["ARTIFACTORY_PASSWORD"] = "${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+	}
+
 	return updated
 }

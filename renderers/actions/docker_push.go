@@ -58,6 +58,7 @@ func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]strin
 			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
 			"provenance": false,
+			"secrets":    MultiLine{task.Secrets},
 		},
 	}
 
