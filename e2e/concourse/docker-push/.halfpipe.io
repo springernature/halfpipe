@@ -16,7 +16,6 @@ tasks:
     A: a
     B: b
 
-
 - type: docker-push
   username: rob
   password: verysecret
@@ -34,4 +33,3 @@ tasks:
   platforms:
   - "linux/amd64"
   - "linux/arm64"
-

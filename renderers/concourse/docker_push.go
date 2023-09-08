@@ -171,10 +171,17 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 		params[k] = v.(string)
 		buildArgs = append(buildArgs, fmt.Sprintf("--build-arg %s", k))
 	}
-
 	slices.Sort(buildArgs)
-
 	buildCommand = append(buildCommand, buildArgs...)
+
+	secrets := []string{}
+	for k, v := range convertVars(task.Secrets) {
+		params[k] = v.(string)
+		secrets = append(secrets, fmt.Sprintf("--secret id=%s", k))
+	}
+	slices.Sort(secrets)
+	buildCommand = append(buildCommand, secrets...)
+
 	if task.UseCache {
 		buildCommand = append(buildCommand, fmt.Sprintf("--tag %s", shared.CachePath(task, "buildcache")))
 		buildCommand = append(buildCommand, fmt.Sprintf("--cache-from type=registry,ref=%s", shared.CachePath(task, "buildcache")))

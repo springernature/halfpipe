@@ -121,6 +121,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/docker-push-with-update-pipeline
           docker buildx build \
             -f git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile \
@@ -134,6 +137,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/docker-push-with-update-pipeline
         path: /bin/sh
     privileged: true
@@ -270,6 +276,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/docker-push-with-update-pipeline
           docker buildx build \
             -f git/e2e/concourse/docker-push-with-update-pipeline/Dockerfile \
@@ -283,6 +292,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/docker-push-with-update-pipeline
         path: /bin/sh
     privileged: true

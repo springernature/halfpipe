@@ -43,6 +43,8 @@ func (t tasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaul
 			tt = task
 		case manifest.DockerPush:
 			task.Vars = t.addDefaultsToVars(task.Vars, defaults)
+			task.Secrets = t.addDefaultsToVars(task.Secrets, defaults)
+			delete(task.Secrets, "RUNNING_IN_CI")
 			tt = task
 		case manifest.DeployCF:
 			task.PrePromote = t.Apply(task.PrePromote, defaults)

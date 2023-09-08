@@ -117,6 +117,9 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/deploy-katee
           docker buildx build \
             -f git/e2e/concourse/deploy-katee/Dockerfile \
@@ -128,6 +131,9 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             git/e2e/concourse/deploy-katee
         path: /bin/sh
     privileged: true

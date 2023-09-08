@@ -10,6 +10,7 @@ type DockerPush struct {
 	IgnoreVulnerabilities bool          `json:"ignore_vulnerabilities,omitempty" yaml:"ignore_vulnerabilities,omitempty"`
 	ScanTimeout           int           `json:"scan_timeout,omitempty" yaml:"scan_timeout,omitempty"`
 	Vars                  Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	Secrets               Vars          `yaml:"secrets,omitempty" secretAllowed:"true"`
 	RestoreArtifacts      bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Retries               int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`

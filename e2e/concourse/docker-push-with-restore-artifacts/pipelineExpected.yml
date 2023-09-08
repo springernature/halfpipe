@@ -270,6 +270,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             docker_build/e2e/concourse/docker-push-with-restore-artifacts
           docker buildx build \
             -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
@@ -283,6 +286,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
@@ -469,6 +475,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             docker_build/e2e/concourse/docker-push-with-restore-artifacts
           docker buildx build \
             -f docker_build/e2e/concourse/docker-push-with-restore-artifacts/Dockerfile \
@@ -482,6 +491,9 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
             docker_build/e2e/concourse/docker-push-with-restore-artifacts
         path: /bin/sh
     privileged: true
