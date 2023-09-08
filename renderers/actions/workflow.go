@@ -92,7 +92,11 @@ type MultiLine struct {
 func (ml MultiLine) MarshalYAML() (interface{}, error) {
 	var out []string
 	for k, v := range ml.m {
-		out = append(out, fmt.Sprintf("%s=%s\n", k, v))
+		if v == "" {
+			out = append(out, fmt.Sprintf("%s\n", k))
+		} else {
+			out = append(out, fmt.Sprintf("%s=%s\n", k, v))
+		}
 	}
 	sort.Strings(out)
 

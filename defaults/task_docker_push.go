@@ -37,9 +37,9 @@ func dockerPushDefaulter(original manifest.DockerPush, man manifest.Manifest, de
 		updated.Secrets["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
 	}
 	if man.Platform.IsActions() {
-		updated.Secrets["ARTIFACTORY_URL"] = "${{ secrets.EE_ARTIFACTORY_URL }}"
-		updated.Secrets["ARTIFACTORY_USERNAME"] = "${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-		updated.Secrets["ARTIFACTORY_PASSWORD"] = "${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+		updated.Secrets["ARTIFACTORY_URL"] = ""
+		updated.Secrets["ARTIFACTORY_USERNAME"] = ""
+		updated.Secrets["ARTIFACTORY_PASSWORD"] = ""
 	}
 
 	return updated

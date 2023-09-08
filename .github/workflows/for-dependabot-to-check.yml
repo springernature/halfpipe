@@ -152,23 +152,21 @@ jobs:
       uses: docker/build-push-action@v4
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
-          BUILD_VERSION=2.${{ github.run_number }}.0
-          GIT_REVISION=${{ github.sha }}
-          RUNNING_IN_CI=true
-          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
-          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+          ARTIFACTORY_PASSWORD
+          ARTIFACTORY_URL
+          ARTIFACTORY_USERNAME
+          BUILD_VERSION
+          GIT_REVISION
+          RUNNING_IN_CI
         context: .
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD
+          ARTIFACTORY_URL
+          ARTIFACTORY_USERNAME
         tags: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
