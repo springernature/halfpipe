@@ -180,13 +180,7 @@ jobs:
       - name: git
       - name: tagList
       params:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -335,13 +329,7 @@ jobs:
       - name: git
       - name: tagList
       params:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:

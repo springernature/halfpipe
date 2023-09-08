@@ -15,6 +15,9 @@ tasks:
   vars:
     A: a
     B: b
+  secrets:
+    C: c
+    D: d
 
 - type: docker-push
   username: rob

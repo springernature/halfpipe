@@ -48,6 +48,8 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        C: c
+        D: d
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         RUNNING_IN_CI: "true"
       platform: linux
@@ -71,6 +73,8 @@ jobs:
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
             --secret id=ARTIFACTORY_USERNAME \
+            --secret id=C \
+            --secret id=D \
             git/e2e/concourse/docker-push
           docker buildx build \
             -f git/e2e/concourse/docker-push/Dockerfile \
@@ -87,6 +91,8 @@ jobs:
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
             --secret id=ARTIFACTORY_USERNAME \
+            --secret id=C \
+            --secret id=D \
             git/e2e/concourse/docker-push
         path: /bin/sh
     privileged: true
@@ -127,13 +133,7 @@ jobs:
       - name: git
       - name: tagList
       params:
-        A: a
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
-        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -273,11 +273,7 @@ jobs:
       - name: git
       - name: tagList
       params:
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -423,11 +419,7 @@ jobs:
       - name: git
       - name: tagList
       params:
-        ARTIFACTORY_PASSWORD: ((artifactory.password))
-        ARTIFACTORY_URL: ((artifactory.url))
-        ARTIFACTORY_USERNAME: ((artifactory.username))
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:

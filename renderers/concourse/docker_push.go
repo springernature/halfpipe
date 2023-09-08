@@ -178,6 +178,7 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 	for k, v := range convertVars(task.Secrets) {
 		params[k] = v.(string)
 		secrets = append(secrets, fmt.Sprintf("--secret id=%s", k))
+
 	}
 	slices.Sort(secrets)
 	buildCommand = append(buildCommand, secrets...)
@@ -245,7 +246,9 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 					"username":   "_json_key",
 				},
 			},
-			Params: params,
+			Params: atc.TaskEnv{
+				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
+			},
 			Run: atc.TaskRunConfig{
 				Path: "/bin/sh",
 				Args: []string{"-c", strings.Join([]string{
