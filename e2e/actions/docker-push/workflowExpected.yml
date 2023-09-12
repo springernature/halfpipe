@@ -85,9 +85,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -171,9 +171,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -237,9 +237,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -305,9 +305,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: |-
           eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
           eu.gcr.io/halfpipe-io/cache/someImage:buildcache
@@ -379,9 +379,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
           C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}
           D=d
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}

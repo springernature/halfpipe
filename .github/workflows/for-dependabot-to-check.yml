@@ -164,9 +164,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
