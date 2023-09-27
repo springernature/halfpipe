@@ -81,6 +81,20 @@ jobs:
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .
+        cli_version: cf7
+        command: halfpipe-logs
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: cf-space
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
