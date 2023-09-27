@@ -69,6 +69,15 @@ func (tl TaskList) Flatten() (updated TaskList) {
 	return
 }
 
+func (tl TaskList) GetRunTask(name string) (found bool, task Run) {
+	for _, t := range tl.Flatten() {
+		if t.GetName() == name {
+			return true, t.(Run)
+		}
+	}
+	return false, Run{}
+}
+
 func (tl TaskList) PreviousTaskNames(currentIndex int) []string {
 	if currentIndex == 0 {
 		return []string{}
