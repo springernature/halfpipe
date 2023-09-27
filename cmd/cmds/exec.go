@@ -25,16 +25,21 @@ var execCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		found, task := man.Tasks.GetRunTask(taskName)
-		if !found {
-			printErr(fmt.Errorf("run task not found '%s'", taskName))
+		task := man.Tasks.GetTask(taskName)
+
+		switch t := task.(type) {
+		case manifest.Run:
+			fmt.Println(renderRunCommand(t, man.Team))
+		case manifest.DockerCompose:
+			fmt.Println(renderDockerComposeCommand(t, man.Team))
+		default:
+			printErr(fmt.Errorf("task not found with name '%s' and type 'run' or 'docker-compose'", taskName))
 			os.Exit(1)
 		}
-		fmt.Println(renderShellCommand(task, man.Team))
 	},
 }
 
-func renderShellCommand(task manifest.Run, team string) string {
+func renderRunCommand(task manifest.Run, team string) string {
 	s := []string{
 		"docker run -it",
 		`-v "$PWD":/app`,
@@ -46,6 +51,28 @@ func renderShellCommand(task manifest.Run, team string) string {
 	}
 
 	s = append(s, task.Docker.Image, task.Script)
+
+	return strings.Join(s, " \\ \n  ")
+}
+
+func renderDockerComposeCommand(task manifest.DockerCompose, team string) string {
+	s := []string{
+		"docker compose",
+		fmt.Sprintf("-f %s", task.ComposeFile),
+		"run",
+		`-v "$PWD":/app`,
+		"-w /app",
+	}
+
+	for k, v := range task.Vars {
+		s = append(s, fmt.Sprintf("-e %s=%s", k, vaultLookup(v, team)))
+	}
+
+	s = append(s, "--use-aliases", task.Service)
+
+	if task.Command != "" {
+		s = append(s, task.Command)
+	}
 
 	return strings.Join(s, " \\ \n  ")
 }
