@@ -252,6 +252,14 @@ jobs:
     timeout: 15m
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/artifacts/manifest.yml
+      put: cf logs --recent
+      resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/concourse/artifacts
       cliVersion: cf7

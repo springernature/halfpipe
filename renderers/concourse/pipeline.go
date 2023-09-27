@@ -551,5 +551,4 @@ func stepWithAttemptsAndTimeout(stepConfig atc.StepConfig, attempts int, timeout
 			Attempts: attempts,
 		},
 	}
-
 }

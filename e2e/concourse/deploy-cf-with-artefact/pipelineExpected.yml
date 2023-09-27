@@ -129,6 +129,14 @@ jobs:
     timeout: 15m
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
+      put: cf logs --recent
+      resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: artifacts/e2e/concourse/deploy-cf-with-artefact/build/linux/binary
       cliVersion: cf7
