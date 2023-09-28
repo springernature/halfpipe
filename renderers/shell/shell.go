@@ -11,7 +11,7 @@ type shell struct {
 	taskName string
 }
 
-func NewShell(taskName string) halfpipe.Renderer {
+func New(taskName string) halfpipe.Renderer {
 	return shell{taskName: taskName}
 }
 

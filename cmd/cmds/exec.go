@@ -17,7 +17,7 @@ var execCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		taskName := args[0]
 
-		shellRenderer := shell.NewShell(taskName)
+		shellRenderer := shell.New(taskName)
 		man, controller := getManifestAndController(formatInput(Input), shellRenderer)
 
 		response := controller.Process(man)
