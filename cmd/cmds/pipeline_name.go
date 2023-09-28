@@ -14,7 +14,7 @@ var pipelineNameCmd = &cobra.Command{
 	Use:   "pipeline-name",
 	Short: "Prints the name of the pipeline",
 	Run: func(cmd *cobra.Command, args []string) {
-		man, _ := getManifestAndController(formatInput(Input))
+		man, _ := getManifestAndController(formatInput(Input), nil)
 		if man.PipelineName() == "" {
 			os.Exit(1)
 		}

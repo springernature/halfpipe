@@ -20,6 +20,10 @@ type Response struct {
 	Platform    manifest.Platform
 }
 
+func (r Response) String() string {
+	return r.ConfigYaml
+}
+
 type Renderer interface {
 	Render(manifest manifest.Manifest) (string, error)
 }

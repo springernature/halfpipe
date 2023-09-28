@@ -14,7 +14,7 @@ var actionsMigrationHelp = &cobra.Command{
 	Use:   "actions-migration-help",
 	Short: "Prints out the steps needed to migrate from Concourse to Actions",
 	Run: func(cmd *cobra.Command, args []string) {
-		man, controller := getManifestAndController(formatInput(Input))
+		man, controller := getManifestAndController(formatInput(Input), nil)
 		response := controller.Process(man)
 
 		tpl, _ := template.New("").Parse(`

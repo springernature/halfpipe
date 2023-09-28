@@ -11,7 +11,7 @@ var rootCmd = &cobra.Command{
 	Short: `halfpipe is a tool to lint and render pipelines
 Invoke without any arguments to lint your .halfpipe.io file and render a pipeline`,
 	Run: func(cmd *cobra.Command, args []string) {
-		man, controller := getManifestAndController(formatInput(Input))
+		man, controller := getManifestAndController(formatInput(Input), nil)
 		response := controller.Process(man)
 
 		if man.Platform.IsActions() && output == "" {
