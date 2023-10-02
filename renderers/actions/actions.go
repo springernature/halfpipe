@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"golang.org/x/exp/slices"
+	"os"
 	"regexp"
 	"strings"
 	"time"
@@ -13,7 +14,16 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-const eeRunner = "ee-runner"
+var eeRunner = "ee-runner"
+
+// allow runner name to be overridden with env var
+func runnerName() string {
+	fromEnv := os.Getenv("HALFPIPE_ACTIONS_RUNNER")
+	if fromEnv != "" {
+		return fromEnv
+	}
+	return eeRunner
+}
 
 var globalEnv = Env{
 	"ARTIFACTORY_PASSWORD": githubSecrets.ArtifactoryPassword,
@@ -81,7 +91,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 
 		job := Job{
 			Name:           task.GetName(),
-			RunsOn:         eeRunner,
+			RunsOn:         runnerName(),
 			Steps:          convertSecrets(steps, man.Team),
 			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
 			Needs:          needs,
