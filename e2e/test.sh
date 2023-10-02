@@ -27,4 +27,10 @@ runTest() {
 
 rm -rf /tmp/halfpipe-e2e
 export -f runTest
-ls -d */*/ | xargs -ID -P1 bash -c "runTest D || exit 1"
+
+if command -v parallel > /dev/null; then
+  ls -d */*/ | parallel -j16 runTest
+else
+  # xargs doesn't return exit code reliably with parallel
+  ls -d */*/ | xargs -ID -P1 bash -c "runTest D"
+fi
