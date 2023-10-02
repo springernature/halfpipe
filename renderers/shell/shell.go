@@ -5,6 +5,7 @@ import (
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared/secrets"
+	"sort"
 	"strings"
 )
 
@@ -36,9 +37,12 @@ func renderRunCommand(task manifest.Run, team string) string {
 		"-w /app",
 	}
 
+	vars := []string{}
 	for k, v := range task.Vars {
-		s = append(s, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
 	}
+	sort.Strings(vars)
+	s = append(s, vars...)
 
 	s = append(s, task.Docker.Image, task.Script)
 
@@ -54,9 +58,12 @@ func renderDockerComposeCommand(task manifest.DockerCompose, team string) string
 		"-w /app",
 	}
 
+	vars := []string{}
 	for k, v := range task.Vars {
-		s = append(s, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
 	}
+	sort.Strings(vars)
+	s = append(s, vars...)
 
 	s = append(s, "--use-aliases", task.Service)
 
