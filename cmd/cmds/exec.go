@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/renderers/shell"
+	"os"
 )
 
 func init() {
@@ -20,9 +21,12 @@ var execCmd = &cobra.Command{
 		shellRenderer := shell.New(taskName)
 		man, controller := getManifestAndController(formatInput(Input), shellRenderer)
 
-		response := controller.Process(man)
+		response, err := controller.Process(man)
+		if err != nil {
+			printErr(err)
+			os.Exit(1)
+		}
 		outputLintResults(response.LintResults)
 		fmt.Println(response)
-
 	},
 }

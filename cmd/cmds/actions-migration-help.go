@@ -15,7 +15,7 @@ var actionsMigrationHelp = &cobra.Command{
 	Short: "Prints out the steps needed to migrate from Concourse to Actions",
 	Run: func(cmd *cobra.Command, args []string) {
 		man, controller := getManifestAndController(formatInput(Input), nil)
-		response := controller.Process(man)
+		response, _ := controller.Process(man)
 
 		tpl, _ := template.New("").Parse(`
 To migrate a Concourse pipeline to Actions you must do the following steps

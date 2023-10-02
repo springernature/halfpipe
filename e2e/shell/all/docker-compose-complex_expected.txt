@@ -1,0 +1,17 @@
+docker compose \
+  -f custom-docker-compose.yml \
+  run \
+  -v "$PWD":/app \
+  -w /app \
+  -e ARTIFACTORY_PASSWORD=$(vault kv get -field=password /springernature/shared/artifactory) \
+  -e ARTIFACTORY_URL=$(vault kv get -field=url /springernature/shared/artifactory) \
+  -e ARTIFACTORY_USERNAME=$(vault kv get -field=username /springernature/shared/artifactory) \
+  -e ENV1=1234 \
+  -e ENV2=$(vault kv get -field=something /springernature/halfpipe-team/secret) \
+  -e ENV3={"a": "b", "c": "d"} \
+  -e ENV4=$(vault kv get -field=secret /springernature/halfpipe-team/another) \
+  -e RUNNING_IN_CI=true \
+  -e VERY_SECRET=blah \
+  --use-aliases \
+  customservice \
+  \echo hello

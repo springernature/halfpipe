@@ -41,14 +41,14 @@ func testController() controller {
 func TestWorksForHalfpipeFileWithYMLExtension(t *testing.T) {
 	c := testController()
 
-	response := c.Process(validHalfpipeManifest)
+	response, _ := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, response.LintResults.Error(), 0)
 }
 
 func TestWorksForHalfpipeFile(t *testing.T) {
 	c := testController()
-	response := c.Process(validHalfpipeManifest)
+	response, _ := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, response.LintResults.Error(), 0)
 }
@@ -68,7 +68,7 @@ func TestAppliesAllLinters(t *testing.T) {
 	linter2 := fakeLinter{errors.New("error from linter2")}
 	c.linters = []linters.Linter{linter1, linter2}
 
-	response := c.Process(validHalfpipeManifest)
+	response, _ := c.Process(validHalfpipeManifest)
 
 	assert.Empty(t, response.ConfigYaml)
 	assert.Len(t, response.LintResults, 2)
@@ -79,7 +79,7 @@ func TestAppliesAllLinters(t *testing.T) {
 func TestGivesBackConfigWhenLinterPasses(t *testing.T) {
 	c := testController()
 
-	response := c.Process(validHalfpipeManifest)
+	response, _ := c.Process(validHalfpipeManifest)
 	assert.Len(t, response.LintResults, 0)
 	assert.Equal(t, "fake output", response.ConfigYaml)
 }
@@ -95,7 +95,7 @@ func (f FakeMapper) Apply(original manifest.Manifest) (updated manifest.Manifest
 func TestGivesBackABadTestResultWhenAMapperFails(t *testing.T) {
 	c := testController()
 	c.mapper = FakeMapper{err: errors.New("blurgh")}
-	response := c.Process(validHalfpipeManifest)
+	response, _ := c.Process(validHalfpipeManifest)
 
 	assert.Len(t, response.LintResults, 1)
 	assert.True(t, response.LintResults.HasErrors())
