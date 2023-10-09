@@ -2,9 +2,10 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/shared"
 
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -53,7 +54,7 @@ func buildImage(a *Actions, task manifest.DockerPush) Step {
 
 	step := Step{
 		Name: "Build Image",
-		Uses: "docker/build-push-action@v4",
+		Uses: "docker/build-push-action@v5",
 		With: With{
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"file":       path.Join(a.workingDir, task.DockerfilePath),
