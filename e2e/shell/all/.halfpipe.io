@@ -7,7 +7,7 @@ feature_toggles:
 tasks:
 - type: run
   name: run
-  script: \echo hello
+  script: ./test.sh
   docker:
     image: alpine:test
   vars:
