@@ -27,7 +27,14 @@ func (s shell) Render(man manifest.Manifest) (string, error) {
 		return renderDockerComposeCommand(t, man.Team), nil
 	}
 
-	return "", fmt.Errorf("task not found with name '%s' and type 'run' or 'docker-compose'", s.taskName)
+	errMsg := "task not found with name '%s' and type 'run' or 'docker-compose\n\navailable tasks:\n"
+	for _, t := range man.Tasks.Flatten() {
+		switch t := t.(type) {
+		case manifest.Run, manifest.DockerCompose:
+			errMsg += fmt.Sprintf("  %s", t.GetName())
+		}
+	}
+	return "", fmt.Errorf(errMsg, s.taskName)
 }
 
 func renderRunCommand(task manifest.Run, team string) string {
