@@ -46,7 +46,7 @@ func renderRunCommand(task manifest.Run, team string) string {
 
 	vars := []string{}
 	for k, v := range task.Vars {
-		vars = append(vars, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf(`-e %s="%s"`, k, convertSecret(v, team)))
 	}
 	sort.Strings(vars)
 	s = append(s, vars...)
@@ -67,7 +67,7 @@ func renderDockerComposeCommand(task manifest.DockerCompose, team string) string
 
 	vars := []string{}
 	for k, v := range task.Vars {
-		vars = append(vars, fmt.Sprintf("-e %s=%s", k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf(`-e %s="%s"`, k, convertSecret(v, team)))
 	}
 	sort.Strings(vars)
 	s = append(s, vars...)
