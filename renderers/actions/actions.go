@@ -85,6 +85,21 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			Needs:          needs,
 		}
 
+		switch t := task.(type) {
+		case manifest.DeployCF:
+			if man.FeatureToggles.GithubDeployment() {
+				job.Environment = Environment{
+					Name: fmt.Sprintf("%s/%s", t.CfApplication.Name, t.Space),
+				}
+				maybeRoutes := t.CfApplication.RemainingManifestFields["routes"]
+				if maybeRoutes != nil {
+					if len(maybeRoutes.([]any)) > 0 {
+						job.Environment.Url = fmt.Sprintf("https://%v", maybeRoutes.([]any)[0].(map[any]any)["route"])
+					}
+				}
+			}
+		}
+
 		if job.Name == "update" {
 			job.Outputs = Outputs{"synced": "${{ steps.sync.outputs.synced }}"}
 		}

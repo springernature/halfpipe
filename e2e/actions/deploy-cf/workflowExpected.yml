@@ -54,6 +54,9 @@ jobs:
     - make_binary
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example/space1
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -95,7 +98,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space1
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -115,7 +118,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space1
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -128,7 +131,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space1
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
@@ -141,7 +144,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space1
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -160,7 +163,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space1
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
   deploy_to_cf_with_cf8:
@@ -169,6 +172,9 @@ jobs:
     - deploy_to_cf
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example/space2
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -210,7 +216,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space2
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -230,7 +236,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space2
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -243,7 +249,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space2
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
@@ -256,7 +262,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space2
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -275,7 +281,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space2
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
   deploy_to_cf_with_pre-promote:
@@ -284,6 +290,9 @@ jobs:
     - deploy_to_cf_with_cf8
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example/space3
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -326,7 +335,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space3
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -344,7 +353,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space3
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -357,7 +366,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space3
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: run smoke-test.sh
@@ -367,7 +376,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         ENV5: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_some_secret }}
-        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
+        TEST_ROUTE: halfpipe-example-space3-CANDIDATE.springernature.app
     - name: docker-compose
       run: |-
         docker-compose -f docker-compose.yml pull
@@ -390,7 +399,7 @@ jobs:
           -v /mnt/halfpipe-cache/:/var/halfpipe/shared-cache \
           app
       env:
-        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
+        TEST_ROUTE: halfpipe-example-space3-CANDIDATE.springernature.app
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down
@@ -440,10 +449,10 @@ jobs:
         CONSUMER_SCRIPT: ci/run-external-and-cdcs-dev
         DOCKER_COMPOSE_SERVICE: ""
         GIT_CLONE_OPTIONS: ""
-        PROVIDER_HOST: halfpipe-example-dev-CANDIDATE.springernature.app
+        PROVIDER_HOST: halfpipe-example-space3-CANDIDATE.springernature.app
         PROVIDER_HOST_KEY: PIPELINE_NAME_DEPLOYED_HOST
         PROVIDER_NAME: pipeline-name
-        TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
+        TEST_ROUTE: halfpipe-example-space3-CANDIDATE.springernature.app
     - name: Promote
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
@@ -454,7 +463,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space3
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -473,7 +482,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space3
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
   deploy_to_cf_with_docker_image:
@@ -482,6 +491,9 @@ jobs:
     - deploy_to_cf_with_pre-promote
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example-docker/space4
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -518,7 +530,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space4
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -534,7 +546,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space4
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -547,7 +559,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space4
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
@@ -560,7 +572,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space4
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -579,7 +591,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space4
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
   deploy_with_sso:
@@ -588,6 +600,9 @@ jobs:
     - deploy_to_cf_with_docker_image
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example/space5
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -632,7 +647,7 @@ jobs:
         CF_API: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         CF_ORG: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         CF_PASSWORD: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        CF_SPACE: dev
+        CF_SPACE: space5
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
@@ -645,7 +660,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space5
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -661,7 +676,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space5
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -674,7 +689,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space5
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
@@ -687,7 +702,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space5
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -706,7 +721,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space5
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
   deploy_without_artifact:
@@ -715,6 +730,9 @@ jobs:
     - deploy_with_sso
     runs-on: ee-runner
     timeout-minutes: 60
+    environment:
+      name: halfpipe-example/space6
+      url: https://my-route.public.springernature.app
     steps:
     - name: Vault secrets
       id: secrets
@@ -752,7 +770,7 @@ jobs:
         CF_API: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         CF_ORG: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         CF_PASSWORD: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        CF_SPACE: dev
+        CF_SPACE: space6
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
@@ -765,7 +783,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space6
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
@@ -781,7 +799,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space6
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
@@ -794,7 +812,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space6
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
@@ -807,7 +825,7 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space6
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Summary
@@ -826,6 +844,110 @@ jobs:
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
-        space: dev
+        space: space6
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+  deploy_to_cf_worker_app:
+    name: deploy to cf worker app
+    needs:
+    - deploy_without_artifact
+    runs-on: ee-runner
+    timeout-minutes: 60
+    environment:
+      name: halfpipe-example-worker/space7
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v2.7.3
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Push
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: e2e/actions/deploy-cf
+        cli_version: cf7
+        command: halfpipe-push
+        manifestPath: e2e/actions/deploy-cf/manifest-worker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: space7
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: e2e/actions/deploy-cf
+        cli_version: cf7
+        command: halfpipe-logs
+        manifestPath: e2e/actions/deploy-cf/manifest-worker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: space7
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Check
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: e2e/actions/deploy-cf
+        cli_version: cf7
+        command: halfpipe-check
+        manifestPath: e2e/actions/deploy-cf/manifest-worker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: space7
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Promote
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: e2e/actions/deploy-cf
+        cli_version: cf7
+        command: halfpipe-promote
+        manifestPath: e2e/actions/deploy-cf/manifest-worker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: space7
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+    - name: Cleanup
+      if: always()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: e2e/actions/deploy-cf
+        cli_version: cf7
+        command: halfpipe-cleanup
+        manifestPath: e2e/actions/deploy-cf/manifest-worker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: space7
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}

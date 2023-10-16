@@ -1,0 +1,9 @@
+---
+applications:
+- name: halfpipe-example-worker
+  instances: 1
+  memory: 32M
+  no-route: true
+  health-check-type: process
+  buildpacks:
+    - java

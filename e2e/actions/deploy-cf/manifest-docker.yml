@@ -4,6 +4,6 @@ applications:
   instances: 1
   memory: 32M
   routes:
-  - route: "test-route"
+  - route: my-route.public.springernature.app
   docker:
     image: eu.gcr.io/halfpipe-io/someImage
