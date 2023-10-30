@@ -76,6 +76,15 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	deploySteps = append(deploySteps, push)
 
 	deploySteps = append(deploySteps, Step{
+		Name: "cf logs --recent",
+		If:   "failure()",
+		Uses: uses,
+		With: addCommonParams(With{
+			"command": "halfpipe-logs",
+		}),
+	})
+
+	deploySteps = append(deploySteps, Step{
 		Name: "Check",
 		Uses: uses,
 		With: addCommonParams(With{

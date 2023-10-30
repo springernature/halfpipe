@@ -44,8 +44,7 @@ We also use [GitHub Actions](https://github.com/springernature/halfpipe/actions)
 dependabot will raise PRs. Alternatively, to manually update all deps:
 
 ```bash
-go get -t -u ./...
-go mod tidy
+go get -t -u ./... && go mod tidy
 ```
 
 ### GitHub actions 

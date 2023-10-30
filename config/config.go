@@ -25,6 +25,8 @@ var (
 
 	ConcourseURL = "https://concourse." + Domain
 
+	ActionsRunnerName = getEnv("HALFPIPE_ACTIONS_RUNNER", "ee-runner")
+
 	CacheDirs = []string{
 		"../../../var/halfpipe/cache",
 		"../../../halfpipe-cache", // deprecated and should be removed after a while

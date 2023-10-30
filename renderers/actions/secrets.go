@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/springernature/halfpipe/renderers/shared/secrets"
 	"sort"
 	"strings"
 )
@@ -28,92 +29,25 @@ var githubSecrets = struct {
 	VaultSecretID:           "${{ secrets.VAULT_SECRET_ID }}",
 }
 
-type Secret struct {
-	vaultPath string
+func secretVar(s *secrets.Secret) string {
+	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", secretOutputVar(s))
 }
 
-func (s *Secret) actionsVar() string {
-	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", s.outputVar())
+func secretVaultPath(s *secrets.Secret) string {
+	return fmt.Sprintf("/springernature/data/%s %s", s.MapPath, s.Key)
 }
-
-func (s *Secret) outputVar() string {
-	ov := strings.ReplaceAll(s.vaultPath, "/", "_")
+func secretOutputVar(s *secrets.Secret) string {
+	ov := strings.ReplaceAll(secretVaultPath(s), "/", "_")
 	ov = strings.ReplaceAll(ov, " ", "_")
 	ov = strings.TrimPrefix(ov, "_")
 	return ov
 }
 
-// check if a secret matches one of the shared secrets
-// vault kv list /springernature/shared
-func isShared(s string) bool {
-	return map[string]bool{
-		"PPG-gradle-version-reporter":   true,
-		"PPG-owasp-dependency-reporter": true,
-		"artifactory":                   true,
-		"artifactory-support":           true,
-		"artifactory_test":              true,
-		"bla":                           true,
-		"burpsuiteenterprise":           true,
-		"contrastsecurity":              true,
-		"ee-sso-route-service":          true,
-		"fastly":                        true,
-		"grafana":                       true,
-		"halfpipe-artifacts":            true,
-		"halfpipe-docker-config":        true,
-		"halfpipe-gcr":                  true,
-		"halfpipe-github":               true,
-		"halfpipe-ml-deploy":            true,
-		"halfpipe-semver":               true,
-		"halfpipe-slack":                true,
-		"katee-tls-dev":                 true,
-		"katee-tls-prod":                true,
-		"sentry-release-integration":    true,
-	}[s]
-}
-
-func toSecret(s string, team string) *Secret {
-	if !isSecret(s) {
-		return nil
-	}
-
-	secretValue := s[2 : len(s)-2]
-
-	if isKeyValueSecret(secretValue) {
-		parts := strings.Split(secretValue, ".")
-		if isShared(parts[0]) {
-			team = "shared"
-		}
-		return &Secret{
-			vaultPath: fmt.Sprintf("/springernature/data/%s/%s %s", team, parts[0], parts[1]),
-		}
-	}
-
-	if isAbsolutePathSecret(secretValue) {
-		return &Secret{
-			vaultPath: secretValue,
-		}
-	}
-
-	return nil
-}
-
-func isSecret(s string) bool {
-	return strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
-}
-
-func isAbsolutePathSecret(s string) bool {
-	return len(strings.Split(s, " ")) == 2
-}
-
-func isKeyValueSecret(s string) bool {
-	return len(strings.Split(s, ".")) == 2
-}
-
-func secretsToActionsSecret(secrets []*Secret) string {
+func secretsToActionsSecret(secrets []*secrets.Secret) string {
 	uniqueSecrets := map[string]string{}
 	for _, s := range secrets {
-		x := fmt.Sprintf("%s | %s ;\n", s.vaultPath, s.outputVar())
-		uniqueSecrets[s.outputVar()] = x
+		x := fmt.Sprintf("%s | %s ;\n", secretVaultPath(s), secretOutputVar(s))
+		uniqueSecrets[secretOutputVar(s)] = x
 	}
 
 	var secs []string
@@ -125,11 +59,11 @@ func secretsToActionsSecret(secrets []*Secret) string {
 	return strings.Join(secs, "")
 }
 
-func fetchSecrets(secrets []*Secret, team string) Step {
+func fetchSecrets(secrets []*secrets.Secret) Step {
 	return Step{
 		Name: "Vault secrets",
 		ID:   "secrets",
-		Uses: "hashicorp/vault-action@v2.7.3",
+		Uses: "hashicorp/vault-action@v2.7.4",
 		With: With{
 			"url":       "https://vault.halfpipe.io",
 			"method":    "approle",
@@ -142,7 +76,7 @@ func fetchSecrets(secrets []*Secret, team string) Step {
 }
 
 func convertSecrets(steps Steps, team string) (newSteps Steps) {
-	secrets := []*Secret{}
+	allSecrets := []*secrets.Secret{}
 
 	for _, step := range steps {
 		newWith := With{}
@@ -150,39 +84,39 @@ func convertSecrets(steps Steps, team string) (newSteps Steps) {
 			switch v := value.(type) {
 			case MultiLine:
 				secretList, multiLineStringWithActionSecret := multiLineStringToSecret(v.m, team)
-				secrets = append(secrets, secretList...)
+				allSecrets = append(allSecrets, secretList...)
 				value = MultiLine{multiLineStringWithActionSecret}
 			default:
-				if s := toSecret(fmt.Sprintf("%v", value), team); s != nil {
-					secrets = append(secrets, s)
-					value = s.actionsVar()
+				if s := secrets.New(fmt.Sprintf("%v", value), team); s != nil {
+					allSecrets = append(allSecrets, s)
+					value = secretVar(s)
 				}
 			}
 			newWith[key] = value
 		}
 		step.With = newWith
 		for k, v := range step.Env {
-			if s := toSecret(v, team); s != nil {
-				secrets = append(secrets, s)
-				step.Env[k] = s.actionsVar()
+			if s := secrets.New(v, team); s != nil {
+				allSecrets = append(allSecrets, s)
+				step.Env[k] = secretVar(s)
 			}
 		}
 		newSteps = append(newSteps, step)
 	}
 
-	if len(secrets) > 0 {
-		newSteps = append(Steps{fetchSecrets(secrets, team)}, newSteps...)
+	if len(allSecrets) > 0 {
+		newSteps = append(Steps{fetchSecrets(allSecrets)}, newSteps...)
 	}
 	return newSteps
 }
 
-func multiLineStringToSecret(ml map[string]string, team string) ([]*Secret, map[string]string) {
+func multiLineStringToSecret(ml map[string]string, team string) ([]*secrets.Secret, map[string]string) {
 	m := make(map[string]string)
-	var sec []*Secret
+	var sec []*secrets.Secret
 	for k, v := range ml {
-		if a := toSecret(v, team); a != nil {
+		if a := secrets.New(v, team); a != nil {
 			sec = append(sec, a)
-			m[k] = a.actionsVar()
+			m[k] = secretVar(a)
 		} else {
 			m[k] = v
 		}

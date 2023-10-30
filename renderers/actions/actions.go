@@ -13,8 +13,6 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-const eeRunner = "ee-runner"
-
 var globalEnv = Env{
 	"ARTIFACTORY_PASSWORD": githubSecrets.ArtifactoryPassword,
 	"ARTIFACTORY_URL":      githubSecrets.ArtifactoryURL,
@@ -81,7 +79,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 
 		job := Job{
 			Name:           task.GetName(),
-			RunsOn:         eeRunner,
+			RunsOn:         config.ActionsRunnerName,
 			Steps:          convertSecrets(steps, man.Team),
 			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
 			Needs:          needs,

@@ -8,27 +8,16 @@ import (
 	"testing"
 )
 
-func TestWhenPublicImage(t *testing.T) {
+func TestWhenPublicImageDontSetUsernameAndPassword(t *testing.T) {
 	task := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", ScanTimeout: 15}
-
-	defaultedTask := manifest.DockerPush{Image: "asdf", DockerfilePath: "something", ScanTimeout: 15, Platforms: []string{"linux/amd64"}}
-
-	assert.Equal(t, defaultedTask, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
+	assert.Empty(t, dockerPushDefaulter(task, manifest.Manifest{}, Concourse).Username)
+	assert.Empty(t, dockerPushDefaulter(task, manifest.Manifest{}, Concourse).Password)
 }
 
-func TestPrivateImage(t *testing.T) {
+func TestPrivateImageSetsUsernameAndPassword(t *testing.T) {
 	task := manifest.DockerPush{Image: path.Join(config.DockerRegistry, "push-me"), DockerfilePath: "something"}
-
-	expected := manifest.DockerPush{
-		Image:          path.Join(config.DockerRegistry, "push-me"),
-		DockerfilePath: "something",
-		Username:       Concourse.Docker.Username,
-		Password:       Concourse.Docker.Password,
-		ScanTimeout:    15,
-		Platforms:      []string{"linux/amd64"},
-	}
-
-	assert.Equal(t, expected, dockerPushDefaulter(task, manifest.Manifest{}, Concourse))
+	assert.Equal(t, Concourse.Docker.Username, dockerPushDefaulter(task, manifest.Manifest{}, Concourse).Username)
+	assert.Equal(t, Concourse.Docker.Password, dockerPushDefaulter(task, manifest.Manifest{}, Concourse).Password)
 }
 
 func TestSetsTheDockerFilePath(t *testing.T) {

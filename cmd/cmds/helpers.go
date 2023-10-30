@@ -132,7 +132,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 
 }
 
-func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manifest, halfpipe.Controller) {
+func getManifestAndController(halfpipeFilenameOptions []string, renderer halfpipe.Renderer) (manifest.Manifest, halfpipe.Controller) {
 	if err := checkVersion(); err != nil {
 		printErr(err)
 		os.Exit(1)
@@ -157,11 +157,12 @@ func getManifestAndController(halfpipeFilenameOptions []string) (manifest.Manife
 		outputLintResults(linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors)})
 	}
 
-	var renderer halfpipe.Renderer
-	if man.Platform.IsActions() {
-		renderer = actions.NewActions(projectData.GitURI, projectData.HalfpipeFilePath)
-	} else {
-		renderer = concourse.NewPipeline(projectData.HalfpipeFilePath)
+	if renderer == nil {
+		if man.Platform.IsActions() {
+			renderer = actions.NewActions(projectData.GitURI, projectData.HalfpipeFilePath)
+		} else {
+			renderer = concourse.NewPipeline(projectData.HalfpipeFilePath)
+		}
 	}
 	controller := createController(projectData, fs, currentDir, renderer)
 

@@ -47,7 +47,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.7.3
+      uses: hashicorp/vault-action@v2.7.4
       with:
         exportEnv: false
         method: approle
@@ -81,6 +81,20 @@ jobs:
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
       env:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .
+        cli_version: cf7
+        command: halfpipe-logs
+        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: cf-space
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
@@ -149,22 +163,24 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
-          BUILD_VERSION=2.${{ github.run_number }}.0
-          GIT_REVISION=${{ github.sha }}
-          RUNNING_IN_CI=true
-          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
-          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+          ARTIFACTORY_PASSWORD
+          ARTIFACTORY_URL
+          ARTIFACTORY_USERNAME
+          BUILD_VERSION
+          GIT_REVISION
+          RUNNING_IN_CI
         context: .
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
         provenance: false
         push: true
+        secrets: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy

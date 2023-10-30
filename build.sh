@@ -13,6 +13,10 @@ if [ "${1-}" = "ci" ]; then
     go_opts="-mod=readonly"
 fi
 
+
+# https://github.com/golang/go/wiki/LoopvarExperiment
+export GOEXPERIMENT=loopvar
+
 echo [1/6] fmt
 go fmt ./...
 

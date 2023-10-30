@@ -43,12 +43,12 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	if len(task.PrePromote) == 0 {
 		steps = append(steps, deploy.pushApp())
 	} else if task.Rolling {
-		steps = append(steps, deploy.pushCandidateApp())
+		steps = append(steps, deploy.logsOnFailure(deploy.pushCandidateApp()))
 		steps = append(steps, c.prePromoteTasks(deploy)...)
 		steps = append(steps, deploy.pushApp())
 		steps = append(steps, deploy.removeTestApp())
 	} else {
-		steps = append(steps, deploy.pushCandidateApp())
+		steps = append(steps, deploy.logsOnFailure(deploy.pushCandidateApp()))
 		steps = append(steps, deploy.checkApp())
 		steps = append(steps, c.prePromoteTasks(deploy)...)
 		steps = append(steps, deploy.promoteCandidateAppToLive())
@@ -232,7 +232,27 @@ func (d deployCF) pushApp() atc.Step {
 		push.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 
-	return stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout())
+	return d.logsOnFailure(stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout()))
+}
+
+func (d deployCF) logsOnFailure(stepConfig atc.Step) atc.Step {
+	return atc.Step{
+		Config: &atc.OnFailureStep{
+			Step: stepConfig.Config,
+			Hook: atc.Step{
+				Config: &atc.PutStep{
+					Name:     "cf logs --recent",
+					Resource: d.resourceName,
+					Params: atc.Params{
+						"command":      "halfpipe-logs",
+						"cliVersion":   d.task.CliVersion,
+						"manifestPath": d.manifestPath,
+					},
+					NoGet: true,
+				},
+			},
+		},
+	}
 }
 
 func (d deployCF) configureSSO() atc.Step {

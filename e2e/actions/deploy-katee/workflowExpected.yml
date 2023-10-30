@@ -35,22 +35,24 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
-          BUILD_VERSION=2.${{ github.run_number }}.0
-          GIT_REVISION=${{ github.sha }}
-          RUNNING_IN_CI=true
-          VAULT_ROLE_ID=${{ secrets.VAULT_ROLE_ID }}
-          VAULT_SECRET_ID=${{ secrets.VAULT_SECRET_ID }}
+          ARTIFACTORY_PASSWORD
+          ARTIFACTORY_URL
+          ARTIFACTORY_USERNAME
+          BUILD_VERSION
+          GIT_REVISION
+          RUNNING_IN_CI
         context: e2e/actions/deploy-katee
         file: e2e/actions/deploy-katee/Dockerfile
         platforms: linux/amd64
         provenance: false
         push: true
+        secrets: |
+          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
+          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
         tags: eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -86,7 +88,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.7.3
+      uses: hashicorp/vault-action@v2.7.4
       with:
         exportEnv: false
         method: approle
@@ -139,7 +141,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v2.7.3
+      uses: hashicorp/vault-action@v2.7.4
       with:
         exportEnv: false
         method: approle

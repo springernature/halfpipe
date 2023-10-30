@@ -15,6 +15,10 @@ tasks:
   vars:
     A: a
     B: b
+  secrets:
+    C: c
+    D: d
+
 - type: docker-push
   username: rob
   password: verysecret
@@ -28,7 +32,7 @@ tasks:
   retries: 1
   ignore_vulnerabilities: true
   scan_timeout: 30
+  use_cache: true
   platforms:
   - "linux/amd64"
   - "linux/arm64"
-

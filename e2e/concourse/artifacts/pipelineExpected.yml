@@ -252,6 +252,14 @@ jobs:
     timeout: 15m
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/artifacts/manifest.yml
+      put: cf logs --recent
+      resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/concourse/artifacts
       cliVersion: cf7
@@ -436,31 +444,61 @@ jobs:
       image_resource:
         name: ""
         source:
-          repository: concourse/oci-build-task
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
         type: registry-image
       inputs:
       - name: git
+      - name: tagList
       - name: docker_build
-      outputs:
-      - name: image
       params:
-        BUILD_ARG_A: a
-        BUILD_ARG_ARTIFACTORY_PASSWORD: ((artifactory.password))
-        BUILD_ARG_ARTIFACTORY_URL: ((artifactory.url))
-        BUILD_ARG_ARTIFACTORY_USERNAME: ((artifactory.username))
-        BUILD_ARG_B: b
-        BUILD_ARG_RUNNING_IN_CI: "true"
-        CONTEXT: docker_build/e2e/concourse/artifacts
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        DOCKERFILE: docker_build/e2e/concourse/artifacts/Dockerfile
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
         - -c
         - |-
-          mkdir ~/.docker
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          build
+          echo $ docker buildx build \
+            -f docker_build/e2e/concourse/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            docker_build/e2e/concourse/artifacts
+          docker buildx build \
+            -f docker_build/e2e/concourse/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            docker_build/e2e/concourse/artifacts
         path: /bin/sh
     privileged: true
     task: build
@@ -473,8 +511,9 @@ jobs:
         type: docker-image
       inputs:
       - name: git
-      - name: image
       - name: docker_build
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
       platform: linux
       run:
         args:
@@ -482,16 +521,35 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 --input ../../../../image/image.tar || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat ../../../.git/ref) || true
         dir: docker_build/e2e/concourse/artifacts
         path: /bin/sh
     task: trivy
     timeout: 1h
-  - no_get: true
-    params:
-      additional_tags: tagList/tagList
-      image: image/image.tar
-    put: halfpipe-fly
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          for tag in $(cat tagList/tagList) ; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/springerplatformengineering/halfpipe-fly:$(cat git/.git/ref) --tag springerplatformengineering/halfpipe-fly:$tag; done
+        path: /bin/sh
+    privileged: true
+    task: publish-final-image
     timeout: 1h
   serial: true
 - build_log_retention:
@@ -747,13 +805,6 @@ resources:
     folder: halfpipe-team/halfpipe-e2e-artifacts
     json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
-- check_every: 24h0m0s
-  name: halfpipe-fly
-  source:
-    password: verysecret
-    repository: springerplatformengineering/halfpipe-fly
-    username: rob
-  type: registry-image
 - check_every: 24h0m0s
   name: cf-snpaas-pe-staging
   source:

@@ -2,24 +2,17 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/shared"
 
 	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
 	steps = dockerLogin(task.Image, task.Username, task.Password)
-	buildArgs := map[string]string{}
-	for k, v := range globalEnv {
-		buildArgs[k] = v
-	}
-	for k, v := range task.Vars {
-		buildArgs[k] = v
-	}
-
-	steps = append(steps, buildImage(a, task, buildArgs))
+	steps = append(steps, buildImage(a, task))
 	steps = append(steps, scanImage(a, task))
 	steps = append(steps, pushImage(task))
 	steps = append(steps, repositoryDispatch(task.Image))
@@ -46,23 +39,37 @@ func repositoryDispatch(eventName string) Step {
 	}
 }
 
-func buildImage(a *Actions, task manifest.DockerPush, buildArgs map[string]string) Step {
+func buildImage(a *Actions, task manifest.DockerPush) Step {
+	buildArgs := map[string]string{
+		"ARTIFACTORY_PASSWORD": "",
+		"ARTIFACTORY_URL":      "",
+		"ARTIFACTORY_USERNAME": "",
+		"BUILD_VERSION":        "",
+		"GIT_REVISION":         "",
+		"RUNNING_IN_CI":        "",
+	}
+	for k, v := range task.Vars {
+		buildArgs[k] = v
+	}
+
 	step := Step{
 		Name: "Build Image",
-		Uses: "docker/build-push-action@v4",
+		Uses: "docker/build-push-action@v5",
 		With: With{
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"file":       path.Join(a.workingDir, task.DockerfilePath),
 			"push":       true,
-			"tags":       shared.CachePath(task, ":${{ env.GIT_REVISION }}"),
+			"tags":       shared.CachePath(task, "${{ env.GIT_REVISION }}"),
 			"build-args": MultiLine{buildArgs},
 			"platforms":  strings.Join(task.Platforms, ","),
 			"provenance": false,
+			"secrets":    MultiLine{task.Secrets},
 		},
 	}
 
 	if task.UseCache {
-		step.With["cache-from"] = fmt.Sprintf("type=registry,ref=%s", shared.CachePath(task, ""))
+		step.With["tags"] = fmt.Sprintf("%s\n%s", step.With["tags"], shared.CachePath(task, "buildcache"))
+		step.With["cache-from"] = fmt.Sprintf("type=registry,ref=%s", shared.CachePath(task, "buildcache"))
 		step.With["cache-to"] = "type=inline"
 	}
 

@@ -9,7 +9,7 @@ import (
 )
 
 type Controller interface {
-	Process(man manifest.Manifest) Response
+	Process(man manifest.Manifest) (Response, error)
 	DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error)
 }
 
@@ -18,6 +18,10 @@ type Response struct {
 	Project     project.Data
 	LintResults linters.LintResults
 	Platform    manifest.Platform
+}
+
+func (r Response) String() string {
+	return r.ConfigYaml
 }
 
 type Renderer interface {
@@ -40,7 +44,7 @@ func NewController(defaulter defaults.Defaults, mapper mapper.Mapper, linters []
 	}
 }
 
-func (c controller) Process(man manifest.Manifest) (response Response) {
+func (c controller) Process(man manifest.Manifest) (response Response, err error) {
 	defaultedManifest := c.defaulter.Apply(man)
 
 	for _, linter := range c.linters {
@@ -57,11 +61,11 @@ func (c controller) Process(man manifest.Manifest) (response Response) {
 		return
 	}
 
-	config, _ := c.renderer.Render(mappedManifest)
+	config, err := c.renderer.Render(mappedManifest)
 	response.ConfigYaml = config
 	response.Project = c.defaulter.Project
 	response.Platform = man.Platform
-	return response
+	return
 }
 
 func (c controller) DefaultAndMap(man manifest.Manifest) (updated manifest.Manifest, err error) {

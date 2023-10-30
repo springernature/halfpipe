@@ -19,7 +19,6 @@ tasks:
   name: Push default
   image: eu.gcr.io/halfpipe-io/someImage
   restore_artifacts: true
-  tag: version
 
 - type: docker-push
   name: Push custom
@@ -39,7 +38,6 @@ tasks:
   name: Push multiple platforms
   image: eu.gcr.io/halfpipe-io/someImage
   restore_artifacts: true
-  tag: version
   platforms:
   - "linux/amd64"
   - "linux/arm64"
@@ -48,8 +46,17 @@ tasks:
   name: Push multiple platforms and use cache
   image: eu.gcr.io/halfpipe-io/someImage
   restore_artifacts: true
-  tag: version
   use_cache: true
   platforms:
   - "linux/amd64"
   - "linux/arm64"
+
+- type: docker-push
+  name: Push with secrets
+  image: eu.gcr.io/halfpipe-io/someImage
+  vars:
+    A: a
+    B: b
+  secrets:
+    C: ((secret.c))
+    D: d

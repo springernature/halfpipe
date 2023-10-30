@@ -10,6 +10,14 @@ jobs:
     trigger: true
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
+      put: cf logs --recent
+      resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
@@ -34,6 +42,14 @@ jobs:
     trigger: true
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
+      put: cf logs --recent
+      resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
@@ -108,6 +124,14 @@ jobs:
     timeout: 1h
   - attempts: 2
     no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
+      put: cf logs --recent
+      resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
       cliVersion: cf7
