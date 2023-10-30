@@ -285,7 +285,7 @@ func TestDeployCF(t *testing.T) {
 				Type:       "((not.ok))",
 				Name:       "((not.ok))",
 				API:        "((super.ok))",
-				Space:      "((not.ok))",
+				Space:      "((super.ok))",
 				Org:        "((super.ok))",
 				Username:   "((super.ok))",
 				Password:   "((super.ok))",
@@ -302,7 +302,7 @@ func TestDeployCF(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 9)
+	assert.Len(t, errors, 8)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].type"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].name"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].manifest"))
@@ -311,7 +311,6 @@ func TestDeployCF(t *testing.T) {
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].timeout"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].notifications.on_failure[1]"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].notifications.on_success[2]"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].space"))
 
 	badPrePromote := manifest.Manifest{
 		Tasks: manifest.TaskList{

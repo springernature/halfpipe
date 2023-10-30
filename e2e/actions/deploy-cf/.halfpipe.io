@@ -2,9 +2,6 @@ team: halfpipe-team
 pipeline: pipeline-name
 platform: actions
 
-feature_toggles:
-- github-deployment
-
 triggers:
   - type: git
     watched_paths:
@@ -23,7 +20,7 @@ tasks:
     name: deploy to cf
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space1
+    space: dev
     manifest: manifest.yml
     deploy_artifact: foo.html
     vars:
@@ -36,7 +33,7 @@ tasks:
     name: deploy to cf with cf8
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space2
+    space: dev
     manifest: manifest.yml
     deploy_artifact: foo.html
     cli_version: cf8
@@ -50,7 +47,7 @@ tasks:
     name: deploy to cf with pre-promote
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space3
+    space: dev
     manifest: manifest.yml
     deploy_artifact: foo.html
     vars:
@@ -73,7 +70,7 @@ tasks:
     name: deploy to cf with docker image
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space4
+    space: dev
     manifest: manifest-docker.yml
     docker_tag: version
 
@@ -81,7 +78,7 @@ tasks:
     name: deploy with sso
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space5
+    space: dev
     deploy_artifact: foo.html
     sso_route: my-route.public.springernature.app
     rolling: true
@@ -90,13 +87,6 @@ tasks:
     name: deploy without artifact
     api: ((cloudfoundry.api-snpaas))
     org: ((cloudfoundry.org-snpaas))
-    space: space6
+    space: dev
     sso_route: my-route.public.springernature.app
     rolling: true
-
-  - type: deploy-cf
-    name: deploy to cf worker app
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    space: space7
-    manifest: manifest-worker.yml

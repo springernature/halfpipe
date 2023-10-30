@@ -11,7 +11,7 @@ type DeployCF struct {
 	Name            string        `yaml:"name,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	API             string        `yaml:"api,omitempty" secretAllowed:"true"`
-	Space           string        `yaml:"space,omitempty"`
+	Space           string        `yaml:"space,omitempty" secretAllowed:"true"`
 	Org             string        `yaml:"org,omitempty" secretAllowed:"true"`
 	Username        string        `yaml:"username,omitempty" secretAllowed:"true"`
 	Password        string        `yaml:"password,omitempty" secretAllowed:"true"`

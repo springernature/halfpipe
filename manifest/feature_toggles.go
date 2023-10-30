@@ -1,8 +1,6 @@
 package manifest
 
-import (
-	"golang.org/x/exp/slices"
-)
+import "golang.org/x/exp/slices"
 
 type FeatureToggles []string
 
@@ -10,7 +8,6 @@ const (
 	FeatureUpdatePipeline       = "update-pipeline"
 	FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
 	FeatureGithubStatuses       = "github-statuses"
-	FeatureGithubDeployment     = "github-deployment"
 )
 
 var AvailableFeatureToggles = FeatureToggles{
@@ -29,8 +26,4 @@ func (f FeatureToggles) TagGitRepo() bool {
 
 func (f FeatureToggles) GithubStatuses() bool {
 	return slices.Contains(f, FeatureGithubStatuses)
-}
-
-func (f FeatureToggles) GithubDeployment() bool {
-	return slices.Contains(f, FeatureGithubDeployment)
 }
