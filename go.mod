@@ -20,7 +20,7 @@ require (
 	github.com/onsi/gomega v1.29.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.10.0
-	github.com/spf13/cobra v1.7.0
+	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	github.com/tcnksm/go-gitconfig v0.1.2
 	gopkg.in/cheggaaa/pb.v1 v1.0.28
