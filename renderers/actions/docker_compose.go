@@ -45,11 +45,7 @@ func dockerComposeScript(task manifest.DockerCompose, team string) string {
 	}
 
 	options := []string{
-		"-e DOCKER_HOST=tcp://docker:2376",
-		"-e DOCKER_TLS_CERTDIR",
-		"-e DOCKER_TLS_VERIFY",
-		"-e DOCKER_CERT_PATH",
-		"-v /certs:/certs",
+		"-v /var/run/docker.sock:/var/run/docker.sock",
 		fmt.Sprintf("-v /mnt/halfpipe-cache/%s:/var/halfpipe/shared-cache", team),
 	}
 	for key := range allEnvVars {
