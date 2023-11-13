@@ -78,7 +78,6 @@ jobs:
         submodules: recursive
     - name: A1
       run: |-
-        docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
@@ -112,7 +111,6 @@ jobs:
         submodules: recursive
     - name: A2
       run: |-
-        docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
@@ -146,7 +144,6 @@ jobs:
         submodules: recursive
     - name: B
       run: |-
-        docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \

@@ -33,7 +33,6 @@ jobs:
         submodules: recursive
     - name: test
       run: |-
-        docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
@@ -104,7 +103,6 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: custom
       run: |-
-        docker-compose -f custom-docker-compose.yml pull
         docker-compose -f custom-docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \

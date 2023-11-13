@@ -370,7 +370,6 @@ jobs:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: docker-compose
       run: |-
-        docker-compose -f docker-compose.yml pull
         docker-compose -f docker-compose.yml run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
