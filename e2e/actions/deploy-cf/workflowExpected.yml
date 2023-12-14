@@ -417,6 +417,9 @@ jobs:
         docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
         docker-compose run --no-deps \
           --entrypoint "${CONSUMER_SCRIPT}" \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
           -e DEPENDENCY_NAME=${PROVIDER_NAME} \
           -e ${PROVIDER_HOST_KEY}=${PROVIDER_HOST} \
           -e CDC_CONSUMER_NAME=${CONSUMER_NAME} \
