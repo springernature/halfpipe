@@ -40,7 +40,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/target/xquery.zip
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
@@ -60,7 +60,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Download artifacts
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: artifacts
     - name: Extract artifacts
