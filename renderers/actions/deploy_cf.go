@@ -138,7 +138,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 
 	deploySteps = append(deploySteps, Step{
 		Name: "Cleanup",
-		If:   "always()",
+		If:   "${{ !cancelled() }}",
 		Uses: uses,
 		With: addCommonParams(With{
 			"command": "halfpipe-cleanup",

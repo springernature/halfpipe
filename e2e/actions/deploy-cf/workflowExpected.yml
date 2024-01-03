@@ -150,7 +150,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
@@ -265,7 +265,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
@@ -461,7 +461,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
@@ -567,7 +567,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
@@ -694,7 +694,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
@@ -814,7 +814,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
-      if: always()
+      if: ${{ !cancelled() }}
       uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
