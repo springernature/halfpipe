@@ -31,6 +31,7 @@ func New() Mapper {
 			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
 			NewCfMapper(),
+			NewGitTriggerMapper(),
 		},
 	}
 }

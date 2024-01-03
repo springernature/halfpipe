@@ -2,6 +2,11 @@ team: halfpipe-team
 pipeline: pipeline-name
 platform: actions
 
+triggers:
+- type: git
+  watched_paths:
+  - .
+
 tasks:
 - type: consumer-integration-test
   name: c-name

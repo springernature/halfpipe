@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-artifacts
 triggers:
 - type: git
   watched_paths:
-  - e2e/concourse/artifacts
+  - .
 
 tasks:
 - type: run

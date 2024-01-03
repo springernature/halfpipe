@@ -2,6 +2,11 @@ team: halfpipe-team
 pipeline: artifacts
 platform: actions
 
+triggers:
+- type: git
+  watched_paths:
+  - e2e/actions/artifacts
+
 tasks:
 - type: run
   name: build
