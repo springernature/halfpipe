@@ -16,10 +16,10 @@ func TestDoesntOverrideService(t *testing.T) {
 }
 
 func TestSetsDefaultDockerComposeFile(t *testing.T) {
-	assert.Equal(t, Concourse.Docker.ComposeFile, dockerComposeDefaulter(manifest.DockerCompose{}, Concourse).ComposeFile)
+	assert.Equal(t, Concourse.Docker.ComposeFile, dockerComposeDefaulter(manifest.DockerCompose{}, Concourse).ComposeFiles)
 }
 
 func TestDoesntOverrideDockerComposeFile(t *testing.T) {
-	file := "docker-compose-foo.yml"
-	assert.Equal(t, file, dockerComposeDefaulter(manifest.DockerCompose{ComposeFile: file}, Concourse).ComposeFile)
+	file := manifest.ComposeFiles{"docker-compose-foo.yml"}
+	assert.Equal(t, file, dockerComposeDefaulter(manifest.DockerCompose{ComposeFiles: file}, Concourse).ComposeFiles)
 }

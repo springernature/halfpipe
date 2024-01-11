@@ -261,8 +261,8 @@ tasks:
 				},
 			},
 			DockerCompose{
-				Name:        "docker compose task",
-				ComposeFile: "../compose-file.yml",
+				Name:         "docker compose task",
+				ComposeFiles: []string{"../compose-file.yml"},
 				Vars: Vars{
 					"FOO":             "fOo",
 					"BAR":             "1",
@@ -497,4 +497,19 @@ triggers:
 	man, errs := Parse(yaml)
 	assert.Empty(t, errs)
 	assert.Equal(t, GitTrigger{ShallowDefined: true}, man.Triggers[0])
+}
+
+func TestDockerComposeIsSplitIntoArray(t *testing.T) {
+	yaml := `
+team: my team
+pipeline: my pipeline
+tasks:
+- type: docker-compose
+  compose_file: one two
+`
+	man, errs := Parse(yaml)
+	assert.Empty(t, errs)
+
+	expected := DockerCompose{ComposeFiles: []string{"one", "two"}}
+	assert.Equal(t, expected, man.Tasks[0])
 }

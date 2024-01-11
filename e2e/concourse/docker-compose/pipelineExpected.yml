@@ -106,6 +106,59 @@ jobs:
     task: custom
     timeout: 1h
   serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: multiple-compose-files
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - custom
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          export GIT_REVISION=`cat ../../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose -f docker-compose.yml -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e DOCKER_HOST="${DIND_HOST}" -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app echo hello
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/e2e/concourse/docker-compose
+        path: docker.sh
+    privileged: true
+    task: multiple-compose-files
+    timeout: 1h
+  serial: true
 resources:
 - check_every: 10m0s
   name: git

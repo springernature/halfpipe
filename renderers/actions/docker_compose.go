@@ -15,10 +15,13 @@ func (a *Actions) dockerComposeSteps(task manifest.DockerCompose, team string) S
 }
 
 func dockerCleanup(task manifest.DockerCompose) Step {
+	dcDown := []string{"docker-compose"}
+	dcDown = append(dcDown, toMultipleArgs("-f", task.ComposeFiles)...)
+	dcDown = append(dcDown, "down")
 	return Step{
 		Name: "Docker cleanup",
 		If:   "always()",
-		Run:  fmt.Sprintf("docker-compose -f %s down", task.ComposeFile),
+		Run:  strings.Join(dcDown, " "),
 	}
 }
 
@@ -53,7 +56,9 @@ func dockerComposeScript(task manifest.DockerCompose, team string) string {
 	}
 	sort.Strings(options)
 
-	dcRun := []string{fmt.Sprintf("docker-compose -f %s run", task.ComposeFile)}
+	dcRun := []string{"docker-compose"}
+	dcRun = append(dcRun, toMultipleArgs("-f", task.ComposeFiles)...)
+	dcRun = append(dcRun, "run")
 	dcRun = append(dcRun, "--use-aliases")
 	dcRun = append(dcRun, options...)
 	dcRun = append(dcRun, task.Service)
@@ -61,4 +66,12 @@ func dockerComposeScript(task manifest.DockerCompose, team string) string {
 		dcRun = append(dcRun, task.Command)
 	}
 	return strings.Join(dcRun, " \\\n  ")
+}
+
+func toMultipleArgs(flag string, args []string) []string {
+	out := []string{}
+	for _, arg := range args {
+		out = append(out, fmt.Sprintf("%s %s", flag, arg))
+	}
+	return out
 }

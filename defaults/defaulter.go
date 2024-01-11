@@ -44,7 +44,7 @@ type DockerDefaults struct {
 	Username       string
 	Password       string
 	FilePath       string
-	ComposeFile    string
+	ComposeFile    manifest.ComposeFiles
 	ComposeService string
 }
 

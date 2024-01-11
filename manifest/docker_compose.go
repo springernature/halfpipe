@@ -1,5 +1,10 @@
 package manifest
 
+import (
+	"encoding/json"
+	"strings"
+)
+
 type DockerCompose struct {
 	Type                   string
 	Name                   string        `yaml:"name,omitempty"`
@@ -7,7 +12,7 @@ type DockerCompose struct {
 	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	Service                string        `yaml:"service,omitempty"`
-	ComposeFile            string        `json:"compose_file" yaml:"compose_file,omitempty"`
+	ComposeFiles           ComposeFiles  `json:"compose_file" yaml:"compose_file,omitempty"`
 	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
@@ -88,4 +93,23 @@ func (r DockerCompose) ReadsFromArtifacts() bool {
 
 func (r DockerCompose) GetAttempts() int {
 	return 1 + r.Retries
+}
+
+type ComposeFiles []string
+
+func (c ComposeFiles) MarshalYAML() (interface{}, error) {
+	return strings.Join(c, " "), nil
+}
+
+func (c *ComposeFiles) UnmarshalJSON(b []byte) error {
+	var raw string
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+
+	for _, s := range strings.Split(raw, " ") {
+		*c = append(*c, s)
+	}
+
+	return nil
 }

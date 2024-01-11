@@ -13,44 +13,56 @@ func LintDockerComposeTask(dc manifest.DockerCompose, fs afero.Afero) (errs []er
 		errs = append(errs, NewErrInvalidField("retries", "must be between 0 and 5"))
 	}
 
-	if err := CheckFile(fs, dc.ComposeFile, false); err != nil {
-		errs = append(errs, err)
-		return errs
+	serviceExists := false
+	for _, f := range dc.ComposeFiles {
+		fServiceExists, fErr := lintComposeFile(f, dc, fs)
+		if fErr != nil {
+			errs = append(errs, fErr)
+		}
+		if fServiceExists {
+			serviceExists = true
+		}
 	}
 
-	composeContent, err := fs.ReadFile(dc.ComposeFile)
-	if err != nil {
-		errs = append(errs, err)
-		return errs
+	if !serviceExists {
+		errs = append(errs, NewErrInvalidField("service", fmt.Sprintf("could not find service '%s' in %s", dc.Service, dc.ComposeFiles)))
 	}
-
-	e := lintDockerComposeService(dc.Service, dc.ComposeFile, composeContent)
-	errs = append(errs, e...)
-
 	return errs
 }
 
-func lintDockerComposeService(service string, composeFile string, composeContent []byte) (errs []error) {
+func lintComposeFile(path string, dc manifest.DockerCompose, fs afero.Afero) (serviceExists bool, err error) {
+	if err := CheckFile(fs, path, false); err != nil {
+		return false, err
+	}
+
+	composeContent, err := fs.ReadFile(path)
+	if err != nil {
+		return false, err
+	}
+
+	serviceExists, err = lintDockerComposeService(dc.Service, path, composeContent)
+	if err != nil {
+		return false, err
+	}
+
+	return serviceExists, nil
+}
+
+func lintDockerComposeService(service string, composeFile string, composeContent []byte) (serviceExists bool, err error) {
 	var compose struct {
 		Version  string
 		Services map[string]interface{}
 	}
-	err := yaml.Unmarshal(composeContent, &compose)
-	if err != nil {
-		err = ErrFileInvalid.WithValue(err.Error())
-		errs = append(errs, err)
-		return errs
+	e := yaml.Unmarshal(composeContent, &compose)
+	if e != nil {
+		return false, ErrFileInvalid.WithValue(e.Error())
 	}
 
 	if compose.Services == nil || strings.HasPrefix(compose.Version, "1") {
-		errs = append(errs, ErrDockerComposeVersion.WithFile(composeFile).AsWarning())
-		return errs
+		fmt.Println("SSS", compose.Services == nil)
+		return false, ErrDockerComposeVersion.WithFile(composeFile).AsWarning()
 	}
 
-	if _, ok := compose.Services[service]; !ok {
-		errs = append(errs, NewErrInvalidField("service", fmt.Sprintf("could not find service '%s' in %s", service, composeFile)))
-		return errs
-	}
-
-	return
+	_, serviceExists = compose.Services[service]
+	return serviceExists, nil
 }

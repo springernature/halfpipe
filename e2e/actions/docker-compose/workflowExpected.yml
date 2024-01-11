@@ -33,7 +33,9 @@ jobs:
         submodules: recursive
     - name: test
       run: |-
-        docker-compose -f docker-compose.yml run \
+        docker-compose \
+          -f docker-compose.yml \
+          run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
@@ -103,7 +105,9 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: custom
       run: |-
-        docker-compose -f custom-docker-compose.yml run \
+        docker-compose \
+          -f custom-docker-compose.yml \
+          run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
@@ -127,3 +131,39 @@ jobs:
     - name: Docker cleanup
       if: always()
       run: docker-compose -f custom-docker-compose.yml down
+  multiple-compose-files:
+    name: multiple-compose-files
+    needs:
+    - custom
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: multiple-compose-files
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          -f custom-docker-compose.yml \
+          run \
+          --use-aliases \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          app \
+          echo hello
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f docker-compose.yml -f custom-docker-compose.yml down

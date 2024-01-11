@@ -231,7 +231,9 @@ jobs:
         submodules: recursive
     - name: docker-compose
       run: |-
-        docker-compose -f e2e/actions/docker-compose/docker-compose.yml run \
+        docker-compose \
+          -f e2e/actions/docker-compose/docker-compose.yml \
+          run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \

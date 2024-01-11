@@ -57,13 +57,13 @@ func renderRunCommand(task manifest.Run, team string) string {
 }
 
 func renderDockerComposeCommand(task manifest.DockerCompose, team string) string {
-	s := []string{
-		"docker compose",
-		fmt.Sprintf("-f %s", task.ComposeFile),
+	s := []string{"docker compose"}
+	s = append(s, toMultipleArgs("-f", task.ComposeFiles)...)
+	s = append(s,
 		"run",
 		`-v "$PWD":/app`,
 		"-w /app",
-	}
+	)
 
 	vars := []string{}
 	for k, v := range task.Vars {
@@ -87,4 +87,12 @@ func convertSecret(s string, team string) string {
 		return s
 	}
 	return fmt.Sprintf("$(vault kv get -field=%s /springernature/%s)", secret.Key, secret.MapPath)
+}
+
+func toMultipleArgs(flag string, args []string) []string {
+	out := []string{}
+	for _, arg := range args {
+		out = append(out, fmt.Sprintf("%s %s", flag, arg))
+	}
+	return out
 }

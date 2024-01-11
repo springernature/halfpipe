@@ -166,6 +166,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		return
 	case reflect.TypeOf(Platform("")):
 		return
+	case reflect.TypeOf(ComposeFiles{}):
+		return
 	case reflect.TypeOf(Notifications{}):
 		notifications := v.Interface().(Notifications)
 

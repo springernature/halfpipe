@@ -1,5 +1,6 @@
 docker compose \
   -f custom-docker-compose.yml \
+  -f docker-compose.yml \
   run \
   -v "$PWD":/app \
   -w /app \

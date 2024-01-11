@@ -21,3 +21,8 @@ tasks:
     F: foo
     B: bar
     S: ((very.secret))
+
+- type: docker-compose
+  name: multiple-compose-files
+  command: echo hello
+  compose_file: docker-compose.yml custom-docker-compose.yml

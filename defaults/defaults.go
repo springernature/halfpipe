@@ -25,7 +25,7 @@ var Concourse = Defaults{
 		Username:       "_json_key",
 		Password:       "((halfpipe-gcr.private_key))",
 		ComposeService: "app",
-		ComposeFile:    "docker-compose.yml",
+		ComposeFile:    []string{"docker-compose.yml"},
 		FilePath:       "Dockerfile",
 	},
 	Artifactory: ArtifactoryDefaults{
@@ -49,7 +49,7 @@ var Actions = Defaults{
 	ShallowClone: true,
 	Docker: DockerDefaults{
 		ComposeService: "app",
-		ComposeFile:    "docker-compose.yml",
+		ComposeFile:    []string{"docker-compose.yml"},
 		FilePath:       "Dockerfile",
 	},
 

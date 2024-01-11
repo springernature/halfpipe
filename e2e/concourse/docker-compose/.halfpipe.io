@@ -18,3 +18,8 @@ tasks:
   vars:
     F: foo
     B: bar
+
+- type: docker-compose
+  name: multiple-compose-files
+  command: echo hello
+  compose_file: docker-compose.yml custom-docker-compose.yml

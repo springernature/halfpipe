@@ -23,7 +23,7 @@ tasks:
 - type: docker-compose
   name: docker-compose-complex
   command: \echo hello
-  compose_file: custom-docker-compose.yml
+  compose_file: custom-docker-compose.yml docker-compose.yml
   service: customservice
   vars:
     ENV1: 1234

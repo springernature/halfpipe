@@ -53,9 +53,13 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	}
 
 	composeFileOption := ""
-	if task.ComposeFile != "docker-compose.yml" {
-		composeFileOption = " -f " + task.ComposeFile
+	for _, f := range task.ComposeFiles {
+		composeFileOption += fmt.Sprintf(" -f %s", f)
 	}
+	if composeFileOption == " -f docker-compose.yml" {
+		composeFileOption = ""
+	}
+
 	envOption := strings.Join(envStrings, " ")
 	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
