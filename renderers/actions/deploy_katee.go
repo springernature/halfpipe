@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"strconv"
 )
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
@@ -26,6 +27,10 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 		deployKatee.Env["TAG"] = "${{ env.GIT_REVISION }}"
 	} else if task.Tag == "version" {
 		deployKatee.Env["TAG"] = "${{ env.BUILD_VERSION }}"
+	}
+
+	if task.DeploymentCheckTimeout != 0 {
+		deployKatee.Env["MAX_CHECKS"] = strconv.Itoa(task.DeploymentCheckTimeout)
 	}
 
 	for k, v := range task.Vars {

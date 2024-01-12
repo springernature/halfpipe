@@ -241,6 +241,7 @@ jobs:
         KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
         KATEE_NAMESPACE: katee-halfpipe-team
+        MAX_CHECKS: "120"
         VERY_SECRET: blah
       platform: linux
       run:

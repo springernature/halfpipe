@@ -19,6 +19,7 @@ tasks:
     name: deploy to katee
     tag: version
     vela_manifest: vela.yaml
+    deployment_check_timeout: 120
     notifications:
       on_failure:
         - "#ee-re"

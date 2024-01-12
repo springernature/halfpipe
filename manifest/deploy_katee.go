@@ -1,19 +1,20 @@
 package manifest
 
 type DeployKatee struct {
-	Type            string
-	Name            string        `yaml:"name,omitempty"`
-	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Vars            Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	VelaManifest    string        `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
-	Retries         int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications   Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Tag             string        `json:"tag,omitempty" yaml:"tag,omitempty"`
-	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Environment     string        `json:"environment,omitempty" yaml:"environment,omitempty"`
-	Namespace       string        `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Type                   string
+	Name                   string        `yaml:"name,omitempty"`
+	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	VelaManifest           string        `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
+	Retries                int           `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Tag                    string        `json:"tag,omitempty" yaml:"tag,omitempty"`
+	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Environment            string        `json:"environment,omitempty" yaml:"environment,omitempty"`
+	Namespace              string        `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	DeploymentCheckTimeout int           `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {

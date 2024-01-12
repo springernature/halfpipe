@@ -16,6 +16,7 @@ tasks:
   - type: deploy-katee
     name: deploy to katee
     tag: version
+    deployment_check_timeout: 120
     notifications:
       on_failure:
         - "#ee-re"

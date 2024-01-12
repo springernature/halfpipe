@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
+	"strconv"
 )
 
 func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) (job atc.JobConfig) {
@@ -54,6 +55,10 @@ halfpipe-deploy`,
 		run.Vars["DOCKER_TAG"] = "gitref"
 	} else if task.Tag == "version" {
 		run.Vars["DOCKER_TAG"] = "buildVersion"
+	}
+
+	if task.DeploymentCheckTimeout != 0 {
+		run.Vars["MAX_CHECKS"] = strconv.Itoa(task.DeploymentCheckTimeout)
 	}
 
 	for k, v := range task.Vars {
