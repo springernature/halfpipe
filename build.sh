@@ -38,8 +38,7 @@ echo [4/6] e2e test
 (cd e2e; ./test.sh)
 
 echo [5/6] staticcheck
-staticcheck -version 2> /dev/null | grep -Fq '2023.1.6' || go install honnef.co/go/tools/cmd/staticcheck@2023.1.6
-staticcheck ./...
+go run honnef.co/go/tools/cmd/staticcheck@2023.1.6 ./...
 
 echo [6/6] update dependabot workflow
 ./halfpipe -q -i dependabot.halfpipe.io
