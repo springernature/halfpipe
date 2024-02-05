@@ -193,7 +193,7 @@ jobs:
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@v2
+      uses: peter-evans/repository-dispatch@v3
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/blah
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
