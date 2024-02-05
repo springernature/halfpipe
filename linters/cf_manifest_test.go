@@ -212,4 +212,38 @@ applications:
 		assert.Empty(t, errs)
 	})
 
+	t.Run("candidate app route is too long", func(t *testing.T) {
+		cfManifest := `
+applications:
+- name: test-a-veeeeeeeeeeeeeeeeeeeery-loooooooooooooooong-app
+  routes:
+  - route: test.com
+  buildpacks:
+  - java
+`
+		errs := LintCfManifest(manifest.DeployCF{
+			Space:      "with-a-very-loooong-space",
+			TestDomain: "",
+		}, cfManifestReader(cfManifest, nil))
+
+		assertContainsError(t, errs, ErrCFCandidateRouteTooLong)
+	})
+
+	t.Run("candidate app route linting is ignored when space is secret", func(t *testing.T) {
+		cfManifest := `
+applications:
+- name: test-a-veeeeeeeeeeeeeeeeeeeery-loooooooooooooooong-app
+  routes:
+  - route: test.com
+  buildpacks:
+  - java
+`
+		errs := LintCfManifest(manifest.DeployCF{
+			Space:      "((halfpipe.test))",
+			TestDomain: "",
+		}, cfManifestReader(cfManifest, nil))
+
+		assertNotContainsError(t, errs, ErrCFCandidateRouteTooLong)
+	})
+
 }

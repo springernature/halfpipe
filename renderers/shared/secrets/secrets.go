@@ -15,7 +15,7 @@ type Secret struct {
 // New returns a Secret from a string in the "halfpipe" format
 // "((map.key))" or "((/path/to/map key))"
 func New(s string, team string) *Secret {
-	if !isSecret(s) {
+	if !IsSecret(s) {
 		return nil
 	}
 
@@ -45,7 +45,7 @@ func New(s string, team string) *Secret {
 	return nil
 }
 
-func isSecret(s string) bool {
+func IsSecret(s string) bool {
 	return strings.HasPrefix(s, "((") && strings.HasSuffix(s, "))")
 }
 

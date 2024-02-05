@@ -1,8 +1,10 @@
 package linters
 
 import (
+	"fmt"
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/renderers/shared/secrets"
 	"golang.org/x/exp/slices"
 	"strings"
 
@@ -18,8 +20,8 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 		return errs
 	}
 
-	manifest, err := readCfManifest(task.Manifest, nil, nil)
-	apps := manifest.Applications
+	cfManifest, err := readCfManifest(task.Manifest, nil, nil)
+	apps := cfManifest.Applications
 
 	if err != nil {
 		errs = append(errs, ErrFileInvalid.WithValue(err.Error()).WithFile(task.Manifest))
@@ -37,8 +39,24 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 	}
 
 	errs = append(errs, lintRoutes(task, app)...)
+	errs = append(errs, lintCandidateAppRoute(task, cfManifest)...)
 	errs = append(errs, lintDockerPush(task, app)...)
 	errs = append(errs, lintBuildpack(app, task.Manifest)...)
+
+	return errs
+}
+
+func lintCandidateAppRoute(task manifest.DeployCF, m manifestparser.Manifest) (errs []error) {
+	if secrets.IsSecret(task.Space) {
+		return errs
+	}
+
+	testRouteHost := fmt.Sprintf("%s-%s-CANDIDATE", m.GetFirstApp().Name, task.Space)
+
+	if len(testRouteHost) > 64 {
+		errs = append(errs, ErrCFCandidateRouteTooLong.WithValue(fmt.Sprintf("%s length is %v", testRouteHost, len(testRouteHost))))
+		return
+	}
 
 	return errs
 }
