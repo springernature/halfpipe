@@ -31,7 +31,7 @@ func tags(task manifest.DockerPush) []string {
 func repositoryDispatch(eventName string) Step {
 	return Step{
 		Name: "Repository dispatch",
-		Uses: "peter-evans/repository-dispatch@v2",
+		Uses: "peter-evans/repository-dispatch@v3",
 		With: With{
 			"token":      githubSecrets.RepositoryDispatchToken,
 			"event-type": "docker-push:" + eventName,

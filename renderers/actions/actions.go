@@ -183,7 +183,7 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 
 		return Step{
 			Name: "Notify slack " + channel,
-			Uses: "slackapi/slack-github-action@v1.24.0",
+			Uses: "slackapi/slack-github-action@v1.25.0",
 			With: With{
 				"channel-id":    channel,
 				"slack-message": text,

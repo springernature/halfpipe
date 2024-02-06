@@ -38,21 +38,21 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.24.0
+      uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: '#failure1'
         slack-message: failure msg
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success1 (success)'
-      uses: slackapi/slack-github-action@v1.24.0
+      uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: '#success1'
         slack-message: success message
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success2 (success)'
-      uses: slackapi/slack-github-action@v1.24.0
+      uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: '#success2'
         slack-message: success message
