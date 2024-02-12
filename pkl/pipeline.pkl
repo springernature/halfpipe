@@ -1,0 +1,14 @@
+amends "halfpipe.pkl"
+
+name = "my-pipe"
+platform = "actions"
+
+tasks {
+  new Run {
+    name = "test"
+    script = "./test.sh"
+  }
+  new DockerCompose {
+    command = "./build"
+  }
+}

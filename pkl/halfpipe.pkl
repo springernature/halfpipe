@@ -1,0 +1,34 @@
+module halfpipe
+
+typealias Platform = "concourse" | "actions"
+
+abstract class Task {
+  fixed type: String
+  name: String?
+  timeout: Duration(this > 0.s && this <= 60.min) = 5.min
+  retries: Int(this >= 0 && this <= 4) = 0
+}
+
+class Run extends Task {
+  fixed type = "run"
+  script: String
+}
+
+class DockerCompose extends Task {
+  fixed type = "docker-compose"
+  path: String(read?("file:\(this)") != null) = "docker-compose.yml"
+  command: String?
+}
+
+
+name: String
+platform: Platform
+tasks: Listing<Task>
+
+output {
+  renderer = new YamlRenderer {
+    converters {
+      [Duration] = (d) -> d.isoString
+    }
+  }
+}
