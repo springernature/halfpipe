@@ -4,11 +4,23 @@ name = "my-pipe"
 platform = "actions"
 
 tasks {
-  new Run {
-    name = "test"
-    script = "./test.sh"
-  }
-  new DockerCompose {
-    command = "./build"
+  new Parallel {
+    tasks {
+      new Sequence {
+        tasks {
+          new Run {
+            name = "test"
+            script = "./test.sh"
+          }
+          new DockerCompose {
+            command = "./build"
+          }
+        }
+      }
+      new Run {
+        name = "deploy"
+        script = "./deploy.sh"
+      }
+    }
   }
 }

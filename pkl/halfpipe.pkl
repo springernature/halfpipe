@@ -6,7 +6,7 @@ abstract class Task {
   fixed type: String
   name: String?
   timeout: Duration(this > 0.s && this <= 60.min) = 5.min
-  retries: Int(this >= 0 && this <= 4) = 0
+  retries: Int(this >= 0 && this <= 4) = 1
 }
 
 class Run extends Task {
@@ -18,6 +18,16 @@ class DockerCompose extends Task {
   fixed type = "docker-compose"
   path: String(read?("file:\(this)") != null) = "docker-compose.yml"
   command: String?
+}
+
+class Parallel extends Task {
+  fixed type = "parallel"
+  tasks: Listing<Task>
+}
+
+class Sequence extends Task {
+  fixed type = "sequence"
+  tasks: Listing<Task>
 }
 
 
