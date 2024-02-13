@@ -30,8 +30,8 @@ class Sequence extends Task {
   tasks: Listing<Task>
 }
 
-
-name: String
+team: String
+pipeline: String
 platform: Platform
 tasks: Listing<Task>
 
