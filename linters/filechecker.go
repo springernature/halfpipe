@@ -1,7 +1,10 @@
 package linters
 
 import (
+	"context"
+	"github.com/apple/pkl-go/pkl"
 	"github.com/spf13/afero"
+	"strings"
 )
 
 func CheckFile(fs afero.Afero, path string, mustBeExecutable bool) error {
@@ -36,9 +39,21 @@ func ReadFile(fs afero.Afero, path string) (content string, err error) {
 
 	bytez, err := fs.ReadFile(path)
 	if err != nil {
-		return content, ErrFileInvalid.WithFile(path)
+		return "", ErrFileInvalid.WithFile(path)
 	}
 
-	content = string(bytez)
-	return content, nil
+	fileContent := string(bytez)
+	if strings.HasSuffix(path, ".pkl") {
+		evaluator, err := pkl.NewEvaluator(context.Background(), pkl.PreconfiguredOptions)
+		if err != nil {
+			return content, err
+		}
+		defer func(evaluator pkl.Evaluator) {
+			_ = evaluator.Close()
+		}(evaluator)
+		println(fileContent)
+		return evaluator.EvaluateOutputText(context.Background(), pkl.TextSource(fileContent))
+	}
+
+	return fileContent, err
 }

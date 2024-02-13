@@ -28,6 +28,7 @@ require (
 )
 
 require (
+	github.com/apple/pkl-go v0.5.3
 	github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
@@ -51,6 +52,8 @@ require (
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 // indirect
+	github.com/vmihailenco/msgpack/v5 v5.3.5 // indirect
+	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	golang.org/x/crypto v0.18.0 // indirect
 	golang.org/x/net v0.20.0 // indirect
