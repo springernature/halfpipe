@@ -1,0 +1,7 @@
+amends "package://pkg.pkl-lang.org/pkl-go/pkl.golang@0.5.3#/GeneratorSettings.pkl"
+
+packageMappings {
+  ["halfpipe"] = "github.com/springernature/halfpipe/pkl/gen/halfpipe"
+}
+
+basePath = "github.com/springernature/halfpipe/pkl"
