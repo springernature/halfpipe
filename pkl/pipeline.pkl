@@ -1,4 +1,4 @@
-amends "https://raw.githubusercontent.com/springernature/halfpipe/rob-pkl/pkl/halfpipe.pkl"
+amends "halfpipe.pkl"
 
 team = "my-team"
 pipeline = "my-pipe"
@@ -7,6 +7,26 @@ platform = "actions"
 tasks {
   new Run {
     name = "test"
+    timeout = 12.min
     script = "./test.sh"
+  }
+  new DockerCompose {
+    command = "./build"
+  }
+  new Parallel {
+    tasks {
+      new Sequence{
+        tasks {
+          new DockerCompose {}
+          new DockerCompose {}
+        }
+      }
+      new Sequence{
+        tasks {
+          new DockerCompose {}
+          new DockerCompose {}
+        }
+      }
+    }
   }
 }
