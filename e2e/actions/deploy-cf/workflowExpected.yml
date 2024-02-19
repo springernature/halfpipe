@@ -383,7 +383,7 @@ jobs:
           -e TEST_ROUTE \
           -e VAULT_ROLE_ID \
           -e VAULT_SECRET_ID \
-          -v /mnt/halfpipe-cache/:/var/halfpipe/shared-cache \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
       env:
