@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-go version | grep -q 'go1.21' || (
+go version | grep -q 'go1.22' || (
     go version
-    echo error: go1.21 required
+    echo error: go1.22 required
     exit 1
 )
 
@@ -12,10 +12,6 @@ if [ "${1-}" = "ci" ]; then
     echo CI
     go_opts="-mod=readonly"
 fi
-
-
-# https://github.com/golang/go/wiki/LoopvarExperiment
-export GOEXPERIMENT=loopvar
 
 echo [1/6] fmt
 go fmt ./...
