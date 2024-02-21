@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/concourse/manual-git-trigger/.halfpipe.io
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1

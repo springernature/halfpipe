@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/trigger-git-ignore-paths-only/.halfpipe.io
 name: pipeline-name
 "on":
   push:
