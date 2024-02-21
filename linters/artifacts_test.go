@@ -76,3 +76,16 @@ func TestThatUserDoesntUseEnvironmentVariables(t *testing.T) {
 		assertContainsError(t, errors, ErrInvalidField.WithValue("deploy_artifact"))
 	})
 }
+
+func TestEmptyArtifact(t *testing.T) {
+	man := manifest.Run{
+		SaveArtifacts: []string{
+			"path/to/blah",
+			"",
+		},
+	}
+
+	errors := LintArtifacts(man, []manifest.Task{manifest.Run{SaveArtifacts: []string{"."}}})
+	assert.Len(t, errors, 1)
+	assertContainsError(t, errors, ErrInvalidField.WithValue("save_artifact"))
+}
