@@ -33,7 +33,7 @@ func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (er
 		}
 
 		if saveArtifact == "" {
-			errs = append(errs, NewErrInvalidField("save_artifact", fmt.Sprintf("empty path")))
+			errs = append(errs, NewErrInvalidField("save_artifact", "empty path"))
 		}
 	}
 
