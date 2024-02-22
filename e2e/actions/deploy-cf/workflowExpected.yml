@@ -416,8 +416,8 @@ jobs:
 
         # run the tests with docker-compose
         # note: old system reads CF manifest env vars and sets them all here
-        docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
-        docker-compose run --no-deps \
+        docker-compose pull -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} ${DOCKER_COMPOSE_SERVICE:-code}
+        docker-compose run -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} --no-deps \
           --entrypoint "${CONSUMER_SCRIPT}" \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
@@ -438,6 +438,7 @@ jobs:
         CONSUMER_NAME: repo/app
         CONSUMER_PATH: app
         CONSUMER_SCRIPT: ci/run-external-and-cdcs-dev
+        DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
         GIT_CLONE_OPTIONS: ""
         PROVIDER_HOST: halfpipe-example-dev-CANDIDATE.springernature.app

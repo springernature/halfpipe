@@ -66,8 +66,8 @@ git checkout ${REVISION}
 
 # run the tests with docker-compose
 # note: old system reads CF manifest env vars and sets them all here
-docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
-docker-compose run --no-deps \
+docker-compose pull -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} ${DOCKER_COMPOSE_SERVICE:-code}
+docker-compose run -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} --no-deps \
   --entrypoint "${CONSUMER_SCRIPT}" \
   -e ARTIFACTORY_PASSWORD \
   -e ARTIFACTORY_URL \

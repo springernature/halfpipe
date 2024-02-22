@@ -9,6 +9,7 @@ type ConsumerIntegrationTest struct {
 	ProviderHost         string        `json:"provider_host" yaml:"provider_host,omitempty"`
 	ProviderName         string        `json:"provider_name" yaml:"provider_name,omitempty"`
 	Script               string        `yaml:"script,omitempty"`
+	DockerComposeFile    string        `json:"docker_compose_file" yaml:"docker_compose_file,omitempty"`
 	DockerComposeService string        `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
 	Vars                 Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	Retries              int           `yaml:"retries,omitempty"`
