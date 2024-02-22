@@ -70,8 +70,8 @@ jobs:
 
         # run the tests with docker-compose
         # note: old system reads CF manifest env vars and sets them all here
-        docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
-        docker-compose run --no-deps \
+        docker-compose pull -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} ${DOCKER_COMPOSE_SERVICE:-code}
+        docker-compose run -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} --no-deps \
           --entrypoint "${CONSUMER_SCRIPT}" \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
@@ -92,6 +92,7 @@ jobs:
         CONSUMER_NAME: c-consumer/sub/dir
         CONSUMER_PATH: sub/dir
         CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: custom-docker-compose.yml
         DOCKER_COMPOSE_SERVICE: potato
         GIT_CLONE_OPTIONS: --depth 100
         K: value
@@ -150,8 +151,8 @@ jobs:
 
         # run the tests with docker-compose
         # note: old system reads CF manifest env vars and sets them all here
-        docker-compose pull ${DOCKER_COMPOSE_SERVICE:-code}
-        docker-compose run --no-deps \
+        docker-compose pull -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} ${DOCKER_COMPOSE_SERVICE:-code}
+        docker-compose run -f ${DOCKER_COMPOSE_FILE:-docker-compose.yml} --no-deps \
           --entrypoint "${CONSUMER_SCRIPT}" \
           -e ARTIFACTORY_PASSWORD \
           -e ARTIFACTORY_URL \
@@ -172,6 +173,7 @@ jobs:
         CONSUMER_NAME: c-consumer
         CONSUMER_PATH: ""
         CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: potato
         GIT_CLONE_OPTIONS: --depth 100
         K: value

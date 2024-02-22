@@ -47,6 +47,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"PROVIDER_NAME":          providerName,
 			"PROVIDER_HOST_KEY":      providerHostKey,
 			"PROVIDER_HOST":          task.ProviderHost,
+			"DOCKER_COMPOSE_FILE":    task.DockerComposeFile,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 		},

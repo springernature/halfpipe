@@ -343,6 +343,7 @@ func TestConsumerIntegrationTest(t *testing.T) {
 				ConsumerHost:         "((not.ok))",
 				ProviderHost:         "((not.ok))",
 				Script:               "./script ((not.ok))",
+				DockerComposeFile:    "((not.ok))",
 				DockerComposeService: "((not.ok))",
 				Vars: map[string]string{
 					"ok":         "((super.secret))",
@@ -353,13 +354,14 @@ func TestConsumerIntegrationTest(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 8)
+	assert.Len(t, errors, 9)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].type"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].name"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].consumer"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].consumer_host"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].provider_host"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].script"))
+	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].docker_compose_file"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].docker_compose_service"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("key tasks[0].vars[((not.ok))]"))
 }

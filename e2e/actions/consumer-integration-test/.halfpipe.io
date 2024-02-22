@@ -15,6 +15,7 @@ tasks:
   provider_host: p-host
   provider_name: p-name
   script: c-script
+  docker_compose_file: custom-docker-compose.yml
   docker_compose_service: potato
   git_clone_options: "--depth 100"
   vars:
