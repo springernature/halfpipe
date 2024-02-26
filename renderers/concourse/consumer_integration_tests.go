@@ -20,7 +20,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 
 	dockerLogin := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`
-	cdcScript = shared.ConsumerIntegrationTestScriptV2(task.Vars, config.DockerComposeCacheDirs)
+	cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, config.DockerComposeCacheDirs)
 
 	script := dockerLogin + "\n" + cdcScript
 
