@@ -86,16 +86,3 @@ func TestActionsLinter_PreventCircularTriggers(t *testing.T) {
 	errs := lint(man).Issues
 	assertContainsError(t, errs, ErrDockerTriggerLoop)
 }
-
-func TestActionsLinter_UnsupportedUseCovenant(t *testing.T) {
-	man := manifest.Manifest{
-		Platform: "actions",
-		Tasks: manifest.TaskList{
-			manifest.ConsumerIntegrationTest{
-				UseCovenant: true,
-			},
-		},
-	}
-	errs := lint(man).Issues
-	assertContainsError(t, errs, ErrUnsupportedCovenant)
-}

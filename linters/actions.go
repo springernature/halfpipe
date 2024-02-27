@@ -54,10 +54,6 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest, taskListId
 					}
 				}
 			}
-		case manifest.ConsumerIntegrationTest:
-			if task.UseCovenant {
-				appendError(ErrUnsupportedCovenant.AsWarning())
-			}
 		}
 
 	}

@@ -50,6 +50,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"DOCKER_COMPOSE_FILE":    task.DockerComposeFile,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
+			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
 		Timeout: task.GetTimeout(),
 	}

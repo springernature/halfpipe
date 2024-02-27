@@ -49,7 +49,6 @@ var (
 	ErrUnsupportedManualTrigger   = newError("manual_trigger on individual tasks is not supported in GitHub Actions. It is supported at the workflow level in git trigger options")
 	ErrUnsupportedRolling         = newError("cf rolling deploys are not supported in GitHub Actions")
 	ErrDockerTriggerLoop          = newError("cannot push docker image that is also a trigger as it will create a loop")
-	ErrUnsupportedCovenant        = newError("covenant is not supported in GitHub Actions")
 	ErrUnsupportedGitPrivateKey   = newError("git private_key is not supported in GitHub Actions")
 	ErrUnsupportedGitUri          = newError("git uri is not supported in GitHub Actions")
 	ErrUnsupportedPipelineTrigger = newError("pipeline triggers are not supported in GitHub Actions")
