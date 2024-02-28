@@ -2,14 +2,13 @@ package shared
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"sort"
 	"strings"
 )
 
-func ConsumerIntegrationTestScript(vars manifest.Vars, cacheDirs []string) string {
+func ConsumerIntegrationTestScript(keys []string, cacheDirs []string) string {
 	var envStrings []string
-	for key := range vars {
+	for _, key := range keys {
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
 	}
 	sort.Strings(envStrings)

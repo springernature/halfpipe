@@ -30,7 +30,18 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	}
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
-	cdcScript = shared.ConsumerIntegrationTestScript(task.Vars, []string{})
+	var keys []string
+	for k := range task.Vars {
+		keys = append(keys, k)
+	}
+	// In the Concourse renderer we default these to be part of task.Vars but not in Actions since
+	// ARTIFACTORY_* is always using the top level env, so we can safely assume
+	// that they are available for us here.
+	keys = append(keys, "ARTIFACTORY_URL")
+	keys = append(keys, "ARTIFACTORY_USERNAME")
+	keys = append(keys, "ARTIFACTORY_PASSWORD")
+
+	cdcScript = shared.ConsumerIntegrationTestScript(keys, []string{})
 
 	runTask := manifest.Run{
 		Retries: task.Retries,

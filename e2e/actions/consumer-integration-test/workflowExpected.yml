@@ -47,7 +47,7 @@ jobs:
         submodules: recursive
     - name: c-name
       run: |-
-        export ENV_OPTIONS="-e K -e K1 -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
         export VOLUME_OPTIONS=""
         run-cdc.sh
       env:
@@ -94,7 +94,7 @@ jobs:
         submodules: recursive
     - name: c-name-covenant
       run: |-
-        export ENV_OPTIONS="-e K -e K1 -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
         export VOLUME_OPTIONS=""
         run-cdc.sh
       env:
