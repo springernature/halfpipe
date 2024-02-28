@@ -393,7 +393,7 @@ jobs:
       run: docker-compose -f docker-compose.yml down
     - name: CDCs
       run: |-
-        export ENV_OPTIONS="-e TEST_ROUTE"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e TEST_ROUTE"
         export VOLUME_OPTIONS=""
         run-cdc.sh
       env:
