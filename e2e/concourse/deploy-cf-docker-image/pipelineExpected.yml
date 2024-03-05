@@ -78,6 +78,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
     put: halfpipe-all
@@ -130,6 +131,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
     put: halfpipe-push
@@ -254,6 +256,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
     put: halfpipe-rolling-deploy
@@ -296,6 +299,7 @@ jobs:
       gitRefPath: git/.git/ref
       instances: 1
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
     put: deploy-test-app
@@ -382,6 +386,7 @@ jobs:
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
     put: halfpipe-rolling-deploy

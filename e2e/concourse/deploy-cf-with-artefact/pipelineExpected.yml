@@ -143,6 +143,7 @@ jobs:
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
+      team: halfpipe-team
       testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-all

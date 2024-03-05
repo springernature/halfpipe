@@ -247,3 +247,18 @@ applications:
 	})
 
 }
+
+func TestLabels(t *testing.T) {
+	t.Run("Warning if team is already set in manifest", func(t *testing.T) {
+		cfManifest := `
+applications:
+- name: test
+  metadata:
+    labels:
+      team: yo
+`
+
+		errs := LintCfManifest(manifest.DeployCF{}, cfManifestReader(cfManifest, nil))
+		assertContainsError(t, errs, ErrCFTeamLabelWillBeOverwritten)
+	})
+}

@@ -42,6 +42,7 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 	errs = append(errs, lintCandidateAppRoute(task, cfManifest)...)
 	errs = append(errs, lintDockerPush(task, app)...)
 	errs = append(errs, lintBuildpack(app, task.Manifest)...)
+	errs = append(errs, lintLabels(app)...)
 
 	return errs
 }
@@ -132,4 +133,17 @@ func lintBuildpack(app manifestparser.Application, manifestPath string) (errs []
 	}
 
 	return errs
+}
+func lintLabels(app manifestparser.Application) (errs []error) {
+	if app.RemainingManifestFields["metadata"] != nil {
+		metadata := app.RemainingManifestFields["metadata"].(map[any]any)
+		if metadata["labels"] != nil {
+			labels := metadata["labels"].(map[any]any)
+			_, found := labels["team"]
+			if found {
+				errs = append(errs, ErrCFTeamLabelWillBeOverwritten)
+			}
+		}
+	}
+	return
 }

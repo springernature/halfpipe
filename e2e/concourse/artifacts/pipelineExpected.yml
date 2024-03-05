@@ -266,6 +266,7 @@ jobs:
       command: halfpipe-push
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/artifacts/manifest.yml
+      team: halfpipe-team
       testDomain: springernature.app
       timeout: 1h
       vars:
