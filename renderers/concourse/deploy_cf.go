@@ -18,6 +18,7 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	deploy.halfpipeManifest = man
 	deploy.basePath = basePath
 	deploy.vars = convertVars(task.Vars)
+	deploy.team = man.Team
 
 	deploy.manifestPath = path.Join(gitDir, basePath, task.Manifest)
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
@@ -67,6 +68,7 @@ type deployCF struct {
 	appPath          string
 	basePath         string
 	vars             map[string]interface{}
+	team             string
 }
 
 func (d deployCF) cleanupOldApps() *atc.Step {
@@ -133,6 +135,7 @@ func (d deployCF) pushCandidateApp() atc.Step {
 			"manifestPath": d.manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   d.task.CliVersion,
+			"team":         d.team,
 		},
 		NoGet: true,
 	}
@@ -201,6 +204,7 @@ func (d deployCF) pushApp() atc.Step {
 			"manifestPath": d.manifestPath,
 			"gitRefPath":   path.Join(gitDir, ".git", "ref"),
 			"cliVersion":   cliVersion,
+			"team":         d.team,
 		},
 		NoGet: true,
 	}

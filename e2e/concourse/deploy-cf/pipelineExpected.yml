@@ -24,6 +24,7 @@ jobs:
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      team: halfpipe-team
       testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-all
@@ -56,6 +57,7 @@ jobs:
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      team: halfpipe-team
       testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-all
@@ -100,6 +102,7 @@ jobs:
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
       preStartCommand: cf apps; cf events myapp-CANDIDATE
+      team: halfpipe-team
       testDomain: some.random.domain.com
       timeout: 5m
     put: halfpipe-push
@@ -540,6 +543,7 @@ jobs:
       command: halfpipe-all
       gitRefPath: git/.git/ref
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      team: halfpipe-team
       testDomain: some.random.domain.com
       timeout: 1h
     put: halfpipe-all

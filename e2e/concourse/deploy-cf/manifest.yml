@@ -7,3 +7,6 @@ applications:
   - route: some-route.public.springernature.app
   buildpacks:
     - java
+  metadata:
+    labels:
+      team: hello

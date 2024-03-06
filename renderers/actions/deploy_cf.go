@@ -61,6 +61,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		Uses: uses,
 		With: addCommonParams(With{
 			"command": "halfpipe-push",
+			"team":    man.Team,
 		}),
 		Env: envVars,
 	}
