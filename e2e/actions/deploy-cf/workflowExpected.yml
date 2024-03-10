@@ -397,7 +397,7 @@ jobs:
     - name: CDCs
       run: |-
         export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e TEST_ROUTE"
-        export VOLUME_OPTIONS=""
+        export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team/cdcs/$CONSUMER_NAME:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
         CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}

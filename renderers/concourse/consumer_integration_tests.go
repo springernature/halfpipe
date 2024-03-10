@@ -25,7 +25,11 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	for k := range task.Vars {
 		keys = append(keys, k)
 	}
-	cdcScript = shared.ConsumerIntegrationTestScript(keys, config.DockerComposeCacheDirs)
+	var cacheDirs []shared.CacheDirs
+	for _, cacheDir := range config.DockerComposeCacheDirs {
+		cacheDirs = append(cacheDirs, shared.CacheDirs{RunnerDir: cacheDir, ContainerDir: cacheDir})
+	}
+	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs)
 
 	script := dockerLogin + "\n" + cdcScript
 

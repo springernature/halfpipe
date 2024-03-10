@@ -6,7 +6,12 @@ import (
 	"strings"
 )
 
-func ConsumerIntegrationTestScript(keys []string, cacheDirs []string) string {
+type CacheDirs struct {
+	RunnerDir    string
+	ContainerDir string
+}
+
+func ConsumerIntegrationTestScript(keys []string, cacheDirs []CacheDirs) string {
 	var envStrings []string
 	for _, key := range keys {
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
@@ -15,8 +20,8 @@ func ConsumerIntegrationTestScript(keys []string, cacheDirs []string) string {
 	envOption := strings.Join(envStrings, " ")
 
 	var cacheVolumeFlags []string
-	for _, cacheVolume := range cacheDirs {
-		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cacheVolume, cacheVolume))
+	for _, cache := range cacheDirs {
+		cacheVolumeFlags = append(cacheVolumeFlags, fmt.Sprintf("-v %s:%s", cache.RunnerDir, cache.ContainerDir))
 	}
 
 	volumeOption := strings.Join(cacheVolumeFlags, " ")

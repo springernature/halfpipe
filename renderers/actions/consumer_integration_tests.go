@@ -41,7 +41,10 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	keys = append(keys, "ARTIFACTORY_USERNAME")
 	keys = append(keys, "ARTIFACTORY_PASSWORD")
 
-	cdcScript = shared.ConsumerIntegrationTestScript(keys, []string{})
+	var cacheDirs = []shared.CacheDirs{
+		{RunnerDir: fmt.Sprintf("/mnt/halfpipe-cache/%s/cdcs/$CONSUMER_NAME", man.Team), ContainerDir: "/var/halfpipe/shared-cache"},
+	}
+	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs)
 
 	runTask := manifest.Run{
 		Retries: task.Retries,
