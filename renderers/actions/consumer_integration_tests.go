@@ -42,7 +42,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	keys = append(keys, "ARTIFACTORY_PASSWORD")
 
 	var cacheDirs = []shared.CacheDirs{
-		{RunnerDir: fmt.Sprintf("/mnt/halfpipe-cache/%s/cdcs/$CONSUMER_NAME", man.Team), ContainerDir: "/var/halfpipe/shared-cache"},
+		{RunnerDir: fmt.Sprintf("/mnt/halfpipe-cache/%s", man.Team), ContainerDir: "/var/halfpipe/shared-cache"},
 	}
 	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs)
 
