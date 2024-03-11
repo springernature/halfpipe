@@ -34,7 +34,9 @@ var (
 	ErrCFPrePromoteArtifact    = newError("cannot have pre promote tasks with CF manifest restored from artifact")
 	ErrCFCandidateRouteTooLong = newError("cf does not allow routes of more than 64 characters")
 
-	ErrCFTeamLabelWillBeOverwritten = newError("deployment will overwrite metadata.labels.team that was set in the CF manifest").AsWarning()
+	ErrCFLabelTeamWillBeOverwritten = newError("deployment will overwrite metadata.labels.team that was set in the CF manifest").AsWarning()
+	ErrCFLabelProductIsMissing      = newError("CF manifest is missing 'product' label. If 'product' is set on the CF space you can safely ignore this warning.").AsWarning()
+	ErrCFLabelEnvironmentIsMissing  = newError("CF manifest is missing 'environment' label. If 'environment' is set on the CF space you can safely ignore this warning.").AsWarning()
 
 	ErrUnsupportedRegistry = newError("image must be from halfpipe registry. Please see <https://ee.public.springernature.app/rel-eng/docker-registry/>")
 	ErrDockerPushTag       = newError("the field 'tag' is no longer used and is safe to delete")

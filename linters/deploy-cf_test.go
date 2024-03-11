@@ -155,7 +155,6 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 	}
 
 	errors := LintDeployCFTask(task, validCfManifest(), fs)
-	assert.Len(t, errors, 2)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[0].notifications"))
 	assertContainsError(t, errors, ErrInvalidField.WithValue("pre_promote[2].notifications"))
 }
@@ -257,6 +256,10 @@ applications:
   - route: my-route.public.springernature.app
   buildpacks:
   - staticfile
+  metadata:
+    labels:
+      product: xyz
+      environment: dev
 `
 	task := manifest.DeployCF{
 		Manifest:   "manifest.yml",

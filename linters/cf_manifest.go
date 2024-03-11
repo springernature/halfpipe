@@ -135,15 +135,26 @@ func lintBuildpack(app manifestparser.Application, manifestPath string) (errs []
 	return errs
 }
 func lintLabels(app manifestparser.Application) (errs []error) {
+	labels := make(map[any]any)
+
 	if app.RemainingManifestFields["metadata"] != nil {
 		metadata := app.RemainingManifestFields["metadata"].(map[any]any)
 		if metadata["labels"] != nil {
-			labels := metadata["labels"].(map[any]any)
-			_, found := labels["team"]
-			if found {
-				errs = append(errs, ErrCFTeamLabelWillBeOverwritten)
-			}
+			labels = metadata["labels"].(map[any]any)
 		}
 	}
+
+	if _, teamFound := labels["team"]; teamFound {
+		errs = append(errs, ErrCFLabelTeamWillBeOverwritten)
+	}
+
+	if _, productFound := labels["product"]; !productFound {
+		errs = append(errs, ErrCFLabelProductIsMissing)
+	}
+
+	if _, environmentFound := labels["environment"]; !environmentFound {
+		errs = append(errs, ErrCFLabelEnvironmentIsMissing)
+	}
+
 	return
 }
