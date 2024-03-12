@@ -18,7 +18,7 @@ var UnsupportedSecretError = func(fieldName string) error {
 }
 
 var InvalidSecretConcourseError = func(secret, fieldName string) error {
-	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName))", secret, fieldName)
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((mapName/submapname/pathName.keyName))", secret, fieldName)
 }
 
 var InvalidSecretActionsError = func(secret, fieldName string) error {
@@ -137,7 +137,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			}
 
 			if platform.IsConcourse() {
-				if !validateKeyValueSecret(secret) {
+				if !validateKeyValueSecret(secret) && !validateMultipleLevelSecret(secret) {
 					*errs = append(*errs, InvalidSecretConcourseError(secret, fieldName))
 					return
 				}
@@ -186,6 +186,11 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		panic(fmt.Sprintf("Not implemented for %s", v.Type()))
 	}
 
+}
+
+func validateMultipleLevelSecret(secret string) bool {
+	// regex matches ((path/to/secret.value)) and ((path/to/more/levels/secret.value))
+	return regexp.MustCompile(`\(\(([a-zA-Z0-9\-_]+\/){1,}[a-zA-Z0-9\-_]+\.[a-zA-Z0-9\-_]+\)\)`).MatchString(secret)
 }
 
 func validateKeyValueSecret(secret string) bool {

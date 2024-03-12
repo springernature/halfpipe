@@ -183,6 +183,25 @@ func TestRun(t *testing.T) {
 	}
 
 	assert.Len(t, secretValidator.Validate(good), 0)
+
+	alsoGood := manifest.Manifest{
+		Tasks: manifest.TaskList{
+			manifest.Run{
+				Type:   "run",
+				Name:   "myCoolName",
+				Script: "./script",
+				Docker: manifest.Docker{
+					Image: "docker-image:tag",
+				},
+				Vars: map[string]string{
+					"mySecret":  "((whoop/whoop/whoop.bar))",
+					"sec":       "((whoop/whoop.bar))",
+					"notSecret": "password",
+				},
+			},
+		},
+	}
+	assert.Len(t, secretValidator.Validate(alsoGood), 0)
 }
 
 func TestRunSecretAbsolutePath(t *testing.T) {
