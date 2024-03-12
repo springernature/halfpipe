@@ -18,11 +18,11 @@ var UnsupportedSecretError = func(fieldName string) error {
 }
 
 var InvalidSecretConcourseError = func(secret, fieldName string) error {
-	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((mapName/submapname/pathName.keyName))", secret, fieldName)
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((path/to/mapName.keyName))", secret, fieldName)
 }
 
 var InvalidSecretActionsError = func(secret, fieldName string) error {
-	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)) or ((/springernature/data/path/to/mapName keyName))", secret, fieldName)
+	return fmt.Errorf("'%s' at '%s' is not a valid key, must be in format of ((mapName.keyName)), ((path/to/mapName.keyName)) or ((/springernature/data/path/to/mapName keyName))", secret, fieldName)
 }
 
 type SecretValidator interface {
