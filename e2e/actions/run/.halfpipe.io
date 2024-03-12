@@ -15,6 +15,7 @@ tasks:
     CUSTOM_PATH: ((/springernature/data/random/secret key))
     SECRET2: ((something.cooler))
     SHARED_SECRET: ((halfpipe-slack.token))
+    DEEP_SECRET: ((path/to/map.key))
   timeout: 1h2m
 - type: run
   docker:
