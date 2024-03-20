@@ -73,21 +73,21 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
-          BUILD_VERSION
-          GIT_REVISION
-          RUNNING_IN_CI
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -156,24 +156,24 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
-          BAR=bar
-          BLAH=${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
-          BUILD_VERSION
-          FOO=foo
-          GIT_REVISION
-          RUNNING_IN_CI
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BAR=bar"
+          "BLAH=${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}"
+          "BUILD_VERSION"
+          "FOO=foo"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile2
         platforms: linux/amd64
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -225,21 +225,21 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
-          BUILD_VERSION
-          GIT_REVISION
-          RUNNING_IN_CI
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64,linux/arm64
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
@@ -291,12 +291,12 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
-          BUILD_VERSION
-          GIT_REVISION
-          RUNNING_IN_CI
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
         cache-from: type=registry,ref=eu.gcr.io/halfpipe-io/cache/someImage:buildcache
         cache-to: type=inline
         context: e2e/actions/docker-push
@@ -305,9 +305,9 @@ jobs:
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: |-
           eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
           eu.gcr.io/halfpipe-io/cache/someImage:buildcache
@@ -365,25 +365,25 @@ jobs:
       uses: docker/build-push-action@v5
       with:
         build-args: |
-          A=a
-          ARTIFACTORY_PASSWORD
-          ARTIFACTORY_URL
-          ARTIFACTORY_USERNAME
-          B=b
-          BUILD_VERSION
-          GIT_REVISION
-          RUNNING_IN_CI
+          "A=a"
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "B=b"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
         context: e2e/actions/docker-push
         file: e2e/actions/docker-push/Dockerfile
         platforms: linux/amd64
         provenance: false
         push: true
         secrets: |
-          ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-          ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}
-          ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}
-          C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}
-          D=d
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+          "C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}"
+          "D=d"
         tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy

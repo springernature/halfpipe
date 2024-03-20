@@ -93,9 +93,11 @@ func (ml MultiLine) MarshalYAML() (interface{}, error) {
 	var out []string
 	for k, v := range ml.m {
 		if v == "" {
-			out = append(out, fmt.Sprintf("%s\n", k))
+			out = append(out, fmt.Sprintf(`"%s"
+`, k))
 		} else {
-			out = append(out, fmt.Sprintf("%s=%s\n", k, v))
+			out = append(out, fmt.Sprintf(`"%s=%s"
+`, k, v))
 		}
 	}
 	sort.Strings(out)
