@@ -20,18 +20,16 @@ func defaultGitTrigger(original manifest.GitTrigger, defaults Defaults, branchRe
 		}
 	}
 
-	if platform.IsConcourse() {
-		if updated.URI == "" {
-			updated.URI = defaults.Project.GitURI
+	if updated.URI == "" {
+		updated.URI = defaults.Project.GitURI
 
-			for from, to := range config.RewriteGitHTTPToSSH {
-				updated.URI = strings.Replace(updated.URI, from, to, 1)
-			}
+		for from, to := range config.RewriteGitHTTPToSSH {
+			updated.URI = strings.Replace(updated.URI, from, to, 1)
 		}
+	}
 
-		if updated.URI != "" && !updated.IsPublic() && updated.PrivateKey == "" {
-			updated.PrivateKey = defaults.RepoPrivateKey
-		}
+	if updated.URI != "" && !updated.IsPublic() && updated.PrivateKey == "" {
+		updated.PrivateKey = defaults.RepoPrivateKey
 	}
 
 	// set the default for shallow clone if not defined in manifest

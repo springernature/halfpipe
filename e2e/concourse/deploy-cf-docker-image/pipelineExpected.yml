@@ -77,6 +77,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app
@@ -130,6 +131,7 @@ jobs:
       dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app
@@ -255,6 +257,7 @@ jobs:
       dockerTag: version/version
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app
@@ -297,6 +300,7 @@ jobs:
       dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       instances: 1
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       team: halfpipe-team
@@ -385,6 +389,7 @@ jobs:
       dockerTag: git/.git/ref
       dockerUsername: _json_key
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app

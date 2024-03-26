@@ -62,6 +62,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		With: addCommonParams(With{
 			"command": "halfpipe-push",
 			"team":    man.Team,
+			"gitUri":  man.Triggers.GetGitTrigger().URI,
 		}),
 		Env: envVars,
 	}

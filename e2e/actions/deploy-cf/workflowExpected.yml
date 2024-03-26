@@ -92,6 +92,7 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         cli_version: cf7
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
@@ -208,6 +209,7 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         cli_version: cf8
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
@@ -325,6 +327,7 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         cli_version: cf7
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
@@ -485,6 +488,7 @@ jobs:
         dockerPassword: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-gcr_private_key_base64 }}
         dockerTag: ${{ env.BUILD_VERSION }}
         dockerUsername: _json_key
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
@@ -613,6 +617,7 @@ jobs:
         appPath: e2e/actions/deploy-cf/foo.html
         cli_version: cf7
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
@@ -734,6 +739,7 @@ jobs:
         appPath: e2e/actions/deploy-cf
         cli_version: cf7
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}

@@ -23,6 +23,7 @@ jobs:
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -56,6 +57,7 @@ jobs:
       cliVersion: cf7
       command: halfpipe-push
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       instances: 1
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       team: halfpipe-team
@@ -139,6 +141,7 @@ jobs:
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com

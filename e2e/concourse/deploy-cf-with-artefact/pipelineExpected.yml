@@ -142,6 +142,7 @@ jobs:
       cliVersion: cf7
       command: halfpipe-all
       gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-with-artefact/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
