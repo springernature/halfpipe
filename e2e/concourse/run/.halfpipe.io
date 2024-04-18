@@ -1,5 +1,6 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-run
+slack_channel: "#test"
 
 triggers:
 - type: git
