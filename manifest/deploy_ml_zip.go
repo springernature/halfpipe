@@ -69,7 +69,10 @@ func (r DeployMLZip) GetTimeout() string {
 func (r DeployMLZip) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
 }
-
+func (r DeployMLZip) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
 func (r DeployMLZip) SavesArtifactsOnFailure() bool {
 	return false
 }

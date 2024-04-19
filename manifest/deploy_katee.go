@@ -40,7 +40,10 @@ func (d DeployKatee) IsManualTrigger() bool {
 func (d DeployKatee) NotifiesOnSuccess() bool {
 	return d.NotifyOnSuccess
 }
-
+func (r DeployKatee) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
 func (d DeployKatee) GetTimeout() string {
 	return d.Timeout
 }

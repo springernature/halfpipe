@@ -68,6 +68,10 @@ func (Update) NotifiesOnSuccess() bool {
 	return false
 }
 
+func (u Update) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	return u
+}
+
 func (u Update) GetTimeout() string {
 	return u.Timeout
 }

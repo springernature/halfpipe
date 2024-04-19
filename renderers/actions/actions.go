@@ -73,8 +73,10 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			steps = append(steps, a.restoreArtifacts()...)
 		}
 		steps = append(steps, taskSteps...)
-		if task.GetNotifications().NotificationsDefined() {
-			steps = append(steps, notify(task.GetNotifications())...)
+
+		notifications := task.GetNotifications()
+		if notifications.NotificationsDefined() {
+			steps = append(steps, notify(notifications)...)
 		}
 
 		job := Job{
@@ -192,15 +194,15 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 		}
 	}
 
-	for _, channel := range notifications.OnFailure {
-		step := s(channel, notifications.OnFailureMessage)
+	for _, channel := range notifications.Slack.OnFailure {
+		step := s(channel, notifications.Slack.OnFailureMessage)
 		step.If = "failure()"
 		step.Name += " (failure)"
 		steps = append(steps, step)
 	}
 
-	for _, channel := range notifications.OnSuccess {
-		step := s(channel, notifications.OnSuccessMessage)
+	for _, channel := range notifications.Slack.OnSuccess {
+		step := s(channel, notifications.Slack.OnSuccessMessage)
 		step.Name += " (success)"
 		steps = append(steps, step)
 	}

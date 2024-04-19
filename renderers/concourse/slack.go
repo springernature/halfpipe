@@ -5,12 +5,12 @@ import (
 	"github.com/concourse/concourse/atc"
 )
 
-func slackOnFailurePlan(channel string, message string) atc.Step {
-	return slackPlan(channel, "failed", message)
-}
-
 func slackOnSuccessPlan(channel string, message string) atc.Step {
 	return slackPlan(channel, "succeeded", message)
+}
+
+func slackOnFailurePlan(channel string, message string) atc.Step {
+	return slackPlan(channel, "failed", message)
 }
 
 func slackPlan(channel string, status string, message string) atc.Step {

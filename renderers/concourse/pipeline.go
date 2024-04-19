@@ -232,7 +232,7 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 		}
 	}
 
-	if man.Tasks.UsesNotifications() {
+	if man.Tasks.UsesSlackNotifications() {
 		resourceTypes = append(resourceTypes, c.slackResourceType())
 		resourceConfigs = append(resourceConfigs, c.slackResource())
 	}
@@ -268,46 +268,47 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 	return resourceTypes, resourceConfigs
 }
 func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Step {
-	onFailureChannels := task.GetNotifications().OnFailure
-	if task.SavesArtifactsOnFailure() || len(onFailureChannels) > 0 || man.FeatureToggles.GithubStatuses() {
-		var sequence []atc.Step
+	var sequence []atc.Step
 
-		if task.SavesArtifactsOnFailure() {
-			sequence = append(sequence, saveArtifactOnFailurePlan())
-		}
-
-		for _, onFailureChannel := range onFailureChannels {
-			sequence = append(sequence, slackOnFailurePlan(onFailureChannel, task.GetNotifications().OnFailureMessage))
-		}
-
-		if man.FeatureToggles.GithubStatuses() {
-			sequence = append(sequence, statusesOnFailurePlan())
-		}
-
-		onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
-		return &onFailure
+	if task.SavesArtifactsOnFailure() {
+		sequence = append(sequence, saveArtifactOnFailurePlan())
 	}
-	return nil
+
+	notifications := task.GetNotifications().Slack
+	for _, onFailureChannel := range notifications.OnFailure {
+		sequence = append(sequence, slackOnFailurePlan(onFailureChannel, notifications.OnFailureMessage))
+	}
+
+	if man.FeatureToggles.GithubStatuses() {
+		sequence = append(sequence, statusesOnFailurePlan())
+	}
+
+	if len(sequence) == 0 {
+		return nil
+	}
+
+	onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
+	return &onFailure
 }
 
 func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Step {
-	onSuccessChannels := task.GetNotifications().OnSuccess
-	if len(onSuccessChannels) > 0 || man.FeatureToggles.GithubStatuses() {
-		var sequence []atc.Step
+	var sequence []atc.Step
 
-		for _, onSuccessChannel := range onSuccessChannels {
-			sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, task.GetNotifications().OnSuccessMessage))
-		}
-
-		if man.FeatureToggles.GithubStatuses() {
-			sequence = append(sequence, statusesOnSuccessPlan())
-		}
-
-		onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
-		return &onSuccess
+	notifications := task.GetNotifications().Slack
+	for _, onSuccessChannel := range notifications.OnSuccess {
+		sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, notifications.OnSuccessMessage))
 	}
 
-	return nil
+	if man.FeatureToggles.GithubStatuses() {
+		sequence = append(sequence, statusesOnSuccessPlan())
+	}
+
+	if len(sequence) == 0 {
+		return nil
+	}
+
+	onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
+	return &onSuccess
 }
 
 func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previousTaskNames []string) (job atc.JobConfig) {

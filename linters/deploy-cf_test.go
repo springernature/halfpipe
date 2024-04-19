@@ -147,9 +147,9 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 		Manifest:   "manifest.yml",
 		TestDomain: "asdf",
 		PrePromote: manifest.TaskList{
-			manifest.Run{Notifications: manifest.Notifications{OnSuccess: []string{"Meehp"}}},
+			manifest.Run{Notifications: manifest.Notifications{Slack: manifest.Slack{OnSuccess: []string{"Meehp"}}}},
 			manifest.Run{},
-			manifest.Run{Notifications: manifest.Notifications{OnFailure: []string{"Moohp"}}},
+			manifest.Run{Notifications: manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{"Moohp"}}}},
 		},
 		CliVersion: "cf6",
 	}

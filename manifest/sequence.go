@@ -59,6 +59,9 @@ func (s Sequence) NotifiesOnSuccess() bool {
 	panic("NotifiesOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
+func (p Sequence) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	panic("SetNotifyOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
+}
 func (s Sequence) GetTimeout() string {
 	panic("GetTimeout should never be used in the rendering for a sequence task as we only care about sub tasks")
 }

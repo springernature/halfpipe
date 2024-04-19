@@ -75,6 +75,10 @@ func (r DockerPush) GetTimeout() string {
 func (r DockerPush) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
 }
+func (r DockerPush) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
 
 func (r DockerPush) SavesArtifactsOnFailure() bool {
 	return false

@@ -41,7 +41,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.25.0
       with:
         channel-id: '#failure1'
-        slack-message: failure msg
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success1 (success)'

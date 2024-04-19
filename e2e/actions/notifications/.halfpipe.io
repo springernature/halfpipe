@@ -1,6 +1,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
-slack_failure_message: failure msg
+slack_failure_message: failure msg # This will not be set in the notification on the task, since notifications is already defined on the task. I.e no complicated merging!
 platform: actions
 
 tasks:

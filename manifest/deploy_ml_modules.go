@@ -69,6 +69,10 @@ func (r DeployMLModules) GetTimeout() string {
 func (r DeployMLModules) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
 }
+func (r DeployMLModules) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
 
 func (r DeployMLModules) SavesArtifactsOnFailure() bool {
 	return false

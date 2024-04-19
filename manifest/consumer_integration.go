@@ -32,7 +32,6 @@ func (r ConsumerIntegrationTest) SetBuildHistory(buildHistory int) Task {
 	r.BuildHistory = buildHistory
 	return r
 }
-
 func (r ConsumerIntegrationTest) GetNotifications() Notifications {
 	return r.Notifications
 }
@@ -70,6 +69,10 @@ func (r ConsumerIntegrationTest) GetTimeout() string {
 
 func (r ConsumerIntegrationTest) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
+}
+func (r ConsumerIntegrationTest) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
 }
 
 func (r ConsumerIntegrationTest) SavesArtifactsOnFailure() bool {

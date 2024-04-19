@@ -64,6 +64,10 @@ func (p Parallel) NotifiesOnSuccess() bool {
 	panic("NotifiesOnSuccess should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
 
+func (p Parallel) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	panic("SetNotifyOnSuccess should never be used in the rendering for a parallel task as we only care about sub tasks")
+}
+
 func (Parallel) GetTimeout() string {
 	panic("GetTimeout should never be used in the rendering for a parallel task as we only care about sub tasks")
 }

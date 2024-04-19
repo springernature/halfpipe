@@ -56,7 +56,6 @@ func (r DeployCF) SetNotifications(notifications Notifications) Task {
 	r.Notifications = notifications
 	return r
 }
-
 func (r DeployCF) SetTimeout(timeout string) Task {
 	r.Timeout = timeout
 	return r
@@ -85,6 +84,10 @@ func (r DeployCF) GetTimeout() string {
 
 func (r DeployCF) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
+}
+func (r DeployCF) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
 }
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {

@@ -75,6 +75,11 @@ func (r DockerCompose) NotifiesOnSuccess() bool {
 	return r.NotifyOnSuccess
 }
 
+func (r DockerCompose) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
+
 func (r DockerCompose) SavesArtifactsOnFailure() bool {
 	return len(r.SaveArtifactsOnFailure) > 0
 }

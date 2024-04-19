@@ -51,6 +51,11 @@ func (r Run) SetNotifications(notifications Notifications) Task {
 	return r
 }
 
+func (r Run) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+	r.NotifyOnSuccess = notifyOnSuccess
+	return r
+}
+
 func (r Run) SetTimeout(timeout string) Task {
 	r.Timeout = timeout
 	return r

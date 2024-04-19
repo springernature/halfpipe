@@ -9,15 +9,35 @@ import (
 
 type Vars map[string]string
 
+type Slack struct {
+	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
+	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
+
+	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+}
+
+func (t Slack) Equal(t2 Slack) bool {
+	return slices.Equal(t.OnSuccess, t2.OnSuccess) &&
+		t.OnSuccessMessage == t2.OnSuccessMessage &&
+		slices.Equal(t.OnFailure, t2.OnFailure) &&
+		t.OnFailureMessage == t2.OnFailureMessage
+}
+
+func (s Slack) NotificationsDefined() bool {
+	return len(s.OnSuccess) > 0 || len(s.OnFailure) > 0
+}
+
 type Notifications struct {
 	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
 	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
 	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
 	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+	Slack            Slack    `json:"slack,omitempty" yaml:"slack,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
-	return len(n.OnSuccess) > 0 || len(n.OnFailure) > 0
+	return n.Slack.NotificationsDefined()
 }
 
 type TaskList []Task
@@ -30,19 +50,19 @@ func (tl TaskList) SavesArtifactsOnFailure() bool {
 	return slices.ContainsFunc(tl, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
-func (tl TaskList) UsesNotifications() bool {
+func (tl TaskList) UsesSlackNotifications() bool {
 	for _, task := range tl {
 		switch task := task.(type) {
 		case Parallel:
-			if task.Tasks.UsesNotifications() {
+			if task.Tasks.UsesSlackNotifications() {
 				return true
 			}
 		case Sequence:
-			if task.Tasks.UsesNotifications() {
+			if task.Tasks.UsesSlackNotifications() {
 				return true
 			}
 		default:
-			if task.GetNotifications().NotificationsDefined() {
+			if task.GetNotifications().Slack.NotificationsDefined() {
 				return true
 			}
 		}
@@ -117,6 +137,7 @@ type Task interface {
 
 	GetNotifications() Notifications
 	SetNotifications(notifications Notifications) Task
+	SetNotifyOnSuccess(notifyOnSuccess bool) Task
 
 	GetBuildHistory() int
 	SetBuildHistory(buildHistory int) Task
@@ -175,6 +196,7 @@ type Manifest struct {
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
 	Platform            Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
+	Notifications       Notifications  `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {
