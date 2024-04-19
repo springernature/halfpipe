@@ -1,0 +1,60 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/notifications_new_format/.halfpipe.io
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - main
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/notifications_new_format
+concurrency: ${{ github.workflow }}
+jobs:
+  my_run_task:
+    name: my run task
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: my run task
+      uses: docker://foo
+      with:
+        args: -c "cd e2e/actions/notifications_new_format; \foo"
+        entrypoint: /bin/sh
+    - name: 'Notify slack #failure1 (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '#failure1'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: 'Notify slack #success1 (success)'
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '#success1'
+        slack-message: success message
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: 'Notify slack #success2 (success)'
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '#success2'
+        slack-message: success message
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}

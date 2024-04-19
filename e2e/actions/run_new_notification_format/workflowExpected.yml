@@ -1,0 +1,102 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/run_new_notification_format/.halfpipe.io
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - main
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/run_new_notification_format
+concurrency: ${{ github.workflow }}
+jobs:
+  my_run_task:
+    name: my run task
+    runs-on: ee-runner
+    timeout-minutes: 62
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v3.0.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/path/to/map key | springernature_data_halfpipe-team_path_to_map_key ;
+          /springernature/data/halfpipe-team/something cool | springernature_data_halfpipe-team_something_cool ;
+          /springernature/data/halfpipe-team/something cooler | springernature_data_halfpipe-team_something_cooler ;
+          /springernature/data/random/secret key | springernature_data_random_secret_key ;
+          /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: my run task
+      uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
+      with:
+        args: -c "cd e2e/actions/run_new_notification_format; \foo"
+        entrypoint: /bin/sh
+      env:
+        BAR: bar
+        CUSTOM_PATH: ${{ steps.secrets.outputs.springernature_data_random_secret_key }}
+        DEEP_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_path_to_map_key }}
+        FOO: foo
+        SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
+        SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
+    - name: 'Notify slack #test (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '#test'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+  run__bash_-c__echo_hello_:
+    name: run \bash -c "echo hello"
+    needs:
+    - my_run_task
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Login to Docker Registry
+      uses: docker/login-action@v1
+      with:
+        password: docker-password
+        registry: my.private.registry
+        username: docker-user
+    - name: run \bash -c "echo hello"
+      uses: docker://my.private.registry/repo/golang:1.15
+      with:
+        args: -c "cd e2e/actions/run_new_notification_format; \bash -c \"echo hello\""
+        entrypoint: /bin/sh
+    - name: 'Notify slack #test (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@v1.25.0
+      with:
+        channel-id: '#test'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
