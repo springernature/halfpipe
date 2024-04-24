@@ -12,6 +12,9 @@ var (
 	ErrInvalidField    = newError("invalid field")
 	NewErrInvalidField = func(field string, reason string) Error { return ErrInvalidField.WithValue(field).WithValue(reason) }
 
+	ErrDeprecatedField = newError("deprecated field")
+	NewDeprecatedField = func(field string, reason string) Error { return ErrDeprecatedField.WithValue(field).WithValue(reason) }
+
 	ErrFileNotFound      = newError("file not found")
 	ErrFileCannotRead    = newError("file cannot be read")
 	ErrFileNotAFile      = newError("not a file")

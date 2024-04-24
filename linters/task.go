@@ -25,6 +25,7 @@ type taskLinter struct {
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) []error
 	lintParallel                    func(parallelTask manifest.Parallel) []error
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) []error
+	lintNotifications               func(task manifest.Task) []error
 	os                              string
 }
 
@@ -43,6 +44,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintArtifacts:                   LintArtifacts,
 		lintParallel:                    LintParallelTask,
 		lintSequence:                    LintSequenceTask,
+		lintNotifications:               LintNotifications,
 		os:                              os,
 	}
 }
@@ -138,6 +140,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 				errs = append(errs, NewErrInvalidField("timeout", err.Error()))
 			}
 		}
+
+		errs = append(errs, linter.lintNotifications(t)...)
 
 		rE = append(rE, wrapWithIndex(errs)...)
 	}
