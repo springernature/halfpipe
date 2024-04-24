@@ -111,3 +111,21 @@ func TestOutput(t *testing.T) {
 		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("platform"))
 	})
 }
+
+func TestNotifications(t *testing.T) {
+	man := manifest.Manifest{
+		Team:                "team",
+		Pipeline:            "pipeline",
+		Platform:            "concourse",
+		SlackSuccessMessage: "Blah",
+		SlackFailureMessage: "Bluh",
+	}
+
+	result := NewTopLevelLinter().Lint(man)
+	assert.True(t, result.HasWarnings())
+	assert.False(t, result.HasErrors())
+	assert.Len(t, result.Issues, 2)
+	assertContainsError(t, result.Issues, ErrSlackSuccessMessageFieldDeprecated)
+	assertContainsError(t, result.Issues, ErrSlackFailureMessageFieldDeprecated)
+
+}

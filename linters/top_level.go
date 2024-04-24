@@ -39,5 +39,13 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		result.Add(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
 	}
 
+	if manifest.SlackSuccessMessage != "" {
+		result.Add(ErrSlackSuccessMessageFieldDeprecated.AsWarning())
+	}
+
+	if manifest.SlackFailureMessage != "" {
+		result.Add(ErrSlackFailureMessageFieldDeprecated.AsWarning())
+	}
+
 	return result
 }

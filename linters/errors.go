@@ -56,6 +56,9 @@ var (
 	ErrUnsupportedGitPrivateKey   = newError("git private_key is not supported in GitHub Actions")
 	ErrUnsupportedGitUri          = newError("git uri is not supported in GitHub Actions")
 	ErrUnsupportedPipelineTrigger = newError("pipeline triggers are not supported in GitHub Actions")
+
+	ErrSlackSuccessMessageFieldDeprecated = newError("'slack_success_message' is deprecated, please use new notification structure")
+	ErrSlackFailureMessageFieldDeprecated = newError("'slack_failure_message' is deprecated, please use new notification structure")
 )
 
 type Error struct {
