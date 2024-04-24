@@ -40,6 +40,15 @@ func (n Notifications) NotificationsDefined() bool {
 	return n.Slack.NotificationsDefined() || n.Teams.NotificationsDefined()
 }
 
+func (n Notifications) Equal(n2 Notifications) bool {
+	return slices.Equal(n.OnFailure, n2.OnFailure) &&
+		slices.Equal(n.OnSuccess, n2.OnSuccess) &&
+		n.OnFailureMessage == n2.OnFailureMessage &&
+		n.OnSuccessMessage == n2.OnSuccessMessage &&
+		n.Slack.Equal(n2.Slack) &&
+		n.Teams.Equal(n2.Teams)
+}
+
 type TaskList []Task
 
 func (tl TaskList) SavesArtifacts() bool {

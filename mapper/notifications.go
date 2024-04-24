@@ -9,16 +9,23 @@ type notificationsMapper struct {
 
 func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manifest.Notifications {
 	notifications := man.Notifications
-	if man.SlackChannel != "" && len(notifications.Slack.OnFailure) == 0 {
-		notifications.Slack.OnFailure = []string{man.SlackChannel}
-	}
+	if notifications.Equal(manifest.Notifications{}) {
 
-	if man.SlackFailureMessage != "" && notifications.Slack.OnFailureMessage == "" {
-		notifications.Slack.OnFailureMessage = man.SlackFailureMessage
-	}
+		if man.SlackChannel != "" {
+			notifications.Slack.OnFailure = []string{man.SlackChannel}
+		}
 
-	if man.SlackSuccessMessage != "" && notifications.Slack.OnSuccessMessage == "" {
-		notifications.Slack.OnSuccessMessage = man.SlackSuccessMessage
+		if man.SlackFailureMessage != "" {
+			notifications.Slack.OnFailureMessage = man.SlackFailureMessage
+		}
+
+		if man.SlackSuccessMessage != "" {
+			notifications.Slack.OnSuccessMessage = man.SlackSuccessMessage
+		}
+
+		if man.TeamsWebhook != "" {
+			notifications.Teams.OnFailure = []string{man.TeamsWebhook}
+		}
 	}
 
 	return notifications
@@ -103,6 +110,7 @@ func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, er
 	man.SlackChannel = ""
 	man.SlackSuccessMessage = ""
 	man.SlackFailureMessage = ""
+	man.TeamsWebhook = ""
 	return man, nil
 }
 

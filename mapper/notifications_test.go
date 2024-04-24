@@ -30,6 +30,46 @@ func TestTopLevelNotification(t *testing.T) {
 		})
 	})
 
+	t.Run("teams_channel", func(t *testing.T) {
+		webhook := "https://blabla"
+
+		t.Run("set and notification not set", func(t *testing.T) {
+			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{TeamsWebhook: webhook})
+			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{webhook}}}}, updated)
+		})
+
+		t.Run("set and notification set, should not override", func(t *testing.T) {
+			not := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{"kjlsfdajklfdsklfds"}}}
+
+			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{TeamsWebhook: webhook, Notifications: not})
+			assert.Equal(t, manifest.Manifest{
+				Notifications: not,
+			}, updated)
+		})
+
+		t.Run("slack_channel and teams_channel", func(t *testing.T) {
+			channel := "#blah"
+			webhook := "https://blabla"
+
+			t.Run("set and notification not set", func(t *testing.T) {
+				updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, TeamsWebhook: webhook})
+				assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{
+					Slack: manifest.Channels{OnFailure: []string{channel}},
+					Teams: manifest.Channels{OnFailure: []string{webhook}},
+				}}, updated)
+			})
+
+			t.Run("set and notification set, should not override", func(t *testing.T) {
+				not := manifest.Notifications{Teams: manifest.Channels{OnSuccessMessage: "Howdie"}}
+
+				updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, TeamsWebhook: webhook, Notifications: not})
+				assert.Equal(t, manifest.Manifest{
+					Notifications: not,
+				}, updated)
+			})
+		})
+	})
+
 	t.Run("slack_failure_message", func(t *testing.T) {
 		failureMessage := "Oh noes"
 
@@ -69,6 +109,7 @@ func TestTopLevelNotification(t *testing.T) {
 		})
 	})
 }
+
 func TestMigrateTaskLevelNotifications(t *testing.T) {
 	inputNotification := manifest.Notifications{
 		OnFailure:        []string{"1", "2"},
