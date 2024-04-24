@@ -9,22 +9,21 @@ import (
 
 type Vars map[string]string
 
-type Slack struct {
+type Channels struct {
 	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
 	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-
 	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
 	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
 }
 
-func (t Slack) Equal(t2 Slack) bool {
+func (t Channels) Equal(t2 Channels) bool {
 	return slices.Equal(t.OnSuccess, t2.OnSuccess) &&
 		t.OnSuccessMessage == t2.OnSuccessMessage &&
 		slices.Equal(t.OnFailure, t2.OnFailure) &&
 		t.OnFailureMessage == t2.OnFailureMessage
 }
 
-func (s Slack) NotificationsDefined() bool {
+func (s Channels) NotificationsDefined() bool {
 	return len(s.OnSuccess) > 0 || len(s.OnFailure) > 0
 }
 
@@ -33,11 +32,12 @@ type Notifications struct {
 	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
 	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
 	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
-	Slack            Slack    `json:"slack,omitempty" yaml:"slack,omitempty"`
+	Slack            Channels `json:"slack,omitempty" yaml:"slack,omitempty"`
+	Teams            Channels `json:"teams,omitempty" yaml:"teams,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
-	return n.Slack.NotificationsDefined()
+	return n.Slack.NotificationsDefined() || n.Teams.NotificationsDefined()
 }
 
 type TaskList []Task
@@ -189,6 +189,7 @@ type Manifest struct {
 	Team                string         `yaml:"team,omitempty"`
 	Pipeline            string         `yaml:"pipeline,omitempty"`
 	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty"`
 	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
 	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
 	ArtifactConfig      ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`

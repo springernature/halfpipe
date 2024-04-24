@@ -17,10 +17,10 @@ func TestTopLevelNotification(t *testing.T) {
 
 		t.Run("set and notification not set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel})
-			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{channel}}}}, updated)
+			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{channel}}}}, updated)
 		})
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{"#Howdie!"}}}
+			not := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#Howdie!"}}}
 
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, Notifications: not})
 			assert.Equal(t, manifest.Manifest{
@@ -36,11 +36,11 @@ func TestTopLevelNotification(t *testing.T) {
 		t.Run("set and notification not set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage})
 			assert.Equal(t, manifest.Manifest{
-				Notifications: manifest.Notifications{Slack: manifest.Slack{OnFailureMessage: failureMessage}}}, updated)
+				Notifications: manifest.Notifications{Slack: manifest.Channels{OnFailureMessage: failureMessage}}}, updated)
 		})
 
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Slack{OnFailureMessage: "Wryyyyy"}}
+			not := manifest.Notifications{Slack: manifest.Channels{OnFailureMessage: "Wryyyyy"}}
 
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage, Notifications: not})
 			assert.Equal(t, manifest.Manifest{
@@ -55,11 +55,11 @@ func TestTopLevelNotification(t *testing.T) {
 		t.Run("set and notification not set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackSuccessMessage: successMessage})
 			assert.Equal(t, manifest.Manifest{
-				Notifications: manifest.Notifications{Slack: manifest.Slack{OnSuccessMessage: successMessage}}}, updated)
+				Notifications: manifest.Notifications{Slack: manifest.Channels{OnSuccessMessage: successMessage}}}, updated)
 		})
 
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Slack{OnSuccessMessage: "Wryyyyy"}}
+			not := manifest.Notifications{Slack: manifest.Channels{OnSuccessMessage: "Wryyyyy"}}
 
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackSuccessMessage: successMessage, Notifications: not})
 			assert.Equal(t, manifest.Manifest{
@@ -78,7 +78,7 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 	}
 
 	expectedNotification := manifest.Notifications{
-		Slack: manifest.Slack{
+		Slack: manifest.Channels{
 			OnFailure:        []string{"1", "2"},
 			OnFailureMessage: "Failure",
 			OnSuccess:        []string{"a", "b"},
@@ -147,7 +147,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 				},
 			}
 
-			notifications := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{input.SlackChannel}}}
+			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
 			expected := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
@@ -175,7 +175,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 		})
 		t.Run("top level notifications", func(t *testing.T) {
 			notifications := manifest.Notifications{
-				Slack: manifest.Slack{
+				Slack: manifest.Channels{
 					OnFailure: []string{"#oh-noes"},
 				},
 			}
@@ -243,7 +243,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 				},
 			}
 
-			notifications := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{input.SlackChannel}}}
+			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
 			expected := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
@@ -267,7 +267,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 
 		t.Run("top level notifications", func(t *testing.T) {
 			notifications := manifest.Notifications{
-				Slack: manifest.Slack{
+				Slack: manifest.Channels{
 					OnFailure: []string{"#oh-noes"},
 				},
 			}
@@ -329,8 +329,8 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 				},
 			}
 
-			notifications := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{input.SlackChannel}}}
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{input.SlackChannel}, OnSuccess: []string{input.SlackChannel}}}
+			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
+			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}, OnSuccess: []string{input.SlackChannel}}}
 			expected := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
@@ -354,7 +354,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 			assert.Equal(t, expected, updated)
 		})
 		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{"#OhNoes", "#AnotherOne"}}}
+			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#OhNoes", "#AnotherOne"}}}
 			input := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
@@ -374,7 +374,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 				},
 			}
 
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Slack{OnFailure: notifications.Slack.OnFailure, OnSuccess: []string{notifications.Slack.OnFailure[0]}}}
+			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: notifications.Slack.OnFailure, OnSuccess: []string{notifications.Slack.OnFailure[0]}}}
 			expected := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
@@ -401,7 +401,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 
 	t.Run("Doesnt map if Notifications is already defined", func(t *testing.T) {
 		t.Run("Old format", func(t *testing.T) {
-			notifications := manifest.Notifications{Slack: manifest.Slack{OnFailure: []string{"#test"}}}
+			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#test"}}}
 
 			input := manifest.Manifest{
 				SlackChannel: "#test",
@@ -428,14 +428,14 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 				},
 			}
 
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Slack{OnFailure: notifications.Slack.OnFailure, OnSuccess: notifications.Slack.OnFailure}}
+			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: notifications.Slack.OnFailure, OnSuccess: notifications.Slack.OnFailure}}
 
 			expected := manifest.Manifest{
 				Notifications: notifications,
 				Tasks: manifest.TaskList{
 					manifest.Run{
 						Notifications: manifest.Notifications{
-							Slack: manifest.Slack{
+							Slack: manifest.Channels{
 								OnSuccess: []string{"1"},
 								OnFailure: []string{"2"},
 							},
@@ -450,7 +450,7 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 									manifest.DeployCF{Notifications: notificationsWithSuccess},
 									manifest.ConsumerIntegrationTest{
 										Notifications: manifest.Notifications{
-											Slack: manifest.Slack{
+											Slack: manifest.Channels{
 												OnSuccess: []string{"a", "b"},
 												OnFailure: []string{"x", "y", "z"},
 											},

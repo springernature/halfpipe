@@ -36,8 +36,8 @@ func (n notificationsMapper) migrateTaskNotifications(tasks manifest.TaskList) (
 		default:
 			taskNotifications := task.GetNotifications()
 
-			if taskNotifications.Slack.Equal(manifest.Slack{}) {
-				taskNotifications.Slack = manifest.Slack{
+			if taskNotifications.Slack.Equal(manifest.Channels{}) {
+				taskNotifications.Slack = manifest.Channels{
 					OnFailure:        taskNotifications.OnFailure,
 					OnFailureMessage: taskNotifications.OnFailureMessage,
 					OnSuccess:        taskNotifications.OnSuccess,
@@ -66,7 +66,7 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 			task.Tasks = n.updateTasks(task.Tasks, slackChannel, slackSuccessMessage, slackFailureMessage, topLevelNotifications)
 			updated = append(updated, task)
 		default:
-			if task.GetNotifications().Slack.Equal(manifest.Slack{}) {
+			if task.GetNotifications().Slack.Equal(manifest.Channels{}) {
 				if topLevelNotifications.NotificationsDefined() {
 					task = task.SetNotifications(topLevelNotifications)
 				}
