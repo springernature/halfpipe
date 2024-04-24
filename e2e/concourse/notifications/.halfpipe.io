@@ -1,6 +1,7 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-notifications
 slack_channel: "#yo"
+teams_webhook: "https://someHorribleLongURL"
 
 triggers:
 - type: git
@@ -22,7 +23,7 @@ tasks:
     image: alpine
   notifications:
     on_success_message: Wiiiie! \o/
-    on_success: 
+    on_success:
     - asdf
     - prws
     on_failure_message: Nooooes >:c

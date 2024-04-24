@@ -85,6 +85,31 @@ func (c Concourse) slackResource() atc.ResourceConfig {
 	}
 }
 
+const teamsResourceName = "teams"
+const teamsResourceTypeName = "halfpipe-teams-resource"
+
+func (c Concourse) teamsResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name:       teamsResourceTypeName,
+		Type:       "registry-image",
+		CheckEvery: &longResourceCheckInterval,
+		Source: atc.Source{
+			"repository": config.DockerRegistry + "halfpipe-teams-resource",
+			"tag":        "latest",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
+		},
+	}
+}
+
+func (c Concourse) teamsResource() atc.ResourceConfig {
+	return atc.ResourceConfig{
+		Name:       teamsResourceName,
+		Type:       teamsResourceTypeName,
+		CheckEvery: &longResourceCheckInterval,
+	}
+}
+
 func (c Concourse) gcpResourceType() atc.ResourceType {
 	return atc.ResourceType{
 		Name:       artifactsResourceName,

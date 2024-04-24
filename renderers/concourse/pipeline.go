@@ -237,6 +237,11 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 		resourceConfigs = append(resourceConfigs, c.slackResource())
 	}
 
+	if man.Tasks.UsesTeamsNotifications() {
+		resourceTypes = append(resourceTypes, c.teamsResourceType())
+		resourceConfigs = append(resourceConfigs, c.teamsResource())
+	}
+
 	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {
 		resourceTypes = append(resourceTypes, c.gcpResourceType())
 
@@ -274,9 +279,12 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 		sequence = append(sequence, saveArtifactOnFailurePlan())
 	}
 
-	notifications := task.GetNotifications().Slack
-	for _, onFailureChannel := range notifications.OnFailure {
-		sequence = append(sequence, slackOnFailurePlan(onFailureChannel, notifications.OnFailureMessage))
+	notifications := task.GetNotifications()
+	for _, onFailureChannel := range notifications.Slack.OnFailure {
+		sequence = append(sequence, slackOnFailurePlan(onFailureChannel, notifications.Slack.OnFailureMessage))
+	}
+	for _, onFailureWebhook := range notifications.Teams.OnFailure {
+		sequence = append(sequence, teamsOnFailurePlan(onFailureWebhook, notifications.Teams.OnFailureMessage))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {
@@ -294,9 +302,12 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Step {
 	var sequence []atc.Step
 
-	notifications := task.GetNotifications().Slack
-	for _, onSuccessChannel := range notifications.OnSuccess {
-		sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, notifications.OnSuccessMessage))
+	notifications := task.GetNotifications()
+	for _, onSuccessChannel := range notifications.Slack.OnSuccess {
+		sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, notifications.Slack.OnSuccessMessage))
+	}
+	for _, onSuccessWebhook := range notifications.Teams.OnSuccess {
+		sequence = append(sequence, teamsOnSuccessPlan(onSuccessWebhook, notifications.Teams.OnSuccessMessage))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {

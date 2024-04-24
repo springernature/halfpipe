@@ -5,25 +5,46 @@ jobs:
   name: task1
   on_failure:
     attempts: 2
-    no_get: true
-    params:
-      channel: '#yo'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-        Pipeline>
-      username: Halfpipe
-    put: slack
+    in_parallel:
+      fail_fast: true
+      steps:
+      - no_get: true
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+            Pipeline>
+          username: Halfpipe
+        put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+          title: ❌ the bloomin thing failed
+          webhook: https://someHorribleLongURL
+        put: teams
     timeout: 15m
   on_success:
     attempts: 2
-    no_get: true
-    params:
-      channel: '#yo'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-        Pipeline>
-      username: Halfpipe
-    put: slack
+    in_parallel:
+      fail_fast: true
+      steps:
+      - no_get: true
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded.
+            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+            Pipeline>
+          username: Halfpipe
+        put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+          title: ✅ it passed
+          webhook: https://someHorribleLongURL
+        put: teams
     timeout: 15m
   plan:
   - attempts: 2
@@ -210,25 +231,46 @@ jobs:
   name: deploy to staging
   on_failure:
     attempts: 2
-    no_get: true
-    params:
-      channel: '#yo'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-        Pipeline>
-      username: Halfpipe
-    put: slack
+    in_parallel:
+      fail_fast: true
+      steps:
+      - no_get: true
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+            Pipeline>
+          username: Halfpipe
+        put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+          title: ❌ the bloomin thing failed
+          webhook: https://someHorribleLongURL
+        put: teams
     timeout: 15m
   on_success:
     attempts: 2
-    no_get: true
-    params:
-      channel: '#yo'
-      icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-      text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-        Pipeline>
-      username: Halfpipe
-    put: slack
+    in_parallel:
+      fail_fast: true
+      steps:
+      - no_get: true
+        params:
+          channel: '#yo'
+          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded.
+            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
+            Pipeline>
+          username: Halfpipe
+        put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+          title: ✅ it passed
+          webhook: https://someHorribleLongURL
+        put: teams
     timeout: 15m
   plan:
   - attempts: 2
@@ -355,6 +397,14 @@ resource_types:
     username: _json_key
   type: registry-image
 - check_every: 24h0m0s
+  name: halfpipe-teams-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-teams-resource
+    tag: latest
+    username: _json_key
+  type: registry-image
+- check_every: 24h0m0s
   name: cf-resource
   source:
     password: ((halfpipe-gcr.private_key))
@@ -376,6 +426,10 @@ resources:
   source:
     token: ((halfpipe-slack.token))
   type: halfpipe-slack-resource
+- check_every: 24h0m0s
+  name: teams
+  source: null
+  type: halfpipe-teams-resource
 - check_every: 24h0m0s
   name: cf-snpaas-pe-staging
   source:

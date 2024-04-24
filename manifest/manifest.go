@@ -79,6 +79,26 @@ func (tl TaskList) UsesSlackNotifications() bool {
 	return false
 }
 
+func (tl TaskList) UsesTeamsNotifications() bool {
+	for _, task := range tl {
+		switch task := task.(type) {
+		case Parallel:
+			if task.Tasks.UsesTeamsNotifications() {
+				return true
+			}
+		case Sequence:
+			if task.Tasks.UsesTeamsNotifications() {
+				return true
+			}
+		default:
+			if task.GetNotifications().Teams.NotificationsDefined() {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (tl TaskList) Flatten() (updated TaskList) {
 	for _, t := range tl {
 		switch task := t.(type) {
