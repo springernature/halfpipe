@@ -73,6 +73,7 @@ jobs:
         appPath: .
         cli_version: cf7
         command: halfpipe-push
+        gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}

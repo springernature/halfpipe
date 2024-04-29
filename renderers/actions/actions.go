@@ -177,39 +177,6 @@ func idsFromNames(names []string) []string {
 	return names
 }
 
-func notify(notifications manifest.Notifications) (steps Steps) {
-	s := func(channel string, text string) Step {
-		if text == "" {
-			text = "${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-		}
-
-		return Step{
-			Name: "Notify slack " + channel,
-			Uses: "slackapi/slack-github-action@v1.25.0",
-			With: With{
-				"channel-id":    channel,
-				"slack-message": text,
-			},
-			Env: map[string]string{"SLACK_BOT_TOKEN": githubSecrets.SlackToken},
-		}
-	}
-
-	for _, channel := range notifications.Slack.OnFailure {
-		step := s(channel, notifications.Slack.OnFailureMessage)
-		step.If = "failure()"
-		step.Name += " (failure)"
-		steps = append(steps, step)
-	}
-
-	for _, channel := range notifications.Slack.OnSuccess {
-		step := s(channel, notifications.Slack.OnSuccessMessage)
-		step.Name += " (success)"
-		steps = append(steps, step)
-	}
-
-	return steps
-}
-
 func dockerLogin(image, username, password string) Steps {
 	// check login step is needed
 	if username == "" || strings.HasPrefix(image, config.DockerRegistry) {

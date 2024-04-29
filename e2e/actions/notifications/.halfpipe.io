@@ -1,7 +1,10 @@
 team: halfpipe-team
 pipeline: pipeline-name
-slack_failure_message: failure msg # This will not be set in the notification on the task, since notifications is already defined on the task. I.e no complicated merging!
 platform: actions
+
+slack_channel: "#channel"
+slack_failure_message: failure msg # This will not be set in the notification on the task, since notifications is already defined on the task. I.e no complicated merging!
+teams_webhook: http://blah # has no effect because the task has old style notification block.
 
 tasks:
 - type: run

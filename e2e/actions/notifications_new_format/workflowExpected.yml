@@ -44,6 +44,22 @@ jobs:
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure) (1)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: http://webhook1
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
+    - name: Notify teams (failure) (2)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: http://webhook2
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #success1 (success)'
       uses: slackapi/slack-github-action@v1.25.0
       with:
@@ -58,3 +74,10 @@ jobs:
         slack-message: success message
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (success)
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: http://webhook-success
+        notification-color: 28a745
+        notification-summary: success message teams

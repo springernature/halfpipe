@@ -5,6 +5,10 @@ notifications:
   slack:
     on_failure:
     - "#test"
+  teams:
+    on_success:
+    - "https://webhook"
+    on_success_message: success!
 
 tasks:
 - type: run

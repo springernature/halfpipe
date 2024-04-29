@@ -67,6 +67,13 @@ jobs:
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (success)
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://webhook
+        notification-color: 28a745
+        notification-summary: success!
   run__bash_-c__echo_hello_:
     name: run \bash -c "echo hello"
     needs:
@@ -100,3 +107,10 @@ jobs:
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
       env:
         SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (success)
+      uses: jdcargile/ms-teams-notification@v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://webhook
+        notification-color: 28a745
+        notification-summary: success!
