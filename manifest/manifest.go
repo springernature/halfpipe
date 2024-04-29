@@ -218,7 +218,7 @@ type Manifest struct {
 	Team                string         `yaml:"team,omitempty"`
 	Pipeline            string         `yaml:"pipeline,omitempty"`
 	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
-	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty"`
+	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty" secretAllowed:"true"`
 	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
 	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
 	ArtifactConfig      ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`

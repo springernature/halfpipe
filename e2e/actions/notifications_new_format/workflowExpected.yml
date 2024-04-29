@@ -24,6 +24,17 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@v3.0.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/secret webhook1 | springernature_data_halfpipe-team_secret_webhook1 ;
+        url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@v4
       with:
@@ -49,7 +60,7 @@ jobs:
       uses: jdcargile/ms-teams-notification@v1.4
       with:
         github-token: ${{ github.token }}
-        ms-teams-webhook-uri: http://webhook1
+        ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_webhook1 }}
         notification-color: dc3545
         notification-summary: ❌ GitHub Actions workflow failed
     - name: Notify teams (failure) (2)

@@ -18,7 +18,7 @@ tasks:
       - '#failure1'
     teams:
       on_failure:
-      - 'http://webhook1'
+      - ((secret.webhook1))
       - 'http://webhook2'
       on_success:
       - 'http://webhook-success'

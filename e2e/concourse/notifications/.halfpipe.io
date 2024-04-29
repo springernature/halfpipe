@@ -1,7 +1,7 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-notifications
 slack_channel: "#yo"
-teams_webhook: "https://someHorribleLongURL"
+teams_webhook: ((teams.webhook))
 
 triggers:
 - type: git
@@ -48,4 +48,3 @@ tasks:
       image: eu.gcr.io/halfpipe-io/halfpipe-fly
     vars:
       A: "blah"
-
