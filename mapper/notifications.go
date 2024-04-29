@@ -96,17 +96,6 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 	return updated
 }
 
-func updateMessages(task manifest.Task, slackSuccessMessage string, slackFailureMessage string) manifest.Task {
-	notifications := task.GetNotifications()
-	if notifications.OnSuccessMessage == "" {
-		notifications.OnSuccessMessage = slackSuccessMessage
-	}
-	if notifications.OnFailureMessage == "" {
-		notifications.OnFailureMessage = slackFailureMessage
-	}
-	return task.SetNotifications(notifications)
-}
-
 func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
 	man.Notifications = n.topLevelNotifications(man)
 	man.Tasks = n.migrateTaskNotifications(man.Tasks)
