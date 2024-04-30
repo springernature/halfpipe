@@ -8,19 +8,19 @@ import (
 func notify(notifications manifest.Notifications) (steps Steps) {
 
 	for _, channel := range notifications.Failure.Slack() {
-		steps = append(steps, notifySlack(channel["slack"], channel["message"], false))
+		steps = append(steps, notifySlack(channel.Slack, channel.Message, false))
 	}
 
 	for idx, channel := range notifications.Failure.Teams() {
-		steps = append(steps, notifyTeams(channel["teams"], channel["message"], false, idx, len(notifications.Failure.Teams())))
+		steps = append(steps, notifyTeams(channel.Teams, channel.Message, false, idx, len(notifications.Failure.Teams())))
 	}
 
 	for _, channel := range notifications.Success.Slack() {
-		steps = append(steps, notifySlack(channel["slack"], channel["message"], true))
+		steps = append(steps, notifySlack(channel.Slack, channel.Message, true))
 	}
 
 	for idx, channel := range notifications.Success.Teams() {
-		steps = append(steps, notifyTeams(channel["teams"], channel["message"], true, idx, len(notifications.Success.Teams())))
+		steps = append(steps, notifyTeams(channel.Teams, channel.Message, true, idx, len(notifications.Success.Teams())))
 	}
 
 	return steps

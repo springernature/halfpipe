@@ -62,6 +62,7 @@ var (
 
 	ErrSlackSuccessMessageFieldDeprecated = newError("'slack_success_message' is deprecated, please use new notification structure")
 	ErrSlackFailureMessageFieldDeprecated = newError("'slack_failure_message' is deprecated, please use new notification structure")
+	ErrOnlySlackOrTeamsAllowed            = newError("You cannot define both 'slack' and 'teams' in the notifications")
 )
 
 type Error struct {

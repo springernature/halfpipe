@@ -281,10 +281,10 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 
 	notifications := task.GetNotifications()
 	for _, channel := range notifications.Failure.Slack() {
-		sequence = append(sequence, slackOnFailurePlan(channel["slack"], channel["message"]))
+		sequence = append(sequence, slackOnFailurePlan(channel.Slack, channel.Message))
 	}
 	for _, channel := range notifications.Failure.Teams() {
-		sequence = append(sequence, teamsOnFailurePlan(channel["teams"], channel["message"]))
+		sequence = append(sequence, teamsOnFailurePlan(channel.Teams, channel.Message))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {
@@ -304,10 +304,10 @@ func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Ste
 
 	notifications := task.GetNotifications()
 	for _, channel := range notifications.Success.Slack() {
-		sequence = append(sequence, slackOnSuccessPlan(channel["slack"], channel["message"]))
+		sequence = append(sequence, slackOnSuccessPlan(channel.Slack, channel.Message))
 	}
 	for _, channel := range notifications.Success.Teams() {
-		sequence = append(sequence, teamsOnSuccessPlan(channel["teams"], notifications.Teams.OnSuccessMessage))
+		sequence = append(sequence, teamsOnSuccessPlan(channel.Teams, channel.Message))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {
