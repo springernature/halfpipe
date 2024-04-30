@@ -1,6 +1,7 @@
 package manifest
 
 import (
+	"encoding/json"
 	"fmt"
 	"golang.org/x/exp/slices"
 	"regexp"
@@ -55,6 +56,25 @@ func (nc NotificationChannels) Teams() NotificationChannels {
 	return nc.is("teams")
 }
 
+func (nc NotificationChannel) Equal(nc2 NotificationChannel) bool {
+	n1, _ := json.Marshal(nc)
+	n2, _ := json.Marshal(nc2)
+	return string(n1) == string(n2)
+}
+
+func (nc NotificationChannels) Equal(nc2 NotificationChannels) bool {
+	if len(nc) != len(nc2) {
+		return false
+	}
+
+	for i := range nc {
+		if !nc[i].Equal(nc2[i]) {
+			return false
+		}
+	}
+	return true
+}
+
 type Notifications struct {
 	OnSuccess        []string             `json:"on_success,omitempty" yaml:"on_success,omitempty"`
 	OnSuccessMessage string               `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
@@ -67,7 +87,7 @@ type Notifications struct {
 }
 
 func (n Notifications) NotificationsDefined() bool {
-	return n.Slack.NotificationsDefined() || n.Teams.NotificationsDefined()
+	return n.Slack.NotificationsDefined() || n.Teams.NotificationsDefined() || len(n.Failure) > 0 || len(n.Success) > 0
 }
 
 func (n Notifications) Equal(n2 Notifications) bool {
@@ -76,7 +96,9 @@ func (n Notifications) Equal(n2 Notifications) bool {
 		n.OnFailureMessage == n2.OnFailureMessage &&
 		n.OnSuccessMessage == n2.OnSuccessMessage &&
 		n.Slack.Equal(n2.Slack) &&
-		n.Teams.Equal(n2.Teams)
+		n.Teams.Equal(n2.Teams) &&
+		n.Success.Equal(n2.Success) &&
+		n.Failure.Equal(n2.Failure)
 }
 
 type TaskList []Task
@@ -101,7 +123,7 @@ func (tl TaskList) UsesSlackNotifications() bool {
 				return true
 			}
 		default:
-			if task.GetNotifications().Slack.NotificationsDefined() {
+			if len(task.GetNotifications().Success.Slack()) > 0 || len(task.GetNotifications().Failure.Slack()) > 0 {
 				return true
 			}
 		}

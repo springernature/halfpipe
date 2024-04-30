@@ -280,11 +280,11 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 	}
 
 	notifications := task.GetNotifications()
-	for _, onFailureChannel := range notifications.Slack.OnFailure {
-		sequence = append(sequence, slackOnFailurePlan(onFailureChannel, notifications.Slack.OnFailureMessage))
+	for _, channel := range notifications.Failure.Slack() {
+		sequence = append(sequence, slackOnFailurePlan(channel["slack"], channel["message"]))
 	}
-	for _, onFailureWebhook := range notifications.Teams.OnFailure {
-		sequence = append(sequence, teamsOnFailurePlan(onFailureWebhook, notifications.Teams.OnFailureMessage))
+	for _, channel := range notifications.Failure.Teams() {
+		sequence = append(sequence, teamsOnFailurePlan(channel["teams"], channel["message"]))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {
@@ -303,11 +303,11 @@ func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Ste
 	var sequence []atc.Step
 
 	notifications := task.GetNotifications()
-	for _, onSuccessChannel := range notifications.Slack.OnSuccess {
-		sequence = append(sequence, slackOnSuccessPlan(onSuccessChannel, notifications.Slack.OnSuccessMessage))
+	for _, channel := range notifications.Success.Slack() {
+		sequence = append(sequence, slackOnSuccessPlan(channel["slack"], channel["message"]))
 	}
-	for _, onSuccessWebhook := range notifications.Teams.OnSuccess {
-		sequence = append(sequence, teamsOnSuccessPlan(onSuccessWebhook, notifications.Teams.OnSuccessMessage))
+	for _, channel := range notifications.Success.Teams() {
+		sequence = append(sequence, teamsOnSuccessPlan(channel["teams"], notifications.Teams.OnSuccessMessage))
 	}
 
 	if man.FeatureToggles.GithubStatuses() {

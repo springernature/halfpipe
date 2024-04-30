@@ -7,20 +7,20 @@ import (
 
 func notify(notifications manifest.Notifications) (steps Steps) {
 
-	for _, channel := range notifications.Slack.OnFailure {
-		steps = append(steps, notifySlack(channel, notifications.Slack.OnFailureMessage, false))
+	for _, channel := range notifications.Failure.Slack() {
+		steps = append(steps, notifySlack(channel["slack"], channel["message"], false))
 	}
 
-	for idx, webhook := range notifications.Teams.OnFailure {
-		steps = append(steps, notifyTeams(webhook, notifications.Teams.OnFailureMessage, false, idx, len(notifications.Teams.OnFailure)))
+	for idx, channel := range notifications.Failure.Teams() {
+		steps = append(steps, notifyTeams(channel["teams"], channel["message"], false, idx, len(notifications.Failure.Teams())))
 	}
 
-	for _, channel := range notifications.Slack.OnSuccess {
-		steps = append(steps, notifySlack(channel, notifications.Slack.OnSuccessMessage, true))
+	for _, channel := range notifications.Success.Slack() {
+		steps = append(steps, notifySlack(channel["slack"], channel["message"], true))
 	}
 
-	for idx, webhook := range notifications.Teams.OnSuccess {
-		steps = append(steps, notifyTeams(webhook, notifications.Teams.OnSuccessMessage, true, idx, len(notifications.Teams.OnSuccess)))
+	for idx, channel := range notifications.Success.Teams() {
+		steps = append(steps, notifyTeams(channel["teams"], channel["message"], true, idx, len(notifications.Success.Teams())))
 	}
 
 	return steps

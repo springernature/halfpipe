@@ -1,9 +1,8 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-notifications
 notifications:
-  slack:
-    on_failure:
-    - "#yo"
+  failure:
+  - slack: "#yo"
 
 triggers:
 - type: git
@@ -24,15 +23,16 @@ tasks:
   docker:
     image: alpine
   notifications:
-    slack:
-      on_success_message: Wiiiie! \o/
-      on_success:
-      - asdf
-      - prws
-      on_failure_message: Nooooes >:c
-      on_failure:
-      - kehe
-      - whoop
+    success:
+    - slack: asdf
+      message: Wiiiie! \o/
+    - slack: prws
+      message: Wiiiie! \o/
+    failure:
+    - slack: kehe
+      message: Nooooes >:c
+    - slack: whoop
+      message: Nooooes >:c
 - type: deploy-cf
   name: deploy to staging
   api: ((cloudfoundry.api-snpaas))

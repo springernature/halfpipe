@@ -103,7 +103,7 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 			task.Tasks = n.updateTasks(task.Tasks, slackChannel, slackSuccessMessage, slackFailureMessage, topLevelNotifications)
 			updated = append(updated, task)
 		default:
-			if task.GetNotifications().Slack.Equal(manifest.Channels{}) {
+			if task.GetNotifications().Equal(manifest.Notifications{}) {
 				if topLevelNotifications.NotificationsDefined() {
 					task = task.SetNotifications(topLevelNotifications)
 				}
