@@ -146,6 +146,14 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 			OnSuccess:        []string{"a", "b"},
 			OnSuccessMessage: "Success",
 		},
+		Failure: manifest.NotificationChannels{
+			{"slack": "1", "message": "Failure"},
+			{"slack": "2", "message": "Failure"},
+		},
+		Success: manifest.NotificationChannels{
+			{"slack": "a", "message": "Success"},
+			{"slack": "b", "message": "Success"},
+		},
 	}
 
 	input := manifest.Manifest{
@@ -539,6 +547,8 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 								OnSuccess: []string{"1"},
 								OnFailure: []string{"2"},
 							},
+							Failure: manifest.NotificationChannels{{"slack": "2"}},
+							Success: manifest.NotificationChannels{{"slack": "1"}},
 						},
 					},
 					manifest.DockerPush{Notifications: notifications},
@@ -554,6 +564,8 @@ func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
 												OnSuccess: []string{"a", "b"},
 												OnFailure: []string{"x", "y", "z"},
 											},
+											Failure: manifest.NotificationChannels{{"slack": "x"}, {"slack": "y"}, {"slack": "z"}},
+											Success: manifest.NotificationChannels{{"slack": "a"}, {"slack": "b"}},
 										},
 									},
 								},
