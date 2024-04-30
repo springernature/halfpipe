@@ -9,8 +9,8 @@ type notificationsMapper struct {
 
 func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manifest.Notifications {
 	notifications := man.Notifications
-	if notifications.Equal(manifest.Notifications{}) {
 
+	if notifications.Equal(manifest.Notifications{}) {
 		if man.SlackChannel != "" {
 			notifications.Slack.OnFailure = []string{man.SlackChannel}
 		}
@@ -23,9 +23,21 @@ func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manife
 			notifications.Slack.OnSuccessMessage = man.SlackSuccessMessage
 		}
 
+		if len(notifications.Slack.OnFailure) == 1 {
+			not := manifest.NotificationChannel{"slack": notifications.Slack.OnFailure[0]}
+			if notifications.Slack.OnFailureMessage != "" {
+				not["message"] = notifications.Slack.OnFailureMessage
+			}
+			notifications.Failure = append(notifications.Failure, not)
+		}
+
 		if man.TeamsWebhook != "" {
 			notifications.Teams.OnFailure = []string{man.TeamsWebhook}
+			notifications.Failure = append(notifications.Failure, manifest.NotificationChannel{
+				"teams": man.TeamsWebhook,
+			})
 		}
+
 	}
 
 	return notifications
@@ -83,10 +95,21 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackChannel s
 						taskNotifications.Slack.OnSuccess = []string{taskNotifications.Slack.OnFailure[0]}
 						task = task.SetNotifications(taskNotifications)
 					}
+					if len(taskNotifications.Failure.Slack()) > 0 {
+						taskNotifications.Success = append(taskNotifications.Success, taskNotifications.Failure.Slack()[0])
+						task = task.SetNotifications(taskNotifications)
+					}
+
 					if len(taskNotifications.Teams.OnFailure) > 0 {
 						taskNotifications.Teams.OnSuccess = []string{taskNotifications.Teams.OnFailure[0]}
 						task = task.SetNotifications(taskNotifications)
 					}
+
+					if len(taskNotifications.Failure.Teams()) > 0 {
+						taskNotifications.Success = append(taskNotifications.Success, taskNotifications.Failure.Teams()[0])
+						task = task.SetNotifications(taskNotifications)
+					}
+
 				}
 			}
 

@@ -27,13 +27,43 @@ func (s Channels) NotificationsDefined() bool {
 	return len(s.OnSuccess) > 0 || len(s.OnFailure) > 0
 }
 
+type NotificationChannel map[string]string
+
+func (nc NotificationChannel) is(t string) bool {
+	if _, found := nc[t]; found {
+		return true
+	}
+	return false
+}
+
+type NotificationChannels []NotificationChannel
+
+func (nc NotificationChannels) is(t string) (filtered NotificationChannels) {
+	for _, c := range nc {
+		if c.is(t) {
+			filtered = append(filtered, c)
+		}
+	}
+	return filtered
+}
+
+func (nc NotificationChannels) Slack() NotificationChannels {
+	return nc.is("slack")
+}
+
+func (nc NotificationChannels) Teams() NotificationChannels {
+	return nc.is("teams")
+}
+
 type Notifications struct {
-	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
-	Slack            Channels `json:"slack,omitempty" yaml:"slack,omitempty"`
-	Teams            Channels `json:"teams,omitempty" yaml:"teams,omitempty"`
+	OnSuccess        []string             `json:"on_success,omitempty" yaml:"on_success,omitempty"`
+	OnSuccessMessage string               `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
+	OnFailure        []string             `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnFailureMessage string               `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+	Slack            Channels             `json:"slack,omitempty" yaml:"slack,omitempty"`
+	Teams            Channels             `json:"teams,omitempty" yaml:"teams,omitempty"`
+	Success          NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
+	Failure          NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
