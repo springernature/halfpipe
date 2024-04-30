@@ -16,7 +16,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.15 // indirect
 	github.com/mbrevoort/cronexpr v0.0.0-20170805223836-93a834a6c23a
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
-	github.com/onsi/gomega v1.33.0
+	github.com/onsi/gomega v1.33.1
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/afero v1.11.0
 	github.com/spf13/cobra v1.8.0
