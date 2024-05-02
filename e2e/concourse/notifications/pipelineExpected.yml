@@ -287,7 +287,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-logs
         manifestPath: git/e2e/concourse/notifications/manifest.yml
-      put: cf logs --recent
+      put: cf-logs
       resource: cf-snpaas-pe-staging
     params:
       appPath: git/e2e/concourse/notifications

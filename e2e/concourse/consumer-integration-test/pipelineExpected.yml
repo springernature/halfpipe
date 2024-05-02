@@ -54,7 +54,6 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
 
           \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-
           export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache"
           run-cdc.sh
@@ -124,7 +123,6 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
 
           \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-
           export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache"
           run-cdc.sh

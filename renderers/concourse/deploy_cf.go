@@ -247,7 +247,7 @@ func (d deployCF) logsOnFailure(stepConfig atc.Step) atc.Step {
 			Step: stepConfig.Config,
 			Hook: atc.Step{
 				Config: &atc.PutStep{
-					Name:     "cf logs --recent",
+					Name:     "cf-logs",
 					Resource: d.resourceName,
 					Params: atc.Params{
 						"command":      "halfpipe-logs",

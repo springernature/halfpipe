@@ -16,7 +16,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-logs
         manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
-      put: cf logs --recent
+      put: cf-logs
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
@@ -50,7 +50,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-logs
         manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
-      put: cf logs --recent
+      put: cf-logs
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
@@ -134,7 +134,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-logs
         manifestPath: git/e2e/concourse/deploy-cf-rolling/manifest.yml
-      put: cf logs --recent
+      put: cf-logs
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/e2e/concourse/deploy-cf-rolling
