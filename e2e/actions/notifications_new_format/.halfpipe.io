@@ -9,17 +9,14 @@ tasks:
     image: foo
   script: \foo
   notifications:
-    slack:
-      on_success:
-      - '#success1'
-      - '#success2'
-      on_success_message: success message
-      on_failure:
-      - '#failure1'
-    teams:
-      on_failure:
-      - ((secret.webhook1))
-      - 'http://webhook2'
-      on_success:
-      - 'http://webhook-success'
-      on_success_message: success message teams
+    success:
+    - slack: "#success1"
+      message: success message
+    - slack: "#success2"
+      message: success message
+    - teams: http://webhook-success
+      message: success message teams
+    failure:
+    - slack: "#failure1"
+    - teams: ((secret.webhook1))
+    - teams: http://webhook2

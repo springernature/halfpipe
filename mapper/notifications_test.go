@@ -6,10 +6,11 @@ import (
 	"testing"
 )
 
-func TestDoesNothingWhenSlackChannelIsNotDefined(t *testing.T) {
+func TestDoesNothingWhenNoNotificationsIsDefined(t *testing.T) {
 	updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{})
 	assert.Equal(t, manifest.Manifest{}, updated)
 }
+
 func TestTopLevelNotification(t *testing.T) {
 
 	t.Run("slack_channel", func(t *testing.T) {
@@ -17,10 +18,19 @@ func TestTopLevelNotification(t *testing.T) {
 
 		t.Run("set and notification not set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel})
-			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{channel}}}}, updated)
+			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{
+				Failure: manifest.NotificationChannels{
+					{Slack: channel},
+				},
+			}}, updated)
 		})
+
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#Howdie!"}}}
+			not := manifest.Notifications{
+				Failure: manifest.NotificationChannels{
+					{Slack: "#Howdie!"},
+				},
+			}
 
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, Notifications: not})
 			assert.Equal(t, manifest.Manifest{
@@ -35,11 +45,15 @@ func TestTopLevelNotification(t *testing.T) {
 
 		t.Run("set and notification not set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{TeamsWebhook: webhook})
-			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{webhook}}}}, updated)
+			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{
+				Failure: manifest.NotificationChannels{
+					{Teams: webhook},
+				},
+			}}, updated)
 		})
 
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{"kjlsfdajklfdsklfds"}}}
+			not := manifest.Notifications{Success: manifest.NotificationChannels{{Teams: "some-random-webhook"}}}
 
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{TeamsWebhook: webhook, Notifications: not})
 			assert.Equal(t, manifest.Manifest{
@@ -54,13 +68,15 @@ func TestTopLevelNotification(t *testing.T) {
 			t.Run("set and notification not set", func(t *testing.T) {
 				updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, TeamsWebhook: webhook})
 				assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{
-					Slack: manifest.Channels{OnFailure: []string{channel}},
-					Teams: manifest.Channels{OnFailure: []string{webhook}},
+					Failure: manifest.NotificationChannels{
+						{Slack: channel},
+						{Teams: webhook},
+					},
 				}}, updated)
 			})
 
 			t.Run("set and notification set, should not override", func(t *testing.T) {
-				not := manifest.Notifications{Teams: manifest.Channels{OnSuccessMessage: "Howdie"}}
+				not := manifest.Notifications{Success: manifest.NotificationChannels{{Teams: "yo"}}}
 
 				updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackChannel: channel, TeamsWebhook: webhook, Notifications: not})
 				assert.Equal(t, manifest.Manifest{
@@ -73,16 +89,26 @@ func TestTopLevelNotification(t *testing.T) {
 	t.Run("slack_failure_message", func(t *testing.T) {
 		failureMessage := "Oh noes"
 
-		t.Run("set and notification not set", func(t *testing.T) {
+		t.Run("set and no slack channel set", func(t *testing.T) {
 			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage})
+			assert.Equal(t, manifest.Manifest{}, updated)
+		})
+
+		t.Run("set and slack channel set", func(t *testing.T) {
+			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage, SlackChannel: "#yo"})
 			assert.Equal(t, manifest.Manifest{
-				Notifications: manifest.Notifications{Slack: manifest.Channels{OnFailureMessage: failureMessage}}}, updated)
+				Notifications: manifest.Notifications{
+					Failure: manifest.NotificationChannels{
+						{Slack: "#yo", Message: failureMessage},
+					},
+				},
+			}, updated)
 		})
 
 		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Channels{OnFailureMessage: "Wryyyyy"}}
+			not := manifest.Notifications{Failure: manifest.NotificationChannels{{Slack: "#Somethin"}}}
 
-			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage, Notifications: not})
+			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackFailureMessage: failureMessage, SlackChannel: "#yo", Notifications: not})
 			assert.Equal(t, manifest.Manifest{
 				Notifications: not,
 			}, updated)
@@ -91,22 +117,48 @@ func TestTopLevelNotification(t *testing.T) {
 	})
 
 	t.Run("slack_success_message", func(t *testing.T) {
-		successMessage := "Yay"
-		t.Run("set and notification not set", func(t *testing.T) {
-			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackSuccessMessage: successMessage})
-			assert.Equal(t, manifest.Manifest{
-				Notifications: manifest.Notifications{Slack: manifest.Channels{OnSuccessMessage: successMessage}}}, updated)
-		})
+		input := manifest.Manifest{
+			SlackChannel:        "Blah",
+			SlackSuccessMessage: "Yo",
+			Tasks: manifest.TaskList{
+				manifest.Run{},
+				manifest.Run{NotifyOnSuccess: true},
+				manifest.Run{Notifications: manifest.Notifications{
+					Success: manifest.NotificationChannels{
+						{Slack: "#yo", Message: "Hello"},
+						{Slack: "#yo"},
+					},
+				}},
+			},
+		}
 
-		t.Run("set and notification set, should not override", func(t *testing.T) {
-			not := manifest.Notifications{Slack: manifest.Channels{OnSuccessMessage: "Wryyyyy"}}
+		expected := manifest.Manifest{
+			Notifications: manifest.Notifications{
+				Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+			},
+			Tasks: manifest.TaskList{
+				manifest.Run{
+					Notifications: manifest.Notifications{
+						Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+					},
+				},
+				manifest.Run{
+					Notifications: manifest.Notifications{
+						Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+						Success: manifest.NotificationChannels{{Slack: "Blah", Message: "Yo"}},
+					},
+				},
+				manifest.Run{Notifications: manifest.Notifications{
+					Success: manifest.NotificationChannels{
+						{Slack: "#yo", Message: "Hello"},
+						{Slack: "#yo"},
+					},
+				}},
+			},
+		}
 
-			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{SlackSuccessMessage: successMessage, Notifications: not})
-			assert.Equal(t, manifest.Manifest{
-				Notifications: not,
-			}, updated)
-
-		})
+		updated, _ := NewNotificationsMapper().Apply(input)
+		assert.Equal(t, expected, updated)
 	})
 }
 
@@ -119,11 +171,13 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 	}
 
 	expectedNotification := manifest.Notifications{
-		Slack: manifest.Channels{
-			OnFailure:        []string{"1", "2"},
-			OnFailureMessage: "Failure",
-			OnSuccess:        []string{"a", "b"},
-			OnSuccessMessage: "Success",
+		Failure: manifest.NotificationChannels{
+			{Slack: "1", Message: "Failure"},
+			{Slack: "2", Message: "Failure"},
+		},
+		Success: manifest.NotificationChannels{
+			{Slack: "a", Message: "Success"},
+			{Slack: "b", Message: "Success"},
 		},
 	}
 
@@ -167,837 +221,42 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 	assert.Equal(t, expected, updated)
 }
 
-func TestUpdatesNotificationsWhenSlackChannelIsDefined(t *testing.T) {
-	t.Run("Only failure", func(t *testing.T) {
-		t.Run("slack_channel", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#test",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notifications},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notifications},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notifications},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-
-			// Make sure we don't update the old manifest in place, cus that leads to horrible bugs.
-			assert.NotEqual(t, updated, input)
-		})
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{
-				Slack: manifest.Channels{
-					OnFailure: []string{"#oh-noes"},
-				},
-			}
-
-			input := manifest.Manifest{
-				SlackChannel:  "#test",
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notifications},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notifications},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notifications},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-
-			// Make sure we don't update the old manifest in place, cus that leads to horrible bugs.
-			assert.NotEqual(t, updated, input)
-		})
-	})
-
-	t.Run("Doesn't update the cf push pre-promotes", func(t *testing.T) {
-		t.Run("slack_channel", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#test",
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{
-				Slack: manifest.Channels{
-					OnFailure: []string{"#oh-noes"},
-				},
-			}
-
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-
-	t.Run("NotifyOnSuccess", func(t *testing.T) {
-		t.Run("slack_channel", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#test",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}}
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}, OnSuccess: []string{input.SlackChannel}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#OhNoes", "#AnotherOne"}}}
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: notifications.Slack.OnFailure, OnSuccess: []string{notifications.Slack.OnFailure[0]}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-
-	t.Run("Doesnt map if Notifications is already defined", func(t *testing.T) {
-		t.Run("Old format", func(t *testing.T) {
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"#test"}}}
-
-			input := manifest.Manifest{
-				SlackChannel: "#test",
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: manifest.Notifications{
-						OnSuccess: []string{"1"},
-						OnFailure: []string{"2"},
-					}},
-					manifest.DockerPush{},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{Notifications: manifest.Notifications{
-										OnSuccess: []string{"a", "b"},
-										OnFailure: []string{"x", "y", "z"},
-									}},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notificationsWithSuccess := manifest.Notifications{Slack: manifest.Channels{OnFailure: notifications.Slack.OnFailure, OnSuccess: notifications.Slack.OnFailure}}
-
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{
-						Notifications: manifest.Notifications{
-							Slack: manifest.Channels{
-								OnSuccess: []string{"1"},
-								OnFailure: []string{"2"},
-							},
-						},
-					},
-					manifest.DockerPush{Notifications: notifications},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{
-										Notifications: manifest.Notifications{
-											Slack: manifest.Channels{
-												OnSuccess: []string{"a", "b"},
-												OnFailure: []string{"x", "y", "z"},
-											},
-										},
-									},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-}
-
-func TestUpdatesNotificationsWhenTeamsWebhookIsDefined(t *testing.T) {
-	t.Run("Only failure", func(t *testing.T) {
-		t.Run("teams_webhook", func(t *testing.T) {
-			input := manifest.Manifest{
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notifications},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notifications},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notifications},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-
-			// Make sure we don't update the old manifest in place, cus that leads to horrible bugs.
-			assert.NotEqual(t, updated, input)
-		})
-	})
-
-	t.Run("Doesn't update the cf push pre-promotes", func(t *testing.T) {
-		t.Run("teams_webhook", func(t *testing.T) {
-			input := manifest.Manifest{
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			notifications := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{
-				Teams: manifest.Channels{
-					OnFailure: []string{"https://sdfa"},
-				},
-			}
-
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-
-	t.Run("NotifyOnSuccess", func(t *testing.T) {
-		t.Run("teams_webhook", func(t *testing.T) {
-			input := manifest.Manifest{
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			notificationsWithSuccess := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}, OnSuccess: []string{input.TeamsWebhook}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{Teams: manifest.Channels{OnFailure: []string{"#OhNoes", "#AnotherOne"}}}
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notificationsWithSuccess := manifest.Notifications{Teams: manifest.Channels{OnFailure: notifications.Teams.OnFailure, OnSuccess: []string{notifications.Teams.OnFailure[0]}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-}
-
-func TestUpdatesNotificationsWhenSlackChannelAndTeamsWebhookIsDefined(t *testing.T) {
-	t.Run("Only failure", func(t *testing.T) {
-		t.Run("both", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#blah",
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}, Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notifications},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notifications},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notifications},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-
-			// Make sure we don't update the old manifest in place, cus that leads to horrible bugs.
-			assert.NotEqual(t, updated, input)
-		})
-	})
-
-	t.Run("Doesn't update the cf push pre-promotes", func(t *testing.T) {
-		t.Run("both", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#blah",
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}, Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{
-				Slack: manifest.Channels{
-					OnFailure: []string{"#blah"},
-				},
-				Teams: manifest.Channels{
-					OnFailure: []string{"https://sdfa"},
-				},
-			}
-
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{},
-					manifest.DeployCF{
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{},
-				},
-			}
-
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.DeployCF{Notifications: notifications},
-					manifest.DeployCF{
-						Notifications: notifications,
-						PrePromote: manifest.TaskList{
-							manifest.Run{},
-							manifest.Run{},
-						},
-					},
-					manifest.DeployCF{
-						Notifications: notifications,
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-
-	t.Run("NotifyOnSuccess", func(t *testing.T) {
-		t.Run("both", func(t *testing.T) {
-			input := manifest.Manifest{
-				SlackChannel: "#blah",
-				TeamsWebhook: "https://",
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}}, Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}}}
-			notificationsWithSuccess := manifest.Notifications{
-				Slack: manifest.Channels{OnFailure: []string{input.SlackChannel}, OnSuccess: []string{input.SlackChannel}},
-				Teams: manifest.Channels{OnFailure: []string{input.TeamsWebhook}, OnSuccess: []string{input.TeamsWebhook}},
-			}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-
-		t.Run("top level notifications", func(t *testing.T) {
-			notifications := manifest.Notifications{Slack: manifest.Channels{OnFailure: []string{"a", "b"}}, Teams: manifest.Channels{OnFailure: []string{"1", "2"}}}
-			input := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{},
-					manifest.DockerPush{NotifyOnSuccess: true},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{NotifyOnSuccess: true},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{NotifyOnSuccess: true},
-									manifest.ConsumerIntegrationTest{},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			notificationsWithSuccess := manifest.Notifications{
-				Slack: manifest.Channels{OnFailure: notifications.Slack.OnFailure, OnSuccess: []string{notifications.Slack.OnFailure[0]}},
-				Teams: manifest.Channels{OnFailure: notifications.Teams.OnFailure, OnSuccess: []string{notifications.Teams.OnFailure[0]}},
-			}
-			expected := manifest.Manifest{
-				Notifications: notifications,
-				Tasks: manifest.TaskList{
-					manifest.Run{Notifications: notifications},
-					manifest.DockerPush{Notifications: notificationsWithSuccess},
-					manifest.Parallel{
-						Tasks: manifest.TaskList{
-							manifest.DeployMLZip{Notifications: notificationsWithSuccess},
-							manifest.Sequence{
-								Tasks: manifest.TaskList{
-									manifest.DeployCF{Notifications: notificationsWithSuccess},
-									manifest.ConsumerIntegrationTest{Notifications: notifications},
-								},
-							},
-						},
-					},
-				},
-			}
-
-			updated, _ := NewNotificationsMapper().Apply(input)
-			assert.Equal(t, expected, updated)
-		})
-	})
-}
-
-func TestDefaultNotificationMessages(t *testing.T) {
-	defaultFailureMessage := "failure msg"
-	defaultSuccessMessage := "success msg"
+func TestNotifyOnSuccess(t *testing.T) {
+	slack := "yo"
+	teams := "kehe"
 
 	input := manifest.Manifest{
-		SlackChannel:        "#test",
-		SlackFailureMessage: defaultFailureMessage,
-		SlackSuccessMessage: defaultSuccessMessage,
+		SlackChannel: slack,
+		TeamsWebhook: teams,
 		Tasks: manifest.TaskList{
 			manifest.Run{},
-			manifest.DockerPush{},
-			manifest.DeployCF{
-				Notifications: manifest.Notifications{
-					OnSuccess:        []string{"#foo"},
-					OnSuccessMessage: "custom",
-					OnFailureMessage: "custom",
-				},
-			},
+			manifest.Run{NotifyOnSuccess: true},
 		},
 	}
 
+	expectedNotifications := manifest.Notifications{
+		Failure: manifest.NotificationChannels{
+			{Slack: slack},
+			{Teams: teams},
+		},
+	}
+
+	expected := manifest.Manifest{
+		Notifications: expectedNotifications,
+		Tasks: manifest.TaskList{
+			manifest.Run{Notifications: expectedNotifications},
+			manifest.Run{Notifications: manifest.Notifications{
+				Failure: manifest.NotificationChannels{
+					{Slack: slack},
+					{Teams: teams},
+				},
+				Success: manifest.NotificationChannels{
+					{Slack: slack},
+					{Teams: teams},
+				},
+			}},
+		},
+	}
 	updated, _ := NewNotificationsMapper().Apply(input)
-	assert.Equal(t, defaultFailureMessage, updated.Tasks[0].GetNotifications().Slack.OnFailureMessage)
-	assert.Equal(t, defaultFailureMessage, updated.Tasks[1].GetNotifications().Slack.OnFailureMessage)
-	assert.Equal(t, "custom", updated.Tasks[2].GetNotifications().Slack.OnFailureMessage)
-
-	assert.Equal(t, defaultSuccessMessage, updated.Tasks[0].GetNotifications().Slack.OnSuccessMessage)
-	assert.Equal(t, defaultSuccessMessage, updated.Tasks[1].GetNotifications().Slack.OnSuccessMessage)
-	assert.Equal(t, "custom", updated.Tasks[2].GetNotifications().Slack.OnFailureMessage)
-
+	assert.Equal(t, expected, updated)
 }

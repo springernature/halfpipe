@@ -1,9 +1,8 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-run
 notifications:
-  slack:
-    on_failure:
-    - "#test"
+  failure:
+  - slack: "#test"
 
 triggers:
 - type: git

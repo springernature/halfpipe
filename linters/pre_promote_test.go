@@ -19,10 +19,8 @@ func TestLintPrePromoteTasks(t *testing.T) {
 	t.Run("Notifications", func(t *testing.T) {
 		task := manifest.Run{
 			Notifications: manifest.Notifications{
-				Slack: manifest.Channels{
-					OnSuccess: []string{
-						"#kehe",
-					},
+				Success: manifest.NotificationChannels{
+					{Slack: "#kehe"},
 				},
 			},
 		}

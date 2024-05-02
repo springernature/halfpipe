@@ -113,19 +113,40 @@ func TestOutput(t *testing.T) {
 }
 
 func TestNotifications(t *testing.T) {
-	man := manifest.Manifest{
-		Team:                "team",
-		Pipeline:            "pipeline",
-		Platform:            "concourse",
-		SlackSuccessMessage: "Blah",
-		SlackFailureMessage: "Bluh",
-	}
+	t.Run("deprecated fields", func(t *testing.T) {
+		man := manifest.Manifest{
+			Team:                "team",
+			Pipeline:            "pipeline",
+			Platform:            "concourse",
+			SlackSuccessMessage: "Blah",
+			SlackFailureMessage: "Bluh",
+		}
 
-	result := NewTopLevelLinter().Lint(man)
-	assert.True(t, result.HasWarnings())
-	assert.False(t, result.HasErrors())
-	assert.Len(t, result.Issues, 2)
-	assertContainsError(t, result.Issues, ErrSlackSuccessMessageFieldDeprecated)
-	assertContainsError(t, result.Issues, ErrSlackFailureMessageFieldDeprecated)
+		result := NewTopLevelLinter().Lint(man)
+		assert.True(t, result.HasWarnings())
+		assert.False(t, result.HasErrors())
+		assert.Len(t, result.Issues, 2)
+		assertContainsError(t, result.Issues, ErrSlackSuccessMessageFieldDeprecated)
+		assertContainsError(t, result.Issues, ErrSlackFailureMessageFieldDeprecated)
+	})
 
+	t.Run("both slack and teams", func(t *testing.T) {
+		man := manifest.Manifest{
+			Team:     "team",
+			Pipeline: "pipeline",
+			Platform: "concourse",
+			Notifications: manifest.Notifications{
+				Success: manifest.NotificationChannels{
+					{Slack: "a", Teams: "b"},
+				},
+				Failure: manifest.NotificationChannels{
+					{Slack: "a", Teams: "b"},
+				},
+			},
+		}
+
+		result := NewTopLevelLinter().Lint(man)
+		assert.True(t, result.HasErrors())
+		assert.Len(t, result.Issues, 2)
+	})
 }

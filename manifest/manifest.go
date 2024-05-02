@@ -9,44 +9,52 @@ import (
 
 type Vars map[string]string
 
-type Channels struct {
-	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+type NotificationChannel struct {
+	Slack   string `json:"slack,omitempty" yaml:"slack,omitempty"`
+	Teams   string `json:"teams,omitempty" yaml:"teams,omitempty"`
+	Message string `json:"message,omitempty" yaml:"message,omitempty"`
 }
 
-func (t Channels) Equal(t2 Channels) bool {
-	return slices.Equal(t.OnSuccess, t2.OnSuccess) &&
-		t.OnSuccessMessage == t2.OnSuccessMessage &&
-		slices.Equal(t.OnFailure, t2.OnFailure) &&
-		t.OnFailureMessage == t2.OnFailureMessage
+type NotificationChannels []NotificationChannel
+
+func (nc NotificationChannels) Slack() (ncs NotificationChannels) {
+	for _, n := range nc {
+		if n.Slack != "" && n.Teams == "" {
+			ncs = append(ncs, n)
+		}
+	}
+	return ncs
 }
 
-func (s Channels) NotificationsDefined() bool {
-	return len(s.OnSuccess) > 0 || len(s.OnFailure) > 0
+func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
+	for _, n := range nc {
+		if n.Slack == "" && n.Teams != "" {
+			ncs = append(ncs, n)
+		}
+	}
+	return ncs
 }
 
 type Notifications struct {
-	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
-	Slack            Channels `json:"slack,omitempty" yaml:"slack,omitempty"`
-	Teams            Channels `json:"teams,omitempty" yaml:"teams,omitempty"`
+	OnSuccess        []string             `json:"on_success,omitempty" yaml:"on_success,omitempty"`
+	OnSuccessMessage string               `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
+	OnFailure        []string             `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
+	OnFailureMessage string               `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+	Success          NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
+	Failure          NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
-	return n.Slack.NotificationsDefined() || n.Teams.NotificationsDefined()
+	return len(n.Failure) > 0 || len(n.Success) > 0
 }
 
 func (n Notifications) Equal(n2 Notifications) bool {
 	return slices.Equal(n.OnFailure, n2.OnFailure) &&
 		slices.Equal(n.OnSuccess, n2.OnSuccess) &&
+		slices.Equal(n.Failure, n2.Failure) &&
+		slices.Equal(n.Success, n2.Success) &&
 		n.OnFailureMessage == n2.OnFailureMessage &&
-		n.OnSuccessMessage == n2.OnSuccessMessage &&
-		n.Slack.Equal(n2.Slack) &&
-		n.Teams.Equal(n2.Teams)
+		n.OnSuccessMessage == n2.OnSuccessMessage
 }
 
 type TaskList []Task
@@ -71,7 +79,7 @@ func (tl TaskList) UsesSlackNotifications() bool {
 				return true
 			}
 		default:
-			if task.GetNotifications().Slack.NotificationsDefined() {
+			if len(task.GetNotifications().Success.Slack()) > 0 || len(task.GetNotifications().Failure.Slack()) > 0 {
 				return true
 			}
 		}
@@ -91,7 +99,7 @@ func (tl TaskList) UsesTeamsNotifications() bool {
 				return true
 			}
 		default:
-			if task.GetNotifications().Teams.NotificationsDefined() {
+			if len(task.GetNotifications().Failure.Teams()) > 0 || len(task.GetNotifications().Success.Teams()) > 0 {
 				return true
 			}
 		}

@@ -33,4 +33,25 @@ func TestLintNotifications(t *testing.T) {
 		assert.Len(t, LintNotifications(manifest.Parallel{}), 0)
 		assert.Len(t, LintNotifications(manifest.Sequence{}), 0)
 	})
+
+	t.Run("not allowed to have both teams and slack defined", func(t *testing.T) {
+		task := manifest.Run{
+			Notifications: manifest.Notifications{
+				Success: manifest.NotificationChannels{
+					{Slack: "1"},
+					{Slack: "2", Teams: "2.5"},
+					{Teams: "3"},
+				},
+				Failure: manifest.NotificationChannels{
+					{Slack: "a"},
+					{Slack: "b", Teams: "bb"},
+					{Teams: "c"},
+				},
+			},
+		}
+
+		errs := LintNotifications(task)
+		assert.Len(t, errs, 2)
+		assertContainsError(t, errs, ErrOnlySlackOrTeamsAllowed)
+	})
 }

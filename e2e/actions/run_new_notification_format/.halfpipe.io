@@ -2,13 +2,11 @@ team: halfpipe-team
 pipeline: pipeline-name
 platform: actions
 notifications:
-  slack:
-    on_failure:
-    - "#test"
-  teams:
-    on_success:
-    - "https://webhook"
-    on_success_message: success!
+  failure:
+  - slack: "#test"
+  success:
+  - teams: "https://webhook"
+    message: success!
 
 tasks:
 - type: run
