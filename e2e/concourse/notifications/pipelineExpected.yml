@@ -20,7 +20,7 @@ jobs:
         params:
           icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
-          title: ❌ the bloomin thing failed
+          title: ❌ Concourse pipeline failed
           webhook: ((teams.webhook))
         put: teams
     timeout: 15m
@@ -42,7 +42,7 @@ jobs:
         params:
           icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ it passed
+          title: ✅ Concourse pipeline passed
           webhook: ((teams.webhook))
         put: teams
     timeout: 15m
@@ -246,7 +246,7 @@ jobs:
         params:
           icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
-          title: ❌ the bloomin thing failed
+          title: ❌ Concourse pipeline failed
           webhook: ((teams.webhook))
         put: teams
     timeout: 15m
@@ -268,7 +268,7 @@ jobs:
         params:
           icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ it passed
+          title: ✅ Concourse pipeline passed
           webhook: ((teams.webhook))
         put: teams
     timeout: 15m

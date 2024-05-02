@@ -9,24 +9,6 @@ import (
 
 type Vars map[string]string
 
-type Channels struct {
-	OnSuccess        []string `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string   `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string   `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
-}
-
-func (t Channels) Equal(t2 Channels) bool {
-	return slices.Equal(t.OnSuccess, t2.OnSuccess) &&
-		t.OnSuccessMessage == t2.OnSuccessMessage &&
-		slices.Equal(t.OnFailure, t2.OnFailure) &&
-		t.OnFailureMessage == t2.OnFailureMessage
-}
-
-func (s Channels) NotificationsDefined() bool {
-	return len(s.OnSuccess) > 0 || len(s.OnFailure) > 0
-}
-
 type NotificationChannel struct {
 	Slack   string `json:"slack,omitempty" yaml:"slack,omitempty"`
 	Teams   string `json:"teams,omitempty" yaml:"teams,omitempty"`

@@ -6,11 +6,11 @@ import (
 )
 
 func teamsOnSuccessPlan(webhook string, message string) atc.Step {
-	return teamsPlan(webhook, "succeeded", message, "✅ it passed", "28a745")
+	return teamsPlan(webhook, "succeeded", message, "✅ Concourse pipeline passed", "28a745")
 }
 
 func teamsOnFailurePlan(webhook string, message string) atc.Step {
-	return teamsPlan(webhook, "failed", message, "❌ the bloomin thing failed", "dc3545")
+	return teamsPlan(webhook, "failed", message, "❌ Concourse pipeline failed", "dc3545")
 }
 
 func teamsPlan(webhook string, status string, message string, title string, color string) atc.Step {
