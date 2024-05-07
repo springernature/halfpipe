@@ -44,7 +44,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	var cacheDirs = []shared.CacheDirs{
 		{RunnerDir: fmt.Sprintf("/mnt/halfpipe-cache/%s", man.Team), ContainerDir: "/var/halfpipe/shared-cache"},
 	}
-	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs)
+	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs, false)
 
 	runTask := manifest.Run{
 		Retries: task.Retries,
