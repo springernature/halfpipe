@@ -2,7 +2,7 @@ package defaults
 
 import "github.com/springernature/halfpipe/manifest"
 
-func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man manifest.Manifest) (updated manifest.DeployKatee) {
+func deploygit checkout -b <branch-name>er(original manifest.DeployKatee, defaults Defaults, man manifest.Manifest) (updated manifest.DeployKatee) {
 	updated = original
 
 	if updated.VelaManifest == "" {
@@ -23,6 +23,10 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 
 	if original.Environment == "" {
 		updated.Environment = man.Team
+	}
+
+	if original.PlatformVersion == "" {
+		updated.PlatformVersion = "v1"
 	}
 
 	return updated
