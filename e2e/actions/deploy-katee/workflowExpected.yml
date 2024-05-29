@@ -122,6 +122,7 @@ jobs:
         KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
         KATEE_NAMESPACE: katee-halfpipe-team
+        KATEE_PLATFORM_VERSION: v1
         MAX_CHECKS: "120"
         TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
@@ -176,6 +177,7 @@ jobs:
         KATEE_ENVIRONMENT: katee-different-environment
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
         KATEE_NAMESPACE: katee-different-namespace
+        KATEE_PLATFORM_VERSION: v2
         TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
