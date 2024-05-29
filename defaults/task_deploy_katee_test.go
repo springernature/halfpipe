@@ -1,9 +1,10 @@
 package defaults
 
 import (
+	"testing"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestKateeDeployDefaults(t *testing.T) {
@@ -11,10 +12,11 @@ func TestKateeDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
 
 		expected := manifest.DeployKatee{
-			VelaManifest: "vela.yaml",
-			Tag:          "version",
-			Namespace:    "katee-" + man.Team,
-			Environment:  "asdf",
+			VelaManifest:    "vela.yaml",
+			Tag:             "version",
+			Namespace:       "katee-" + man.Team,
+			Environment:     "asdf",
+			PlatformVersion: "v1",
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))
