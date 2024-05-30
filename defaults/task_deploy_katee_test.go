@@ -41,4 +41,13 @@ func TestKateeDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		assert.Equal(t, "blurgh", deployKateeDefaulter(manifest.DeployKatee{Environment: "blurgh"}, Actions, man).Environment)
 	})
+
+	t.Run("Does not override platform_version", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
+
+		input := manifest.DeployKatee{PlatformVersion: "v1337"}
+
+		assert.Equal(t, "v1337", deployKateeDefaulter(input, Actions, man).PlatformVersion)
+
+	})
 }
