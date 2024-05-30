@@ -1,9 +1,10 @@
 package linters
 
 import (
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) (errs []error) {
@@ -19,6 +20,11 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 
 	if task.Tag == "version" && man.Platform.IsConcourse() && !man.FeatureToggles.UpdatePipeline() {
 		errs = append(errs, NewErrInvalidField("tag", "'version' requires the 'update-pipeline' feature toggle"))
+	}
+
+	// Check platform_version
+	if task.PlatformVersion != "" && task.PlatformVersion != "v1" && task.PlatformVersion != "v2" {
+		errs = append(errs, NewErrInvalidField("platform_version", "must be '', 'v1', or 'v2'"))
 	}
 
 	// vela manifest checks

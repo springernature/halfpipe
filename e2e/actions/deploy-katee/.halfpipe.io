@@ -32,6 +32,7 @@ tasks:
     tag: version
     namespace: katee-different-namespace
     environment: katee-different-environment
+    platform_version: v2
     notifications:
       on_failure:
         - "#ee-re"

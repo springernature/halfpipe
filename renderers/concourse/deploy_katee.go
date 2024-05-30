@@ -2,9 +2,10 @@ package concourse
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
-	"strconv"
 )
 
 func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) (job atc.JobConfig) {
@@ -39,10 +40,11 @@ halfpipe-deploy`,
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
-			"KATEE_ENVIRONMENT":     task.Environment,
-			"KATEE_NAMESPACE":       task.Namespace,
-			"KATEE_APPFILE":         task.VelaManifest,
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
+			"KATEE_ENVIRONMENT":      task.Environment,
+			"KATEE_NAMESPACE":        task.Namespace,
+			"KATEE_PLATFORM_VERSION": task.PlatformVersion,
+			"KATEE_APPFILE":          task.VelaManifest,
+			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
 		},
 		Retries:         task.Retries,
 		NotifyOnSuccess: task.NotifyOnSuccess,

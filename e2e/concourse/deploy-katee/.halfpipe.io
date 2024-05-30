@@ -35,6 +35,7 @@ tasks:
     tag: version
     namespace: katee-different-namespace
     environment: katee-different-environment
+    platform_version: v2
     vela_manifest: vela.yaml
     notifications:
       on_failure:
