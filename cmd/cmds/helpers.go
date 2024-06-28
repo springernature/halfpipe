@@ -125,7 +125,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
-			linters.NewActionsLinter(),
+			linters.NewActionsLinter(gitconfig.OriginURL),
 		},
 		renderer,
 	)

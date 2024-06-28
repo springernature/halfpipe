@@ -3,20 +3,23 @@ package linters
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 )
 
-type ActionsLinter struct{}
-
-func NewActionsLinter() Linter {
-	return ActionsLinter{}
+type actionsLinter struct {
+	repoUriResolver project.RepoURIResolver
 }
 
-func (linter ActionsLinter) Lint(man manifest.Manifest) (result LintResult) {
+func NewActionsLinter(repoUriResolver project.RepoURIResolver) Linter {
+	return actionsLinter{repoUriResolver}
+}
+
+func (linter actionsLinter) Lint(man manifest.Manifest) (result LintResult) {
 	result.Linter = "GitHub Actions"
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/github-actions/overview/"
 	if man.Platform.IsActions() {
 		result.Add(unsupportedTasks(man.Tasks, man, "tasks")...)
-		result.Add(unsupportedTriggers(man.Triggers)...)
+		result.Add(linter.unsupportedTriggers(man.Triggers)...)
 		result.Add(unsupportedFeatures(man.FeatureToggles)...)
 	}
 	return result
@@ -60,7 +63,7 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest, taskListId
 	return errors
 }
 
-func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
+func (linter actionsLinter) unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 	for i, trigger := range triggers {
 		appendError := func(err error) {
 			errors = append(errors, fmt.Errorf("triggers[%v] %w", i, err))
@@ -68,10 +71,16 @@ func unsupportedTriggers(triggers manifest.TriggerList) (errors []error) {
 
 		switch t := trigger.(type) {
 		case manifest.GitTrigger:
+			resolvedUri, err := linter.repoUriResolver()
+			if err != nil {
+				appendError(err)
+				return
+			}
+
 			if t.PrivateKey != "" {
 				appendError(ErrUnsupportedGitPrivateKey.AsWarning())
 			}
-			if t.URI != "" {
+			if t.URI != "" && t.URI != resolvedUri {
 				appendError(ErrUnsupportedGitUri.AsWarning())
 			}
 		case manifest.PipelineTrigger:
