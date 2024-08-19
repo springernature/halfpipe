@@ -20,7 +20,7 @@ func unmarshalAsJSON(yml []byte, out *Manifest) []error {
 	if err != nil {
 		if strings.Contains(err.Error(), "already set") {
 			msg := strings.Replace(err.Error(), "already set in map", "is duplicated.", -1)
-			return []error{fmt.Errorf(msg)}
+			return []error{fmt.Errorf("%s", msg)}
 		}
 		return []error{err}
 	}
@@ -30,7 +30,7 @@ func unmarshalAsJSON(yml []byte, out *Manifest) []error {
 
 	if err := decoder.Decode(out); err != nil {
 		msg := strings.Replace(err.Error(), "json: ", "", -1)
-		return []error{fmt.Errorf(msg)}
+		return []error{fmt.Errorf("%s", msg)}
 	}
 	return nil
 }
