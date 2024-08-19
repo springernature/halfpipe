@@ -70,7 +70,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Build Image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -153,7 +153,7 @@ jobs:
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_foo_bar }}
         username: user
     - name: Build Image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -222,7 +222,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Build Image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -288,7 +288,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Build Image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -362,7 +362,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v6
       with:
         build-args: |
           "A=a"
