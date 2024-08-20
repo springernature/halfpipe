@@ -16,8 +16,8 @@ func TestKateeDeployDefaults(t *testing.T) {
 			Tag:             "version",
 			Namespace:       "katee-" + man.Team,
 			Environment:     "asdf",
-			CheckInterval:   1,
-			MaxChecks:       60,
+			CheckInterval:   Actions.Katee.CheckInterval,
+			MaxChecks:       Actions.Katee.MaxChecks,
 			PlatformVersion: "v1",
 		}
 
@@ -53,7 +53,7 @@ func TestKateeDeployDefaults(t *testing.T) {
 	t.Run("converts deploymentCheckTimeout to check_interval and max_checks", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		task := deployKateeDefaulter(manifest.DeployKatee{DeploymentCheckTimeout: 120}, Actions, man)
-		assert.Equal(t, 1, task.CheckInterval)
+		assert.Equal(t, Actions.Katee.CheckInterval, task.CheckInterval)
 		assert.Equal(t, 120, task.MaxChecks)
 	})
 }

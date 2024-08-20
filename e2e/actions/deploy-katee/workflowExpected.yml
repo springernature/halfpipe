@@ -113,7 +113,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
-        CHECK_INTERVAL: "1"
+        CHECK_INTERVAL: "2"
         ENV1: "1234"
         ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
         ENV3: '{"a": "b", "c": "d"}'
@@ -169,7 +169,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
-        CHECK_INTERVAL: "2"
+        CHECK_INTERVAL: "3"
         ENV1: "1234"
         ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
         ENV3: '{"a": "b", "c": "d"}'
@@ -180,7 +180,7 @@ jobs:
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
         KATEE_NAMESPACE: katee-different-namespace
         KATEE_PLATFORM_VERSION: v2
-        MAX_CHECKS: "3"
+        MAX_CHECKS: "4"
         TAG: ${{ env.BUILD_VERSION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
