@@ -15,6 +15,8 @@ type DeployKatee struct {
 	Environment            string        `json:"environment,omitempty" yaml:"environment,omitempty"`
 	Namespace              string        `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	DeploymentCheckTimeout int           `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
+	CheckInterval          int           `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
+	MaxChecks              int           `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
 	PlatformVersion        string        `json:"platform_version,omitempty" yaml:"platform_version,omitempty"`
 }
 

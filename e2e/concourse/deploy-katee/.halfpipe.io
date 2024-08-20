@@ -35,6 +35,8 @@ tasks:
     tag: version
     namespace: katee-different-namespace
     environment: katee-different-environment
+    check_interval: 2
+    max_checks: 3
     platform_version: v2
     vela_manifest: vela.yaml
     notifications:

@@ -29,5 +29,17 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.PlatformVersion = "v1"
 	}
 
+	if original.DeploymentCheckTimeout > 0 {
+		updated.MaxChecks = original.DeploymentCheckTimeout
+	}
+
+	if updated.MaxChecks == 0 {
+		updated.MaxChecks = defaults.Katee.MaxChecks
+	}
+
+	if original.CheckInterval == 0 {
+		updated.CheckInterval = defaults.Katee.CheckInterval
+	}
+
 	return updated
 }

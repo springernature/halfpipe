@@ -16,6 +16,8 @@ func TestKateeDeployDefaults(t *testing.T) {
 			Tag:             "version",
 			Namespace:       "katee-" + man.Team,
 			Environment:     "asdf",
+			CheckInterval:   1,
+			MaxChecks:       60,
 			PlatformVersion: "v1",
 		}
 
@@ -44,10 +46,14 @@ func TestKateeDeployDefaults(t *testing.T) {
 
 	t.Run("Does not override platform_version", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
-
 		input := manifest.DeployKatee{PlatformVersion: "v1337"}
-
 		assert.Equal(t, "v1337", deployKateeDefaulter(input, Actions, man).PlatformVersion)
+	})
 
+	t.Run("converts deploymentCheckTimeout to check_interval and max_checks", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf"}
+		task := deployKateeDefaulter(manifest.DeployKatee{DeploymentCheckTimeout: 120}, Actions, man)
+		assert.Equal(t, 1, task.CheckInterval)
+		assert.Equal(t, 120, task.MaxChecks)
 	})
 }

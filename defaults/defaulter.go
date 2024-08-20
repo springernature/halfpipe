@@ -36,8 +36,10 @@ type CFDefaults struct {
 }
 
 type KateeDefaults struct {
-	VelaManifest string
-	Tag          string
+	VelaManifest  string
+	Tag           string
+	MaxChecks     int
+	CheckInterval int
 }
 
 type DockerDefaults struct {

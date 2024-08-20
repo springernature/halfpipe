@@ -232,6 +232,7 @@ jobs:
       - name: git
       - name: version
       params:
+        CHECK_INTERVAL: "1"
         DOCKER_TAG: buildVersion
         ENV1: "1234"
         ENV2: ((secret.something))
@@ -337,6 +338,7 @@ jobs:
       - name: git
       - name: version
       params:
+        CHECK_INTERVAL: "2"
         DOCKER_TAG: buildVersion
         ENV1: "1234"
         ENV2: ((secret.something))
@@ -347,6 +349,7 @@ jobs:
         KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
         KATEE_NAMESPACE: katee-different-namespace
         KATEE_PLATFORM_VERSION: v2
+        MAX_CHECKS: "3"
         VERY_SECRET: blah
       platform: linux
       run:
