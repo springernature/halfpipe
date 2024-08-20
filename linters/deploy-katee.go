@@ -61,5 +61,10 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 		errs = append(errs, ErrVelaNamespace.WithValue(task.Namespace))
 	}
 
+	//deployment_check_timeout is deprecated
+	if task.DeploymentCheckTimeout != 0 {
+		errs = append(errs, ErrVelaDeploymentCheckTimeout.AsWarning())
+	}
+
 	return errs
 }

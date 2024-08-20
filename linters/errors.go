@@ -50,8 +50,9 @@ var (
 
 	ErrMultipleTriggers = newError("cannot have multiple triggers of this type")
 
-	ErrVelaVariableMissing = newError("vela manifest variable is not specified in halfpipe manifest")
-	ErrVelaNamespace       = newError("vela namespace must start with 'katee-'")
+	ErrVelaVariableMissing        = newError("vela manifest variable is not specified in halfpipe manifest")
+	ErrVelaNamespace              = newError("vela namespace must start with 'katee-'")
+	ErrVelaDeploymentCheckTimeout = newError("deployment_check_timeout is deprecated. Please use max_checks and check_interval")
 
 	ErrUnsupportedManualTrigger   = newError("manual_trigger on individual tasks is not supported in GitHub Actions. It is supported at the workflow level in git trigger options")
 	ErrUnsupportedRolling         = newError("cf rolling deploys are not supported in GitHub Actions")

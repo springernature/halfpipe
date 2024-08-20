@@ -190,3 +190,13 @@ func TestKateeNamespace(t *testing.T) {
 		assertContainsError(t, errors, ErrVelaNamespace.WithValue(task.Namespace))
 	})
 }
+
+func TestKateeDeploymentCheckTimeout(t *testing.T) {
+	task := manifest.DeployKatee{VelaManifest: "vela.yml"}
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	_ = fs.WriteFile("vela.yml", []byte("---"), 0777)
+
+	task.DeploymentCheckTimeout = 3
+	errors := LintDeployKateeTask(task, emptyManifest, fs)
+	assertContainsError(t, errors, ErrVelaDeploymentCheckTimeout)
+}
