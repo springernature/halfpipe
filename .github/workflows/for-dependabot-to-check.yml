@@ -32,7 +32,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -144,7 +144,7 @@ jobs:
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -211,7 +211,7 @@ jobs:
         echo "- eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -253,7 +253,7 @@ jobs:
       run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
