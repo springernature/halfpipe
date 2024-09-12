@@ -2,9 +2,9 @@ package linters
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
 	"os"
 	"regexp"
+	"slices"
 	"strings"
 
 	"github.com/spf13/afero"

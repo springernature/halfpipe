@@ -2,7 +2,7 @@ package linters
 
 import (
 	"github.com/springernature/halfpipe/manifest"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 var (

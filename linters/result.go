@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/gookit/color"
-	"golang.org/x/exp/slices"
+	"slices"
 )
 
 type LintResults []LintResult

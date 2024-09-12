@@ -2,7 +2,7 @@ package manifest
 
 import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
-	"golang.org/x/exp/slices"
+	"slices"
 	"strings"
 )
 

@@ -2,7 +2,7 @@ package linters
 
 import (
 	"errors"
-	"golang.org/x/exp/slices"
+	"slices"
 	"testing"
 )
 

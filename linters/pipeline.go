@@ -3,7 +3,7 @@ package linters
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
-	"golang.org/x/exp/slices"
+	"slices"
 	"strings"
 )
 

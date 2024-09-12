@@ -1,6 +1,6 @@
 package manifest
 
-import "golang.org/x/exp/slices"
+import "slices"
 
 type Sequence struct {
 	Type  string

@@ -3,9 +3,9 @@ package manifest
 import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
-	"golang.org/x/exp/slices"
 	"reflect"
 	"regexp"
+	"slices"
 	"strings"
 )
 

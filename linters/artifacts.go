@@ -3,8 +3,8 @@ package linters
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
-	"golang.org/x/exp/slices"
 	"regexp"
+	"slices"
 )
 
 var ErrReadsFromSavedArtifacts = newError("reads from saved artifacts, but there are no previous tasks that saves any")

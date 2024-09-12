@@ -2,8 +2,8 @@ package actions
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
 	"regexp"
+	"slices"
 	"strings"
 	"time"
 

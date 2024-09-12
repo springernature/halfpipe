@@ -6,8 +6,8 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
-	"golang.org/x/exp/slices"
 	"path"
+	"slices"
 	"strings"
 )
 

@@ -2,8 +2,8 @@ package manifest
 
 import (
 	"fmt"
-	"golang.org/x/exp/slices"
 	"regexp"
+	"slices"
 	"strings"
 )
 
@@ -49,6 +49,7 @@ func (n Notifications) NotificationsDefined() bool {
 }
 
 func (n Notifications) Equal(n2 Notifications) bool {
+
 	return slices.Equal(n.OnFailure, n2.OnFailure) &&
 		slices.Equal(n.OnSuccess, n2.OnSuccess) &&
 		slices.Equal(n.Failure, n2.Failure) &&
@@ -61,6 +62,7 @@ type TaskList []Task
 
 func (tl TaskList) SavesArtifacts() bool {
 	return slices.ContainsFunc(tl, func(t Task) bool { return t.SavesArtifacts() })
+
 }
 
 func (tl TaskList) SavesArtifactsOnFailure() bool {

@@ -5,7 +5,7 @@ import (
 	"github.com/springernature/halfpipe/cf"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/renderers/shared/secrets"
-	"golang.org/x/exp/slices"
+	"slices"
 	"strings"
 
 	"code.cloudfoundry.org/cli/util/manifestparser"
