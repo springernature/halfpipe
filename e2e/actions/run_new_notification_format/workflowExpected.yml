@@ -61,7 +61,7 @@ jobs:
         SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
     - name: 'Notify slack #test (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#test'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -101,7 +101,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #test (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.26.0
+      uses: slackapi/slack-github-action@v1.27.0
       with:
         channel-id: '#test'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'

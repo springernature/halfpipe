@@ -33,7 +33,7 @@ func notifySlack(channel string, msg string, success bool) Step {
 
 	step := Step{
 		Name: "Notify slack " + channel,
-		Uses: "slackapi/slack-github-action@v1.26.0",
+		Uses: "slackapi/slack-github-action@v1.27.0",
 		With: With{
 			"channel-id":    channel,
 			"slack-message": msg,

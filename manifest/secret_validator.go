@@ -196,7 +196,6 @@ func validateMultipleLevelSecret(secret string) bool {
 func validateKeyValueSecret(secret string) bool {
 	splitSecret := strings.Split(secret, ".")
 	if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
-
 		return false
 	}
 
