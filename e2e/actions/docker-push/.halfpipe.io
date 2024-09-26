@@ -29,6 +29,7 @@ tasks:
   dockerfile_path: Dockerfile2
   timeout: 1h30m
   ignore_vulnerabilities: true
+  scan_timeout: 3
   vars:
     FOO: foo
     BAR: bar

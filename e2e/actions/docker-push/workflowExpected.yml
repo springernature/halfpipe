@@ -92,7 +92,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
         entrypoint: /bin/sh
     - name: Push Image
       run: |-
@@ -178,7 +178,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}"
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 3m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}"
         entrypoint: /bin/sh
     - name: Push Image
       run: |-
@@ -244,7 +244,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
         entrypoint: /bin/sh
     - name: Push Image
       run: |-
@@ -314,7 +314,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
         entrypoint: /bin/sh
     - name: Push Image
       run: |-
@@ -388,7 +388,7 @@ jobs:
     - name: Run Trivy vulnerability scanner
       uses: docker://aquasec/trivy
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 30m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
+        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}"
         entrypoint: /bin/sh
     - name: Push Image
       run: |-
