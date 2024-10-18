@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -32,7 +32,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -47,7 +47,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -60,7 +60,7 @@ jobs:
           /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -144,7 +144,7 @@ jobs:
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -158,14 +158,14 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -195,7 +195,7 @@ jobs:
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.BUILD_VERSION }}
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/blah:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/blah
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
@@ -211,7 +211,80 @@ jobs:
         echo "- eu.gcr.io/halfpipe-io/blah:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      with:
+        channel-id: '#halfpipe-dev'
+        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+  docker-push__1_:
+    name: docker-push (1)
+    needs:
+    - docker-push
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Login to Docker Registry
+      uses: docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7
+      with:
+        password: pass
+        registry: private
+        username: user
+    - name: Build Image
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+      with:
+        build-args: |
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
+        context: .
+        file: e2e/actions/docker-push/Dockerfile
+        platforms: linux/amd64
+        provenance: false
+        push: true
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+        tags: eu.gcr.io/halfpipe-io/cache/private/repo/blah:${{ env.GIT_REVISION }}
+    - name: Run Trivy vulnerability scanner
+      uses: docker://aquasec/trivy
+      with:
+        args: -c "cd .;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/private/repo/blah:${{ env.GIT_REVISION }} || true"
+        entrypoint: /bin/sh
+    - name: Push Image
+      run: |-
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/private/repo/blah:${{ env.GIT_REVISION }} --tag private/repo/blah:latest
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/private/repo/blah:${{ env.GIT_REVISION }} --tag private/repo/blah:${{ env.BUILD_VERSION }}
+        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/private/repo/blah:${{ env.GIT_REVISION }} --tag private/repo/blah:${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+      with:
+        event-type: docker-push:private/repo/blah
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+    - name: Summary
+      run: |-
+        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[private/repo/blah](https://private/repo/blah)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Tags:" >> $GITHUB_STEP_SUMMARY
+        echo "- private/repo/blah:latest" >> $GITHUB_STEP_SUMMARY
+        echo "- private/repo/blah:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
+        echo "- private/repo/blah:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -220,12 +293,12 @@ jobs:
   docker-compose:
     name: docker-compose
     needs:
-    - docker-push
+    - docker-push__1_
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -253,7 +326,7 @@ jobs:
       run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'

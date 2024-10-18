@@ -146,7 +146,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
-		Uses: "actions/checkout@v4",
+		Uses: "actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871", // v4
 		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey, "show-progress": false},
 	}
 	if !gitTrigger.Shallow {
@@ -193,7 +193,7 @@ func dockerLogin(image, username, password string) Steps {
 
 	step := Step{
 		Name: "Login to Docker Registry",
-		Uses: "docker/login-action@v1",
+		Uses: "docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7", // v1
 		With: With{
 			"username": username,
 			"password": password,

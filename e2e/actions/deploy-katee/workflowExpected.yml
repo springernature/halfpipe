@@ -28,14 +28,14 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Build Image
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
       with:
         build-args: |
           "ARTIFACTORY_PASSWORD"
@@ -65,7 +65,7 @@ jobs:
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}
         docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@v3
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
@@ -91,7 +91,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -103,7 +103,7 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -132,7 +132,7 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#ee-re'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -147,7 +147,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -159,7 +159,7 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -188,7 +188,7 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@v1.27.0
+      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
       with:
         channel-id: '#ee-re'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'

@@ -26,7 +26,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -36,7 +36,7 @@ jobs:
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         fetch-depth: 0
         lfs: true
@@ -63,7 +63,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -73,7 +73,7 @@ jobs:
           /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         fetch-depth: 0
         lfs: true

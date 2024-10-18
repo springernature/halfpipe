@@ -33,7 +33,7 @@ func notifySlack(channel string, msg string, success bool) Step {
 
 	step := Step{
 		Name: "Notify slack " + channel,
-		Uses: "slackapi/slack-github-action@v1.27.0",
+		Uses: "slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0", //v1.27
 		With: With{
 			"channel-id":    channel,
 			"slack-message": msg,
@@ -52,36 +52,37 @@ func notifySlack(channel string, msg string, success bool) Step {
 }
 
 func notifyTeams(webhook string, msg string, success bool, idx int, count int) Step {
-	var step Step
+
+	var name string
+	var color string
+
 	if success {
+		name = "Notify teams (success)"
+		color = "28a745"
 		if msg == "" {
 			msg = "✅ GitHub Actions workflow passed"
 		}
-		step = Step{
-			Name: "Notify teams (success)",
-			Uses: "jdcargile/ms-teams-notification@v1.4",
-			With: With{
-				"github-token":         "${{ github.token }}",
-				"ms-teams-webhook-uri": webhook,
-				"notification-color":   "28a745",
-				"notification-summary": msg,
-			},
-		}
 	} else {
+		name = "Notify teams (failure)"
+		color = "dc3545"
 		if msg == "" {
 			msg = "❌ GitHub Actions workflow failed"
 		}
-		step = Step{
-			Name: "Notify teams (failure)",
-			Uses: "jdcargile/ms-teams-notification@v1.4",
-			If:   "failure()",
-			With: With{
-				"github-token":         "${{ github.token }}",
-				"ms-teams-webhook-uri": webhook,
-				"notification-color":   "dc3545",
-				"notification-summary": msg,
-			},
-		}
+	}
+
+	step := Step{
+		Name: name,
+		Uses: "jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc", // v1.4
+		With: With{
+			"github-token":         "${{ github.token }}",
+			"ms-teams-webhook-uri": webhook,
+			"notification-color":   color,
+			"notification-summary": msg,
+		},
+	}
+
+	if !success {
+		step.If = "failure()"
 	}
 
 	if count > 1 {

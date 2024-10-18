@@ -31,7 +31,7 @@ func tags(task manifest.DockerPush) []string {
 func repositoryDispatch(eventName string) Step {
 	return Step{
 		Name: "Repository dispatch",
-		Uses: "peter-evans/repository-dispatch@v3",
+		Uses: "peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0", // v3
 		With: With{
 			"token":      githubSecrets.RepositoryDispatchToken,
 			"event-type": "docker-push:" + eventName,
@@ -54,7 +54,7 @@ func buildImage(a *Actions, task manifest.DockerPush) Step {
 
 	step := Step{
 		Name: "Build Image",
-		Uses: "docker/build-push-action@v6",
+		Uses: "docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75", // v6
 		With: With{
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"file":       path.Join(a.workingDir, task.DockerfilePath),

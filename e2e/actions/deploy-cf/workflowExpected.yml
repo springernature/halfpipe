@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -60,7 +60,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -75,7 +75,7 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -177,7 +177,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -192,7 +192,7 @@ jobs:
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -294,7 +294,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -310,7 +310,7 @@ jobs:
           /springernature/data/halfpipe-team/some secret | springernature_data_halfpipe-team_some_secret ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -461,7 +461,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -475,7 +475,7 @@ jobs:
           /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -569,7 +569,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -582,7 +582,7 @@ jobs:
           /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false
@@ -698,7 +698,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@v3.0.0
+      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
       with:
         exportEnv: false
         method: approle
@@ -711,7 +711,7 @@ jobs:
           /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@eef61447b9ff4aafe5dcd4e0bbf5d482be7e7871
       with:
         lfs: true
         show-progress: false

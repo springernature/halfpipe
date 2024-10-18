@@ -25,5 +25,11 @@ tasks:
   image: eu.gcr.io/halfpipe-io/blah
   dockerfile_path: e2e/actions/docker-push/Dockerfile
 
+- type: docker-push
+  image: private/repo/blah
+  username: user
+  password: pass
+  dockerfile_path: e2e/actions/docker-push/Dockerfile
+
 - type: docker-compose
   compose_file: e2e/actions/docker-compose/docker-compose.yml
