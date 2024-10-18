@@ -23,6 +23,9 @@ tasks:
     space: dev
     manifest: manifest.yml
     deploy_artifact: foo.html
+    github_environment:
+      name: my-env
+      url: https://my-url
     vars:
       ENV1: 1234
       ENV2: ((secret.something))

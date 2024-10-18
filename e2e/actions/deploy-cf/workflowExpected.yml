@@ -53,6 +53,9 @@ jobs:
     needs:
     - make_binary
     runs-on: ee-runner
+    environment:
+      name: my-env
+      url: https://my-url
     timeout-minutes: 60
     steps:
     - name: Vault secrets

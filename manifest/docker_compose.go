@@ -100,6 +100,10 @@ func (r DockerCompose) GetAttempts() int {
 	return 1 + r.Retries
 }
 
+func (r DockerCompose) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}
+
 type ComposeFiles []string
 
 func (c ComposeFiles) MarshalYAML() (interface{}, error) {

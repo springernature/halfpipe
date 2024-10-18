@@ -105,3 +105,7 @@ func (r Run) ReadsFromArtifacts() bool {
 func (r Run) GetAttempts() int {
 	return 1 + r.Retries
 }
+
+func (r Run) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

@@ -94,3 +94,7 @@ func (r ConsumerIntegrationTest) ReadsFromArtifacts() bool {
 func (r ConsumerIntegrationTest) GetAttempts() int {
 	return 1 + r.Retries
 }
+
+func (r ConsumerIntegrationTest) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

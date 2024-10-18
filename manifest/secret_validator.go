@@ -159,15 +159,6 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			}
 		}
 
-	case reflect.TypeOf(true), reflect.TypeOf(0), reflect.TypeOf(manifestparser.Application{}):
-		// Stuff that we don't care about as they cannot contain secrets.
-		return
-	case reflect.TypeOf(Update{}):
-		return
-	case reflect.TypeOf(Platform("")):
-		return
-	case reflect.TypeOf(ComposeFiles{}):
-		return
 	case reflect.TypeOf(Notifications{}):
 		notifications := v.Interface().(Notifications)
 
@@ -180,6 +171,16 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			fieldName := fmt.Sprintf("%s.on_failure[%d]", fieldName, ni)
 			s.validate(success, fieldName, secretTag, errs, platform)
 		}
+		return
+
+	// Stuff that we don't care about as they cannot contain secrets.
+	case reflect.TypeOf(true),
+		reflect.TypeOf(0),
+		reflect.TypeOf(manifestparser.Application{}),
+		reflect.TypeOf(Update{}),
+		reflect.TypeOf(Platform("")),
+		reflect.TypeOf(ComposeFiles{}),
+		reflect.TypeOf(GitHubEnvironment{}):
 		return
 
 	default:

@@ -93,3 +93,7 @@ func (r DeployMLModules) ReadsFromArtifacts() bool {
 func (r DeployMLModules) GetAttempts() int {
 	return 1 + r.Retries
 }
+
+func (r DeployMLModules) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

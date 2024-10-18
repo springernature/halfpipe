@@ -2,22 +2,23 @@ package manifest
 
 type DeployKatee struct {
 	Type                   string
-	Name                   string        `yaml:"name,omitempty"`
-	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	VelaManifest           string        `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
-	Retries                int           `yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
-	Tag                    string        `json:"tag,omitempty" yaml:"tag,omitempty"`
-	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Environment            string        `json:"environment,omitempty" yaml:"environment,omitempty"`
-	Namespace              string        `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	DeploymentCheckTimeout int           `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
-	CheckInterval          int           `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
-	MaxChecks              int           `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
-	PlatformVersion        string        `json:"platform_version,omitempty" yaml:"platform_version,omitempty"`
+	Name                   string            `yaml:"name,omitempty"`
+	ManualTrigger          bool              `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	Timeout                string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	Vars                   Vars              `yaml:"vars,omitempty" secretAllowed:"true"`
+	VelaManifest           string            `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
+	Retries                int               `yaml:"retries,omitempty"`
+	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	Notifications          Notifications     `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Tag                    string            `json:"tag,omitempty" yaml:"tag,omitempty"`
+	BuildHistory           int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Environment            string            `json:"environment,omitempty" yaml:"environment,omitempty"`
+	Namespace              string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
+	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
+	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
+	PlatformVersion        string            `json:"platform_version,omitempty" yaml:"platform_version,omitempty"`
+	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {
@@ -93,4 +94,8 @@ func (d DeployKatee) GetSecrets() map[string]string {
 func (d DeployKatee) MarshalYAML() (interface{}, error) {
 	d.Type = "deploy-katee"
 	return d, nil
+}
+
+func (d DeployKatee) GetGitHubEnvironment() GitHubEnvironment {
+	return d.GitHubEnvironment
 }

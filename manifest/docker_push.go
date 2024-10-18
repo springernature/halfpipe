@@ -99,3 +99,7 @@ func (r DockerPush) ReadsFromArtifacts() bool {
 func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
 }
+
+func (r DockerPush) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

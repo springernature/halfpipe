@@ -79,3 +79,7 @@ func (u Update) GetTimeout() string {
 func (Update) GetName() string {
 	return "update"
 }
+
+func (r Update) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

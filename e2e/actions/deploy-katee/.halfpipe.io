@@ -17,6 +17,9 @@ tasks:
     name: deploy to katee
     tag: version
     deployment_check_timeout: 120
+    github_environment:
+      name: prod
+      url: https://prod.url
     notifications:
       on_failure:
         - "#ee-re"

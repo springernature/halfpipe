@@ -92,3 +92,7 @@ func (r DeployMLZip) GetAttempts() int {
 func (r DeployMLZip) ReadsFromArtifacts() bool {
 	return true
 }
+
+func (r DeployMLZip) GetGitHubEnvironment() GitHubEnvironment {
+	return GitHubEnvironment{}
+}

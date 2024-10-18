@@ -183,6 +183,8 @@ type Task interface {
 
 	GetSecrets() map[string]string
 
+	GetGitHubEnvironment() GitHubEnvironment
+
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 
@@ -286,4 +288,13 @@ func findSecrets(vars map[string]string) (secrets map[string]string) {
 		}
 	}
 	return
+}
+
+type GitHubEnvironment struct {
+	Name string
+	Url  string
+}
+
+func (g GitHubEnvironment) IsValid() bool {
+	return g.Name != "" && g.Url != ""
 }

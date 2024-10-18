@@ -84,6 +84,9 @@ jobs:
     needs:
     - push_default
     runs-on: ee-runner
+    environment:
+      name: prod
+      url: https://prod.url
     timeout-minutes: 60
     steps:
     - name: Vault secrets

@@ -94,6 +94,14 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			job.If = "needs.update.outputs.synced == 'true'"
 		}
 
+		gitHubEnv := task.GetGitHubEnvironment()
+		if gitHubEnv.IsValid() {
+			job.Environment = Environment{
+				Name: gitHubEnv.Name,
+				Url:  gitHubEnv.Url,
+			}
+		}
+
 		jobs = append(jobs, Jobs{{Key: idFromName(job.Name), Value: job}}[0])
 	}
 

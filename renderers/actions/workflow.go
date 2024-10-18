@@ -56,6 +56,7 @@ type Job struct {
 	Needs          []string          `yaml:"needs,omitempty"`
 	If             string            `yaml:"if,omitempty"`
 	RunsOn         string            `yaml:"runs-on,omitempty"`
+	Environment    Environment       `yaml:"environment,omitempty"`
 	Container      Container         `yaml:"container,omitempty"`
 	TimeoutMinutes int               `yaml:"timeout-minutes,omitempty"`
 	Outputs        map[string]string `yaml:"outputs,omitempty"`
@@ -103,6 +104,11 @@ func (ml MultiLine) MarshalYAML() (interface{}, error) {
 	sort.Strings(out)
 
 	return strings.Join(out, ""), nil
+}
+
+type Environment struct {
+	Name string
+	Url  string
 }
 
 type With map[string]any
