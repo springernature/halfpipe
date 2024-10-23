@@ -165,7 +165,7 @@ resources:
 - check_every: 10m0s
   name: cron
   source:
-    expression: 1 * * * *
+    expression: 0 20 * * 6
     fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource

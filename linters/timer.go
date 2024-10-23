@@ -2,7 +2,7 @@ package linters
 
 import (
 	"fmt"
-	"github.com/mbrevoort/cronexpr"
+	"github.com/gorhill/cronexpr"
 	"github.com/springernature/halfpipe/manifest"
 	"time"
 )

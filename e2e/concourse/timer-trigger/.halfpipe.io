@@ -4,7 +4,7 @@ pipeline: halfpipe-e2e-timer-trigger
 triggers:
 - type: git
 - type: timer
-  cron: "1 * * * *"
+  cron: "0 20 * * 6"
 
 tasks:
 - type: docker-push
