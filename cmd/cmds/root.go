@@ -22,7 +22,7 @@ Invoke without any arguments to lint your .halfpipe.io file and render a pipelin
 			output = path.Join(response.Project.GitRootPath, ".github/workflows/", man.PipelineName()+".yml")
 		}
 
-		renderResponse(response, output)
+		renderResponse(response, man, output)
 	},
 }
 

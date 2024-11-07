@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file e2e/concourse/docker-compose/.halfpipe.io
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/concourse/docker-compose/.halfpipe.io for team halfpipe-team
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1

@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/feature-update-pipeline/.halfpipe.io
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/feature-update-pipeline/.halfpipe.io for team halfpipe-team
 name: pipeline-name
 "on":
   push:

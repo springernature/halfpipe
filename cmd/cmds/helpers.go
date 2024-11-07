@@ -78,10 +78,10 @@ func outputLintResults(lintResults linters.LintResults) {
 	}
 }
 
-func renderResponse(r halfpipe.Response, filePath string) {
+func renderResponse(r halfpipe.Response, man manifest.Manifest, filePath string) {
 	outputLintResults(r.LintResults)
 
-	outputYaml := fmt.Sprintf("# Generated using halfpipe cli version %s from file %s\n%s", config.Version, filepath.Join(r.Project.BasePath, r.Project.HalfpipeFilePath), r.ConfigYaml)
+	outputYaml := fmt.Sprintf("# Generated using halfpipe cli version %s from file %s for team %s\n%s", config.Version, filepath.Join(r.Project.BasePath, r.Project.HalfpipeFilePath), man.Team, r.ConfigYaml)
 
 	if filePath == "" {
 		fmt.Println(outputYaml)
