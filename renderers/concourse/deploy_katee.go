@@ -2,9 +2,11 @@ package concourse
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
-	"strconv"
 )
 
 func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manifest, basePath string) (job atc.JobConfig) {
@@ -45,6 +47,7 @@ halfpipe-deploy`,
 			"KATEE_PLATFORM_VERSION": task.PlatformVersion,
 			"KATEE_APPFILE":          task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),
+			"KATEE_V2_GKE_CREDS":     fmt.Sprintf(`((%s-service-account-prod.key))`, strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 			"MAX_CHECKS":             strconv.Itoa(task.MaxChecks),
 		},
 		Retries:         task.Retries,
