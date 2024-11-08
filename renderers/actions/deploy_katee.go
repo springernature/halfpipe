@@ -2,8 +2,10 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"strconv"
+	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
@@ -23,6 +25,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 			"BUILD_VERSION":          "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":           "${{ env.GIT_REVISION }}",
 			"KATEE_GKE_CREDENTIALS":  fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
+			"KATEE_V2_GKE_CREDS":     fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 		},
 	}
 
