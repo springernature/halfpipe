@@ -22,11 +22,6 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 		errs = append(errs, NewErrInvalidField("tag", "'version' requires the 'update-pipeline' feature toggle"))
 	}
 
-	// Check platform_version
-	if task.PlatformVersion != "" && task.PlatformVersion != "v1" && task.PlatformVersion != "v2" {
-		errs = append(errs, NewErrInvalidField("platform_version", "must be '', 'v1', or 'v2'"))
-	}
-
 	// vela manifest checks
 	velaAppFile, err := ReadFile(fs, task.VelaManifest)
 	if err != nil {

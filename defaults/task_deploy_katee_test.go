@@ -12,13 +12,12 @@ func TestKateeDeployDefaults(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
 
 		expected := manifest.DeployKatee{
-			VelaManifest:    "vela.yaml",
-			Tag:             "version",
-			Namespace:       "katee-" + man.Team,
-			Environment:     "asdf",
-			CheckInterval:   Actions.Katee.CheckInterval,
-			MaxChecks:       Actions.Katee.MaxChecks,
-			PlatformVersion: "v1",
+			VelaManifest:  "vela.yaml",
+			Tag:           "version",
+			Namespace:     "katee-" + man.Team,
+			Environment:   "asdf",
+			CheckInterval: Actions.Katee.CheckInterval,
+			MaxChecks:     Actions.Katee.MaxChecks,
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))
@@ -42,12 +41,6 @@ func TestKateeDeployDefaults(t *testing.T) {
 	t.Run("Does not default katee env when set", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		assert.Equal(t, "blurgh", deployKateeDefaulter(manifest.DeployKatee{Environment: "blurgh"}, Actions, man).Environment)
-	})
-
-	t.Run("Does not override platform_version", func(t *testing.T) {
-		man := manifest.Manifest{Team: "asdf", Platform: "actions"}
-		input := manifest.DeployKatee{PlatformVersion: "v1337"}
-		assert.Equal(t, "v1337", deployKateeDefaulter(input, Actions, man).PlatformVersion)
 	})
 
 	t.Run("converts deploymentCheckTimeout to check_interval and max_checks", func(t *testing.T) {
