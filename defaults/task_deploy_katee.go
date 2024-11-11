@@ -25,10 +25,6 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.Environment = man.Team
 	}
 
-	if original.PlatformVersion == "" {
-		updated.PlatformVersion = "v1"
-	}
-
 	if original.DeploymentCheckTimeout > 0 {
 		updated.MaxChecks = original.DeploymentCheckTimeout
 	}
