@@ -127,7 +127,6 @@ jobs:
         KATEE_ENVIRONMENT: halfpipe-team
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
         KATEE_NAMESPACE: katee-halfpipe-team
-        KATEE_PLATFORM_VERSION: v1
         KATEE_V2_GKE_CREDS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
         MAX_CHECKS: "120"
         TAG: ${{ env.BUILD_VERSION }}
@@ -185,7 +184,6 @@ jobs:
         KATEE_ENVIRONMENT: katee-different-environment
         KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
         KATEE_NAMESPACE: katee-different-namespace
-        KATEE_PLATFORM_VERSION: v2
         KATEE_V2_GKE_CREDS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
         MAX_CHECKS: "4"
         TAG: ${{ env.BUILD_VERSION }}
