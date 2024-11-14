@@ -193,7 +193,7 @@ func dockerLogin(image, username, password string) Steps {
 
 	step := Step{
 		Name: "Login to Docker Registry",
-		Uses: "docker/login-action@dd4fa0671be5250ee6f50aedf4cb05514abda2c7", // v1
+		Uses: "docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567", // v3
 		With: With{
 			"username": username,
 			"password": password,
