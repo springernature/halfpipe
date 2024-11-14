@@ -31,7 +31,7 @@ func (a *Actions) saveArtifactSteps(paths []string, name string) Steps {
 		},
 		{
 			Name: "Upload " + name,
-			Uses: "actions/upload-artifact@v4",
+			Uses: "actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882",
 			With: With{
 				"name":           name,
 				"path":           "/tmp/halfpipe-artifacts.tar",
@@ -45,7 +45,7 @@ func (a *Actions) restoreArtifacts() Steps {
 	return Steps{
 		{
 			Name: "Download artifacts",
-			Uses: "actions/download-artifact@v4",
+			Uses: "actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16",
 			With: With{
 				"name": "artifacts",
 			},
