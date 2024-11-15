@@ -42,7 +42,7 @@ halfpipe-deploy`,
 		Privileged: false,
 		Vars: manifest.Vars{
 			"CHECK_INTERVAL":        strconv.Itoa(task.CheckInterval),
-			"KATEE_ENVIRONMENT":     task.Environment,
+			"KATEE_ENVIRONMENT":     strings.TrimPrefix(task.Namespace, "katee-"),
 			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, task.Namespace),

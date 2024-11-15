@@ -21,10 +21,6 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.Namespace = "katee-" + man.Team
 	}
 
-	if original.Environment == "" {
-		updated.Environment = man.Team
-	}
-
 	if original.DeploymentCheckTimeout > 0 {
 		updated.MaxChecks = original.DeploymentCheckTimeout
 	}

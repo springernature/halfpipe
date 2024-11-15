@@ -15,7 +15,6 @@ func TestKateeDeployDefaults(t *testing.T) {
 			VelaManifest:  "vela.yaml",
 			Tag:           "version",
 			Namespace:     "katee-" + man.Team,
-			Environment:   "asdf",
 			CheckInterval: Actions.Katee.CheckInterval,
 			MaxChecks:     Actions.Katee.MaxChecks,
 		}
@@ -36,11 +35,6 @@ func TestKateeDeployDefaults(t *testing.T) {
 	t.Run("Does not default katee namespace when set", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		assert.Equal(t, "Tjoho", deployKateeDefaulter(manifest.DeployKatee{Namespace: "Tjoho"}, Actions, man).Namespace)
-	})
-
-	t.Run("Does not default katee env when set", func(t *testing.T) {
-		man := manifest.Manifest{Team: "asdf"}
-		assert.Equal(t, "blurgh", deployKateeDefaulter(manifest.DeployKatee{Environment: "blurgh"}, Actions, man).Environment)
 	})
 
 	t.Run("converts deploymentCheckTimeout to check_interval and max_checks", func(t *testing.T) {

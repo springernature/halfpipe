@@ -61,5 +61,10 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 		errs = append(errs, ErrVelaDeploymentCheckTimeout.AsWarning())
 	}
 
+	//environment is not used
+	if task.Environment != "" {
+		errs = append(errs, ErrVelaEnvironment.AsWarning())
+	}
+
 	return errs
 }
