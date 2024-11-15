@@ -37,6 +37,7 @@ tasks:
     environment: katee-different-environment
     check_interval: 3
     max_checks: 4
+    vela_manifest: custom-vela-path.yaml
     notifications:
       on_failure:
         - "#ee-re"

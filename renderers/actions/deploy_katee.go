@@ -9,29 +9,27 @@ import (
 )
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
-	deployKatee := Step{
-		Name: "Deploy to Katee",
-		Uses: "docker://eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
-		With: With{
-			"entrypoint": "/bin/sh",
-			"args":       fmt.Sprintf(`-c "cd %s; halfpipe-deploy`, a.workingDir)},
-		Env: Env{
-			"CHECK_INTERVAL":        strconv.Itoa(task.CheckInterval),
-			"KATEE_ENVIRONMENT":     task.Environment,
-			"KATEE_NAMESPACE":       task.Namespace,
-			"KATEE_APPFILE":         task.VelaManifest,
-			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
-			"BUILD_VERSION":         "${{ env.BUILD_VERSION }}",
-			"GIT_REVISION":          "${{ env.GIT_REVISION }}",
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
-			"KATEE_V2_GKE_CREDS":    fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
-		},
+
+	revision := "${{ env.BUILD_VERSION }}"
+	if task.Tag == "gitref" {
+		revision = "${{ env.GIT_REVISION }}"
 	}
 
-	if task.Tag == "gitref" {
-		deployKatee.Env["TAG"] = "${{ env.GIT_REVISION }}"
-	} else if task.Tag == "version" {
-		deployKatee.Env["TAG"] = "${{ env.BUILD_VERSION }}"
+	deployKatee := Step{
+		Name: "Deploy to Katee",
+		Uses: "springernature/ee-action-deploy-katee@v1",
+		With: With{
+			"credentials":   fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
+			"namespace":     task.Namespace,
+			"revision":      revision,
+			"velaFile":      task.VelaManifest,
+			"maxChecks":     strconv.Itoa(task.MaxChecks),
+			"checkInterval": strconv.Itoa(task.CheckInterval),
+		},
+		Env: Env{
+			"BUILD_VERSION": "${{ env.BUILD_VERSION }}",
+			"GIT_REVISION":  "${{ env.GIT_REVISION }}",
+		},
 	}
 
 	for k, v := range task.Vars {
