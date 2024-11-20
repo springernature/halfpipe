@@ -23,7 +23,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
 			"BUILD_VERSION":         "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":          "${{ env.GIT_REVISION }}",
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", task.Namespace),
+			"KATEE_GKE_CREDENTIALS": fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 			"KATEE_V2_GKE_CREDS":    fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 		},
 	}
