@@ -99,7 +99,6 @@ jobs:
         secretId: ${{ env.VAULT_SECRET_ID }}
         secrets: |
           /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
-          /springernature/data/halfpipe-team/katee-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key ;
           /springernature/data/halfpipe-team/katee-v2-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key ;
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: https://vault.halfpipe.io
@@ -125,7 +124,7 @@ jobs:
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
         KATEE_ENVIRONMENT: halfpipe-team
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-halfpipe-team-service-account-prod_key }}
+        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
         KATEE_NAMESPACE: katee-halfpipe-team
         KATEE_V2_GKE_CREDS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
         MAX_CHECKS: "120"
@@ -182,7 +181,7 @@ jobs:
         GIT_REVISION: ${{ env.GIT_REVISION }}
         KATEE_APPFILE: vela.yaml
         KATEE_ENVIRONMENT: katee-different-environment
-        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-different-namespace-service-account-prod_key }}
+        KATEE_GKE_CREDENTIALS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
         KATEE_NAMESPACE: katee-different-namespace
         KATEE_V2_GKE_CREDS: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
         MAX_CHECKS: "4"
