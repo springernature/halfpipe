@@ -51,12 +51,17 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		steps = append(steps, a.configureSSOStep(task, uses))
 	}
 
-	steps = append(steps, a.pushStep(task, manifestPath, appPath, man, uses))
-	steps = append(steps, a.logsStep(task, manifestPath, appPath, uses))
-	steps = append(steps, a.checkStep(task, manifestPath, appPath, uses))
-	steps = append(steps, a.prePromoteSteps(task, man)...)
-	steps = append(steps, a.promoteStep(task, manifestPath, appPath, uses))
-	steps = append(steps, a.cleanupStep(task, manifestPath, appPath, uses))
+	if len(task.PrePromote) == 0 {
+		steps = append(steps, a.allStep(task, manifestPath, appPath, man, uses))
+	} else {
+		steps = append(steps, a.pushStep(task, manifestPath, appPath, man, uses))
+		steps = append(steps, a.logsStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.checkStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.prePromoteSteps(task, man)...)
+		steps = append(steps, a.promoteStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.cleanupStep(task, manifestPath, appPath, uses))
+	}
+
 	steps = append(steps, a.SummaryStep())
 
 	return steps
@@ -112,6 +117,13 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 	}
 
 	return push
+}
+
+func (a *Actions) allStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest, uses string) Step {
+	t := a.pushStep(task, manifestPath, appPath, man, uses)
+	t.Name = "Deploy"
+	t.With["command"] = "halfpipe-all"
+	return t
 }
 
 func (a *Actions) logsStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
