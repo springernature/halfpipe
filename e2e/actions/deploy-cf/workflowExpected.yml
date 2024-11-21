@@ -149,11 +149,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -168,6 +163,11 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_with_cf8:
     name: deploy to cf with cf8
     needs:
@@ -266,11 +266,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -285,6 +280,11 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_with_pre-promote:
     name: deploy to cf with pre-promote
     needs:
@@ -433,11 +433,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -452,6 +447,11 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_with_docker_image:
     name: deploy to cf with docker image
     needs:
@@ -541,11 +541,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -560,6 +555,11 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_sso:
     name: deploy with sso
     needs:
@@ -670,11 +670,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -689,6 +684,11 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_without_artifact:
     name: deploy without artifact
     needs:
@@ -792,11 +792,6 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -811,3 +806,8 @@ jobs:
         space: dev
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY

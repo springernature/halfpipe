@@ -123,11 +123,6 @@ jobs:
         space: cf-space
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
@@ -142,6 +137,11 @@ jobs:
         space: cf-space
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
       uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
