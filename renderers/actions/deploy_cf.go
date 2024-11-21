@@ -29,7 +29,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 			"space":        task.Space,
 			"username":     task.Username,
 			"password":     task.Password,
-			"cli_version":  task.CliVersion,
+			"cliVersion":   task.CliVersion,
 			"manifestPath": manifestPath,
 			"testDomain":   task.TestDomain,
 			"appPath":      appPath,
@@ -42,7 +42,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		return commonMap
 	}
 
-	uses := "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"
+	uses := "springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4"
 
 	envVars := map[string]string{}
 	for k, v := range task.Vars {

@@ -89,11 +89,11 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-push
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
@@ -111,11 +111,11 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -124,11 +124,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -137,11 +137,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -156,11 +156,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -206,11 +206,11 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf8
+        cliVersion: cf8
         command: halfpipe-push
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
@@ -228,11 +228,11 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf8
+        cliVersion: cf8
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -241,11 +241,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf8
+        cliVersion: cf8
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -254,11 +254,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf8
+        cliVersion: cf8
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -273,11 +273,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf8
+        cliVersion: cf8
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -324,11 +324,11 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-push
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
@@ -344,11 +344,11 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -357,11 +357,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -421,11 +421,11 @@ jobs:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
         USE_COVENANT: "true"
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -440,11 +440,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -482,11 +482,11 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-push
         dockerPassword: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-gcr_private_key_base64 }}
         dockerTag: ${{ env.BUILD_VERSION }}
@@ -503,11 +503,11 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -516,11 +516,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -529,11 +529,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -548,11 +548,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest-docker.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -596,7 +596,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Configure SSO
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         args: |-
           -c "
@@ -614,11 +614,11 @@ jobs:
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-push
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
@@ -632,11 +632,11 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -645,11 +645,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -658,11 +658,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -677,11 +677,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -718,7 +718,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Configure SSO
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         args: |-
           -c "
@@ -736,11 +736,11 @@ jobs:
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-push
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
@@ -754,11 +754,11 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-logs
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -767,11 +767,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-check
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -780,11 +780,11 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-promote
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
@@ -799,11 +799,11 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
+      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
-        cli_version: cf7
+        cliVersion: cf7
         command: halfpipe-cleanup
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
