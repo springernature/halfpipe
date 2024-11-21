@@ -67,7 +67,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: .
@@ -85,7 +85,7 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: .
@@ -98,7 +98,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: .
@@ -111,7 +111,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: .
@@ -130,7 +130,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: .

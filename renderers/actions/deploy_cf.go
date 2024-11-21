@@ -42,7 +42,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		return commonMap
 	}
 
-	uses := "springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4"
+	uses := "springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81"
 
 	envVars := map[string]string{}
 	for k, v := range task.Vars {

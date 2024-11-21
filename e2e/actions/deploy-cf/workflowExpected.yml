@@ -89,7 +89,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -111,7 +111,7 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -124,7 +124,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -137,7 +137,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -156,7 +156,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -206,7 +206,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -228,7 +228,7 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -241,7 +241,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -254,7 +254,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -273,7 +273,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -324,7 +324,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -344,7 +344,7 @@ jobs:
         CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -357,7 +357,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -421,7 +421,7 @@ jobs:
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
         USE_COVENANT: "true"
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -440,7 +440,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -482,7 +482,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -503,7 +503,7 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -516,7 +516,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -529,7 +529,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -548,7 +548,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -596,7 +596,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Configure SSO
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         args: |-
           -c "
@@ -614,7 +614,7 @@ jobs:
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -632,7 +632,7 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -645,7 +645,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -658,7 +658,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -677,7 +677,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf/foo.html
@@ -718,7 +718,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Configure SSO
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         args: |-
           -c "
@@ -736,7 +736,7 @@ jobs:
         CF_USERNAME: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
         SSO_HOST: my-route
     - name: Push
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -754,7 +754,7 @@ jobs:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: cf logs --recent
       if: failure()
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -767,7 +767,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Check
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -780,7 +780,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: Promote
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
@@ -799,7 +799,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: Cleanup
       if: ${{ !cancelled() }}
-      uses: springernature/ee-action-deploy-cf@40fc27bf3a68ee4178bf55b647e54a8557b902f4
+      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
         appPath: e2e/actions/deploy-cf
