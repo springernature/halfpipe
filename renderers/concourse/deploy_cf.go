@@ -21,9 +21,6 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	deploy.team = man.Team
 
 	deploy.manifestPath = path.Join(gitDir, basePath, task.Manifest)
-	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
-		deploy.manifestPath = strings.TrimPrefix(task.Manifest, "../")
-	}
 
 	deploy.appPath = path.Join(gitDir, basePath)
 	if len(task.DeployArtifact) > 0 {
