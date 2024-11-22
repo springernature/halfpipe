@@ -39,6 +39,12 @@ func (a *Actions) envVars(task manifest.DeployCF) map[string]string {
 }
 
 func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (steps Steps) {
+	prefix := fmt.Sprintf("../artifacts/%s", man.Triggers.GetGitTrigger().BasePath)
+	if strings.HasPrefix(task.Manifest, prefix) {
+		//Stupid unused feature?
+		task.Manifest = strings.Split(task.Manifest, prefix)[1]
+	}
+
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
 	if len(task.DeployArtifact) > 0 {
