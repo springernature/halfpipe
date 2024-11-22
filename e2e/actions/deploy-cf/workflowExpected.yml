@@ -596,7 +596,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: Configure SSO
-      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         args: |-
           -c "
@@ -718,7 +718,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Configure SSO
-      uses: springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81
+      uses: docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable
       with:
         args: |-
           -c "

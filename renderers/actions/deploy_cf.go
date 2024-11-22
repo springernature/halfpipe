@@ -53,7 +53,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	deploySteps := Steps{}
 
 	if task.SSORoute != "" {
-		deploySteps = append(deploySteps, configureSSOStep(task, uses))
+		deploySteps = append(deploySteps, configureSSOStep(task, "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"))
 	}
 
 	push := Step{
