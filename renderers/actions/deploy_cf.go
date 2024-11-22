@@ -29,15 +29,6 @@ func (a *Actions) commonParamsWith(task manifest.DeployCF, manifestPath string, 
 	return commonMap
 }
 
-func (a *Actions) envVars(task manifest.DeployCF) map[string]string {
-	envVars := map[string]string{}
-	for k, v := range task.Vars {
-		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
-	}
-	envVars["CF_ENV_VAR_BUILD_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
-	return envVars
-}
-
 func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (steps Steps) {
 	manifestPath := path.Join(a.workingDir, task.Manifest)
 	appPath := a.workingDir
@@ -45,10 +36,10 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		appPath = path.Join(appPath, task.DeployArtifact)
 	}
 
-	uses := "springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81"
+	uses := "springernature/ee-action-deploy-cf@v1"
 
 	if task.SSORoute != "" {
-		steps = append(steps, a.configureSSOStep(task, uses))
+		steps = append(steps, a.configureSSOStep(task, manifestPath, appPath, uses))
 	}
 
 	if len(task.PrePromote) == 0 {
@@ -67,33 +58,25 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	return steps
 }
 
-func (a *Actions) configureSSOStep(task manifest.DeployCF, uses string) Step {
-	args := `-c "
-cf8 login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE;
-cf8 service sso || cf8 create-user-provided-service sso -r https://ee-sso.public.springernature.app;
-cf8 route public.springernature.app -n $SSO_HOST || cf8 create-route public.springernature.app -n $SSO_HOST;
-cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
-"`
-
+func (a *Actions) configureSSOStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
 	return Step{
 		Name: "Configure SSO",
 		Uses: uses,
-		With: With{
-			"entrypoint": "/bin/bash",
-			"args":       args,
-		},
-		Env: Env{
-			"CF_API":      task.API,
-			"CF_ORG":      task.Org,
-			"CF_SPACE":    task.Space,
-			"CF_USERNAME": task.Username,
-			"CF_PASSWORD": task.Password,
-			"SSO_HOST":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
-		},
+		With: a.commonParamsWith(task, manifestPath, appPath, With{
+			"command":    "halfpipe-sso",
+			"ssoHost":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
+			"cliVersion": "cf8",
+		}),
 	}
 }
 
 func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest, uses string) Step {
+	envVars := map[string]string{}
+	for k, v := range task.Vars {
+		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
+	}
+	envVars["CF_ENV_VAR_BUILD_URL"] = "https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}"
+
 	push := Step{
 		Name: "Push",
 		Uses: uses,
@@ -102,7 +85,7 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 			"team":    man.Team,
 			"gitUri":  man.Triggers.GetGitTrigger().URI,
 		}),
-		Env: a.envVars(task),
+		Env: envVars,
 	}
 
 	if task.CfApplication.Docker != nil {
