@@ -42,7 +42,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		return commonMap
 	}
 
-	uses := "springernature/ee-action-deploy-cf@1609fa19475a1060f146f81a74ca6c41e622cb81"
+	uses := "springernature/ee-action-deploy-cf@v1"
 
 	envVars := map[string]string{}
 	for k, v := range task.Vars {
@@ -53,7 +53,15 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	deploySteps := Steps{}
 
 	if task.SSORoute != "" {
-		deploySteps = append(deploySteps, configureSSOStep(task, "docker://eu.gcr.io/halfpipe-io/cf-resource-v2:stable"))
+		deploySteps = append(deploySteps, Step{
+			Name: "Configure SSO",
+			Uses: uses,
+			With: addCommonParams(With{
+				"command":    "halfpipe-sso",
+				"ssoHost":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
+				"cliVersion": "cf8",
+			}),
+		})
 	}
 
 	push := Step{
@@ -149,30 +157,4 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 
 	steps = append(steps, deploySteps...)
 	return steps
-}
-
-func configureSSOStep(task manifest.DeployCF, uses string) Step {
-	args := `-c "
-cf8 login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE;
-cf8 service sso || cf8 create-user-provided-service sso -r https://ee-sso.public.springernature.app;
-cf8 route public.springernature.app -n $SSO_HOST || cf8 create-route public.springernature.app -n $SSO_HOST;
-cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
-"`
-
-	return Step{
-		Name: "Configure SSO",
-		Uses: uses,
-		With: With{
-			"entrypoint": "/bin/bash",
-			"args":       args,
-		},
-		Env: Env{
-			"CF_API":      task.API,
-			"CF_ORG":      task.Org,
-			"CF_SPACE":    task.Space,
-			"CF_USERNAME": task.Username,
-			"CF_PASSWORD": task.Password,
-			"SSO_HOST":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
-		},
-	}
 }
