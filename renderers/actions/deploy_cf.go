@@ -62,8 +62,8 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	steps = append(steps, a.checkStep(task, manifestPath, appPath, uses))
 	steps = append(steps, a.prePromoteSteps(task, man)...)
 	steps = append(steps, a.promoteStep(task, manifestPath, appPath, uses))
-	steps = append(steps, a.cleanupStep(task, manifestPath, appPath, uses))
 	steps = append(steps, a.SummaryStep())
+	steps = append(steps, a.cleanupStep(task, manifestPath, appPath, uses))
 
 	return steps
 }
