@@ -262,42 +262,18 @@ func (d deployCF) logsOnFailure(stepConfig atc.Step) atc.Step {
 }
 
 func (d deployCF) configureSSO() atc.Step {
-	step := atc.TaskStep{
-		Name: "configure-sso",
-		Config: &atc.TaskConfig{
-			Platform: "linux",
-			Params: atc.TaskEnv{
-				"CF_API":      d.task.API,
-				"CF_ORG":      d.task.Org,
-				"CF_SPACE":    d.task.Space,
-				"CF_USERNAME": d.task.Username,
-				"CF_PASSWORD": d.task.Password,
-				"SSO_HOST":    strings.TrimSuffix(d.task.SSORoute, ".public.springernature.app"),
-			},
-			ImageResource: &atc.ImageResource{
-				Type: "registry-image",
-				Source: atc.Source{
-					"repository": "eu.gcr.io/halfpipe-io/cf-resource-v2",
-					"tag":        "stable",
-					"password":   "((halfpipe-gcr.private_key))",
-					"username":   "_json_key",
-				},
-			},
-			Run: atc.TaskRunConfig{
-				Path: "/bin/bash",
-				Args: []string{
-					"-c",
-					`cf8 login -a $CF_API -u $CF_USERNAME -p $CF_PASSWORD -o $CF_ORG -s $CF_SPACE;
-cf8 service sso || cf8 create-user-provided-service sso -r https://ee-sso.public.springernature.app;
-cf8 route public.springernature.app -n $SSO_HOST || cf8 create-route public.springernature.app -n $SSO_HOST;
-cf8 bind-route-service public.springernature.app -n $SSO_HOST sso;
-`,
-				},
-			},
+	configure := atc.PutStep{
+		Name:     "configure-sso",
+		Resource: d.resourceName,
+		Params: atc.Params{
+			"command":      "halfpipe-sso",
+			"manifestPath": d.manifestPath,
+			"ssoHost":      strings.TrimSuffix(d.task.SSORoute, ".public.springernature.app"),
+			"cliVersion":   "cf8",
 		},
+		NoGet: true,
 	}
-
-	return stepWithAttemptsAndTimeout(&step, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&configure, d.task.GetAttempts(), d.task.GetTimeout())
 }
 
 func (c Concourse) prePromoteTasks(deploy deployCF) []atc.Step {
