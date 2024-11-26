@@ -117,7 +117,7 @@ jobs:
         maxChecks: "120"
         namespace: katee-halfpipe-team
         revision: ${{ env.BUILD_VERSION }}
-        velaFile: vela.yaml
+        velaFile: e2e/actions/deploy-katee/vela.yaml
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
         ENV1: "1234"
@@ -169,7 +169,7 @@ jobs:
         maxChecks: "4"
         namespace: katee-different-namespace
         revision: ${{ env.BUILD_VERSION }}
-        velaFile: custom-vela-path.yaml
+        velaFile: e2e/actions/deploy-katee/custom-vela-path.yaml
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}
         ENV1: "1234"

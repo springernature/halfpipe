@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"path"
 	"strconv"
 	"strings"
 
@@ -22,7 +23,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 			"credentials":   fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 			"namespace":     task.Namespace,
 			"revision":      revision,
-			"velaFile":      task.VelaManifest,
+			"velaFile":      path.Join(a.workingDir, task.VelaManifest),
 			"maxChecks":     strconv.Itoa(task.MaxChecks),
 			"checkInterval": strconv.Itoa(task.CheckInterval),
 		},
