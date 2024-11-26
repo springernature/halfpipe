@@ -19,7 +19,7 @@ func (pr FakeProjectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile
 
 func TestFailsIfHalfpipeFileAlreadyExists(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile(".halfpipe.io", []byte(""), 0777)
+	fs.WriteFile(".halfpipe.io.yml", []byte(""), 0777)
 
 	sampleGenerator := NewSampleGenerator(fs, FakeProjectResolver{}, "/home/user/src/myApp")
 
@@ -49,7 +49,7 @@ func TestWritesSample(t *testing.T) {
 
 	assert.Nil(t, err)
 
-	bytes, err := fs.ReadFile(".halfpipe.io")
+	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
 	expected := `team: CHANGE-ME
@@ -79,7 +79,7 @@ func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 
 	assert.Nil(t, err)
 
-	bytes, err := fs.ReadFile(".halfpipe.io")
+	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
 	expected := `team: CHANGE-ME
@@ -113,7 +113,7 @@ func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 
 	assert.Nil(t, err)
 
-	bytes, err := fs.ReadFile(".halfpipe.io")
+	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
 	expected := `team: CHANGE-ME

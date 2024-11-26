@@ -33,6 +33,6 @@ var initCmd = &cobra.Command{
 			printErr(err)
 			os.Exit(1)
 		}
-		fmt.Printf("Generated sample configuration at %s/.halfpipe.io\n", currentDir)
+		fmt.Printf("Generated sample configuration at %s/.halfpipe.io.yml\n", currentDir)
 	},
 }

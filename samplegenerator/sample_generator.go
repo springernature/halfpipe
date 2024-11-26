@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io' already exists")
+var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io.yml' already exists")
 
 type SampleGenerator interface {
 	Generate() (err error)
@@ -32,7 +32,7 @@ func NewSampleGenerator(fs afero.Afero, projectResolver project.Project, current
 }
 
 func (s sampleGenerator) Generate() (err error) {
-	exists, err := s.fs.Exists(".halfpipe.io")
+	exists, err := s.fs.Exists(".halfpipe.io.yml")
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (s sampleGenerator) Generate() (err error) {
 		return err
 	}
 
-	return s.fs.WriteFile(".halfpipe.io", out, 0644)
+	return s.fs.WriteFile(".halfpipe.io.yml", out, 0644)
 }
 
 func createPipelineName(project project.Data) string {
