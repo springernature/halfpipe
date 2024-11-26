@@ -240,7 +240,7 @@ jobs:
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
         KATEE_ENVIRONMENT: halfpipe-team
-        KATEE_GKE_CREDENTIALS: ((katee-halfpipe-team-service-account-prod.key))
+        KATEE_GKE_CREDENTIALS: ((katee-v2-halfpipe-team-service-account-prod.key))
         KATEE_NAMESPACE: katee-halfpipe-team
         KATEE_V2_GKE_CREDS: ((katee-v2-halfpipe-team-service-account-prod.key))
         MAX_CHECKS: "120"
@@ -345,8 +345,8 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
-        KATEE_ENVIRONMENT: different-namespace
-        KATEE_GKE_CREDENTIALS: ((katee-different-namespace-service-account-prod.key))
+        KATEE_ENVIRONMENT: katee-different-environment
+        KATEE_GKE_CREDENTIALS: ((katee-v2-different-namespace-service-account-prod.key))
         KATEE_NAMESPACE: katee-different-namespace
         KATEE_V2_GKE_CREDS: ((katee-v2-different-namespace-service-account-prod.key))
         MAX_CHECKS: "4"
