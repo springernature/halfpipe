@@ -10,14 +10,34 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) dockerPushSteps(task manifest.DockerPush) (steps Steps) {
-	steps = dockerLogin(task.Image, task.Username, task.Password)
-	steps = append(steps, buildImage(a, task))
-	steps = append(steps, scanImage(a, task))
-	steps = append(steps, pushImage(task))
-	steps = append(steps, repositoryDispatch(task.Image))
-	steps = append(steps, jobSummary(task.Image, tags(task)))
-	return steps
+func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifest) Steps {
+	buildArgs := map[string]string{
+		"ARTIFACTORY_PASSWORD": "",
+		"ARTIFACTORY_URL":      "",
+		"ARTIFACTORY_USERNAME": "",
+		"BUILD_VERSION":        "",
+		"GIT_REVISION":         "",
+		"RUNNING_IN_CI":        "",
+	}
+	for k, v := range task.Vars {
+		buildArgs[k] = v
+	}
+
+	step := Step{
+		Name: "Build and Push",
+		Uses: "springernature/ee-action-docker-push@v1",
+		With: With{
+			"image":      strings.TrimPrefix(task.Image, fmt.Sprintf("eu.gcr.io/halfpipe-io/%s/", man.Team)),
+			"tags":       strings.Join([]string{"latest", "${{ env.BUILD_VERSION }}", "${{ env.GIT_REVISION }}"}, "\n"),
+			"context":    path.Join(a.workingDir, task.BuildPath),
+			"dockerfile": path.Join(a.workingDir, task.DockerfilePath),
+			"buildArgs":  MultiLine{buildArgs},
+			"secrets":    MultiLine{task.Secrets},
+			"platforms":  strings.Join(task.Platforms, ","),
+		},
+	}
+
+	return Steps{step}
 }
 
 func tags(task manifest.DockerPush) []string {
