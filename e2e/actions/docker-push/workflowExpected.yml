@@ -69,10 +69,10 @@ jobs:
     - name: Extract artifacts
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
       with:
-        build-args: |
+        buildArgs: |
           "ARTIFACTORY_PASSWORD"
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
@@ -80,266 +80,64 @@ jobs:
           "GIT_REVISION"
           "RUNNING_IN_CI"
         context: e2e/actions/docker-push
-        file: e2e/actions/docker-push/Dockerfile
+        dockerfile: e2e/actions/docker-push/Dockerfile
+        image: someImage
         platforms: linux/amd64
-        provenance: false
-        push: true
-        secrets: |
-          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
-          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
-          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
-      with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
-      with:
-        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[eu.gcr.io/halfpipe-io/someImage](https://eu.gcr.io/halfpipe-io/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
-  push_custom:
-    name: Push custom
-    needs:
-    - push_default
-    runs-on: ee-runner
-    timeout-minutes: 90
-    steps:
-    - name: Vault secrets
-      id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
-      with:
-        exportEnv: false
-        method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
-        secrets: |
-          /springernature/data/halfpipe-team/foo bar | springernature_data_halfpipe-team_foo_bar ;
-          /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
-        url: https://vault.halfpipe.io
-    - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        lfs: true
-        show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: Download artifacts
-      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-      with:
-        name: artifacts
-    - name: Extract artifacts
-      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-      working-directory: ${{ github.workspace }}
-    - name: Login to Docker Registry
-      uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567
-      with:
-        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_foo_bar }}
-        username: user
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
-      with:
-        build-args: |
-          "ARTIFACTORY_PASSWORD"
-          "ARTIFACTORY_URL"
-          "ARTIFACTORY_USERNAME"
-          "BAR=bar"
-          "BLAH=${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}"
-          "BUILD_VERSION"
-          "FOO=foo"
-          "GIT_REVISION"
-          "RUNNING_IN_CI"
-        context: e2e/actions/docker-push
-        file: e2e/actions/docker-push/Dockerfile2
-        platforms: linux/amd64
-        provenance: false
-        push: true
-        secrets: |
-          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
-          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
-          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }}
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
-      with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 3m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }} --tag dockerhubusername/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }} --tag dockerhubusername/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/dockerhubusername/someImage:${{ env.GIT_REVISION }} --tag dockerhubusername/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
-      with:
-        event-type: docker-push:dockerhubusername/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[dockerhubusername/someImage](https://hub.docker.com/r/dockerhubusername/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- dockerhubusername/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- dockerhubusername/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- dockerhubusername/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
-  push_multiple_platforms:
-    name: Push multiple platforms
-    needs:
-    - push_custom
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        lfs: true
-        show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: Download artifacts
-      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-      with:
-        name: artifacts
-    - name: Extract artifacts
-      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-      working-directory: ${{ github.workspace }}
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
-      with:
-        build-args: |
-          "ARTIFACTORY_PASSWORD"
-          "ARTIFACTORY_URL"
-          "ARTIFACTORY_USERNAME"
-          "BUILD_VERSION"
-          "GIT_REVISION"
-          "RUNNING_IN_CI"
-        context: e2e/actions/docker-push
-        file: e2e/actions/docker-push/Dockerfile
-        platforms: linux/amd64,linux/arm64
-        provenance: false
-        push: true
-        secrets: |
-          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
-          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
-          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
-      with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
-      with:
-        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[eu.gcr.io/halfpipe-io/someImage](https://eu.gcr.io/halfpipe-io/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
-  push_multiple_platforms_and_use_cache:
-    name: Push multiple platforms and use cache
-    needs:
-    - push_multiple_platforms
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
-      with:
-        lfs: true
-        show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: Download artifacts
-      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
-      with:
-        name: artifacts
-    - name: Extract artifacts
-      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
-      working-directory: ${{ github.workspace }}
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
-      with:
-        build-args: |
-          "ARTIFACTORY_PASSWORD"
-          "ARTIFACTORY_URL"
-          "ARTIFACTORY_USERNAME"
-          "BUILD_VERSION"
-          "GIT_REVISION"
-          "RUNNING_IN_CI"
-        cache-from: type=registry,ref=eu.gcr.io/halfpipe-io/cache/someImage:buildcache
-        cache-to: type=inline
-        context: e2e/actions/docker-push
-        file: e2e/actions/docker-push/Dockerfile
-        platforms: linux/amd64,linux/arm64
-        provenance: false
-        push: true
         secrets: |
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
           "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: |-
-          eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
-          eu.gcr.io/halfpipe-io/cache/someImage:buildcache
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
+  push_multiple_platforms:
+    name: Push multiple platforms
+    needs:
+    - push_default
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
       with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
       with:
-        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[eu.gcr.io/halfpipe-io/someImage](https://eu.gcr.io/halfpipe-io/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
+        name: artifacts
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
+      with:
+        buildArgs: |
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
+        context: e2e/actions/docker-push
+        dockerfile: e2e/actions/docker-push/Dockerfile
+        image: someImage
+        platforms: linux/amd64,linux/arm64
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+        tags: |-
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
   push_with_secrets:
     name: Push with secrets
     needs:
-    - push_multiple_platforms_and_use_cache
+    - push_multiple_platforms
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
@@ -361,10 +159,10 @@ jobs:
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
       with:
-        build-args: |
+        buildArgs: |
           "A=a"
           "ARTIFACTORY_PASSWORD"
           "ARTIFACTORY_URL"
@@ -374,39 +172,16 @@ jobs:
           "GIT_REVISION"
           "RUNNING_IN_CI"
         context: e2e/actions/docker-push
-        file: e2e/actions/docker-push/Dockerfile
+        dockerfile: e2e/actions/docker-push/Dockerfile
+        image: someImage
         platforms: linux/amd64
-        provenance: false
-        push: true
         secrets: |
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
           "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
           "C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}"
           "D=d"
-        tags: eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }}
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
-      with:
-        args: -c "cd e2e/actions/docker-push;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
-      with:
-        event-type: docker-push:eu.gcr.io/halfpipe-io/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[eu.gcr.io/halfpipe-io/someImage](https://eu.gcr.io/halfpipe-io/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
+        tags: |-
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}

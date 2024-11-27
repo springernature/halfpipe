@@ -14,7 +14,7 @@ tasks:
 - type: run
   script: \exit 1
   docker:
-    image: eu.gcr.io/halfpipe-io/blah:nonexistent
+    image: eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
 
 - type: deploy-cf
   api: ((cloudfoundry.api-snpaas))
@@ -22,13 +22,7 @@ tasks:
   manifest: e2e/actions/deploy-cf/manifest.yml
 
 - type: docker-push
-  image: eu.gcr.io/halfpipe-io/blah
-  dockerfile_path: e2e/actions/docker-push/Dockerfile
-
-- type: docker-push
-  image: private/repo/blah
-  username: user
-  password: pass
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/blah
   dockerfile_path: e2e/actions/docker-push/Dockerfile
 
 - type: docker-compose

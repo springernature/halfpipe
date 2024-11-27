@@ -34,10 +34,10 @@ jobs:
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: Build Image
-      uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
       with:
-        build-args: |
+        buildArgs: |
           "ARTIFACTORY_PASSWORD"
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
@@ -45,40 +45,17 @@ jobs:
           "GIT_REVISION"
           "RUNNING_IN_CI"
         context: e2e/actions/deploy-katee
-        file: e2e/actions/deploy-katee/Dockerfile
+        dockerfile: e2e/actions/deploy-katee/Dockerfile
+        image: someImage
         platforms: linux/amd64
-        provenance: false
-        push: true
         secrets: |
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
           "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }}
-    - name: Run Trivy vulnerability scanner
-      uses: docker://aquasec/trivy
-      with:
-        args: -c "cd e2e/actions/deploy-katee;  [ -f .trivyignore ] && echo \"Ignoring the following CVE's due to .trivyignore\" || true; [ -f .trivyignore ] && cat .trivyignore; echo || true; trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 1 eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} || true"
-        entrypoint: /bin/sh
-    - name: Push Image
-      run: |-
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:latest
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}
-        docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:${{ env.GIT_REVISION }} --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.GIT_REVISION }}
-    - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
-      with:
-        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
-        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: Summary
-      run: |-
-        echo ":ship: **Image Pushed Successfully**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[eu.gcr.io/halfpipe-io/halfpipe-team/someImage](https://eu.gcr.io/halfpipe-io/halfpipe-team/someImage)" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Tags:" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/halfpipe-team/someImage:latest" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.BUILD_VERSION }}" >> $GITHUB_STEP_SUMMARY
-        echo "- eu.gcr.io/halfpipe-io/halfpipe-team/someImage:${{ env.GIT_REVISION }}" >> $GITHUB_STEP_SUMMARY
+        tags: |-
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
   deploy_to_katee:
     name: deploy to katee
     needs:

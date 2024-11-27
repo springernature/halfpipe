@@ -13,7 +13,7 @@ var emptyManifest = manifest.Manifest{}
 func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors := LintDockerPushTask(manifest.DockerPush{}, fs)
+	errors := LintDockerPushTask(manifest.DockerPush{}, emptyManifest, fs)
 	assertContainsError(t, errors, NewErrMissingField("image"))
 }
 
@@ -25,7 +25,7 @@ func TestDockerPushTaskWithBadRepo(t *testing.T) {
 		Image:    "asd",
 	}
 
-	errors := LintDockerPushTask(task, fs)
+	errors := LintDockerPushTask(task, manifest.Manifest{}, fs)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("image"))
 }
 
@@ -40,7 +40,7 @@ func TestDockerPushTaskWithoutTeamDirectoryInHalfpipeRepo(t *testing.T) {
 		DockerfilePath: "Dockerfile",
 	}
 
-	errs := LintDockerPushTask(task, fs)
+	errs := LintDockerPushTask(task, emptyManifest, fs)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("image"))
 }
 
@@ -55,7 +55,7 @@ func TestDockerPushTaskWithTeamDirectoryInHalfpipeRepo(t *testing.T) {
 		DockerfilePath: "Dockerfile",
 	}
 
-	errors := LintDockerPushTask(task, fs)
+	errors := LintDockerPushTask(task, emptyManifest, fs)
 	assert.Len(t, errors, 0)
 }
 
@@ -70,7 +70,7 @@ func TestDockerPushTaskWithoutTeamDirectoryInGCRRepo(t *testing.T) {
 		DockerfilePath: "Dockerfile",
 	}
 
-	errors := LintDockerPushTask(task, fs)
+	errors := LintDockerPushTask(task, emptyManifest, fs)
 	assert.Len(t, errors, 0)
 }
 
@@ -85,7 +85,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assertContainsError(t, errors, ErrFileNotFound)
 	})
 
@@ -100,7 +100,7 @@ func TestDockerPushTaskWhenDockerfileIsMissing(t *testing.T) {
 			RestoreArtifacts: true,
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assertNotContainsError(t, errors, ErrFileNotFound)
 	})
 }
@@ -122,7 +122,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 	})
 
@@ -141,7 +141,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "dockerfile/Dockerfile",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 	})
 
@@ -160,7 +160,7 @@ func TestDockerPushTaskWithCorrectData(t *testing.T) {
 			DockerfilePath: "../dockerfile/Dockerfile",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 	})
 
@@ -182,7 +182,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      "buildPathDoesntExist",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
 	})
@@ -206,7 +206,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 1)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("build_path"))
 	})
@@ -230,7 +230,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 	})
 
@@ -253,7 +253,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			BuildPath:      buildPath,
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Len(t, errors, 0)
 	})
 
@@ -269,7 +269,7 @@ func TestDockerPushWithBuildPath(t *testing.T) {
 			RestoreArtifacts: true,
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Empty(t, errors)
 	})
 
@@ -291,15 +291,15 @@ func TestDockerPushRetries(t *testing.T) {
 	}
 
 	task.Retries = -1
-	errors := LintDockerPushTask(task, fs)
+	errors := LintDockerPushTask(task, emptyManifest, fs)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 6
-	errors = LintDockerPushTask(task, fs)
+	errors = LintDockerPushTask(task, emptyManifest, fs)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
 	task.Retries = 4
-	errors = LintDockerPushTask(task, fs)
+	errors = LintDockerPushTask(task, emptyManifest, fs)
 	assert.Len(t, errors, 0)
 }
 
@@ -315,7 +315,7 @@ func TestDockerPushTag(t *testing.T) {
 			DockerfilePath: "Dockerfile",
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Empty(t, errors)
 	})
 
@@ -331,7 +331,7 @@ func TestDockerPushTag(t *testing.T) {
 			Tag:            "yolo",
 		}
 
-		errs := LintDockerPushTask(task, fs)
+		errs := LintDockerPushTask(task, emptyManifest, fs)
 		assertContainsError(t, errs, ErrDockerPushTag)
 	})
 }
@@ -349,7 +349,7 @@ func TestMultiplePlatforms(t *testing.T) {
 			Platforms:      []string{"linux/arm64", "linux/amd64"},
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assert.Empty(t, errors)
 	})
 
@@ -365,7 +365,7 @@ func TestMultiplePlatforms(t *testing.T) {
 			Platforms:      []string{"linux/ad64"},
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assertContainsError(t, errors, ErrDockerPlatformUnknown)
 	})
 }
@@ -384,8 +384,39 @@ func TestSecrets(t *testing.T) {
 			Vars:           manifest.Vars{"var1": "((a.secret))"},
 		}
 
-		errors := LintDockerPushTask(task, fs)
+		errors := LintDockerPushTask(task, emptyManifest, fs)
 		assertContainsError(t, errors, ErrDockerVarSecret.WithValue("var1").AsWarning())
 	})
+}
 
+func TestImageLocationActions(t *testing.T) {
+	t.Run("if actions, image must be halfpipe gcr + team", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "eu.gcr.io/halfpipe-io/blah/haha",
+			DockerfilePath: "Dockerfile",
+		}
+
+		man := manifest.Manifest{Platform: "actions", Team: "blah"}
+
+		errors := LintDockerPushTask(task, man, fs)
+		assertNotContainsError(t, errors, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(task.Image))
+	})
+
+	t.Run("if actions, errors when not halfpipe gcr + team", func(t *testing.T) {
+		fs := afero.Afero{Fs: afero.NewMemMapFs()}
+		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+
+		task := manifest.DockerPush{
+			Image:          "eu.gcr.io/halfpipe-io/different-team/blah",
+			DockerfilePath: "Dockerfile",
+		}
+
+		man := manifest.Manifest{Platform: "actions", Team: "blah"}
+
+		errors := LintDockerPushTask(task, man, fs)
+		assertContainsError(t, errors, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(task.Image))
+	})
 }

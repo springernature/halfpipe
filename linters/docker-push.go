@@ -11,7 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []error) {
+func LintDockerPushTask(docker manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
 	if docker.Image == "" {
 		errs = append(errs, NewErrMissingField("image"))
 	} else {
@@ -27,6 +27,13 @@ func LintDockerPushTask(docker manifest.DockerPush, fs afero.Afero) (errs []erro
 			if strings.Count(docker.Image, "/") < 3 && strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
 				errs = append(errs, NewErrInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpipe-io/<team>/<imageName>'").AsWarning())
 			}
+		}
+	}
+
+	if man.Platform.IsActions() {
+		// we only allow eu.gcr.io/halfpipe-io/$TEAM/... in github actions
+		if !strings.HasPrefix(docker.Image, fmt.Sprintf("eu.gcr.io/halfpipe-io/%s/", man.Team)) {
+			errs = append(errs, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(docker.Image))
 		}
 	}
 
