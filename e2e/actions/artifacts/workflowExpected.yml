@@ -85,3 +85,56 @@ jobs:
       with:
         args: -c "cd e2e/actions/artifacts; \ls -l ..; cat foo.txt target/bar.txt ../test.sh"
         entrypoint: /bin/sh
+  c-name-covenant:
+    name: c-name-covenant
+    needs:
+    - test
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: c-name-covenant
+      run: |-
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME"
+        export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
+        run-cdc.sh
+      env:
+        CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: ""
+        DOCKER_COMPOSE_SERVICE: ""
+        GIT_CLONE_OPTIONS: ""
+        PROVIDER_HOST: ""
+        PROVIDER_HOST_KEY: ARTIFACTS_DEPLOYED_HOST
+        PROVIDER_NAME: artifacts
+        USE_COVENANT: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/docker-compose.yml
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+      with:
+        name: artifacts
+        path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/docker-compose.yml e2e/actions/artifacts/tests
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882
+      with:
+        name: artifacts-failure
+        path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
