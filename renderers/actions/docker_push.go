@@ -1,7 +1,6 @@
 package actions
 
 import (
-	"fmt"
 	"path"
 	"strings"
 
@@ -25,7 +24,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		Name: "Build and Push",
 		Uses: "springernature/ee-action-docker-push@v1",
 		With: With{
-			"image":      strings.TrimPrefix(task.Image, fmt.Sprintf("eu.gcr.io/halfpipe-io/%s/", man.Team)),
+			"image":      task.Image,
 			"tags":       strings.Join([]string{"latest", "${{ env.BUILD_VERSION }}", "${{ env.GIT_REVISION }}"}, "\n"),
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"dockerfile": path.Join(a.workingDir, task.DockerfilePath),

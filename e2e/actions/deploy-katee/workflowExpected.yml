@@ -46,7 +46,7 @@ jobs:
           "RUNNING_IN_CI"
         context: e2e/actions/deploy-katee
         dockerfile: e2e/actions/deploy-katee/Dockerfile
-        image: someImage
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         platforms: linux/amd64
         secrets: |
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"

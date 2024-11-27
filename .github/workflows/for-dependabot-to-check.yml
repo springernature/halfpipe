@@ -122,7 +122,7 @@ jobs:
           "RUNNING_IN_CI"
         context: .
         dockerfile: e2e/actions/docker-push/Dockerfile
-        image: blah
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/blah
         platforms: linux/amd64
         secrets: |
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
