@@ -402,7 +402,7 @@ func TestImageLocationActions(t *testing.T) {
 		man := manifest.Manifest{Platform: "actions", Team: "blah"}
 
 		errors := LintDockerPushTask(task, man, fs)
-		assertNotContainsError(t, errors, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(task.Image))
+		assertNotContainsError(t, errors, ErrDockerMustBeHalfpipeRegistry.WithValue(task.Image))
 	})
 
 	t.Run("if actions, errors when not halfpipe gcr + team", func(t *testing.T) {
@@ -410,13 +410,13 @@ func TestImageLocationActions(t *testing.T) {
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 		task := manifest.DockerPush{
-			Image:          "eu.gcr.io/halfpipe-io/different-team/blah",
+			Image:          "blah/different-team/blah",
 			DockerfilePath: "Dockerfile",
 		}
 
 		man := manifest.Manifest{Platform: "actions", Team: "blah"}
 
 		errors := LintDockerPushTask(task, man, fs)
-		assertContainsError(t, errors, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(task.Image))
+		assertContainsError(t, errors, ErrDockerMustBeHalfpipeRegistry.WithValue(task.Image))
 	})
 }

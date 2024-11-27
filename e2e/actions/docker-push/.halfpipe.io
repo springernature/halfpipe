@@ -31,6 +31,7 @@ tasks:
 - type: docker-push
   name: Push with secrets
   image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+  timeout: 40m
   vars:
     A: a
     B: b

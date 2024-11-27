@@ -31,9 +31,9 @@ func LintDockerPushTask(docker manifest.DockerPush, man manifest.Manifest, fs af
 	}
 
 	if man.Platform.IsActions() {
-		// we only allow eu.gcr.io/halfpipe-io/$TEAM/... in github actions
-		if !strings.HasPrefix(docker.Image, fmt.Sprintf("eu.gcr.io/halfpipe-io/%s/", man.Team)) {
-			errs = append(errs, ErrDockerMustBeHalfpipeRegistryAndTeam.WithValue(docker.Image))
+		// we only allow eu.gcr.io/halfpipe-io/... in github actions
+		if !strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
+			errs = append(errs, ErrDockerMustBeHalfpipeRegistry.WithValue(docker.Image))
 		}
 	}
 

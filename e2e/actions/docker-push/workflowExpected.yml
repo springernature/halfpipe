@@ -139,7 +139,7 @@ jobs:
     needs:
     - push_multiple_platforms
     runs-on: ee-runner
-    timeout-minutes: 60
+    timeout-minutes: 40
     steps:
     - name: Vault secrets
       id: secrets
