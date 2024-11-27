@@ -767,6 +767,111 @@ jobs:
     task: deploy-ml-zip
     timeout: 1h
   serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: c-name-covenant
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - deploy-ml-zip
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: ""
+        DOCKER_COMPOSE_SERVICE: ""
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GIT_CLONE_OPTIONS: ""
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        PROVIDER_HOST: ""
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_ARTIFACTS_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-artifacts
+        RUNNING_IN_CI: "true"
+        USE_COVENANT: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e RUNNING_IN_CI"
+          export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
+          run-cdc.sh
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact docker-compose.yml ../../../../artifacts-out-failure/e2e/concourse/artifacts
+            copyArtifact tests ../../../../artifacts-out-failure/e2e/concourse/artifacts
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact . ../../../../artifacts-out/e2e/concourse/artifacts
+        dir: git/e2e/concourse/artifacts
+        path: docker.sh
+    privileged: true
+    task: c-name-covenant
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
 resource_types:
 - check_every: 24h0m0s
   name: gcp-resource
