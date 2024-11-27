@@ -68,3 +68,14 @@ tasks:
   - ml.dev.springer-sbm.com
 
 
+- type: consumer-integration-test
+  name: c-name-covenant
+  consumer: c-consumer
+  consumer_host: c-host
+  script: c-script
+  save_artifacts:
+  - .
+  save_artifacts_on_failure:
+  - docker-compose.yml
+  - tests
+

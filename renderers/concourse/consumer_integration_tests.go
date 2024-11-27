@@ -66,7 +66,9 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"HALFPIPE_CACHE_TEAM":    man.Team,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
-		Timeout: task.GetTimeout(),
+		Timeout:                task.GetTimeout(),
+		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
+		SaveArtifacts:          task.SaveArtifacts,
 	}
 
 	for key, val := range task.Vars {

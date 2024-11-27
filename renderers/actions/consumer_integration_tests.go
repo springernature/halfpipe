@@ -66,7 +66,9 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
-		Timeout: task.GetTimeout(),
+		Timeout:                task.GetTimeout(),
+		SaveArtifacts:          task.SaveArtifacts,
+		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 	}
 
 	for key, val := range task.Vars {
