@@ -390,7 +390,7 @@ func TestSecrets(t *testing.T) {
 }
 
 func TestImageLocationActions(t *testing.T) {
-	t.Run("if actions, image must be halfpipe gcr + team", func(t *testing.T) {
+	t.Run("if actions, image must be halfpipe gcr", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
@@ -405,7 +405,7 @@ func TestImageLocationActions(t *testing.T) {
 		assertNotContainsError(t, errors, ErrDockerMustBeHalfpipeRegistry.WithValue(task.Image))
 	})
 
-	t.Run("if actions, errors when not halfpipe gcr + team", func(t *testing.T) {
+	t.Run("if actions, errors when not halfpipe gcr", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
