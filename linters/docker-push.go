@@ -3,7 +3,6 @@ package linters
 import (
 	"fmt"
 	"os"
-	"regexp"
 	"slices"
 	"strings"
 
@@ -14,26 +13,17 @@ import (
 func LintDockerPushTask(docker manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
 	if docker.Image == "" {
 		errs = append(errs, NewErrMissingField("image"))
-	} else {
-		matched, _ := regexp.Match(`^(.*)/(.*)$`, []byte(docker.Image))
-		if !matched {
-			errs = append(errs, NewErrInvalidField("image", "must be specified as 'user/image' or 'registry/user/image'"))
-		} else {
-			// validate the team in repo directory only for halfpipe-io registry
-			// Taken from dockerLogin(task.Image, task.Username, task.Password)
-			// set registry if not docker hub by counting slashes
-			// docker hub format: repository:tag or user/repository:tag
-			// other registries:  another.registry/user/repository:tag
-			if strings.Count(docker.Image, "/") < 3 && strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
-				errs = append(errs, NewErrInvalidField("image", "recommended to be specified as 'eu.gcr.io/halfpipe-io/<team>/<imageName>'").AsWarning())
-			}
-		}
+	}
+
+	// check team is in path if deploying to halfpipe GCR
+	if strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") && !strings.HasPrefix(docker.Image, fmt.Sprintf("eu.gcr.io/halfpipe-io/%s/", man.Team)) {
+		errs = append(errs, ErrDockerRegistry.WithValue(docker.Image).AsWarning())
 	}
 
 	if man.Platform.IsActions() {
-		// we only allow eu.gcr.io/halfpipe-io/... in github actions
+		// we only allow pushing to halfpipe GCR in github actions
 		if !strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
-			errs = append(errs, ErrDockerMustBeHalfpipeRegistry.WithValue(docker.Image))
+			errs = append(errs, ErrDockerRegistry.WithValue(docker.Image))
 		}
 	}
 

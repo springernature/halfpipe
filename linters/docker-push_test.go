@@ -389,34 +389,51 @@ func TestSecrets(t *testing.T) {
 	})
 }
 
-func TestImageLocationActions(t *testing.T) {
-	t.Run("if actions, image must be halfpipe gcr", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
+func TestRegistry(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
+	t.Run("image is in halfpipe gcr and team directory", func(t *testing.T) {
 		task := manifest.DockerPush{
-			Image:          "eu.gcr.io/halfpipe-io/blah/haha",
+			Image:          "eu.gcr.io/halfpipe-io/teamA/imgA",
 			DockerfilePath: "Dockerfile",
 		}
-
-		man := manifest.Manifest{Platform: "actions", Team: "blah"}
+		man := manifest.Manifest{Platform: "actions", Team: "teamA"}
 
 		errors := LintDockerPushTask(task, man, fs)
-		assertNotContainsError(t, errors, ErrDockerMustBeHalfpipeRegistry.WithValue(task.Image))
+		assertNotContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
 	})
 
-	t.Run("if actions, errors when not halfpipe gcr", func(t *testing.T) {
-		fs := afero.Afero{Fs: afero.NewMemMapFs()}
-		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
+	t.Run("image is not in halfpipe gcr - actions", func(t *testing.T) {
 		task := manifest.DockerPush{
 			Image:          "blah/different-team/blah",
 			DockerfilePath: "Dockerfile",
 		}
-
 		man := manifest.Manifest{Platform: "actions", Team: "blah"}
 
 		errors := LintDockerPushTask(task, man, fs)
-		assertContainsError(t, errors, ErrDockerMustBeHalfpipeRegistry.WithValue(task.Image))
+		assertContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
 	})
+
+	t.Run("image is not in halfpipe gcr - concourse", func(t *testing.T) {
+		task := manifest.DockerPush{
+			Image:          "blah/different-team/blah",
+			DockerfilePath: "Dockerfile",
+		}
+		man := manifest.Manifest{Team: "teamA"}
+
+		errors := LintDockerPushTask(task, man, fs)
+		assertNotContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
+	})
+
+	t.Run("image in halfpipe gcr but not the team directory", func(t *testing.T) {
+		task := manifest.DockerPush{
+			Image:          "eu.gcr.io/halfpipe-io/another-team/imgA",
+			DockerfilePath: "Dockerfile",
+		}
+		man := manifest.Manifest{Team: "teamA"}
+		errors := LintDockerPushTask(task, man, fs)
+		assertContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
+	})
+
 }
