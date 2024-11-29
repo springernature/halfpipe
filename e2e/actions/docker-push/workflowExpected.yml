@@ -87,10 +87,15 @@ jobs:
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
           "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: |-
+        tags: |
           latest
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
   push_multiple_platforms:
     name: Push multiple platforms
     needs:
@@ -130,10 +135,15 @@ jobs:
           "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
           "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
-        tags: |-
+        tags: |
           latest
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
   push_with_secrets:
     name: Push with secrets
     needs:
@@ -181,7 +191,12 @@ jobs:
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
           "C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}"
           "D=d"
-        tags: |-
+        tags: |
           latest
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}

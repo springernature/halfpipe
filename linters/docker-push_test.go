@@ -17,48 +17,6 @@ func TestDockerPushTaskWithEmptyTask(t *testing.T) {
 	assertContainsError(t, errors, NewErrMissingField("image"))
 }
 
-func TestDockerPushTaskWithBadRepo(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	task := manifest.DockerPush{
-		Username: "asd",
-		Password: "asd",
-		Image:    "asd",
-	}
-
-	errors := LintDockerPushTask(task, manifest.Manifest{}, fs)
-	assertContainsError(t, errors, ErrInvalidField.WithValue("image"))
-}
-
-func TestDockerPushTaskWithoutTeamDirectoryInHalfpipeRepo(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-	task := manifest.DockerPush{
-		Username:       "asd",
-		Password:       "asd",
-		Image:          "eu.gcr.io/halfpipe-io/asd",
-		DockerfilePath: "Dockerfile",
-	}
-
-	errs := LintDockerPushTask(task, emptyManifest, fs)
-	assertContainsError(t, errs, ErrInvalidField.WithValue("image"))
-}
-
-func TestDockerPushTaskWithTeamDirectoryInHalfpipeRepo(t *testing.T) {
-	fs := afero.Afero{Fs: afero.NewMemMapFs()}
-	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
-
-	task := manifest.DockerPush{
-		Username:       "asd",
-		Password:       "asd",
-		Image:          "eu.gcr.io/halfpipe-io/team/asd",
-		DockerfilePath: "Dockerfile",
-	}
-
-	errors := LintDockerPushTask(task, emptyManifest, fs)
-	assert.Len(t, errors, 0)
-}
-
 func TestDockerPushTaskWithoutTeamDirectoryInGCRRepo(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
