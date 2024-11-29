@@ -20,12 +20,12 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		buildArgs[k] = v
 	}
 
-	step := Step{
+	push := Step{
 		Name: "Build and Push",
 		Uses: "springernature/ee-action-docker-push@v1",
 		With: With{
 			"image":      task.Image,
-			"tags":       strings.Join([]string{"latest", "${{ env.BUILD_VERSION }}", "${{ env.GIT_REVISION }}"}, "\n"),
+			"tags":       "latest\n${{ env.BUILD_VERSION }}\n${{ env.GIT_REVISION }}\n",
 			"context":    path.Join(a.workingDir, task.BuildPath),
 			"dockerfile": path.Join(a.workingDir, task.DockerfilePath),
 			"buildArgs":  MultiLine{buildArgs},
@@ -34,5 +34,16 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		},
 	}
 
-	return Steps{step}
+	return Steps{push, repositoryDispatch(task.Image)}
+}
+
+func repositoryDispatch(name string) Step {
+	return Step{
+		Name: "Repository dispatch",
+		Uses: "peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0", // v3
+		With: With{
+			"token":      githubSecrets.RepositoryDispatchToken,
+			"event-type": "docker-push:" + name,
+		},
+	}
 }
