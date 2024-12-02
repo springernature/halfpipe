@@ -11,7 +11,7 @@ import (
 
 func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 
-	revision := "${{ env.BUILD_VERSION }}"
+	revision := "2.${{ github.run_number }}.${{ github.run_attempt }}"
 	if task.Tag == "gitref" {
 		revision = "${{ env.GIT_REVISION }}"
 	}
