@@ -14,6 +14,8 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 	revision := "2.${{ github.run_number }}.${{ github.run_attempt }}"
 	if task.Tag == "gitref" {
 		revision = "${{ env.GIT_REVISION }}"
+	} else if task.Tag == "version" {
+		revision = "${{ env.BUILD_VERSION }}"
 	}
 
 	deployKatee := Step{

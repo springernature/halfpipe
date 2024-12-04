@@ -150,7 +150,7 @@ jobs:
         credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
         maxChecks: "4"
         namespace: katee-different-namespace
-        revision: 2.${{ github.run_number }}.${{ github.run_attempt }}
+        revision: ${{ env.BUILD_VERSION }}
         velaFile: e2e/actions/deploy-katee/custom-vela-path.yaml
       env:
         BUILD_VERSION: ${{ env.BUILD_VERSION }}

@@ -9,14 +9,6 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.VelaManifest = defaults.Katee.VelaManifest
 	}
 
-	if original.Tag == "" {
-		if man.Platform.IsActions() || man.FeatureToggles.UpdatePipeline() {
-			updated.Tag = "version"
-		} else {
-			updated.Tag = "gitref"
-		}
-	}
-
 	if original.Namespace == "" {
 		updated.Namespace = "katee-" + man.Team
 	}
