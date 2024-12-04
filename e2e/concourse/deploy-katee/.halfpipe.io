@@ -17,7 +17,6 @@ tasks:
 
   - type: deploy-katee
     name: deploy to katee
-    tag: version
     vela_manifest: vela.yaml
     deployment_check_timeout: 120
     notifications:

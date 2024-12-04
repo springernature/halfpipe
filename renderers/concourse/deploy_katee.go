@@ -26,10 +26,10 @@ func createDeployKateeRunTask(task manifest.DeployKatee) manifest.Run {
 		ManualTrigger: false,
 		Script: `\echo "Running vela up..."
 
-if [ "$DOCKER_TAG" == "gitref" ]
-then
+export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+if [ "$REVISION_FORMAT" == "gitref" ]; then
   export TAG="$GIT_REVISION"
-else
+elif [ "$REVISION_FORMAT" == "version" ]; then
   export TAG="$BUILD_VERSION"
 fi
 
@@ -46,18 +46,13 @@ halfpipe-deploy`,
 			"KATEE_APPFILE":         task.VelaManifest,
 			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
+			"REVISION_FORMAT":       task.Tag,
 		},
 		Retries:         task.Retries,
 		NotifyOnSuccess: task.NotifyOnSuccess,
 		Notifications:   task.Notifications,
 		Timeout:         task.Timeout,
 		BuildHistory:    task.BuildHistory,
-	}
-
-	if task.Tag == "gitref" {
-		run.Vars["DOCKER_TAG"] = "gitref"
-	} else if task.Tag == "version" {
-		run.Vars["DOCKER_TAG"] = "buildVersion"
 	}
 
 	for k, v := range task.Vars {

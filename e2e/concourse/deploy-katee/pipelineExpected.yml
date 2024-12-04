@@ -233,7 +233,6 @@ jobs:
       - name: version
       params:
         CHECK_INTERVAL: "2"
-        DOCKER_TAG: buildVersion
         ENV1: "1234"
         ENV2: ((secret.something))
         ENV3: '{"a": "b", "c": "d"}'
@@ -242,6 +241,7 @@ jobs:
         KATEE_GKE_CREDENTIALS: ((katee-v2-halfpipe-team-service-account-prod.key))
         KATEE_NAMESPACE: katee-halfpipe-team
         MAX_CHECKS: "120"
+        REVISION_FORMAT: ""
         VERY_SECRET: blah
       platform: linux
       run:
@@ -274,10 +274,10 @@ jobs:
 
           \echo "Running vela up..."
 
-          if [ "$DOCKER_TAG" == "gitref" ]
-          then
+          export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+          if [ "$REVISION_FORMAT" == "gitref" ]; then
             export TAG="$GIT_REVISION"
-          else
+          elif [ "$REVISION_FORMAT" == "version" ]; then
             export TAG="$BUILD_VERSION"
           fi
 
@@ -337,7 +337,6 @@ jobs:
       - name: version
       params:
         CHECK_INTERVAL: "3"
-        DOCKER_TAG: buildVersion
         ENV1: "1234"
         ENV2: ((secret.something))
         ENV3: '{"a": "b", "c": "d"}'
@@ -346,6 +345,7 @@ jobs:
         KATEE_GKE_CREDENTIALS: ((katee-v2-different-namespace-service-account-prod.key))
         KATEE_NAMESPACE: katee-different-namespace
         MAX_CHECKS: "4"
+        REVISION_FORMAT: version
         VERY_SECRET: blah
       platform: linux
       run:
@@ -378,10 +378,10 @@ jobs:
 
           \echo "Running vela up..."
 
-          if [ "$DOCKER_TAG" == "gitref" ]
-          then
+          export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+          if [ "$REVISION_FORMAT" == "gitref" ]; then
             export TAG="$GIT_REVISION"
-          else
+          elif [ "$REVISION_FORMAT" == "version" ]; then
             export TAG="$BUILD_VERSION"
           fi
 
