@@ -13,6 +13,7 @@ func LintDeployKateeTask(task manifest.DeployKatee, man manifest.Manifest, fs af
 	}
 
 	if task.Tag != "" {
+		errs = append(errs, NewErrDeprecatedField("tag", "now defaults to a unique id instead of gitref or version").AsWarning())
 		if task.Tag != "version" && task.Tag != "gitref" {
 			errs = append(errs, NewErrInvalidField("tag", "must be either 'version' or 'gitref'"))
 		}

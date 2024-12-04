@@ -11,17 +11,17 @@ func LintNotifications(task manifest.Task) (errs []error) {
 	default:
 		n := task.GetNotifications()
 		if len(n.OnSuccess) > 0 {
-			errs = append(errs, NewDeprecatedField("on_success", notificationReasons).AsWarning())
+			errs = append(errs, NewErrDeprecatedField("on_success", notificationReasons).AsWarning())
 		}
 		if n.OnSuccessMessage != "" {
-			errs = append(errs, NewDeprecatedField("on_success_message", notificationReasons).AsWarning())
+			errs = append(errs, NewErrDeprecatedField("on_success_message", notificationReasons).AsWarning())
 		}
 		if len(n.OnFailure) > 0 {
-			errs = append(errs, NewDeprecatedField("on_failure", notificationReasons).AsWarning())
+			errs = append(errs, NewErrDeprecatedField("on_failure", notificationReasons).AsWarning())
 
 		}
 		if len(n.OnFailureMessage) > 0 {
-			errs = append(errs, NewDeprecatedField("on_failure_message", notificationReasons).AsWarning())
+			errs = append(errs, NewErrDeprecatedField("on_failure_message", notificationReasons).AsWarning())
 		}
 
 		for _, n := range append(n.Failure, n.Success...) {

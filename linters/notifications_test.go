@@ -23,10 +23,10 @@ func TestLintNotifications(t *testing.T) {
 		result := LintNotifications(task)
 
 		assert.Len(t, result, 4)
-		assert.Contains(t, result, NewDeprecatedField("on_success", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewDeprecatedField("on_success_message", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewDeprecatedField("on_failure", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewDeprecatedField("on_failure_message", notificationReasons).AsWarning())
+		assert.Contains(t, result, NewErrDeprecatedField("on_success", notificationReasons).AsWarning())
+		assert.Contains(t, result, NewErrDeprecatedField("on_success_message", notificationReasons).AsWarning())
+		assert.Contains(t, result, NewErrDeprecatedField("on_failure", notificationReasons).AsWarning())
+		assert.Contains(t, result, NewErrDeprecatedField("on_failure_message", notificationReasons).AsWarning())
 	})
 
 	t.Run("does nothing for sequence or parallel", func(t *testing.T) {
