@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"strings"
 )
 
 func (a *Actions) triggers(man manifest.Manifest) (on On) {
@@ -26,16 +27,16 @@ func (a *Actions) onPush(git manifest.GitTrigger, pipelineName string) (push Pus
 	push.Branches = Branches{git.Branch}
 
 	for _, p := range git.WatchedPaths {
-		path := fmt.Sprintf("%s**", p)
-		var found bool
-		for _, pp := range push.Paths {
-			if pp == path {
-				found = true
-			}
+
+		var path string
+		if strings.HasSuffix(p, "*") {
+			path = p
+		} else {
+			path = fmt.Sprintf("%s**", p)
 		}
-		if !found {
-			push.Paths = append(push.Paths, p+"**")
-		}
+
+		push.Paths = append(push.Paths, path)
+
 	}
 
 	if len(push.Paths) > 0 {

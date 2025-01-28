@@ -5,7 +5,8 @@ name: pipeline-name
     branches:
     - main
     paths:
-    - go.*
+    - e2e/actions/watched-paths/main.*
+    - e2e/actions/watched-paths/build-project.sh**
     - .github/workflows/pipeline-name.yml
   workflow_dispatch: {}
 env:

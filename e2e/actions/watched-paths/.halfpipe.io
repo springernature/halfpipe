@@ -5,8 +5,8 @@ platform: actions
 triggers:
 - type: git
   watched_paths:
-  - go.*
-  - build.sh
+  - e2e/actions/watched-paths/main.*
+  - e2e/actions/watched-paths/build-project.sh
 
 tasks:
 - type: run
