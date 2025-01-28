@@ -1,0 +1,41 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/watched-paths/.halfpipe.io for team halfpipe-team
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - go.*
+    - .github/workflows/pipeline-name.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/watched-paths
+concurrency: ${{ github.workflow }}
+jobs:
+  build:
+    name: build
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: build
+      uses: docker://foo
+      with:
+        args: -c "cd e2e/actions/watched-paths; \build"
+        entrypoint: /bin/sh
