@@ -312,4 +312,13 @@ applications:
 		assertNotContainsError(t, errs, ErrCFLabelProductIsMissing)
 		assertNotContainsError(t, errs, ErrCFLabelEnvironmentIsMissing)
 	})
+
+	t.Run("Warning for stack cflinuxfs3", func(t *testing.T) {
+		cfManifest := `
+applications:
+- stack: cflinuxfs3
+`
+		errs := LintCfManifest(manifest.DeployCF{Space: "Yo"}, cfManifestReader(cfManifest, nil))
+		assertContainsError(t, errs, ErrCFStack)
+	})
 }

@@ -38,6 +38,10 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 		errs = append(errs, ErrCFMissingName.WithFile(task.Manifest))
 	}
 
+	if app.Stack == "cflinuxfs3" {
+		errs = append(errs, ErrCFStack.WithFile(task.Manifest))
+	}
+
 	errs = append(errs, lintRoutes(task, app)...)
 	errs = append(errs, lintCandidateAppRoute(task, cfManifest)...)
 	errs = append(errs, lintDockerPush(task, app)...)
