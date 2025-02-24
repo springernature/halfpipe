@@ -3,7 +3,7 @@ set -euo pipefail
 
 go version | grep -q 'go1.24' || (
     go version
-    echo error: go1.23 required
+    echo error: go1.24 required
     exit 1
 )
 
