@@ -60,7 +60,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
@@ -123,7 +123,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
@@ -186,7 +186,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
@@ -353,7 +353,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
@@ -407,7 +407,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
@@ -478,7 +478,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@d1720f055e0635fd932a1d2a48f87a666a57906c
+      uses: hashicorp/vault-action@a1b77a09293a4366e48a5067a86692ac6e94fdc0
       with:
         exportEnv: false
         method: approle
