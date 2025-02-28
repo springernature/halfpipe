@@ -32,7 +32,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -90,7 +90,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -139,7 +139,7 @@ jobs:
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
@@ -181,7 +181,7 @@ jobs:
       run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
         channel-id: '#halfpipe-dev'
         slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
