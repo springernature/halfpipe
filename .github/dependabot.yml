@@ -1,5 +1,12 @@
 version: 2
 
+registries:
+  github:
+    type: git
+    url: https://github.com/
+    username: x-access-token
+    password: ${{ secrets.HALFPIPE_REPOS_READ_PAT }} # saved as a dependabot secret
+
 updates:
 - package-ecosystem: gomod
   directory: /
