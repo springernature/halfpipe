@@ -34,7 +34,7 @@ applications:
 	dockerManifest := `---
 applications:
 - name: wryy
-  docker: 
+  docker:
     image: nginx
 `
 	cfWithNormalPush := manifest.DeployCF{
@@ -42,9 +42,6 @@ applications:
 	}
 	cfWithDockerPush := manifest.DeployCF{
 		Manifest: dockerManifestPath,
-	}
-	cfWithGeneratedManifest := manifest.DeployCF{
-		Manifest: "../../manifest.yml",
 	}
 
 	fs := afero.Afero{Fs: afero.NewOsFs()}
@@ -58,7 +55,6 @@ applications:
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{
 		cfWithNormalPush,
 		cfWithDockerPush,
-		cfWithGeneratedManifest,
 	}})
 
 	assert.NoError(t, err)
@@ -67,8 +63,6 @@ applications:
 
 	assert.True(t, updated.Tasks[1].(manifest.DeployCF).IsDockerPush)
 	assert.Equal(t, updated.Tasks[1].(manifest.DeployCF).CfApplication.Name, "wryy")
-
-	assert.False(t, updated.Tasks[2].(manifest.DeployCF).IsDockerPush)
 }
 
 func TestMapsTasksForSeqAndParallel(t *testing.T) {
@@ -82,7 +76,7 @@ applications:
 	dockerManifest := `---
 applications:
 - name: wryy
-  docker: 
+  docker:
     image: nginx
 `
 	cfWithNormalPush := manifest.DeployCF{
@@ -90,9 +84,6 @@ applications:
 	}
 	cfWithDockerPush := manifest.DeployCF{
 		Manifest: dockerManifestPath,
-	}
-	cfWithGeneratedManifest := manifest.DeployCF{
-		Manifest: "../../manifest.yml",
 	}
 
 	fs := afero.Afero{Fs: afero.NewOsFs()}
@@ -106,24 +97,20 @@ applications:
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{
 		cfWithNormalPush,
 		cfWithDockerPush,
-		cfWithGeneratedManifest,
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				cfWithNormalPush,
 				cfWithDockerPush,
-				cfWithGeneratedManifest,
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
 						cfWithNormalPush,
 						cfWithDockerPush,
-						cfWithGeneratedManifest,
 					},
 				},
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
 						cfWithNormalPush,
 						cfWithDockerPush,
-						cfWithGeneratedManifest,
 					},
 				},
 			},
@@ -134,17 +121,11 @@ applications:
 
 	assert.False(t, updated.Tasks[0].(manifest.DeployCF).IsDockerPush)
 	assert.True(t, updated.Tasks[1].(manifest.DeployCF).IsDockerPush)
-	assert.False(t, updated.Tasks[2].(manifest.DeployCF).IsDockerPush)
 
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[0].(manifest.DeployCF).IsDockerPush)
-	assert.True(t, updated.Tasks[3].(manifest.Parallel).Tasks[1].(manifest.DeployCF).IsDockerPush)
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[2].(manifest.DeployCF).IsDockerPush)
+	assert.False(t, updated.Tasks[2].(manifest.Parallel).Tasks[0].(manifest.DeployCF).IsDockerPush)
+	assert.True(t, updated.Tasks[2].(manifest.Parallel).Tasks[1].(manifest.DeployCF).IsDockerPush)
 
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[3].(manifest.Sequence).Tasks[0].(manifest.DeployCF).IsDockerPush)
-	assert.True(t, updated.Tasks[3].(manifest.Parallel).Tasks[3].(manifest.Sequence).Tasks[1].(manifest.DeployCF).IsDockerPush)
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[3].(manifest.Sequence).Tasks[2].(manifest.DeployCF).IsDockerPush)
+	assert.False(t, updated.Tasks[2].(manifest.Parallel).Tasks[3].(manifest.Sequence).Tasks[0].(manifest.DeployCF).IsDockerPush)
+	assert.True(t, updated.Tasks[2].(manifest.Parallel).Tasks[3].(manifest.Sequence).Tasks[1].(manifest.DeployCF).IsDockerPush)
 
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[4].(manifest.Sequence).Tasks[0].(manifest.DeployCF).IsDockerPush)
-	assert.True(t, updated.Tasks[3].(manifest.Parallel).Tasks[4].(manifest.Sequence).Tasks[1].(manifest.DeployCF).IsDockerPush)
-	assert.False(t, updated.Tasks[3].(manifest.Parallel).Tasks[4].(manifest.Sequence).Tasks[2].(manifest.DeployCF).IsDockerPush)
 }

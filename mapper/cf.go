@@ -3,7 +3,6 @@ package mapper
 import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
 
 type cf struct {
@@ -54,9 +53,6 @@ func (c cf) updateTasks(tasks manifest.TaskList) (updated manifest.TaskList, err
 
 func (c cf) mapCf(cf manifest.DeployCF) (updated manifest.DeployCF, err error) {
 	updated = cf
-	if strings.HasPrefix(cf.Manifest, "../") {
-		return
-	}
 
 	cfManifest, err := manifestparser.ManifestParser{}.InterpolateAndParse(cf.Manifest, nil, nil)
 	if err != nil {
