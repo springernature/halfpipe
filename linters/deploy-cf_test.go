@@ -42,7 +42,7 @@ func TestCFDeployTaskWithEmptyTestDomain(t *testing.T) {
 		Org:        "Something",
 		Space:      "Something",
 		Manifest:   "manifest.yml",
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 	}
 
 	errors := LintDeployCFTask(task, validCfManifest(), fs)
@@ -62,7 +62,7 @@ func TestCfCliVersion(t *testing.T) {
 
 	t.Run("valid", func(t *testing.T) {
 		task := manifest.DeployCF{
-			CliVersion: "cf6",
+			CliVersion: "cf8",
 		}
 
 		errors := LintDeployCFTask(task, validCfManifest(), fs)
@@ -92,7 +92,7 @@ func TestCFDeployTaskWithManifestFromArtifacts(t *testing.T) {
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "test.domain",
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 	}
 
 	errs := LintDeployCFTask(task, validCfManifest(), fs)
@@ -110,7 +110,7 @@ func TestCFDeployTaskWithManifestFromArtifactsAndPrePromoteShouldError(t *testin
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "test.domain",
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 		PrePromote: []manifest.Task{
 			manifest.Run{},
 		},
@@ -151,7 +151,7 @@ func TestSubTasksDoesntDefineNotifications(t *testing.T) {
 			manifest.Run{},
 			manifest.Run{Notifications: manifest.Notifications{Failure: manifest.NotificationChannels{{Slack: "Moohp"}}}},
 		},
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 	}
 
 	errors := LintDeployCFTask(task, validCfManifest(), fs)
@@ -170,7 +170,7 @@ func TestCFDeployTaskWithRollingAndPreStart(t *testing.T) {
 		Manifest:   "manifest.yml",
 		TestDomain: "foo",
 		Rolling:    true,
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 		PreStart:   []string{"cf logs"},
 	}
 
@@ -225,7 +225,7 @@ applications:
 			Space:      "Something",
 			Manifest:   "manifest.yml",
 			TestDomain: "foo",
-			CliVersion: "cf6",
+			CliVersion: "cf8",
 		}
 
 		tagError := ErrInvalidField.WithValue("docker_tag")
@@ -267,7 +267,7 @@ applications:
 		Space:      "space",
 		Org:        "org",
 		TestDomain: "foo",
-		CliVersion: "cf6",
+		CliVersion: "cf8",
 	}
 
 	t.Run("valid", func(t *testing.T) {

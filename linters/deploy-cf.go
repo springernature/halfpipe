@@ -76,8 +76,8 @@ func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, 
 
 	}
 
-	if task.CliVersion != "cf6" && task.CliVersion != "cf7" && task.CliVersion != "cf8" {
-		errs = append(errs, NewErrInvalidField("cli_version", "must be either 'cf6', 'cf7' or 'cf8'"))
+	if task.CliVersion != "cf7" && task.CliVersion != "cf8" {
+		errs = append(errs, NewErrInvalidField("cli_version", "must be either 'cf7' or 'cf8'"))
 	}
 
 	if task.SSORoute != "" {
