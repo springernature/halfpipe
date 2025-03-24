@@ -110,12 +110,13 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
-        channel-id: '#ee-re'
-        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+        method: chat.postMessage
+        payload: |-
+          channel: "#ee-re"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
   deploy_to_katee_different_team:
     name: deploy to katee different team
     needs:
@@ -162,9 +163,10 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
       with:
-        channel-id: '#ee-re'
-        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
+        method: chat.postMessage
+        payload: |-
+          channel: "#ee-re"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}

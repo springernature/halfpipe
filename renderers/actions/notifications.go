@@ -3,6 +3,7 @@ package actions
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"strings"
 )
 
 func notify(notifications manifest.Notifications) (steps Steps) {
@@ -28,17 +29,23 @@ func notify(notifications manifest.Notifications) (steps Steps) {
 
 func notifySlack(channel string, msg string, success bool) Step {
 	if msg == "" {
-		msg = "${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+		if success {
+			msg = "✅ "
+		} else {
+			msg = "❌ "
+		}
+		msg += "workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
 	}
 
 	step := Step{
 		Name: "Notify slack " + channel,
-		Uses: "slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0", //v1.27
+		Uses: "slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d", //v2.0.0
 		With: With{
-			"channel-id":    channel,
-			"slack-message": msg,
+			"method": "chat.postMessage",
+			"token":  githubSecrets.SlackToken,
+			"payload": fmt.Sprintf(`channel: "%s"
+text: "%s"`, channel, strings.ReplaceAll(msg, `"`, `\"`)),
 		},
-		Env: Env{"SLACK_BOT_TOKEN": githubSecrets.SlackToken},
 	}
 
 	if success {

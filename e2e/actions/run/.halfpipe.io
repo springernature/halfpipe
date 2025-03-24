@@ -1,7 +1,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
 platform: actions
-slack_channel: "#test"
 
 tasks:
 - type: run

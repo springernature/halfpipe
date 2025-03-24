@@ -59,14 +59,6 @@ jobs:
         SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
         SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
         SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
-    - name: 'Notify slack #test (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
-      with:
-        channel-id: '#test'
-        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
   run__bash_-c__echo_hello_:
     name: run \bash -c "echo hello"
     needs:
@@ -92,11 +84,3 @@ jobs:
       with:
         args: -c "cd e2e/actions/run; \bash -c \"echo hello\""
         entrypoint: /bin/sh
-    - name: 'Notify slack #test (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@37ebaef184d7626c5f204ab8d3baff4262dd30f0
-      with:
-        channel-id: '#test'
-        slack-message: '${{ job.status }} for pipeline ${{ github.workflow }} - link to the pipeline: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}'
-      env:
-        SLACK_BOT_TOKEN: ${{ secrets.EE_SLACK_TOKEN }}
