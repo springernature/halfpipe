@@ -46,6 +46,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: c-name
+      id: c-name
       run: |-
         export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
@@ -93,6 +94,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: c-name-covenant
+      id: c-name-covenant
       run: |-
         export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"

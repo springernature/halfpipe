@@ -32,6 +32,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: my run task
+      id: my-run-task
       uses: docker://foo
       with:
         args: -c "cd e2e/actions/notifications; \foo"

@@ -73,6 +73,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: run \echo hello
+      id: run-echo-hello
       uses: docker://alpine
       with:
         args: -c "cd e2e/actions/feature-update-pipeline; \echo hello"

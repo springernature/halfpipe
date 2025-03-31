@@ -9,6 +9,7 @@ import (
 func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	run := Step{
 		Name: task.GetName(),
+		ID:   normaliseForID(task.GetName()),
 		Env:  Env(task.Vars),
 	}
 
@@ -40,4 +41,20 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure)...)
 	}
 	return steps
+}
+
+func normaliseForID(name string) string {
+	r := strings.NewReplacer(
+		" ", "-",
+		"_", "-",
+		",", "-",
+		".", "-",
+		"/", "-",
+		"\\", "-",
+		"\"", "-",
+		"(", "-",
+		")", "-",
+	)
+	before, _ := strings.CutSuffix(strings.ReplaceAll(r.Replace(strings.ToLower(name)), "--", "-"), "-")
+	return before
 }

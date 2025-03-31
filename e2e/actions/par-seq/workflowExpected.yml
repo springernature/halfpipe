@@ -32,6 +32,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 1
+      id: task-1
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -51,6 +52,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 2
+      id: task-2
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -70,6 +72,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 3
+      id: task-3
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -89,6 +92,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 4.1
+      id: task-4-1
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -108,6 +112,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 4.2
+      id: task-4-2
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -127,6 +132,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 4.3.1
+      id: task-4-3-1
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -146,6 +152,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 4.3.2
+      id: task-4-3-2
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"
@@ -167,6 +174,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: task 5
+      id: task-5
       uses: docker://alpine:latest
       with:
         args: -c "cd e2e/actions/par-seq; \date"

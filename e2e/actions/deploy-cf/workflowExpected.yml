@@ -35,6 +35,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: make binary
+      id: make-binary
       uses: docker://ubuntu
       with:
         args: -c "cd e2e/actions/deploy-cf; \echo foo > foo.html"
@@ -262,6 +263,7 @@ jobs:
         testDomain: springernature.app
         username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
     - name: run smoke-test.sh
+      id: run-smoke-test-sh
       uses: docker://alpine
       with:
         args: -c "cd e2e/actions/deploy-cf; ./smoke-test.sh"
@@ -270,6 +272,7 @@ jobs:
         ENV5: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_some_secret }}
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
     - name: docker-compose
+      id: docker-compose
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -293,6 +296,7 @@ jobs:
       if: always()
       run: docker-compose -f docker-compose.yml down
     - name: CDCs
+      id: cdcs
       run: |-
         export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e TEST_ROUTE"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"

@@ -35,6 +35,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: build
+      id: build
       uses: docker://foo
       with:
         args: -c "cd e2e/actions/docker-push; \build"
