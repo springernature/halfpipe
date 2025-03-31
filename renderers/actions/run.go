@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/gosimple/slug"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
 )
@@ -9,7 +10,7 @@ import (
 func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	run := Step{
 		Name: task.GetName(),
-		ID:   normaliseForID(task.GetName()),
+		ID:   slug.Make(task.GetName()),
 		Env:  Env(task.Vars),
 	}
 
@@ -41,20 +42,4 @@ func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 		steps = append(steps, a.saveArtifactsOnFailure(task.SaveArtifactsOnFailure)...)
 	}
 	return steps
-}
-
-func normaliseForID(name string) string {
-	r := strings.NewReplacer(
-		" ", "-",
-		"_", "-",
-		",", "-",
-		".", "-",
-		"/", "-",
-		"\\", "-",
-		"\"", "-",
-		"(", "-",
-		")", "-",
-	)
-	before, _ := strings.CutSuffix(strings.ReplaceAll(r.Replace(strings.ToLower(name)), "--", "-"), "-")
-	return before
 }

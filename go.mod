@@ -28,6 +28,7 @@ require (
 
 require (
 	github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb
+	github.com/gosimple/slug v1.15.0
 	github.com/sirupsen/logrus v1.9.3
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -39,6 +40,7 @@ require (
 	github.com/charlievieth/fs v0.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
+	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jessevdk/go-flags v1.6.1 // indirect
