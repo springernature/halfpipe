@@ -41,7 +41,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/target/xquery.zip
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
         name: artifacts
         path: /tmp/halfpipe-artifacts.tar
