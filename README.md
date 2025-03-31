@@ -55,4 +55,4 @@ dependabot will raise PRs but these are just informational, we have to manually 
 
 # Releasing
 
-Releasing is triggered by manually bumping the version (major, minor or patch) in Concourse. Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A [GitHub release](https://github.com/springernature/halfpipe/releases) is also created.
+Releasing is triggered by manually [bumping the version (major, minor or patch) in Concourse](https://concourse.halfpipe.io/teams/engineering-enablement/pipelines/halfpipe-cli). Binaries are built for different platforms and published to artifactory. The halfpipe cli checks artifactory for a newer release and updates itself. A [GitHub release](https://github.com/springernature/halfpipe/releases) is also created.
