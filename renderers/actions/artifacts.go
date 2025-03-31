@@ -45,7 +45,7 @@ func (a *Actions) restoreArtifacts() Steps {
 	return Steps{
 		{
 			Name: "Download artifacts",
-			Uses: "actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16",
+			Uses: "actions/download-artifact@95815c38cf2ff2164869cbab79da8d1f422bc89e",
 			With: With{
 				"name": "artifacts",
 			},
