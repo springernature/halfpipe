@@ -32,6 +32,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: test
+      id: test
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -104,6 +105,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: custom
+      id: custom
       run: |-
         docker-compose \
           -f custom-docker-compose.yml \
@@ -146,6 +148,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: multiple-compose-files
+      id: multiple-compose-files
       run: |-
         docker-compose \
           -f docker-compose.yml \

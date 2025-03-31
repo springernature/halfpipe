@@ -77,6 +77,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: A1
+      id: a1
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -112,6 +113,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: A2
+      id: a2
       run: |-
         docker-compose \
           -f docker-compose.yml \
@@ -147,6 +149,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: B
+      id: b
       run: |-
         docker-compose \
           -f docker-compose.yml \

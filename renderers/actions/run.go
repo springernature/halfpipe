@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"github.com/gosimple/slug"
 	"github.com/springernature/halfpipe/manifest"
 	"strings"
 )
@@ -9,6 +10,7 @@ import (
 func (a *Actions) runSteps(task manifest.Run) (steps Steps) {
 	run := Step{
 		Name: task.GetName(),
+		ID:   slug.Make(task.GetName()),
 		Env:  Env(task.Vars),
 	}
 

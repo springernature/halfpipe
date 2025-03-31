@@ -48,6 +48,7 @@ jobs:
       env:
         GIT_CRYPT_KEY: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_foo_bar }}
     - name: run \date
+      id: run-date
       uses: docker://alpine
       with:
         args: -c "cd e2e/actions/trigger-git-options; \date"
@@ -85,6 +86,7 @@ jobs:
       env:
         GIT_CRYPT_KEY: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_foo_bar }}
     - name: run \date (1)
+      id: run-date-1
       uses: docker://alpine
       with:
         args: -c "cd e2e/actions/trigger-git-options; \date"
