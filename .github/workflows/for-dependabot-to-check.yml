@@ -26,6 +26,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: run \exit 1
+      id: run-exit-1
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
       with:
         args: -c "cd .; \exit 1"
@@ -70,6 +71,7 @@ jobs:
       run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
       working-directory: ${{ github.workspace }}
     - name: run \exit 1 (1)
+      id: run-exit-1-1
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
       with:
         args: -c "cd .; \exit 1"
@@ -207,6 +209,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: docker-compose
+      id: docker-compose
       run: |-
         docker-compose \
           -f e2e/actions/docker-compose/docker-compose.yml \
