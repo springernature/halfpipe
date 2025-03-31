@@ -30,6 +30,50 @@ jobs:
       with:
         args: -c "cd .; \exit 1"
         entrypoint: /bin/sh
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts.tar artifact.zip
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08
+      with:
+        name: artifacts
+        path: /tmp/halfpipe-artifacts.tar
+        retention-days: 2
+    - name: 'Notify slack #halfpipe-dev (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#halfpipe-dev"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+  run__exit_1__1_:
+    name: run \exit 1 (1)
+    needs:
+    - run__exit_1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@fa0a91b85d4f404e444e00e005971372dc801d16
+      with:
+        name: artifacts
+    - name: Extract artifacts
+      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      working-directory: ${{ github.workspace }}
+    - name: run \exit 1 (1)
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
+      with:
+        args: -c "cd .; \exit 1"
+        entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
       uses: slackapi/slack-github-action@485a9d42d3a73031f12ec201c457e2162c45d02d
@@ -42,7 +86,7 @@ jobs:
   deploy-cf:
     name: deploy-cf
     needs:
-    - run__exit_1
+    - run__exit_1__1_
     runs-on: ee-runner
     timeout-minutes: 60
     steps:

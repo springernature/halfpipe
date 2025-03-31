@@ -15,6 +15,14 @@ tasks:
   script: \exit 1
   docker:
     image: eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
+  save_artifacts:
+  - artifact.zip
+
+- type: run
+  script: \exit 1
+  docker:
+    image: eu.gcr.io/halfpipe-io/halfpipe-team/blah:nonexistent
+  restore_artifacts: true
 
 - type: deploy-cf
   api: ((cloudfoundry.api-snpaas))
