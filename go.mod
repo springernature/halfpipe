@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
-	github.com/cloudfoundry/bosh-utils v0.0.538 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.542 // indirect
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/gookit/color v1.5.4
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
@@ -52,10 +52,10 @@ require (
 	github.com/spf13/pflag v1.0.6 // indirect
 	github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/crypto v0.37.0 // indirect
+	golang.org/x/crypto v0.38.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
-	golang.org/x/net v0.39.0 // indirect
-	golang.org/x/sys v0.32.0 // indirect
-	golang.org/x/text v0.24.0 // indirect
+	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/sys v0.33.0 // indirect
+	golang.org/x/text v0.25.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
