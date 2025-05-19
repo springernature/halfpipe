@@ -343,6 +343,9 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 	case manifest.DockerPush:
 		job = c.dockerPushJob(task, basePath, man)
 
+	case manifest.Pack:
+		job = c.PackJob(task, basePath, man)
+
 	case manifest.ConsumerIntegrationTest:
 		runTask := convertConsumerIntegrationTestToRunTask(task, man)
 		job = c.runJob(runTask, man, true, basePath)
