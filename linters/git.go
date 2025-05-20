@@ -66,7 +66,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 	}
 
 	if currentBranch, err := branchResolver(); err != nil {
-		errs = append(errs, err)
+		errs = append(errs, NewErrExternal(err).AsWarning())
 	} else {
 
 		if config.CheckBranch == "true" && platform.IsConcourse() {
@@ -82,7 +82,7 @@ func LintGitTrigger(git manifest.GitTrigger, fs afero.Afero, workingDir string, 
 	}
 
 	if resolvedRepoURI, err := repoURIResolver(); err != nil {
-		errs = append(errs, err)
+		errs = append(errs, NewErrExternal(err).AsWarning())
 	} else {
 		if resolvedRepoURI != git.URI && platform.IsConcourse() {
 			errs = append(errs, NewErrInvalidField("uri", "must be uri of the repo that you execute halfpipe in").AsWarning())

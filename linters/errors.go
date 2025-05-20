@@ -6,6 +6,9 @@ import (
 )
 
 var (
+	ErrExternal    = newError("external error")
+	NewErrExternal = func(err error) Error { return ErrExternal.WithValue(err.Error()) }
+
 	ErrMissingField    = newError("required field missing")
 	NewErrMissingField = func(field string) Error { return ErrMissingField.WithValue(field) }
 

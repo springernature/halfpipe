@@ -2,6 +2,7 @@ package project
 
 import (
 	"bytes"
+	"github.com/pkg/errors"
 	"io"
 	"os/exec"
 	"strings"
@@ -41,13 +42,14 @@ func gitIsOnPath() error {
 
 func runGitBranch() (output []string, err error) {
 	var stdout bytes.Buffer
+	var stderr bytes.Buffer
 	cmd := exec.Command("git", "branch")
 	cmd.Stdout = &stdout
-	cmd.Stderr = io.Discard
+	cmd.Stderr = &stderr
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
-		return output, err
+		return output, errors.Wrap(runErr, "error running command 'git branch' "+stderr.String())
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")
@@ -57,13 +59,14 @@ func runGitBranch() (output []string, err error) {
 
 func runGitRevParse() (output []string, err error) {
 	var stdout bytes.Buffer
+	var stderr bytes.Buffer
 	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD") // nolint
 	cmd.Stdout = &stdout
-	cmd.Stderr = io.Discard
+	cmd.Stderr = &stderr
 
 	if runErr := cmd.Run(); runErr != nil {
 		err = runErr
-		return output, err
+		return output, errors.Wrap(runErr, "error running command 'git rev-parse --abbrev-ref HEAD' "+stderr.String())
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")

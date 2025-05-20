@@ -220,7 +220,7 @@ func TestBranch(t *testing.T) {
 			return "", expectedError
 		}, defaultRepoURIResolver(trigger.URI), manifest.Platform("concourse"))
 
-		assert.Contains(t, errs, expectedError)
+		assert.Contains(t, errs, NewErrExternal(expectedError).AsWarning())
 	})
 }
 
@@ -251,6 +251,6 @@ func TestRepoResolver(t *testing.T) {
 			return "", expectedError
 		}, manifest.Platform("concourse"))
 
-		assert.Equal(t, errs[0], expectedError)
+		assert.Equal(t, errs[0], NewErrExternal(expectedError).AsWarning())
 	})
 }
