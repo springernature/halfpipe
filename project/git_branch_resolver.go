@@ -2,7 +2,7 @@ package project
 
 import (
 	"bytes"
-	"github.com/pkg/errors"
+	"fmt"
 	"io"
 	"os/exec"
 	"strings"
@@ -48,8 +48,7 @@ func runGitBranch() (output []string, err error) {
 	cmd.Stderr = &stderr
 
 	if runErr := cmd.Run(); runErr != nil {
-		err = runErr
-		return output, errors.Wrap(runErr, "error running command 'git branch' "+stderr.String())
+		return output, fmt.Errorf("error running command '%s' %s", cmd.String(), stderr.String())
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")
@@ -65,8 +64,7 @@ func runGitRevParse() (output []string, err error) {
 	cmd.Stderr = &stderr
 
 	if runErr := cmd.Run(); runErr != nil {
-		err = runErr
-		return output, errors.Wrap(runErr, "error running command 'git rev-parse --abbrev-ref HEAD' "+stderr.String())
+		return output, fmt.Errorf("error running command '%s' %s", cmd.String(), stderr.String())
 	}
 
 	output = strings.Split(strings.TrimSpace(stdout.String()), "\n")
