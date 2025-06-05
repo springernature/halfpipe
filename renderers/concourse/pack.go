@@ -32,7 +32,7 @@ func (c Concourse) PackJob(task manifest.Pack, basePath string, man manifest.Man
 		taskEnv[key] = value
 	}
 
-	taskEnv["DOCKER_CONFIG_JSON"] = "((halfpipe-gcr.private_key))"
+	taskEnv["DOCKER_CONFIG_JSON"] = "((halfpipe-gcr.docker_config))"
 
 	var caches []atc.TaskCacheConfig
 	for _, dir := range config.CacheDirs {
@@ -40,7 +40,8 @@ func (c Concourse) PackJob(task manifest.Pack, basePath string, man manifest.Man
 	}
 
 	packStep := &atc.TaskStep{
-		Name: restrictAllowedCharacterSet(task.GetName()),
+		Name:       restrictAllowedCharacterSet(task.GetName()),
+		Privileged: true,
 		Config: &atc.TaskConfig{
 			Platform: "linux",
 			Params:   taskEnv,

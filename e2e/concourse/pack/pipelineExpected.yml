@@ -1,0 +1,58 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/concourse/pack/.halfpipe.io for team halfpipe-team
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: create-docker-image
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-buildx-pack
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          export GIT_REVISION=`cat ../../../.git/ref`
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
+          --path build/libs \
+          --builder paketobuildpacks/builder-jammy-base \
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0
+
+          docker tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact eu.gcr.io/halfpipe-io/halfpipe-team/eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
+          docker push eu.gcr.io/halfpipe-io/halfpipe-team/eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
+        dir: git/e2e/concourse/pack
+        path: docker.sh
+    privileged: true
+    task: create-docker-image
+    timeout: 1h
+  serial: true
+resources:
+- check_every: 10m0s
+  name: git
+  source:
+    branch: main
+    paths:
+    - e2e/concourse/pack
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
