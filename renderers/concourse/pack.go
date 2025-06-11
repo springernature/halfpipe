@@ -69,6 +69,7 @@ func (c Concourse) PackJob(task manifest.Pack, basePath string, man manifest.Man
 
 func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) []string {
 	var out []string
+	var versionTag string
 
 	if task.RestoreArtifacts {
 		out = append(out, `# Copying in artifacts from previous task`)
@@ -83,6 +84,8 @@ func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) 
 		out = append(out,
 			fmt.Sprintf("export BUILD_VERSION=`cat %s`", pathToVersionFile(gitDir, basePath)),
 		)
+
+		versionTag = fmt.Sprintf("--tag %s:${BUILD_VERSION} ", task.ImageName)
 	}
 
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
@@ -90,11 +93,10 @@ func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) 
 	command := fmt.Sprintf(`pack build %s \
 --path %s \
 --builder paketobuildpacks/builder-jammy-base \
---buildpack %s
-
-docker tag %s eu.gcr.io/halfpipe-io/%s/%s
-docker push eu.gcr.io/halfpipe-io/%s/%s
-`, task.ImageName, task.Path, task.Buildpack, task.ImageName, man.Team, task.ImageName, man.Team, task.ImageName)
+--buildpack %s \
+--tag %s:${GIT_REVISION} %s \
+--publish
+`, task.ImageName, task.Path, task.Buildpack, task.ImageName, versionTag)
 
 	out = append(out, command)
 

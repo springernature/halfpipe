@@ -2,12 +2,64 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: create-docker-image
+  name: update
   plan:
   - attempts: 2
     get: git
     timeout: 15m
     trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((concourse.password))
+        CONCOURSE_TEAM: ((concourse.team))
+        CONCOURSE_URL: ((concourse.url))
+        CONCOURSE_USERNAME: ((concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: halfpipe-e2e-pact
+      platform: linux
+      run:
+        dir: git/e2e/concourse/pack
+        path: update-pipeline
+    task: update
+    timeout: 15m
+  - attempts: 2
+    no_get: true
+    params:
+      bump: minor
+    put: version
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: create-docker-image
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 15m
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -24,6 +76,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       params:
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
       platform: linux
@@ -32,14 +85,14 @@ jobs:
         - -c
         - |
           export GIT_REVISION=`cat ../../../.git/ref`
+          export BUILD_VERSION=`cat ../../../../version/version`
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path build/libs \
           --builder paketobuildpacks/builder-jammy-base \
-          --buildpack gcr.io/paketo-buildpacks/java:18.5.0
-
-          docker tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact eu.gcr.io/halfpipe-io/halfpipe-team/eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
-          docker push eu.gcr.io/halfpipe-io/halfpipe-team/eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
+          --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION} --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${BUILD_VERSION}  \
+          --publish
         dir: git/e2e/concourse/pack
         path: docker.sh
     privileged: true
@@ -56,3 +109,11 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
+- check_every: 24h0m0s
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-pact
+  type: semver
