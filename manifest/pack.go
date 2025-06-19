@@ -2,7 +2,7 @@ package manifest
 
 type Pack struct {
 	Type             string        `json:"type,omitempty" yaml:"type,omitempty"`
-	Buildpack        string        `json:"buildpack" yaml:"buildpack"`
+	Buildpacks       string        `json:"buildpacks" yaml:"buildpacks"`
 	Path             string        `json:"path" yaml:"path"`
 	Image            string        `json:"image,omitempty" yaml:"image,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`

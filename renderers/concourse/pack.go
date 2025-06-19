@@ -96,7 +96,7 @@ func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) 
 --buildpack %s \
 --tag %s:${GIT_REVISION} %s \
 --publish
-`, task.Image, task.Path, task.Buildpack, task.Image, versionTag)
+`, task.Image, task.Path, task.Buildpacks, task.Image, versionTag)
 
 	out = append(out, command)
 
