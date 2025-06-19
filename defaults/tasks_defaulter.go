@@ -23,6 +23,7 @@ type tasksDefaulter struct {
 	consumerIntegrationTestTaskDefaulter func(original manifest.ConsumerIntegrationTest, defaults Defaults) (updated manifest.ConsumerIntegrationTest)
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
+	packDefaulter                        func(original manifest.Pack, defaults Defaults) (updated manifest.Pack)
 
 	tasksRenamer          TasksRenamer
 	tasksTimeoutDefaulter TasksTimeoutDefaulter
@@ -39,6 +40,7 @@ func NewTaskDefaulter() TasksDefaulter {
 		consumerIntegrationTestTaskDefaulter: consumerIntegration,
 		deployMlZipDefaulter:                 deployMlZipDefaulter,
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
+		packDefaulter:                        packDefaulter,
 
 		tasksRenamer:          NewTasksRenamer(),
 		tasksTimeoutDefaulter: NewTasksTimeoutDefaulter(),
@@ -68,6 +70,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = task
 		case manifest.DeployKatee:
 			tt = t.deployKateeDefaulter(task, defaults, man)
+		case manifest.Pack:
+			tt = t.packDefaulter(task, defaults)
 		case manifest.ConsumerIntegrationTest:
 			tt = t.consumerIntegrationTestTaskDefaulter(task, defaults)
 		case manifest.DeployMLModules:

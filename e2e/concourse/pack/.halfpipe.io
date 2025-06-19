@@ -1,0 +1,14 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-pact
+
+triggers:
+- type: git
+  watched_paths:
+  - e2e/concourse/pack
+
+tasks:
+- type: pack
+  name: create-docker-image
+  path: build/libs
+  buildpack: gcr.io/paketo-buildpacks/java:18.5.0
+  image_name: eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
