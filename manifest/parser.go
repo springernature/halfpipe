@@ -192,7 +192,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'pack', 'parallel', 'sequence'", taskIndex, taskType)
+		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'buildpack', 'parallel', 'sequence'", taskIndex, taskType)
 	}
 
 	return task, err
