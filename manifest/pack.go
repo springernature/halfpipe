@@ -4,7 +4,7 @@ type Pack struct {
 	Type             string        `json:"type,omitempty" yaml:"type,omitempty"`
 	Buildpack        string        `json:"buildpack" yaml:"buildpack"`
 	Path             string        `json:"path" yaml:"path"`
-	ImageName        string        `json:"image_name,omitempty" yaml:"image_name,omitempty"`
+	Image            string        `json:"image,omitempty" yaml:"image,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
