@@ -99,7 +99,7 @@ func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) 
 --trust-builder
 `, task.Image, task.Path, task.Buildpacks, task.Image, versionTag)
 
-	out = append(out, command)
+	out = append(out, "echo "+command, command)
 
 	return []string{"-c", strings.Join(out, "\n")}
 }
