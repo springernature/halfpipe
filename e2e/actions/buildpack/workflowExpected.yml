@@ -1,0 +1,47 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/buildpack/.halfpipe.io for team halfpipe-team
+name: halfpipe-e2e-buildpack
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - e2e/concourse/buildpack**
+    - .github/workflows/halfpipe-e2e-buildpack.yml
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/buildpack
+concurrency: ${{ github.workflow }}
+jobs:
+  pack-n-push:
+    name: pack-n-push
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: pack-n-push
+      id: pack-n-push
+      uses: springernature/ee-action-buildpack@v1
+      with:
+        builder: paketobuildpacks/builder-jammy-full
+        buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
+        image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
+        path: build/libs
+        tags: ${{ env.BUILD_VERSION }}
+
+
