@@ -4,7 +4,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func packDefaulter(original manifest.Pack, defaults Defaults) (updated manifest.Pack) {
+func packDefaulter(original manifest.Buildpack, defaults Defaults) (updated manifest.Buildpack) {
 	updated = original
 
 	return updated

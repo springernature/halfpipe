@@ -180,8 +180,8 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t
-	case "pack":
-		t := Pack{}
+	case "buildpack":
+		t := Buildpack{}
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t

@@ -343,7 +343,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 	case manifest.DockerPush:
 		job = c.dockerPushJob(task, basePath, man)
 
-	case manifest.Pack:
+	case manifest.Buildpack:
 		job = c.PackJob(task, basePath, man)
 
 	case manifest.ConsumerIntegrationTest:

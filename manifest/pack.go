@@ -1,6 +1,6 @@
 package manifest
 
-type Pack struct {
+type Buildpack struct {
 	Type             string        `json:"type,omitempty" yaml:"type,omitempty"`
 	Buildpacks       string        `json:"buildpacks" yaml:"buildpacks"`
 	Path             string        `json:"path" yaml:"path"`
@@ -16,82 +16,82 @@ type Pack struct {
 	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 }
 
-func (p Pack) GetSecrets() map[string]string {
+func (p Buildpack) GetSecrets() map[string]string {
 	return findSecrets(map[string]string{})
 }
 
-func (p Pack) GetBuildHistory() int {
+func (p Buildpack) GetBuildHistory() int {
 	return p.BuildHistory
 }
 
-func (p Pack) SetBuildHistory(buildHistory int) Task {
+func (p Buildpack) SetBuildHistory(buildHistory int) Task {
 	p.BuildHistory = buildHistory
 	return p
 }
 
-func (p Pack) GetNotifications() Notifications {
+func (p Buildpack) GetNotifications() Notifications {
 	return p.Notifications
 }
 
-func (p Pack) SetNotifications(notifications Notifications) Task {
+func (p Buildpack) SetNotifications(notifications Notifications) Task {
 	p.Notifications = notifications
 	return p
 }
 
-func (p Pack) SetTimeout(timeout string) Task {
+func (p Buildpack) SetTimeout(timeout string) Task {
 	p.Timeout = timeout
 	return p
 }
 
-func (p Pack) SetName(name string) Task {
+func (p Buildpack) SetName(name string) Task {
 	p.Name = name
 	return p
 }
 
-func (p Pack) MarshalYAML() (interface{}, error) {
+func (p Buildpack) MarshalYAML() (interface{}, error) {
 	p.Type = "docker-push"
 	return p, nil
 }
 
-func (p Pack) GetName() string {
+func (p Buildpack) GetName() string {
 	if p.Name == "" {
 		return "docker-push"
 	}
 	return p.Name
 }
 
-func (p Pack) GetTimeout() string {
+func (p Buildpack) GetTimeout() string {
 	return p.Timeout
 }
 
-func (p Pack) NotifiesOnSuccess() bool {
+func (p Buildpack) NotifiesOnSuccess() bool {
 	return p.NotifyOnSuccess
 }
-func (p Pack) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
+func (p Buildpack) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 	p.NotifyOnSuccess = notifyOnSuccess
 	return p
 }
 
-func (p Pack) SavesArtifactsOnFailure() bool {
+func (p Buildpack) SavesArtifactsOnFailure() bool {
 	return false
 }
 
-func (p Pack) IsManualTrigger() bool {
+func (p Buildpack) IsManualTrigger() bool {
 	return p.ManualTrigger
 }
 
-func (p Pack) SavesArtifacts() bool {
+func (p Buildpack) SavesArtifacts() bool {
 	return false
 }
 
-func (p Pack) ReadsFromArtifacts() bool {
+func (p Buildpack) ReadsFromArtifacts() bool {
 	return p.RestoreArtifacts
 }
 
-func (p Pack) GetAttempts() int {
+func (p Buildpack) GetAttempts() int {
 	return 1 + p.Retries
 }
 
-func (p Pack) GetGitHubEnvironment() GitHubEnvironment {
+func (p Buildpack) GetGitHubEnvironment() GitHubEnvironment {
 	return GitHubEnvironment{}
 }

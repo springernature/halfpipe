@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func (c Concourse) PackJob(task manifest.Pack, basePath string, man manifest.Manifest) atc.JobConfig {
+func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifest.Manifest) atc.JobConfig {
 	taskInputs := func() []atc.TaskInputConfig {
 		inputs := []atc.TaskInputConfig{{Name: manifest.GitTrigger{}.GetTriggerName()}}
 		if task.RestoreArtifacts {
@@ -67,7 +67,7 @@ func (c Concourse) PackJob(task manifest.Pack, basePath string, man manifest.Man
 	return jobConfig
 }
 
-func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) []string {
+func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath string) []string {
 	var out []string
 	var versionTag string
 

@@ -113,7 +113,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.DeployMLModules:
 			errs = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
-		case manifest.Pack:
+		case manifest.Buildpack:
 		case manifest.Parallel:
 			errs = linter.lintParallel(task)
 			subErrors := linter.lintTasks(taskID, task.Tasks, man, previousTasks, true, true)

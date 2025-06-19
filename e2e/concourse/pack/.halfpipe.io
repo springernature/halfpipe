@@ -7,7 +7,7 @@ triggers:
   - e2e/concourse/pack
 
 tasks:
-- type: pack
+- type: buildpack
   name: create-docker-image
   path: build/libs
   buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
