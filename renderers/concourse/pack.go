@@ -92,10 +92,11 @@ func packScriptArgs(task manifest.Pack, man manifest.Manifest, basePath string) 
 
 	command := fmt.Sprintf(`pack build %s \
 --path %s \
---builder paketobuildpacks/builder-jammy-base \
+--builder paketobuildpacks/builder-jammy-full \
 --buildpack %s \
 --tag %s:${GIT_REVISION} %s \
---publish
+--publish \
+--trust-builder
 `, task.Image, task.Path, task.Buildpacks, task.Image, versionTag)
 
 	out = append(out, command)

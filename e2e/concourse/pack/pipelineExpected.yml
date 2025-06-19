@@ -35,10 +35,11 @@ jobs:
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path build/libs \
-          --builder paketobuildpacks/builder-jammy-base \
+          --builder paketobuildpacks/builder-jammy-full \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
-          --publish
+          --publish \
+          --trust-builder
         dir: git/e2e/concourse/pack
         path: docker.sh
     privileged: true
