@@ -92,7 +92,7 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 
 	command := fmt.Sprintf(`pack build %s \
 --path %s \
---builder paketobuildpacks/builder-jammy-full \
+--builder paketobuildpacks/builder-jammy-buildpackless-full \
 --buildpack %s \
 --tag %s:${GIT_REVISION} %s \
 --publish \
