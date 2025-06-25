@@ -63,7 +63,7 @@ func fetchSecrets(secrets []*secrets.Secret) Step {
 	return Step{
 		Name: "Vault secrets",
 		ID:   "secrets",
-		Uses: "hashicorp/vault-action@7709c609789c5e27b757a85817483caadbb5939a", // v3.3.0
+		Uses: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", // v3.4.0
 		With: With{
 			"url":       "https://vault.halfpipe.io",
 			"method":    "approle",

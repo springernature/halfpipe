@@ -26,7 +26,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@7709c609789c5e27b757a85817483caadbb5939a
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b
       with:
         exportEnv: false
         method: approle
@@ -64,7 +64,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@7709c609789c5e27b757a85817483caadbb5939a
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b
       with:
         exportEnv: false
         method: approle
