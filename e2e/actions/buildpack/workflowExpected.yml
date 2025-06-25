@@ -38,7 +38,7 @@ jobs:
       id: pack-n-push
       uses: springernature/ee-action-buildpack@v1
       with:
-        builder: paketobuildpacks/builder-jammy-full
+        builder: paketobuildpacks/builder-jammy-buildpackless-full
         buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
         image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
         path: e2e/actions/buildpack/build/libs
