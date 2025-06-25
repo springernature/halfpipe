@@ -88,6 +88,11 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 		versionTag = fmt.Sprintf("--tag %s:${BUILD_VERSION} ", task.Image)
 	}
 
+	appPath := basePath
+	if len(task.Path) > 0 {
+		appPath = path.Join(appPath, task.Path)
+	}
+
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
 
 	command := fmt.Sprintf(`pack build %s \
@@ -97,7 +102,7 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 --tag %s:${GIT_REVISION} %s \
 --publish \
 --trust-builder
-`, task.Image, task.Path, task.Buildpacks, task.Image, versionTag)
+`, task.Image, appPath, task.Buildpacks, task.Image, versionTag)
 
 	out = append(out, "echo "+command, command)
 

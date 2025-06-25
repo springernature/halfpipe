@@ -3,9 +3,16 @@ package actions
 import (
 	"github.com/gosimple/slug"
 	"github.com/springernature/halfpipe/manifest"
+	"path"
 )
 
 func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
+
+	appPath := a.workingDir
+	if len(task.Path) > 0 {
+		appPath = path.Join(appPath, task.Path)
+	}
+
 	step := Step{
 		Name: task.GetName(),
 		ID:   slug.Make(task.GetName()),
@@ -15,7 +22,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 			"builder":    "paketobuildpacks/builder-jammy-full",
 			"buildpacks": task.Buildpacks,
 			"image":      task.Image,
-			"path":       task.Path,
+			"path":       appPath,
 			"tags":       "${{ env.BUILD_VERSION }}",
 		},
 	}
