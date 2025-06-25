@@ -42,6 +42,6 @@ jobs:
         buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
         image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
         path: e2e/actions/buildpack/build/libs
-        tags: ${{ env.BUILD_VERSION }}
+        tags: ${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}
 
 

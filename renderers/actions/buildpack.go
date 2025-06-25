@@ -23,7 +23,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 			"buildpacks": task.Buildpacks,
 			"image":      task.Image,
 			"path":       appPath,
-			"tags":       "${{ env.BUILD_VERSION }}",
+			"tags":       "${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}",
 		},
 	}
 
