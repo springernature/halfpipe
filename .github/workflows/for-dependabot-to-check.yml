@@ -42,7 +42,7 @@ jobs:
         retention-days: 2
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -78,7 +78,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -137,7 +137,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -187,7 +187,7 @@ jobs:
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -231,7 +231,7 @@ jobs:
       run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
