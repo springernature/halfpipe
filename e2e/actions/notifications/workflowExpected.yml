@@ -39,7 +39,7 @@ jobs:
         entrypoint: /bin/sh
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -47,7 +47,7 @@ jobs:
           text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success1 (success)'
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
@@ -55,7 +55,7 @@ jobs:
           text: "success message"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success2 (success)'
-      uses: slackapi/slack-github-action@b0fa283ad8fea605de13dc3f449259339835fc52
+      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
       with:
         method: chat.postMessage
         payload: |-
