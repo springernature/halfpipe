@@ -49,13 +49,13 @@ func (p Buildpack) SetName(name string) Task {
 }
 
 func (p Buildpack) MarshalYAML() (interface{}, error) {
-	p.Type = "docker-push"
+	p.Type = "buildpack"
 	return p, nil
 }
 
 func (p Buildpack) GetName() string {
 	if p.Name == "" {
-		return "docker-push"
+		return "buildpack"
 	}
 	return p.Name
 }
