@@ -26,6 +26,7 @@ type taskLinter struct {
 	lintParallel                    func(parallelTask manifest.Parallel) []error
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) []error
 	lintNotifications               func(task manifest.Task) []error
+	lintBuildpackTask               func(task manifest.Buildpack) []error
 	os                              string
 }
 
@@ -45,6 +46,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintParallel:                    LintParallelTask,
 		lintSequence:                    LintSequenceTask,
 		lintNotifications:               LintNotifications,
+		lintBuildpackTask:               LintBuildpackTask,
 		os:                              os,
 	}
 }
