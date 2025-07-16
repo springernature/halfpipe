@@ -11,9 +11,6 @@ import (
 )
 
 func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) (errs []error) {
-	if task.API == "" {
-		errs = append(errs, NewErrMissingField("api"))
-	}
 	if task.Space == "" {
 		errs = append(errs, NewErrMissingField("space"))
 	}

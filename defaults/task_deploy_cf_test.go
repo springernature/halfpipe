@@ -21,7 +21,7 @@ func TestCFDeployDefaults(t *testing.T) {
 			CliVersion: Concourse.CF.Version,
 		}
 
-		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: Concourse.CF.SnPaaS.API}, Concourse, man))
+		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, Concourse, man))
 	})
 
 	t.Run("cli version", func(t *testing.T) {

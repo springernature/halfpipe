@@ -26,7 +26,6 @@ func TestCFDeployTaskWithEmptyTask(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errs := LintDeployCFTask(task, validCfManifest(), fs)
-	assertContainsError(t, errs, NewErrMissingField("api"))
 	assertContainsError(t, errs, NewErrMissingField("space"))
 	assertContainsError(t, errs, NewErrMissingField("org"))
 	assertContainsError(t, errs, ErrInvalidField.WithValue("cli_version"))
