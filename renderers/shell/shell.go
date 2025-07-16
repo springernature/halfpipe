@@ -25,6 +25,8 @@ func (s shell) Render(man manifest.Manifest) (string, error) {
 		return renderRunCommand(t, man.Team), nil
 	case manifest.DockerCompose:
 		return renderDockerComposeCommand(t, man.Team), nil
+	case manifest.Buildpack:
+		return renderBuildpackCommand(t), nil
 	}
 
 	errMsg := "task not found with name '%s' and type 'run' or 'docker-compose\n\navailable tasks:\n"
@@ -95,4 +97,19 @@ func toMultipleArgs(flag string, args []string) []string {
 		out = append(out, fmt.Sprintf("%s %s", flag, arg))
 	}
 	return out
+}
+
+func renderBuildpackCommand(task manifest.Buildpack) string {
+	path := "."
+	if task.Path != "" {
+		path = task.Path
+	}
+	return fmt.Sprintf(`pack build %s \
+--path %s \
+--builder paketobuildpacks/builder-jammy-buildpackless-full \
+--buildpack %s \
+--tag %s:local \
+--trust-builder
+`, task.Image, path, task.Buildpacks, task.Image)
+
 }
