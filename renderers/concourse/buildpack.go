@@ -5,7 +5,9 @@ import (
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"maps"
 	"path"
+	"slices"
 	"strings"
 )
 
@@ -96,9 +98,9 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
 
 	envVars := ""
-	for k, v := range task.Vars {
-		envVars += fmt.Sprintf(`--env %s=%s \
-`, k, v)
+	for _, key := range slices.Sorted(maps.Keys(task.Vars)) {
+		envVars += fmt.Sprintf(`--env "%s=%s" \
+`, key, task.Vars[key])
 	}
 
 	command := fmt.Sprintf(`pack build %s \

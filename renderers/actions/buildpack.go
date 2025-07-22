@@ -24,6 +24,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 			"image":      task.Image,
 			"path":       appPath,
 			"tags":       "${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}",
+			"buildEnv":   MultiLine{task.Vars},
 		},
 	}
 
