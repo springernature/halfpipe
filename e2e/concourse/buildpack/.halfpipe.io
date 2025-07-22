@@ -12,3 +12,6 @@ tasks:
     path: build/libs
     buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
     image: eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
+    vars:
+      BP_FOO: foo
+      BP_BAR: bar

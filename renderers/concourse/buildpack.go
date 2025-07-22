@@ -95,14 +95,20 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
 
+	envVars := ""
+	for k, v := range task.Vars {
+		envVars += fmt.Sprintf(`--env %s=%s \
+`, k, v)
+	}
+
 	command := fmt.Sprintf(`pack build %s \
 --path %s \
 --builder paketobuildpacks/builder-jammy-buildpackless-full \
 --buildpack %s \
 --tag %s:${GIT_REVISION} %s \
---publish \
+%s--publish \
 --trust-builder
-`, task.Image, appPath, task.Buildpacks, task.Image, versionTag)
+`, task.Image, appPath, task.Buildpacks, task.Image, versionTag, envVars)
 
 	out = append(out, "echo "+command, command)
 

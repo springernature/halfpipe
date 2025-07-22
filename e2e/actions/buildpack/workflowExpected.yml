@@ -43,5 +43,7 @@ jobs:
         image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
         path: e2e/actions/buildpack/build/libs
         tags: ${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}
-
+      env:
+        BP_BAR: bar
+        BP_FOO: foo
 
