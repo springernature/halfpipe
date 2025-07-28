@@ -490,21 +490,17 @@ func fullPathToArtifactsDir(repoName string, basePath string, artifactsDir strin
 
 func relativePathToRepoRoot(repoName string, basePath string) (relativePath string) {
 	relativePath, _ = filepath.Rel(path.Join(repoName, basePath), repoName)
-	return relativePath
+	return filepath.ToSlash(relativePath)
 }
 
 func pathToGitRef(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), ".git", "ref")
-	return windowsToLinuxPath(p)
-}
-
-func windowsToLinuxPath(path string) (unixPath string) {
-	return strings.Replace(path, `\`, "/", -1)
+	return filepath.ToSlash(p)
 }
 
 func pathToVersionFile(repoName string, basePath string) (gitRefPath string) {
 	p := path.Join(relativePathToRepoRoot(repoName, basePath), path.Join("..", "version", "version"))
-	return windowsToLinuxPath(p)
+	return filepath.ToSlash(p)
 }
 
 func onErrorScript(artifactPaths []string, basePath string) string {
