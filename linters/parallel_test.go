@@ -19,7 +19,7 @@ func TestParallelTaskInParallelTask(t *testing.T) {
 			},
 		},
 	}
-	errs := LintParallelTask(task)
+	errs := LintParallelTask(task, "concourse")
 	assertContainsError(t, errs, ErrInvalidField.WithValue("type"))
 }
 
@@ -27,7 +27,7 @@ func TestErrorIfParallelIsEmpty(t *testing.T) {
 	task := manifest.Parallel{
 		Tasks: manifest.TaskList{},
 	}
-	errs := LintParallelTask(task)
+	errs := LintParallelTask(task, "concourse")
 	assert.Len(t, errs, 1)
 	assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 }
@@ -38,7 +38,7 @@ func TestWarningIfParallelOnlyContainsOneItem(t *testing.T) {
 			manifest.Run{},
 		},
 	}
-	errs := LintParallelTask(task)
+	errs := LintParallelTask(task, "concourse")
 	assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
 }
 
@@ -52,7 +52,7 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 			},
 		}
 
-		errs := LintParallelTask(task)
+		errs := LintParallelTask(task, "concourse")
 		assert.Len(t, errs, 0)
 	})
 
@@ -67,8 +67,10 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifact(t *testing.T) {
 			},
 		}
 
-		errs := LintParallelTask(task)
+		errs := LintParallelTask(task, "concourse")
 		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
+
+		assert.Len(t, LintParallelTask(task, "actions"), 0)
 	})
 }
 
@@ -82,7 +84,7 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 			},
 		}
 
-		errs := LintParallelTask(task)
+		errs := LintParallelTask(task, "concourse")
 		assert.Len(t, errs, 0)
 	})
 
@@ -97,7 +99,9 @@ func TestWarnIfMultipleTasksInsideParallelSavesArtifactOnFailure(t *testing.T) {
 			},
 		}
 
-		errs := LintParallelTask(task)
+		errs := LintParallelTask(task, "concourse")
 		assertContainsError(t, errs, ErrInvalidField.WithValue("tasks"))
+
+		assert.Len(t, LintParallelTask(task, "actions"), 0)
 	})
 }

@@ -1,14 +1,15 @@
 package linters
 
 import (
-	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
-	"github.com/spf13/afero"
-	"github.com/springernature/halfpipe/cf"
-	"github.com/springernature/halfpipe/manifest"
 	"sort"
 	"strings"
 	"time"
+
+	"code.cloudfoundry.org/cli/util/manifestparser"
+	"github.com/spf13/afero"
+	"github.com/springernature/halfpipe/cf"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type taskLinter struct {
@@ -23,7 +24,7 @@ type taskLinter struct {
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) []error
 	lintDeployMLModulesTask         func(task manifest.DeployMLModules) []error
 	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) []error
-	lintParallel                    func(parallelTask manifest.Parallel) []error
+	lintParallel                    func(parallelTask manifest.Parallel, platform manifest.Platform) []error
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) []error
 	lintNotifications               func(task manifest.Task) []error
 	lintBuildpackTask               func(task manifest.Buildpack) []error
@@ -118,7 +119,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
 		case manifest.Parallel:
-			errs = linter.lintParallel(task)
+			errs = linter.lintParallel(task, man.Platform)
 			subErrors := linter.lintTasks(taskID, task.Tasks, man, previousTasks, true, true)
 			errs = append(errs, subErrors...)
 			lintTimeout = false

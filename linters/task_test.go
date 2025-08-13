@@ -2,9 +2,10 @@ package linters
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/springernature/halfpipe/cf"
 	"github.com/stretchr/testify/assert"
-	"testing"
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
@@ -144,7 +145,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 			return
 		},
-		lintParallel: func(parallelTask manifest.Parallel) (errs []error) {
+		lintParallel: func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) {
 			calledLintParallelTasks = true
 			calledLintParallelTasksNum++
 			return
@@ -348,7 +349,7 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 			return
 		},
-		lintParallel: func(parallelTask manifest.Parallel) (errs []error) {
+		lintParallel: func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) {
 			return
 		},
 		lintNotifications: func(task manifest.Task) (errs []error) { return },
@@ -389,7 +390,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel) (errs []error) { return },
+			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
 			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
 			lintArtifacts:     LintArtifacts,
 			lintNotifications: func(task manifest.Task) (errs []error) { return },
@@ -422,7 +423,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel) (errs []error) { return },
+			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
 			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
 			lintArtifacts:     LintArtifacts,
 			lintNotifications: func(task manifest.Task) (errs []error) { return },
@@ -454,7 +455,7 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel) (errs []error) { return },
+			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
 			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
 			lintArtifacts:     LintArtifacts,
 			lintNotifications: func(task manifest.Task) (errs []error) { return },
