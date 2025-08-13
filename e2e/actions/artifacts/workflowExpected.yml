@@ -41,24 +41,24 @@ jobs:
         args: -c "cd e2e/actions/artifacts; \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
         entrypoint: /bin/sh
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: artifacts
-        path: /tmp/halfpipe-artifacts.tar
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2
     - name: Package artifacts-failure
       if: failure()
-      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/foo.txt
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/foo.txt
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: artifacts-failure
-        path: /tmp/halfpipe-artifacts.tar
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2
   test:
     name: test
@@ -77,9 +77,9 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
       with:
-        name: artifacts
+        merge-multiple: true
     - name: Extract artifacts
-      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
       working-directory: ${{ github.workspace }}
     - name: test
       id: test
@@ -122,22 +122,22 @@ jobs:
         PROVIDER_NAME: artifacts
         USE_COVENANT: "true"
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/docker-compose.yml
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/docker-compose.yml
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: artifacts
-        path: /tmp/halfpipe-artifacts.tar
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2
     - name: Package artifacts-failure
       if: failure()
-      run: tar -cvf /tmp/halfpipe-artifacts.tar e2e/actions/artifacts/docker-compose.yml e2e/actions/artifacts/tests
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/docker-compose.yml e2e/actions/artifacts/tests
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: artifacts-failure
-        path: /tmp/halfpipe-artifacts.tar
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2

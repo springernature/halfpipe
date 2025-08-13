@@ -32,13 +32,13 @@ jobs:
         args: -c "cd .; \exit 1"
         entrypoint: /bin/sh
     - name: Package artifacts
-      run: tar -cvf /tmp/halfpipe-artifacts.tar artifact.zip
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar artifact.zip
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
       with:
-        name: artifacts
-        path: /tmp/halfpipe-artifacts.tar
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
@@ -66,9 +66,9 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
       with:
-        name: artifacts
+        merge-multiple: true
     - name: Extract artifacts
-      run: tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
       working-directory: ${{ github.workspace }}
     - name: run \exit 1 (1)
       id: run-exit-1-1

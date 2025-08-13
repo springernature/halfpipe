@@ -26,15 +26,15 @@ func (a *Actions) saveArtifactSteps(paths []string, name string) Steps {
 	return Steps{
 		{
 			Name:             "Package " + name,
-			Run:              "tar -cvf /tmp/halfpipe-artifacts.tar " + strings.Join(paths, " "),
+			Run:              "tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar " + strings.Join(paths, " "),
 			WorkingDirectory: "${{ github.workspace }}",
 		},
 		{
 			Name: "Upload " + name,
 			Uses: "actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02",
 			With: With{
-				"name":           name,
-				"path":           "/tmp/halfpipe-artifacts.tar",
+				"name":           name + "-${{ github.job }}",
+				"path":           "/tmp/halfpipe-artifacts-${{ github.job }}.tar",
 				"retention-days": 2,
 			},
 		},
@@ -47,12 +47,12 @@ func (a *Actions) restoreArtifacts() Steps {
 			Name: "Download artifacts",
 			Uses: "actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0",
 			With: With{
-				"name": "artifacts",
+				"merge-multiple": true,
 			},
 		},
 		{
 			Name:             "Extract artifacts",
-			Run:              "tar -xvf halfpipe-artifacts.tar; rm halfpipe-artifacts.tar",
+			Run:              "for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar",
 			WorkingDirectory: "${{ github.workspace }}",
 		},
 	}
