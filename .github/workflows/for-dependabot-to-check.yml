@@ -19,7 +19,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       with:
         lfs: true
         show-progress: false
@@ -57,7 +57,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       with:
         lfs: true
         show-progress: false
@@ -107,7 +107,7 @@ jobs:
           /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       with:
         lfs: true
         show-progress: false
@@ -152,7 +152,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       with:
         lfs: true
         show-progress: false
@@ -202,7 +202,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
       with:
         lfs: true
         show-progress: false

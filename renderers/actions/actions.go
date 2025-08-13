@@ -148,7 +148,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 	checkout := Step{
 		Name: "Checkout code",
-		Uses: "actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683", // v4
+		Uses: "actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8", // v5
 		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey, "show-progress": false},
 	}
 	if !gitTrigger.Shallow {
