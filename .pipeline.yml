@@ -101,7 +101,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: "1.24"
+          tag: "1.25"
       run:
         path: /bin/bash
         args:
@@ -149,7 +149,7 @@ jobs:
         type: docker-image
         source:
           repository: golang
-          tag: "1.24"
+          tag: "1.25"
       run:
         path: /bin/sh
         args:
