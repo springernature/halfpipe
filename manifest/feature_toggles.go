@@ -8,12 +8,14 @@ const (
 	FeatureUpdatePipeline       = "update-pipeline"
 	FeatureUpdatePipelineAndTag = "update-pipeline-and-tag"
 	FeatureGithubStatuses       = "github-statuses"
+	FeatureGhas                 = "ghas"
 )
 
 var AvailableFeatureToggles = FeatureToggles{
 	FeatureUpdatePipeline,
 	FeatureUpdatePipelineAndTag,
 	FeatureGithubStatuses,
+	FeatureGhas,
 }
 
 func (f FeatureToggles) UpdatePipeline() bool {
@@ -26,4 +28,8 @@ func (f FeatureToggles) TagGitRepo() bool {
 
 func (f FeatureToggles) GithubStatuses() bool {
 	return slices.Contains(f, FeatureGithubStatuses)
+}
+
+func (f FeatureToggles) Ghas() bool {
+	return slices.Contains(f, FeatureGhas)
 }

@@ -34,6 +34,10 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		},
 	}
 
+	if man.FeatureToggles.Ghas() {
+		push.With["ghas"] = true
+	}
+
 	return Steps{push, repositoryDispatch(task.Image)}
 }
 

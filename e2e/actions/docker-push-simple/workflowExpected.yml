@@ -1,0 +1,61 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/docker-push-simple/.halfpipe.io for team halfpipe-team
+name: pipeline-name
+"on":
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/docker-push-simple
+concurrency: ${{ github.workflow }}
+jobs:
+  push_default:
+    name: Push default
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          lfs: true
+          show-progress: false
+          ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+          submodules: recursive
+      - name: Build and Push
+        uses: springernature/ee-action-docker-push@v1
+        with:
+          buildArgs: |
+            "ARTIFACTORY_PASSWORD"
+            "ARTIFACTORY_URL"
+            "ARTIFACTORY_USERNAME"
+            "BUILD_VERSION"
+            "GIT_REVISION"
+            "RUNNING_IN_CI"
+          context: e2e/actions/docker-push-simple
+          dockerfile: e2e/actions/docker-push-simple/Dockerfile
+          ghas: true
+          image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+          platforms: linux/amd64
+          secrets: |
+            "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+            "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+            "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+          tags: |
+            latest
+            ${{ env.BUILD_VERSION }}
+            ${{ env.GIT_REVISION }}
+      - name: Repository dispatch
+        uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0
+        with:
+          event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+          token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
