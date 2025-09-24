@@ -8,6 +8,11 @@ triggers:
 
 tasks:
   - type: buildpack
+    name: minimal
+    buildpacks: gcr.io/paketo-buildpacks/java:18.5.0
+    image: eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
+
+  - type: buildpack
     name: create-docker-image
     path: build/libs
     buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0

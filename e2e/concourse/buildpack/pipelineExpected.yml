@@ -2,10 +2,66 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
+  name: minimal
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-buildx-pack
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          export GIT_REVISION=`cat ../../../.git/ref`
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
+          --path e2e/concourse/buildpack \
+          --builder paketobuildpacks/builder-jammy-buildpackless-full \
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
+          --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --publish \
+          --trust-builder
+
+          pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
+          --path e2e/concourse/buildpack \
+          --builder paketobuildpacks/builder-jammy-buildpackless-full \
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
+          --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --publish \
+          --trust-builder
+        dir: git/e2e/concourse/buildpack
+        path: docker.sh
+    privileged: true
+    task: minimal
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
   name: create-docker-image
   plan:
   - attempts: 2
     get: git
+    passed:
+    - minimal
     timeout: 15m
     trigger: true
   - config:

@@ -2,13 +2,14 @@ package concourse
 
 import (
 	"fmt"
-	"github.com/concourse/concourse/atc"
-	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/manifest"
 	"maps"
 	"path"
 	"slices"
 	"strings"
+
+	"github.com/concourse/concourse/atc"
+	"github.com/springernature/halfpipe/config"
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifest.Manifest) atc.JobConfig {
@@ -91,6 +92,9 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 	}
 
 	appPath := basePath
+	if appPath == "" {
+		appPath = "."
+	}
 	if len(task.Path) > 0 {
 		appPath = path.Join(appPath, task.Path)
 	}
