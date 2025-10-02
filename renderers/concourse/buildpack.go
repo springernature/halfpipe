@@ -107,14 +107,20 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 `, key, task.Vars[key])
 	}
 
+	buildpacksFlags := ""
+	for _, bp := range task.Buildpacks {
+		buildpacksFlags += fmt.Sprintf("--buildpack %s \\\n", bp)
+	}
+	if buildpacksFlags == "" { // ensure at least one flag placeholder to avoid malformed command
+		buildpacksFlags = ""
+	}
 	command := fmt.Sprintf(`pack build %s \
 --path %s \
 --builder %s \
---buildpack %s \
---tag %s:${GIT_REVISION} %s \
+%s--tag %s:${GIT_REVISION} %s \
 %s--publish \
 --trust-builder
-`, task.Image, appPath, task.Builder, task.Buildpacks, task.Image, versionTag, envVars)
+`, task.Image, appPath, task.Builder, buildpacksFlags, task.Image, versionTag, envVars)
 
 	out = append(out, "echo "+command, command)
 

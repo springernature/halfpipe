@@ -94,7 +94,8 @@ jobs:
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path e2e/concourse/buildpack/build/libs \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
-          --buildpack gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0 \
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
+          --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
           --env "BP_BAR=bar" \
           --env "BP_FOO=foo" \
@@ -104,7 +105,8 @@ jobs:
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path e2e/concourse/buildpack/build/libs \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
-          --buildpack gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0 \
+          --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
+          --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
           --env "BP_BAR=bar" \
           --env "BP_FOO=foo" \

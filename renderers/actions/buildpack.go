@@ -1,9 +1,11 @@
 package actions
 
 import (
+	"path"
+	"strings"
+
 	"github.com/gosimple/slug"
 	"github.com/springernature/halfpipe/manifest"
-	"path"
 )
 
 func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
@@ -20,7 +22,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 		Uses: "springernature/ee-action-buildpack@v1",
 		With: With{
 			"builder":    task.Builder,
-			"buildpacks": task.Buildpacks,
+			"buildpacks": strings.Join(task.Buildpacks, ","),
 			"image":      task.Image,
 			"path":       appPath,
 			"tags":       "${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}",

@@ -1,8 +1,9 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/manifest"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func LintBuildpackTask(task manifest.Buildpack) (errs []error) {
@@ -11,7 +12,7 @@ func LintBuildpackTask(task manifest.Buildpack) (errs []error) {
 		errs = append(errs, NewErrMissingField("image"))
 	}
 
-	if task.Buildpacks == "" {
+	if len(task.Buildpacks) == 0 {
 		errs = append(errs, NewErrMissingField("buildpacks"))
 	}
 
