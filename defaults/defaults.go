@@ -46,7 +46,7 @@ var Concourse = Defaults{
 	},
 	Timeout: "1h",
 	Buildpack: BuildpackDefaults{
-		Builder: "paketobuildpacks/builder-jammy-buildpackless-tiny",
+		Builder: "paketobuildpacks/builder-jammy-buildpackless-base",
 	},
 }
 
@@ -79,6 +79,6 @@ var Actions = Defaults{
 		MaxChecks:     60,
 	},
 	Buildpack: BuildpackDefaults{
-		Builder: "paketobuildpacks/builder-jammy-buildpackless-full",
+		Builder: "paketobuildpacks/builder-jammy-buildpackless-base",
 	},
 }
