@@ -45,7 +45,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 func repositoryDispatch(name string) Step {
 	return Step{
 		Name: "Repository dispatch",
-		Uses: "peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0", // v3
+		Uses: "peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f", // v4
 		With: With{
 			"token":      githubSecrets.RepositoryDispatchToken,
 			"event-type": "docker-push:" + name,
