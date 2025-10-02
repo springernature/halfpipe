@@ -13,4 +13,9 @@ func TestBuildpackTask(t *testing.T) {
 		assertContainsError(t, errors, NewErrMissingField("buildpacks"))
 	})
 
+	t.Run("no options set", func(t *testing.T) {
+		errors := LintBuildpackTask(manifest.Buildpack{Builder: "random-builder"})
+		assertContainsError(t, errors, ErrInvalidBuilder)
+	})
+
 }

@@ -42,6 +42,10 @@ type KateeDefaults struct {
 	CheckInterval int
 }
 
+type BuildpackDefaults struct {
+	Builder string
+}
+
 type DockerDefaults struct {
 	Username       string
 	Password       string
@@ -78,6 +82,7 @@ type Defaults struct {
 	Artifactory    ArtifactoryDefaults
 	Concourse      ConcourseDefaults
 	MarkLogic      MarkLogicDefaults
+	Buildpack      BuildpackDefaults
 
 	Timeout string
 

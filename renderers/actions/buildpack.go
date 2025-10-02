@@ -19,7 +19,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 		Env:  Env(task.Vars),
 		Uses: "springernature/ee-action-buildpack@v1",
 		With: With{
-			"builder":    "paketobuildpacks/builder-jammy-buildpackless-full",
+			"builder":    task.Builder,
 			"buildpacks": task.Buildpacks,
 			"image":      task.Image,
 			"path":       appPath,

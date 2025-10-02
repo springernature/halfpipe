@@ -70,6 +70,8 @@ var (
 	ErrSlackSuccessMessageFieldDeprecated = newError("'slack_success_message' is deprecated, please use new notification structure")
 	ErrSlackFailureMessageFieldDeprecated = newError("'slack_failure_message' is deprecated, please use new notification structure")
 	ErrOnlySlackOrTeamsAllowed            = newError("You cannot define both 'slack' and 'teams' in the notifications")
+
+	ErrInvalidBuilder = newError("must be an official paketo builder in format 'paketobuildpacks/<builder>'. See <https://paketo.io/docs/reference/builders-reference/>.")
 )
 
 type Error struct {

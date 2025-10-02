@@ -45,6 +45,9 @@ var Concourse = Defaults{
 		Password: "((halfpipe-ml-deploy.password))",
 	},
 	Timeout: "1h",
+	Buildpack: BuildpackDefaults{
+		Builder: "paketobuildpacks/builder-jammy-buildpackless-full",
+	},
 }
 
 var Actions = Defaults{
@@ -74,5 +77,8 @@ var Actions = Defaults{
 		Tag:           "version",
 		CheckInterval: 2,
 		MaxChecks:     60,
+	},
+	Buildpack: BuildpackDefaults{
+		Builder: "paketobuildpacks/builder-jammy-buildpackless-full",
 	},
 }

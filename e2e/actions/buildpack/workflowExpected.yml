@@ -41,7 +41,7 @@ jobs:
         buildEnv: |
           "BP_BAR=bar"
           "BP_FOO=foo"
-        builder: paketobuildpacks/builder-jammy-buildpackless-full
+        builder: paketobuildpacks/builder-jammy-buildpackless-tiny
         buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
         image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
         path: e2e/actions/buildpack/build/libs
