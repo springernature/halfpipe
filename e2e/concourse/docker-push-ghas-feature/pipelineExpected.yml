@@ -108,7 +108,7 @@ jobs:
           --timeout 15m \
           --ignore-unfixed \
           --severity CRITICAL \
-          --format github \
+          --format sarif \
           --output /tmp/trivy.sarif \
           --exit-code 0 \
           eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat ../../../.git/ref) || true

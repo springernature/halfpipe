@@ -169,7 +169,7 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 --timeout %dm \
 --ignore-unfixed \
 --severity CRITICAL \
---format github \
+--format sarif \
 --output /tmp/trivy.sarif \
 --exit-code %d \
 %s:%s || true`, task.ScanTimeout, exitCode, imageFile, gitRef),
