@@ -1,0 +1,159 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/concourse/docker-push-ghas-feature/.halfpipe.io for team halfpipe-team
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: docker-push
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: alpine
+        type: docker-image
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          echo $ docker buildx build \
+            -f git/e2e/concourse/docker-push-ghas-feature/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            git/e2e/concourse/docker-push-ghas-feature
+          docker buildx build \
+            -f git/e2e/concourse/docker-push-ghas-feature/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            git/e2e/concourse/docker-push-ghas-feature
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+      inputs:
+      - name: git
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        GHAS_TOKEN: ((halfpipe-github.ghas_token))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image \
+          --timeout 15m \
+          --ignore-unfixed \
+          --severity CRITICAL \
+          --format github \
+          --output /tmp/trivy.sarif \
+          --exit-code 0 \
+          eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat ../../../.git/ref) || true
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GHAS_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/springernature/halfpipe/code-scanning/sarifs \
+            -d '{"commit_sha":"'$(cat ../../../.git/ref)'","ref":"refs/heads/master","sarif":"'$(gzip -c /tmp/trivy.sarif | base64 -w0)'"}'
+        dir: git/e2e/concourse/docker-push-ghas-feature
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          for tag in $(cat tagList/tagList) ; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat git/.git/ref) --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage:$tag; done
+        path: /bin/sh
+    privileged: true
+    task: publish-final-image
+    timeout: 1h
+  serial: true
+resources:
+- check_every: 10m0s
+  name: git
+  source:
+    branch: main
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git

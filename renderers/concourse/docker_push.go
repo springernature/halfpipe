@@ -2,13 +2,14 @@ package concourse
 
 import (
 	"fmt"
+	"path"
+	"slices"
+	"strings"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
-	"path"
-	"slices"
-	"strings"
 )
 
 const tagList_Dir = "tagList"
@@ -20,7 +21,7 @@ func (c Concourse) dockerPushJob(task manifest.DockerPush, basePath string, man 
 
 	steps = append(steps, restoreArtifacts(task)...)
 	steps = append(steps, createTagList(task, man.FeatureToggles.UpdatePipeline())...)
-	steps = append(steps, buildAndPush(task, basePath)...)
+	steps = append(steps, buildAndPush(task, basePath, man)...)
 
 	return atc.JobConfig{
 		Name:         task.GetName(),
@@ -99,7 +100,7 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
 }
 
-func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) atc.StepConfig {
+func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) atc.StepConfig {
 	imageFile := shared.CachePath(task, "")
 	gitRef := fmt.Sprintf(":$(cat %s)", pathToGitRef(gitDir, basePath))
 
@@ -141,7 +142,66 @@ func trivyTask(task manifest.DockerPush, fullBasePath string, basePath string) a
 	return step
 }
 
-func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
+func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath string, basePath string) atc.StepConfig {
+	imageFile := shared.CachePath(task, "")
+	gitRef := fmt.Sprintf("$(cat %s)", pathToGitRef(gitDir, basePath))
+	repoName := man.Triggers.GetGitTrigger().GetRepoName()
+	branch := "master"
+	exitCode := 0
+
+	step := &atc.TaskStep{
+		Name: "trivy",
+		Config: &atc.TaskConfig{
+			Platform: "linux",
+			ImageResource: &atc.ImageResource{
+				Type: "docker-image",
+				Source: atc.Source{
+					"repository": "aquasec/trivy",
+				},
+			},
+			Run: atc.TaskRunConfig{
+				Path: "/bin/sh",
+				Args: []string{"-c", strings.Join([]string{
+					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
+					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
+
+					fmt.Sprintf(`trivy image \
+--timeout %dm \
+--ignore-unfixed \
+--severity CRITICAL \
+--format github \
+--output /tmp/trivy.sarif \
+--exit-code %d \
+%s:%s || true`, task.ScanTimeout, exitCode, imageFile, gitRef),
+
+					fmt.Sprintf(`curl -L \
+  -X POST \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer ${GHAS_TOKEN}" \
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  https://api.github.com/repos/springernature/%s/code-scanning/sarifs \
+  -d '{"commit_sha":"'%s'","ref":"refs/heads/%s","sarif":"'$(gzip -c /tmp/trivy.sarif | base64 -w0)'"}'`, repoName, gitRef, branch),
+				}, "\n")},
+				Dir: fullBasePath,
+			},
+			Params: atc.TaskEnv{
+				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
+				"GHAS_TOKEN":         "((halfpipe-github.ghas_token))",
+			},
+			Inputs: []atc.TaskInputConfig{
+				{Name: gitDir},
+			},
+		},
+	}
+
+	if task.ReadsFromArtifacts() {
+		step.Config.Inputs = append(step.Config.Inputs, atc.TaskInputConfig{Name: dockerBuildTmpDir})
+	}
+
+	return step
+}
+
+func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manifest) []atc.Step {
 	var steps []atc.Step
 	image, tag := shared.SplitTag(task.Image)
 	dockerImageWithCachePath := shared.CachePath(task, "")
@@ -228,7 +288,14 @@ func buildAndPush(task manifest.DockerPush, basePath string) []atc.Step {
 	}
 
 	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
-	steps = append(steps, stepWithAttemptsAndTimeout(trivyTask(task, fullBasePath, basePath), task.GetAttempts(), task.GetTimeout()))
+
+	var trivy atc.StepConfig
+	if man.FeatureToggles.Ghas() {
+		trivy = trivyGhasStep(task, man, fullBasePath, basePath)
+	} else {
+		trivy = trivyStep(task, fullBasePath, basePath)
+	}
+	steps = append(steps, stepWithAttemptsAndTimeout(trivy, task.GetAttempts(), task.GetTimeout()))
 
 	publishCommand := fmt.Sprintf(`for tag in $(cat %s) %s; do docker buildx imagetools create %s:$(cat git/.git/ref) --tag %s:$tag; done`, tagListFile, tag, dockerImageWithCachePath, image)
 
