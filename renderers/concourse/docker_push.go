@@ -164,15 +164,24 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 				Args: []string{"-c", strings.Join([]string{
 					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
 					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
+					`apk add curl`,
 
 					fmt.Sprintf(`trivy image \
---timeout %dm \
---ignore-unfixed \
---severity CRITICAL \
---format sarif \
---output /tmp/trivy.sarif \
---exit-code %d \
-%s:%s || true`, task.ScanTimeout, exitCode, imageFile, gitRef),
+  --timeout %dm \
+  --ignore-unfixed \
+  --severity CRITICAL \
+  --format sarif \
+  --output /tmp/trivy.sarif \
+  --exit-code %d \
+  %s:%s || true`, task.ScanTimeout, exitCode, imageFile, gitRef),
+
+					`export GHAS_TOKEN=$(curl \
+  --request POST \
+  --url "https://api.github.com/app/installations/89058518/access_tokens" \
+  --header "Accept: application/vnd.github+json" \
+  --header "Authorization: Bearer $HALFPIPE_JWT" \
+  --header "X-GitHub-Api-Version: 2022-11-28" |
+  grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')`,
 
 					fmt.Sprintf(`curl -L \
   -X POST \
@@ -186,7 +195,7 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 			},
 			Params: atc.TaskEnv{
 				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
-				"GHAS_TOKEN":         "((halfpipe-github.ghas_token))",
+				"HALFPIPE_JWT":       "((halfpipe-bot.jwt))",
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
