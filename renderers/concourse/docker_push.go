@@ -146,7 +146,7 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 	imageFile := shared.CachePath(task, "")
 	gitRef := fmt.Sprintf("$(cat %s)", pathToGitRef(gitDir, basePath))
 	repoName := man.Triggers.GetGitTrigger().GetRepoName()
-	branch := "master"
+	branch := man.Triggers.GetGitTrigger().Branch
 	exitCode := 0
 
 	step := &atc.TaskStep{
@@ -164,7 +164,7 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 				Args: []string{"-c", strings.Join([]string{
 					`[ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true`,
 					`[ -f .trivyignore ] && cat .trivyignore; echo || true`,
-					`apk add curl`,
+					`apk add curl openssl`,
 
 					fmt.Sprintf(`trivy image \
   --timeout %dm \
@@ -175,13 +175,19 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
   --exit-code %d \
   %s:%s || true`, task.ScanTimeout, exitCode, imageFile, gitRef),
 
-					`export GHAS_TOKEN=$(curl \
-  --request POST \
-  --url "https://api.github.com/app/installations/89058518/access_tokens" \
-  --header "Accept: application/vnd.github+json" \
-  --header "Authorization: Bearer $HALFPIPE_JWT" \
-  --header "X-GitHub-Api-Version: 2022-11-28" |
-  grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')`,
+					`header_base64=$(echo -n '{"alg":"RS256","typ":"JWT"}' | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+iat=$(date +%s)
+exp=$((iat + 600))
+payload_base64=$(echo -n "{\"iat\":$iat,\"exp\":$exp,\"iss\":$GITHUB_APP_ID}" | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+unsigned_token="$header_base64.$payload_base64"
+echo "$GITHUB_PRIVATE_KEY" > /tmp/key
+signature=$(echo -n "$unsigned_token" | openssl dgst -sha256 -sign /tmp/key | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+jwt="$unsigned_token.$signature"
+
+export GHAS_TOKEN=$(curl -s -X POST \
+  -H "Authorization: Bearer $jwt" \
+  -H "Accept: application/vnd.github+json" \
+  "https://api.github.com/app/installations/$GITHUB_INSTALLATION_ID/access_tokens" | grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')`,
 
 					fmt.Sprintf(`curl -L \
   -X POST \
@@ -194,8 +200,10 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
-				"HALFPIPE_JWT":       "((halfpipe-bot.jwt))",
+				"DOCKER_CONFIG_JSON":     "((halfpipe-gcr.docker_config))",
+				"GITHUB_APP_ID":          "((halfpipe-bot.app_id))",
+				"GITHUB_INSTALLATION_ID": "((halfpipe-bot.installation_id))",
+				"GITHUB_PRIVATE_KEY":     "((halfpipe-bot.private_key))",
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},

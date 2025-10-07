@@ -96,7 +96,9 @@ jobs:
       - name: git
       params:
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
-        HALFPIPE_JWT: ((halfpipe-bot.jwt))
+        GITHUB_APP_ID: ((halfpipe-bot.app_id))
+        GITHUB_INSTALLATION_ID: ((halfpipe-bot.installation_id))
+        GITHUB_PRIVATE_KEY: ((halfpipe-bot.private_key))
       platform: linux
       run:
         args:
@@ -104,7 +106,7 @@ jobs:
         - |-
           [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
           [ -f .trivyignore ] && cat .trivyignore; echo || true
-          apk add curl
+          apk add curl openssl
           trivy image \
             --timeout 15m \
             --ignore-unfixed \
@@ -113,20 +115,26 @@ jobs:
             --output /tmp/trivy.sarif \
             --exit-code 0 \
             eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage:$(cat ../../../.git/ref) || true
-          export GHAS_TOKEN=$(curl \
-            --request POST \
-            --url "https://api.github.com/app/installations/89058518/access_tokens" \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer $HALFPIPE_JWT" \
-            --header "X-GitHub-Api-Version: 2022-11-28" |
-            grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')
+          header_base64=$(echo -n '{"alg":"RS256","typ":"JWT"}' | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          iat=$(date +%s)
+          exp=$((iat + 600))
+          payload_base64=$(echo -n "{\"iat\":$iat,\"exp\":$exp,\"iss\":$GITHUB_APP_ID}" | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          unsigned_token="$header_base64.$payload_base64"
+          echo "$GITHUB_PRIVATE_KEY" > /tmp/key
+          signature=$(echo -n "$unsigned_token" | openssl dgst -sha256 -sign /tmp/key | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          jwt="$unsigned_token.$signature"
+
+          export GHAS_TOKEN=$(curl -s -X POST \
+            -H "Authorization: Bearer $jwt" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/app/installations/$GITHUB_INSTALLATION_ID/access_tokens" | grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')
           curl -L \
             -X POST \
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${GHAS_TOKEN}" \
             -H "X-GitHub-Api-Version: 2022-11-28" \
             https://api.github.com/repos/springernature/halfpipe/code-scanning/sarifs \
-            -d '{"commit_sha":"'$(cat ../../../.git/ref)'","ref":"refs/heads/master","sarif":"'$(gzip -c /tmp/trivy.sarif | base64 -w0)'"}'
+            -d '{"commit_sha":"'$(cat ../../../.git/ref)'","ref":"refs/heads/main","sarif":"'$(gzip -c /tmp/trivy.sarif | base64 -w0)'"}'
         dir: git/e2e/concourse/docker-push-ghas-feature
         path: /bin/sh
     task: trivy
