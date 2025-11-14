@@ -181,7 +181,7 @@ jobs:
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/blah
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
