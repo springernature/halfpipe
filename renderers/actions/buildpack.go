@@ -19,7 +19,7 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 		Name: task.GetName(),
 		ID:   slug.Make(task.GetName()),
 		Env:  Env(task.Vars),
-		Uses: "springernature/ee-action-buildpack@v1",
+		Uses: ExternalActions.Buildpack,
 		With: With{
 			"builder":    task.Builder,
 			"buildpacks": strings.Join(task.Buildpacks, ","),

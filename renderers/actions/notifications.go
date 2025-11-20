@@ -2,8 +2,9 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func notify(notifications manifest.Notifications) (steps Steps) {
@@ -39,7 +40,7 @@ func notifySlack(channel string, msg string, success bool) Step {
 
 	step := Step{
 		Name: "Notify slack " + channel,
-		Uses: "slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a", //v2.1.1
+		Uses: ExternalActions.Slack,
 		With: With{
 			"method": "chat.postMessage",
 			"token":  githubSecrets.SlackToken,
@@ -79,7 +80,7 @@ func notifyTeams(webhook string, msg string, success bool, idx int, count int) S
 
 	step := Step{
 		Name: name,
-		Uses: "jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc", // v1.4
+		Uses: ExternalActions.Teams,
 		With: With{
 			"github-token":         "${{ github.token }}",
 			"ms-teams-webhook-uri": webhook,

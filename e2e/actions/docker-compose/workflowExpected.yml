@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
@@ -53,7 +53,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/docker-compose/foo e2e/actions/docker-compose/bar/baz
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
       with:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -64,7 +64,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
       with:
         name: artifacts-failure-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -91,14 +91,14 @@ jobs:
           /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Download artifacts
-      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         merge-multiple: true
     - name: Extract artifacts
@@ -141,7 +141,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false

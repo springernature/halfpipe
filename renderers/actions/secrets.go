@@ -2,9 +2,10 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/shared/secrets"
 	"sort"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/shared/secrets"
 )
 
 var githubSecrets = struct {
@@ -63,7 +64,7 @@ func fetchSecrets(secrets []*secrets.Secret) Step {
 	return Step{
 		Name: "Vault secrets",
 		ID:   "secrets",
-		Uses: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", // v3.4.0
+		Uses: ExternalActions.Vault,
 		With: With{
 			"url":       "https://vault.halfpipe.io",
 			"method":    "approle",

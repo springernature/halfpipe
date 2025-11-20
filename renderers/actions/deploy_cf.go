@@ -36,21 +36,19 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 		appPath = path.Join(appPath, task.DeployArtifact)
 	}
 
-	uses := "springernature/ee-action-deploy-cf@v1"
-
 	if task.SSORoute != "" {
-		steps = append(steps, a.configureSSOStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.configureSSOStep(task, manifestPath, appPath))
 	}
 
 	if len(task.PrePromote) == 0 {
-		steps = append(steps, a.allStep(task, manifestPath, appPath, man, uses))
+		steps = append(steps, a.allStep(task, manifestPath, appPath, man))
 	} else {
-		steps = append(steps, a.pushStep(task, manifestPath, appPath, man, uses))
-		steps = append(steps, a.logsStep(task, manifestPath, appPath, uses))
-		steps = append(steps, a.checkStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.pushStep(task, manifestPath, appPath, man))
+		steps = append(steps, a.logsStep(task, manifestPath, appPath))
+		steps = append(steps, a.checkStep(task, manifestPath, appPath))
 		steps = append(steps, a.prePromoteSteps(task, man)...)
-		steps = append(steps, a.promoteStep(task, manifestPath, appPath, uses))
-		steps = append(steps, a.cleanupStep(task, manifestPath, appPath, uses))
+		steps = append(steps, a.promoteStep(task, manifestPath, appPath))
+		steps = append(steps, a.cleanupStep(task, manifestPath, appPath))
 	}
 
 	steps = append(steps, a.SummaryStep())
@@ -58,10 +56,10 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 	return steps
 }
 
-func (a *Actions) configureSSOStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
+func (a *Actions) configureSSOStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Configure SSO",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command":    "halfpipe-sso",
 			"ssoHost":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
@@ -70,7 +68,7 @@ func (a *Actions) configureSSOStep(task manifest.DeployCF, manifestPath string, 
 	}
 }
 
-func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest, uses string) Step {
+func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest) Step {
 	envVars := map[string]string{}
 	for k, v := range task.Vars {
 		envVars[fmt.Sprintf("CF_ENV_VAR_%s", k)] = v
@@ -79,7 +77,7 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 
 	push := Step{
 		Name: "Push",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-push",
 			"team":    man.Team,
@@ -102,28 +100,28 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 	return push
 }
 
-func (a *Actions) allStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest, uses string) Step {
-	t := a.pushStep(task, manifestPath, appPath, man, uses)
+func (a *Actions) allStep(task manifest.DeployCF, manifestPath string, appPath string, man manifest.Manifest) Step {
+	t := a.pushStep(task, manifestPath, appPath, man)
 	t.Name = "Deploy"
 	t.With["command"] = "halfpipe-all"
 	return t
 }
 
-func (a *Actions) logsStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
+func (a *Actions) logsStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "cf logs --recent",
 		If:   "failure()",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-logs",
 		}),
 	}
 }
 
-func (a *Actions) checkStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
+func (a *Actions) checkStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Check",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-check",
 		}),
@@ -162,10 +160,10 @@ func (a *Actions) prePromoteSteps(task manifest.DeployCF, man manifest.Manifest)
 	return prePromotes
 }
 
-func (a *Actions) promoteStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
+func (a *Actions) promoteStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Promote",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-promote",
 		}),
@@ -183,11 +181,11 @@ func (a *Actions) SummaryStep() Step {
 	}
 }
 
-func (a *Actions) cleanupStep(task manifest.DeployCF, manifestPath string, appPath string, uses string) Step {
+func (a *Actions) cleanupStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Cleanup",
 		If:   "${{ !cancelled() }}",
-		Uses: uses,
+		Uses: ExternalActions.DeployCF,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-cleanup",
 		}),

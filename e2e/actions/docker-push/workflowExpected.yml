@@ -28,7 +28,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
@@ -44,7 +44,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/docker-push/target/app.zip
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
       with:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -57,14 +57,14 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Download artifacts
-      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         merge-multiple: true
     - name: Extract artifacts
@@ -93,7 +93,7 @@ jobs:
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
@@ -105,14 +105,14 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Download artifacts
-      uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
       with:
         merge-multiple: true
     - name: Extract artifacts
@@ -141,7 +141,7 @@ jobs:
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
@@ -164,7 +164,7 @@ jobs:
           /springernature/data/halfpipe-team/secret c | springernature_data_halfpipe-team_secret_c ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
       with:
         lfs: true
         show-progress: false
@@ -197,7 +197,7 @@ jobs:
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
     - name: Repository dispatch
-      uses: peter-evans/repository-dispatch@5fc4efd1a4797ddb68ffd0714a238564e4cc0e6f
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
