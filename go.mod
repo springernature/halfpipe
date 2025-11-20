@@ -6,7 +6,7 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
-	github.com/cloudfoundry/bosh-utils v0.0.555 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.569 // indirect
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/gookit/color v1.6.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
@@ -38,7 +38,8 @@ require (
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/bmizerany/pat v0.0.0-20210406213842-e4b6760bdd6f // indirect
 	github.com/charlievieth/fs v0.0.3 // indirect
-	github.com/clipperhouse/uax29/v2 v2.2.0 // indirect
+	github.com/clipperhouse/stringish v0.1.1 // indirect
+	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
@@ -48,16 +49,15 @@ require (
 	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/tedsuo/rata v1.0.1-0.20170830210128-07d200713958 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.yaml.in/yaml/v2 v2.4.3 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
-	golang.org/x/crypto v0.42.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/exp v0.0.0-20240909161429-701f63a606c0 // indirect
-	golang.org/x/net v0.44.0 // indirect
-	golang.org/x/sys v0.36.0 // indirect
-	golang.org/x/text v0.29.0 // indirect
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
