@@ -89,6 +89,26 @@ func (tl TaskList) UsesSlackNotifications() bool {
 	return false
 }
 
+func (tl TaskList) UsesDockerPush() bool {
+	for _, task := range tl {
+		switch task := task.(type) {
+		case Parallel:
+			if task.Tasks.UsesDockerPush() {
+				return true
+			}
+		case Sequence:
+			if task.Tasks.UsesDockerPush() {
+				return true
+			}
+		default:
+			if strings.Contains(task.GetName(), "docker-push") {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func (tl TaskList) UsesTeamsNotifications() bool {
 	for _, task := range tl {
 		switch task := task.(type) {
