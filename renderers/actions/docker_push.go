@@ -34,6 +34,10 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		},
 	}
 
+	if task.UseCache {
+		push.With["useCache"] = "${{ inputs.useCache == 'true' }}"
+	}
+
 	if man.FeatureToggles.Ghas() {
 		push.With["ghas"] = "true"
 		push.With["githubPat"] = "${{ secrets.GITHUB_TOKEN }}"

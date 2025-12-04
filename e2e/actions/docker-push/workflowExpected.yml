@@ -245,6 +245,7 @@ jobs:
           latest
           ${{ env.BUILD_VERSION }}
           ${{ env.GIT_REVISION }}
+        useCache: ${{ inputs.useCache == 'true' }}
     - name: Repository dispatch
       uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
       with:

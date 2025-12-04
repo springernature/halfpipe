@@ -89,10 +89,12 @@ func (tl TaskList) UsesSlackNotifications() bool {
 	return false
 }
 
-func (tl TaskList) UsesDockerPush() bool {
+func (tl TaskList) UsesDockerPushWithCache() bool {
 	return slices.ContainsFunc(tl.Flatten(), func(t Task) bool {
-		_, ok := t.(DockerPush)
-		return ok
+		if d, ok := t.(DockerPush); ok {
+			return d.UseCache
+		}
+		return false
 	})
 }
 

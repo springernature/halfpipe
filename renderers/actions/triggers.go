@@ -11,7 +11,7 @@ func (a *Actions) triggers(man manifest.Manifest) (on On) {
 	for _, t := range man.Triggers {
 		switch trigger := t.(type) {
 		case manifest.GitTrigger:
-			if man.Tasks.UsesDockerPush() {
+			if man.Tasks.UsesDockerPushWithCache() {
 				on.WorkflowDispatch = a.onWorkflowDispatchUsesDockerPush()
 			}
 			on.Push = a.onPush(trigger, man.PipelineName())
