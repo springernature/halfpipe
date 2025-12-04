@@ -9,9 +9,9 @@ name: pipeline-name
     - docker-push:eu.gcr.io/halfpipe-io/baseImage
   workflow_dispatch:
     inputs:
-      usecache:
+      useCache:
         description: Use the docker build cache
-        default: "false"
+        default: "true"
         type: choice
         options:
         - "true"

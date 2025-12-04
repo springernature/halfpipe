@@ -72,10 +72,10 @@ func (a *Actions) onRepositoryDispatch(name string) RepositoryDispatch {
 func (a *Actions) onWorkflowDispatchUsesDockerPush() WorkflowDispatch {
 	return WorkflowDispatch{
 		Inputs: map[string]Input{
-			"usecache": {
+			"useCache": {
 				Description: "Use the docker build cache",
 				Required:    false,
-				Default:     "false",
+				Default:     "true",
 				Type:        "choice",
 				Options:     []string{"true", "false"},
 			},
