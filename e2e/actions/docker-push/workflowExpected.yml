@@ -7,7 +7,15 @@ name: pipeline-name
   repository_dispatch:
     types:
     - docker-push:eu.gcr.io/halfpipe-io/baseImage
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      usecache:
+        description: Use the docker build cache
+        default: "false"
+        type: choice
+        options:
+        - "true"
+        - "false"
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
@@ -192,6 +200,47 @@ jobs:
           "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
           "C=${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}"
           "D=d"
+        tags: |
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+  push_with_cache:
+    name: Push with cache
+    needs:
+    - push_with_secrets
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
+      with:
+        buildArgs: |
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "GIT_REVISION"
+          "RUNNING_IN_CI"
+        context: e2e/actions/docker-push
+        dockerfile: e2e/actions/docker-push/Dockerfile
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        platforms: linux/amd64
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
         tags: |
           latest
           ${{ env.BUILD_VERSION }}

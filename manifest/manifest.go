@@ -89,6 +89,13 @@ func (tl TaskList) UsesSlackNotifications() bool {
 	return false
 }
 
+func (tl TaskList) UsesDockerPush() bool {
+	return slices.ContainsFunc(tl.Flatten(), func(t Task) bool {
+		_, ok := t.(DockerPush)
+		return ok
+	})
+}
+
 func (tl TaskList) UsesTeamsNotifications() bool {
 	for _, task := range tl {
 		switch task := task.(type) {

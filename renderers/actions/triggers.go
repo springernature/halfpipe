@@ -2,14 +2,18 @@ package actions
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
 )
 
 func (a *Actions) triggers(man manifest.Manifest) (on On) {
 	for _, t := range man.Triggers {
 		switch trigger := t.(type) {
 		case manifest.GitTrigger:
+			if man.Tasks.UsesDockerPush() {
+				on.WorkflowDispatch = a.onWorkflowDispatchUsesDockerPush()
+			}
 			on.Push = a.onPush(trigger, man.PipelineName())
 		case manifest.TimerTrigger:
 			on.Schedule = a.onSchedule(trigger)
@@ -62,5 +66,19 @@ func (a *Actions) onSchedule(timer manifest.TimerTrigger) []Cron {
 func (a *Actions) onRepositoryDispatch(name string) RepositoryDispatch {
 	return RepositoryDispatch{
 		Types: []string{"docker-push:" + name},
+	}
+}
+
+func (a *Actions) onWorkflowDispatchUsesDockerPush() WorkflowDispatch {
+	return WorkflowDispatch{
+		Inputs: map[string]Input{
+			"usecache": {
+				Description: "Use the docker build cache",
+				Required:    false,
+				Default:     "false",
+				Type:        "choice",
+				Options:     []string{"true", "false"},
+			},
+		},
 	}
 }

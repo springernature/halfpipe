@@ -2,9 +2,10 @@ package actions
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"sort"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 type Workflow struct {
@@ -23,7 +24,17 @@ type On struct {
 	WorkflowDispatch   WorkflowDispatch   `yaml:"workflow_dispatch"`
 }
 
-type WorkflowDispatch struct{}
+type WorkflowDispatch struct {
+	Inputs map[string]Input `yaml:"inputs,omitempty"`
+}
+
+type Input struct {
+	Description string   `yaml:"description,omitempty"`
+	Required    bool     `yaml:"required,omitempty"`
+	Default     string   `yaml:"default,omitempty"`
+	Type        string   `yaml:"type,omitempty"`
+	Options     []string `yaml:"options,omitempty"`
+}
 
 type RepositoryDispatch struct {
 	Types []string `yaml:"types,omitempty"`
