@@ -75,7 +75,7 @@ func (a *Actions) onWorkflowDispatchUsesDockerPush() WorkflowDispatch {
 			"usecache": {
 				Description: "Use the docker build cache",
 				Required:    false,
-				Default:     "true",
+				Default:     "false",
 				Type:        "choice",
 				Options:     []string{"true", "false"},
 			},

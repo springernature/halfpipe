@@ -38,3 +38,8 @@ tasks:
   secrets:
     C: ((secret.c))
     D: d
+
+- type: docker-push
+  name: Push with cache
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+  use_cache: true

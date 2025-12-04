@@ -90,23 +90,10 @@ func (tl TaskList) UsesSlackNotifications() bool {
 }
 
 func (tl TaskList) UsesDockerPush() bool {
-	for _, task := range tl {
-		switch task := task.(type) {
-		case Parallel:
-			if task.Tasks.UsesDockerPush() {
-				return true
-			}
-		case Sequence:
-			if task.Tasks.UsesDockerPush() {
-				return true
-			}
-		default:
-			if strings.Contains(task.GetName(), "docker-push") {
-				return true
-			}
-		}
-	}
-	return false
+	return slices.ContainsFunc(tl.Flatten(), func(t Task) bool {
+		_, ok := t.(DockerPush)
+		return ok
+	})
 }
 
 func (tl TaskList) UsesTeamsNotifications() bool {
