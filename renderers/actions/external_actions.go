@@ -15,7 +15,7 @@ var ExternalActions = struct {
 	Vault              string
 }{
 	Buildpack:          "springernature/ee-action-buildpack@v1",
-	Checkout:           "actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd", // v5
+	Checkout:           "actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8", // v6
 	DeployCF:           "springernature/ee-action-deploy-cf@v1",
 	DeployKatee:        "springernature/ee-action-deploy-katee@v1",
 	DockerLogin:        "docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567", // v3

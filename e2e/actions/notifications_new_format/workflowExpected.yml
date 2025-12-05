@@ -36,7 +36,7 @@ jobs:
           /springernature/data/halfpipe-team/secret webhook1 | springernature_data_halfpipe-team_secret_webhook1 ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
       with:
         lfs: true
         show-progress: false
