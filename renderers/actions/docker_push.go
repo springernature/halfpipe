@@ -34,8 +34,10 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		},
 	}
 
+	// useCache will be set on manual "workflow dispatch" trigger.
+	// otherwise it will be an empty string and we default it to true
 	if task.UseCache {
-		push.With["useCache"] = "${{ inputs.useCache == 'true' }}"
+		push.With["useCache"] = "${{ inputs.useCache == '' || inputs.useCache == 'true' }}"
 	}
 
 	if man.FeatureToggles.Ghas() {
