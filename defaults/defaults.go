@@ -81,4 +81,9 @@ var Actions = Defaults{
 	Buildpack: BuildpackDefaults{
 		Builder: "paketobuildpacks/builder-jammy-buildpackless-base",
 	},
+	AWSDocker: AWSDockerDefaults{
+		Region:          "cn-northwest-1",
+		AccessKeyID:     "((/springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id))",
+		SecretAccessKey: "((/springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key))",
+	},
 }

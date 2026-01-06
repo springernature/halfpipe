@@ -24,6 +24,7 @@ type tasksDefaulter struct {
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
 	buildpackDefaulter                   func(original manifest.Buildpack, defaults Defaults) (updated manifest.Buildpack)
+	dockerPushAWSDefaulter               func(original manifest.DockerPushAWS, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPushAWS)
 
 	tasksRenamer          TasksRenamer
 	tasksTimeoutDefaulter TasksTimeoutDefaulter
@@ -41,6 +42,7 @@ func NewTaskDefaulter() TasksDefaulter {
 		deployMlZipDefaulter:                 deployMlZipDefaulter,
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
 		buildpackDefaulter:                   buildpackDefaulter,
+		dockerPushAWSDefaulter:               dockerPushAWSDefaulter,
 
 		tasksRenamer:          NewTasksRenamer(),
 		tasksTimeoutDefaulter: NewTasksTimeoutDefaulter(),
@@ -64,7 +66,7 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 		case manifest.DockerPush:
 			tt = t.dockerPushDefaulter(task, man, defaults)
 		case manifest.DockerPushAWS:
-			tt = task
+			tt = t.dockerPushAWSDefaulter(task, man, defaults)
 		case manifest.DeployCF:
 			ppTasks := t.Apply(task.PrePromote, defaults, man)
 			task = t.deployCfDefaulter(task, defaults, man)

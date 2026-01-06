@@ -33,8 +33,8 @@ jobs:
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
         secrets: |
-          /springernature/data/halfpipe-team/ee-private-ecr-user aws_access_key_id | springernature_data_halfpipe-team_ee-private-ecr-user_aws_access_key_id ;
-          /springernature/data/halfpipe-team/ee-private-ecr-user aws_secret_access_key | springernature_data_halfpipe-team_ee-private-ecr-user_aws_secret_access_key ;
+          /springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id | springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id ;
+          /springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key | springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key ;
         url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
@@ -46,9 +46,9 @@ jobs:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708
       with:
-        aws-access-key-id: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_ee-private-ecr-user_aws_access_key_id }}
+        aws-access-key-id: ${{ steps.secrets.outputs.springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id }}
         aws-region: cn-northwest-1
-        aws-secret-access-key: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_ee-private-ecr-user_aws_secret_access_key }}
+        aws-secret-access-key: ${{ steps.secrets.outputs.springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key }}
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076

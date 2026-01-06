@@ -71,6 +71,12 @@ type MarkLogicDefaults struct {
 	Password string
 }
 
+type AWSDockerDefaults struct {
+	Region          string
+	AccessKeyID     string
+	SecretAccessKey string
+}
+
 type Defaults struct {
 	Project project.Data
 
@@ -83,6 +89,7 @@ type Defaults struct {
 	Concourse      ConcourseDefaults
 	MarkLogic      MarkLogicDefaults
 	Buildpack      BuildpackDefaults
+	AWSDocker      AWSDockerDefaults
 
 	Timeout string
 
