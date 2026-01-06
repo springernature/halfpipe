@@ -44,7 +44,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/foo.txt e2e/actions/artifacts/target/bar.txt e2e/actions/test.sh
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
       with:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -55,7 +55,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
       with:
         name: artifacts-failure-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -75,7 +75,7 @@ jobs:
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
     - name: Download artifacts
-      uses: actions/download-artifact@018cc2cf5baa6db3ef3c5f8a56943fffe632ef53
+      uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
       with:
         merge-multiple: true
     - name: Extract artifacts
@@ -125,7 +125,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/artifacts/docker-compose.yml
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
       with:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -136,7 +136,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
-      uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
       with:
         name: artifacts-failure-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
