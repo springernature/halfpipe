@@ -58,6 +58,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(Run{}),
 		reflect.TypeOf(Docker{}),
 		reflect.TypeOf(DockerPush{}),
+		reflect.TypeOf(DockerPushAWS{}),
 		reflect.TypeOf(DockerCompose{}),
 		reflect.TypeOf(DeployCF{}),
 		reflect.TypeOf(DeployKatee{}),

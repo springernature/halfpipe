@@ -103,6 +103,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			errs = linter.lintDeployKateeTask(task, man, linter.Fs)
 		case manifest.DockerPush:
 			errs = linter.lintDockerPushTask(task, man, linter.Fs)
+		case manifest.DockerPushAWS:
+			// No linting for docker-push-aws (minimal implementation)
 		case manifest.DockerCompose:
 			errs = linter.lintDockerComposeTask(task, linter.Fs)
 		case manifest.ConsumerIntegrationTest:

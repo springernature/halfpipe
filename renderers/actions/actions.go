@@ -117,6 +117,8 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			appendJob(a.updateSteps(task, man), task, needs)
 		case manifest.DockerPush:
 			appendJob(a.dockerPushSteps(task, man), task, needs)
+		case manifest.DockerPushAWS:
+			appendJob(a.dockerPushAWSSteps(task, man), task, needs)
 		case manifest.Run:
 			appendJob(a.runSteps(task), task, needs)
 		case manifest.DockerCompose:

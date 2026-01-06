@@ -63,6 +63,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = t.dockerComposeDefaulter(task, defaults)
 		case manifest.DockerPush:
 			tt = t.dockerPushDefaulter(task, man, defaults)
+		case manifest.DockerPushAWS:
+			tt = task
 		case manifest.DeployCF:
 			ppTasks := t.Apply(task.PrePromote, defaults, man)
 			task = t.deployCfDefaulter(task, defaults, man)
