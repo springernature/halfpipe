@@ -3,7 +3,7 @@ name: pipeline-name
 "on":
   push:
     branches:
-    - ""
+    - main
   workflow_dispatch: {}
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
