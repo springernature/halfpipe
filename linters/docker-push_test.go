@@ -394,4 +394,16 @@ func TestRegistry(t *testing.T) {
 		assertContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
 	})
 
+	t.Run("image is in ECR with valid credentials - actions", func(t *testing.T) {
+		task := manifest.DockerPush{
+			Image:          "744877006609.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ee-run/testrepo",
+			DockerfilePath: "Dockerfile",
+		}
+		man := manifest.Manifest{Platform: "actions", Team: "teamA"}
+
+		errors := LintDockerPushTask(task, man, fs)
+		assertNotContainsError(t, errors, ErrDockerRegistry.WithValue(task.Image))
+		assertContainsError(t, errors, ErrECRExperimental.AsWarning())
+	})
+
 }

@@ -47,11 +47,12 @@ var (
 
 	ErrUnsupportedRegistry = newError("image must be from halfpipe registry. Please see <https://ee.public.springernature.app/rel-eng/docker-registry/>")
 	ErrDockerPushTag       = newError("the field 'tag' is no longer used and is safe to delete")
+	ErrECRExperimental     = newError("AWS ECR support is experimental")
 
 	ErrDockerPlatformUnknown = newError("only linux/amd64 and/or linux/arm64 are supported")
 	ErrDockerComposeVersion  = newError("the docker-compose file version used is deprecated. All services must be under the 'services' key and 'Version' must be '2' or higher. Please see <https://docs.docker.com/compose/compose-file/compose-versioning/#versioning>")
 	ErrDockerVarSecret       = newError("using a secret in docker build vars is not secure. See the 'secrets' option of the docker-push task")
-	ErrDockerRegistry        = newError("image should be pushed to 'eu.gcr.io/halfpipe-io/<team>/<image>'")
+	ErrDockerRegistry        = newError("image should be pushed to 'eu.gcr.io/halfpipe-io/<team>/<image>' or AWS ECR")
 
 	ErrMultipleTriggers = newError("cannot have multiple triggers of this type")
 

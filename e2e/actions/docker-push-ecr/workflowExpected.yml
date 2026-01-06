@@ -1,0 +1,80 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file e2e/actions/docker-push-ecr/.halfpipe.io for team halfpipe-team
+name: pipeline-ecr
+"on":
+  push:
+    branches:
+    - ""
+  workflow_dispatch: {}
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: e2e/actions/docker-push-ecr
+concurrency: ${{ github.workflow }}
+jobs:
+  push_to_ecr:
+    name: Push to ECR
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Install AWS CLI
+      uses: unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091571
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe175a
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-region: cn-northwest-1
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+    - name: Create ECR repository (if not exists)
+      run: |-
+        aws ecr describe-repositories --repository-names ee-run/testrepo --region cn-northwest-1 2>/dev/null || \
+        aws ecr create-repository \
+          --repository-name ee-run/testrepo \
+          --region cn-northwest-1 \
+          --image-scanning-configuration scanOnPush=true
+    - name: Build, tag, and push Docker image to ECR
+      run: |-
+        # Build the Docker image
+        docker build -t $ECR_REGISTRY/ee-run/testrepo:$IMAGE_TAG \
+          -t $ECR_REGISTRY/ee-run/testrepo:${{ env.GIT_REVISION }} \
+          -t $ECR_REGISTRY/ee-run/testrepo:latest \
+          -f e2e/actions/docker-push-ecr/Dockerfile \
+          --build-arg ARTIFACTORY_PASSWORD \
+          --build-arg ARTIFACTORY_URL \
+          --build-arg ARTIFACTORY_USERNAME \
+          --build-arg BUILD_VERSION \
+          --build-arg GIT_REVISION \
+          --build-arg RUNNING_IN_CI \
+          e2e/actions/docker-push-ecr
+
+        # Push the image to ECR
+        docker push $ECR_REGISTRY/ee-run/testrepo:$IMAGE_TAG
+        docker push $ECR_REGISTRY/ee-run/testrepo:${{ env.GIT_REVISION }}
+        docker push $ECR_REGISTRY/ee-run/testrepo:latest
+
+        echo "✅ Image pushed: $ECR_REGISTRY/ee-run/testrepo:$IMAGE_TAG"
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ env.BUILD_VERSION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697
+      with:
+        event-type: docker-push:744877006609.dkr.ecr.cn-northwest-1.amazonaws.com.cn/ee-run/testrepo
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}

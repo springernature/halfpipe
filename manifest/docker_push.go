@@ -1,5 +1,7 @@
 package manifest
 
+import "strings"
+
 type DockerPush struct {
 	Type                  string
 	Name                  string        `yaml:"name,omitempty"`
@@ -98,6 +100,11 @@ func (r DockerPush) ReadsFromArtifacts() bool {
 
 func (r DockerPush) GetAttempts() int {
 	return 1 + r.Retries
+}
+
+func (r DockerPush) IsECR() bool {
+	// ECR format: [ACCOUNT_ID].dkr.ecr.[REGION].amazonaws.com[.cn]/[NAMESPACE]/[IMAGE]
+	return strings.Contains(r.Image, ".dkr.ecr.") && strings.Contains(r.Image, ".amazonaws.com")
 }
 
 func (r DockerPush) GetGitHubEnvironment() GitHubEnvironment {
