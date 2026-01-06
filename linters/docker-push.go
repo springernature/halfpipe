@@ -21,10 +21,15 @@ func LintDockerPushTask(docker manifest.DockerPush, man manifest.Manifest, fs af
 	}
 
 	if man.Platform.IsActions() {
-		// we only allow pushing to halfpipe GCR in github actions
-		if !strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") {
+		// we allow pushing to halfpipe GCR or ECR in github actions
+		if !strings.HasPrefix(docker.Image, "eu.gcr.io/halfpipe-io/") && !docker.IsECR() {
 			errs = append(errs, ErrDockerRegistry.WithValue(docker.Image))
 		}
+	}
+
+	// Validate ECR configuration
+	if docker.IsECR() {
+		errs = append(errs, ErrECRExperimental.AsWarning())
 	}
 
 	if docker.Retries < 0 || docker.Retries > 5 {

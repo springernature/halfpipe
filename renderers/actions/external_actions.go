@@ -1,6 +1,9 @@
 package actions
 
 var ExternalActions = struct {
+	AWSCredentials     string
+	AWSCLI             string
+	AWSECRLogin        string
 	Buildpack          string
 	Checkout           string
 	DeployCF           string
@@ -14,6 +17,9 @@ var ExternalActions = struct {
 	UploadArtifact     string
 	Vault              string
 }{
+	AWSCredentials:     "aws-actions/configure-aws-credentials@ececac1a45f3b08a01d2dd070d28d111c5fe175a", // v4
+	AWSCLI:             "unfor19/install-aws-cli-action@e8b481e524a99f37fbd39fdc1dcb3341ab091571",        // v1
+	AWSECRLogin:        "aws-actions/amazon-ecr-login@v2",
 	Buildpack:          "springernature/ee-action-buildpack@v1",
 	Checkout:           "actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8", // v6
 	DeployCF:           "springernature/ee-action-deploy-cf@v1",
