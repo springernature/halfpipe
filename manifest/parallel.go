@@ -7,18 +7,6 @@ type Parallel struct {
 	Tasks TaskList `yaml:"tasks,omitempty"`
 }
 
-func (p Parallel) GetSecrets() map[string]string {
-	panic("GetSecret should never be called on a Sequence")
-}
-
-func (p Parallel) GetBuildHistory() int {
-	panic("GetBuildHistory should never be used as we only care about sub tasks")
-}
-
-func (p Parallel) SetBuildHistory(buildHistory int) Task {
-	panic("GetBuildHistory should never be used as we only care about sub tasks")
-}
-
 func (p Parallel) GetNotifications() Notifications {
 	panic("GetNotifications should never be used as we only care about sub tasks")
 }

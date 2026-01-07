@@ -20,20 +20,6 @@ type DockerCompose struct {
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-}
-
-func (r DockerCompose) GetSecrets() map[string]string {
-	return findSecrets(map[string]string{})
-}
-
-func (r DockerCompose) GetBuildHistory() int {
-	return r.BuildHistory
-}
-
-func (r DockerCompose) SetBuildHistory(buildHistory int) Task {
-	r.BuildHistory = buildHistory
-	return r
 }
 
 func (r DockerCompose) GetNotifications() Notifications {

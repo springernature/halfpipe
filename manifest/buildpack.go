@@ -7,7 +7,6 @@ type Buildpack struct {
 	Path             string        `json:"path" yaml:"path"`
 	Image            string        `json:"image,omitempty" yaml:"image,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	Name             string        `json:"name,omitempty" yaml:"name,omitempty"`
 	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
@@ -15,19 +14,6 @@ type Buildpack struct {
 	RestoreArtifacts bool          `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty"`
 	Retries          int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-}
-
-func (p Buildpack) GetSecrets() map[string]string {
-	return findSecrets(map[string]string{})
-}
-
-func (p Buildpack) GetBuildHistory() int {
-	return p.BuildHistory
-}
-
-func (p Buildpack) SetBuildHistory(buildHistory int) Task {
-	p.BuildHistory = buildHistory
-	return p
 }
 
 func (p Buildpack) GetNotifications() Notifications {

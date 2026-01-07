@@ -187,11 +187,6 @@ type Task interface {
 	SetNotifications(notifications Notifications) Task
 	SetNotifyOnSuccess(notifyOnSuccess bool) Task
 
-	GetBuildHistory() int
-	SetBuildHistory(buildHistory int) Task
-
-	GetSecrets() map[string]string
-
 	GetGitHubEnvironment() GitHubEnvironment
 
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
@@ -199,7 +194,6 @@ type Task interface {
 
 type Trigger interface {
 	GetTriggerName() string
-	GetTriggerAttempts() int
 	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
 }
 

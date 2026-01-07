@@ -7,18 +7,6 @@ type Sequence struct {
 	Tasks TaskList
 }
 
-func (s Sequence) GetSecrets() map[string]string {
-	panic("GetSecret should never be called on a Sequence")
-}
-
-func (s Sequence) GetBuildHistory() int {
-	panic("GetBuildHistory should never be used for a sequence task as we only care about sub tasks")
-}
-
-func (s Sequence) SetBuildHistory(buildHistory int) Task {
-	panic("SetBuildHistory should never be used for a sequence task as we only care about sub tasks")
-}
-
 func (s Sequence) GetNotifications() Notifications {
 	panic("GetNotifications should never be used for a sequence task as we only care about sub tasks")
 }

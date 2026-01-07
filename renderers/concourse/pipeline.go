@@ -364,7 +364,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 	job.OnFailure = c.onFailure(task, man)
 	job.OnSuccess = c.onSuccess(task, man)
-	job.BuildLogRetention = c.buildLogRetention(task)
+	job.BuildLogRetention = c.buildLogRetention()
 	job.PlanSequence = append(initialPlan, job.PlanSequence...)
 
 	return job
@@ -422,15 +422,10 @@ func (c Concourse) addPassedJobsToGets(task atc.Step, passedJobs []string) atc.S
 	return task
 }
 
-func (c Concourse) buildLogRetention(task manifest.Task) *atc.BuildLogRetention {
-	retention := atc.BuildLogRetention{
+func (c Concourse) buildLogRetention() *atc.BuildLogRetention {
+	return &atc.BuildLogRetention{
 		MinimumSucceededBuilds: 1,
 	}
-	if task.GetBuildHistory() != 0 {
-		retention.Builds = task.GetBuildHistory()
-	}
-
-	return &retention
 }
 
 func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man manifest.Manifest) atc.Step {

@@ -15,20 +15,6 @@ type DeployMLModules struct {
 	UseBuildVersion  bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 	Username         string        `json:"username" yaml:"username,omitempty" secretAllowed:"true"`
 	Password         string        `json:"password" yaml:"password,omitempty" secretAllowed:"true"`
-	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-}
-
-func (r DeployMLModules) GetSecrets() map[string]string {
-	return findSecrets(map[string]string{})
-}
-
-func (r DeployMLModules) GetBuildHistory() int {
-	return r.BuildHistory
-}
-
-func (r DeployMLModules) SetBuildHistory(buildHistory int) Task {
-	r.BuildHistory = buildHistory
-	return r
 }
 
 func (r DeployMLModules) GetNotifications() Notifications {

@@ -52,7 +52,6 @@ halfpipe-deploy`,
 		NotifyOnSuccess: task.NotifyOnSuccess,
 		Notifications:   task.Notifications,
 		Timeout:         task.Timeout,
-		BuildHistory:    task.BuildHistory,
 	}
 
 	for k, v := range task.Vars {

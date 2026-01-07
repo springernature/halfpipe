@@ -17,10 +17,6 @@ type PipelineTrigger struct {
 	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
-func (p PipelineTrigger) GetTriggerAttempts() int {
-	return 2
-}
-
 func (p PipelineTrigger) MarshalYAML() (interface{}, error) {
 	p.Type = "pipeline"
 	return p, nil

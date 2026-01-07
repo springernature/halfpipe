@@ -14,6 +14,5 @@ tasks:
   privileged: false
   docker:
     image: alpine:test
-  build_history: 10
   vars:
     MULTIPLE: ((levels/secret/deep.secret))

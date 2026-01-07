@@ -9,10 +9,6 @@ type DockerTrigger struct {
 	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
 }
 
-func (d DockerTrigger) GetTriggerAttempts() int {
-	return 2
-}
-
 func (d DockerTrigger) MarshalYAML() (interface{}, error) {
 	d.Type = "docker"
 	return d, nil
