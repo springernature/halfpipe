@@ -67,6 +67,9 @@ var (
 	ErrUnsupportedGitUri          = newError("git uri is not supported in GitHub Actions")
 	ErrUnsupportedPipelineTrigger = newError("pipeline triggers are not supported in GitHub Actions")
 
+	ErrDockerPushAWSActionsOnly  = newError("docker-push-aws is only supported in GitHub Actions")
+	ErrDockerPushAWSExperimental = newError("docker-push-aws is experimental, has no support, and is subject to change").AsWarning()
+
 	ErrSlackSuccessMessageFieldDeprecated = newError("'slack_success_message' is deprecated, please use new notification structure")
 	ErrSlackFailureMessageFieldDeprecated = newError("'slack_failure_message' is deprecated, please use new notification structure")
 	ErrOnlySlackOrTeamsAllowed            = newError("You cannot define both 'slack' and 'teams' in the notifications")
