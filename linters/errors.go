@@ -75,6 +75,15 @@ var (
 	ErrOnlySlackOrTeamsAllowed            = newError("You cannot define both 'slack' and 'teams' in the notifications")
 
 	ErrInvalidBuilder = newError("must be an official paketo builder in format 'paketobuildpacks/<builder>'. See <https://paketo.io/docs/reference/builders-reference/>.")
+
+	ErrScriptMustExistInDockerImage  = newError("make sure script is present in the docker image")
+	ErrWindowsScriptMustBeExecutable = newError("make sure script is executable")
+
+	ErrReadsFromSavedArtifacts = newError("reads from saved artifacts, but there are no previous tasks that saves any")
+
+	ErrUnsupportedFeature          = newError("unsupported feature")
+	ErrUnsupportedFeatureVersioned = newError("feature 'versioned' is no longer supported. The same functionality is included in the 'update-pipeline' feature")
+	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
 )
 
 type Error struct {

@@ -59,7 +59,6 @@ func lintDockerComposeService(service string, composeFile string, composeContent
 	}
 
 	if compose.Services == nil || strings.HasPrefix(compose.Version, "1") {
-		fmt.Println("SSS", compose.Services == nil)
 		return false, ErrDockerComposeVersion.WithFile(composeFile).AsWarning()
 	}
 

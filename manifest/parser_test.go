@@ -193,7 +193,6 @@ tasks:
       name: pr2
 `)
 
-	fmt.Print(errs)
 	expected := Manifest{
 		Team:     "my team",
 		Pipeline: "my pipeline",

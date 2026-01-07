@@ -1,14 +1,9 @@
 package linters
 
 import (
-	"github.com/springernature/halfpipe/manifest"
 	"slices"
-)
 
-var (
-	ErrUnsupportedFeature          = newError("unsupported feature")
-	ErrUnsupportedFeatureVersioned = newError("feature 'versioned' is no longer supported. The same functionality is included in the 'update-pipeline' feature")
-	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
+	"github.com/springernature/halfpipe/manifest"
 )
 
 type featureToggleLinter struct {

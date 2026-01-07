@@ -2,12 +2,11 @@ package linters
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/manifest"
 	"regexp"
 	"slices"
-)
 
-var ErrReadsFromSavedArtifacts = newError("reads from saved artifacts, but there are no previous tasks that saves any")
+	"github.com/springernature/halfpipe/manifest"
+)
 
 func LintArtifacts(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 	if currentTask.ReadsFromArtifacts() && !previousTasksSavesArtifact(previousTasks) {

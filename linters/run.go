@@ -1,13 +1,11 @@
 package linters
 
 import (
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
-	"strings"
 )
-
-var ErrScriptMustExistInDockerImage = newError("make sure script is present in the docker image")
-var ErrWindowsScriptMustBeExecutable = newError("make sure script is executable")
 
 func LintRunTask(run manifest.Run, fs afero.Afero, os string) (errs []error) {
 	if run.Script == "" {
