@@ -17,10 +17,6 @@ type OutputDefaulter interface {
 	Apply(original manifest.Manifest) (updated manifest.Manifest)
 }
 
-type BuildHistoryDefaulter interface {
-	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
-}
-
 type CFSnPaaS struct {
 	Username string
 	Password string

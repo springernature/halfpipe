@@ -24,13 +24,11 @@ tasks:
   password: verysecret
   image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
   retries: 1
-  ignore_vulnerabilities: true
   scan_timeout: 30
 
 - type: docker-push
   image: springerplatformengineering/halfpipe_fly:thisIsMy_Tag2
   retries: 1
-  ignore_vulnerabilities: true
   scan_timeout: 30
   use_cache: true
   platforms:
