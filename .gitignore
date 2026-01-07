@@ -8,3 +8,5 @@ pipelineActual.yml
 workflowActual.yml
 e2e/concourse/init/.halfpipe.io
 e2e/shell/all/*_actual.txt
+
+AGENTS.md
