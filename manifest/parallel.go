@@ -7,6 +7,14 @@ type Parallel struct {
 	Tasks TaskList `yaml:"tasks,omitempty"`
 }
 
+func (p Parallel) GetBuildHistory() int {
+	panic("GetBuildHistory should never be used as we only care about sub tasks")
+}
+
+func (p Parallel) SetBuildHistory(buildHistory int) Task {
+	panic("GetBuildHistory should never be used as we only care about sub tasks")
+}
+
 func (p Parallel) GetNotifications() Notifications {
 	panic("GetNotifications should never be used as we only care about sub tasks")
 }

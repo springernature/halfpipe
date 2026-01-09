@@ -16,6 +16,10 @@ type GitTrigger struct {
 	ManualTrigger  bool     `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 }
 
+func (git GitTrigger) GetTriggerAttempts() int {
+	return 2
+}
+
 func (git GitTrigger) MarshalYAML() (interface{}, error) {
 	git.Type = "git"
 	return git, nil

@@ -29,10 +29,20 @@ type DeployCF struct {
 	IsDockerPush      bool              `json:"-" yaml:"-"`
 	CliVersion        string            `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	DockerTag         string            `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
+	BuildHistory      int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	SSORoute          string            `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
 	GitHubEnvironment GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
 
 	CfApplication manifestparser.Application `json:"-" yaml:"-"`
+}
+
+func (r DeployCF) GetBuildHistory() int {
+	return r.BuildHistory
+}
+
+func (r DeployCF) SetBuildHistory(buildHistory int) Task {
+	r.BuildHistory = buildHistory
+	return r
 }
 
 func (r DeployCF) GetNotifications() Notifications {
