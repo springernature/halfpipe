@@ -5,7 +5,7 @@ type DockerPushAWS struct {
 	Name             string        `yaml:"name,omitempty"`
 	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Region           string        `yaml:"region,omitempty"`
-	Repository       string        `yaml:"repository,omitempty"`
+	Image            string        `yaml:"image,omitempty"`
 	AccessKeyID      string        `json:"access_key_id,omitempty" yaml:"access_key_id,omitempty" secretAllowed:"true"`
 	SecretAccessKey  string        `json:"secret_access_key,omitempty" yaml:"secret_access_key,omitempty" secretAllowed:"true"`
 	DockerfilePath   string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`

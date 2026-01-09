@@ -5,4 +5,4 @@ platform: actions
 tasks:
 - type: docker-push-aws
   name: Build and Push Docker Image
-  repository: example-app
+  image: example-app

@@ -12,7 +12,7 @@ func TestDockerPushAWSErrorsWhenPlatformIsNotActions(t *testing.T) {
 	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 	task := manifest.DockerPushAWS{
-		Repository:     "my-repo",
+		Image:          "my-repo",
 		DockerfilePath: "Dockerfile",
 	}
 
@@ -34,13 +34,13 @@ func TestDockerPushAWSErrorsWhenRepositoryIsEmpty(t *testing.T) {
 	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 	task := manifest.DockerPushAWS{
-		Repository:     "",
+		Image:          "",
 		DockerfilePath: "Dockerfile",
 	}
 	man := manifest.Manifest{Platform: "actions"}
 
 	errs := LintDockerPushAWSTask(task, man, fs)
-	assertContainsError(t, errs, ErrMissingField.WithValue("repository"))
+	assertContainsError(t, errs, ErrMissingField.WithValue("image"))
 }
 
 func TestDockerPushAWSAlwaysWarnsExperimental(t *testing.T) {
@@ -48,7 +48,7 @@ func TestDockerPushAWSAlwaysWarnsExperimental(t *testing.T) {
 	fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 	task := manifest.DockerPushAWS{
-		Repository:     "my-repo",
+		Image:          "my-repo",
 		DockerfilePath: "Dockerfile",
 	}
 	man := manifest.Manifest{Platform: "actions"}
@@ -62,7 +62,7 @@ func TestDockerPushAWSDockerfileExists(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPushAWS{
-			Repository:     "my-repo",
+			Image:          "my-repo",
 			DockerfilePath: "Dockerfile",
 		}
 		man := manifest.Manifest{Platform: "actions"}
@@ -76,7 +76,7 @@ func TestDockerPushAWSDockerfileExists(t *testing.T) {
 		fs.WriteFile("Dockerfile", []byte("FROM ubuntu"), 0777)
 
 		task := manifest.DockerPushAWS{
-			Repository:     "my-repo",
+			Image:          "my-repo",
 			DockerfilePath: "Dockerfile",
 		}
 		man := manifest.Manifest{Platform: "actions"}
@@ -89,7 +89,7 @@ func TestDockerPushAWSDockerfileExists(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPushAWS{
-			Repository:     "my-repo",
+			Image:          "my-repo",
 			DockerfilePath: "docker/Dockerfile.prod",
 		}
 		man := manifest.Manifest{Platform: "actions"}
@@ -103,7 +103,7 @@ func TestDockerPushAWSDockerfileExists(t *testing.T) {
 		fs.WriteFile("docker/Dockerfile.prod", []byte("FROM ubuntu"), 0777)
 
 		task := manifest.DockerPushAWS{
-			Repository:     "my-repo",
+			Image:          "my-repo",
 			DockerfilePath: "docker/Dockerfile.prod",
 		}
 		man := manifest.Manifest{Platform: "actions"}
@@ -116,7 +116,7 @@ func TestDockerPushAWSDockerfileExists(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 		task := manifest.DockerPushAWS{
-			Repository:       "my-repo",
+			Image:            "my-repo",
 			DockerfilePath:   "Dockerfile",
 			RestoreArtifacts: true,
 		}

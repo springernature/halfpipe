@@ -12,8 +12,8 @@ func LintDockerPushAWSTask(task manifest.DockerPushAWS, man manifest.Manifest, f
 		errs = append(errs, ErrDockerPushAWSActionsOnly)
 	}
 
-	if task.Repository == "" {
-		errs = append(errs, NewErrMissingField("repository"))
+	if task.Image == "" {
+		errs = append(errs, NewErrMissingField("image"))
 	}
 
 	if !task.RestoreArtifacts {

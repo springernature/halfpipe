@@ -46,7 +46,7 @@ rm -rf awscliv2.zip aws/`,
 aws ecr create-repository \
   --repository-name %s \
   --image-scanning-configuration scanOnPush=true \
-  --encryption-configuration encryptionType=AES256`, task.Repository, task.Repository),
+  --encryption-configuration encryptionType=AES256`, task.Image, task.Image),
 	}
 
 	buildAndPush := Step{
@@ -58,7 +58,7 @@ aws ecr create-repository \
 		Run: fmt.Sprintf(`docker build -t $ECR_REGISTRY/%s:$IMAGE_TAG -f %s %s
 docker push $ECR_REGISTRY/%s:$IMAGE_TAG
 docker tag $ECR_REGISTRY/%s:$IMAGE_TAG $ECR_REGISTRY/%s:latest
-docker push $ECR_REGISTRY/%s:latest`, task.Repository, dockerfilePath, buildPath, task.Repository, task.Repository, task.Repository, task.Repository),
+docker push $ECR_REGISTRY/%s:latest`, task.Image, dockerfilePath, buildPath, task.Image, task.Image, task.Image, task.Image),
 	}
 
 	return Steps{configureAWS, loginECR, installAWSCLI, createECRRepo, buildAndPush}
