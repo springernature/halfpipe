@@ -12,6 +12,7 @@ type DockerPushAWS struct {
 	BuildPath        string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 	Tag              string        `json:"tag,omitempty" yaml:"tag,omitempty"`
 	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	Secrets          Vars          `yaml:"secrets,omitempty" secretAllowed:"true"`
 	RestoreArtifacts bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Retries          int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`

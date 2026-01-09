@@ -67,10 +67,92 @@ jobs:
           --encryption-configuration encryptionType=AES256
     - name: Build, tag, and push Docker image
       run: |-
-        docker build -t $ECR_REGISTRY/example-app:$IMAGE_TAG -f Dockerfile .
+        docker build \
+          --build-arg ARTIFACTORY_PASSWORD \
+          --build-arg ARTIFACTORY_URL \
+          --build-arg ARTIFACTORY_USERNAME \
+          --build-arg BUILD_VERSION \
+          --build-arg GIT_REVISION \
+          --build-arg RUNNING_IN_CI \
+          -t $ECR_REGISTRY/example-app:$IMAGE_TAG \
+          -f Dockerfile \
+          .
         docker push $ECR_REGISTRY/example-app:$IMAGE_TAG
         docker tag $ECR_REGISTRY/example-app:$IMAGE_TAG $ECR_REGISTRY/example-app:latest
         docker push $ECR_REGISTRY/example-app:latest
       env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: ${{ github.sha }}
+  push_with_vars_and_secrets:
+    name: Push with vars and secrets
+    needs:
+    - build_and_push_docker_image
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/secret c | springernature_data_halfpipe-team_secret_c ;
+          /springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id | springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id ;
+          /springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key | springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708
+      with:
+        aws-access-key-id: ${{ steps.secrets.outputs.springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id }}
+        aws-region: cn-northwest-1
+        aws-secret-access-key: ${{ steps.secrets.outputs.springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key }}
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076
+    - name: Install AWS CLI
+      run: |-
+        curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+        unzip -q awscliv2.zip
+        sudo ./aws/install --update
+        rm -rf awscliv2.zip aws/
+    - name: Create ECR repository (if not exists)
+      run: |-
+        aws ecr describe-repositories --repository-names example-app-with-secrets 2>/dev/null || \
+        aws ecr create-repository \
+          --repository-name example-app-with-secrets \
+          --image-scanning-configuration scanOnPush=true \
+          --encryption-configuration encryptionType=AES256
+    - name: Build, tag, and push Docker image
+      run: |-
+        docker build \
+          --build-arg A=a \
+          --build-arg ARTIFACTORY_PASSWORD \
+          --build-arg ARTIFACTORY_URL \
+          --build-arg ARTIFACTORY_USERNAME \
+          --build-arg B=b \
+          --build-arg BUILD_VERSION \
+          --build-arg GIT_REVISION \
+          --build-arg RUNNING_IN_CI \
+          --secret id=C,env=C \
+          --secret id=D,env=D \
+          -t $ECR_REGISTRY/example-app-with-secrets:$IMAGE_TAG \
+          -f Dockerfile \
+          .
+        docker push $ECR_REGISTRY/example-app-with-secrets:$IMAGE_TAG
+        docker tag $ECR_REGISTRY/example-app-with-secrets:$IMAGE_TAG $ECR_REGISTRY/example-app-with-secrets:latest
+        docker push $ECR_REGISTRY/example-app-with-secrets:latest
+      env:
+        C: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}
+        D: d
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}
