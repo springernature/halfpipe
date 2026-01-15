@@ -29,7 +29,7 @@ require (
 require (
 	github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb // between v7.11.0 and v7.11.1
 	github.com/gosimple/slug v1.15.0
-	github.com/sirupsen/logrus v1.9.3
+	github.com/sirupsen/logrus v1.9.4
 	gopkg.in/yaml.v3 v3.0.1
 )
 
