@@ -16,6 +16,8 @@ name: pipeline-name
         options:
         - "true"
         - "false"
+permissions:
+  contents: read
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}

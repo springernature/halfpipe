@@ -9,4 +9,6 @@ name: pipeline-name
     - '!README.md**'
     - '!**.js**'
   workflow_dispatch: {}
+permissions:
+  contents: read
 concurrency: ${{ github.workflow }}

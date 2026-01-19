@@ -44,6 +44,7 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 	w := Workflow{}
 	w.Name = man.Pipeline
 	w.On = a.triggers(man)
+	w.Permissions = Permissions{Contents: "read"}
 	w.Concurrency = "${{ github.workflow }}"
 	if len(man.Tasks) > 0 {
 		w.Env = globalEnv

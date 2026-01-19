@@ -8,6 +8,8 @@ name: halfpipe-e2e-buildpack
     - e2e/concourse/buildpack**
     - .github/workflows/halfpipe-e2e-buildpack.yml
   workflow_dispatch: {}
+permissions:
+  contents: read
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}

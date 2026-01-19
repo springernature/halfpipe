@@ -2,6 +2,8 @@
 name: for-dependabot-to-check
 "on":
   workflow_dispatch: {}
+permissions:
+  contents: read
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}

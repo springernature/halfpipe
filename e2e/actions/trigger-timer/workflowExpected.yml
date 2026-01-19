@@ -7,4 +7,6 @@ name: pipeline-name
   schedule:
   - cron: '*/15 * * * *'
   workflow_dispatch: {}
+permissions:
+  contents: read
 concurrency: ${{ github.workflow }}

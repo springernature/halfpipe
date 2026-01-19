@@ -8,6 +8,8 @@ name: pipeline-name
     - e2e/actions/deploy-cf**
     - .github/workflows/pipeline-name.yml
   workflow_dispatch: {}
+permissions:
+  contents: read
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}

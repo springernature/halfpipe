@@ -8,4 +8,6 @@ name: pipeline-name
     types:
     - docker-push:some-other-image
   workflow_dispatch: {}
+permissions:
+  contents: read
 concurrency: ${{ github.workflow }}

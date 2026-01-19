@@ -9,12 +9,17 @@ import (
 )
 
 type Workflow struct {
-	Name        string   `yaml:"name"`
-	On          On       `yaml:"on"`
-	Env         Env      `yaml:"env,omitempty"`
-	Defaults    Defaults `yaml:"defaults,omitempty"`
-	Concurrency string   `yaml:"concurrency,omitempty"`
-	Jobs        Jobs     `yaml:"jobs,omitempty"`
+	Name        string      `yaml:"name"`
+	On          On          `yaml:"on"`
+	Permissions Permissions `yaml:"permissions,omitempty"`
+	Env         Env         `yaml:"env,omitempty"`
+	Defaults    Defaults    `yaml:"defaults,omitempty"`
+	Concurrency string      `yaml:"concurrency,omitempty"`
+	Jobs        Jobs        `yaml:"jobs,omitempty"`
+}
+
+type Permissions struct {
+	Contents string `yaml:"contents,omitempty"`
 }
 
 type On struct {
