@@ -12,7 +12,7 @@ tasks:
   image: example-app-with-secrets
   vars:
     A: a
-    B: b
+    B: ((secret.b))
   secrets:
     C: ((secret.c))
     D: d

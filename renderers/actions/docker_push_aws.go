@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/renderers/shared/secrets"
 )
 
 func (a *Actions) dockerPushAWSSteps(task manifest.DockerPushAWS, man manifest.Manifest) Steps {
@@ -67,16 +68,21 @@ func (a *Actions) dockerPushAWSBuildStep(task manifest.DockerPushAWS, dockerfile
 		"RUNNING_IN_CI":        "",
 	}
 
-	for k, v := range task.Vars {
-		buildArgs[k] = v
-	}
-
-	dockerBuildCmd := a.buildDockerBuildCommand(task.Image, dockerfilePath, buildPath, buildArgs, task.Secrets)
-
 	env := Env{
 		"ECR_REGISTRY": "${{ steps.login-ecr.outputs.registry }}",
 		"IMAGE_TAG":    "${{ github.sha }}",
 	}
+
+	for k, v := range task.Vars {
+		if secrets.IsSecret(v) {
+			env[k] = v
+			buildArgs[k] = ""
+		} else {
+			buildArgs[k] = v
+		}
+	}
+
+	dockerBuildCmd := a.buildDockerBuildCommand(task.Image, dockerfilePath, buildPath, buildArgs, task.Secrets)
 
 	for k, v := range task.Secrets {
 		env[k] = v

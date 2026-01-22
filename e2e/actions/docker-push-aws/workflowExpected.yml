@@ -101,6 +101,7 @@ jobs:
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
         secrets: |
+          /springernature/data/halfpipe-team/secret b | springernature_data_halfpipe-team_secret_b ;
           /springernature/data/halfpipe-team/secret c | springernature_data_halfpipe-team_secret_c ;
           /springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id | springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id ;
           /springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key | springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key ;
@@ -141,7 +142,7 @@ jobs:
           --build-arg ARTIFACTORY_PASSWORD \
           --build-arg ARTIFACTORY_URL \
           --build-arg ARTIFACTORY_USERNAME \
-          --build-arg B=b \
+          --build-arg B \
           --build-arg BUILD_VERSION \
           --build-arg GIT_REVISION \
           --build-arg RUNNING_IN_CI \
@@ -154,6 +155,7 @@ jobs:
         docker tag $ECR_REGISTRY/example-app-with-secrets:$IMAGE_TAG $ECR_REGISTRY/example-app-with-secrets:latest
         docker push $ECR_REGISTRY/example-app-with-secrets:latest
       env:
+        B: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_b }}
         C: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_c }}
         D: d
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
