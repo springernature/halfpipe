@@ -18,6 +18,7 @@ type Response struct {
 	Project     project.Data
 	LintResults linters.LintResults
 	Platform    manifest.Platform
+	Manifest    manifest.Manifest
 }
 
 func (r Response) String() string {
@@ -65,6 +66,7 @@ func (c controller) Process(man manifest.Manifest) (response Response, err error
 	response.ConfigYaml = config
 	response.Project = c.defaulter.Project
 	response.Platform = man.Platform
+	response.Manifest = mappedManifest
 	return
 }
 
