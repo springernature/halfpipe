@@ -42,7 +42,7 @@ jobs:
           /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       with:
         lfs: true
         show-progress: false
@@ -70,7 +70,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
       with:
         lfs: true
         show-progress: false

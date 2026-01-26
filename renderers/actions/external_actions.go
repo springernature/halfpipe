@@ -19,7 +19,7 @@ var ExternalActions = struct {
 	AWSConfigureCredentials: "aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708", // v5
 	AWSECRLogin:             "aws-actions/amazon-ecr-login@062b18b96a7aff071d4dc91bc00c4c1a7945b076",          // v2
 	Buildpack:               "springernature/ee-action-buildpack@v1",
-	Checkout:                "actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8", // v6
+	Checkout:                "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd", // v6
 	DeployCF:                "springernature/ee-action-deploy-cf@v1",
 	DeployKatee:             "springernature/ee-action-deploy-katee@v1",
 	DockerLogin:             "docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567", // v3
