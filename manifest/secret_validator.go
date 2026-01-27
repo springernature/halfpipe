@@ -182,7 +182,8 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		reflect.TypeOf(Update{}),
 		reflect.TypeOf(Platform("")),
 		reflect.TypeOf(ComposeFiles{}),
-		reflect.TypeOf(GitHubEnvironment{}):
+		reflect.TypeOf(GitHubEnvironment{}),
+		reflect.TypeOf(VelaManifest{}):
 		return
 
 	default:

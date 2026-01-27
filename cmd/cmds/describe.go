@@ -20,12 +20,20 @@ type CF_App struct {
 	ManifestPath string `yaml:"manifest_path,omitempty"`
 	Filter       string `yaml:"filter,omitempty"`
 }
+
+type Katee_App struct {
+	Name         string `yaml:"name,omitempty"`
+	Namespace    string `yaml:"space,omitempty"`
+	ManifestPath string `yaml:"manifest_path,omitempty"`
+	Filter       string `yaml:"filter,omitempty"`
+}
 type Output struct {
 	Usage string `yaml:"usage,omitempty"`
 	Team  string `yaml:"team,omitempty"`
 
-	Pipeline Pipeline `yaml:"pipeline,omitempty"`
-	CF_Apps  []CF_App `yaml:"cf_apps,omitempty"`
+	Pipeline   Pipeline    `yaml:"pipeline,omitempty"`
+	CF_Apps    []CF_App    `yaml:"cf_apps,omitempty"`
+	Katee_Apps []Katee_App `yaml:"katee_apps,omitempty"`
 }
 
 func explainPipeline(resp halfpipe.Response) (o Output) {
@@ -52,6 +60,24 @@ func explainPipeline(resp halfpipe.Response) (o Output) {
 				ManifestPath: t.Manifest,
 				Filter:       fmt.Sprintf(`.resources[] | select(.slug | test("^cf_.*_%s_%s$"))`, t.Space, t.CfApplication.Name),
 			})
+		case manifest.DeployKatee:
+			app := Katee_App{
+				Name:         t.Name,
+				Namespace:    "",
+				ManifestPath: t.VelaManifest,
+				Filter:       "",
+			}
+
+			if t.Namespace != "" {
+				app.Namespace = t.Namespace
+			} else {
+				app.Namespace = fmt.Sprintf("katee-%s", resp.Manifest.Team)
+			}
+
+			// katee_v2_katee-monetise-live_subscriptions-schedule
+			app.Filter = fmt.Sprintf(`.resources[] | select(.slug | test("^katee_v2_%s_%s$"))`, app.Namespace, t.KateeManifest.Metadata.Name)
+
+			o.Katee_Apps = append(o.Katee_Apps, app)
 		}
 	}
 

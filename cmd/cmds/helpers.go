@@ -118,7 +118,7 @@ func createDefaulter(projectData project.Data, renderer halfpipe.Renderer) defau
 func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer) halfpipe.Controller {
 	return halfpipe.NewController(
 		createDefaulter(projectData, renderer),
-		mapper.New(),
+		mapper.New(fs),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
 			linters.NewTriggersLinter(fs, currentDir, project.BranchResolver, gitconfig.OriginURL),

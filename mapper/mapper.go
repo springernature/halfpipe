@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -25,12 +26,13 @@ func (m mapper) Apply(original manifest.Manifest) (updated manifest.Manifest, er
 	return updated, nil
 }
 
-func New() Mapper {
+func New(fs afero.Afero) Mapper {
 	return mapper{
 		mappers: []Mapper{
 			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
 			NewCfMapper(),
+			NewKateeMapper(fs),
 			NewGitTriggerMapper(),
 		},
 	}

@@ -18,6 +18,7 @@ type DeployKatee struct {
 	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
 	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
 	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
+	KateeManifest          VelaManifest      `json:"-" yaml:"-"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {

@@ -33,7 +33,7 @@ func testController() controller {
 	_ = fs.MkdirAll("/pwd/foo/.git", 0777)
 	return controller{
 		defaulter: defaults.New(defaults.Concourse, project.Data{}),
-		mapper:    mapper.New(),
+		mapper:    mapper.New(fs),
 		renderer:  fakeRenderer{},
 	}
 }
