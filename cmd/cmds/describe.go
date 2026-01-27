@@ -23,7 +23,7 @@ type CF_App struct {
 
 type Katee_App struct {
 	Name         string `yaml:"name,omitempty"`
-	Namespace    string `yaml:"space,omitempty"`
+	Namespace    string `yaml:"namespace,omitempty"`
 	ManifestPath string `yaml:"manifest_path,omitempty"`
 	Filter       string `yaml:"filter,omitempty"`
 }
