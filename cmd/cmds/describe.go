@@ -62,7 +62,7 @@ func explainPipeline(resp halfpipe.Response) (o Output) {
 			})
 		case manifest.DeployKatee:
 			app := Katee_App{
-				Name:         t.Name,
+				Name:         t.KateeManifest.Metadata.Name,
 				Namespace:    "",
 				ManifestPath: t.VelaManifest,
 				Filter:       "",
