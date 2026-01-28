@@ -37,7 +37,7 @@ type Output struct {
 }
 
 func explainPipeline(resp halfpipe.Response) (o Output) {
-	o.Usage = "All filters are jq expressions to run against the inventory file at /tmp/inventory.json. If the inventory doesn't exist download it from https://ee-platform.apps.private.k8s.springernature.io/api/v1/inventory and save it to /tmp/inventory.json then run the filter: cat /tmp/inventory.json | jq <filter>"
+	o.Usage = "All filters are jq expressions to run against the inventory file at /tmp/inventory.json. If the inventory doesn't exist download it from https://ee-platform.apps.private.k8s.springernature.io/api/v1/inventory. To run a filter: cat /tmp/inventory.json | jq <filter>"
 	o.Team = resp.Manifest.Team
 	if resp.Manifest.Platform == "actions" {
 		o.Pipeline = Pipeline{

@@ -57,6 +57,12 @@ resources:
     access_token: ((github-halfpipe-io-user.repo_pat))
     owner: springernature
     repository: halfpipe
+- name: homebrew-halfpipe
+  type: git
+  source:
+    branch: main
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/homebrew-halfpipe.git
 resource_types:
 - name: artifactory
   type: docker-image
@@ -254,3 +260,50 @@ jobs:
   - put: artifactory-windows
     params:
       file: binaries/halfpipe_windows_*
+
+- name: update-homebrew-halfpipe
+  plan:
+  - in_parallel:
+    - get: release
+      trigger: true
+      passed:
+      - Release
+    - get: homebrew-halfpipe
+  - task: Update Formula
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source:
+          repository: alpine/git
+          tag: latest
+      run:
+        path: /bin/sh
+        args:
+        - -ec
+        - |
+          VERSION="$(cat release/version)"
+          SHA=$(sha256sum release/halfpipe_darwin_$VERSION | awk '{print $1}')
+          echo "Released version: $VERSION"
+          echo "SHA: $SHA"
+
+          sed -i "s/^  version \".*\"/  version \"$VERSION\"/" homebrew-halfpipe/halfpipe.rb
+          sed -i "s/^  sha256 \".*\"/  sha256 \"$SHA\"/" homebrew-halfpipe/halfpipe.rb
+
+          echo "Updated halfpipe.rb:"
+          cat homebrew-halfpipe/halfpipe.rb
+
+          cd homebrew-halfpipe
+          git config user.name "Halfpipe CI"
+          git config user.email "halfpipe@springernature.com"
+          git add halfpipe.rb
+          git commit -m "Update halfpipe to $VERSION"
+      inputs:
+      - name: release
+      - name: homebrew-halfpipe
+      outputs:
+      - name: homebrew-halfpipe
+  - put: homebrew-halfpipe
+    params:
+      repository: homebrew-halfpipe
+      rebase: true
