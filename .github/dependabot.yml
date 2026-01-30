@@ -8,12 +8,20 @@ registries:
     password: ${{ secrets.HALFPIPE_REPOS_READ_PAT }} # saved as a dependabot secret
 
 updates:
-- package-ecosystem: gomod
-  directory: /
-  schedule:
-    interval: daily
-- package-ecosystem: github-actions
-  directory: /
-  registries: "*"
-  schedule:
-    interval: daily
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: daily
+    groups:
+      go-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: github-actions
+    directory: /
+    registries: "*"
+    schedule:
+      interval: daily
+    groups:
+      github-actions:
+        patterns:
+          - "*"
