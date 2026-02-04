@@ -91,12 +91,9 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 		versionTag = fmt.Sprintf("--tag %s:${BUILD_VERSION} ", task.Image)
 	}
 
-	appPath := basePath
-	if appPath == "" {
-		appPath = "."
-	}
+	appPath := "."
 	if len(task.Path) > 0 {
-		appPath = path.Join(appPath, task.Path)
+		appPath = task.Path
 	}
 
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)

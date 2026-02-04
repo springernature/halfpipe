@@ -34,7 +34,7 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
-          --path e2e/concourse/buildpack \
+          --path . \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
@@ -42,7 +42,7 @@ jobs:
           --trust-builder
 
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
-          --path e2e/concourse/buildpack \
+          --path . \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
@@ -92,7 +92,7 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
           echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
-          --path e2e/concourse/buildpack/build/libs \
+          --path build/libs \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
@@ -103,7 +103,7 @@ jobs:
           --trust-builder
 
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
-          --path e2e/concourse/buildpack/build/libs \
+          --path build/libs \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
