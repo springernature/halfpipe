@@ -1,0 +1,13 @@
+version: 1
+component:
+  name: halfpipe-cli
+  description: Halfpipe CLI
+  type: application_module
+  system: halfpipe
+  owner: engineering-enablement
+  language: go
+  lifecycle: core
+  tier: mission-critical
+  properties:
+    pipelines:
+      - concourse_engineering-enablement_halfpipe-cli_3186
