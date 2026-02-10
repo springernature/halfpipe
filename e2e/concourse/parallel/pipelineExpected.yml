@@ -83,6 +83,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -160,6 +161,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -237,6 +239,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -314,6 +317,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -395,6 +399,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -472,6 +477,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -549,6 +555,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -626,6 +633,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -707,6 +715,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -784,6 +793,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -861,6 +871,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -942,6 +953,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -1024,6 +1036,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:

@@ -20,6 +20,7 @@ func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults De
 	vars["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
 	vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
 	vars["RUNNING_IN_CI"] = "true"
+	vars["CI"] = "true"
 
 	return vars
 }

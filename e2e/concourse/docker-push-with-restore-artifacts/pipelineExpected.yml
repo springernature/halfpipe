@@ -81,6 +81,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -250,6 +251,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         RUNNING_IN_CI: "true"
       platform: linux
@@ -269,6 +271,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -285,6 +288,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -449,6 +453,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         RUNNING_IN_CI: "true"
       platform: linux
@@ -468,6 +473,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -484,6 +490,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \

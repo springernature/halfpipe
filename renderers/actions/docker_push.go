@@ -15,6 +15,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		"BUILD_VERSION":        "",
 		"GIT_REVISION":         "",
 		"RUNNING_IN_CI":        "",
+		"CI":                   "",
 	}
 	for k, v := range task.Vars {
 		buildArgs[k] = v

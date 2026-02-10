@@ -168,6 +168,7 @@ jobs:
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
+          "CI"
           "GIT_REVISION"
           "RUNNING_IN_CI"
         context: .

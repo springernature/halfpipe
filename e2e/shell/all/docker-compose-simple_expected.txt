@@ -6,6 +6,7 @@ docker compose \
   -e ARTIFACTORY_PASSWORD="$(vault kv get -field=password /springernature/shared/artifactory)" \
   -e ARTIFACTORY_URL="$(vault kv get -field=url /springernature/shared/artifactory)" \
   -e ARTIFACTORY_USERNAME="$(vault kv get -field=username /springernature/shared/artifactory)" \
+  -e CI="true" \
   -e RUNNING_IN_CI="true" \
   --use-aliases \
   app

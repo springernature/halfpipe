@@ -74,6 +74,7 @@ jobs:
           --build-arg ARTIFACTORY_URL \
           --build-arg ARTIFACTORY_USERNAME \
           --build-arg BUILD_VERSION \
+          --build-arg CI \
           --build-arg GIT_REVISION \
           --build-arg RUNNING_IN_CI \
           -t $ECR_REGISTRY/example-app:$IMAGE_TAG \
@@ -144,6 +145,7 @@ jobs:
           --build-arg ARTIFACTORY_USERNAME \
           --build-arg B \
           --build-arg BUILD_VERSION \
+          --build-arg CI \
           --build-arg GIT_REVISION \
           --build-arg RUNNING_IN_CI \
           --secret id=C,env=C \

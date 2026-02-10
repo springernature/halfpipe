@@ -1,9 +1,10 @@
 package defaults
 
 import (
+	"testing"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
@@ -12,6 +13,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		"ARTIFACTORY_USERNAME": Concourse.Artifactory.Username,
 		"ARTIFACTORY_PASSWORD": Concourse.Artifactory.Password,
 		"RUNNING_IN_CI":        "true",
+		"CI":                   "true",
 	}
 
 	input := manifest.TaskList{

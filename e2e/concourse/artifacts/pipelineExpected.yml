@@ -38,6 +38,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -160,6 +161,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -308,6 +310,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
       platform: linux
@@ -461,6 +464,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
+        CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         RUNNING_IN_CI: "true"
       platform: linux
@@ -480,6 +484,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -496,6 +501,7 @@ jobs:
             --build-arg ARTIFACTORY_URL \
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
+            --build-arg CI \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -624,6 +630,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
         HALFPIPE_CACHE_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
@@ -651,7 +658,7 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
 
           \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e DOCKER_HOST="${DIND_HOST}" -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -809,6 +816,7 @@ jobs:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
@@ -846,7 +854,7 @@ jobs:
           export GIT_REVISION=`cat ../../../.git/ref`
 
           \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e RUNNING_IN_CI"
+          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?

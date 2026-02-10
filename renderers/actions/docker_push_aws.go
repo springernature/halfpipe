@@ -66,6 +66,7 @@ func (a *Actions) dockerPushAWSBuildStep(task manifest.DockerPushAWS, dockerfile
 		"BUILD_VERSION":        "",
 		"GIT_REVISION":         "",
 		"RUNNING_IN_CI":        "",
+		"CI":                   "",
 	}
 
 	env := Env{
