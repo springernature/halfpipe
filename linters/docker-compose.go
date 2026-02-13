@@ -51,7 +51,7 @@ func lintComposeFile(path string, dc manifest.DockerCompose, fs afero.Afero) (se
 func lintDockerComposeService(service string, composeFile string, composeContent []byte) (serviceExists bool, err error) {
 	var compose struct {
 		Version  string
-		Services map[string]interface{}
+		Services map[string]any
 	}
 	e := yaml.Unmarshal(composeContent, &compose)
 	if e != nil {

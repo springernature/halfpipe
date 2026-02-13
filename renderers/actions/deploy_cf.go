@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"maps"
 	"path"
 	"strings"
 
@@ -22,9 +23,7 @@ func (a *Actions) commonParamsWith(task manifest.DeployCF, manifestPath string, 
 		"appPath":      appPath,
 	}
 
-	for k, v := range extra {
-		commonMap[k] = v
-	}
+	maps.Copy(commonMap, extra)
 
 	return commonMap
 }

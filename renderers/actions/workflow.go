@@ -106,7 +106,7 @@ type MultiLine struct {
 	m map[string]string
 }
 
-func (ml MultiLine) MarshalYAML() (interface{}, error) {
+func (ml MultiLine) MarshalYAML() (any, error) {
 	var out []string
 	for k, v := range ml.m {
 		if v == "" {

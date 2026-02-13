@@ -9,7 +9,7 @@ type DeployKatee struct {
 	VelaManifest           string            `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
 	Retries                int               `yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications          Notifications     `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
 	Tag                    string            `json:"tag,omitempty" yaml:"tag,omitempty"`
 	BuildHistory           int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	Environment            string            `json:"environment,omitempty" yaml:"environment,omitempty"`
@@ -17,7 +17,7 @@ type DeployKatee struct {
 	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
 	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
 	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
-	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
+	GitHubEnvironment      GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 	KateeManifest          VelaManifest      `json:"-" yaml:"-"`
 }
 
@@ -87,7 +87,7 @@ func (d DeployKatee) SetBuildHistory(buildHistory int) Task {
 	return d
 }
 
-func (d DeployKatee) MarshalYAML() (interface{}, error) {
+func (d DeployKatee) MarshalYAML() (any, error) {
 	d.Type = "deploy-katee"
 	return d, nil
 }

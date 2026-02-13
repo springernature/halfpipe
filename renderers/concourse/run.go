@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"maps"
 	"path"
 	"strings"
 
@@ -46,9 +47,7 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerComp
 	}
 
 	taskEnv := make(atc.TaskEnv)
-	for key, value := range task.Vars {
-		taskEnv[key] = value
-	}
+	maps.Copy(taskEnv, task.Vars)
 
 	var caches []atc.TaskCacheConfig
 	for _, dir := range config.CacheDirs {

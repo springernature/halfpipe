@@ -31,9 +31,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 	}
 
 	taskEnv := make(atc.TaskEnv)
-	for key, value := range task.Vars {
-		taskEnv[key] = value
-	}
+	maps.Copy(taskEnv, task.Vars)
 
 	taskEnv["DOCKER_CONFIG_JSON"] = "((halfpipe-gcr.docker_config))"
 
@@ -98,10 +96,10 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 
 	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
 
-	envVars := ""
+	var envVars strings.Builder
 	for _, key := range slices.Sorted(maps.Keys(task.Vars)) {
-		envVars += fmt.Sprintf(`--env "%s=%s" \
-`, key, task.Vars[key])
+		envVars.WriteString(fmt.Sprintf(`--env "%s=%s" \
+`, key, task.Vars[key]))
 	}
 
 	buildpacksFlags := ""
@@ -117,7 +115,7 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 %s--tag %s:${GIT_REVISION} %s \
 %s--publish \
 --trust-builder
-`, task.Image, appPath, task.Builder, buildpacksFlags, task.Image, versionTag, envVars)
+`, task.Image, appPath, task.Builder, buildpacksFlags, task.Image, versionTag, envVars.String())
 
 	out = append(out, "echo "+command, command)
 

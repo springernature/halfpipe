@@ -85,10 +85,5 @@ func deduplicate(errs []error) (errors []error) {
 }
 
 func errorInErrors(err error, errs []error) bool {
-	for _, e := range errs {
-		if err == e {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(errs, err)
 }

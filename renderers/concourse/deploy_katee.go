@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"maps"
 	"strconv"
 	"strings"
 
@@ -55,9 +56,7 @@ halfpipe-deploy`,
 		BuildHistory:    task.BuildHistory,
 	}
 
-	for k, v := range task.Vars {
-		run.Vars[k] = v
-	}
+	maps.Copy(run.Vars, task.Vars)
 
 	return run
 }

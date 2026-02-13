@@ -2,6 +2,7 @@ package concourse
 
 import (
 	"fmt"
+	"maps"
 	"regexp"
 	"strings"
 
@@ -71,9 +72,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 		SaveArtifacts:          task.SaveArtifacts,
 	}
 
-	for key, val := range task.Vars {
-		runTask.Vars[key] = val
-	}
+	maps.Copy(runTask.Vars, task.Vars)
 	return runTask
 }
 

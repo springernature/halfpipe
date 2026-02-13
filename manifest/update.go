@@ -2,7 +2,7 @@ package manifest
 
 type Update struct {
 	Type          string
-	Notifications Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout       string
 	BuildHistory  int
 	TagRepo       bool
@@ -35,7 +35,7 @@ func (u Update) SetName(name string) Task {
 	return u
 }
 
-func (u Update) MarshalYAML() (interface{}, error) {
+func (u Update) MarshalYAML() (any, error) {
 	u.Type = "update"
 	return u, nil
 }

@@ -192,13 +192,13 @@ type Task interface {
 
 	GetGitHubEnvironment() GitHubEnvironment
 
-	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
+	MarshalYAML() (any, error) // To make sure type is always set when marshalling to yaml
 }
 
 type Trigger interface {
 	GetTriggerName() string
 	GetTriggerAttempts() int
-	MarshalYAML() (interface{}, error) // To make sure type is always set when marshalling to yaml
+	MarshalYAML() (any, error) // To make sure type is always set when marshalling to yaml
 }
 
 type TriggerList []Trigger
@@ -240,12 +240,12 @@ type Manifest struct {
 	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty" secretAllowed:"true"`
 	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
 	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
-	ArtifactConfig      ArtifactConfig `json:"artifact_config,omitempty" yaml:"artifact_config,omitempty"`
+	ArtifactConfig      ArtifactConfig `json:"artifact_config" yaml:"artifact_config,omitempty"`
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
 	Platform            Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
-	Notifications       Notifications  `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications       Notifications  `json:"notifications" yaml:"notifications,omitempty"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

@@ -29,14 +29,15 @@ func (s shell) Render(man manifest.Manifest) (string, error) {
 		return renderBuildpackCommand(t), nil
 	}
 
-	errMsg := "task not found with name '%s' and type 'run', 'docker-compose' or 'buildpack'\n\navailable tasks:\n"
+	var errMsg strings.Builder
+	errMsg.WriteString("task not found with name '%s' and type 'run', 'docker-compose' or 'buildpack'\n\navailable tasks:\n")
 	for _, t := range man.Tasks.Flatten() {
 		switch t := t.(type) {
 		case manifest.Run, manifest.DockerCompose, manifest.Buildpack:
-			errMsg += fmt.Sprintf("  %s\n", t.GetName())
+			errMsg.WriteString(fmt.Sprintf("  %s\n", t.GetName()))
 		}
 	}
-	return "", fmt.Errorf(errMsg, s.taskName)
+	return "", fmt.Errorf(errMsg.String(), s.taskName)
 }
 
 func renderRunCommand(task manifest.Run, team string) string {

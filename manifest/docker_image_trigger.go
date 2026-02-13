@@ -13,7 +13,7 @@ func (d DockerTrigger) GetTriggerAttempts() int {
 	return 2
 }
 
-func (d DockerTrigger) MarshalYAML() (interface{}, error) {
+func (d DockerTrigger) MarshalYAML() (any, error) {
 	d.Type = "docker"
 	return d, nil
 }

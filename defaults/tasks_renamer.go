@@ -3,6 +3,7 @@ package defaults
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/manifest"
+	"slices"
 )
 
 type tasksRenamer struct {
@@ -18,10 +19,8 @@ func getUniqueName(name string, previousNames []string, counter int) string {
 		candidate = fmt.Sprintf("%s (%v)", name, counter)
 	}
 
-	for _, previousName := range previousNames {
-		if previousName == candidate {
-			return getUniqueName(name, previousNames, counter+1)
-		}
+	if slices.Contains(previousNames, candidate) {
+		return getUniqueName(name, previousNames, counter+1)
 	}
 
 	return candidate

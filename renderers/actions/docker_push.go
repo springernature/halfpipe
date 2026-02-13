@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"maps"
 	"path"
 	"strings"
 
@@ -17,9 +18,7 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		"RUNNING_IN_CI":        "",
 		"CI":                   "",
 	}
-	for k, v := range task.Vars {
-		buildArgs[k] = v
-	}
+	maps.Copy(buildArgs, task.Vars)
 
 	push := Step{
 		Name: "Build and Push",

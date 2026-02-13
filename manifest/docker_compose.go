@@ -18,7 +18,7 @@ type DockerCompose struct {
 	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	Retries                int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
@@ -51,7 +51,7 @@ func (r DockerCompose) SetName(name string) Task {
 	return r
 }
 
-func (r DockerCompose) MarshalYAML() (interface{}, error) {
+func (r DockerCompose) MarshalYAML() (any, error) {
 	r.Type = "docker-compose"
 	return r, nil
 }
@@ -102,7 +102,7 @@ func (r DockerCompose) GetGitHubEnvironment() GitHubEnvironment {
 
 type ComposeFiles []string
 
-func (c ComposeFiles) MarshalYAML() (interface{}, error) {
+func (c ComposeFiles) MarshalYAML() (any, error) {
 	return strings.Join(c, " "), nil
 }
 
@@ -112,7 +112,7 @@ func (c *ComposeFiles) UnmarshalJSON(b []byte) error {
 		return err
 	}
 
-	for _, s := range strings.Split(raw, " ") {
+	for s := range strings.SplitSeq(raw, " ") {
 		*c = append(*c, s)
 	}
 

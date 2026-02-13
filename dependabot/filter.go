@@ -1,6 +1,8 @@
 package dependabot
 
 import (
+	"slices"
+
 	"github.com/sirupsen/logrus"
 	"path/filepath"
 	"strings"
@@ -16,11 +18,9 @@ type filter struct {
 }
 
 func (f filter) shouldFilterOutEcosystem(path string, ecosystem string) bool {
-	for _, skipEcosystem := range f.skipEcosystems {
-		if skipEcosystem == ecosystem {
-			logrus.Debugf("Removing '%s' due to filtered out ecosystem '%s'", path, ecosystem)
-			return true
-		}
+	if slices.Contains(f.skipEcosystems, ecosystem) {
+		logrus.Debugf("Removing '%s' due to filtered out ecosystem '%s'", path, ecosystem)
+		return true
 	}
 	return false
 }

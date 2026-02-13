@@ -23,7 +23,7 @@ type DeployCF struct {
 	Timeout           string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Retries           int               `yaml:"retries,omitempty"`
 	NotifyOnSuccess   bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications     Notifications     `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications     Notifications     `json:"notifications" yaml:"notifications,omitempty"`
 	PreStart          []string          `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	Rolling           bool              `yaml:"rolling,omitempty"`
 	IsDockerPush      bool              `json:"-" yaml:"-"`
@@ -31,7 +31,7 @@ type DeployCF struct {
 	DockerTag         string            `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 	BuildHistory      int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	SSORoute          string            `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
-	GitHubEnvironment GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
+	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 
 	CfApplication manifestparser.Application `json:"-" yaml:"-"`
 }
@@ -63,7 +63,7 @@ func (r DeployCF) SetName(name string) Task {
 	return r
 }
 
-func (r DeployCF) MarshalYAML() (interface{}, error) {
+func (r DeployCF) MarshalYAML() (any, error) {
 	r.Type = "deploy-cf"
 	return r, nil
 }

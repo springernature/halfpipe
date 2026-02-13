@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"maps"
 	"sort"
 	"strings"
 
@@ -85,9 +86,7 @@ func (a *Actions) dockerPushAWSBuildStep(task manifest.DockerPushAWS, dockerfile
 
 	dockerBuildCmd := a.buildDockerBuildCommand(task.Image, dockerfilePath, buildPath, buildArgs, task.Secrets)
 
-	for k, v := range task.Secrets {
-		env[k] = v
-	}
+	maps.Copy(env, task.Secrets)
 
 	return Step{
 		Name: "Build, tag, and push Docker image",

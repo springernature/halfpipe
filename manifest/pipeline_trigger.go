@@ -21,7 +21,7 @@ func (p PipelineTrigger) GetTriggerAttempts() int {
 	return 2
 }
 
-func (p PipelineTrigger) MarshalYAML() (interface{}, error) {
+func (p PipelineTrigger) MarshalYAML() (any, error) {
 	p.Type = "pipeline"
 	return p, nil
 }

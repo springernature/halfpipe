@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"slices"
 )
 
 var ErrWrongAnswer = errors.New("incorrect or empty response")
@@ -23,10 +24,8 @@ func SecurityQuestion(pipeline, currentBranch string) Command {
 			var input string
 			fmt.Fscan(stdin, &input) // #nosec
 
-			for _, expectedAnswer := range []string{"y", "yes", "Y", "Yes", "YES"} {
-				if input == expectedAnswer {
-					return nil
-				}
+			if slices.Contains([]string{"y", "yes", "Y", "Yes", "YES"}, input) {
+				return nil
 			}
 			return ErrWrongAnswer
 		},

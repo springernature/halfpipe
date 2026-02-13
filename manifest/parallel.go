@@ -31,7 +31,7 @@ func (p Parallel) SetName(name string) Task {
 	panic("SetName should never be used as we only care about sub tasks")
 }
 
-func (p Parallel) MarshalYAML() (interface{}, error) {
+func (p Parallel) MarshalYAML() (any, error) {
 	p.Type = "parallel"
 	return p, nil
 }

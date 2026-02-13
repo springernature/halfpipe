@@ -134,7 +134,7 @@ func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previo
 				Name: trigger.GetTriggerName(),
 			}
 			if trigger.Shallow {
-				getGit.Params = map[string]interface{}{
+				getGit.Params = map[string]any{
 					"depth": 1,
 				}
 			}
@@ -150,7 +150,7 @@ func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previo
 			if isUpdateTask || !versioningEnabled {
 				getDocker := &atc.GetStep{
 					Name: trigger.GetTriggerName(),
-					Params: map[string]interface{}{
+					Params: map[string]any{
 						"skip_download": true,
 					},
 				}
@@ -470,7 +470,7 @@ func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (
 	fullPath := path.Join(repoName, basePath)
 	numberOfParentsToConcourseRoot := len(strings.Split(fullPath, "/"))
 
-	for i := 0; i < numberOfParentsToConcourseRoot; i++ {
+	for range numberOfParentsToConcourseRoot {
 		artifactPath = path.Join(artifactPath, "../")
 	}
 
@@ -524,8 +524,8 @@ func restrictAllowedCharacterSet(in string) string {
 	return strings.Replace(strings.TrimSpace(simplified), " ", "-", -1)
 }
 
-func convertVars(vars manifest.Vars) map[string]interface{} {
-	out := make(map[string]interface{})
+func convertVars(vars manifest.Vars) map[string]any {
+	out := make(map[string]any)
 	for k, v := range vars {
 		out[k] = v
 	}

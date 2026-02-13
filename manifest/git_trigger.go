@@ -20,7 +20,7 @@ func (git GitTrigger) GetTriggerAttempts() int {
 	return 2
 }
 
-func (git GitTrigger) MarshalYAML() (interface{}, error) {
+func (git GitTrigger) MarshalYAML() (any, error) {
 	git.Type = "git"
 	return git, nil
 }

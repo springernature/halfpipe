@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"maps"
 	"path"
 	"strconv"
 	"strings"
@@ -35,8 +36,6 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 		},
 	}
 
-	for k, v := range task.Vars {
-		deployKatee.Env[k] = v
-	}
+	maps.Copy(deployKatee.Env, task.Vars)
 	return append(steps, deployKatee)
 }

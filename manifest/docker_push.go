@@ -14,7 +14,7 @@ type DockerPush struct {
 	RestoreArtifacts      bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Retries               int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications         Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications         Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout               string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	DockerfilePath        string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`
 	BuildPath             string        `json:"build_path,omitempty" yaml:"build_path,omitempty"`
@@ -52,7 +52,7 @@ func (r DockerPush) SetName(name string) Task {
 	return r
 }
 
-func (r DockerPush) MarshalYAML() (interface{}, error) {
+func (r DockerPush) MarshalYAML() (any, error) {
 	r.Type = "docker-push"
 	return r, nil
 }

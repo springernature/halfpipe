@@ -70,7 +70,7 @@ func (t *TaskList) UnmarshalJSON(b []byte) error {
 }
 
 func (v *Vars) UnmarshalJSON(b []byte) error {
-	var rawVars map[string]interface{}
+	var rawVars map[string]any
 	if err := json.Unmarshal(b, &rawVars); err != nil {
 		return err
 	}

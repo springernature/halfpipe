@@ -10,7 +10,7 @@ type DeployMLModules struct {
 	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Retries          int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications    Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	UseBuildVersion  bool          `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 	Username         string        `json:"username" yaml:"username,omitempty" secretAllowed:"true"`
@@ -46,7 +46,7 @@ func (r DeployMLModules) SetName(name string) Task {
 	return r
 }
 
-func (r DeployMLModules) MarshalYAML() (interface{}, error) {
+func (r DeployMLModules) MarshalYAML() (any, error) {
 	r.Type = "deploy-ml-modules"
 	return r, nil
 }

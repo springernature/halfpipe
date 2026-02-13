@@ -14,7 +14,7 @@ type ConsumerIntegrationTest struct {
 	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
 	Retries                int           `yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
-	Notifications          Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	UseCovenant            bool          `json:"use_covenant,omitempty" yaml:"use_covenant,omitempty"`
@@ -49,7 +49,7 @@ func (r ConsumerIntegrationTest) SetTimeout(timeout string) Task {
 	return r
 }
 
-func (r ConsumerIntegrationTest) MarshalYAML() (interface{}, error) {
+func (r ConsumerIntegrationTest) MarshalYAML() (any, error) {
 	r.Type = "consumer-integration-test"
 	return r, nil
 }

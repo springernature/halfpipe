@@ -67,7 +67,7 @@ type deployCF struct {
 	manifestPath     string
 	appPath          string
 	basePath         string
-	vars             map[string]interface{}
+	vars             map[string]any
 	team             string
 }
 

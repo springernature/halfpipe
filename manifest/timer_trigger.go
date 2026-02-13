@@ -9,7 +9,7 @@ func (t TimerTrigger) GetTriggerAttempts() int {
 	return 2
 }
 
-func (t TimerTrigger) MarshalYAML() (interface{}, error) {
+func (t TimerTrigger) MarshalYAML() (any, error) {
 	t.Type = "timer"
 	return t, nil
 }

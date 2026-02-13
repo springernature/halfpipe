@@ -8,7 +8,7 @@ type Buildpack struct {
 	Image            string        `json:"image,omitempty" yaml:"image,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Notifications    Notifications `json:"notifications,omitempty" yaml:"notifications,omitempty"`
+	Notifications    Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Name             string        `json:"name,omitempty" yaml:"name,omitempty"`
 	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	ManualTrigger    bool          `json:"manual_trigger,omitempty" yaml:"manual_trigger,omitempty"`
@@ -45,7 +45,7 @@ func (p Buildpack) SetName(name string) Task {
 	return p
 }
 
-func (p Buildpack) MarshalYAML() (interface{}, error) {
+func (p Buildpack) MarshalYAML() (any, error) {
 	p.Type = "buildpack"
 	return p, nil
 }

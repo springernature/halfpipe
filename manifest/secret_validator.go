@@ -48,29 +48,29 @@ func (s secretValidator) getRealFieldName(fieldName string, jsonTag string) stri
 	return strings.Split(jsonTag, ",")[0]
 }
 
-func (s secretValidator) validate(i interface{}, fieldName string, secretTag string, errs *[]error, platform Platform) {
+func (s secretValidator) validate(i any, fieldName string, secretTag string, errs *[]error, platform Platform) {
 	v := reflect.ValueOf(i)
 
 	switch v.Type() {
 
-	case reflect.TypeOf(Manifest{}),
-		reflect.TypeOf(Repo{}),
-		reflect.TypeOf(Run{}),
-		reflect.TypeOf(Docker{}),
-		reflect.TypeOf(DockerPush{}),
-		reflect.TypeOf(DockerPushAWS{}),
-		reflect.TypeOf(DockerCompose{}),
-		reflect.TypeOf(DeployCF{}),
-		reflect.TypeOf(DeployKatee{}),
-		reflect.TypeOf(ConsumerIntegrationTest{}),
-		reflect.TypeOf(DeployMLZip{}),
-		reflect.TypeOf(DeployMLModules{}),
-		reflect.TypeOf(ArtifactConfig{}),
-		reflect.TypeOf(GitTrigger{}),
-		reflect.TypeOf(TimerTrigger{}),
-		reflect.TypeOf(DockerTrigger{}),
-		reflect.TypeOf(Buildpack{}),
-		reflect.TypeOf(PipelineTrigger{}):
+	case reflect.TypeFor[Manifest](),
+		reflect.TypeFor[Repo](),
+		reflect.TypeFor[Run](),
+		reflect.TypeFor[Docker](),
+		reflect.TypeFor[DockerPush](),
+		reflect.TypeFor[DockerPushAWS](),
+		reflect.TypeFor[DockerCompose](),
+		reflect.TypeFor[DeployCF](),
+		reflect.TypeFor[DeployKatee](),
+		reflect.TypeFor[ConsumerIntegrationTest](),
+		reflect.TypeFor[DeployMLZip](),
+		reflect.TypeFor[DeployMLModules](),
+		reflect.TypeFor[ArtifactConfig](),
+		reflect.TypeFor[GitTrigger](),
+		reflect.TypeFor[TimerTrigger](),
+		reflect.TypeFor[DockerTrigger](),
+		reflect.TypeFor[Buildpack](),
+		reflect.TypeFor[PipelineTrigger]():
 
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)
@@ -88,39 +88,39 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			s.validate(field.Interface(), realFieldName, secretTag, errs, platform)
 		}
 
-	case reflect.TypeOf(TaskList{}):
+	case reflect.TypeFor[TaskList]():
 		for i, elem := range v.Interface().(TaskList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
-	case reflect.TypeOf(TriggerList{}):
+	case reflect.TypeFor[TriggerList]():
 		for i, elem := range v.Interface().(TriggerList) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
-	case reflect.TypeOf(Parallel{}):
+	case reflect.TypeFor[Parallel]():
 		for i, elem := range v.Interface().(Parallel).Tasks {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
-	case reflect.TypeOf(Sequence{}):
+	case reflect.TypeFor[Sequence]():
 		for i, elem := range v.Interface().(Sequence).Tasks {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
-	case reflect.TypeOf([]string{"stringArray"}):
+	case reflect.TypeFor[[]string]():
 		for i, elem := range v.Interface().([]string) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 
-	case reflect.TypeOf(FeatureToggles{}):
+	case reflect.TypeFor[FeatureToggles]():
 		for i, elem := range v.Interface().(FeatureToggles) {
 			realFieldName := fmt.Sprintf("%s[%d]", fieldName, i)
 			s.validate(elem, realFieldName, secretTag, errs, platform)
 		}
 
-	case reflect.TypeOf(Vars{}):
+	case reflect.TypeFor[Vars]():
 		for key, value := range v.Interface().(Vars) {
 			realKeyName := fmt.Sprintf("key %s[%s]", fieldName, key)
 			s.validate(key, realKeyName, "false", errs, "")
@@ -128,7 +128,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			s.validate(value, realValueName, secretTag, errs, platform)
 		}
 
-	case reflect.TypeOf("string"):
+	case reflect.TypeFor[string]():
 		secret := v.Interface().(string)
 		r := regexp.MustCompile(`\(\(.*\)\)`)
 
@@ -161,7 +161,7 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 			}
 		}
 
-	case reflect.TypeOf(Notifications{}):
+	case reflect.TypeFor[Notifications]():
 		notifications := v.Interface().(Notifications)
 
 		for ni, success := range notifications.OnSuccess {
@@ -176,14 +176,14 @@ func (s secretValidator) validate(i interface{}, fieldName string, secretTag str
 		return
 
 	// Stuff that we don't care about as they cannot contain secrets.
-	case reflect.TypeOf(true),
-		reflect.TypeOf(0),
-		reflect.TypeOf(manifestparser.Application{}),
-		reflect.TypeOf(Update{}),
-		reflect.TypeOf(Platform("")),
-		reflect.TypeOf(ComposeFiles{}),
-		reflect.TypeOf(GitHubEnvironment{}),
-		reflect.TypeOf(VelaManifest{}):
+	case reflect.TypeFor[bool](),
+		reflect.TypeFor[int](),
+		reflect.TypeFor[manifestparser.Application](),
+		reflect.TypeFor[Update](),
+		reflect.TypeFor[Platform](),
+		reflect.TypeFor[ComposeFiles](),
+		reflect.TypeFor[GitHubEnvironment](),
+		reflect.TypeFor[VelaManifest]():
 		return
 
 	default:
