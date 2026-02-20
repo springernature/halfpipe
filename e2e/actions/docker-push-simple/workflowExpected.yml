@@ -7,6 +7,8 @@ name: pipeline-name
   workflow_dispatch: {}
 permissions:
   contents: read
+  actions: read
+  security-events: write
 env:
   ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
   ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}

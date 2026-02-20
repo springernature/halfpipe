@@ -10,4 +10,6 @@ name: pipeline-name
   workflow_dispatch: {}
 permissions:
   contents: read
+  actions: read
+  security-events: write
 concurrency: ${{ github.workflow }}

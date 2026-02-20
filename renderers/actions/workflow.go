@@ -19,7 +19,9 @@ type Workflow struct {
 }
 
 type Permissions struct {
-	Contents string `yaml:"contents,omitempty"`
+	Contents       string `yaml:"contents,omitempty"`
+	Actions        string `yaml:"actions,omitempty"`
+	SecurityEvents string `yaml:"security-events,omitempty"`
 }
 
 type On struct {
