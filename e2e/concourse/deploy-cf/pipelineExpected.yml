@@ -485,6 +485,14 @@ jobs:
             path: /bin/sh
         task: run-smoke-test.sh-4
         timeout: 1h
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-stop-candidate
+        manifestPath: git/e2e/concourse/deploy-cf/manifest.yml
+      put: stop-candidate
+      resource: cf-dev-api-halfpipe-team-dev
   - attempts: 2
     no_get: true
     params:

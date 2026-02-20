@@ -38,6 +38,7 @@ tasks:
   password: very-secret
   test_domain: some.random.domain.com
   timeout: 5m
+  stop_candidate_on_failure: true
   pre_start:
   - cf apps
   - cf events myapp-CANDIDATE

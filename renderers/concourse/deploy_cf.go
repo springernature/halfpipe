@@ -241,6 +241,26 @@ func (d deployCF) pushApp() atc.Step {
 	return d.logsOnFailure(stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout()))
 }
 
+func (d deployCF) stopCandidateOnFailure(stepConfig atc.Step) atc.Step {
+	return atc.Step{
+		Config: &atc.OnFailureStep{
+			Step: stepConfig.Config,
+			Hook: atc.Step{
+				Config: &atc.PutStep{
+					Name:     "stop-candidate",
+					Resource: d.resourceName,
+					Params: atc.Params{
+						"command":      "halfpipe-stop-candidate",
+						"manifestPath": d.manifestPath,
+						"cliVersion":   d.task.CliVersion,
+					},
+					NoGet: true,
+				},
+			},
+		},
+	}
+}
+
 func (d deployCF) logsOnFailure(stepConfig atc.Step) atc.Step {
 	return atc.Step{
 		Config: &atc.OnFailureStep{
@@ -312,7 +332,11 @@ func (c Concourse) prePromoteTasks(deploy deployCF) []atc.Step {
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
 
-	return []atc.Step{parallelizeSteps(prePromoteTasks)}
+	step := parallelizeSteps(prePromoteTasks)
+	if deploy.task.StopCandidateOnFailure {
+		step = deploy.stopCandidateOnFailure(step)
+	}
+	return []atc.Step{step}
 }
 
 func deployCFResourceName(task manifest.DeployCF) (name string) {

@@ -49,6 +49,9 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest, taskListId
 			if task.Rolling {
 				appendError(ErrUnsupportedRolling.AsWarning())
 			}
+			if task.StopCandidateOnFailure {
+				appendError(ErrUnsupportedStopCandidateOnFailure.AsWarning())
+			}
 		case manifest.DockerPush:
 			for _, trigger := range man.Triggers {
 				if t, ok := trigger.(manifest.DockerTrigger); ok {
