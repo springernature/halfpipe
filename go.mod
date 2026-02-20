@@ -6,14 +6,14 @@ require (
 	code.cloudfoundry.org/cli v7.1.0+incompatible
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
-	github.com/cloudfoundry/bosh-utils v0.0.591 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.592 // indirect
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/gookit/color v1.6.0
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/mattn/go-colorable v0.1.14 // indirect
-	github.com/mattn/go-runewidth v0.0.19 // indirect
+	github.com/mattn/go-runewidth v0.0.20 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/onsi/gomega v1.39.1
 	github.com/pkg/errors v0.9.1
@@ -38,7 +38,7 @@ require (
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/bmizerany/pat v0.0.0-20210406213842-e4b6760bdd6f // indirect
 	github.com/charlievieth/fs v0.0.3 // indirect
-	github.com/clipperhouse/uax29/v2 v2.6.0 // indirect
+	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
