@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"sigs.k8s.io/yaml"
 	"strings"
+
+	"sigs.k8s.io/yaml"
 )
 
 func Parse(manifestYaml string) (Manifest, []error) {
@@ -195,9 +196,14 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t
+	case "copy-container-image":
+		t := CopyContainerImage{}
+		err = unmarshal(&t)
+		t.Type = ""
+		task = t
 
 	default:
-		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'docker-push-aws', 'consumer-integration-test', 'buildpack', 'parallel', 'sequence'", taskIndex, taskType)
+		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'docker-push-aws', 'consumer-integration-test', 'buildpack', 'copy-container-image', 'parallel', 'sequence'", taskIndex, taskType)
 	}
 
 	return task, err

@@ -25,6 +25,7 @@ type tasksDefaulter struct {
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
 	buildpackDefaulter                   func(original manifest.Buildpack, defaults Defaults) (updated manifest.Buildpack)
 	dockerPushAWSDefaulter               func(original manifest.DockerPushAWS, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPushAWS)
+	copyContainerImageDefaulter          func(original manifest.CopyContainerImage, defaults Defaults) (updated manifest.CopyContainerImage)
 
 	tasksRenamer          TasksRenamer
 	tasksTimeoutDefaulter TasksTimeoutDefaulter
@@ -43,6 +44,7 @@ func NewTaskDefaulter() TasksDefaulter {
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
 		buildpackDefaulter:                   buildpackDefaulter,
 		dockerPushAWSDefaulter:               dockerPushAWSDefaulter,
+		copyContainerImageDefaulter:          copyContainerImageDefaulter,
 
 		tasksRenamer:          NewTasksRenamer(),
 		tasksTimeoutDefaulter: NewTasksTimeoutDefaulter(),
@@ -88,6 +90,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 		case manifest.Sequence:
 			task.Tasks = t.Apply(task.Tasks, defaults, man)
 			tt = task
+		case manifest.CopyContainerImage:
+			tt = t.copyContainerImageDefaulter(task, defaults)
 		}
 
 		tasksWithDefaultsApplied = append(tasksWithDefaultsApplied, tt)

@@ -1,0 +1,160 @@
+package shared
+
+var CopyContainerImageScript = `set -euo pipefail
+
+# ------------------------------------------------------------------------------
+#
+# Copies a container image from Google Artifact Registry (GAR) to AWS ECR
+# using skopeo. No local container daemon required.
+#
+# Assumes GAR authentication is already configured in ~/.docker/config.json
+# (e.g. via 'gcloud auth configure-docker' or 'docker login').
+# AWS credentials must be provided via env vars.
+#
+# Required env vars:
+#   SOURCE_URL             Full GAR image URL, with or without a tag.
+#                          e.g. eu.gcr.io/halfpipe-io/myteam/myapp:1.0.0
+#                          If no tag is present, BUILD_VERSION is used instead.
+#
+#   TARGET_URL             Either a full ECR image URL including tag:
+#                            1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn/myteam/myapp:1.0.0
+#                          Or a bare ECR registry, in which case the path and tag are
+#                          copied from the source URL:
+#                            1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn
+#                            -> 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn/halfpipe-io/myteam/myapp:1.0.0
+#
+#   AWS_ACCESS_KEY_ID
+#
+#   AWS_SECRET_ACCESS_KEY
+#
+#   BUILD_VERSION          Used as the image tag when SOURCE_URL has no tag.
+#                          Required if SOURCE_URL does not include a tag.
+# ------------------------------------------------------------------------------
+
+# --- helpers ------------------------------------------------------------------
+
+log() { echo "$*"; }
+err() { echo "ERROR: $*" >&2; }
+die() { err "$*"; exit 1; }
+
+extract_tag() {
+  # e.g. eu.gcr.io/foo/bar:1.0.0 -> 1.0.0 (empty string if no tag)
+  echo "$1" | grep -oE ':[^:]+$' | cut -c2- || true
+}
+
+extract_ecr_registry() {
+  # e.g. 123456789.dkr.ecr.eu-west-1.amazonaws.com/my-repo:tag
+  #   -> 123456789.dkr.ecr.eu-west-1.amazonaws.com
+  echo "$1" | cut -d'/' -f1
+}
+
+extract_ecr_repo() {
+  # e.g. 123456789.dkr.ecr.eu-west-1.amazonaws.com/my-repo:tag -> my-repo
+  echo "$1" | cut -d'/' -f2- | cut -d':' -f1
+}
+
+extract_ecr_region() {
+  # e.g. 123456789.dkr.ecr.eu-west-1.amazonaws.com/my-repo:tag -> eu-west-1
+  # also handles China: 123456789.dkr.ecr.cn-northwest-1.amazonaws.com.cn/... -> cn-northwest-1
+  echo "$1" | grep -oE '\.dkr\.ecr\.[a-z0-9-]+\.amazonaws' | cut -d'.' -f4
+}
+
+# --- install required tools ---------------------------------------------------
+
+install_skopeo() {
+  log "skopeo not found — installing..."
+  if command -v apt-get &>/dev/null; then
+    apt-get update -y
+    apt-get install -y skopeo
+  elif command -v apk &>/dev/null; then
+    apk add --no-progress skopeo
+  else
+    die "cannot install skopeo: no supported package manager found (apt-get/apk)"
+  fi
+  log "skopeo installed: $(skopeo --version)"
+}
+
+install_aws_cli() {
+  log "aws CLI not found — installing..."
+  if command -v apk &>/dev/null; then
+    apk add --no-progress aws-cli
+  else
+    curl -sL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o /tmp/awscliv2.zip
+    unzip -q /tmp/awscliv2.zip -d /tmp/awscliv2
+    sudo /tmp/awscliv2/aws/install --update
+    rm -rf /tmp/awscliv2.zip /tmp/awscliv2
+  fi
+  log "aws CLI installed: $(aws --version)"
+}
+
+command -v skopeo &>/dev/null || install_skopeo
+command -v aws    &>/dev/null || install_aws_cli
+
+# --- validate required env vars -----------------------------------------------
+
+[[ -n "${SOURCE_URL:-}" ]]            || die "SOURCE_URL is not set"
+[[ -n "${TARGET_URL:-}" ]]            || die "TARGET_URL is not set"
+[[ -n "${AWS_ACCESS_KEY_ID:-}" ]]     || die "AWS_ACCESS_KEY_ID is not set"
+[[ -n "${AWS_SECRET_ACCESS_KEY:-}" ]] || die "AWS_SECRET_ACCESS_KEY is not set"
+
+# If source URL has no tag, fall back to BUILD_VERSION
+SOURCE_TAG="$(extract_tag "$SOURCE_URL")"
+if [[ -z "$SOURCE_TAG" ]]; then
+  [[ -n "${BUILD_VERSION:-}" ]] || die "source URL has no tag and BUILD_VERSION is not set"
+  SOURCE_TAG="$BUILD_VERSION"
+  SOURCE_URL="${SOURCE_URL}:${SOURCE_TAG}"
+  log "No tag in source URL — using BUILD_VERSION: $SOURCE_URL"
+fi
+
+# If target is a bare registry (no '/'), expand it using the source path+tag
+if [[ "$TARGET_URL" != */* ]]; then
+  SOURCE_PATH_AND_TAG="$(echo "$SOURCE_URL" | cut -d'/' -f2-)"
+  TARGET_URL="${TARGET_URL}/${SOURCE_PATH_AND_TAG}"
+  log "Expanded target URL to: $TARGET_URL"
+fi
+
+TARGET_TAG="$(extract_tag "$TARGET_URL")"
+[[ -n "$TARGET_TAG" ]] || die "target URL must include a tag (e.g. :1.0.0): $TARGET_URL"
+
+# --- ensure ECR target repo exists --------------------------------------------
+
+ensure_ecr_repo() {
+  local repo="$1"
+  local region="$2"
+  log "Checking ECR repository '$repo'..."
+  if ! aws ecr describe-repositories \
+       --repository-names "$repo" \
+       --region "$region" \
+       &>/dev/null; then
+    log "Repository not found — creating '$repo'..."
+    aws ecr create-repository \
+      --repository-name "$repo" \
+      --image-scanning-configuration scanOnPush=false \
+      --encryption-configuration encryptionType=AES256 \
+      --region "$region"
+    log "Repository '$repo' created."
+  else
+    log "Repository '$repo' already exists."
+  fi
+}
+
+ECR_REPO="$(extract_ecr_repo "$TARGET_URL")"
+ECR_REGION="$(extract_ecr_region "$TARGET_URL")"
+[[ -n "$ECR_REGION" ]] || die "could not extract AWS region from target URL: $TARGET_URL"
+
+ensure_ecr_repo "$ECR_REPO" "$ECR_REGION"
+
+# --- copy image ---------------------------------------------------------------
+
+log "Copying $SOURCE_URL -> $TARGET_URL..."
+
+ECR_PASSWORD="$(aws ecr get-login-password --region "$ECR_REGION")"
+skopeo copy \
+  --all \
+  --src-authfile ~/.docker/config.json \
+  --dest-creds "AWS:$ECR_PASSWORD" \
+  docker://"$SOURCE_URL" \
+  docker://"$TARGET_URL"
+
+log "Done. $SOURCE_URL -> $TARGET_URL"
+`

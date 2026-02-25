@@ -85,6 +85,8 @@ var (
 	ErrUnsupportedFeature          = newError("unsupported feature")
 	ErrUnsupportedFeatureVersioned = newError("feature 'versioned' is no longer supported. The same functionality is included in the 'update-pipeline' feature")
 	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
+
+	ErrCopyContainerSource = newError("source must be in format 'eu.gcr.io/halfpipe-io/<team>/<image>[:<tag>]'")
 )
 
 type Error struct {

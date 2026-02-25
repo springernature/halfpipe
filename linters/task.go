@@ -29,6 +29,7 @@ type taskLinter struct {
 	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) []error
 	lintNotifications               func(task manifest.Task) []error
 	lintBuildpackTask               func(task manifest.Buildpack) []error
+	lintCopyContainerImageTask      func(task manifest.CopyContainerImage) []error
 	os                              string
 }
 
@@ -50,6 +51,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintSequence:                    LintSequenceTask,
 		lintNotifications:               LintNotifications,
 		lintBuildpackTask:               LintBuildpackTask,
+		lintCopyContainerImageTask:      LintCopyContainerImageTask,
 		os:                              os,
 	}
 }
@@ -122,6 +124,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Update:
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
+		case manifest.CopyContainerImage:
+			errs = linter.lintCopyContainerImageTask(task)
 		case manifest.Parallel:
 			errs = linter.lintParallel(task, man.Platform)
 			subErrors := linter.lintTasks(taskID, task.Tasks, man, previousTasks, true, true)

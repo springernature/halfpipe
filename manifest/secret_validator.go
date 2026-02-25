@@ -1,12 +1,13 @@
 package manifest
 
 import (
-	"code.cloudfoundry.org/cli/util/manifestparser"
 	"fmt"
 	"reflect"
 	"regexp"
 	"slices"
 	"strings"
+
+	"code.cloudfoundry.org/cli/util/manifestparser"
 )
 
 const tagName = "secretAllowed"
@@ -70,6 +71,7 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[TimerTrigger](),
 		reflect.TypeFor[DockerTrigger](),
 		reflect.TypeFor[Buildpack](),
+		reflect.TypeFor[CopyContainerImage](),
 		reflect.TypeFor[PipelineTrigger]():
 
 		for i := 0; i < v.NumField(); i++ {

@@ -2,11 +2,12 @@ package concourse
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/shared"
 
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
@@ -345,6 +346,10 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 	case manifest.Buildpack:
 		job = c.PackJob(task, basePath, man)
+
+	case manifest.CopyContainerImage:
+		runTask := convertCopyContainerImageToRunTask(task, man)
+		job = c.runJob(runTask, man, true, basePath)
 
 	case manifest.ConsumerIntegrationTest:
 		runTask := convertConsumerIntegrationTestToRunTask(task, man)

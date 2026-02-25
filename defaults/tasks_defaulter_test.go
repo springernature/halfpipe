@@ -1,9 +1,10 @@
 package defaults
 
 import (
+	"testing"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type testTasksRenamer struct {
@@ -48,11 +49,15 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 	expectedDeployMlModules := manifest.DeployMLModules{
 		Name: "g",
 	}
+	expectedCopyContainerImage := manifest.CopyContainerImage{
+		Name: "h",
+	}
 
 	input := manifest.TaskList{
 		manifest.Update{},
 		manifest.Run{},
 		manifest.DockerCompose{},
+		manifest.CopyContainerImage{},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Run{},
@@ -88,6 +93,7 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 		manifest.Update{},
 		expectedRun,
 		expectedDockerCompose,
+		expectedCopyContainerImage,
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				expectedRun,
@@ -157,6 +163,9 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 		},
 		deployMlModulesDefaulter: func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules) {
 			return expectedDeployMlModules
+		},
+		copyContainerImageDefaulter: func(original manifest.CopyContainerImage, defaults Defaults) (updated manifest.CopyContainerImage) {
+			return expectedCopyContainerImage
 		},
 	}
 
