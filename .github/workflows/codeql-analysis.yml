@@ -22,7 +22,7 @@ env:
 jobs:
   analyze:
     name: Analyze
-    runs-on: ee-runner
+    runs-on: ubuntu-latest
     permissions:
       actions: read
       contents: read
