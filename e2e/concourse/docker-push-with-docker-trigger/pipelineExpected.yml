@@ -57,6 +57,7 @@ jobs:
         B: b
         CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -76,6 +77,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \
@@ -93,6 +95,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
             --secret id=ARTIFACTORY_URL \

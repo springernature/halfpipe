@@ -41,6 +41,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
         MULTIPLE: ((levels/secret/deep.secret))
         RUNNING_IN_CI: "true"
       platform: linux

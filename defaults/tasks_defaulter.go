@@ -11,7 +11,7 @@ type TasksTimeoutDefaulter interface {
 }
 
 type TasksEnvVarsDefaulter interface {
-	Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
+	Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
 type tasksDefaulter struct {
@@ -98,7 +98,7 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 	}
 
 	tasksWithTimeoutApplied := t.tasksTimeoutDefaulter.Apply(tasksWithDefaultsApplied, defaults)
-	tasksWithEnvVarsApplied := t.tasksEnvVarsDefaulter.Apply(tasksWithTimeoutApplied, defaults)
+	tasksWithEnvVarsApplied := t.tasksEnvVarsDefaulter.Apply(tasksWithTimeoutApplied, defaults, man)
 
 	return tasksWithEnvVarsApplied
 }

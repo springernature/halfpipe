@@ -14,6 +14,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		"ARTIFACTORY_PASSWORD": Concourse.Artifactory.Password,
 		"RUNNING_IN_CI":        "true",
 		"CI":                   "true",
+		"EE_PLATFORM_TEAM":     "test",
 	}
 
 	input := manifest.TaskList{
@@ -86,5 +87,5 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, Concourse))
+	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, Concourse, manifest.Manifest{Team: "test"}))
 }

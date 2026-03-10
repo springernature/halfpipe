@@ -24,7 +24,7 @@ func (t testTasksTimeoutDefaulter) Apply(original manifest.TaskList, defaults De
 }
 
 type testTasksEnvVarsDefaulter struct {
-	apply func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList)
+	apply func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
 func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
@@ -139,7 +139,7 @@ func TestCallsOutToTaskDefaultersCorrectly(t *testing.T) {
 			tasksTimeoutDefaulterCalled = true
 			return original
 		}},
-		tasksEnvVarsDefaulter: testTasksEnvVarsDefaulter{apply: func(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
+		tasksEnvVarsDefaulter: testTasksEnvVarsDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
 			tasksEnvVarsDefaulterCalled = true
 			return original
 		}},

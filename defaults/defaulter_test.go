@@ -30,8 +30,8 @@ func (t testTasksDefaulter) Apply(original manifest.TaskList, defaults Defaults,
 	return t.apply(original, defaults, man)
 }
 
-func (t testTasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults) (updated manifest.TaskList) {
-	return t.apply(original, defaults)
+func (t testTasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
+	return t.apply(original, defaults, man)
 }
 
 func TestCallsOutToDefaulters(t *testing.T) {
