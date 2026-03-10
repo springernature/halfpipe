@@ -1,13 +1,13 @@
-# ghas-management-template-version: 1.0
+# ghas-management-template-version: 1.1
 
 name: "CodeQL Advanced Security Scanning"
 
 on:
-# Initial proposal is daily runs to avoid overloading runners, teams can uncomment below to enable on push and PR events
-#  push:
-#    branches: [ "main", "master" ]
-#  pull_request:
-#    branches: [ "main", "master" ]
+  # Initial proposal is daily runs to avoid overloading runners, teams can uncomment below to enable on push and PR events
+  #  push:
+  #    branches: [ "main", "master" ]
+  #  pull_request:
+  #    branches: [ "main", "master" ]
   schedule:
     - cron: '5 3 * * *' # Randomized per repository, daily runs somewhere between 22:00 and 06:00 UTC
   workflow_dispatch:
@@ -38,21 +38,16 @@ jobs:
           - language: go
             build-mode: manual
     # For languages that require build, teams must specify the container in which CodeQL will run; if language does not require build this section is removed by automation
-    # container:
-    #   image: 'IMAGE_PLACEHOLDER' # Teams should adapt, should be in the format 'eu.gcr.io/halfpipe-io/build-image'
+    container:
+      image: 'IMAGE_PLACEHOLDER' # Teams should adapt, should be in the format 'eu.gcr.io/halfpipe-io/build-image'
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - name: Set up Go
-        if: matrix.language == 'go'
-        uses: actions/setup-go@v5
-        with:
-          go-version: "1.26"
 
       - name: Initialize CodeQL
-        uses: github/codeql-action/init@v4
+        uses: github/codeql-action/init@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
         with:
           languages: ${{ matrix.language }}
           build-mode: ${{ matrix.build-mode }}
@@ -60,9 +55,12 @@ jobs:
       - name: Build app
         if: matrix.build-mode == 'manual'
         shell: bash
-        run: go build ./...
+        run: |
+          'BUILD_COMMAND_PLACEHOLDER'
+        # Teams must specify the build command for their application; if language does not require build this step is removed by automation
 
       - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v4
+        uses: github/codeql-action/analyze@0d579ffd059c29b07949a3cce3983f0780820c98 # v4.32.6
         with:
           category: "/language:${{matrix.language}}"
+          threads: 2
