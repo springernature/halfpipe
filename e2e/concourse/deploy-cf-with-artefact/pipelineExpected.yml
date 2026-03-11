@@ -154,6 +154,7 @@ jobs:
       appPath: artifacts/e2e/concourse/deploy-cf-with-artefact/build/linux/binary
       cliVersion: cf7
       command: halfpipe-push
+      eaid: halfpipe
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf/manifest.yml

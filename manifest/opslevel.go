@@ -13,10 +13,35 @@ type opsLevelFile struct {
 	Component OpsLevel `yaml:"component"`
 }
 
-// ParseOpsLevel reads and parses opslevel.yml from the given directory.
+// ParseOpsLevel searches for opslevel.yml starting from startDir and walking up
+// to gitRootDir (inclusive). It returns the first opslevel.yml found (closest wins).
+// If gitRootDir is empty, only startDir is checked.
 // Returns the parsed OpsLevel, a boolean indicating whether the file was found,
 // and an error if the file exists but could not be parsed.
-func ParseOpsLevel(fs afero.Afero, dir string) (OpsLevel, bool, error) {
+func ParseOpsLevel(fs afero.Afero, startDir string, gitRootDir string) (OpsLevel, bool, error) {
+	dir := startDir
+	for {
+		opsLevel, found, err := parseOpsLevelInDir(fs, dir)
+		if found || err != nil {
+			return opsLevel, found, err
+		}
+
+		if gitRootDir == "" || filepath.Clean(dir) == filepath.Clean(gitRootDir) {
+			break
+		}
+
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			// Reached filesystem root without finding gitRootDir
+			break
+		}
+		dir = parent
+	}
+
+	return OpsLevel{}, false, nil
+}
+
+func parseOpsLevelInDir(fs afero.Afero, dir string) (OpsLevel, bool, error) {
 	opsLevelPath := filepath.Join(dir, "opslevel.yml")
 
 	data, err := fs.ReadFile(opsLevelPath)
