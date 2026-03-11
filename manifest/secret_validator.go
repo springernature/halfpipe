@@ -59,7 +59,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[Run](),
 		reflect.TypeFor[Docker](),
 		reflect.TypeFor[DockerPush](),
-		reflect.TypeFor[DockerPushAWS](),
 		reflect.TypeFor[DockerCompose](),
 		reflect.TypeFor[DeployCF](),
 		reflect.TypeFor[DeployKatee](),

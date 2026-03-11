@@ -24,7 +24,6 @@ type tasksDefaulter struct {
 	deployMlZipDefaulter                 func(original manifest.DeployMLZip, defaults Defaults) (updated manifest.DeployMLZip)
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
 	buildpackDefaulter                   func(original manifest.Buildpack, defaults Defaults) (updated manifest.Buildpack)
-	dockerPushAWSDefaulter               func(original manifest.DockerPushAWS, man manifest.Manifest, defaults Defaults) (updated manifest.DockerPushAWS)
 	copyContainerImageDefaulter          func(original manifest.CopyContainerImage, defaults Defaults) (updated manifest.CopyContainerImage)
 
 	tasksRenamer          TasksRenamer
@@ -43,7 +42,6 @@ func NewTaskDefaulter() TasksDefaulter {
 		deployMlZipDefaulter:                 deployMlZipDefaulter,
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
 		buildpackDefaulter:                   buildpackDefaulter,
-		dockerPushAWSDefaulter:               dockerPushAWSDefaulter,
 		copyContainerImageDefaulter:          copyContainerImageDefaulter,
 
 		tasksRenamer:          NewTasksRenamer(),
@@ -67,8 +65,6 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = t.dockerComposeDefaulter(task, defaults)
 		case manifest.DockerPush:
 			tt = t.dockerPushDefaulter(task, man, defaults)
-		case manifest.DockerPushAWS:
-			tt = t.dockerPushAWSDefaulter(task, man, defaults)
 		case manifest.DeployCF:
 			ppTasks := t.Apply(task.PrePromote, defaults, man)
 			task = t.deployCfDefaulter(task, defaults, man)

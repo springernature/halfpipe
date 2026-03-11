@@ -19,7 +19,6 @@ type taskLinter struct {
 	lintDeployKateeTask             func(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) []error
 	LintPrePromoteTask              func(task manifest.Task) []error
 	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) []error
-	lintDockerPushAWSTask           func(task manifest.DockerPushAWS, man manifest.Manifest, fs afero.Afero) []error
 	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) []error
 	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) []error
 	lintDeployMLZipTask             func(task manifest.DeployMLZip) []error
@@ -41,7 +40,6 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintDeployKateeTask:             LintDeployKateeTask,
 		LintPrePromoteTask:              LintPrePromoteTask,
 		lintDockerPushTask:              LintDockerPushTask,
-		lintDockerPushAWSTask:           LintDockerPushAWSTask,
 		lintDockerComposeTask:           LintDockerComposeTask,
 		lintConsumerIntegrationTestTask: LintConsumerIntegrationTestTask,
 		lintDeployMLZipTask:             LintDeployMLZipTask,
@@ -107,8 +105,6 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			errs = linter.lintDeployKateeTask(task, man, linter.Fs)
 		case manifest.DockerPush:
 			errs = linter.lintDockerPushTask(task, man, linter.Fs)
-		case manifest.DockerPushAWS:
-			errs = linter.lintDockerPushAWSTask(task, man, linter.Fs)
 		case manifest.DockerCompose:
 			errs = linter.lintDockerComposeTask(task, linter.Fs)
 		case manifest.ConsumerIntegrationTest:

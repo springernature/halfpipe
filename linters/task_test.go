@@ -54,7 +54,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			manifest.ConsumerIntegrationTest{},
 			manifest.DeployMLZip{},
 			manifest.DeployMLModules{},
-			manifest.DockerPushAWS{},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
 					manifest.Sequence{
@@ -80,8 +79,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	calledLintDeployCFTaskNum := 0
 	calledLintDockerPushTask := false
 	calledLintDockerPushTaskNum := 0
-	calledLintDockerPushAWSTask := false
-	calledLintDockerPushAWSTaskNum := 0
 	calledLintDockerComposeTask := false
 	calledLintDockerComposeTaskNum := 0
 	calledLintConsumerIntegrationTestTask := false
@@ -123,11 +120,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 		lintDockerPushTask: func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) (errs []error) {
 			calledLintDockerPushTask = true
 			calledLintDockerPushTaskNum++
-			return
-		},
-		lintDockerPushAWSTask: func(task manifest.DockerPushAWS, man manifest.Manifest, fs afero.Afero) (errs []error) {
-			calledLintDockerPushAWSTask = true
-			calledLintDockerPushAWSTaskNum++
 			return
 		},
 		lintDockerComposeTask: func(task manifest.DockerCompose, fs afero.Afero) (errs []error) {
@@ -186,9 +178,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	assert.True(t, calledLintDockerPushTask)
 	assert.Equal(t, 2, calledLintDockerPushTaskNum)
 
-	assert.True(t, calledLintDockerPushAWSTask)
-	assert.Equal(t, 1, calledLintDockerPushAWSTaskNum)
-
 	assert.True(t, calledLintDockerComposeTask)
 	assert.Equal(t, 2, calledLintDockerComposeTaskNum)
 
@@ -211,7 +200,7 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	}
 
 	assert.True(t, calledLintNotifications)
-	assert.Equal(t, 24, calledLintNotificationsNum)
+	assert.Equal(t, 23, calledLintNotificationsNum)
 }
 
 func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
