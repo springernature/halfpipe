@@ -16,7 +16,7 @@ func NewOpsLevelLinter() opsLevelLinter {
 
 func (opsLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.Linter = "OpsLevel"
-	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/"
+	result.DocsURL = "https://springernature.atlassian.net/wiki/spaces/ENG/pages/600703533/Developer+Portal"
 
 	if manifest.OpsLevel.RelativePath == "" {
 		result.Add(ErrOpsLevelNotFound.AsWarning())
