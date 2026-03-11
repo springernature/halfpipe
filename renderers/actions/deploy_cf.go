@@ -96,6 +96,10 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 		}
 	}
 
+	if man.OpsLevel.System != "" {
+		push.With["eaid"] = man.OpsLevel.System
+	}
+
 	return push
 }
 

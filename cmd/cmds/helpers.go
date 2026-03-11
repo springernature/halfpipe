@@ -125,6 +125,7 @@ func createController(projectData project.Data, fs afero.Afero, currentDir strin
 			linters.NewSecretsLinter(manifest.NewSecretValidator()),
 			linters.NewTasksLinter(fs, runtime.GOOS),
 			linters.NewFeatureToggleLinter(manifest.AvailableFeatureToggles),
+			linters.NewOpsLevelLinter(),
 			linters.NewActionsLinter(gitconfig.OriginURL),
 		},
 		renderer,
@@ -155,6 +156,13 @@ func getManifestAndController(halfpipeFilenameOptions []string, renderer halfpip
 	man, manErrors := getManifest(fs, currentDir, projectData.HalfpipeFilePath)
 	if len(manErrors) > 0 {
 		outputLintResults(linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors)})
+	}
+
+	opsLevel, _, opsLevelErr := manifest.ParseOpsLevel(fs, currentDir)
+	if opsLevelErr != nil {
+		fmt.Fprintf(os.Stderr, "WARNING: %s\n", opsLevelErr)
+	} else {
+		man.OpsLevel = opsLevel
 	}
 
 	if renderer == nil {

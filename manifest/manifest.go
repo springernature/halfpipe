@@ -233,6 +233,11 @@ func (p Platform) IsConcourse() bool {
 	return !p.IsActions()
 }
 
+type OpsLevel struct {
+	Name   string `yaml:"name"`
+	System string `yaml:"system"`
+}
+
 type Manifest struct {
 	Team                string         `yaml:"team,omitempty"`
 	Pipeline            string         `yaml:"pipeline,omitempty"`
@@ -246,6 +251,7 @@ type Manifest struct {
 	Tasks               TaskList       `yaml:"tasks,omitempty"`
 	Platform            Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
 	Notifications       Notifications  `json:"notifications" yaml:"notifications,omitempty"`
+	OpsLevel            OpsLevel       `json:"-" yaml:"-"`
 }
 
 func (m Manifest) PipelineName() (pipelineName string) {

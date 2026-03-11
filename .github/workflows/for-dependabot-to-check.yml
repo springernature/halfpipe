@@ -124,6 +124,7 @@ jobs:
         appPath: .
         cliVersion: cf7
         command: halfpipe-all
+        eaid: halfpipe
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: e2e/actions/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}

@@ -19,6 +19,7 @@ func (c Concourse) deployCFJob(task manifest.DeployCF, man manifest.Manifest, ba
 	deploy.basePath = basePath
 	deploy.vars = convertVars(task.Vars)
 	deploy.team = man.Team
+	deploy.eaid = man.OpsLevel.System
 
 	deploy.manifestPath = path.Join(gitDir, basePath, task.Manifest)
 	if strings.HasPrefix(task.Manifest, fmt.Sprintf("../%s/", artifactsInDir)) {
@@ -69,6 +70,7 @@ type deployCF struct {
 	basePath         string
 	vars             map[string]any
 	team             string
+	eaid             string
 }
 
 func (d deployCF) cleanupOldApps() *atc.Step {
@@ -141,6 +143,10 @@ func (d deployCF) pushCandidateApp() atc.Step {
 		NoGet: true,
 	}
 
+	if d.eaid != "" {
+		push.Params["eaid"] = d.eaid
+	}
+
 	if d.task.IsDockerPush {
 		push.Params["dockerUsername"] = defaults.Concourse.Docker.Username
 		push.Params["dockerPassword"] = defaults.Concourse.Docker.Password
@@ -209,6 +215,10 @@ func (d deployCF) pushApp() atc.Step {
 			"team":         d.team,
 		},
 		NoGet: true,
+	}
+
+	if d.eaid != "" {
+		push.Params["eaid"] = d.eaid
 	}
 
 	if d.task.IsDockerPush {

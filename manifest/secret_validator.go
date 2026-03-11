@@ -185,7 +185,8 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[Platform](),
 		reflect.TypeFor[ComposeFiles](),
 		reflect.TypeFor[GitHubEnvironment](),
-		reflect.TypeFor[VelaManifest]():
+		reflect.TypeFor[VelaManifest](),
+		reflect.TypeFor[OpsLevel]():
 		return
 
 	default:
