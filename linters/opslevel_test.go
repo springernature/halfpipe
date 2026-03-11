@@ -8,55 +8,50 @@ import (
 )
 
 func TestOpsLevelSystem(t *testing.T) {
-	t.Run("no warning when system is empty", func(t *testing.T) {
+	t.Run("warning when opslevel.yml not found", func(t *testing.T) {
 		man := manifest.Manifest{}
 		result := opsLevelLinter{}.Lint(man)
-		assert.False(t, result.HasWarnings())
+		assert.True(t, result.HasWarnings())
 		assert.False(t, result.HasErrors())
+		assertContainsError(t, result.Issues, ErrOpsLevelNotFound)
+	})
+
+	t.Run("warning when opslevel.yml is invalid", func(t *testing.T) {
+		man := manifest.Manifest{
+			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml", ParseError: "failed to parse opslevel.yml: yaml: did not find expected ',' or ']'"},
+		}
+		result := opsLevelLinter{}.Lint(man)
+		assert.True(t, result.HasWarnings())
+		assert.False(t, result.HasErrors())
+		assertContainsError(t, result.Issues, ErrOpsLevelInvalid)
+	})
+
+	t.Run("warning when system is empty", func(t *testing.T) {
+		man := manifest.Manifest{
+			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml"},
+		}
+		result := opsLevelLinter{}.Lint(man)
+		assert.True(t, result.HasWarnings())
+		assert.False(t, result.HasErrors())
+		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
 	})
 
 	t.Run("no warning when system matches pattern", func(t *testing.T) {
 		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{System: "appl-428"},
+			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml", System: "appl-428"},
 		}
 		result := opsLevelLinter{}.Lint(man)
 		assert.False(t, result.HasWarnings())
 		assert.False(t, result.HasErrors())
-	})
-
-	t.Run("no warning for appl-0", func(t *testing.T) {
-		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{System: "appl-0"},
-		}
-		result := opsLevelLinter{}.Lint(man)
-		assert.False(t, result.HasWarnings())
 	})
 
 	t.Run("warning when system does not match pattern", func(t *testing.T) {
 		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{System: "oscar"},
+			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml", System: "oscar"},
 		}
 		result := opsLevelLinter{}.Lint(man)
 		assert.True(t, result.HasWarnings())
 		assert.False(t, result.HasErrors())
-		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
-	})
-
-	t.Run("warning when system is missing appl- prefix", func(t *testing.T) {
-		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{System: "428"},
-		}
-		result := opsLevelLinter{}.Lint(man)
-		assert.True(t, result.HasWarnings())
-		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
-	})
-
-	t.Run("warning when system has extra characters", func(t *testing.T) {
-		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{System: "appl-428-extra"},
-		}
-		result := opsLevelLinter{}.Lint(man)
-		assert.True(t, result.HasWarnings())
 		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
 	})
 }

@@ -158,12 +158,7 @@ func getManifestAndController(halfpipeFilenameOptions []string, renderer halfpip
 		outputLintResults(linters.LintResults{linters.NewLintResult("Halfpipe Manifest", "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/", manErrors)})
 	}
 
-	opsLevel, _, opsLevelErr := manifest.ParseOpsLevel(fs, currentDir, projectData.GitRootPath)
-	if opsLevelErr != nil {
-		fmt.Fprintf(os.Stderr, "WARNING: %s\n", opsLevelErr)
-	} else {
-		man.OpsLevel = opsLevel
-	}
+	man.OpsLevel = manifest.ParseOpsLevel(fs, currentDir, projectData.GitRootPath)
 
 	if renderer == nil {
 		if man.Platform.IsActions() {

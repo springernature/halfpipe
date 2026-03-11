@@ -16,14 +16,19 @@ type opsLevelFile struct {
 // ParseOpsLevel searches for opslevel.yml starting from startDir and walking up
 // to gitRootDir (inclusive). It returns the first opslevel.yml found (closest wins).
 // If gitRootDir is empty, only startDir is checked.
-// Returns the parsed OpsLevel, a boolean indicating whether the file was found,
-// and an error if the file exists but could not be parsed.
-func ParseOpsLevel(fs afero.Afero, startDir string, gitRootDir string) (OpsLevel, bool, error) {
+// The returned OpsLevel has RelativePath set to the path of the file relative to
+// gitRootDir (or startDir if gitRootDir is empty), and ParseError set if the file
+// was found but could not be parsed.
+func ParseOpsLevel(fs afero.Afero, startDir string, gitRootDir string) OpsLevel {
 	dir := startDir
 	for {
 		opsLevel, found, err := parseOpsLevelInDir(fs, dir)
-		if found || err != nil {
-			return opsLevel, found, err
+		if err != nil {
+			return OpsLevel{RelativePath: opsLevelRelativePath(dir, startDir), ParseError: err.Error()}
+		}
+		if found {
+			opsLevel.RelativePath = opsLevelRelativePath(dir, startDir)
+			return opsLevel
 		}
 
 		if gitRootDir == "" || filepath.Clean(dir) == filepath.Clean(gitRootDir) {
@@ -32,13 +37,20 @@ func ParseOpsLevel(fs afero.Afero, startDir string, gitRootDir string) (OpsLevel
 
 		parent := filepath.Dir(dir)
 		if parent == dir {
-			// Reached filesystem root without finding gitRootDir
 			break
 		}
 		dir = parent
 	}
 
-	return OpsLevel{}, false, nil
+	return OpsLevel{}
+}
+
+func opsLevelRelativePath(dir, startDir string) string {
+	rel, err := filepath.Rel(startDir, dir)
+	if err != nil {
+		rel = dir
+	}
+	return filepath.Join(rel, "opslevel.yml")
 }
 
 func parseOpsLevelInDir(fs afero.Afero, dir string) (OpsLevel, bool, error) {

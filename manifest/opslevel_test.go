@@ -17,28 +17,28 @@ component:
   system: appl-123
 `), 0644)
 
-		opsLevel, found, err := ParseOpsLevel(fs, "/repo", "/repo")
-		assert.NoError(t, err)
-		assert.True(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo", "/repo")
+		assert.Equal(t, "opslevel.yml", opsLevel.RelativePath)
+		assert.Empty(t, opsLevel.ParseError)
 		assert.Equal(t, "my-app", opsLevel.Name)
 		assert.Equal(t, "appl-123", opsLevel.System)
 	})
 
-	t.Run("returns no error when file does not exist", func(t *testing.T) {
+	t.Run("not found when file does not exist", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-		_, found, err := ParseOpsLevel(fs, "/repo", "/repo")
-		assert.NoError(t, err)
-		assert.False(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo", "/repo")
+		assert.Empty(t, opsLevel.RelativePath)
+		assert.Empty(t, opsLevel.ParseError)
 	})
 
-	t.Run("returns error for invalid yaml", func(t *testing.T) {
+	t.Run("parse error for invalid yaml", func(t *testing.T) {
 		fs := afero.Afero{Fs: afero.NewMemMapFs()}
 		_ = fs.WriteFile("/repo/opslevel.yml", []byte(`not: [valid: yaml`), 0644)
 
-		_, found, err := ParseOpsLevel(fs, "/repo", "/repo")
-		assert.Error(t, err)
-		assert.True(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo", "/repo")
+		assert.Equal(t, "opslevel.yml", opsLevel.RelativePath)
+		assert.NotEmpty(t, opsLevel.ParseError)
 	})
 
 	t.Run("walks up to git root to find opslevel.yml", func(t *testing.T) {
@@ -50,9 +50,8 @@ component:
   system: appl-root
 `), 0644)
 
-		opsLevel, found, err := ParseOpsLevel(fs, "/repo/a/b/c", "/repo")
-		assert.NoError(t, err)
-		assert.True(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo/a/b/c", "/repo")
+		assert.Equal(t, "../../../opslevel.yml", opsLevel.RelativePath)
 		assert.Equal(t, "root-app", opsLevel.Name)
 	})
 
@@ -69,9 +68,8 @@ component:
   name: sub-app
 `), 0644)
 
-		opsLevel, found, err := ParseOpsLevel(fs, "/repo/sub", "/repo")
-		assert.NoError(t, err)
-		assert.True(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo/sub", "/repo")
+		assert.Equal(t, "opslevel.yml", opsLevel.RelativePath)
 		assert.Equal(t, "sub-app", opsLevel.Name)
 	})
 
@@ -83,8 +81,7 @@ component:
   name: above-root
 `), 0644)
 
-		_, found, err := ParseOpsLevel(fs, "/repo/sub", "/repo")
-		assert.NoError(t, err)
-		assert.False(t, found)
+		opsLevel := ParseOpsLevel(fs, "/repo/sub", "/repo")
+		assert.Empty(t, opsLevel.RelativePath)
 	})
 }

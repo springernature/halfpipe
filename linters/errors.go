@@ -84,6 +84,9 @@ var (
 	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
 
 	ErrCopyContainerSource = newError("source must be in format 'eu.gcr.io/halfpipe-io/<team>/<image>[:<tag>]'")
+
+	ErrOpsLevelNotFound = newError("opslevel.yml not found in current directory or any parent")
+	ErrOpsLevelInvalid  = newError("opslevel.yml is invalid")
 )
 
 type Error struct {

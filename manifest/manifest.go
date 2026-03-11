@@ -234,8 +234,10 @@ func (p Platform) IsConcourse() bool {
 }
 
 type OpsLevel struct {
-	Name   string `yaml:"name"`
-	System string `yaml:"system"`
+	Name         string `yaml:"name"`
+	System       string `yaml:"system"`
+	RelativePath string `yaml:"-"`
+	ParseError   string `yaml:"-"`
 }
 
 type Manifest struct {
