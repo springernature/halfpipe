@@ -1,12 +1,13 @@
 package linters
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/springernature/halfpipe/manifest"
 )
 
-var opsLevelSystemRegex = regexp.MustCompile(`^appl-[0-9]+$`)
+var opsLevelSystemRegex = regexp.MustCompile(`^APPL-[0-9]+$`)
 
 type opsLevelLinter struct{}
 
@@ -29,7 +30,9 @@ func (opsLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	}
 
 	if !opsLevelSystemRegex.MatchString(manifest.OpsLevel.System) {
-		result.Add(NewErrInvalidField("opslevel.system", "must match ^appl-[0-9]+$").WithValue(manifest.OpsLevel.RelativePath).AsWarning())
+		result.Add(NewErrInvalidField(
+			"component.system",
+			fmt.Sprintf("must match %s", opsLevelSystemRegex)).WithValue(manifest.OpsLevel.RelativePath).AsWarning())
 	}
 
 	return result

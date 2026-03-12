@@ -33,12 +33,12 @@ func TestOpsLevelSystem(t *testing.T) {
 		result := opsLevelLinter{}.Lint(man)
 		assert.True(t, result.HasWarnings())
 		assert.False(t, result.HasErrors())
-		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
+		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("component.system"))
 	})
 
 	t.Run("no warning when system matches pattern", func(t *testing.T) {
 		man := manifest.Manifest{
-			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml", System: "appl-428"},
+			OpsLevel: manifest.OpsLevel{RelativePath: "opslevel.yml", System: "APPL-428"},
 		}
 		result := opsLevelLinter{}.Lint(man)
 		assert.False(t, result.HasWarnings())
@@ -52,6 +52,6 @@ func TestOpsLevelSystem(t *testing.T) {
 		result := opsLevelLinter{}.Lint(man)
 		assert.True(t, result.HasWarnings())
 		assert.False(t, result.HasErrors())
-		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("opslevel.system"))
+		assertContainsError(t, result.Issues, ErrInvalidField.WithValue("component.system"))
 	})
 }
