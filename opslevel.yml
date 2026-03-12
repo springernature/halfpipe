@@ -3,7 +3,7 @@ component:
   name: halfpipe-cli
   description: Halfpipe CLI
   type: application_module
-  system: halfpipe
+  system: APPL-437
   owner: engineering-enablement
   language: go
   lifecycle: core
