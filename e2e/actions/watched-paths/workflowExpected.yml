@@ -45,3 +45,7 @@ jobs:
       with:
         args: -c "cd e2e/actions/watched-paths; \build"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

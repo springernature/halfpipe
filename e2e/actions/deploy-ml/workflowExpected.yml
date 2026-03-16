@@ -41,6 +41,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/deploy-ml; \package.sh"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/target/xquery.zip
       working-directory: ${{ github.workspace }}

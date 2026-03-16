@@ -91,6 +91,8 @@ jobs:
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
+          -e CI \
+          -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
@@ -98,6 +100,10 @@ jobs:
           -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: team
+        RUNNING_IN_CI: "true"
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down
@@ -127,6 +133,8 @@ jobs:
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
+          -e CI \
+          -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
@@ -134,6 +142,10 @@ jobs:
           -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: team
+        RUNNING_IN_CI: "true"
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down
@@ -163,6 +175,8 @@ jobs:
           -e ARTIFACTORY_URL \
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
+          -e CI \
+          -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
           -e VAULT_ROLE_ID \
@@ -170,6 +184,10 @@ jobs:
           -v /mnt/halfpipe-cache/team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: team
+        RUNNING_IN_CI: "true"
     - name: Docker cleanup
       if: always()
       run: docker-compose -f docker-compose.yml down

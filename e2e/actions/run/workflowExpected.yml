@@ -58,9 +58,12 @@ jobs:
         entrypoint: /bin/sh
       env:
         BAR: bar
+        CI: "true"
         CUSTOM_PATH: ${{ steps.secrets.outputs.springernature_data_random_secret_key }}
         DEEP_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_path_to_map_key }}
+        EE_PLATFORM_TEAM: halfpipe-team
         FOO: foo
+        RUNNING_IN_CI: "true"
         SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
         SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
         SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
@@ -90,3 +93,7 @@ jobs:
       with:
         args: -c "cd e2e/actions/run; \bash -c \"echo hello\""
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

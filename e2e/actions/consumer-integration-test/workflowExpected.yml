@@ -52,10 +52,11 @@ jobs:
     - name: c-name
       id: c-name
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
+        CI: "true"
         CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
@@ -64,12 +65,14 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_FILE: custom-docker-compose.yml
         DOCKER_COMPOSE_SERVICE: potato
+        EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value
         K1: value1
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
         PROVIDER_NAME: p-name
+        RUNNING_IN_CI: "true"
         S1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
         USE_COVENANT: "true"
   c-name-covenant:
@@ -100,10 +103,11 @@ jobs:
     - name: c-name-covenant
       id: c-name-covenant
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e K -e K1 -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
+        CI: "true"
         CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
         CONSUMER_HOST: c-host
@@ -112,11 +116,13 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: potato
+        EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value
         K1: value1
         PROVIDER_HOST: p-host
         PROVIDER_HOST_KEY: P_NAME_DEPLOYED_HOST
         PROVIDER_NAME: p-name
+        RUNNING_IN_CI: "true"
         S1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
         USE_COVENANT: "false"

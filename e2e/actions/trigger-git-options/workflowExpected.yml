@@ -58,7 +58,10 @@ jobs:
         args: -c "cd e2e/actions/trigger-git-options; \date"
         entrypoint: /bin/sh
       env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
         FOO: bar
+        RUNNING_IN_CI: "true"
   run__date__1_:
     name: run \date (1)
     needs:
@@ -95,3 +98,7 @@ jobs:
       with:
         args: -c "cd e2e/actions/trigger-git-options; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

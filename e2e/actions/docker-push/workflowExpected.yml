@@ -52,6 +52,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/docker-push; \build"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
     - name: Package artifacts
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar e2e/actions/docker-push/target/app.zip
       working-directory: ${{ github.workspace }}
@@ -90,9 +94,10 @@ jobs:
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
-          "CI"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
-          "RUNNING_IN_CI"
+          "RUNNING_IN_CI=true"
         context: e2e/actions/docker-push
         dockerfile: e2e/actions/docker-push/Dockerfile
         image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
@@ -139,9 +144,10 @@ jobs:
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
-          "CI"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
-          "RUNNING_IN_CI"
+          "RUNNING_IN_CI=true"
         context: e2e/actions/docker-push
         dockerfile: e2e/actions/docker-push/Dockerfile
         image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
@@ -194,9 +200,10 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "B=b"
           "BUILD_VERSION"
-          "CI"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
-          "RUNNING_IN_CI"
+          "RUNNING_IN_CI=true"
         context: e2e/actions/docker-push
         dockerfile: e2e/actions/docker-push/Dockerfile
         image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
@@ -238,9 +245,10 @@ jobs:
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
-          "CI"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
-          "RUNNING_IN_CI"
+          "RUNNING_IN_CI=true"
         context: e2e/actions/docker-push
         dockerfile: e2e/actions/docker-push/Dockerfile
         image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage

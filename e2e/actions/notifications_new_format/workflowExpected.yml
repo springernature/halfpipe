@@ -52,6 +52,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/notifications_new_format; \foo"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
       uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a

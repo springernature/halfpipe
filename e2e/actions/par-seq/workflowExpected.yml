@@ -41,6 +41,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_2:
     name: task 2
     needs:
@@ -61,6 +65,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_3:
     name: task 3
     needs:
@@ -81,6 +89,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_4_1:
     name: task 4.1
     needs:
@@ -101,6 +113,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_4_2:
     name: task 4.2
     needs:
@@ -121,6 +137,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_4_3_1:
     name: task 4.3.1
     needs:
@@ -141,6 +161,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_4_3_2:
     name: task 4.3.2
     needs:
@@ -161,6 +185,10 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
   task_5:
     name: task 5
     needs:
@@ -183,3 +211,7 @@ jobs:
       with:
         args: -c "cd e2e/actions/par-seq; \date"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

@@ -43,9 +43,10 @@ jobs:
           "ARTIFACTORY_URL"
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
-          "CI"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
-          "RUNNING_IN_CI"
+          "RUNNING_IN_CI=true"
         context: e2e/actions/docker-push-simple
         dockerfile: e2e/actions/docker-push-simple/Dockerfile
         ghas: "true"

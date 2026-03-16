@@ -10,15 +10,16 @@ func NewTasksEnvVarsDefaulter() TasksEnvVarsDefaulter {
 }
 
 func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults Defaults, man manifest.Manifest) manifest.Vars {
-	if defaults.Artifactory == (ArtifactoryDefaults{}) {
-		return vars
-	}
 	if vars == nil {
 		vars = make(manifest.Vars)
 	}
-	vars["ARTIFACTORY_URL"] = defaults.Artifactory.URL
-	vars["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
-	vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
+
+	if defaults.Artifactory != (ArtifactoryDefaults{}) {
+		vars["ARTIFACTORY_URL"] = defaults.Artifactory.URL
+		vars["ARTIFACTORY_USERNAME"] = defaults.Artifactory.Username
+		vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
+	}
+
 	vars["RUNNING_IN_CI"] = "true"
 	vars["CI"] = "true"
 	vars["EE_PLATFORM_TEAM"] = man.Team

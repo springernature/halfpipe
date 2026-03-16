@@ -82,3 +82,7 @@ jobs:
       with:
         args: -c "cd e2e/actions/feature-update-pipeline; \echo hello"
         entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
