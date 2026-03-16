@@ -76,7 +76,7 @@ jobs:
       command: halfpipe-all
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerUsername: _json_key
-      eaid: halfpipe
+      eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
@@ -131,7 +131,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
       dockerUsername: _json_key
-      eaid: halfpipe
+      eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
@@ -260,7 +260,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: version/version
       dockerUsername: _json_key
-      eaid: halfpipe
+      eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
@@ -304,7 +304,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
       dockerUsername: _json_key
-      eaid: halfpipe
+      eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       instances: 1
@@ -396,7 +396,7 @@ jobs:
       dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
       dockerUsername: _json_key
-      eaid: halfpipe
+      eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
       manifestPath: git/e2e/concourse/deploy-cf-docker-image/manifest.yml
