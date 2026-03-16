@@ -54,6 +54,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -95,6 +96,7 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
@@ -145,6 +147,7 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
@@ -201,6 +204,7 @@ jobs:
           "B=b"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
@@ -246,6 +250,7 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"

@@ -46,6 +46,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -97,6 +98,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   c-name-covenant:
@@ -116,7 +118,7 @@ jobs:
     - name: c-name-covenant
       id: c-name-covenant
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
@@ -129,6 +131,7 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: ""
         PROVIDER_HOST: ""

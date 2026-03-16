@@ -43,6 +43,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_2:
@@ -67,6 +68,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_3:
@@ -91,6 +93,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_4_1:
@@ -115,6 +118,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_4_2:
@@ -139,6 +143,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_4_3_1:
@@ -163,6 +168,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_4_3_2:
@@ -187,6 +193,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   task_5:
@@ -213,5 +220,6 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"

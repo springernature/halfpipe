@@ -46,6 +46,7 @@ jobs:
           "BP_BAR=bar"
           "BP_FOO=foo"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "RUNNING_IN_CI=true"
         builder: paketobuildpacks/builder-jammy-buildpackless-tiny
@@ -57,5 +58,6 @@ jobs:
         BP_BAR: bar
         BP_FOO: foo
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"

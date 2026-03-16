@@ -82,6 +82,7 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -254,6 +255,7 @@ jobs:
         B: b
         CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -274,6 +276,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EAID \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -292,6 +295,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EAID \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -459,6 +463,7 @@ jobs:
         B: b
         CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -479,6 +484,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EAID \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -497,6 +503,7 @@ jobs:
             --build-arg ARTIFACTORY_USERNAME \
             --build-arg B \
             --build-arg CI \
+            --build-arg EAID \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \

@@ -47,6 +47,7 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"

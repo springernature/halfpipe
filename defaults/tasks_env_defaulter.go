@@ -20,6 +20,10 @@ func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults De
 		vars["ARTIFACTORY_PASSWORD"] = defaults.Artifactory.Password
 	}
 
+	if man.OpsLevel.System != "" {
+		vars["EAID"] = man.OpsLevel.System
+	}
+
 	vars["RUNNING_IN_CI"] = "true"
 	vars["CI"] = "true"
 	vars["EE_PLATFORM_TEAM"] = man.Team

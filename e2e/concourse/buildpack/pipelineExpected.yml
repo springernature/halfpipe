@@ -30,6 +30,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -48,6 +49,7 @@ jobs:
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
           --env CI \
+          --env EAID \
           --env EE_PLATFORM_TEAM \
           --env RUNNING_IN_CI \
           --publish \
@@ -62,6 +64,7 @@ jobs:
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
           --env CI \
+          --env EAID \
           --env EE_PLATFORM_TEAM \
           --env RUNNING_IN_CI \
           --publish \
@@ -106,6 +109,7 @@ jobs:
         BP_FOO: foo
         CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -127,6 +131,7 @@ jobs:
           --env BP_BAR \
           --env BP_FOO \
           --env CI \
+          --env EAID \
           --env EE_PLATFORM_TEAM \
           --env RUNNING_IN_CI \
           --publish \
@@ -144,6 +149,7 @@ jobs:
           --env BP_BAR \
           --env BP_FOO \
           --env CI \
+          --env EAID \
           --env EE_PLATFORM_TEAM \
           --env RUNNING_IN_CI \
           --publish \

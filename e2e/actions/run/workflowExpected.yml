@@ -61,6 +61,7 @@ jobs:
         CI: "true"
         CUSTOM_PATH: ${{ steps.secrets.outputs.springernature_data_random_secret_key }}
         DEEP_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_path_to_map_key }}
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         FOO: foo
         RUNNING_IN_CI: "true"
@@ -95,5 +96,6 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"

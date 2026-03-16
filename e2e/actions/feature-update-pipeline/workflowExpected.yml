@@ -84,5 +84,6 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"

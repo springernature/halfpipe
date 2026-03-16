@@ -52,7 +52,7 @@ jobs:
     - name: c-name
       id: c-name
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
@@ -65,6 +65,7 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_FILE: custom-docker-compose.yml
         DOCKER_COMPOSE_SERVICE: potato
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value
@@ -103,7 +104,7 @@ jobs:
     - name: c-name-covenant
       id: c-name-covenant
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
@@ -116,6 +117,7 @@ jobs:
         CONSUMER_SCRIPT: c-script
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: potato
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value

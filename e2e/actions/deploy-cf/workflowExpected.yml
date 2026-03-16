@@ -46,6 +46,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -281,6 +282,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         ENV5: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_some_secret }}
         RUNNING_IN_CI: "true"
@@ -297,6 +299,7 @@ jobs:
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
           -e CI \
+          -e EAID \
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
@@ -308,6 +311,7 @@ jobs:
           app
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-dev-CANDIDATE.springernature.app
@@ -317,7 +321,7 @@ jobs:
     - name: CDCs
       id: cdcs
       run: |-
-        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EE_PLATFORM_TEAM -e RUNNING_IN_CI -e TEST_ROUTE"
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI -e TEST_ROUTE"
         export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
         run-cdc.sh
       env:
@@ -330,6 +334,7 @@ jobs:
         CONSUMER_SCRIPT: ci/run-external-and-cdcs-dev
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: ""
         PROVIDER_HOST: halfpipe-example-dev-CANDIDATE.springernature.app
