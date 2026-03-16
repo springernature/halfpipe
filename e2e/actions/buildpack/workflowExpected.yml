@@ -45,6 +45,9 @@ jobs:
         buildEnv: |
           "BP_BAR=bar"
           "BP_FOO=foo"
+          "CI=true"
+          "EE_PLATFORM_TEAM=halfpipe-team"
+          "RUNNING_IN_CI=true"
         builder: paketobuildpacks/builder-jammy-buildpackless-tiny
         buildpacks: gcr.io/paketo-buildpacks/java:18.5.0,gcr.io/paketo-buildpacks/node:18.5.0
         image: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-e2e-buildpack
@@ -53,3 +56,6 @@ jobs:
       env:
         BP_BAR: bar
         BP_FOO: foo
+        CI: "true"
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

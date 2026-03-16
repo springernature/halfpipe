@@ -25,7 +25,13 @@ jobs:
       inputs:
       - name: git
       params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -38,6 +44,12 @@ jobs:
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --env ARTIFACTORY_PASSWORD \
+          --env ARTIFACTORY_URL \
+          --env ARTIFACTORY_USERNAME \
+          --env CI \
+          --env EE_PLATFORM_TEAM \
+          --env RUNNING_IN_CI \
           --publish \
           --trust-builder
 
@@ -46,6 +58,12 @@ jobs:
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --env ARTIFACTORY_PASSWORD \
+          --env ARTIFACTORY_URL \
+          --env ARTIFACTORY_USERNAME \
+          --env CI \
+          --env EE_PLATFORM_TEAM \
+          --env RUNNING_IN_CI \
           --publish \
           --trust-builder
         dir: git/e2e/concourse/buildpack
@@ -81,9 +99,15 @@ jobs:
       inputs:
       - name: git
       params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
         BP_BAR: bar
         BP_FOO: foo
+        CI: "true"
         DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -97,8 +121,14 @@ jobs:
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
-          --env "BP_BAR=bar" \
-          --env "BP_FOO=foo" \
+          --env ARTIFACTORY_PASSWORD \
+          --env ARTIFACTORY_URL \
+          --env ARTIFACTORY_USERNAME \
+          --env BP_BAR \
+          --env BP_FOO \
+          --env CI \
+          --env EE_PLATFORM_TEAM \
+          --env RUNNING_IN_CI \
           --publish \
           --trust-builder
 
@@ -108,8 +138,14 @@ jobs:
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
-          --env "BP_BAR=bar" \
-          --env "BP_FOO=foo" \
+          --env ARTIFACTORY_PASSWORD \
+          --env ARTIFACTORY_URL \
+          --env ARTIFACTORY_USERNAME \
+          --env BP_BAR \
+          --env BP_FOO \
+          --env CI \
+          --env EE_PLATFORM_TEAM \
+          --env RUNNING_IN_CI \
           --publish \
           --trust-builder
         dir: git/e2e/concourse/buildpack

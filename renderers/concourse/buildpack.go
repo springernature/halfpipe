@@ -98,8 +98,8 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 
 	var envVars strings.Builder
 	for _, key := range slices.Sorted(maps.Keys(task.Vars)) {
-		envVars.WriteString(fmt.Sprintf(`--env "%s=%s" \
-`, key, task.Vars[key]))
+		envVars.WriteString(fmt.Sprintf(`--env %s \
+`, key))
 	}
 
 	buildpacksFlags := ""

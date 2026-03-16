@@ -53,6 +53,9 @@ func (t tasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaul
 		case manifest.ConsumerIntegrationTest:
 			task.Vars = t.addDefaultsToVars(task.Vars, defaults, man)
 			tt = task
+		case manifest.Buildpack:
+			task.Vars = t.addDefaultsToVars(task.Vars, defaults, man)
+			tt = task
 		default:
 			tt = task
 		}
