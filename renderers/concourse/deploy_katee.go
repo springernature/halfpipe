@@ -14,13 +14,13 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 	job.Name = task.GetName()
 	job.Serial = true
 
-	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task), man, false, basePath)
+	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task, man), man, false, basePath)
 	job.PlanSequence = deployKateeRunJob.PlanSequence
 
 	return
 }
 
-func createDeployKateeRunTask(task manifest.DeployKatee) manifest.Run {
+func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
 	run := manifest.Run{
 		Type:          "run",
 		Name:          "Deploy to Katee",
@@ -57,6 +57,9 @@ halfpipe-deploy`,
 	}
 
 	maps.Copy(run.Vars, task.Vars)
+	if man.OpsLevel.System != "" {
+		run.Vars["EAID"] = man.OpsLevel.System
+	}
 
 	return run
 }

@@ -242,6 +242,7 @@ jobs:
       - name: version
       params:
         CHECK_INTERVAL: "2"
+        EAID: APPL-437
         ENV1: "1234"
         ENV2: ((secret.something))
         ENV3: '{"a": "b", "c": "d"}'
@@ -346,6 +347,7 @@ jobs:
       - name: version
       params:
         CHECK_INTERVAL: "3"
+        EAID: APPL-437
         ENV1: "1234"
         ENV2: ((secret.something))
         ENV3: '{"a": "b", "c": "d"}'

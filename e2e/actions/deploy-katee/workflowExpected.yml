@@ -103,6 +103,7 @@ jobs:
       with:
         checkInterval: "2"
         credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
+        eaid: APPL-437
         maxChecks: "120"
         namespace: katee-halfpipe-team
         revision: 2.${{ github.run_number }}.${{ github.run_attempt }}
@@ -156,6 +157,7 @@ jobs:
       with:
         checkInterval: "3"
         credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
+        eaid: APPL-437
         maxChecks: "4"
         namespace: katee-different-namespace
         revision: ${{ env.BUILD_VERSION }}

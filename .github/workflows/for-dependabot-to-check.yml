@@ -37,6 +37,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -86,6 +87,7 @@ jobs:
         entrypoint: /bin/sh
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: 'Notify slack #halfpipe-dev (failure)'
@@ -180,6 +182,7 @@ jobs:
           "ARTIFACTORY_USERNAME"
           "BUILD_VERSION"
           "CI=true"
+          "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
@@ -235,6 +238,7 @@ jobs:
           -e ARTIFACTORY_USERNAME \
           -e BUILD_VERSION \
           -e CI \
+          -e EAID \
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
@@ -245,6 +249,7 @@ jobs:
           app
       env:
         CI: "true"
+        EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Docker cleanup

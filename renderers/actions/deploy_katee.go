@@ -10,7 +10,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
+func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manifest) (steps Steps) {
 
 	revision := "2.${{ github.run_number }}.${{ github.run_attempt }}"
 	if task.Tag == "gitref" {
@@ -37,5 +37,9 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee) (steps Steps) {
 	}
 
 	maps.Copy(deployKatee.Env, task.Vars)
+	if man.OpsLevel.System != "" {
+		deployKatee.With["eaid"] = man.OpsLevel.System
+	}
+
 	return append(steps, deployKatee)
 }

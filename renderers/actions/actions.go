@@ -137,7 +137,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		case manifest.DeployCF:
 			appendJob(a.deployCFSteps(task, man), task, needs)
 		case manifest.DeployKatee:
-			appendJob(a.deployKateeSteps(task), task, needs)
+			appendJob(a.deployKateeSteps(task, man), task, needs)
 		case manifest.Buildpack:
 			appendJob(a.buildpackSteps(task), task, needs)
 		case manifest.CopyContainerImage:
