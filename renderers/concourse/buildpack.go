@@ -113,9 +113,10 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 --path %s \
 --builder %s \
 %s--tag %s:${GIT_REVISION} %s \
+--cache-image %s:buildcache \
 %s--publish \
 --trust-builder
-`, task.Image, appPath, task.Builder, buildpacksFlags, task.Image, versionTag, envVars.String())
+`, task.Image, appPath, task.Builder, buildpacksFlags, task.Image, versionTag, task.Image, envVars.String())
 
 	out = append(out, "echo "+command, command)
 

@@ -45,6 +45,7 @@ jobs:
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
@@ -60,6 +61,7 @@ jobs:
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
@@ -125,6 +127,7 @@ jobs:
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
@@ -143,6 +146,7 @@ jobs:
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --buildpack gcr.io/paketo-buildpacks/node:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION}  \
+          --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
