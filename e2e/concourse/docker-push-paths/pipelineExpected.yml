@@ -100,6 +100,7 @@ jobs:
         name: ""
         source:
           repository: aquasec/trivy
+          tag: 0.69.3
         type: docker-image
       inputs:
       - name: git
@@ -245,6 +246,7 @@ jobs:
         name: ""
         source:
           repository: aquasec/trivy
+          tag: 0.69.3
         type: docker-image
       inputs:
       - name: git

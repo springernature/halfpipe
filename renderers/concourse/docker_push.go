@@ -115,6 +115,7 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Type: "docker-image",
 				Source: atc.Source{
 					"repository": "aquasec/trivy",
+					"tag":        "0.69.3",
 				},
 			},
 			Run: atc.TaskRunConfig{
@@ -157,6 +158,7 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 				Type: "docker-image",
 				Source: atc.Source{
 					"repository": "aquasec/trivy",
+					"tag":        "0.69.3",
 				},
 			},
 			Run: atc.TaskRunConfig{
