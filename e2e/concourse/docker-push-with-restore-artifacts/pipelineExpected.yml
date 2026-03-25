@@ -196,6 +196,8 @@ jobs:
         source:
           repository: alpine
         type: registry-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
       inputs:
       - name: git
       - name: artifacts
@@ -217,6 +219,8 @@ jobs:
         source:
           repository: alpine
         type: docker-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
       inputs:
       - name: git
       - name: version
@@ -311,8 +315,9 @@ jobs:
         name: ""
         source:
           repository: aquasec/trivy
-          tag: 0.69.3
         type: docker-image
+        version:
+          digest: sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c
       inputs:
       - name: git
       - name: docker_build
@@ -405,6 +410,8 @@ jobs:
         source:
           repository: alpine
         type: registry-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
       inputs:
       - name: git
       - name: artifacts
@@ -426,6 +433,8 @@ jobs:
         source:
           repository: alpine
         type: docker-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
       inputs:
       - name: git
       - name: version
@@ -520,8 +529,9 @@ jobs:
         name: ""
         source:
           repository: aquasec/trivy
-          tag: 0.69.3
         type: docker-image
+        version:
+          digest: sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c
       inputs:
       - name: git
       - name: docker_build

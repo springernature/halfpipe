@@ -41,6 +41,9 @@ func restoreArtifacts(task manifest.DockerPush) []atc.Step {
 					Source: atc.Source{
 						"repository": "alpine",
 					},
+					Version: atc.Version{
+						"digest": "sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659",
+					},
 				},
 				Run: atc.TaskRunConfig{
 					Path: "/bin/sh",
@@ -75,6 +78,9 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 				Type: "docker-image",
 				Source: atc.Source{
 					"repository": "alpine",
+				},
+				Version: atc.Version{
+					"digest": "sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659",
 				},
 			},
 			Run: atc.TaskRunConfig{
@@ -115,7 +121,9 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Type: "docker-image",
 				Source: atc.Source{
 					"repository": "aquasec/trivy",
-					"tag":        "0.69.3",
+				},
+				Version: atc.Version{
+					"digest": "sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c",
 				},
 			},
 			Run: atc.TaskRunConfig{
@@ -158,7 +166,9 @@ func trivyGhasStep(task manifest.DockerPush, man manifest.Manifest, fullBasePath
 				Type: "docker-image",
 				Source: atc.Source{
 					"repository": "aquasec/trivy",
-					"tag":        "0.69.3",
+				},
+				Version: atc.Version{
+					"digest": "sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c",
 				},
 			},
 			Run: atc.TaskRunConfig{
