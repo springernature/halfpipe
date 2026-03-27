@@ -59,7 +59,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
       with:
         method: chat.postMessage
         payload: |-
@@ -83,7 +83,7 @@ jobs:
         notification-color: dc3545
         notification-summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #success1 (success)'
-      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
       with:
         method: chat.postMessage
         payload: |-
@@ -91,7 +91,7 @@ jobs:
           text: "success message"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success2 (success)'
-      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
       with:
         method: chat.postMessage
         payload: |-

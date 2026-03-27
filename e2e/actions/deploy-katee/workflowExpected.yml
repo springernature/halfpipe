@@ -118,7 +118,7 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
       with:
         method: chat.postMessage
         payload: |-
@@ -172,7 +172,7 @@ jobs:
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
     - name: 'Notify slack #ee-re (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
       with:
         method: chat.postMessage
         payload: |-
