@@ -97,6 +97,7 @@ func main() {
 	// shaUpdates maps old SHA -> new SHA for actions that changed.
 	shaUpdates := make(map[string]string)
 	hasErrors := false
+	commentUpdates := 0
 
 	for _, a := range actions {
 		fullName := a.owner + "/" + a.repo
@@ -123,7 +124,15 @@ func main() {
 		}
 
 		if latestSHA == a.currentSHA {
-			fmt.Printf("  %-45s v%-10s (up to date)\n", fullName, a.currentVer)
+			// Normalise the version comment to the full semver tag even when the SHA hasn't changed.
+			newLine := replaceLine(lines[a.lineIndex], latestSHA, displayTag)
+			if newLine != lines[a.lineIndex] {
+				lines[a.lineIndex] = newLine
+				commentUpdates++
+				fmt.Printf("  %-45s v%-10s (comment updated to %s)\n", fullName, a.currentVer, displayTag)
+			} else {
+				fmt.Printf("  %-45s v%-10s (up to date)\n", fullName, a.currentVer)
+			}
 			continue
 		}
 
@@ -149,8 +158,22 @@ func main() {
 		fmt.Println("Some actions could not be checked — see errors above.")
 	}
 
-	if len(shaUpdates) == 0 {
+	if len(shaUpdates) == 0 && commentUpdates == 0 {
 		fmt.Println("All actions are up to date.")
+		return
+	}
+
+	if len(shaUpdates) == 0 {
+		// Only comment updates — no e2e YAML files need changing.
+		if *dryRun {
+			fmt.Println("Dry run complete. No changes written.")
+			return
+		}
+		output := strings.Join(lines, "\n")
+		if err := os.WriteFile(filePath, []byte(output), 0644); err != nil {
+			fatalf("Failed to write %s: %v\n", filePath, err)
+		}
+		fmt.Printf("Updated %s\n", filePath)
 		return
 	}
 
