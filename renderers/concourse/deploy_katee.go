@@ -36,7 +36,7 @@ fi
 
 halfpipe-deploy`,
 		Docker: manifest.Docker{
-			Image:    "eu.gcr.io/halfpipe-io/ee-katee-vela-cli:latest",
+			Image:    "eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli:latest",
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
