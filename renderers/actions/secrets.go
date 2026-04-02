@@ -64,7 +64,7 @@ func fetchSecrets(secrets []*secrets.Secret) Step {
 	return Step{
 		Name: "Vault secrets",
 		ID:   "secrets",
-		Uses: ExternalActions.Vault,
+		Uses: ExternalActions.Vault.Ref,
 		With: With{
 			"url":       "https://vault.halfpipe.io",
 			"method":    "approle",

@@ -58,7 +58,7 @@ func (a *Actions) deployCFSteps(task manifest.DeployCF, man manifest.Manifest) (
 func (a *Actions) configureSSOStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Configure SSO",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command":    "halfpipe-sso",
 			"ssoHost":    strings.TrimSuffix(task.SSORoute, ".public.springernature.app"),
@@ -76,7 +76,7 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 
 	push := Step{
 		Name: "Push",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-push",
 			"team":    man.Team,
@@ -114,7 +114,7 @@ func (a *Actions) logsStep(task manifest.DeployCF, manifestPath string, appPath 
 	return Step{
 		Name: "cf logs --recent",
 		If:   "failure()",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-logs",
 		}),
@@ -124,7 +124,7 @@ func (a *Actions) logsStep(task manifest.DeployCF, manifestPath string, appPath 
 func (a *Actions) checkStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Check",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-check",
 		}),
@@ -166,7 +166,7 @@ func (a *Actions) prePromoteSteps(task manifest.DeployCF, man manifest.Manifest)
 func (a *Actions) promoteStep(task manifest.DeployCF, manifestPath string, appPath string) Step {
 	return Step{
 		Name: "Promote",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-promote",
 		}),
@@ -188,7 +188,7 @@ func (a *Actions) cleanupStep(task manifest.DeployCF, manifestPath string, appPa
 	return Step{
 		Name: "Cleanup",
 		If:   "${{ !cancelled() }}",
-		Uses: ExternalActions.DeployCF,
+		Uses: ExternalActions.DeployCF.Ref,
 		With: a.commonParamsWith(task, manifestPath, appPath, With{
 			"command": "halfpipe-cleanup",
 		}),

@@ -21,11 +21,10 @@ const (
 
 // shaLineRe matches lines like:
 //
-//	"owner/repo@abcdef1234567890abcdef1234567890abcdef12", // v3
-//	"owner/repo@abcdef1234567890abcdef1234567890abcdef12", // v3.2.1
+//	Checkout: ExternalAction{Ref: "actions/checkout@abcdef1234567890abcdef1234567890abcdef12", Version: "v6.0.2"},
 //
-// It captures: (1) owner/repo, (2) sha, (3) version string (e.g. "3" or "3.2.1").
-var shaLineRe = regexp.MustCompile(`"([^"@]+)@([a-f0-9]{40})"[,\s]*//(?: )?v(\d+(?:\.\d+)*)`)
+// It captures: (1) owner/repo, (2) sha, (3) version string (e.g. "v6.0.2").
+var shaLineRe = regexp.MustCompile(`Ref:\s*"([^"@]+)@([a-f0-9]{40})",\s*Version:\s*"(v\d+(?:\.\d+)*)"`)
 
 type action struct {
 	owner      string
@@ -96,6 +95,8 @@ func main() {
 
 	// shaUpdates maps old SHA -> new SHA for actions that changed.
 	shaUpdates := make(map[string]string)
+	// shaToVersion maps SHA -> version tag for updating YAML comments
+	shaToVersion := make(map[string]string)
 	hasErrors := false
 	commentUpdates := 0
 
@@ -147,6 +148,7 @@ func main() {
 			prefix, fullName, a.currentVer, displayTag, suffix)
 
 		shaUpdates[a.currentSHA] = latestSHA
+		shaToVersion[latestSHA] = displayTag
 
 		// Update the line in place.
 		lines[a.lineIndex] = replaceLine(lines[a.lineIndex], latestSHA, displayTag)
@@ -203,7 +205,11 @@ func main() {
 			for oldSHA, newSHA := range shaUpdates {
 				n := strings.Count(content, oldSHA)
 				if n > 0 {
-					content = strings.ReplaceAll(content, oldSHA, newSHA)
+					// Replace SHA and update version comment
+					newVersion := shaToVersion[newSHA]
+					// Replace "oldSHA" or "oldSHA # vX.Y.Z" with "newSHA # vX.Y.Z"
+					shaWithCommentRe := regexp.MustCompile(oldSHA + `(\s*#\s*v\d+(?:\.\d+)*)?`)
+					content = shaWithCommentRe.ReplaceAllString(content, newSHA+" # "+newVersion)
 					count += n
 				}
 			}
@@ -256,26 +262,30 @@ func parseActions(lines []string) []action {
 		if len(parts) != 2 {
 			continue
 		}
+		// m[3] is now the full version with 'v' prefix (e.g., "v6.0.2")
+		// Strip the 'v' prefix for consistency with the rest of the code
+		ver := strings.TrimPrefix(m[3], "v")
 		actions = append(actions, action{
 			owner:      parts[0],
 			repo:       parts[1],
 			currentSHA: m[2],
-			currentVer: m[3],
+			currentVer: ver,
 			lineIndex:  i,
 		})
 	}
 	return actions
 }
 
-// replaceLine replaces the SHA and version comment in a line.
+// replaceLine replaces the SHA and version in a line.
 func replaceLine(line string, newSHA string, newTag string) string {
 	// Replace the 40-char hex SHA.
 	repl := regexp.MustCompile(`@[a-f0-9]{40}`)
 	line = repl.ReplaceAllString(line, "@"+newSHA)
 
-	// Replace the version comment with the full semver tag.
-	verRepl := regexp.MustCompile(`//\s*v\d+(?:\.\d+)*`)
-	line = verRepl.ReplaceAllString(line, "// "+newTag)
+	// Replace the Version field value with the full semver tag.
+	// Matches: Version: "v1.2.3" and replaces with Version: "vX.Y.Z"
+	verRepl := regexp.MustCompile(`Version:\s*"v\d+(?:\.\d+)*"`)
+	line = verRepl.ReplaceAllString(line, `Version: "`+newTag+`"`)
 
 	return line
 }

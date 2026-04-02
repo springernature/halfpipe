@@ -2,6 +2,7 @@ package actions
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -150,5 +151,18 @@ func (w Workflow) asYAML() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(output), nil
+	return addVersionComments(string(output)), nil
+}
+
+// addVersionComments adds version comments to SHA-pinned action references in the YAML output.
+// For example: "uses: actions/checkout@abc123" becomes "uses: actions/checkout@abc123 # v6.0.2"
+func addVersionComments(yamlOutput string) string {
+	shaToVersion := GetAllSHAPinnedActions()
+	for sha, version := range shaToVersion {
+		// Match the SHA at the end of a uses line (handles both quoted and unquoted)
+		// Use (?m) for multiline mode so $ matches end of each line
+		pattern := regexp.MustCompile(`(?m)(uses:\s*\S+@` + sha + `)$`)
+		yamlOutput = pattern.ReplaceAllString(yamlOutput, `$1 # `+version)
+	}
+	return yamlOutput
 }

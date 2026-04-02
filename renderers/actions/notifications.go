@@ -40,7 +40,7 @@ func notifySlack(channel string, msg string, success bool) Step {
 
 	step := Step{
 		Name: "Notify slack " + channel,
-		Uses: ExternalActions.Slack,
+		Uses: ExternalActions.Slack.Ref,
 		With: With{
 			"method": "chat.postMessage",
 			"token":  githubSecrets.SlackToken,
@@ -80,7 +80,7 @@ func notifyTeams(webhook string, msg string, success bool, idx int, count int) S
 
 	step := Step{
 		Name: name,
-		Uses: ExternalActions.Teams,
+		Uses: ExternalActions.Teams.Ref,
 		With: With{
 			"github-token":         "${{ github.token }}",
 			"ms-teams-webhook-uri": webhook,

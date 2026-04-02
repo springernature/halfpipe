@@ -21,7 +21,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manif
 
 	deployKatee := Step{
 		Name: "Deploy to Katee",
-		Uses: ExternalActions.DeployKatee,
+		Uses: ExternalActions.DeployKatee.Ref,
 		With: With{
 			"credentials":   fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
 			"namespace":     task.Namespace,

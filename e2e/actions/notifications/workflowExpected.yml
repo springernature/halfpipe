@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 60
     steps:
     - name: Checkout code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
@@ -48,7 +48,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-
@@ -56,7 +56,7 @@ jobs:
           text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success1 (success)'
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-
@@ -64,7 +64,7 @@ jobs:
           text: "success message"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success2 (success)'
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-

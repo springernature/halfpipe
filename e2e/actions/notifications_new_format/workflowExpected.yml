@@ -30,7 +30,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
       with:
         exportEnv: false
         method: approle
@@ -40,7 +40,7 @@ jobs:
           /springernature/data/halfpipe-team/secret webhook1 | springernature_data_halfpipe-team_secret_webhook1 ;
         url: https://vault.halfpipe.io
     - name: Checkout code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
@@ -59,7 +59,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: 'Notify slack #failure1 (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-
@@ -68,7 +68,7 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_webhook1 }}
@@ -76,14 +76,14 @@ jobs:
         notification-summary: ❌ GitHub Actions workflow failed
     - name: Notify teams (failure) (2)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: http://webhook2
         notification-color: dc3545
         notification-summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #success1 (success)'
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-
@@ -91,7 +91,7 @@ jobs:
           text: "success message"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: 'Notify slack #success2 (success)'
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
         method: chat.postMessage
         payload: |-
@@ -99,7 +99,7 @@ jobs:
           text: "success message"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (success)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
       with:
         github-token: ${{ github.token }}
         ms-teams-webhook-uri: http://webhook-success

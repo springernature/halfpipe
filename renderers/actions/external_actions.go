@@ -1,29 +1,56 @@
 package actions
 
+import (
+	"reflect"
+	"strings"
+)
+
+// ExternalAction represents a GitHub Action with a pinned SHA and version tag.
+type ExternalAction struct {
+	Ref     string // Full action reference (e.g., "actions/checkout@sha")
+	Version string // Version tag (e.g., "v6.0.2") - only for SHA-pinned actions
+}
+
 var ExternalActions = struct {
-	Buildpack          string
-	Checkout           string
-	DeployCF           string
-	DeployKatee        string
-	DockerLogin        string
-	DockerPush         string
-	DownloadArtifact   string
-	RepositoryDispatch string
-	Slack              string
-	Teams              string
-	UploadArtifact     string
-	Vault              string
+	Buildpack          ExternalAction
+	Checkout           ExternalAction
+	DeployCF           ExternalAction
+	DeployKatee        ExternalAction
+	DockerLogin        ExternalAction
+	DockerPush         ExternalAction
+	DownloadArtifact   ExternalAction
+	RepositoryDispatch ExternalAction
+	Slack              ExternalAction
+	Teams              ExternalAction
+	UploadArtifact     ExternalAction
+	Vault              ExternalAction
 }{
-	Buildpack:          "springernature/ee-action-buildpack@v1",
-	Checkout:           "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd", // v6.0.2
-	DeployCF:           "springernature/ee-action-deploy-cf@v1",
-	DeployKatee:        "springernature/ee-action-deploy-katee@v1",
-	DockerLogin:        "docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2", // v4.0.0
-	DockerPush:         "springernature/ee-action-docker-push@v1",
-	DownloadArtifact:   "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c",       // v8.0.1
-	RepositoryDispatch: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", // v4.0.1
-	Slack:              "slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95",    // v3.0.1
-	Teams:              "jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc", // v1.4
-	UploadArtifact:     "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f",         // v7.0.0
-	Vault:              "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b",          // v3.4.0
+	Buildpack:          ExternalAction{Ref: "springernature/ee-action-buildpack@v1"},
+	Checkout:           ExternalAction{Ref: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd", Version: "v6.0.2"},
+	DeployCF:           ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
+	DeployKatee:        ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
+	DockerLogin:        ExternalAction{Ref: "docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2", Version: "v4.0.0"},
+	DockerPush:         ExternalAction{Ref: "springernature/ee-action-docker-push@v1"},
+	DownloadArtifact:   ExternalAction{Ref: "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", Version: "v8.0.1"},
+	RepositoryDispatch: ExternalAction{Ref: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", Version: "v4.0.1"},
+	Slack:              ExternalAction{Ref: "slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95", Version: "v3.0.1"},
+	Teams:              ExternalAction{Ref: "jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc", Version: "v1.4"},
+	UploadArtifact:     ExternalAction{Ref: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f", Version: "v7.0.0"},
+	Vault:              ExternalAction{Ref: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", Version: "v3.4.0"},
+}
+
+// GetAllSHAPinnedActions returns a map of SHA to version for all SHA-pinned actions.
+// This is used for adding version comments to rendered YAML.
+func GetAllSHAPinnedActions() map[string]string {
+	result := make(map[string]string)
+	v := reflect.ValueOf(ExternalActions)
+	for i := 0; i < v.NumField(); i++ {
+		a := v.Field(i).Interface().(ExternalAction)
+		if a.Version != "" {
+			if _, sha, found := strings.Cut(a.Ref, "@"); found {
+				result[sha] = a.Version
+			}
+		}
+	}
+	return result
 }
