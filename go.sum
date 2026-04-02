@@ -14,8 +14,8 @@ github.com/clipperhouse/uax29/v2 v2.7.0 h1:+gs4oBZ2gPfVrKPthwbMzWZDaAFPGYK72F0NJ
 github.com/clipperhouse/uax29/v2 v2.7.0/go.mod h1:EFJ2TJMRUaplDxHKj1qAEhCtQPW2tJSwu5BF98AuoVM=
 github.com/cloudfoundry/bosh-cli v6.4.1+incompatible h1:n5/+NIF9QxvGINOrjh6DmO+GTen78MoCj5+LU9L8bR4=
 github.com/cloudfoundry/bosh-cli v6.4.1+incompatible/go.mod h1:rzIB+e1sn7wQL/TJ54bl/FemPKRhXby5BIMS3tLuWFM=
-github.com/cloudfoundry/bosh-utils v0.0.604 h1:jWXIG5D0xaTKldBPg7xqMqF5VKcKN4CkQkWDeYstC7s=
-github.com/cloudfoundry/bosh-utils v0.0.604/go.mod h1:eVBf2aLTYESPvfA316aKx/AgqbwyU88goc50SLPY08s=
+github.com/cloudfoundry/bosh-utils v0.0.605 h1:ZxScW/SfD4oF4taVUAZ6wu3GM7JY4LdQyK0NKpOcPDo=
+github.com/cloudfoundry/bosh-utils v0.0.605/go.mod h1:FPbFLzoojtan9UEHuvFnpx4ujklB7uTi1aLtYeKwalo=
 github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb h1:rgBlSxwYYh4Uf7ti8jISUT5LSyfU3mUJOM0Y3tMNLtI=
 github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb/go.mod h1:mACYwEp+lx4j4Vs0fh2hXswpnD6hLvMPl582ajr30XY=
 github.com/cppforlife/go-patch v0.2.0 h1:Y14MnCQjDlbw7WXT4k+u6DPAA9XnygN4BfrSpI/19RU=
@@ -85,8 +85,6 @@ github.com/pkg/errors v0.9.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINE
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQDYRxCVz55jmeOWTM=
-github.com/santhosh-tekuri/jsonschema/v5 v5.3.1 h1:lZUw3E0/J3roVtGQ+SCrUrg3ON6NgVqpn3+iol9aGu4=
-github.com/santhosh-tekuri/jsonschema/v5 v5.3.1/go.mod h1:uToXkOrWAZ6/Oc07xWQrPOhJotwFIyu2bBVN41fcDUY=
 github.com/sirupsen/logrus v1.9.4 h1:TsZE7l11zFCLZnZ+teH4Umoq5BhEIfIzfRDZ1Uzql2w=
 github.com/sirupsen/logrus v1.9.4/go.mod h1:ftWc9WdOfJ0a92nsE2jF5u5ZwH8Bv2zdeOC42RjbV2g=
 github.com/spf13/afero v1.15.0 h1:b/YBCLWAJdFWJTN9cLhiXXcD7mzKn9Dm86dNnfyQw1I=
