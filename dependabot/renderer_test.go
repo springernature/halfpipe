@@ -1,20 +1,27 @@
 package dependabot
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestRender(t *testing.T) {
 	t.Run("Renders config", func(t *testing.T) {
 		schedule := Schedule{"daily"}
+		cooldown := Cooldown{DefaultDays: 5}
+		groups := Groups{
+			"minor-and-patch": Group{
+				UpdateTypes: []string{"minor", "patch"},
+			},
+		}
 		expectedConfig := Config{
 			Version: 2,
 			Updates: []Dependency{
-				{"github-actions", "/", schedule},
-				{"docker", "/", schedule},
-				{"docker", "/a", schedule},
-				{"npm", "/a/b/c/d", schedule},
+				{"github-actions", "/", schedule, cooldown, "increase", groups},
+				{"docker", "/", schedule, cooldown, "increase", groups},
+				{"docker", "/a", schedule, cooldown, "increase", groups},
+				{"npm", "/a/b/c/d", schedule, cooldown, "increase", groups},
 			},
 		}
 		config := Render(MatchedPaths{

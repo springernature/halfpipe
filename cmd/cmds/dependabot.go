@@ -48,7 +48,8 @@ func init() {
 			if err != nil {
 				logrus.Panic(err)
 			}
-			fmt.Println(string(out))
+			fmt.Println("# yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json")
+			fmt.Print(string(out))
 		},
 	}
 

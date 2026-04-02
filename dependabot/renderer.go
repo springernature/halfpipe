@@ -16,9 +16,16 @@ func renderPath(path string, ecosystem string) Dependency {
 	}
 
 	return Dependency{
-		PackageEcosystem: ecosystem,
-		Directory:        dir,
-		Schedule:         Schedule{Interval: "daily"},
+		PackageEcosystem:   ecosystem,
+		Directory:          dir,
+		Schedule:           Schedule{Interval: "daily"},
+		Cooldown:           Cooldown{DefaultDays: 5},
+		VersioningStrategy: "increase",
+		Groups: Groups{
+			"minor-and-patch": Group{
+				UpdateTypes: []string{"minor", "patch"},
+			},
+		},
 	}
 }
 
