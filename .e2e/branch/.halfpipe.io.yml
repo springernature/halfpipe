@@ -1,0 +1,34 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-run
+slack_channel: "#test"
+
+triggers:
+- type: git
+  branch: feature-a/branch-b
+  shallow: true
+  watched_paths:
+  - .e2e/run
+
+tasks:
+- type: run
+  name: with vars and secrets
+  docker:
+    image: eu.gcr.io/halfpipe-io/golang:1.15
+  script: \foo
+  vars:
+    FOO: foo
+    BAR: bar
+    SECRET1: ((something.cool))
+    SECRET2: ((something.cooler))
+    SHARED_SECRET: ((halfpipe-slack.token))
+    DEEP_SECRET: ((path/to/map.key))
+    MULTIPLE: ((levels/secret/deep.secret))
+  timeout: 1h2m
+
+- type: run
+  name: private registry
+  docker:
+    image: my.private.registry/repo/golang:1.15
+    username: docker-user
+    password: docker-password
+  script: \bash -c "echo hello"
