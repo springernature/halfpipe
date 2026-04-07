@@ -1,12 +1,13 @@
 package cmds
 
 import (
-	"github.com/springernature/halfpipe/config"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"testing"
+
+	"github.com/springernature/halfpipe/config"
 )
 
 func findE2EPaths() []string {
@@ -37,8 +38,10 @@ func TestE2EForCoverage(t *testing.T) {
 	config.CheckBranch = "false"
 	for _, testPath := range findE2EPaths() {
 		t.Run(testPath, func(t *testing.T) {
+			output = os.DevNull
 			os.Chdir(testPath)
 			rootCmd.Run(nil, []string{})
+			output = ""
 		})
 	}
 }
