@@ -114,7 +114,6 @@ jobs:
         - -ec
         - |
           export GOMODCACHE=/var/halfpipe/cache/gomodcache
-          export HALFPIPE_SKIP_COVERAGE_TESTS=true
           cd halfpipe
           ./build.sh ci
           echo timing build ...

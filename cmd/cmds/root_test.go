@@ -29,8 +29,8 @@ func findE2EPaths() []string {
 // does not fail if test output does not match expected pipeline
 // only useful for checking code coverage of e2e tests
 func TestE2EForCoverage(t *testing.T) {
-	if os.Getenv("HALFPIPE_SKIP_COVERAGE_TESTS") == "true" {
-		t.Skip("skipping test; $HALFPIPE_SKIP_COVERAGE_TESTS==true")
+	if os.Getenv("HALFPIPE_ENABLE_COVERAGE_TESTS") != "true" {
+		t.Skip("skipping test; $HALFPIPE_ENABLE_COVERAGE_TESTS!=true")
 	}
 	defer quiet()()
 	t.Setenv("HALFPIPE_BRANCH", "main")
