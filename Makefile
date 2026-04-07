@@ -34,4 +34,8 @@ update-actions:
 fix-e2e:
 	for f in ./.e2e/*/*actual*.yml; do cp "$$f" "$${f/actual/expected}"; done
 
-.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e
+e2e-coverage:
+	HALFPIPE_ENABLE_COVERAGE_TESTS=true go test $(GO_OPTS) -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out -run TestE2EForCoverage ./cmd/cmds/
+	go tool cover -func=/tmp/halfpipe-coverage.out
+
+.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e e2e-coverage
