@@ -21,14 +21,7 @@ export HALFPIPE_SKIP_COVERAGE_TESTS=true
 go test $go_opts -cover ./...
 
 echo [3/6] build
-if [ "$(git branch | grep "\*" | cut -d ' ' -f2)" != "main" ]; then
-  go build \
-    $go_opts \
-    -ldflags "-X github.com/springernature/halfpipe/config.CheckBranch=false" \
-    cmd/halfpipe.go
-else
-    go build $go_opts cmd/halfpipe.go
-fi
+go build $go_opts cmd/halfpipe.go
 
 echo [4/6] e2e test
 (cd e2e; ./test.sh)

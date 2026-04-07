@@ -6,8 +6,6 @@ import (
 	"path"
 	"path/filepath"
 	"testing"
-
-	"github.com/springernature/halfpipe/config"
 )
 
 func findE2EPaths() []string {
@@ -35,7 +33,7 @@ func TestE2EForCoverage(t *testing.T) {
 		t.Skip("skipping test; $HALFPIPE_SKIP_COVERAGE_TESTS==true")
 	}
 	defer quiet()()
-	config.CheckBranch = "false"
+	t.Setenv("HALFPIPE_BRANCH", "main")
 	for _, testPath := range findE2EPaths() {
 		t.Run(testPath, func(t *testing.T) {
 			output = os.DevNull

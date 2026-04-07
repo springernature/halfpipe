@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"strings"
 )
@@ -99,6 +100,10 @@ func makeSureThereIsCommits() (err error) {
 }
 
 func BranchResolver() (branch string, err error) {
+	if branch = os.Getenv("HALFPIPE_BRANCH"); branch != "" {
+		return branch, nil
+	}
+
 	err = gitIsOnPath()
 	if err != nil {
 		return
