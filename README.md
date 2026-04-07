@@ -18,13 +18,10 @@ In theory yes, but there is some Springer Nature specific stuff in here. With th
 
 ## How do I test and build?
 
-Halfpipe is built with Go
+Halfpipe is built with Go and uses `Make` for running tests, compiling etc.
 
-```
-./build.sh
-
-# or if you don't have Go installed you can build in docker
-./docker-build.sh
+```bash
+make
 ```
 
 # CI
@@ -44,7 +41,7 @@ We also use [GitHub Actions](https://github.com/springernature/halfpipe/actions)
 dependabot will raise PRs. Alternatively, to manually update all deps:
 
 ```bash
-go get -t -u ./... && go mod tidy
+make update-deps
 ```
 
 ### GitHub actions 
@@ -52,6 +49,9 @@ go get -t -u ./... && go mod tidy
 For third party actions we use in halfpipe rendered workflows - 
 dependabot will raise PRs but these are just informational, we have to manually update the halfpipe actions renderer. 
 
+```bash
+make update-actions
+```
 
 # Releasing
 

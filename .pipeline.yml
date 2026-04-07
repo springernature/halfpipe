@@ -114,10 +114,9 @@ jobs:
         - -ec
         - |
           export GOMODCACHE=/var/halfpipe/cache/gomodcache
+          export CI=true
           cd halfpipe
-          ./build.sh ci
-          echo timing build ...
-          time ./build.sh > /dev/null
+          make
       inputs:
       - name: halfpipe
       caches:
@@ -166,10 +165,10 @@ jobs:
           export CGO_ENABLED=0
 
           cd halfpipe
-          GOOS=darwin  GOARCH=amd64 go build -o ../binaries/halfpipe_darwin_x86_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          GOOS=darwin  GOARCH=arm64 go build -o ../binaries/halfpipe_darwin_arm_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          GOOS=linux   GOARCH=amd64 go build -o ../binaries/halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
-          GOOS=windows GOARCH=amd64 go build -o ../binaries/halfpipe_windows_unsigned_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=darwin  GOARCH=amd64 go build -mod=readonly -o ../binaries/halfpipe_darwin_x86_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=darwin  GOARCH=arm64 go build -mod=readonly -o ../binaries/halfpipe_darwin_arm_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=linux   GOARCH=amd64 go build -mod=readonly -o ../binaries/halfpipe_linux_$VERSION -ldflags "${LDFLAGS}" cmd/halfpipe.go
+          GOOS=windows GOARCH=amd64 go build -mod=readonly -o ../binaries/halfpipe_windows_unsigned_$VERSION.exe -ldflags "${LDFLAGS}" cmd/halfpipe.go
           ls -l ../binaries
       inputs:
       - name: halfpipe
