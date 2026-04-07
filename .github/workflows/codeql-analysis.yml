@@ -12,13 +12,6 @@ on:
     - cron: '5 3 * * *' # Randomized per repository, daily runs somewhere between 22:00 and 06:00 UTC
   workflow_dispatch:
 
-env:
-  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
-  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
-  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
-  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
-  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
-
 jobs:
   analyze:
     name: Analyze
@@ -37,18 +30,16 @@ jobs:
             build-mode: none
           - language: go
             build-mode: manual
-    # For languages that require build, teams must specify the container in which CodeQL will run; if language does not require build this section is removed by automation
-    container:
-      image: 'IMAGE_PLACEHOLDER' # Teams should adapt, should be in the format 'eu.gcr.io/halfpipe-io/build-image'
 
     steps:
-      # Action SHAs below are placeholder tokens substituted by the workflow
-      # generator (scripts/lib/codeql_workflow_generator.py) at render time.
-      # The authoritative SHA for each action lives in the sentinel registry:
-      # .github/workflows/pinned-actions-registry.yml
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
+      - name: Set up Go
+        if: matrix.language == 'go'
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version: "1.26"
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
@@ -57,14 +48,10 @@ jobs:
           build-mode: ${{ matrix.build-mode }}
 
       - name: Build app
-        if: matrix.build-mode == 'manual'
-        shell: bash
-        run: |
-          'BUILD_COMMAND_PLACEHOLDER'
-        # Teams must specify the build command for their application; if language does not require build this step is removed by automation
+        if: matrix.language == 'go'
+        run: go build ./...
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@c10b8064de6f491fea524254123dbe5e09572f13 # v4.35.1
         with:
           category: "/language:${{matrix.language}}"
-          threads: 2
