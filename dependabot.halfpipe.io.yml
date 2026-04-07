@@ -27,11 +27,11 @@ tasks:
 - type: deploy-cf
   api: ((cloudfoundry.api-snpaas))
   space: cf-space
-  manifest: e2e/actions/deploy-cf/manifest.yml
+  manifest: .e2e/deploy-cf/manifest.yml
 
 - type: docker-push
   image: eu.gcr.io/halfpipe-io/halfpipe-team/blah
-  dockerfile_path: e2e/actions/docker-push/Dockerfile
+  dockerfile_path: .e2e/docker-push/Dockerfile
 
 - type: docker-compose
-  compose_file: e2e/actions/docker-compose/docker-compose.yml
+  compose_file: .e2e/docker-compose/docker-compose.yml

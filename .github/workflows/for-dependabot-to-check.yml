@@ -152,7 +152,7 @@ jobs:
         command: halfpipe-all
         eaid: APPL-437
         gitUri: git@github.com:springernature/halfpipe.git
-        manifestPath: e2e/actions/deploy-cf/manifest.yml
+        manifestPath: .e2e/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
         space: cf-space
@@ -211,7 +211,7 @@ jobs:
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
         context: .
-        dockerfile: e2e/actions/docker-push/Dockerfile
+        dockerfile: .e2e/docker-push/Dockerfile
         image: eu.gcr.io/halfpipe-io/halfpipe-team/blah
         platforms: linux/amd64
         secrets: |
@@ -262,7 +262,7 @@ jobs:
       id: docker-compose
       run: |-
         docker-compose \
-          -f e2e/actions/docker-compose/docker-compose.yml \
+          -f .e2e/docker-compose/docker-compose.yml \
           run \
           --use-aliases \
           -e ARTIFACTORY_PASSWORD \
@@ -286,7 +286,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: Docker cleanup
       if: always()
-      run: docker-compose -f e2e/actions/docker-compose/docker-compose.yml down
+      run: docker-compose -f .e2e/docker-compose/docker-compose.yml down
     - name: 'Notify slack #halfpipe-dev (failure)'
       if: failure()
       uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
