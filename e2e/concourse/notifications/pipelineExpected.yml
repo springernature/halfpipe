@@ -23,6 +23,13 @@ jobs:
           title: ❌ Concourse pipeline failed
           webhook: ((teams.webhook))
         put: teams
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+          title: ❌ Concourse pipeline failed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        put: teams
     timeout: 15m
   on_success:
     attempts: 2
@@ -44,6 +51,13 @@ jobs:
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
           title: ✅ Concourse pipeline passed
           webhook: ((teams.webhook))
+        put: teams
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+          title: ✅ Concourse pipeline passed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
     timeout: 15m
   plan:
@@ -133,6 +147,13 @@ jobs:
           text: Nooooes >:c
           username: Halfpipe
         put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+          title: ❌ Concourse pipeline failed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        put: teams
     timeout: 15m
   on_success:
     attempts: 2
@@ -153,6 +174,13 @@ jobs:
           text: Wiiiie! \o/
           username: Halfpipe
         put: slack
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+          title: ✅ Concourse pipeline passed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        put: teams
     timeout: 15m
   plan:
   - attempts: 2
@@ -255,6 +283,13 @@ jobs:
           title: ❌ Concourse pipeline failed
           webhook: ((teams.webhook))
         put: teams
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+          title: ❌ Concourse pipeline failed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        put: teams
     timeout: 15m
   on_success:
     attempts: 2
@@ -276,6 +311,13 @@ jobs:
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
           title: ✅ Concourse pipeline passed
           webhook: ((teams.webhook))
+        put: teams
+      - no_get: true
+        params:
+          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+          title: ✅ Concourse pipeline passed
+          webhook: http://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
     timeout: 15m
   plan:
