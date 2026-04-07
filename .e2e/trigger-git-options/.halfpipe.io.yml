@@ -1,0 +1,20 @@
+team: halfpipe-team
+pipeline: pipeline-name
+
+triggers:
+- type: git
+  branch: main
+  shallow: false
+  git_crypt_key: ((foo.bar))
+
+tasks:
+- type: run
+  docker:
+    image: alpine
+  script: \date
+  vars:
+    FOO: bar
+- type: run
+  docker:
+    image: alpine
+  script: \date

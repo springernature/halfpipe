@@ -1,0 +1,17 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-update-pipeline-with-path
+
+triggers:
+- type: git
+  watched_paths:
+  - .e2e/update-pipeline-with-path
+
+feature_toggles:
+- update-pipeline
+
+tasks:
+- type: run
+  name: Test
+  script: \echo hello
+  docker:
+    image: alpine

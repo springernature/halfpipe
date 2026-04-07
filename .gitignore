@@ -4,9 +4,8 @@
 .DS_Store
 vendor
 
-pipelineActual.yml
-workflowActual.yml
-e2e/concourse/init/.halfpipe.io
-e2e/shell/all/*_actual.txt
+# .e2e
+*.actual.yml
+*.actual.txt
 
 AGENTS.md

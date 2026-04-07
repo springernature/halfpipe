@@ -1,0 +1,225 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/par-seq/.halfpipe.io.yml for team halfpipe-team
+name: par-seq
+"on":
+  push:
+    branches:
+    - main
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/par-seq
+concurrency: ${{ github.workflow }}
+jobs:
+  task_1:
+    name: task 1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 1
+      id: task-1
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_2:
+    name: task 2
+    needs:
+    - task_1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 2
+      id: task-2
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_3:
+    name: task 3
+    needs:
+    - task_2
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 3
+      id: task-3
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_4_1:
+    name: task 4.1
+    needs:
+    - task_3
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 4.1
+      id: task-4-1
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_4_2:
+    name: task 4.2
+    needs:
+    - task_3
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 4.2
+      id: task-4-2
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_4_3_1:
+    name: task 4.3.1
+    needs:
+    - task_3
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 4.3.1
+      id: task-4-3-1
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_4_3_2:
+    name: task 4.3.2
+    needs:
+    - task_4_3_1
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 4.3.2
+      id: task-4-3-2
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  task_5:
+    name: task 5
+    needs:
+    - task_4_1
+    - task_4_2
+    - task_4_3_2
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: task 5
+      id: task-5
+      uses: docker://alpine:latest
+      with:
+        args: -c "cd .e2e/par-seq; \date"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

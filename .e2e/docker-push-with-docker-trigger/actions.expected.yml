@@ -1,0 +1,75 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/docker-push-with-docker-trigger/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-docker-push-with-docker-trigger
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/docker-push-with-docker-trigger**
+    - .github/workflows/halfpipe-e2e-docker-push-with-docker-trigger.yml
+  repository_dispatch:
+    types:
+    - docker-push:springernature/alpine:tag
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/docker-push-with-docker-trigger
+concurrency: ${{ github.workflow }}
+jobs:
+  push_to_docker_registry:
+    name: push to docker registry
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
+      with:
+        buildArgs: |
+          "A=a"
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "B=b"
+          "BUILD_VERSION"
+          "CI=true"
+          "EAID=APPL-437"
+          "EE_PLATFORM_TEAM=halfpipe-team"
+          "GIT_REVISION"
+          "RUNNING_IN_CI=true"
+        context: .e2e/docker-push-with-docker-trigger
+        dockerfile: .e2e/docker-push-with-docker-trigger/Dockerfile
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+        platforms: linux/amd64
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+        tags: |
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}

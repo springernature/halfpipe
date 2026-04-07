@@ -1,0 +1,68 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-notifications
+
+feature_toggles:
+- slack-off
+
+notifications:
+  failure:
+  - slack: "#yo"
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/feature-slack-off
+
+tasks:
+- type: run
+  name: my run task
+  docker:
+    image: foo
+  script: \foo
+  notifications:
+    success:
+    - slack: "#success1"
+      message: success message
+    - slack: "#success2"
+      message: success message
+    - teams: http://webhook-success
+      message: success message teams
+    failure:
+    - slack: "#failure1"
+    - teams: ((secret.webhook1))
+    - teams: http://webhook2
+
+- type: run
+  name: task2
+  script: ./a
+  docker:
+    image: alpine
+  notifications:
+    success:
+    - slack: asdf
+      message: "Wiiiie! \\o/"
+    failure:
+    - slack: kehe
+      message: "Nooooes >:c"
+    - teams: https://custom.webhook.url
+      message: "Nooooes >:c"
+
+- type: deploy-cf
+  name: deploy to staging
+  api: ((cloudfoundry.api-snpaas))
+  org: pe
+  space: staging
+  username: michiel
+  password: very-secret
+  vars:
+    A: "0.1"
+    B: "false"
+  notify_on_success: true
+  pre_promote:
+  - type: run
+    script: ./a
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+    vars:
+      A: "blah"

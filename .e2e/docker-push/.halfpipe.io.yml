@@ -1,0 +1,83 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-docker-push
+
+feature_toggles:
+- ghas
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/docker-push
+
+tasks:
+- type: docker-push
+  name: push with username and password
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+  vars:
+    A: a
+    B: b
+  secrets:
+    C: ((secret.c))
+    D: d
+
+- type: docker-push
+  name: push with retries and scan timeout
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly2
+  retries: 1
+  scan_timeout: 30
+
+- type: docker-push
+  name: push with cache and platforms
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+  use_cache: true
+  platforms:
+  - "linux/amd64"
+  - "linux/arm64"
+
+- type: run
+  name: build artifact
+  docker:
+    image: alpine
+  script: \echo artifact > artifact.txt
+  save_artifacts:
+  - artifact.txt
+
+- type: docker-push
+  name: push with restore artifacts
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+  restore_artifacts: true
+
+- type: docker-push
+  name: push with timeout and vars
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+  timeout: 40m
+  vars:
+    A: a
+    B: b
+  secrets:
+    C: ((secret.c))
+    D: d
+
+- type: docker-push
+  name: push with custom dockerfile and build path
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+  dockerfile_path: dockerfiles/Dockerfile
+  build_path: some/build/dir
+
+- type: docker-push
+  name: push with dockerfile path only
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe
+  dockerfile_path: dockerfiles/Dockerfile
+
+- type: docker-push
+  name: push without credentials
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage

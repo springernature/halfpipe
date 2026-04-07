@@ -1,0 +1,12 @@
+team: halfpipe-team
+pipeline: pipeline-name
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/docker-push
+  - .e2e
+  ignored_paths:
+  - README.md
+  - '**.js'

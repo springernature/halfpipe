@@ -1,0 +1,59 @@
+team: halfpipe-team
+pipeline: docker-push-with-update-pipeline
+
+feature_toggles:
+- update-pipeline
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/docker-push-with-update-pipeline
+
+tasks:
+- type: run
+  docker:
+    image: alpine
+  script: ./build.sh
+  save_artifacts:
+  - file1
+
+- type: docker-push
+  name: push to docker registry
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/image1
+  vars:
+    A: a
+    B: b
+
+- type: docker-push
+  name: push to docker registry with git ref
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/image2
+  vars:
+    A: a
+    B: b
+  tag: gitref
+
+- type: docker-push
+  name: push with restore artifacts
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/image3
+  restore_artifacts: true
+  vars:
+    A: a
+    B: b
+
+- type: docker-push
+  name: push with restore artifacts and file tag
+  username: rob
+  password: verysecret
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/image4
+  restore_artifacts: true
+  vars:
+    A: a
+    B: b
+  tag: "file:some/folder/dockerTagFile"

@@ -1,0 +1,18 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/trigger-git/.halfpipe.io.yml for team halfpipe-team
+name: pipeline-name
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/docker-push**
+    - .e2e**
+    - .github/workflows/pipeline-name.yml
+    - '!README.md**'
+    - '!**.js**'
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+concurrency: ${{ github.workflow }}

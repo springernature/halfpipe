@@ -1,0 +1,480 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/artifacts/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-artifacts
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/artifacts**
+    - .github/workflows/halfpipe-e2e-artifacts.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/artifacts
+concurrency: ${{ github.workflow }}
+jobs:
+  create-artifact:
+    name: create-artifact
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: create-artifact
+      id: create-artifact
+      uses: docker://alpine
+      with:
+        args: -c "cd .e2e/artifacts; ./a"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/someFile .e2e/parentDir/someFile2
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/.halfpipe.io.yml .e2e/artifacts/foo.txt
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+  read-artifact:
+    name: read-artifact
+    needs:
+    - create-artifact
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: read-artifact
+      id: read-artifact
+      uses: docker://debian:buster-slim
+      with:
+        args: -c "cd .e2e/artifacts; ./a"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  build:
+    name: build
+    needs:
+    - read-artifact
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: build
+      id: build
+      uses: docker://debian:buster-slim
+      with:
+        args: -c "cd .e2e/artifacts; \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/foo.txt .e2e/artifacts/target/bar.txt
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/foo.txt
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+  deploy_to_staging:
+    name: deploy to staging
+    needs:
+    - build
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: Push
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/artifacts
+        cliVersion: cf7
+        command: halfpipe-push
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/artifacts/manifest.yml
+        org: pe
+        password: very-secret
+        space: staging
+        team: halfpipe-team
+        testDomain: springernature.app
+        username: michiel
+      env:
+        CF_ENV_VAR_A: "0.1"
+        CF_ENV_VAR_B: "false"
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/artifacts
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: .e2e/artifacts/manifest.yml
+        org: pe
+        password: very-secret
+        space: staging
+        testDomain: springernature.app
+        username: michiel
+    - name: Check
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/artifacts
+        cliVersion: cf7
+        command: halfpipe-check
+        manifestPath: .e2e/artifacts/manifest.yml
+        org: pe
+        password: very-secret
+        space: staging
+        testDomain: springernature.app
+        username: michiel
+    - name: run a
+      id: run-a
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-fly
+      with:
+        args: -c "cd .e2e/artifacts; ./a"
+        entrypoint: /bin/sh
+      env:
+        A: blah
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+        TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
+    - name: Promote
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/artifacts
+        cliVersion: cf7
+        command: halfpipe-promote
+        manifestPath: .e2e/artifacts/manifest.yml
+        org: pe
+        password: very-secret
+        space: staging
+        testDomain: springernature.app
+        username: michiel
+    - name: Cleanup
+      if: ${{ !cancelled() }}
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/artifacts
+        cliVersion: cf7
+        command: halfpipe-cleanup
+        manifestPath: .e2e/artifacts/manifest.yml
+        org: pe
+        password: very-secret
+        space: staging
+        testDomain: springernature.app
+        username: michiel
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  push_to_docker_registry:
+    name: push to docker registry
+    needs:
+    - deploy_to_staging
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
+      with:
+        buildArgs: |
+          "A=a"
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "B=b"
+          "BUILD_VERSION"
+          "CI=true"
+          "EAID=APPL-437"
+          "EE_PLATFORM_TEAM=halfpipe-team"
+          "GIT_REVISION"
+          "RUNNING_IN_CI=true"
+        context: .e2e/artifacts
+        dockerfile: .e2e/artifacts/Dockerfile
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+        platforms: linux/amd64
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+        tags: |
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+  docker-compose:
+    name: docker-compose
+    needs:
+    - push_to_docker_registry
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: docker-compose
+      id: docker-compose
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          run \
+          --use-aliases \
+          -e A \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e CI \
+          -e EAID \
+          -e EE_PLATFORM_TEAM \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          app
+      env:
+        A: a
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/docker-compose.yml
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f docker-compose.yml down
+  deploy-ml-zip:
+    name: deploy-ml-zip
+    needs:
+    - docker-compose
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: deploy-ml-zip
+      id: deploy-ml-zip
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+      with:
+        args: -c "cd .e2e/artifacts; /ml-deploy/deploy-local-zip"
+        entrypoint: /bin/sh
+      env:
+        APP_NAME: halfpipe-e2e-artifacts
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com
+        MARKLOGIC_PASSWORD: ""
+        MARKLOGIC_USERNAME: ""
+        USE_BUILD_VERSION: "false"
+  c-name-covenant:
+    name: c-name-covenant
+    needs:
+    - deploy-ml-zip
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: c-name-covenant
+      id: c-name-covenant
+      run: |-
+        export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
+        export VOLUME_OPTIONS="-v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache"
+        run-cdc.sh
+      env:
+        CI: "true"
+        CONSUMER_GIT_KEY: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: ""
+        DOCKER_COMPOSE_SERVICE: ""
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GIT_CLONE_OPTIONS: ""
+        PROVIDER_HOST: ""
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_ARTIFACTS_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-artifacts
+        RUNNING_IN_CI: "true"
+        USE_COVENANT: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/docker-compose.yml
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/artifacts/docker-compose.yml .e2e/artifacts/tests
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2

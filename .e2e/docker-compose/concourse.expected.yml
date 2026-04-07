@@ -1,0 +1,273 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/docker-compose/.halfpipe.io.yml for team halfpipe-team
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: test
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact foo ../../../artifacts-out-failure/.e2e/docker-compose
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact foo ../../../artifacts-out/.e2e/docker-compose
+          copyArtifact bar/baz ../../../artifacts-out/.e2e/docker-compose/bar
+        dir: git/.e2e/docker-compose
+        path: docker.sh
+    privileged: true
+    task: test
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: custom
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - test
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-docker-compose
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: bar
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        F: foo
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+        S: ((very.secret))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. ../..
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -e S -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/docker-compose
+        path: docker.sh
+    privileged: true
+    task: custom
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: multiple-compose-files
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - custom
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose -f docker-compose.yml -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app echo hello
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/docker-compose
+        path: docker.sh
+    privileged: true
+    task: multiple-compose-files
+    timeout: 1h
+  serial: true
+resource_types:
+- check_every: 24h0m0s
+  name: gcp-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/gcp-resource
+    tag: stable
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m0s
+  name: git
+  source:
+    branch: main
+    paths:
+    - .e2e/docker-compose
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h0m0s
+  name: artifacts
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-docker-compose
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- check_every: 24h0m0s
+  name: artifacts-on-failure
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-docker-compose
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource

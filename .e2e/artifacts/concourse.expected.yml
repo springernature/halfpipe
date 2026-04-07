@@ -1,0 +1,1062 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/artifacts/.halfpipe.io.yml for team halfpipe-team
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: create-artifact
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: alpine
+          tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact .halfpipe.io.yml ../../../artifacts-out-failure/.e2e/artifacts
+            copyArtifact foo.txt ../../../artifacts-out-failure/.e2e/artifacts
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact someFile ../../../artifacts-out/.e2e/artifacts
+          copyArtifact ../parentDir/someFile2 ../../../artifacts-out/.e2e/parentDir
+        dir: git/.e2e/artifacts
+        path: /bin/sh
+    task: create-artifact
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: read-artifact
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - create-artifact
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-artifacts
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: debian
+          tag: buster-slim
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. ../..
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/artifacts
+        path: /bin/sh
+    task: read-artifact
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: build
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - read-artifact
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: debian
+          tag: buster-slim
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact foo.txt ../../../artifacts-out-failure/.e2e/artifacts
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact foo.txt ../../../artifacts-out/.e2e/artifacts
+          copyArtifact target/bar.txt ../../../artifacts-out/.e2e/artifacts/target
+        dir: git/.e2e/artifacts
+        path: /bin/sh
+    task: build
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  ensure:
+    attempts: 2
+    no_get: true
+    params:
+      cliVersion: cf7
+      command: halfpipe-cleanup
+      manifestPath: git/.e2e/artifacts/manifest.yml
+      timeout: 1h
+    put: halfpipe-cleanup
+    resource: cf-snpaas-pe-staging
+    timeout: 1h
+  name: deploy to staging
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - build
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-artifacts
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - attempts: 2
+    no_get: true
+    on_failure:
+      no_get: true
+      params:
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: git/.e2e/artifacts/manifest.yml
+      put: cf-logs
+      resource: cf-snpaas-pe-staging
+    params:
+      appPath: git/.e2e/artifacts
+      cliVersion: cf7
+      command: halfpipe-push
+      eaid: APPL-437
+      gitRefPath: git/.git/ref
+      gitUri: git@github.com:springernature/halfpipe.git
+      manifestPath: git/.e2e/artifacts/manifest.yml
+      team: halfpipe-team
+      testDomain: springernature.app
+      timeout: 1h
+      vars:
+        A: "0.1"
+        B: "false"
+    put: halfpipe-push
+    resource: cf-snpaas-pe-staging
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      cliVersion: cf7
+      command: halfpipe-check
+      manifestPath: git/.e2e/artifacts/manifest.yml
+      timeout: 1h
+    put: halfpipe-check
+    resource: cf-snpaas-pe-staging
+    timeout: 1h
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-fly
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      params:
+        A: blah
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+        TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. ../..
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          ./a
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/artifacts
+        path: /bin/sh
+    task: run-a
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      cliVersion: cf7
+      command: halfpipe-promote
+      manifestPath: git/.e2e/artifacts/manifest.yml
+      testDomain: springernature.app
+      timeout: 1h
+    put: halfpipe-promote
+    resource: cf-snpaas-pe-staging
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: push to docker registry
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - deploy to staging
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-artifacts
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: alpine
+        type: registry-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+      inputs:
+      - name: git
+      - name: artifacts
+      outputs:
+      - name: docker_build
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          cp -r git/. docker_build
+          cp -r artifacts/. docker_build
+        path: /bin/sh
+    task: copying-git-repo-and-artifacts-to-a-temporary-build-dir
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: alpine
+        type: docker-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      - name: docker_build
+      params:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        B: b
+        CI: "true"
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          echo $ docker buildx build \
+            -f docker_build/.e2e/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg CI \
+            --build-arg EAID \
+            --build-arg EE_PLATFORM_TEAM \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            docker_build/.e2e/artifacts
+          docker buildx build \
+            -f docker_build/.e2e/artifacts/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/halfpipe-fly:$(cat git/.git/ref) \
+            --build-arg A \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg B \
+            --build-arg CI \
+            --build-arg EAID \
+            --build-arg EE_PLATFORM_TEAM \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            docker_build/.e2e/artifacts
+        path: /bin/sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+        version:
+          digest: sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c
+      inputs:
+      - name: git
+      - name: docker_build
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          trivy image --timeout 15m --ignore-unfixed --severity CRITICAL --scanners vuln --exit-code 0 eu.gcr.io/halfpipe-io/cache/halfpipe-team/halfpipe-fly:$(cat ../../.git/ref) || true
+        dir: docker_build/.e2e/artifacts
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          for tag in $(cat tagList/tagList) ; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/halfpipe-fly:$(cat git/.git/ref) --tag eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly:$tag; done
+        path: /bin/sh
+    privileged: true
+    task: publish-final-image
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: docker-compose
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - push to docker registry
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-artifacts
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      outputs:
+      - name: artifacts-out-failure
+      params:
+        A: a
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. ../..
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact docker-compose.yml ../../../artifacts-out-failure/.e2e/artifacts
+            exit 1
+          fi
+        dir: git/.e2e/artifacts
+        path: docker.sh
+    privileged: true
+    task: docker-compose
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: deploy-ml-zip
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - docker-compose
+    timeout: 15m
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          repository: eu.gcr.io/halfpipe-io/gcp-resource
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts
+      params:
+        BUCKET: ((halfpipe-artifacts.bucket))
+        FOLDER: halfpipe-team/halfpipe-e2e-artifacts
+        JSON_KEY: ((halfpipe-artifacts.private_key))
+        VERSION_FILE: git/.git/ref
+      platform: linux
+      run:
+        args:
+        - .
+        dir: artifacts
+        path: /opt/resource/download
+    task: get-artifact
+    timeout: 15m
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-ml-deploy
+          tag: latest
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      - name: artifacts
+      params:
+        APP_NAME: halfpipe-e2e-artifacts
+        DEPLOY_ZIP: target/xquery.zip
+        MARKLOGIC_HOST: ml.dev.springer-sbm.com
+        MARKLOGIC_PASSWORD: ((halfpipe-ml-deploy.password))
+        MARKLOGIC_USERNAME: ((halfpipe-ml-deploy.username))
+        USE_BUILD_VERSION: "false"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in a Alpine image or one that is based on the Alpine"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian:buster-slim as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          # Copying in artifacts from previous task
+          cp -r ../../../artifacts/. ../..
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          /ml-deploy/deploy-local-zip
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/artifacts
+        path: /bin/sh
+    task: deploy-ml-zip
+    timeout: 1h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: c-name-covenant
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out-failure
+      postfix: failure
+      version_file: git/.git/ref
+    put: artifacts-on-failure
+    timeout: 15m
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - deploy-ml-zip
+    timeout: 15m
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((halfpipe-gcr.private_key))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
+          tag: stable
+          username: _json_key
+        type: registry-image
+      inputs:
+      - name: git
+      outputs:
+      - name: artifacts-out
+      - name: artifacts-out-failure
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        CONSUMER_GIT_KEY: ((halfpipe-github.private_key))
+        CONSUMER_GIT_URI: git@github.com:springernature/c-consumer
+        CONSUMER_HOST: c-host
+        CONSUMER_NAME: c-consumer
+        CONSUMER_PATH: ""
+        CONSUMER_SCRIPT: c-script
+        DOCKER_COMPOSE_FILE: ""
+        DOCKER_COMPOSE_SERVICE: ""
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GIT_CLONE_OPTIONS: ""
+        HALFPIPE_CACHE_TEAM: halfpipe-team
+        PROVIDER_HOST: ""
+        PROVIDER_HOST_KEY: HALFPIPE_E2E_ARTIFACTS_DEPLOYED_HOST
+        PROVIDER_NAME: halfpipe-e2e-artifacts
+        RUNNING_IN_CI: "true"
+        USE_COVENANT: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          copyArtifact() {
+            ARTIFACT=$1
+            ARTIFACT_OUT_PATH=$2
+
+            if [ -e $ARTIFACT ] ; then
+              mkdir -p $ARTIFACT_OUT_PATH
+              cp -r $ARTIFACT $ARTIFACT_OUT_PATH
+            else
+              echo "ERROR: Artifact '$ARTIFACT' not found. Try fly hijack to check the filesystem."
+              exit 1
+            fi
+          }
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
+          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
+          export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
+          run-cdc.sh
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            # Artifacts to copy in case of failure
+            copyArtifact docker-compose.yml ../../../artifacts-out-failure/.e2e/artifacts
+            copyArtifact tests ../../../artifacts-out-failure/.e2e/artifacts
+            exit 1
+          fi
+
+          # Artifacts to copy from task
+          copyArtifact docker-compose.yml ../../../artifacts-out/.e2e/artifacts
+        dir: git/.e2e/artifacts
+        path: docker.sh
+    privileged: true
+    task: c-name-covenant
+    timeout: 1h
+  - attempts: 2
+    no_get: true
+    params:
+      folder: artifacts-out
+      version_file: git/.git/ref
+    put: artifacts
+    timeout: 15m
+  serial: true
+resource_types:
+- check_every: 24h0m0s
+  name: gcp-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/gcp-resource
+    tag: stable
+    username: _json_key
+  type: registry-image
+- check_every: 24h0m0s
+  name: cf-resource
+  source:
+    password: ((halfpipe-gcr.private_key))
+    repository: eu.gcr.io/halfpipe-io/cf-resource-v2
+    username: _json_key
+  type: registry-image
+resources:
+- check_every: 10m0s
+  name: git
+  source:
+    branch: main
+    paths:
+    - .e2e/artifacts
+    private_key: ((halfpipe-github.private_key))
+    uri: git@github.com:springernature/halfpipe.git
+  type: git
+- check_every: 24h0m0s
+  name: artifacts
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-artifacts
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- check_every: 24h0m0s
+  name: artifacts-on-failure
+  source:
+    bucket: ((halfpipe-artifacts.bucket))
+    folder: halfpipe-team/halfpipe-e2e-artifacts
+    json_key: ((halfpipe-artifacts.private_key))
+  type: gcp-resource
+- check_every: 24h0m0s
+  name: cf-snpaas-pe-staging
+  source:
+    api: ((cloudfoundry.api-snpaas))
+    org: pe
+    password: very-secret
+    space: staging
+    username: michiel
+  type: cf-resource

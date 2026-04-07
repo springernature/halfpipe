@@ -1,0 +1,45 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/manual-git-trigger/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-manual-git-trigger
+"on":
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/manual-git-trigger
+concurrency: ${{ github.workflow }}
+jobs:
+  test:
+    name: test
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: test
+      id: test
+      uses: docker://alpine:test
+      with:
+        args: -c "cd .e2e/manual-git-trigger; ./a"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

@@ -1,0 +1,9 @@
+team: halfpipe-team
+pipeline: pipeline-name
+
+triggers:
+- type: git
+  branch: main
+  ignored_paths:
+  - README.md
+  - '**.js'

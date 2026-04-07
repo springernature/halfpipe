@@ -1,0 +1,134 @@
+team: halfpipe-team
+pipeline: halfpipe-e2e-deploy-cf
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/deploy-cf
+
+tasks:
+- type: run
+  docker:
+    image: ubuntu
+  name: make binary
+  script: \echo foo > foo.html
+  save_artifacts:
+    - foo.html
+
+- type: deploy-cf
+  name: deploy with username and password
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  cli_version: cf7
+
+- type: deploy-cf
+  name: deploy with cf8
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  cli_version: cf8
+
+- type: deploy-cf
+  name: deploy with pre-start and pre-promote
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  stop_candidate_on_failure: true
+  deploy_artifact: foo.html
+  pre_start:
+  - cf apps
+  - cf events myapp-CANDIDATE
+  pre_promote:
+  - type: run
+    name: pre promote step
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+    vars:
+      A: "blah"
+
+- type: deploy-cf
+  name: deploy with vars and secrets
+  api: ((cloudfoundry.api-snpaas))
+  org: ((cloudfoundry.org-snpaas))
+  space: dev
+  manifest: manifest.yml
+  deploy_artifact: foo.html
+  github_environment:
+    name: my-env
+    url: https://my-url
+  vars:
+    ENV1: 1234
+    ENV2: ((secret.something))
+    ENV3: '{"a": "b", "c": "d"}'
+    ENV4: ((another.secret))
+
+- type: deploy-cf
+  name: deploy with docker image
+  api: ((cloudfoundry.api-snpaas))
+  org: ((cloudfoundry.org-snpaas))
+  space: dev
+  manifest: manifest-docker.yml
+  docker_tag: version
+
+- type: deploy-cf
+  name: deploy with sso route
+  api: dev-api
+  space: dev
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  sso_route: some-route.public.springernature.app
+
+- type: deploy-cf
+  name: deploy rolling with sso
+  api: ((cloudfoundry.api-snpaas))
+  org: ((cloudfoundry.org-snpaas))
+  space: dev
+  deploy_artifact: foo.html
+  sso_route: some-route.public.springernature.app
+  rolling: true
+
+- type: deploy-cf
+  name: deploy rolling plain
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  rolling: true
+
+- type: deploy-cf
+  name: deploy rolling with pre-promote
+  api: dev-api
+  space: dev
+  manifest: manifest.yml
+  username: michiel
+  password: very-secret
+  test_domain: some.random.domain.com
+  timeout: 5m
+  rolling: true
+  pre_promote:
+  - type: run
+    name: pre promote step
+    script: smoke-test.sh
+    docker:
+      image: eu.gcr.io/halfpipe-io/halfpipe-fly
+    vars:
+      A: "blah"

@@ -1,0 +1,238 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/deploy-katee/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-deploy-katee
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/deploy-katee**
+    - .github/workflows/halfpipe-e2e-deploy-katee.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/deploy-katee
+concurrency: ${{ github.workflow }}
+jobs:
+  update:
+    name: update
+    runs-on: ee-runner
+    timeout-minutes: 60
+    outputs:
+      synced: ${{ steps.sync.outputs.synced }}
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Sync workflow with halfpipe manifest
+      id: sync
+      run: halfpipe-update-workflow
+      env:
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+    - name: Commit and push changes to workflow
+      if: steps.sync.outputs.synced == 'false'
+      run: |
+        git config user.name halfpipe-io
+        git config user.email halfpipe-io@springernature.com
+        if git commit -am "[halfpipe] synced workflow $GITHUB_WORKFLOW with halfpipe manifest" && git push; then
+          echo ':white_check_mark: Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This happened because the workflow was generated from a halfpipe manifest with the `update-pipeline` feature enabled. It keeps the workflow in sync with the halfpipe manifest.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://ee.public.springernature.app/rel-eng/halfpipe/features/#update_pipeline)' >> $GITHUB_STEP_SUMMARY
+        else
+          echo ':x: Halfpipe failed to update the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This may have happened because newer git commits have already been pushed. Check for newer pipeline runs or manually trigger the workflow.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://ee.public.springernature.app/rel-eng/halfpipe/features/#update_pipeline)' >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+  push_default:
+    name: Push default
+    needs:
+    - update
+    if: needs.update.outputs.synced == 'true'
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Build and Push
+      uses: springernature/ee-action-docker-push@v1
+      with:
+        buildArgs: |
+          "ARTIFACTORY_PASSWORD"
+          "ARTIFACTORY_URL"
+          "ARTIFACTORY_USERNAME"
+          "BUILD_VERSION"
+          "CI=true"
+          "EAID=APPL-437"
+          "EE_PLATFORM_TEAM=halfpipe-team"
+          "GIT_REVISION"
+          "RUNNING_IN_CI=true"
+        context: .e2e/deploy-katee
+        dockerfile: .e2e/deploy-katee/Dockerfile
+        image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        platforms: linux/amd64
+        secrets: |
+          "ARTIFACTORY_PASSWORD=${{ secrets.EE_ARTIFACTORY_PASSWORD }}"
+          "ARTIFACTORY_URL=${{ secrets.EE_ARTIFACTORY_URL }}"
+          "ARTIFACTORY_USERNAME=${{ secrets.EE_ARTIFACTORY_USERNAME }}"
+        tags: |
+          latest
+          ${{ env.BUILD_VERSION }}
+          ${{ env.GIT_REVISION }}
+    - name: Repository dispatch
+      uses: peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697 # v4.0.1
+      with:
+        event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/someImage
+        token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
+  deploy_to_katee:
+    name: deploy to katee
+    needs:
+    - push_default
+    runs-on: ee-runner
+    environment:
+      name: prod
+      url: https://prod.url
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
+          /springernature/data/halfpipe-team/katee-v2-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key ;
+          /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy to Katee
+      uses: springernature/ee-action-deploy-katee@v1
+      with:
+        checkInterval: "2"
+        credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
+        eaid: APPL-437
+        maxChecks: "120"
+        namespace: katee-halfpipe-team
+        revision: 2.${{ github.run_number }}.${{ github.run_attempt }}
+        velaFile: .e2e/deploy-katee/vela.yaml
+      env:
+        BUILD_VERSION: ${{ env.BUILD_VERSION }}
+        ENV1: "1234"
+        ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
+        ENV3: '{"a": "b", "c": "d"}'
+        ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+        GIT_REVISION: ${{ env.GIT_REVISION }}
+        VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+    - name: 'Notify slack #ee-re (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#ee-re"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
+  deploy_to_katee_different_team:
+    name: deploy to katee different team
+    needs:
+    - deploy_to_katee
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
+          /springernature/data/halfpipe-team/katee-v2-different-namespace-service-account-prod key | springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key ;
+          /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy to Katee
+      uses: springernature/ee-action-deploy-katee@v1
+      with:
+        checkInterval: "3"
+        credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
+        eaid: APPL-437
+        maxChecks: "4"
+        namespace: katee-different-namespace
+        revision: ${{ env.BUILD_VERSION }}
+        velaFile: .e2e/deploy-katee/custom-vela-path.yaml
+      env:
+        BUILD_VERSION: ${{ env.BUILD_VERSION }}
+        ENV1: "1234"
+        ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
+        ENV3: '{"a": "b", "c": "d"}'
+        ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+        GIT_REVISION: ${{ env.GIT_REVISION }}
+        VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+    - name: 'Notify slack #ee-re (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#ee-re"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed

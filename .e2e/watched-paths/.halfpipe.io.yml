@@ -1,0 +1,16 @@
+team: halfpipe-team
+pipeline: pipeline-name
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - go.*
+  - Makefile
+
+tasks:
+- type: run
+  name: build
+  docker:
+    image: foo
+  script: \build

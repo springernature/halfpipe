@@ -1,0 +1,202 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/docker-compose/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-docker-compose
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/docker-compose**
+    - .github/workflows/halfpipe-e2e-docker-compose.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/docker-compose
+concurrency: ${{ github.workflow }}
+jobs:
+  test:
+    name: test
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: test
+      id: test
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          run \
+          --use-aliases \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e CI \
+          -e EAID \
+          -e EE_PLATFORM_TEAM \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          app
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/docker-compose/foo .e2e/docker-compose/bar/baz
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Package artifacts-failure
+      if: failure()
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/docker-compose/foo
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts-failure
+      if: failure()
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-failure-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f docker-compose.yml down
+  custom:
+    name: custom
+    needs:
+    - test
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: custom
+      id: custom
+      run: |-
+        docker-compose \
+          -f custom-docker-compose.yml \
+          run \
+          --use-aliases \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e B \
+          -e BUILD_VERSION \
+          -e CI \
+          -e EAID \
+          -e EE_PLATFORM_TEAM \
+          -e F \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e S \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          customservice \
+          echo hello
+      env:
+        B: bar
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        F: foo
+        RUNNING_IN_CI: "true"
+        S: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_very_secret }}
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f custom-docker-compose.yml down
+  multiple-compose-files:
+    name: multiple-compose-files
+    needs:
+    - custom
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: multiple-compose-files
+      id: multiple-compose-files
+      run: |-
+        docker-compose \
+          -f docker-compose.yml \
+          -f custom-docker-compose.yml \
+          run \
+          --use-aliases \
+          -e ARTIFACTORY_PASSWORD \
+          -e ARTIFACTORY_URL \
+          -e ARTIFACTORY_USERNAME \
+          -e BUILD_VERSION \
+          -e CI \
+          -e EAID \
+          -e EE_PLATFORM_TEAM \
+          -e GIT_REVISION \
+          -e RUNNING_IN_CI \
+          -e VAULT_ROLE_ID \
+          -e VAULT_SECRET_ID \
+          -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          app \
+          echo hello
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Docker cleanup
+      if: always()
+      run: docker-compose -f docker-compose.yml -f custom-docker-compose.yml down

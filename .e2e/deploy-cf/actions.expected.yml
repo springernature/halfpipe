@@ -1,0 +1,631 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/deploy-cf/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-deploy-cf
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/deploy-cf**
+    - .github/workflows/halfpipe-e2e-deploy-cf.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/deploy-cf
+concurrency: ${{ github.workflow }}
+jobs:
+  make_binary:
+    name: make binary
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: make binary
+      id: make-binary
+      uses: docker://ubuntu
+      with:
+        args: -c "cd .e2e/deploy-cf; \echo foo > foo.html"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Package artifacts
+      run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/deploy-cf/foo.html
+      working-directory: ${{ github.workspace }}
+    - name: Upload artifacts
+      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      with:
+        name: artifacts-${{ github.job }}
+        path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
+        retention-days: 2
+  deploy_with_username_and_password:
+    name: deploy with username and password
+    needs:
+    - make_binary
+    runs-on: ee-runner
+    timeout-minutes: 5
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_with_cf8:
+    name: deploy with cf8
+    needs:
+    - deploy_with_username_and_password
+    runs-on: ee-runner
+    timeout-minutes: 5
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf8
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_with_pre-start_and_pre-promote:
+    name: deploy with pre-start and pre-promote
+    needs:
+    - deploy_with_cf8
+    runs-on: ee-runner
+    timeout-minutes: 5
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: Push
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-push
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Check
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-check
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: pre promote step
+      id: pre-promote-step
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-fly
+      with:
+        args: -c "cd .e2e/deploy-cf; ./smoke-test.sh"
+        entrypoint: /bin/sh
+      env:
+        A: blah
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+        TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.some.random.domain.com
+    - name: Promote
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-promote
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Cleanup
+      if: ${{ !cancelled() }}
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-cleanup
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_with_vars_and_secrets:
+    name: deploy with vars and secrets
+    needs:
+    - deploy_with_pre-start_and_pre-promote
+    runs-on: ee-runner
+    environment:
+      name: my-env
+      url: https://my-url
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+          /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: dev
+        team: halfpipe-team
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+        CF_ENV_VAR_ENV1: "1234"
+        CF_ENV_VAR_ENV2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_secret_something }}
+        CF_ENV_VAR_ENV3: '{"a": "b", "c": "d"}'
+        CF_ENV_VAR_ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_with_docker_image:
+    name: deploy with docker image
+    needs:
+    - deploy_with_vars_and_secrets
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+          /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-all
+        dockerPassword: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-gcr_private_key_base64 }}
+        dockerTag: ${{ env.BUILD_VERSION }}
+        dockerUsername: _json_key
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest-docker.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: dev
+        team: halfpipe-team
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_with_sso_route:
+    name: deploy with sso route
+    needs:
+    - deploy_with_docker_image
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Configure SSO
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf8
+        command: halfpipe-sso
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        ssoHost: some-route
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_rolling_with_sso:
+    name: deploy rolling with sso
+    needs:
+    - deploy_with_sso_route
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Download artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+      with:
+        merge-multiple: true
+    - name: Extract artifacts
+      run: for f in halfpipe-artifacts-*.tar; do tar -xvf $f; done; rm halfpipe-artifacts-*.tar
+      working-directory: ${{ github.workspace }}
+    - name: Configure SSO
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf8
+        command: halfpipe-sso
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: dev
+        ssoHost: some-route
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        appPath: .e2e/deploy-cf/foo.html
+        cliVersion: cf7
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        space: dev
+        team: halfpipe-team
+        testDomain: springernature.app
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_rolling_plain:
+    name: deploy rolling plain
+    needs:
+    - deploy_rolling_with_sso
+    runs-on: ee-runner
+    timeout-minutes: 5
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Deploy
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-all
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+  deploy_rolling_with_pre-promote:
+    name: deploy rolling with pre-promote
+    needs:
+    - deploy_rolling_plain
+    runs-on: ee-runner
+    timeout-minutes: 5
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Push
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-push
+        eaid: APPL-437
+        gitUri: git@github.com:springernature/halfpipe.git
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        team: halfpipe-team
+        testDomain: some.random.domain.com
+        username: michiel
+      env:
+        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
+    - name: cf logs --recent
+      if: failure()
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-logs
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Check
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-check
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: pre promote step
+      id: pre-promote-step
+      uses: docker://eu.gcr.io/halfpipe-io/halfpipe-fly
+      with:
+        args: -c "cd .e2e/deploy-cf; ./smoke-test.sh"
+        entrypoint: /bin/sh
+      env:
+        A: blah
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+        TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.some.random.domain.com
+    - name: Promote
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-promote
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Cleanup
+      if: ${{ !cancelled() }}
+      uses: springernature/ee-action-deploy-cf@v1
+      with:
+        api: dev-api
+        appPath: .e2e/deploy-cf
+        cliVersion: cf7
+        command: halfpipe-cleanup
+        manifestPath: .e2e/deploy-cf/manifest.yml
+        org: halfpipe-team
+        password: very-secret
+        space: dev
+        testDomain: some.random.domain.com
+        username: michiel
+    - name: Summary
+      run: |-
+        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY

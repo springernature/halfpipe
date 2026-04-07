@@ -1,0 +1,180 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/run/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-run
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/run**
+    - .github/workflows/halfpipe-e2e-run.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
+  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
+defaults:
+  run:
+    working-directory: .e2e/run
+concurrency: ${{ github.workflow }}
+jobs:
+  with_vars_and_secrets:
+    name: with vars and secrets
+    runs-on: ee-runner
+    timeout-minutes: 62
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ env.VAULT_ROLE_ID }}
+        secretId: ${{ env.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/levels/secret/deep secret | springernature_data_halfpipe-team_levels_secret_deep_secret ;
+          /springernature/data/halfpipe-team/path/to/map key | springernature_data_halfpipe-team_path_to_map_key ;
+          /springernature/data/halfpipe-team/something cool | springernature_data_halfpipe-team_something_cool ;
+          /springernature/data/halfpipe-team/something cooler | springernature_data_halfpipe-team_something_cooler ;
+          /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
+        url: https://vault.halfpipe.io
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: with vars and secrets
+      id: with-vars-and-secrets
+      uses: docker://eu.gcr.io/halfpipe-io/golang:1.15
+      with:
+        args: -c "cd .e2e/run; \foo"
+        entrypoint: /bin/sh
+      env:
+        BAR: bar
+        CI: "true"
+        DEEP_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_path_to_map_key }}
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        FOO: foo
+        MULTIPLE: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_levels_secret_deep_secret }}
+        RUNNING_IN_CI: "true"
+        SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
+        SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
+        SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
+    - name: 'Notify slack #test (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#test"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
+  privileged_and_build_history:
+    name: privileged and build_history
+    needs:
+    - with_vars_and_secrets
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: privileged and build_history
+      id: privileged-and-build_history
+      uses: docker://alpine:test
+      with:
+        args: -c "cd .e2e/run; ./a"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: 'Notify slack #test (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#test"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
+  private_registry:
+    name: private registry
+    needs:
+    - privileged_and_build_history
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        lfs: true
+        show-progress: false
+        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
+        submodules: recursive
+    - name: Login to Docker Registry
+      uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
+      with:
+        password: docker-password
+        registry: my.private.registry
+        username: docker-user
+    - name: private registry
+      id: private-registry
+      uses: docker://my.private.registry/repo/golang:1.15
+      with:
+        args: -c "cd .e2e/run; \bash -c \"echo hello\""
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: 'Notify slack #test (failure)'
+      if: failure()
+      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
+      with:
+        method: chat.postMessage
+        payload: |-
+          channel: "#test"
+          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+        token: ${{ secrets.EE_SLACK_TOKEN }}
+    - name: Notify teams (failure)
+      if: failure()
+      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      with:
+        github-token: ${{ github.token }}
+        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+        notification-color: dc3545
+        notification-summary: ❌ GitHub Actions workflow failed
