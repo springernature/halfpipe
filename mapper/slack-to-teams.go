@@ -7,7 +7,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-const teamsWebhookURLTemplate = "http://platform-api.ee.springernature.io/api/v1/message?team=%s"
+const teamsWebhookURLTemplate = "https://platform-api.ee.springernature.io/api/v1/message?team=%s"
 
 type slackToTeamsMapper struct{}
 
