@@ -11,7 +11,7 @@ fmt:
 	go fmt ./...
 
 test:
-	go test $(GO_OPTS) -cover ./...
+	go test $(GO_OPTS) ./...
 
 binary:
 	go build $(GO_OPTS) -o halfpipe cmd/halfpipe.go
@@ -34,8 +34,8 @@ update-actions:
 fix-e2e:
 	for f in ./.e2e/*/*actual*.yml; do cp "$$f" "$${f/actual/expected}"; done
 
-e2e-coverage:
-	HALFPIPE_ENABLE_COVERAGE_TESTS=true go test $(GO_OPTS) -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out -run TestE2EForCoverage ./cmd/cmds/
+coverage:
+	@HALFPIPE_ENABLE_COVERAGE_TESTS=true go test $(GO_OPTS) -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out ./... > /dev/null
 	@go tool cover -func=/tmp/halfpipe-coverage.out | grep -v '^total:' | awk '\
 	BEGIN { FS="\t" } \
 	{ \
@@ -49,4 +49,4 @@ e2e-coverage:
 	} \
 	END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
 
-.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e e2e-coverage
+.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e coverage
