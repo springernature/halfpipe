@@ -39,7 +39,7 @@ export HALFPIPE_BRANCH
 export -f runTest
 
 if command -v parallel > /dev/null; then
-  ls -d "${E2E_DIR}"/*/  | parallel -j16 runTest
+  ls -d "${E2E_DIR}"/*/  | parallel -k -j16 runTest
 else
   ls -d "${E2E_DIR}"/*/ | xargs -I{} -P1 bash -c 'runTest "$@"' _ {}
 fi

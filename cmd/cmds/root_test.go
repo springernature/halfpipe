@@ -12,10 +12,10 @@ func findE2EPaths() []string {
 	startingDir, _ := os.Getwd()
 
 	var e2eTestPaths []string
-	filepath.Walk("../../e2e/", func(filePath string, info os.FileInfo, err error) error {
+	filepath.Walk("../../.e2e/", func(filePath string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			fullPath := path.Join(startingDir, filePath)
-			if _, err := os.Stat(path.Join(fullPath, ".halfpipe.io")); err == nil {
+			if _, err := os.Stat(path.Join(fullPath, ".halfpipe.io.yml")); err == nil {
 				if _, err := os.Stat(path.Join(fullPath, "test.sh")); err != nil {
 					e2eTestPaths = append(e2eTestPaths, fullPath)
 				}
@@ -34,12 +34,19 @@ func TestE2EForCoverage(t *testing.T) {
 	}
 	defer quiet()()
 	t.Setenv("HALFPIPE_BRANCH", "main")
-	for _, testPath := range findE2EPaths() {
-		t.Run(testPath, func(t *testing.T) {
-			output = os.DevNull
-			os.Chdir(testPath)
-			rootCmd.Run(nil, []string{})
-			output = ""
+	defer func() { Platform = "" }()
+
+	for _, platform := range []string{"concourse", "actions"} {
+		Platform = platform
+		t.Run(platform, func(t *testing.T) {
+			for _, testPath := range findE2EPaths() {
+				t.Run(testPath, func(t *testing.T) {
+					output = os.DevNull
+					os.Chdir(testPath)
+					rootCmd.Run(nil, []string{})
+					output = ""
+				})
+			}
 		})
 	}
 }
