@@ -36,6 +36,17 @@ fix-e2e:
 
 e2e-coverage:
 	HALFPIPE_ENABLE_COVERAGE_TESTS=true go test $(GO_OPTS) -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out -run TestE2EForCoverage ./cmd/cmds/
-	go tool cover -func=/tmp/halfpipe-coverage.out
+	@go tool cover -func=/tmp/halfpipe-coverage.out | grep -v '^total:' | awk '\
+	BEGIN { FS="\t" } \
+	{ \
+	  split($$1, a, ":"); path = a[1]; \
+	  sub(/^github\.com\/springernature\/halfpipe\//, "", path); \
+	  n = split(path, parts, "/"); \
+	  pkg = ""; for (i=1; i<n; i++) pkg = pkg (i>1 ? "/" : "") parts[i]; \
+	  if (pkg == "") pkg = "."; \
+	  pct = $$NF; sub(/%$$/, "", pct); \
+	  sum[pkg] += pct; count[pkg]++; \
+	} \
+	END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
 
 .PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e e2e-coverage
