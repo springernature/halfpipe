@@ -19,13 +19,13 @@ runTest() {
   if [[ -f actions.expected.yml ]]; then
     "${HALFPIPE}" -q -p actions -o actions.actual.yml
     echo "  Actions"
-    diff --ignore-blank-lines actions.actual.yml actions.expected.yml && echo -e "\e[A✓"
+    diff --ignore-blank-lines actions.actual.yml actions.expected.yml
   fi
 
   if [[ -f concourse.expected.yml ]]; then
     "${HALFPIPE}" -q -p concourse -o concourse.actual.yml
     echo "  Concourse"
-    diff --ignore-blank-lines concourse.actual.yml concourse.expected.yml && echo -e "\e[A✓"
+    diff --ignore-blank-lines concourse.actual.yml concourse.expected.yml
     if command -v fly > /dev/null; then
       fly validate-pipeline -c concourse.actual.yml &> /dev/null
     fi
