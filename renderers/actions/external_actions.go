@@ -34,7 +34,7 @@ var ExternalActions = struct {
 	DownloadArtifact:   ExternalAction{Ref: "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", Version: "v8.0.1"},
 	RepositoryDispatch: ExternalAction{Ref: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", Version: "v4.0.1"},
 	Slack:              ExternalAction{Ref: "slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95", Version: "v3.0.1"},
-	Teams:              ExternalAction{Ref: "jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc", Version: "v1.4"},
+	Teams:              ExternalAction{Ref: "springernature/ee-action-ms-teams@v1"},
 	UploadArtifact:     ExternalAction{Ref: "actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f", Version: "v7.0.0"},
 	Vault:              ExternalAction{Ref: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", Version: "v3.4.0"},
 }

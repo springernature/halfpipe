@@ -157,23 +157,6 @@ jobs:
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
-    - name: 'Notify slack #ee-re (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#ee-re"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
   deploy_to_katee_different_team:
     name: deploy to katee different team
     needs:
@@ -219,20 +202,3 @@ jobs:
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
-    - name: 'Notify slack #ee-re (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#ee-re"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed

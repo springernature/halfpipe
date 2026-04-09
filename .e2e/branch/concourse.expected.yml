@@ -3,27 +3,6 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: with vars and secrets
-  on_failure:
-    attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - no_get: true
-        params:
-          channel: '#test'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
-          title: ❌ Concourse pipeline failed
-          webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        put: teams
-    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -103,27 +82,6 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: private registry
-  on_failure:
-    attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - no_get: true
-        params:
-          channel: '#test'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
-          title: ❌ Concourse pipeline failed
-          webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        put: teams
-    timeout: 15m
   plan:
   - attempts: 2
     get: git
@@ -195,23 +153,6 @@ jobs:
     task: private-registry
     timeout: 1h
   serial: true
-resource_types:
-- check_every: 24h0m0s
-  name: halfpipe-slack-resource
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-slack-resource
-    tag: latest
-    username: _json_key
-  type: registry-image
-- check_every: 24h0m0s
-  name: halfpipe-teams-resource
-  source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-teams-resource
-    tag: latest
-    username: _json_key
-  type: registry-image
 resources:
 - check_every: 10m0s
   name: git
@@ -222,12 +163,3 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
-- check_every: 24h0m0s
-  name: slack
-  source:
-    token: ((halfpipe-slack.token))
-  type: halfpipe-slack-resource
-- check_every: 24h0m0s
-  name: teams
-  source: null
-  type: halfpipe-teams-resource

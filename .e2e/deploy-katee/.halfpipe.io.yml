@@ -23,9 +23,6 @@ tasks:
     github_environment:
       name: prod
       url: https://prod.url
-    notifications:
-      on_failure:
-        - "#ee-re"
     vars:
       ENV1: 1234
       ENV2: ((secret.something))
@@ -41,9 +38,6 @@ tasks:
     check_interval: 3
     max_checks: 4
     vela_manifest: custom-vela-path.yaml
-    notifications:
-      on_failure:
-        - "#ee-re"
     vars:
       ENV1: 1234
       ENV2: ((secret.something))

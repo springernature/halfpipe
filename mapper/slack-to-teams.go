@@ -1,13 +1,11 @@
 package mapper
 
 import (
-	"fmt"
 	"slices"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
-
-const teamsWebhookURLTemplate = "https://platform-api.ee.springernature.io/api/v1/message?team=%s"
 
 type slackToTeamsMapper struct{}
 
@@ -16,7 +14,7 @@ func NewSlackToTeamsMapper() Mapper {
 }
 
 func (s slackToTeamsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
-	webhookURL := fmt.Sprintf(teamsWebhookURLTemplate, man.Team)
+	webhookURL := config.PlatformAPIMessageURL + "?team=" + man.Team
 
 	man.Tasks = convertTasks(man.Tasks, webhookURL)
 

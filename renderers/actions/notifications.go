@@ -2,8 +2,10 @@ package actions
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -62,31 +64,44 @@ text: "%s"`, channel, strings.ReplaceAll(msg, `"`, `\"`)),
 func notifyTeams(webhook string, msg string, success bool, idx int, count int) Step {
 
 	var name string
-	var color string
+	var style string
 
 	if success {
 		name = "Notify teams (success)"
-		color = "28a745"
+		style = "good"
 		if msg == "" {
 			msg = "✅ GitHub Actions workflow passed"
 		}
 	} else {
 		name = "Notify teams (failure)"
-		color = "dc3545"
+		style = "attention"
 		if msg == "" {
 			msg = "❌ GitHub Actions workflow failed"
 		}
 	}
 
+	with := With{
+		"style":   style,
+		"summary": msg,
+	}
+
+	// Parse platform API URLs to use native action inputs
+	if parsed, err := url.Parse(webhook); err == nil && strings.HasPrefix(webhook, config.PlatformAPIMessageURL) {
+		if team := parsed.Query().Get("team"); team != "" {
+			with["platform-team"] = team
+		} else if channelID := parsed.Query().Get("channelID"); channelID != "" {
+			with["channel-id"] = channelID
+		} else {
+			with["webhook-url"] = webhook
+		}
+	} else {
+		with["webhook-url"] = webhook
+	}
+
 	step := Step{
 		Name: name,
 		Uses: ExternalActions.Teams.Ref,
-		With: With{
-			"github-token":         "${{ github.token }}",
-			"ms-teams-webhook-uri": webhook,
-			"notification-color":   color,
-			"notification-summary": msg,
-		},
+		With: with,
 	}
 
 	if !success {

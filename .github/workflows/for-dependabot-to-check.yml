@@ -60,12 +60,11 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
   run__exit_1__1_:
     name: run \exit 1 (1)
     needs:
@@ -109,12 +108,11 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
   deploy-cf:
     name: deploy-cf
     needs:
@@ -177,12 +175,11 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
   docker-push:
     name: docker-push
     needs:
@@ -238,12 +235,11 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
   docker-compose:
     name: docker-compose
     needs:
@@ -298,9 +294,8 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed

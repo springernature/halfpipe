@@ -1,21 +1,21 @@
 package mapper
 
 import (
-	"fmt"
 	"testing"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
 
 var (
-	slackTeam       = "my-team"
-	slackWebhookURL = fmt.Sprintf(teamsWebhookURLTemplate, slackTeam)
+	team            = "my-team"
+	slackWebhookURL = config.PlatformAPIMessageURL + "?team=" + team
 )
 
 func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 	input := manifest.Manifest{
-		Team: slackTeam,
+		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
 				Notifications: manifest.Notifications{
@@ -31,7 +31,7 @@ func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 	}
 
 	expected := manifest.Manifest{
-		Team: slackTeam,
+		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
 				Notifications: manifest.Notifications{
@@ -55,7 +55,7 @@ func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 
 func TestSlackToTeamsMapper_RecursesIntoContainerTasks(t *testing.T) {
 	input := manifest.Manifest{
-		Team: slackTeam,
+		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Sequence{
 				Tasks: manifest.TaskList{
@@ -88,7 +88,7 @@ func TestSlackToTeamsMapper_DoesNotOverwriteExistingTeamsURL(t *testing.T) {
 	existingURL := "https://custom-webhook.example.com/my-hook"
 
 	input := manifest.Manifest{
-		Team: slackTeam,
+		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
 				Notifications: manifest.Notifications{
@@ -111,7 +111,7 @@ func TestSlackToTeamsMapper_DoesNotOverwriteExistingTeamsURL(t *testing.T) {
 func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 	t.Run("multiple slack channels produce only one teams entry", func(t *testing.T) {
 		input := manifest.Manifest{
-			Team: slackTeam,
+			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
 					Notifications: manifest.Notifications{
@@ -136,7 +136,7 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 
 	t.Run("existing teams url blocks adding a new one", func(t *testing.T) {
 		input := manifest.Manifest{
-			Team: slackTeam,
+			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
 					Notifications: manifest.Notifications{
@@ -156,7 +156,7 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 
 	t.Run("failure and success deduplicate independently", func(t *testing.T) {
 		input := manifest.Manifest{
-			Team: slackTeam,
+			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
 					Notifications: manifest.Notifications{

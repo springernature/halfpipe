@@ -71,23 +71,6 @@ jobs:
         SECRET1: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cool }}
         SECRET2: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_something_cooler }}
         SHARED_SECRET: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-slack_token }}
-    - name: 'Notify slack #test (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#test"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
   privileged_and_build_history:
     name: privileged and build_history
     needs:
@@ -113,23 +96,6 @@ jobs:
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: 'Notify slack #test (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#test"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
   private_registry:
     name: private registry
     needs:
@@ -161,20 +127,3 @@ jobs:
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: 'Notify slack #test (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#test"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
-      with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed

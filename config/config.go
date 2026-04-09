@@ -86,3 +86,5 @@ const ArtifactsJSONKey = "((halfpipe-artifacts.private_key))"
 const SlackToken = "((halfpipe-slack.token))"
 
 const GithubToken = "((halfpipe-github.statuses-token))"
+
+const PlatformAPIMessageURL = "https://platform-api.ee.springernature.io/api/v1/message"

@@ -71,20 +71,18 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
+        webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
     - name: Notify teams (failure) (2)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #yo (success)'
       uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
@@ -94,19 +92,17 @@ jobs:
           text: "✅ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (success) (1)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-        notification-color: 28a745
-        notification-summary: ✅ GitHub Actions workflow passed
+        style: good
+        summary: ✅ GitHub Actions workflow passed
+        webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
     - name: Notify teams (success) (2)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: 28a745
-        notification-summary: ✅ GitHub Actions workflow passed
+        platform-team: halfpipe-team
+        style: good
+        summary: ✅ GitHub Actions workflow passed
   task2:
     name: task2
     needs:
@@ -152,12 +148,11 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
     - name: Notify slack asdf (success)
       uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
@@ -175,12 +170,11 @@ jobs:
           text: "Wiiiie! \o/"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (success)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: 28a745
-        notification-summary: ✅ GitHub Actions workflow passed
+        platform-team: halfpipe-team
+        style: good
+        summary: ✅ GitHub Actions workflow passed
   deploy_to_staging:
     name: deploy to staging
     needs:
@@ -310,20 +304,18 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
+        webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
     - name: Notify teams (failure) (2)
       if: failure()
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: dc3545
-        notification-summary: ❌ GitHub Actions workflow failed
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #yo (success)'
       uses: slackapi/slack-github-action@af78098f536edbc4de71162a307590698245be95 # v3.0.1
       with:
@@ -333,16 +325,14 @@ jobs:
           text: "✅ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (success) (1)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-        notification-color: 28a745
-        notification-summary: ✅ GitHub Actions workflow passed
+        style: good
+        summary: ✅ GitHub Actions workflow passed
+        webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
     - name: Notify teams (success) (2)
-      uses: jdcargile/ms-teams-notification@28e5ca976c053d54e2b852f3f38da312f35a24fc # v1.4
+      uses: springernature/ee-action-ms-teams@v1
       with:
-        github-token: ${{ github.token }}
-        ms-teams-webhook-uri: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        notification-color: 28a745
-        notification-summary: ✅ GitHub Actions workflow passed
+        platform-team: halfpipe-team
+        style: good
+        summary: ✅ GitHub Actions workflow passed
