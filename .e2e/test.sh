@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
 
 E2E_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HALFPIPE="$(cd "${E2E_DIR}/.." && pwd)/halfpipe"
 HALFPIPE_BRANCH=main
 
 runTest() {
+  set -e
   dir=${1%*/}
   echo "* Running ${dir##*/}"
 
@@ -39,7 +40,9 @@ export HALFPIPE_BRANCH
 export -f runTest
 
 if command -v parallel > /dev/null; then
-  ls -d "${E2E_DIR}"/*/  | parallel -k -j16 runTest
+  ls -d "${E2E_DIR}"/*/ | parallel -k -j16 runTest
+  exit $?
 else
   ls -d "${E2E_DIR}"/*/ | xargs -I{} -P1 bash -c 'runTest "$@"' _ {}
+  exit $?
 fi
