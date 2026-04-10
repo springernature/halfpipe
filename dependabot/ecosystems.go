@@ -12,7 +12,7 @@ type ecosystemConfig struct {
 
 // registryDefinitions defines the private registries that dependabot should use.
 var registryDefinitions = map[string]Registry{
-	"sn-artifactory": {
+	"ee-artifactory": {
 		Type:     "maven-repository",
 		URL:      "https://springernature.jfrog.io/artifactory/libs-release/",
 		Username: "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
@@ -39,9 +39,9 @@ var ecosystems = map[string]ecosystemConfig{
 	"elm":            {files: []string{"elm.json"}, versioningStrategy: "increase", groups: semverGroups},
 	"github-actions": {directories: []string{"/"}}, // detected via .github/workflows prefix, not by filename
 	"gomod":          {files: []string{"go.mod"}, groups: semverGroups},
-	"gradle":         {files: []string{"build.gradle", "build.gradle.kt"}, groups: semverGroups, registries: []string{"sn-artifactory"}},
+	"gradle":         {files: []string{"build.gradle", "build.gradle.kt"}, groups: semverGroups, registries: []string{"ee-artifactory"}},
 	"helm":           {files: []string{"Chart.yaml"}},
-	"maven":          {files: []string{"pom.xml"}, groups: semverGroups, registries: []string{"sn-artifactory"}},
+	"maven":          {files: []string{"pom.xml"}, groups: semverGroups, registries: []string{"ee-artifactory"}},
 	"mix":            {files: []string{"mix.lock"}, versioningStrategy: "increase", groups: semverGroups},
 	"npm":            {files: []string{"package-lock.json", "yarn.lock"}, versioningStrategy: "increase", groups: semverGroups},
 	"nuget":          {files: []string{"packages.config"}, groups: semverGroups},

@@ -31,13 +31,15 @@ type Groups map[string]Group
 // Dependency represents a single dependabot update entry.
 // Field order matters for YAML output - fields are serialized in struct definition order.
 type Dependency struct {
-	PackageEcosystem   string   `yaml:"package-ecosystem"`
-	Directories        []string `yaml:"directories"`
-	Schedule           Schedule `yaml:"schedule"`
-	Cooldown           Cooldown `yaml:"cooldown"`
-	VersioningStrategy string   `yaml:"versioning-strategy,omitempty"`
-	Groups             Groups   `yaml:"groups,omitempty"`
-	Registries         []string `yaml:"registries,omitempty"`
+	PackageEcosystem      string   `yaml:"package-ecosystem"`
+	Directories           []string `yaml:"directories"`
+	Schedule              Schedule `yaml:"schedule"`
+	Cooldown              Cooldown `yaml:"cooldown"`
+	OpenPullRequestsLimit int      `yaml:"open-pull-requests-limit"`
+	Labels                []string `yaml:"labels"`
+	VersioningStrategy    string   `yaml:"versioning-strategy,omitempty"`
+	Groups                Groups   `yaml:"groups,omitempty"`
+	Registries            []string `yaml:"registries,omitempty"`
 }
 
 type MatchedPaths map[string]string

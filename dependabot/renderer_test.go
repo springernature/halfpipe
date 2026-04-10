@@ -25,9 +25,9 @@ func TestRender(t *testing.T) {
 		assert.Equal(t, Config{
 			Version: 2,
 			Updates: []Dependency{
-				{PackageEcosystem: "docker", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown},
-				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown},
-				{PackageEcosystem: "npm", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, VersioningStrategy: "increase", Groups: semverGroups},
+				{PackageEcosystem: "docker", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}},
+				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}},
+				{PackageEcosystem: "npm", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, VersioningStrategy: "increase", Groups: semverGroups},
 			},
 		}, config)
 	})
@@ -53,11 +53,11 @@ func TestRender(t *testing.T) {
 
 		maven := config.Updates[1]
 		assert.Equal(t, "maven", maven.PackageEcosystem)
-		assert.Equal(t, []string{"sn-artifactory"}, maven.Registries)
+		assert.Equal(t, []string{"ee-artifactory"}, maven.Registries)
 
 		// top-level registries block is populated
 		assert.Equal(t, map[string]Registry{
-			"sn-artifactory": registryDefinitions["sn-artifactory"],
+			"ee-artifactory": registryDefinitions["ee-artifactory"],
 		}, config.Registries)
 	})
 

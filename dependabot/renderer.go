@@ -26,13 +26,15 @@ func Render(matchedPaths MatchedPaths) Config {
 			dirs = defaultDirectories
 		}
 		updates = append(updates, Dependency{
-			PackageEcosystem:   name,
-			Directories:        dirs,
-			Schedule:           Schedule{Interval: "weekly"},
-			Cooldown:           Cooldown{DefaultDays: 5},
-			VersioningStrategy: cfg.versioningStrategy,
-			Groups:             cfg.groups,
-			Registries:         cfg.registries,
+			PackageEcosystem:      name,
+			Directories:           dirs,
+			Schedule:              Schedule{Interval: "weekly"},
+			Cooldown:              Cooldown{DefaultDays: 5},
+			OpenPullRequestsLimit: 10,
+			Labels:                []string{"dependencies", name},
+			VersioningStrategy:    cfg.versioningStrategy,
+			Groups:                cfg.groups,
+			Registries:            cfg.registries,
 		})
 		for _, r := range cfg.registries {
 			usedRegistries[r] = true

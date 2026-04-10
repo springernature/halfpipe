@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
 version: 2
 registries:
-  sn-artifactory:
+  ee-artifactory:
     type: maven-repository
     url: https://springernature.jfrog.io/artifactory/libs-release/
     username: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
@@ -14,6 +14,10 @@ updates:
     interval: weekly
   cooldown:
     default-days: 5
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - docker
 - package-ecosystem: docker-compose
   directories:
   - /**
@@ -21,6 +25,10 @@ updates:
     interval: weekly
   cooldown:
     default-days: 5
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - docker-compose
 - package-ecosystem: github-actions
   directories:
   - /
@@ -28,6 +36,10 @@ updates:
     interval: weekly
   cooldown:
     default-days: 5
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - github-actions
 - package-ecosystem: gomod
   directories:
   - /**
@@ -35,6 +47,10 @@ updates:
     interval: weekly
   cooldown:
     default-days: 5
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - gomod
   groups:
     minor-and-patch:
       update-types:
@@ -47,10 +63,14 @@ updates:
     interval: weekly
   cooldown:
     default-days: 5
+  open-pull-requests-limit: 10
+  labels:
+  - dependencies
+  - gradle
   groups:
     minor-and-patch:
       update-types:
       - minor
       - patch
   registries:
-  - sn-artifactory
+  - ee-artifactory
