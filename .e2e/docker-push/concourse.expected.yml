@@ -682,7 +682,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-docker-push
-        JSON_KEY: ((halfpipe-artifacts.private_key))
+        TOKEN: ((gcp:platform-artifacts/token.token))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -1643,5 +1643,15 @@ resources:
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: halfpipe-team/halfpipe-e2e-docker-push
-    json_key: ((halfpipe-artifacts.private_key))
+    token: ((gcp:platform-artifacts/token.token))
   type: gcp-resource
+var_sources:
+- config:
+    auth_backend: approle
+    auth_params:
+      role_id: ((platform/team-ro-app-role.vault_approle_id))
+      secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
+    path_prefix: gcp/impersonated-account/
+    url: ((platform/team-ro-app-role.vault_addr))
+  name: gcp
+  type: vault
