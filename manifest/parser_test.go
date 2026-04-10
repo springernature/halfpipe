@@ -22,9 +22,6 @@ pipeline: my pipeline
 slack_channel: "#ee-activity"
 slack_success_message: "success"
 slack_failure_message: "failure"
-artifact_config:
-  bucket: myBucket
-  json_key: ((some.jsonKey))
 triggers:
 - type: git
   uri: git@github.com:..
@@ -193,12 +190,8 @@ tasks:
 `)
 
 	expected := Manifest{
-		Team:     "my team",
-		Pipeline: "my pipeline",
-		ArtifactConfig: ArtifactConfig{
-			Bucket:  "myBucket",
-			JSONKey: "((some.jsonKey))",
-		},
+		Team:                "my team",
+		Pipeline:            "my pipeline",
 		SlackChannel:        "#ee-activity",
 		SlackSuccessMessage: "success",
 		SlackFailureMessage: "failure",

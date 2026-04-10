@@ -469,18 +469,6 @@ func TestBadKeys(t *testing.T) {
 	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1].pre_promote[0].vars[SuperSecret]"))
 }
 
-func TestArtifactConfig(t *testing.T) {
-	man := manifest.Manifest{
-		ArtifactConfig: manifest.ArtifactConfig{
-			Bucket:  "((superSecret.bucket))",
-			JSONKey: "((superSecret.JSONKey))",
-		},
-	}
-
-	errs := secretValidator.Validate(man)
-	assert.Len(t, errs, 0)
-}
-
 func TestBadKeysInParallel(t *testing.T) {
 	bad := manifest.Manifest{
 		Tasks: manifest.TaskList{

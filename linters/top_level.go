@@ -30,11 +30,6 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		result.Add(NewErrInvalidField("pipeline", "must not contains spaces!"))
 	}
 
-	if (manifest.ArtifactConfig.Bucket != "" && manifest.ArtifactConfig.JSONKey == "") ||
-		(manifest.ArtifactConfig.Bucket == "" && manifest.ArtifactConfig.JSONKey != "") {
-		result.Add(NewErrInvalidField("artifact_config", "both 'bucket' and 'json_key' must be specified!"))
-	}
-
 	if !(manifest.Platform == "actions" || manifest.Platform == "concourse") {
 		result.Add(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
 	}

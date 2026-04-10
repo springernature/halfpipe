@@ -130,24 +130,14 @@ func (c Concourse) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 		return reg.ReplaceAllString(strings.ToLower(str), "")
 	}
 
-	bucket := config.ArtifactsBucket
-	jsonKey := config.ArtifactsJSONKey
-
-	if man.ArtifactConfig.Bucket != "" {
-		bucket = man.ArtifactConfig.Bucket
-	}
-	if man.ArtifactConfig.JSONKey != "" {
-		jsonKey = man.ArtifactConfig.JSONKey
-	}
-
 	return atc.ResourceConfig{
 		Name:       artifactsName,
 		Type:       artifactsResourceName,
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"bucket":   bucket,
+			"bucket":   config.ArtifactsBucket,
 			"folder":   path.Join(filter(man.Team), filter(man.PipelineName())),
-			"json_key": jsonKey,
+			"json_key": config.ArtifactsJSONKey,
 		},
 	}
 }

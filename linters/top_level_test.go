@@ -46,38 +46,10 @@ func TestHappyPath(t *testing.T) {
 		Team:     "yolo",
 		Pipeline: "alles-gut",
 		Platform: "actions",
-		ArtifactConfig: manifest.ArtifactConfig{
-			Bucket:  "someBucket",
-			JSONKey: "someKey",
-		},
 	}
 
 	result := topLevelLinter{}.Lint(man)
 	assert.False(t, result.HasErrors())
-}
-
-func TestMissingFieldInArtifactConfig(t *testing.T) {
-	missingJSONKey := manifest.Manifest{
-		Team:     "team",
-		Pipeline: "pipeline",
-		ArtifactConfig: manifest.ArtifactConfig{
-			Bucket: "notEmpty",
-		},
-	}
-
-	result := topLevelLinter{}.Lint(missingJSONKey)
-	assertContainsError(t, result.Issues, ErrInvalidField.WithValue("artifact_config"))
-
-	missingBucket := manifest.Manifest{
-		Team:     "team",
-		Pipeline: "pipeline",
-		ArtifactConfig: manifest.ArtifactConfig{
-			JSONKey: "notEmpty",
-		},
-	}
-
-	result2 := topLevelLinter{}.Lint(missingBucket)
-	assertContainsError(t, result2.Issues, ErrInvalidField.WithValue("artifact_config"))
 }
 
 func TestOutput(t *testing.T) {

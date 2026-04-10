@@ -76,16 +76,6 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 		return reg.ReplaceAllString(strings.ToLower(str), "")
 	}
 
-	jsonKey := config.ArtifactsJSONKey
-	if man.ArtifactConfig.JSONKey != "" {
-		jsonKey = man.ArtifactConfig.JSONKey
-	}
-
-	BUCKET := config.ArtifactsBucket
-	if man.ArtifactConfig.Bucket != "" {
-		BUCKET = man.ArtifactConfig.Bucket
-	}
-
 	taskStep := &atc.TaskStep{
 		Name: "get-artifact",
 		Config: &atc.TaskConfig{
@@ -101,9 +91,9 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 				},
 			},
 			Params: map[string]string{
-				"BUCKET":       BUCKET,
+				"BUCKET":       config.ArtifactsBucket,
 				"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
-				"JSON_KEY":     jsonKey,
+				"JSON_KEY":     config.ArtifactsJSONKey,
 				"VERSION_FILE": "git/.git/ref",
 			},
 			Run: atc.TaskRunConfig{
