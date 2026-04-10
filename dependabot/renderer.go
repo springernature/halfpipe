@@ -1,44 +1,37 @@
 package dependabot
 
 import (
-	"fmt"
-	"path/filepath"
 	"sort"
 )
 
-func renderPath(path string, ecosystem string) Dependency {
-	dir := filepath.Dir(path)
-	if dir == "." {
-		dir = "/"
-	}
-	if dir != "/" {
-		dir = fmt.Sprintf("/%s", dir)
-	}
-
-	return Dependency{
-		PackageEcosystem:   ecosystem,
-		Directory:          dir,
-		Schedule:           Schedule{Interval: "daily"},
-		Cooldown:           Cooldown{DefaultDays: 5},
-		VersioningStrategy: "increase",
-		Groups: Groups{
-			"minor-and-patch": Group{
-				UpdateTypes: []string{"minor", "patch"},
-			},
-		},
-	}
-}
+var defaultDirectories = []string{"/**"}
 
 func Render(matchedPaths MatchedPaths) Config {
-	paths := []string{}
-	for path := range matchedPaths {
-		paths = append(paths, path)
+	seen := map[string]bool{}
+	ecosystemNames := []string{}
+	for _, ecosystem := range matchedPaths {
+		if !seen[ecosystem] {
+			seen[ecosystem] = true
+			ecosystemNames = append(ecosystemNames, ecosystem)
+		}
 	}
-	sort.Strings(paths)
+	sort.Strings(ecosystemNames)
 
 	updates := []Dependency{}
-	for _, path := range paths {
-		updates = append(updates, renderPath(path, matchedPaths[path]))
+	for _, name := range ecosystemNames {
+		cfg := ecosystems[name]
+		dirs := cfg.directories
+		if dirs == nil {
+			dirs = defaultDirectories
+		}
+		updates = append(updates, Dependency{
+			PackageEcosystem:   name,
+			Directories:        dirs,
+			Schedule:           Schedule{Interval: "weekly"},
+			Cooldown:           Cooldown{DefaultDays: 5},
+			VersioningStrategy: cfg.versioningStrategy,
+			Groups:             cfg.groups,
+		})
 	}
 	return Config{
 		Version: 2,

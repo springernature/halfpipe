@@ -52,16 +52,6 @@ func (f filter) Filter(paths []string) MatchedPaths {
 func NewFilter(skipEcosystems []string) Filter {
 	return filter{
 		skipEcosystems: skipEcosystems,
-		supportedFiles: map[string]string{
-			"Dockerfile":        "docker",
-			"package-lock.json": "npm",
-			"yarn.lock":         "npm",
-			"Gemfile.lock":      "bundler",
-			"pom.xml":           "maven",
-			"build.gradle":      "gradle",
-			"build.gradle.kt":   "gradle",
-			"go.mod":            "gomod",
-			"Cargo.lock":        "cargo",
-		},
+		supportedFiles: supportedFiles(),
 	}
 }

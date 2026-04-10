@@ -1,0 +1,29 @@
+# yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
+version: 2
+updates:
+- package-ecosystem: docker
+  directories:
+  - /**
+  schedule:
+    interval: weekly
+  cooldown:
+    default-days: 5
+- package-ecosystem: github-actions
+  directories:
+  - /
+  schedule:
+    interval: weekly
+  cooldown:
+    default-days: 5
+- package-ecosystem: gomod
+  directories:
+  - /**
+  schedule:
+    interval: weekly
+  cooldown:
+    default-days: 5
+  groups:
+    minor-and-patch:
+      update-types:
+      - minor
+      - patch

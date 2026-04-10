@@ -23,11 +23,11 @@ type Groups map[string]Group
 // Field order matters for YAML output - fields are serialized in struct definition order.
 type Dependency struct {
 	PackageEcosystem   string   `yaml:"package-ecosystem"`
-	Directory          string   `yaml:"directory"`
+	Directories        []string `yaml:"directories"`
 	Schedule           Schedule `yaml:"schedule"`
 	Cooldown           Cooldown `yaml:"cooldown"`
-	VersioningStrategy string   `yaml:"versioning-strategy"`
-	Groups             Groups   `yaml:"groups"`
+	VersioningStrategy string   `yaml:"versioning-strategy,omitempty"`
+	Groups             Groups   `yaml:"groups,omitempty"`
 }
 
 type MatchedPaths map[string]string

@@ -6,5 +6,5 @@ fi
 
 "${HALFPIPE}" init > /dev/null
 
-echo "  Halfpipe"
+echo "Halfpipe"
 diff --ignore-blank-lines .halfpipe.io.yml .halfpipe.io.expected.yml
