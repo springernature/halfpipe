@@ -4,7 +4,7 @@ if [[ -f .halfpipe.io.yml ]]; then
     rm .halfpipe.io.yml
 fi
 
-../../halfpipe init > /dev/null
+"${HALFPIPE}" init > /dev/null
 
 echo "  Halfpipe"
-diff -w .halfpipe.io.yml .halfpipe.io.expected.yml
+diff --ignore-blank-lines .halfpipe.io.yml .halfpipe.io.expected.yml
