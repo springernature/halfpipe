@@ -41,6 +41,31 @@ func TestRender(t *testing.T) {
 		assert.Equal(t, []string{"docker", "gomod", "npm"}, ecosystemNames(config))
 	})
 
+	t.Run("Ecosystems with registries emit registry definitions and references", func(t *testing.T) {
+		config := Render(MatchedPaths{
+			"pom.xml": "maven",
+			"go.mod":  "gomod",
+		})
+		// gomod has no registry; maven references ee-artifactory
+		gomod := config.Updates[0]
+		assert.Equal(t, "gomod", gomod.PackageEcosystem)
+		assert.Nil(t, gomod.Registries)
+
+		maven := config.Updates[1]
+		assert.Equal(t, "maven", maven.PackageEcosystem)
+		assert.Equal(t, []string{"sn-artifactory"}, maven.Registries)
+
+		// top-level registries block is populated
+		assert.Equal(t, map[string]Registry{
+			"sn-artifactory": registryDefinitions["sn-artifactory"],
+		}, config.Registries)
+	})
+
+	t.Run("No registries block when no ecosystem needs one", func(t *testing.T) {
+		config := Render(MatchedPaths{"go.mod": "gomod"})
+		assert.Nil(t, config.Registries)
+	})
+
 	t.Run("github-actions gets directory / not /**", func(t *testing.T) {
 		config := Render(MatchedPaths{"/": "github-actions"})
 		assert.Equal(t, []string{"/"}, config.Updates[0].Directories)

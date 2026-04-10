@@ -1,7 +1,20 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
 version: 2
+registries:
+  sn-artifactory:
+    type: maven-repository
+    url: https://springernature.jfrog.io/artifactory/libs-release/
+    username: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+    password: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
 updates:
 - package-ecosystem: docker
+  directories:
+  - /**
+  schedule:
+    interval: weekly
+  cooldown:
+    default-days: 5
+- package-ecosystem: docker-compose
   directories:
   - /**
   schedule:
@@ -27,3 +40,17 @@ updates:
       update-types:
       - minor
       - patch
+- package-ecosystem: gradle
+  directories:
+  - /**
+  schedule:
+    interval: weekly
+  cooldown:
+    default-days: 5
+  groups:
+    minor-and-patch:
+      update-types:
+      - minor
+      - patch
+  registries:
+  - sn-artifactory

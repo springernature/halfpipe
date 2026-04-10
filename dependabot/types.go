@@ -1,8 +1,17 @@
 package dependabot
 
+type Registry struct {
+	Type     string `yaml:"type"`
+	URL      string `yaml:"url"`
+	Username string `yaml:"username,omitempty"`
+	Password string `yaml:"password,omitempty"`
+	Token    string `yaml:"token,omitempty"`
+}
+
 type Config struct {
-	Version int
-	Updates []Dependency
+	Version    int                 `yaml:"version"`
+	Registries map[string]Registry `yaml:"registries,omitempty"`
+	Updates    []Dependency        `yaml:"updates"`
 }
 
 type Schedule struct {
@@ -28,6 +37,7 @@ type Dependency struct {
 	Cooldown           Cooldown `yaml:"cooldown"`
 	VersioningStrategy string   `yaml:"versioning-strategy,omitempty"`
 	Groups             Groups   `yaml:"groups,omitempty"`
+	Registries         []string `yaml:"registries,omitempty"`
 }
 
 type MatchedPaths map[string]string
