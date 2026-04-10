@@ -107,7 +107,7 @@ func TestOnMaster(t *testing.T) {
 
 		expectedPlan := `halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
-fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml`
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
@@ -119,7 +119,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
 
 		expectedPlan := `halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
-fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml`
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
@@ -131,7 +131,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds`
 
 		expectedPlan := `halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
-fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-interactive`
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --non-interactive`
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
@@ -148,7 +148,7 @@ fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-i
 
 		expectedPlan := fmt.Sprintf(`halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c %s -n my-team
-fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --check-creds --non-interactive`, concourseEndpoint)
+fly -t my-team set-pipeline -p my-pipeline -c pipeline.yml --non-interactive`, concourseEndpoint)
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
@@ -171,7 +171,7 @@ func TestOnBranch(t *testing.T) {
 		expectedPlan := `# Security question
 halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
-fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-creds`
+fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml`
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
@@ -183,7 +183,7 @@ fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-cre
 
 		expectedPlan := `halfpipe > pipeline.yml
 fly -t my-team status || fly -t my-team login -c https://concourse.halfpipe.io -n my-team
-fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --check-creds --non-interactive`
+fly -t my-team set-pipeline -p my-pipeline-my-branch -c pipeline.yml --non-interactive`
 
 		assert.Nil(t, err)
 		assert.Equal(t, expectedPlan, planToString(plan))
