@@ -1,7 +1,7 @@
 # yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json
 version: 2
 registries:
-  ee-artifactory:
+  sn-artifactory:
     type: maven-repository
     url: https://springernature.jfrog.io/artifactory/libs-release/
     username: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
@@ -18,6 +18,9 @@ updates:
   labels:
   - dependencies
   - docker
+  commit-message:
+    prefix: chore
+    include: scope
 - package-ecosystem: docker-compose
   directories:
   - /**
@@ -29,6 +32,9 @@ updates:
   labels:
   - dependencies
   - docker-compose
+  commit-message:
+    prefix: chore
+    include: scope
 - package-ecosystem: github-actions
   directories:
   - /
@@ -40,6 +46,9 @@ updates:
   labels:
   - dependencies
   - github-actions
+  commit-message:
+    prefix: chore
+    include: scope
 - package-ecosystem: gomod
   directories:
   - /**
@@ -51,6 +60,9 @@ updates:
   labels:
   - dependencies
   - gomod
+  commit-message:
+    prefix: chore
+    include: scope
   groups:
     minor-and-patch:
       update-types:
@@ -67,10 +79,13 @@ updates:
   labels:
   - dependencies
   - gradle
+  commit-message:
+    prefix: chore
+    include: scope
   groups:
     minor-and-patch:
       update-types:
       - minor
       - patch
   registries:
-  - ee-artifactory
+  - sn-artifactory

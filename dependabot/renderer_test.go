@@ -15,6 +15,8 @@ func TestRender(t *testing.T) {
 		},
 	}
 
+	commitMessage := CommitMessage{Prefix: "chore", Include: "scope"}
+
 	t.Run("Emits one entry per ecosystem regardless of how many paths matched", func(t *testing.T) {
 		config := Render(MatchedPaths{
 			"Dockerfile":        "docker",
@@ -25,9 +27,9 @@ func TestRender(t *testing.T) {
 		assert.Equal(t, Config{
 			Version: 2,
 			Updates: []Dependency{
-				{PackageEcosystem: "docker", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}},
-				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}},
-				{PackageEcosystem: "npm", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, VersioningStrategy: "increase", Groups: semverGroups},
+				{PackageEcosystem: "docker", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}, CommitMessage: commitMessage},
+				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}, CommitMessage: commitMessage},
+				{PackageEcosystem: "npm", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, CommitMessage: commitMessage, VersioningStrategy: "increase", Groups: semverGroups},
 			},
 		}, config)
 	})
@@ -53,11 +55,11 @@ func TestRender(t *testing.T) {
 
 		maven := config.Updates[1]
 		assert.Equal(t, "maven", maven.PackageEcosystem)
-		assert.Equal(t, []string{"ee-artifactory"}, maven.Registries)
+		assert.Equal(t, []string{"sn-artifactory"}, maven.Registries)
 
 		// top-level registries block is populated
 		assert.Equal(t, map[string]Registry{
-			"ee-artifactory": registryDefinitions["ee-artifactory"],
+			"sn-artifactory": registryDefinitions["sn-artifactory"],
 		}, config.Registries)
 	})
 

@@ -32,6 +32,7 @@ func Render(matchedPaths MatchedPaths) Config {
 			Cooldown:              Cooldown{DefaultDays: 5},
 			OpenPullRequestsLimit: 10,
 			Labels:                []string{"dependencies", name},
+			CommitMessage:         CommitMessage{Prefix: "chore", Include: "scope"},
 			VersioningStrategy:    cfg.versioningStrategy,
 			Groups:                cfg.groups,
 			Registries:            cfg.registries,
