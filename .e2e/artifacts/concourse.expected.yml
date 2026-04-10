@@ -134,7 +134,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-artifacts
-        TOKEN: ((gcp:platform-artifacts/token.token))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -354,7 +354,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-artifacts
-        TOKEN: ((gcp:platform-artifacts/token.token))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -507,7 +507,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-artifacts
-        TOKEN: ((gcp:platform-artifacts/token.token))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -723,7 +723,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-artifacts
-        TOKEN: ((gcp:platform-artifacts/token.token))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -828,7 +828,7 @@ jobs:
       params:
         BUCKET: ((halfpipe-artifacts.bucket))
         FOLDER: halfpipe-team/halfpipe-e2e-artifacts
-        TOKEN: ((gcp:platform-artifacts/token.token))
+        JSON_KEY: ((halfpipe-artifacts.private_key))
         VERSION_FILE: git/.git/ref
       platform: linux
       run:
@@ -1042,14 +1042,14 @@ resources:
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: halfpipe-team/halfpipe-e2e-artifacts
-    token: ((gcp:platform-artifacts/token.token))
+    json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 - check_every: 24h0m0s
   name: artifacts-on-failure
   source:
     bucket: ((halfpipe-artifacts.bucket))
     folder: halfpipe-team/halfpipe-e2e-artifacts
-    token: ((gcp:platform-artifacts/token.token))
+    json_key: ((halfpipe-artifacts.private_key))
   type: gcp-resource
 - check_every: 24h0m0s
   name: cf-snpaas-pe-staging
@@ -1060,13 +1060,3 @@ resources:
     space: staging
     username: michiel
   type: cf-resource
-var_sources:
-- config:
-    auth_backend: approle
-    auth_params:
-      role_id: ((platform/team-ro-app-role.vault_approle_id))
-      secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
-    path_prefix: gcp/impersonated-account/
-    url: ((platform/team-ro-app-role.vault_addr))
-  name: gcp
-  type: vault
