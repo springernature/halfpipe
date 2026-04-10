@@ -93,7 +93,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 			Params: map[string]string{
 				"BUCKET":       config.ArtifactsBucket,
 				"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
-				"JSON_KEY":     config.ArtifactsJSONKey,
+				"TOKEN":        "((gcp:platform-artifacts/token.token))",
 				"VERSION_FILE": "git/.git/ref",
 			},
 			Run: atc.TaskRunConfig{
@@ -375,6 +375,7 @@ func (c Concourse) Render(man manifest.Manifest) (string, error) {
 }
 
 func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
+	cfg.VarSources = append(cfg.VarSources, c.varSources(man)...)
 	resourceTypes, resourceConfigs := c.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
@@ -459,6 +460,27 @@ func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man
 	})
 
 	return step
+}
+
+func (c Concourse) varSources(man manifest.Manifest) atc.VarSourceConfigs {
+	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {
+		return atc.VarSourceConfigs{
+			atc.VarSourceConfig{
+				Name: "gcp",
+				Type: "vault",
+				Config: map[string]any{
+					"url":          "((platform/team-ro-app-role.vault_addr))",
+					"auth_backend": "approle",
+					"path_prefix":  "gcp/impersonated-account/",
+					"auth_params": map[string]string{
+						"role_id":   "((platform/team-ro-app-role.vault_approle_id))",
+						"secret_id": "((platform/team-ro-app-role.vault_approle_secret_id))",
+					},
+				},
+			},
+		}
+	}
+	return atc.VarSourceConfigs{}
 }
 
 func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {

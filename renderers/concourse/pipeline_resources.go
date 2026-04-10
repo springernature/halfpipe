@@ -135,9 +135,9 @@ func (c Concourse) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 		Type:       artifactsResourceName,
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"bucket":   config.ArtifactsBucket,
-			"folder":   path.Join(filter(man.Team), filter(man.PipelineName())),
-			"json_key": config.ArtifactsJSONKey,
+			"bucket": config.ArtifactsBucket,
+			"folder": path.Join(filter(man.Team), filter(man.PipelineName())),
+			"token":  "((gcp:platform-artifacts/token.token))",
 		},
 	}
 }
