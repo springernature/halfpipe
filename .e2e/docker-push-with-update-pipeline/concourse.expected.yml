@@ -493,8 +493,8 @@ jobs:
         name: ""
         source:
           password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/gcp-resource
-          tag: stable
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
+          tag: latest
           username: _json_key
         type: registry-image
       inputs:
@@ -707,8 +707,8 @@ jobs:
         name: ""
         source:
           password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/gcp-resource
-          tag: stable
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
+          tag: latest
           username: _json_key
         type: registry-image
       inputs:
@@ -904,8 +904,8 @@ resource_types:
   name: gcp-resource
   source:
     password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/gcp-resource
-    tag: stable
+    repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
+    tag: latest
     username: _json_key
   type: registry-image
 resources:
