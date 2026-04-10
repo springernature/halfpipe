@@ -290,7 +290,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 			ImageResource: &atc.ImageResource{
 				Type: "registry-image",
 				Source: atc.Source{
-					"repository": config.DockerRegistry + "halfpipe-buildx",
+					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
 					"tag":        "latest",
 					"password":   "((halfpipe-gcr.private_key))",
 					"username":   "_json_key",
@@ -336,7 +336,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 			ImageResource: &atc.ImageResource{
 				Type: "registry-image",
 				Source: atc.Source{
-					"repository": config.DockerRegistry + "halfpipe-buildx",
+					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
 					"tag":        "latest",
 					"password":   "((halfpipe-gcr.private_key))",
 					"username":   "_json_key",

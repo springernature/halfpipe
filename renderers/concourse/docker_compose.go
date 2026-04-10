@@ -21,7 +21,7 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 		Name:    task.GetName(),
 		Script:  dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
 		Docker: manifest.Docker{
-			Image:    config.DockerRegistry + config.DockerComposeImage,
+			Image:    config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

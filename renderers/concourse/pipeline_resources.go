@@ -66,7 +66,7 @@ func (c Concourse) slackResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "halfpipe-slack-resource",
+			"repository": path.Join(config.DockerRegistry, "halfpipe-slack-resource"),
 			"tag":        "latest",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
@@ -94,7 +94,7 @@ func (c Concourse) teamsResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "halfpipe-teams-resource",
+			"repository": path.Join(config.DockerRegistry, "halfpipe-teams-resource"),
 			"tag":        "latest",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
@@ -116,7 +116,7 @@ func (c Concourse) gcpResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "gcp-resource",
+			"repository": path.Join(config.DockerRegistry, "gcp-resource"),
 			"tag":        "stable",
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
@@ -180,7 +180,7 @@ func cronResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + cronResourceTypeName,
+			"repository": path.Join(config.DockerRegistry, cronResourceTypeName),
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 			"tag":        "stable",
@@ -194,7 +194,7 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "halfpipe-pipeline-trigger-resource",
+			"repository": path.Join(config.DockerRegistry, "halfpipe-pipeline-trigger-resource"),
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},
@@ -205,7 +205,7 @@ const deployCfResourceTypeName = "cf-resource"
 
 func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 	image := strings.Join([]string{deployCfResourceTypeName, "v2"}, "-")
-	fullPath := path.Join(config.DockerRegistry + image)
+	fullPath := path.Join(config.DockerRegistry, image)
 	return atc.ResourceType{
 		Name:       deployCfResourceTypeName,
 		Type:       "registry-image",
@@ -328,7 +328,7 @@ func (c Concourse) githubStatusesResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": config.DockerRegistry + "engineering-enablement/github-status-resource",
+			"repository": path.Join(config.DockerRegistry, "engineering-enablement/github-status-resource"),
 			"password":   "((halfpipe-gcr.private_key))",
 			"username":   "_json_key",
 		},

@@ -45,7 +45,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 		Name:    task.Name,
 		Script:  script,
 		Docker: manifest.Docker{
-			Image:    config.DockerRegistry + config.DockerComposeImage,
+			Image:    config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

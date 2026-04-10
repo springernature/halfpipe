@@ -4,6 +4,7 @@ import (
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
+	"path"
 	"testing"
 )
 
@@ -25,14 +26,14 @@ func TestRunTaskDockerDefault(t *testing.T) {
 		task := manifest.Run{
 			Script: "./blah",
 			Docker: manifest.Docker{
-				Image: config.DockerRegistry + "runImage",
+				Image: path.Join(config.DockerRegistry, "runImage"),
 			},
 		}
 
 		expectedTask := manifest.Run{
 			Script: "./blah",
 			Docker: manifest.Docker{
-				Image:    config.DockerRegistry + "runImage",
+				Image:    path.Join(config.DockerRegistry, "runImage"),
 				Username: Concourse.Docker.Username,
 				Password: Concourse.Docker.Password,
 			},

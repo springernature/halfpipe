@@ -3,6 +3,7 @@ package config
 import (
 	"github.com/blang/semver"
 	"os"
+	"path"
 )
 
 // These fields will be populated in build
@@ -19,9 +20,9 @@ var (
 
 	GithubOrg = getEnv("HALFPIPE_GITHUB_ORG", "springernature")
 
-	DockerRegistry = "eu.gcr.io/" + Project + "/"
+	DockerRegistry = path.Join("eu.gcr.io", Project)
 
-	DockerComposeImage = "halfpipe-docker-compose:stable"
+	DockerComposeImage = path.Join(DockerRegistry, "halfpipe-docker-compose:stable")
 
 	ConcourseURL = "https://concourse." + Domain
 

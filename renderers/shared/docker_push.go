@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
+	"path"
 	"strings"
 )
 
@@ -14,10 +15,10 @@ func CachePath(task manifest.DockerPush, tag string) string {
 	}
 
 	if strings.HasPrefix(task.Image, config.DockerRegistry) {
-		r := strings.Replace(image, config.DockerRegistry, fmt.Sprintf("%scache/", config.DockerRegistry), 1)
+		r := strings.Replace(image, config.DockerRegistry, path.Join(config.DockerRegistry, "cache"), 1)
 		return r + tag
 	} else {
-		return config.DockerRegistry + "cache/" + image + tag
+		return path.Join(config.DockerRegistry, "cache", image) + tag
 	}
 }
 

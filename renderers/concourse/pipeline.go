@@ -94,7 +94,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 			ImageResource: &atc.ImageResource{
 				Type: "registry-image",
 				Source: atc.Source{
-					"repository": config.DockerRegistry + "gcp-resource",
+					"repository": path.Join(config.DockerRegistry, "gcp-resource"),
 					"tag":        "stable",
 					"password":   "((halfpipe-gcr.private_key))",
 					"username":   "_json_key",

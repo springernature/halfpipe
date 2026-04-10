@@ -20,7 +20,7 @@ func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage, man ma
 		Name:    task.GetName(),
 		Script:  strings.Join(script, "\n"),
 		Docker: manifest.Docker{
-			Image:    config.DockerRegistry + config.DockerComposeImage,
+			Image:    config.DockerComposeImage,
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},

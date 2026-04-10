@@ -3,6 +3,7 @@ package shared
 import (
 	"fmt"
 	"github.com/springernature/halfpipe/config"
+	"path"
 	"strings"
 
 	"github.com/springernature/halfpipe/manifest"
@@ -14,7 +15,7 @@ func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manife
 		Name:    mlTask.Name,
 		Script:  "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
-			Image:    config.DockerRegistry + "halfpipe-ml-deploy",
+			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
@@ -44,7 +45,7 @@ func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) mani
 		Name:    mlTask.Name,
 		Script:  "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
-			Image:    config.DockerRegistry + "halfpipe-ml-deploy",
+			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "_json_key",
 			Password: "((halfpipe-gcr.private_key))",
 		},
