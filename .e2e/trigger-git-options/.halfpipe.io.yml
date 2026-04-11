@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=../../schema.json
 team: halfpipe-team
 pipeline: pipeline-name
 
