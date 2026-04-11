@@ -18,16 +18,23 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println(string(out))
+	if _, err := fmt.Println(string(out)); err != nil {
+		fmt.Fprintf(os.Stderr, "error writing schema: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+// reflectorConfig is the shared configuration for all jsonschema reflectors used
+// in this package.
+var reflectorConfig = jsonschema.Reflector{
+	DoNotReference:             false,
+	Anonymous:                  true,
+	ExpandedStruct:             true,
+	RequiredFromJSONSchemaTags: true, // only fields tagged `jsonschema:"required"` are required
 }
 
 func buildSchema() *jsonschema.Schema {
-	r := &jsonschema.Reflector{
-		DoNotReference:             false,
-		Anonymous:                  true,
-		ExpandedStruct:             true,
-		RequiredFromJSONSchemaTags: true, // only fields tagged `jsonschema:"required"` are required
-	}
+	r := reflectorConfig
 
 	// Reflect the top-level manifest to get all $defs populated
 	topSchema := r.Reflect(manifest.Manifest{})
@@ -39,12 +46,12 @@ func buildSchema() *jsonschema.Schema {
 	if topSchema.Properties != nil {
 		if prop, ok := topSchema.Properties.Get("tasks"); ok {
 			prop.Type = "array"
-			prop.Items = taskOneOf()
+			prop.Items = oneOfRefs(taskTypes)
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("triggers"); ok {
 			prop.Type = "array"
-			prop.Items = triggerOneOf()
+			prop.Items = oneOfRefs(triggerTypes)
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("platform"); ok {
@@ -54,15 +61,7 @@ func buildSchema() *jsonschema.Schema {
 		}
 		if prop, ok := topSchema.Properties.Get("feature_toggles"); ok {
 			prop.Type = "array"
-			prop.Items = &jsonschema.Schema{
-				Type: "string",
-				Enum: []interface{}{
-					manifest.FeatureUpdatePipeline,
-					manifest.FeatureUpdatePipelineAndTag,
-					manifest.FeatureGithubStatuses,
-					manifest.FeatureGhas,
-				},
-			}
+			prop.Items = featureToggleSchema()
 			prop.Ref = ""
 		}
 	}
@@ -72,39 +71,37 @@ func buildSchema() *jsonschema.Schema {
 		topSchema.Definitions = make(jsonschema.Definitions)
 	}
 
-	// Add concrete task type definitions (each with type const + additionalProperties: false)
+	// Add concrete task and trigger type definitions (each with type const + additionalProperties: false)
 	for _, tt := range taskTypes {
-		def := reflectTaskOrTrigger(r, tt.value, tt.typeName, topSchema.Definitions)
-		topSchema.Definitions[tt.defKey] = def
+		topSchema.Definitions[tt.defKey] = reflectTaskOrTrigger(&r, tt.value, tt.typeName, topSchema.Definitions)
 	}
-	// Add concrete trigger type definitions
 	for _, tt := range triggerTypes {
-		def := reflectTaskOrTrigger(r, tt.value, tt.typeName, topSchema.Definitions)
-		topSchema.Definitions[tt.defKey] = def
+		topSchema.Definitions[tt.defKey] = reflectTaskOrTrigger(&r, tt.value, tt.typeName, topSchema.Definitions)
 	}
 
 	// Fix sub-fields that use TaskList (pre_promote, parallel.tasks, sequence.tasks)
-	for _, key := range []string{"DeployCF"} {
-		if def, ok := topSchema.Definitions[key]; ok && def.Properties != nil {
-			if prop, ok := def.Properties.Get("pre_promote"); ok {
-				prop.Type = "array"
-				prop.Items = taskOneOf()
-				prop.Ref = ""
-			}
+	deployCFKey := defKeyFor(taskTypes, "deploy-cf")
+	if def, ok := topSchema.Definitions[deployCFKey]; ok && def.Properties != nil {
+		if prop, ok := def.Properties.Get("pre_promote"); ok {
+			prop.Type = "array"
+			prop.Items = oneOfRefs(taskTypes)
+			prop.Ref = ""
 		}
 	}
-	for _, key := range []string{"Parallel", "Sequence"} {
+	for _, typeName := range []string{"parallel", "sequence"} {
+		key := defKeyFor(taskTypes, typeName)
 		if def, ok := topSchema.Definitions[key]; ok && def.Properties != nil {
 			if prop, ok := def.Properties.Get("tasks"); ok {
 				prop.Type = "array"
-				prop.Items = taskOneOf()
+				prop.Items = oneOfRefs(taskTypes)
 				prop.Ref = ""
 			}
 		}
 	}
 
 	// Fix compose_file: ComposeFiles is actually a string (space-separated) in JSON
-	if def, ok := topSchema.Definitions["DockerCompose"]; ok && def.Properties != nil {
+	dockerComposeKey := defKeyFor(taskTypes, "docker-compose")
+	if def, ok := topSchema.Definitions[dockerComposeKey]; ok && def.Properties != nil {
 		if prop, ok := def.Properties.Get("compose_file"); ok {
 			prop.Type = "string"
 			prop.Items = nil
@@ -135,13 +132,14 @@ func buildSchema() *jsonschema.Schema {
 	return topSchema
 }
 
-type taskTypeDef struct {
-	typeName string
-	defKey   string
-	value    interface{}
+// typeDefEntry describes a single task or trigger type for schema generation.
+type typeDefEntry struct {
+	typeName string      // value of the "type" discriminator field (e.g. "run", "deploy-cf")
+	defKey   string      // key used in JSON Schema $defs (e.g. "Run", "DeployCF")
+	value    interface{} // zero-value of the Go struct to reflect
 }
 
-var taskTypes = []taskTypeDef{
+var taskTypes = []typeDefEntry{
 	{"run", "Run", manifest.Run{}},
 	{"deploy-cf", "DeployCF", manifest.DeployCF{}},
 	{"deploy-katee", "DeployKatee", manifest.DeployKatee{}},
@@ -156,60 +154,57 @@ var taskTypes = []taskTypeDef{
 	{"copy-container-image", "CopyContainerImage", manifest.CopyContainerImage{}},
 }
 
-var triggerTypes = []taskTypeDef{
+var triggerTypes = []typeDefEntry{
 	{"git", "GitTrigger", manifest.GitTrigger{}},
 	{"timer", "TimerTrigger", manifest.TimerTrigger{}},
 	{"docker", "DockerTrigger", manifest.DockerTrigger{}},
 	{"pipeline", "PipelineTrigger", manifest.PipelineTrigger{}},
 }
 
-func taskOneOf() *jsonschema.Schema {
-	return &jsonschema.Schema{
-		OneOf: []*jsonschema.Schema{
-			{Ref: "#/$defs/Run"},
-			{Ref: "#/$defs/DeployCF"},
-			{Ref: "#/$defs/DeployKatee"},
-			{Ref: "#/$defs/DockerPush"},
-			{Ref: "#/$defs/DockerCompose"},
-			{Ref: "#/$defs/ConsumerIntegrationTest"},
-			{Ref: "#/$defs/DeployMLZip"},
-			{Ref: "#/$defs/DeployMLModules"},
-			{Ref: "#/$defs/Parallel"},
-			{Ref: "#/$defs/Sequence"},
-			{Ref: "#/$defs/Buildpack"},
-			{Ref: "#/$defs/CopyContainerImage"},
-		},
+// oneOfRefs builds a oneOf schema with $ref entries for each entry in entries.
+// This ensures taskOneOf/triggerOneOf stay in sync with taskTypes/triggerTypes automatically.
+func oneOfRefs(entries []typeDefEntry) *jsonschema.Schema {
+	refs := make([]*jsonschema.Schema, len(entries))
+	for i, e := range entries {
+		refs[i] = &jsonschema.Schema{Ref: "#/$defs/" + e.defKey}
 	}
+	return &jsonschema.Schema{OneOf: refs}
 }
 
-func triggerOneOf() *jsonschema.Schema {
+// defKeyFor returns the defKey for the entry with the given typeName, or panics if not found.
+// This prevents silent breakage if a type name is renamed or removed.
+func defKeyFor(entries []typeDefEntry, typeName string) string {
+	for _, e := range entries {
+		if e.typeName == typeName {
+			return e.defKey
+		}
+	}
+	panic(fmt.Sprintf("generate-schema: no entry with typeName %q", typeName))
+}
+
+// featureToggleSchema returns a schema for a single feature toggle string,
+// derived from manifest.AvailableFeatureToggles so it stays in sync automatically.
+func featureToggleSchema() *jsonschema.Schema {
+	enums := make([]interface{}, len(manifest.AvailableFeatureToggles))
+	for i, f := range manifest.AvailableFeatureToggles {
+		enums[i] = f
+	}
 	return &jsonschema.Schema{
-		OneOf: []*jsonschema.Schema{
-			{Ref: "#/$defs/GitTrigger"},
-			{Ref: "#/$defs/TimerTrigger"},
-			{Ref: "#/$defs/DockerTrigger"},
-			{Ref: "#/$defs/PipelineTrigger"},
-		},
+		Type: "string",
+		Enum: enums,
 	}
 }
 
 // reflectTaskOrTrigger reflects a concrete task/trigger struct and adds a const
 // discriminator on the "type" field, plus additionalProperties: false.
 func reflectTaskOrTrigger(r *jsonschema.Reflector, v interface{}, typeValue string, defs jsonschema.Definitions) *jsonschema.Schema {
-	inner := &jsonschema.Reflector{
-		DoNotReference:             false,
-		Anonymous:                  true,
-		ExpandedStruct:             true,
-		RequiredFromJSONSchemaTags: true,
-	}
+	inner := reflectorConfig
 	s := inner.Reflect(v)
 
 	// Merge any new $defs discovered into the parent defs map
-	if s.Definitions != nil {
-		for k, v := range s.Definitions {
-			if _, exists := defs[k]; !exists {
-				defs[k] = v
-			}
+	for k, v := range s.Definitions {
+		if _, exists := defs[k]; !exists {
+			defs[k] = v
 		}
 	}
 
