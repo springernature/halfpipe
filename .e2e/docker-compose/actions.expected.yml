@@ -68,7 +68,7 @@ jobs:
       run: tar -cvf /tmp/halfpipe-artifacts-${{ github.job }}.tar .e2e/docker-compose/foo .e2e/docker-compose/bar/baz
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts
-      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
@@ -79,7 +79,7 @@ jobs:
       working-directory: ${{ github.workspace }}
     - name: Upload artifacts-failure
       if: failure()
-      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: artifacts-failure-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar

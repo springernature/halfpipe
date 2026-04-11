@@ -16,7 +16,7 @@ import (
 
 const (
 	defaultFile   = "renderers/actions/external_actions.go"
-	defaultE2EDir = "e2e/actions"
+	defaultE2EDir = ".e2e"
 )
 
 // shaLineRe matches lines like:
@@ -180,7 +180,7 @@ func main() {
 	}
 
 	// Update e2e expected workflow files.
-	e2eFiles, err := filepath.Glob(filepath.Join(defaultE2EDir, "*", "workflowExpected.yml"))
+	e2eFiles, err := filepath.Glob(filepath.Join(defaultE2EDir, "*", "actions.expected.yml"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: failed to glob e2e files: %v\n", err)
 	}
