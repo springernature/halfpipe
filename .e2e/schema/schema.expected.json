@@ -1,0 +1,1150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$defs": {
+    "Buildpack": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "buildpack",
+          "description": "Must be \"buildpack\""
+        },
+        "builder": {
+          "type": "string"
+        },
+        "buildpacks": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "path": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "name": {
+          "type": "string"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "restore_artifacts": {
+          "type": "boolean"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "ComposeFiles": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "ConsumerIntegrationTest": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "consumer-integration-test",
+          "description": "Must be \"consumer-integration-test\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "consumer": {
+          "type": "string"
+        },
+        "consumer_host": {
+          "type": "string"
+        },
+        "git_clone_options": {
+          "type": "string"
+        },
+        "provider_host": {
+          "type": "string"
+        },
+        "provider_name": {
+          "type": "string"
+        },
+        "script": {
+          "type": "string"
+        },
+        "docker_compose_file": {
+          "type": "string"
+        },
+        "docker_compose_service": {
+          "type": "string"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "use_covenant": {
+          "type": "boolean"
+        },
+        "save_artifacts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "save_artifacts_on_failure": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "CopyContainerImage": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "copy-container-image",
+          "description": "Must be \"copy-container-image\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "aws_access_key_id": {
+          "type": "string"
+        },
+        "aws_secret_access_key": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "target": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DeployCF": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "deploy-cf",
+          "description": "Must be \"deploy-cf\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "api": {
+          "type": "string"
+        },
+        "space": {
+          "type": "string"
+        },
+        "org": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "manifest": {
+          "type": "string"
+        },
+        "test_domain": {
+          "type": "string"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "deploy_artifact": {
+          "type": "string"
+        },
+        "pre_promote": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Run"
+              },
+              {
+                "$ref": "#/$defs/DeployCF"
+              },
+              {
+                "$ref": "#/$defs/DeployKatee"
+              },
+              {
+                "$ref": "#/$defs/DockerPush"
+              },
+              {
+                "$ref": "#/$defs/DockerCompose"
+              },
+              {
+                "$ref": "#/$defs/ConsumerIntegrationTest"
+              },
+              {
+                "$ref": "#/$defs/DeployMLZip"
+              },
+              {
+                "$ref": "#/$defs/DeployMLModules"
+              },
+              {
+                "$ref": "#/$defs/Parallel"
+              },
+              {
+                "$ref": "#/$defs/Sequence"
+              },
+              {
+                "$ref": "#/$defs/Buildpack"
+              },
+              {
+                "$ref": "#/$defs/CopyContainerImage"
+              }
+            ]
+          },
+          "type": "array"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "pre_start": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "rolling": {
+          "type": "boolean"
+        },
+        "stop_candidate_on_failure": {
+          "type": "boolean"
+        },
+        "cli_version": {
+          "type": "string"
+        },
+        "docker_tag": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "sso_route": {
+          "type": "string"
+        },
+        "github_environment": {
+          "$ref": "#/$defs/GitHubEnvironment"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DeployKatee": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "deploy-katee",
+          "description": "Must be \"deploy-katee\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "vela_manifest": {
+          "type": "string"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "environment": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "deployment_check_timeout": {
+          "type": "integer"
+        },
+        "check_interval": {
+          "type": "integer"
+        },
+        "max_checks": {
+          "type": "integer"
+        },
+        "github_environment": {
+          "$ref": "#/$defs/GitHubEnvironment"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DeployMLModules": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "deploy-ml-modules",
+          "description": "Must be \"deploy-ml-modules\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "ml_modules_version": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "app_version": {
+          "type": "string"
+        },
+        "targets": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "use_build_version": {
+          "type": "boolean"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DeployMLZip": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "deploy-ml-zip",
+          "description": "Must be \"deploy-ml-zip\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "deploy_zip": {
+          "type": "string"
+        },
+        "app_name": {
+          "type": "string"
+        },
+        "app_version": {
+          "type": "string"
+        },
+        "targets": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "use_build_version": {
+          "type": "boolean"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "Docker": {
+      "properties": {
+        "image": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "DockerCompose": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "docker-compose",
+          "description": "Must be \"docker-compose\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "command": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "service": {
+          "type": "string"
+        },
+        "compose_file": {
+          "type": "string",
+          "description": "Space-separated list of docker-compose files"
+        },
+        "save_artifacts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "restore_artifacts": {
+          "type": "boolean"
+        },
+        "save_artifacts_on_failure": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DockerPush": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "docker-push",
+          "description": "Must be \"docker-push\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "ignore_vulnerabilities": {
+          "type": "boolean"
+        },
+        "scan_timeout": {
+          "type": "integer"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "secrets": {
+          "$ref": "#/$defs/Vars"
+        },
+        "restore_artifacts": {
+          "type": "boolean"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "dockerfile_path": {
+          "type": "string"
+        },
+        "build_path": {
+          "type": "string"
+        },
+        "tag": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        },
+        "platforms": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "use_cache": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "DockerTrigger": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "docker",
+          "description": "Must be \"docker\""
+        },
+        "image": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "FeatureToggles": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array"
+    },
+    "GitHubEnvironment": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "GitTrigger": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "git",
+          "description": "Must be \"git\""
+        },
+        "uri": {
+          "type": "string"
+        },
+        "private_key": {
+          "type": "string"
+        },
+        "watched_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ignored_paths": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "git_crypt_key": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "shallow": {
+          "type": "boolean"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "NotificationChannel": {
+      "properties": {
+        "slack": {
+          "type": "string"
+        },
+        "teams": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "NotificationChannels": {
+      "items": {
+        "$ref": "#/$defs/NotificationChannel"
+      },
+      "type": "array"
+    },
+    "Notifications": {
+      "properties": {
+        "on_success": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "on_success_message": {
+          "type": "string"
+        },
+        "on_failure": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "on_failure_message": {
+          "type": "string"
+        },
+        "success": {
+          "$ref": "#/$defs/NotificationChannels"
+        },
+        "failure": {
+          "$ref": "#/$defs/NotificationChannels"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object"
+    },
+    "Parallel": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "parallel",
+          "description": "Must be \"parallel\""
+        },
+        "tasks": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Run"
+              },
+              {
+                "$ref": "#/$defs/DeployCF"
+              },
+              {
+                "$ref": "#/$defs/DeployKatee"
+              },
+              {
+                "$ref": "#/$defs/DockerPush"
+              },
+              {
+                "$ref": "#/$defs/DockerCompose"
+              },
+              {
+                "$ref": "#/$defs/ConsumerIntegrationTest"
+              },
+              {
+                "$ref": "#/$defs/DeployMLZip"
+              },
+              {
+                "$ref": "#/$defs/DeployMLModules"
+              },
+              {
+                "$ref": "#/$defs/Parallel"
+              },
+              {
+                "$ref": "#/$defs/Sequence"
+              },
+              {
+                "$ref": "#/$defs/Buildpack"
+              },
+              {
+                "$ref": "#/$defs/CopyContainerImage"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "PipelineTrigger": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "pipeline",
+          "description": "Must be \"pipeline\""
+        },
+        "concourse_url": {
+          "type": "string"
+        },
+        "username": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "team": {
+          "type": "string"
+        },
+        "pipeline": {
+          "type": "string"
+        },
+        "job": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "Run": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "run",
+          "description": "Must be \"run\""
+        },
+        "name": {
+          "type": "string"
+        },
+        "manual_trigger": {
+          "type": "boolean"
+        },
+        "script": {
+          "type": "string"
+        },
+        "docker": {
+          "$ref": "#/$defs/Docker"
+        },
+        "privileged": {
+          "type": "boolean"
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars"
+        },
+        "save_artifacts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "restore_artifacts": {
+          "type": "boolean"
+        },
+        "save_artifacts_on_failure": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "retries": {
+          "type": "integer"
+        },
+        "notify_on_success": {
+          "type": "boolean"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications"
+        },
+        "timeout": {
+          "type": "string"
+        },
+        "build_history": {
+          "type": "integer"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "Sequence": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "sequence",
+          "description": "Must be \"sequence\""
+        },
+        "tasks": {
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/Run"
+              },
+              {
+                "$ref": "#/$defs/DeployCF"
+              },
+              {
+                "$ref": "#/$defs/DeployKatee"
+              },
+              {
+                "$ref": "#/$defs/DockerPush"
+              },
+              {
+                "$ref": "#/$defs/DockerCompose"
+              },
+              {
+                "$ref": "#/$defs/ConsumerIntegrationTest"
+              },
+              {
+                "$ref": "#/$defs/DeployMLZip"
+              },
+              {
+                "$ref": "#/$defs/DeployMLModules"
+              },
+              {
+                "$ref": "#/$defs/Parallel"
+              },
+              {
+                "$ref": "#/$defs/Sequence"
+              },
+              {
+                "$ref": "#/$defs/Buildpack"
+              },
+              {
+                "$ref": "#/$defs/CopyContainerImage"
+              }
+            ]
+          },
+          "type": "array"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "TaskList": {
+      "items": true,
+      "type": "array"
+    },
+    "TimerTrigger": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "timer",
+          "description": "Must be \"timer\""
+        },
+        "cron": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ]
+    },
+    "TriggerList": {
+      "items": true,
+      "type": "array"
+    },
+    "Vars": {
+      "additionalProperties": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          },
+          {
+            "type": "boolean"
+          }
+        ]
+      },
+      "type": "object",
+      "description": "Key-value pairs of environment variables (values are coerced to strings)"
+    }
+  },
+  "properties": {
+    "team": {
+      "type": "string"
+    },
+    "pipeline": {
+      "type": "string"
+    },
+    "slack_channel": {
+      "type": "string"
+    },
+    "teams_webhook": {
+      "type": "string"
+    },
+    "slack_success_message": {
+      "type": "string"
+    },
+    "slack_failure_message": {
+      "type": "string"
+    },
+    "feature_toggles": {
+      "items": {
+        "type": "string",
+        "enum": [
+          "update-pipeline",
+          "update-pipeline-and-tag",
+          "github-statuses",
+          "ghas"
+        ]
+      },
+      "type": "array"
+    },
+    "triggers": {
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/GitTrigger"
+          },
+          {
+            "$ref": "#/$defs/TimerTrigger"
+          },
+          {
+            "$ref": "#/$defs/DockerTrigger"
+          },
+          {
+            "$ref": "#/$defs/PipelineTrigger"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "tasks": {
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/Run"
+          },
+          {
+            "$ref": "#/$defs/DeployCF"
+          },
+          {
+            "$ref": "#/$defs/DeployKatee"
+          },
+          {
+            "$ref": "#/$defs/DockerPush"
+          },
+          {
+            "$ref": "#/$defs/DockerCompose"
+          },
+          {
+            "$ref": "#/$defs/ConsumerIntegrationTest"
+          },
+          {
+            "$ref": "#/$defs/DeployMLZip"
+          },
+          {
+            "$ref": "#/$defs/DeployMLModules"
+          },
+          {
+            "$ref": "#/$defs/Parallel"
+          },
+          {
+            "$ref": "#/$defs/Sequence"
+          },
+          {
+            "$ref": "#/$defs/Buildpack"
+          },
+          {
+            "$ref": "#/$defs/CopyContainerImage"
+          }
+        ]
+      },
+      "type": "array"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "",
+        "concourse",
+        "actions"
+      ]
+    },
+    "notifications": {
+      "$ref": "#/$defs/Notifications"
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "title": "Halfpipe Manifest",
+  "description": "Schema for the halfpipe CI/CD manifest (.halfpipe.io, .halfpipe.io.yml, .halfpipe.io.yaml)"
+}

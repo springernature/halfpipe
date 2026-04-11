@@ -5,7 +5,7 @@ endif
 
 default: build
 
-build: fmt test binary e2e staticcheck dependabot
+build: fmt test binary e2e staticcheck dependabot schema
 
 fmt:
 	go fmt ./...
@@ -31,8 +31,11 @@ update-deps:
 update-actions:
 	go run ./cmd/update-actions
 
+schema:
+	go run ./cmd/generate-schema > schema.json
+
 fix-e2e:
-	for f in ./.e2e/*/*actual*.yml; do cp "$$f" "$${f/actual/expected}"; done
+	for f in ./.e2e/*/*.actual.*; do cp "$$f" "$${f/actual/expected}"; done
 
 coverage:
 	@HALFPIPE_ENABLE_COVERAGE_TESTS=true go test $(GO_OPTS) -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out ./... > /dev/null
@@ -49,4 +52,4 @@ coverage:
 	} \
 	END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
 
-.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions fix-e2e coverage
+.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions schema fix-e2e coverage

@@ -7,5 +7,6 @@ vendor
 # .e2e
 *.actual.yml
 *.actual.txt
+*.actual.json
 
 AGENTS.md
