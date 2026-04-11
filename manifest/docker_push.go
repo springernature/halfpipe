@@ -1,18 +1,18 @@
 package manifest
 
 type DockerPush struct {
-	Type                  string
-	Name                  string        `yaml:"name,omitempty"`
+	Type                  string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                  string        `json:"name,omitempty" yaml:"name,omitempty"`
 	ManualTrigger         bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Username              string        `yaml:"username,omitempty" secretAllowed:"true"`
-	Password              string        `yaml:"password,omitempty" secretAllowed:"true"`
-	Image                 string        `yaml:"image,omitempty"`
+	Username              string        `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
+	Password              string        `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
+	Image                 string        `json:"image,omitempty" yaml:"image,omitempty"`
 	IgnoreVulnerabilities bool          `json:"ignore_vulnerabilities,omitempty" yaml:"ignore_vulnerabilities,omitempty"`
 	ScanTimeout           int           `json:"scan_timeout,omitempty" yaml:"scan_timeout,omitempty"`
-	Vars                  Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	Secrets               Vars          `yaml:"secrets,omitempty" secretAllowed:"true"`
+	Vars                  Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	Secrets               Vars          `json:"secrets,omitempty" yaml:"secrets,omitempty" secretAllowed:"true"`
 	RestoreArtifacts      bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	Retries               int           `yaml:"retries,omitempty"`
+	Retries               int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications         Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout               string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`

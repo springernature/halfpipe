@@ -7,7 +7,7 @@ import (
 )
 
 type PipelineTrigger struct {
-	Type         string
+	Type         string `json:"type,omitempty" yaml:"type,omitempty"`
 	ConcourseURL string `json:"concourse_url,omitempty" yaml:"concourse_url,omitempty" secretAllowed:"true"`
 	Username     string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	Password     string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`

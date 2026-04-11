@@ -1,19 +1,19 @@
 package manifest
 
 type CopyContainerImage struct {
-	Type            string
-	Name            string        `yaml:"name,omitempty"`
+	Type            string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Name            string        `json:"name,omitempty" yaml:"name,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Retries         int           `yaml:"retries,omitempty"`
+	Retries         int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications   Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 
-	AwsAccessKeyID     string `yaml:"aws_access_key_id,omitempty" secretAllowed:"true"`
-	AwsSecretAccessKey string `yaml:"aws_secret_access_key,omitempty" secretAllowed:"true"`
-	Source             string `yaml:"source,omitempty"`
-	Target             string `yaml:"target,omitempty"`
+	AwsAccessKeyID     string `json:"aws_access_key_id,omitempty" yaml:"aws_access_key_id,omitempty" secretAllowed:"true"`
+	AwsSecretAccessKey string `json:"aws_secret_access_key,omitempty" yaml:"aws_secret_access_key,omitempty" secretAllowed:"true"`
+	Source             string `json:"source,omitempty" yaml:"source,omitempty"`
+	Target             string `json:"target,omitempty" yaml:"target,omitempty"`
 }
 
 func (r CopyContainerImage) GetBuildHistory() int {

@@ -14,7 +14,7 @@ type Buildpack struct {
 	ManualTrigger    bool          `json:"manual_trigger,omitempty" yaml:"manual_trigger,omitempty"`
 	RestoreArtifacts bool          `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty"`
 	Retries          int           `json:"retries,omitempty" yaml:"retries,omitempty"`
-	Vars             Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
+	Vars             Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 }
 
 func (p Buildpack) GetBuildHistory() int {

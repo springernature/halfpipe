@@ -241,17 +241,17 @@ type OpsLevel struct {
 }
 
 type Manifest struct {
-	Team                string         `yaml:"team,omitempty"`
-	Pipeline            string         `yaml:"pipeline,omitempty"`
+	Team                string         `json:"team,omitempty" yaml:"team,omitempty"`
+	Pipeline            string         `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
 	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
 	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty" secretAllowed:"true"`
 	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
 	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
-	Tasks               TaskList       `yaml:"tasks,omitempty"`
+	Tasks               TaskList       `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 	Platform            Platform       `json:"platform,omitempty" yaml:"platform,omitempty"`
-	Notifications       Notifications  `json:"notifications" yaml:"notifications,omitempty"`
+	Notifications       Notifications  `json:"notifications,omitempty" yaml:"notifications,omitempty"`
 	OpsLevel            OpsLevel       `json:"-" yaml:"-"`
 }
 
@@ -295,8 +295,8 @@ func (repo Repo) IsPublic() bool {
 }
 
 type GitHubEnvironment struct {
-	Name string
-	Url  string
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	Url  string `json:"url,omitempty" yaml:"url,omitempty"`
 }
 
 func (g GitHubEnvironment) IsValid() bool {

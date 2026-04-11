@@ -1,13 +1,13 @@
 package manifest
 
 type DeployKatee struct {
-	Type                   string
-	Name                   string            `yaml:"name,omitempty"`
+	Type                   string            `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                   string            `json:"name,omitempty" yaml:"name,omitempty"`
 	ManualTrigger          bool              `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Timeout                string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Vars                   Vars              `yaml:"vars,omitempty" secretAllowed:"true"`
+	Vars                   Vars              `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	VelaManifest           string            `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
-	Retries                int               `yaml:"retries,omitempty"`
+	Retries                int               `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
 	Tag                    string            `json:"tag,omitempty" yaml:"tag,omitempty"`
@@ -17,7 +17,7 @@ type DeployKatee struct {
 	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
 	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
 	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
-	GitHubEnvironment      GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
+	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
 	KateeManifest          VelaManifest      `json:"-" yaml:"-"`
 }
 

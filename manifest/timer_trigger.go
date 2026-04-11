@@ -1,7 +1,7 @@
 package manifest
 
 type TimerTrigger struct {
-	Type string
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	Cron string `json:"cron,omitempty" yaml:"cron,omitempty"`
 }
 

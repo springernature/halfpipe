@@ -1,14 +1,14 @@
 package manifest
 
 type DeployMLModules struct {
-	Type             string
-	Name             string        `yaml:"name,omitempty"`
+	Type             string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Name             string        `json:"name,omitempty" yaml:"name,omitempty"`
 	MLModulesVersion string        `json:"ml_modules_version" yaml:"ml_modules_version,omitempty"`
 	AppName          string        `json:"app_name" yaml:"app_name,omitempty"`
 	AppVersion       string        `json:"app_version" yaml:"app_version,omitempty"`
-	Targets          []string      `yaml:"targets,omitempty" secretAllowed:"true"`
+	Targets          []string      `json:"targets,omitempty" yaml:"targets,omitempty" secretAllowed:"true"`
 	ManualTrigger    bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Retries          int           `yaml:"retries,omitempty"`
+	Retries          int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications    Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout          string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`

@@ -3,7 +3,7 @@ package manifest
 import "strings"
 
 type DockerTrigger struct {
-	Type     string
+	Type     string `json:"type,omitempty" yaml:"type,omitempty"`
 	Image    string `json:"image,omitempty" yaml:"image,omitempty"`
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`

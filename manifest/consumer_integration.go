@@ -1,18 +1,18 @@
 package manifest
 
 type ConsumerIntegrationTest struct {
-	Type                   string
-	Name                   string        `yaml:"name,omitempty"`
-	Consumer               string        `yaml:"consumer,omitempty"`
+	Type                   string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                   string        `json:"name,omitempty" yaml:"name,omitempty"`
+	Consumer               string        `json:"consumer,omitempty" yaml:"consumer,omitempty"`
 	ConsumerHost           string        `json:"consumer_host" yaml:"consumer_host,omitempty"`
 	GitCloneOptions        string        `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
 	ProviderHost           string        `json:"provider_host" yaml:"provider_host,omitempty"`
-	ProviderName           string        `json:"provider_name" yaml:"provider_name,omitempty"`
-	Script                 string        `yaml:"script,omitempty"`
+	ProviderName           string        `json:"provider_name,omitempty" yaml:"provider_name,omitempty"`
+	Script                 string        `json:"script,omitempty" yaml:"script,omitempty"`
 	DockerComposeFile      string        `json:"docker_compose_file" yaml:"docker_compose_file,omitempty"`
 	DockerComposeService   string        `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
-	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	Retries                int           `yaml:"retries,omitempty"`
+	Vars                   Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	Retries                int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`

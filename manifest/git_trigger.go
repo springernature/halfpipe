@@ -3,7 +3,7 @@ package manifest
 import "strings"
 
 type GitTrigger struct {
-	Type           string
+	Type           string   `json:"type,omitempty" yaml:"type,omitempty"`
 	URI            string   `json:"uri,omitempty" yaml:"uri,omitempty"`
 	BasePath       string   `json:"-" yaml:"-"` //don't auto unmarshal
 	PrivateKey     string   `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`

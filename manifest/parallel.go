@@ -3,8 +3,8 @@ package manifest
 import "slices"
 
 type Parallel struct {
-	Type  string
-	Tasks TaskList `yaml:"tasks,omitempty"`
+	Type  string   `json:"type,omitempty" yaml:"type,omitempty"`
+	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 }
 
 func (p Parallel) GetBuildHistory() int {

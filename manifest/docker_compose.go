@@ -6,17 +6,17 @@ import (
 )
 
 type DockerCompose struct {
-	Type                   string
-	Name                   string        `yaml:"name,omitempty"`
-	Command                string        `yaml:"command,omitempty"`
+	Type                   string        `json:"type,omitempty" yaml:"type,omitempty"`
+	Name                   string        `json:"name,omitempty" yaml:"name,omitempty"`
+	Command                string        `json:"command,omitempty" yaml:"command,omitempty"`
 	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Vars                   Vars          `yaml:"vars,omitempty" secretAllowed:"true"`
-	Service                string        `yaml:"service,omitempty"`
+	Vars                   Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	Service                string        `json:"service,omitempty" yaml:"service,omitempty"`
 	ComposeFiles           ComposeFiles  `json:"compose_file" yaml:"compose_file,omitempty"`
 	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
-	Retries                int           `yaml:"retries,omitempty"`
+	Retries                int           `json:"retries,omitempty" yaml:"retries,omitempty"`
 	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
 	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
