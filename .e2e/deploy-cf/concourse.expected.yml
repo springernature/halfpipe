@@ -6,7 +6,7 @@ jobs:
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -91,7 +91,7 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
     put: artifacts
-    timeout: 15m
+    timeout: 2h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -101,7 +101,7 @@ jobs:
     get: git
     passed:
     - make binary
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true
@@ -136,7 +136,7 @@ jobs:
     get: git
     passed:
     - deploy with username and password
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true
@@ -182,7 +182,7 @@ jobs:
     get: git
     passed:
     - deploy with cf8
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -210,7 +210,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     on_failure:
@@ -337,7 +337,7 @@ jobs:
     get: git
     passed:
     - deploy with pre-start and pre-promote
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -365,7 +365,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     on_failure:
@@ -404,7 +404,7 @@ jobs:
     get: git
     passed:
     - deploy with vars and secrets
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true
@@ -441,7 +441,7 @@ jobs:
     get: git
     passed:
     - deploy with docker image
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true
@@ -486,7 +486,7 @@ jobs:
     get: git
     passed:
     - deploy with sso route
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -514,7 +514,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     params:
@@ -558,7 +558,7 @@ jobs:
     get: git
     passed:
     - deploy rolling with sso
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true
@@ -593,7 +593,7 @@ jobs:
     get: git
     passed:
     - deploy rolling plain
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true

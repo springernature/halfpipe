@@ -30,7 +30,7 @@ jobs:
           title: ❌ Concourse pipeline failed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   on_success:
     attempts: 2
     in_parallel:
@@ -59,11 +59,11 @@ jobs:
           title: ✅ Concourse pipeline passed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -154,7 +154,7 @@ jobs:
           title: ❌ Concourse pipeline failed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   on_success:
     attempts: 2
     in_parallel:
@@ -181,13 +181,13 @@ jobs:
           title: ✅ Concourse pipeline passed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   plan:
   - attempts: 2
     get: git
     passed:
     - task1
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -290,7 +290,7 @@ jobs:
           title: ❌ Concourse pipeline failed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   on_success:
     attempts: 2
     in_parallel:
@@ -319,13 +319,13 @@ jobs:
           title: ✅ Concourse pipeline passed
           webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
         put: teams
-    timeout: 15m
+    timeout: 2h
   plan:
   - attempts: 2
     get: git
     passed:
     - task2
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     no_get: true

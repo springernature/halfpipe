@@ -6,7 +6,7 @@ jobs:
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

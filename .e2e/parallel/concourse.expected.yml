@@ -8,7 +8,7 @@ jobs:
     get: git
     params:
       depth: 1
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -63,7 +63,7 @@ jobs:
         passed:
         - update
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -143,7 +143,7 @@ jobs:
         passed:
         - first job
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -223,7 +223,7 @@ jobs:
         passed:
         - first job
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -303,7 +303,7 @@ jobs:
         passed:
         - first job
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -387,7 +387,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -467,7 +467,7 @@ jobs:
         passed:
         - parallel 2 sequence 1 1
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -547,7 +547,7 @@ jobs:
         passed:
         - parallel 2 sequence 1 2
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -627,7 +627,7 @@ jobs:
         passed:
         - parallel 2 sequence 1 2
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -711,7 +711,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -791,7 +791,7 @@ jobs:
         passed:
         - parallel 2 sequence 2 1
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -871,7 +871,7 @@ jobs:
         passed:
         - parallel 2 sequence 2 2
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -955,7 +955,7 @@ jobs:
         - parallel 1 2
         - parallel 1 3
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -1040,7 +1040,7 @@ jobs:
         - parallel 2 sequence 1 2b
         - parallel 2 sequence 2 3
         - parallel 2 1
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

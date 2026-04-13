@@ -16,7 +16,7 @@ jobs:
         trigger: true
       - get: git
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       image_resource:
         name: ""

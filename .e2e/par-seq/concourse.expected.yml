@@ -6,7 +6,7 @@ jobs:
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -76,7 +76,7 @@ jobs:
     get: git
     passed:
     - task 1
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -146,7 +146,7 @@ jobs:
     get: git
     passed:
     - task 2
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -216,7 +216,7 @@ jobs:
     get: git
     passed:
     - task 3
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -286,7 +286,7 @@ jobs:
     get: git
     passed:
     - task 3
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -356,7 +356,7 @@ jobs:
     get: git
     passed:
     - task 3
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -426,7 +426,7 @@ jobs:
     get: git
     passed:
     - task 4.3.1
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -498,7 +498,7 @@ jobs:
     - task 4.1
     - task 4.2
     - task 4.3.2
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:

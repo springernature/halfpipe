@@ -8,7 +8,7 @@ jobs:
     get: git
     params:
       depth: 1
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:
@@ -89,7 +89,7 @@ jobs:
       depth: 1
     passed:
     - with vars and secrets
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - config:
       caches:

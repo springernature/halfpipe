@@ -6,7 +6,7 @@ jobs:
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -68,7 +68,7 @@ jobs:
         passed:
         - update
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -146,7 +146,7 @@ jobs:
         passed:
         - test
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -210,7 +210,7 @@ jobs:
         passed:
         - A
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -274,7 +274,7 @@ jobs:
         passed:
         - A
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache

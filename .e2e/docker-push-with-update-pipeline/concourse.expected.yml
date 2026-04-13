@@ -6,7 +6,7 @@ jobs:
   plan:
   - attempts: 2
     get: git
-    timeout: 15m
+    timeout: 2h
     trigger: true
   - attempts: 2
     config:
@@ -59,7 +59,7 @@ jobs:
         passed:
         - update
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -145,7 +145,7 @@ jobs:
       folder: artifacts-out
       version_file: git/.git/ref
     put: artifacts
-    timeout: 15m
+    timeout: 2h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -162,7 +162,7 @@ jobs:
         passed:
         - run build.sh
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       image_resource:
         name: ""
@@ -324,7 +324,7 @@ jobs:
         passed:
         - push to docker registry
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       image_resource:
         name: ""
@@ -486,7 +486,7 @@ jobs:
         passed:
         - push to docker registry with git ref
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     config:
       image_resource:
@@ -513,7 +513,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 15m
+    timeout: 2h
   - config:
       image_resource:
         name: ""
@@ -700,7 +700,7 @@ jobs:
         passed:
         - push with restore artifacts
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     config:
       image_resource:
@@ -727,7 +727,7 @@ jobs:
         dir: artifacts
         path: /opt/resource/download
     task: get-artifact
-    timeout: 15m
+    timeout: 2h
   - config:
       image_resource:
         name: ""

@@ -38,7 +38,7 @@ const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
 const defaultStepAttempts = 2
-const defaultStepTimeout = "15m"
+const defaultStepTimeout = "2h"
 
 const gitDir = "git"
 

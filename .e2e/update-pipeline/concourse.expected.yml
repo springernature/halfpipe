@@ -12,7 +12,7 @@ jobs:
         trigger: true
       - get: cron
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     config:
       image_resource:
@@ -64,7 +64,7 @@ jobs:
         passed:
         - update
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -142,7 +142,7 @@ jobs:
         passed:
         - Test
         trigger: true
-    timeout: 15m
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
