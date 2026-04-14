@@ -2,12 +2,13 @@ package cmds
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 	"github.com/springernature/halfpipe/dependabot"
 	"gopkg.in/yaml.v2"
-	"os"
 )
 
 func init() {
@@ -32,7 +33,8 @@ func init() {
 			fs := afero.NewOsFs()
 			pwd, err := os.Getwd()
 			if err != nil {
-				logrus.Panic(err)
+				printErr(err)
+				os.Exit(1)
 			}
 
 			c, err := dependabot.New(
@@ -41,12 +43,14 @@ func init() {
 				dependabot.Render,
 			).Resolve()
 			if err != nil {
-				logrus.Panic(err)
+				printErr(err)
+				os.Exit(1)
 			}
 
 			out, err := yaml.Marshal(c)
 			if err != nil {
-				logrus.Panic(err)
+				printErr(err)
+				os.Exit(1)
 			}
 			fmt.Println("# yaml-language-server: $schema=https://json.schemastore.org/dependabot-2.0.json")
 			fmt.Print(string(out))
