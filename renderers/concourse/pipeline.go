@@ -375,10 +375,11 @@ func (c Concourse) Render(man manifest.Manifest) (string, error) {
 }
 
 func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
-	cfg.VarSources = append(cfg.VarSources, c.varSources(man)...)
 	resourceTypes, resourceConfigs := c.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
+
+	cfg.VarSources = append(cfg.VarSources, c.varSources(man, resourceTypes)...)
 
 	type parentTask struct {
 		isParallel bool
@@ -462,8 +463,18 @@ func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man
 	return step
 }
 
-func (c Concourse) varSources(man manifest.Manifest) atc.VarSourceConfigs {
-	if man.Tasks.SavesArtifacts() || man.Tasks.SavesArtifactsOnFailure() {
+func (c Concourse) varSources(man manifest.Manifest, types atc.ResourceTypes) atc.VarSourceConfigs {
+	shouldAddVarSource := false
+	for _, resourceType := range types {
+		for _, v := range resourceType.Source {
+			if strings.HasPrefix(v.(string), "((gcp:platform") {
+				shouldAddVarSource = true
+				break
+			}
+		}
+	}
+
+	if shouldAddVarSource {
 		return atc.VarSourceConfigs{
 			atc.VarSourceConfig{
 				Name: "gcp",

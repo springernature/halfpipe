@@ -195,10 +195,10 @@ resource_types:
 - check_every: 24h0m0s
   name: halfpipe-cron-resource
   source:
-    password: ((halfpipe-gcr.private_key))
+    password: ((gcp:platform-gar/token.token))
     repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
     tag: stable
-    username: _json_key
+    username: oauth2accesstoken
   type: registry-image
 resources:
 - check_every: 10m0s
@@ -225,3 +225,15 @@ resources:
     json_key: ((halfpipe-semver.private_key))
     key: halfpipe-team-halfpipe-e2e-update-pipeline
   type: semver
+var_sources:
+- config:
+    auth_backend: approle
+    auth_params:
+      role_id: ((platform/team-ro-app-role.vault_approle_id))
+      secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
+    lookup_templates:
+    - '{{.Secret}}'
+    path_prefix: gcp/impersonated-account/
+    url: ((platform/team-ro-app-role.vault_addr))
+  name: gcp
+  type: vault

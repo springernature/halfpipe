@@ -423,25 +423,25 @@ resource_types:
 - check_every: 24h0m0s
   name: halfpipe-slack-resource
   source:
-    password: ((halfpipe-gcr.private_key))
+    password: ((gcp:platform-gar/token.token))
     repository: eu.gcr.io/halfpipe-io/halfpipe-slack-resource
     tag: latest
-    username: _json_key
+    username: oauth2accesstoken
   type: registry-image
 - check_every: 24h0m0s
   name: halfpipe-teams-resource
   source:
-    password: ((halfpipe-gcr.private_key))
+    password: ((gcp:platform-gar/token.token))
     repository: eu.gcr.io/halfpipe-io/halfpipe-teams-resource
     tag: latest
-    username: _json_key
+    username: oauth2accesstoken
   type: registry-image
 - check_every: 24h0m0s
   name: cf-resource
   source:
-    password: ((halfpipe-gcr.private_key))
+    password: ((gcp:platform-gar/token.token))
     repository: eu.gcr.io/halfpipe-io/cf-resource-v2
-    username: _json_key
+    username: oauth2accesstoken
   type: registry-image
 resources:
 - check_every: 10m0s
@@ -471,3 +471,15 @@ resources:
     space: staging
     username: michiel
   type: cf-resource
+var_sources:
+- config:
+    auth_backend: approle
+    auth_params:
+      role_id: ((platform/team-ro-app-role.vault_approle_id))
+      secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
+    lookup_templates:
+    - '{{.Secret}}'
+    path_prefix: gcp/impersonated-account/
+    url: ((platform/team-ro-app-role.vault_addr))
+  name: gcp
+  type: vault

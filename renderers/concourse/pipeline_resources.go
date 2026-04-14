@@ -68,8 +68,8 @@ func (c Concourse) slackResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-slack-resource"),
 			"tag":        "latest",
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }
@@ -96,8 +96,8 @@ func (c Concourse) teamsResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-teams-resource"),
 			"tag":        "latest",
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }
@@ -171,8 +171,8 @@ func cronResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, cronResourceTypeName),
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 			"tag":        "stable",
 		},
 	}
@@ -185,8 +185,8 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-pipeline-trigger-resource"),
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }
@@ -202,8 +202,8 @@ func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": fullPath,
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }
@@ -319,8 +319,8 @@ func (c Concourse) githubStatusesResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "engineering-enablement/github-status-resource"),
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }
