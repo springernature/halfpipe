@@ -2,7 +2,7 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: run \echo hello
+  name: hello
   plan:
   - attempts: 2
     in_parallel:
@@ -70,7 +70,7 @@ jobs:
           fi
         dir: git/.e2e/timer-trigger
         path: /bin/sh
-    task: run-echo-hello
+    task: hello
     timeout: 1h
   serial: true
 resource_types:

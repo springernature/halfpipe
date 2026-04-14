@@ -25,8 +25,8 @@ defaults:
     working-directory: .e2e/timer-trigger
 concurrency: ${{ github.workflow }}
 jobs:
-  run__echo_hello:
-    name: run \echo hello
+  hello:
+    name: hello
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
@@ -37,8 +37,8 @@ jobs:
         show-progress: false
         ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
-    - name: run \echo hello
-      id: run-echo-hello
+    - name: hello
+      id: hello
       uses: docker://alpine
       with:
         args: -c "cd .e2e/timer-trigger; \echo hello"

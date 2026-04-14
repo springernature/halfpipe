@@ -8,6 +8,7 @@ triggers:
 
 tasks:
 - type: run
+  name: hello
   docker:
     image: alpine
   script: \echo hello
