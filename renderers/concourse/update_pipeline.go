@@ -29,7 +29,7 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 			},
 			ImageResource: c.imageResource(manifest.Docker{
 				Image:    path.Join(config.DockerRegistry, "halfpipe-auto-update"),
-				Username: "oauth2accesstokenn",
+				Username: "oauth2accesstoken",
 				Password: "((gcp:platform-gar/token.token))",
 			}),
 			Run: atc.TaskRunConfig{

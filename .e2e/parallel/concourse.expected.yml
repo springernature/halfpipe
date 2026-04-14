@@ -20,7 +20,7 @@ jobs:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
           tag: latest
-          username: oauth2accesstokenn
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
