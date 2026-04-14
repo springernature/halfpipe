@@ -465,7 +465,7 @@ resources:
 - check_every: 24h0m0s
   name: cf-snpaas-pe-staging
   source:
-    api: ((cloudfoundry.api-snpaas))
+    api: ((platform/cloudfoundry.api-snpaas))
     org: pe
     password: very-secret
     space: staging

@@ -14,12 +14,12 @@ triggers:
 tasks:
 - type: deploy-cf
   name: deploy to cf simple
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   space: dev
 
 - type: deploy-cf
   name: deploy to cf with pre promote
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   space: dev
   docker_tag: gitref
   pre_promote:
@@ -33,14 +33,14 @@ tasks:
 
 - type: deploy-cf
   name: deploy to cf simple - rolling deploy
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   space: dev
   rolling: true
   docker_tag: version
 
 - type: deploy-cf
   name: deploy to cf with pre promote - rolling deploy
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   space: dev
   rolling: true
   docker_tag: gitref

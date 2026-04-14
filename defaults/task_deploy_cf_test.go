@@ -24,6 +24,22 @@ func TestCFDeployDefaults(t *testing.T) {
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, Concourse, man))
 	})
 
+	t.Run("snpaas - migration from old secret", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf"}
+
+		expected := manifest.DeployCF{
+			Org:        Concourse.CF.SnPaaS.Org,
+			API:        Concourse.CF.SnPaaS.API,
+			Username:   Concourse.CF.SnPaaS.Username,
+			Password:   Concourse.CF.SnPaaS.Password,
+			TestDomain: "springernature.app",
+			Manifest:   Concourse.CF.ManifestPath,
+			CliVersion: Concourse.CF.Version,
+		}
+
+		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: "((cloudfoundry.api-snpaas))", Org: "((cloudfoundry.org-snpaas))"}, Concourse, man))
+	})
+
 	t.Run("cli version", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		assert.Equal(t, "cf7", deployCfDefaulter(manifest.DeployCF{}, Concourse, man).CliVersion)

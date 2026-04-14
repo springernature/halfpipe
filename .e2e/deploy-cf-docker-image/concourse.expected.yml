@@ -446,20 +446,20 @@ resources:
 - check_every: 24h0m0s
   name: cf-snpaas-dev
   source:
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    password: ((cloudfoundry.password-snpaas))
+    api: ((platform/cloudfoundry.api-snpaas))
+    org: ((platform/cloudfoundry.org-snpaas))
+    password: ((platform/cloudfoundry.password-snpaas))
     space: dev
-    username: ((cloudfoundry.username-snpaas))
+    username: ((platform/cloudfoundry.username-snpaas))
   type: cf-resource
 - check_every: 24h0m0s
   name: rolling-cf-snpaas-dev
   source:
-    api: ((cloudfoundry.api-snpaas))
-    org: ((cloudfoundry.org-snpaas))
-    password: ((cloudfoundry.password-snpaas))
+    api: ((platform/cloudfoundry.api-snpaas))
+    org: ((platform/cloudfoundry.org-snpaas))
+    password: ((platform/cloudfoundry.password-snpaas))
     space: dev
-    username: ((cloudfoundry.username-snpaas))
+    username: ((platform/cloudfoundry.username-snpaas))
   type: cf-resource
 var_sources:
 - config:

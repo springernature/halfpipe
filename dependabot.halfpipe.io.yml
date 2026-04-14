@@ -25,7 +25,7 @@ tasks:
   restore_artifacts: true
 
 - type: deploy-cf
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   space: cf-space
   manifest: .e2e/deploy-cf/manifest.yml
 

@@ -5,15 +5,15 @@ var Concourse = Defaults{
 	ShallowClone:   false,
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
-			Username: "((cloudfoundry.username-snpaas))",
-			Password: "((cloudfoundry.password-snpaas))",
-			Org:      "((cloudfoundry.org-snpaas))",
-			API:      "((cloudfoundry.api-snpaas))",
+			Username: "((platform/cloudfoundry.username-snpaas))",
+			Password: "((platform/cloudfoundry.password-snpaas))",
+			Org:      "((platform/cloudfoundry.org-snpaas))",
+			API:      "((platform/cloudfoundry.api-snpaas))",
 		},
 		ManifestPath: "manifest.yml",
 		TestDomains: map[string]string{
-			"https://api.snpaas.eu":       "springernature.app",
-			"((cloudfoundry.api-snpaas))": "springernature.app",
+			"https://api.snpaas.eu":                "springernature.app",
+			"((platform/cloudfoundry.api-snpaas))": "springernature.app",
 		},
 		Version: "cf7",
 	},
@@ -65,15 +65,15 @@ var Actions = Defaults{
 
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
-			Username: "((cloudfoundry.username-snpaas))",
-			Password: "((cloudfoundry.password-snpaas))",
-			Org:      "((cloudfoundry.org-snpaas))",
-			API:      "((cloudfoundry.api-snpaas))",
+			Username: "((platform/cloudfoundry.username-snpaas))",
+			Password: "((platform/cloudfoundry.password-snpaas))",
+			Org:      "((platform/cloudfoundry.org-snpaas))",
+			API:      "((platform/cloudfoundry.api-snpaas))",
 		},
 		ManifestPath: "manifest.yml",
 		TestDomains: map[string]string{
-			"https://api.snpaas.eu":       "springernature.app",
-			"((cloudfoundry.api-snpaas))": "springernature.app",
+			"https://api.snpaas.eu":                "springernature.app",
+			"((platform/cloudfoundry.api-snpaas))": "springernature.app",
 		},
 		Version: "cf7",
 	},

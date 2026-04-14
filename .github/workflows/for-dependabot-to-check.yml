@@ -129,10 +129,10 @@ jobs:
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
         secrets: |
-          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
-          /springernature/data/halfpipe-team/cloudfoundry org-snpaas | springernature_data_halfpipe-team_cloudfoundry_org-snpaas ;
-          /springernature/data/halfpipe-team/cloudfoundry password-snpaas | springernature_data_halfpipe-team_cloudfoundry_password-snpaas ;
-          /springernature/data/halfpipe-team/cloudfoundry username-snpaas | springernature_data_halfpipe-team_cloudfoundry_username-snpaas ;
+          /springernature/data/halfpipe-team/platform/cloudfoundry api-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/platform/cloudfoundry org-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas ;
+          /springernature/data/halfpipe-team/platform/cloudfoundry password-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas ;
+          /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
         url: https://vault.halfpipe.io
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -144,19 +144,19 @@ jobs:
     - name: Deploy
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .
         cliVersion: cf7
         command: halfpipe-all
         eaid: APPL-437
         gitUri: git@github.com:springernature/halfpipe.git
         manifestPath: .e2e/deploy-cf/manifest.yml
-        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_org-snpaas }}
-        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_password-snpaas }}
+        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
+        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}
         space: cf-space
         team: halfpipe-team
         testDomain: springernature.app
-        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_username-snpaas }}
+        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas }}
       env:
         CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
     - name: Summary

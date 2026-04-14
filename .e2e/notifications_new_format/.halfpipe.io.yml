@@ -43,7 +43,7 @@ tasks:
 
 - type: deploy-cf
   name: deploy to staging
-  api: ((cloudfoundry.api-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
   org: pe
   space: staging
   username: michiel

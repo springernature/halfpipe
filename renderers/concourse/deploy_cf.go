@@ -353,7 +353,7 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 	// if url remove the scheme
 	api := strings.Replace(task.API, "https://", "", -1)
 	api = strings.Replace(api, "http://", "", -1)
-	api = strings.Replace(api, "((cloudfoundry.api-", "", -1)
+	api = strings.Replace(api, "((platform/cloudfoundry.api-", "", -1)
 	api = strings.Replace(api, "))", "", -1)
 	api = strings.ToLower(api)
 
@@ -362,7 +362,7 @@ func deployCFResourceName(task manifest.DeployCF) (name string) {
 		name = fmt.Sprintf("rolling-cf-%s", api)
 	}
 
-	if org := strings.Replace(task.Org, "((cloudfoundry.org-snpaas))", "", -1); org != "" {
+	if org := strings.Replace(task.Org, "((platform/cloudfoundry.org-snpaas))", "", -1); org != "" {
 		name = fmt.Sprintf("%s-%s", name, strings.ToLower(org))
 	}
 

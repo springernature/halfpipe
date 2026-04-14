@@ -80,8 +80,8 @@ tasks:
 
 - type: deploy-cf
   name: deploy with docker image
-  api: ((cloudfoundry.api-snpaas))
-  org: ((cloudfoundry.org-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
+  org: ((platform/cloudfoundry.org-snpaas))
   space: dev
   manifest: manifest-docker.yml
   docker_tag: version
@@ -97,8 +97,8 @@ tasks:
 
 - type: deploy-cf
   name: deploy rolling with sso
-  api: ((cloudfoundry.api-snpaas))
-  org: ((cloudfoundry.org-snpaas))
+  api: ((platform/cloudfoundry.api-snpaas))
+  org: ((platform/cloudfoundry.org-snpaas))
   space: dev
   deploy_artifact: foo.html
   sso_route: some-route.public.springernature.app

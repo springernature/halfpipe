@@ -191,7 +191,7 @@ jobs:
         roleId: ${{ env.VAULT_ROLE_ID }}
         secretId: ${{ env.VAULT_SECRET_ID }}
         secrets: |
-          /springernature/data/halfpipe-team/cloudfoundry api-snpaas | springernature_data_halfpipe-team_cloudfoundry_api-snpaas ;
+          /springernature/data/halfpipe-team/platform/cloudfoundry api-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas ;
           /springernature/data/halfpipe-team/teams webhook | springernature_data_halfpipe-team_teams_webhook ;
         url: https://vault.halfpipe.io
     - name: Checkout code
@@ -204,7 +204,7 @@ jobs:
     - name: Push
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-push
@@ -225,7 +225,7 @@ jobs:
       if: failure()
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-logs
@@ -238,7 +238,7 @@ jobs:
     - name: Check
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-check
@@ -264,7 +264,7 @@ jobs:
     - name: Promote
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-promote
@@ -278,7 +278,7 @@ jobs:
       if: ${{ !cancelled() }}
       uses: springernature/ee-action-deploy-cf@v1
       with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_cloudfoundry_api-snpaas }}
+        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
         appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-cleanup

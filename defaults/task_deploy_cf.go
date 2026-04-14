@@ -5,12 +5,12 @@ import "github.com/springernature/halfpipe/manifest"
 func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manifest.Manifest) (updated manifest.DeployCF) {
 	updated = original
 
-	if updated.API == "" {
+	if updated.API == "" || updated.API == "((cloudfoundry.api-snpaas))" {
 		updated.API = defaults.CF.SnPaaS.API
 	}
 
 	if updated.API == defaults.CF.SnPaaS.API {
-		if updated.Org == "" {
+		if updated.Org == "" || updated.Org == "((cloudfoundry.org-snpaas))" {
 			updated.Org = defaults.CF.SnPaaS.Org
 		}
 		if updated.Username == "" {
