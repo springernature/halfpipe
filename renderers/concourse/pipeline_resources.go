@@ -9,6 +9,7 @@ import (
 	"path"
 
 	"fmt"
+
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -164,15 +165,14 @@ func (c Concourse) cronResource(trigger manifest.TimerTrigger) atc.ResourceConfi
 const cronResourceTypeName = "halfpipe-cron-resource"
 
 func cronResourceType() atc.ResourceType {
-
 	return atc.ResourceType{
 		Name:       cronResourceTypeName,
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, cronResourceTypeName),
-			"password":   "((gcp:platform-gar/token.token))",
-			"username":   "oauth2accesstoken",
+			"password":   "((halfpipe-gcr.private_key))",
+			"username":   "_json_key",
 			"tag":        "stable",
 		},
 	}

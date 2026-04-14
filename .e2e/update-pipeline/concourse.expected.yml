@@ -195,10 +195,10 @@ resource_types:
 - check_every: 24h0m0s
   name: halfpipe-cron-resource
   source:
-    password: ((gcp:platform-gar/token.token))
+    password: ((halfpipe-gcr.private_key))
     repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
     tag: stable
-    username: oauth2accesstoken
+    username: _json_key
   type: registry-image
 resources:
 - check_every: 10m0s
