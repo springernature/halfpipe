@@ -375,11 +375,11 @@ func (c Concourse) Render(man manifest.Manifest) (string, error) {
 }
 
 func (c Concourse) RenderAtcConfig(man manifest.Manifest) (cfg atc.Config) {
+	cfg.VarSources = append(cfg.VarSources, c.shortLivedGCPTokenVarSource())
+
 	resourceTypes, resourceConfigs := c.resourceConfigs(man)
 	cfg.ResourceTypes = append(cfg.ResourceTypes, resourceTypes...)
 	cfg.Resources = append(cfg.Resources, resourceConfigs...)
-
-	cfg.VarSources = append(cfg.VarSources, c.varSources(man, resourceTypes)...)
 
 	type parentTask struct {
 		isParallel bool
@@ -463,38 +463,23 @@ func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man
 	return step
 }
 
-func (c Concourse) varSources(man manifest.Manifest, types atc.ResourceTypes) atc.VarSourceConfigs {
-	shouldAddVarSource := false
-	for _, resourceType := range types {
-		for _, v := range resourceType.Source {
-			if strings.HasPrefix(v.(string), "((gcp:platform") {
-				shouldAddVarSource = true
-				break
-			}
-		}
-	}
-
-	if shouldAddVarSource {
-		return atc.VarSourceConfigs{
-			atc.VarSourceConfig{
-				Name: "gcp",
-				Type: "vault",
-				Config: map[string]any{
-					"url":          "((platform/team-ro-app-role.vault_addr))",
-					"auth_backend": "approle",
-					"path_prefix":  "gcp/impersonated-account/",
-					// The default is `["/{{.Team}}/{{.Pipeline}}/{{.Secret}}", "/{{.Team}}/{{.Secret}}"].` So we will try to resolve gcp/impersonated-account/anura/pipeline/name, gcp/impersonated-account/anura/name BEFORE we try the actual path gcp/impersonated-account/name.
-					// This will errors since our vault policy only allows reading `gcp/impersonated-account/platform-*`
-					"lookup_templates": []string{"{{.Secret}}"},
-					"auth_params": map[string]string{
-						"role_id":   "((platform/team-ro-app-role.vault_approle_id))",
-						"secret_id": "((platform/team-ro-app-role.vault_approle_secret_id))",
-					},
-				},
+func (c Concourse) shortLivedGCPTokenVarSource() atc.VarSourceConfig {
+	return atc.VarSourceConfig{
+		Name: "gcp",
+		Type: "vault",
+		Config: map[string]any{
+			"url":          "((platform/team-ro-app-role.vault_addr))",
+			"auth_backend": "approle",
+			"path_prefix":  "gcp/impersonated-account/",
+			// The default is `["/{{.Team}}/{{.Pipeline}}/{{.Secret}}", "/{{.Team}}/{{.Secret}}"].` So we will try to resolve gcp/impersonated-account/anura/pipeline/name, gcp/impersonated-account/anura/name BEFORE we try the actual path gcp/impersonated-account/name.
+			// This will errors since our vault policy only allows reading `gcp/impersonated-account/platform-*`
+			"lookup_templates": []string{"{{.Secret}}"},
+			"auth_params": map[string]string{
+				"role_id":   "((platform/team-ro-app-role.vault_approle_id))",
+				"secret_id": "((platform/team-ro-app-role.vault_approle_secret_id))",
 			},
-		}
+		},
 	}
-	return atc.VarSourceConfigs{}
 }
 
 func pathToArtifactsDir(repoName string, basePath string, artifactsDir string) (artifactPath string) {

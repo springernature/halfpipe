@@ -163,3 +163,15 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
+var_sources:
+- config:
+    auth_backend: approle
+    auth_params:
+      role_id: ((platform/team-ro-app-role.vault_approle_id))
+      secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
+    lookup_templates:
+    - '{{.Secret}}'
+    path_prefix: gcp/impersonated-account/
+    url: ((platform/team-ro-app-role.vault_addr))
+  name: gcp
+  type: vault
