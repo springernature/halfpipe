@@ -29,8 +29,8 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 			},
 			ImageResource: c.imageResource(manifest.Docker{
 				Image:    path.Join(config.DockerRegistry, "halfpipe-auto-update"),
-				Username: "_json_key",
-				Password: "((halfpipe-gcr.private_key))",
+				Username: "oauth2accesstokenn",
+				Password: "((gcp:platform-gar/token.token))",
 			}),
 			Run: atc.TaskRunConfig{
 				Path: "update-pipeline",
