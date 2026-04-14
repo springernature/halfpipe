@@ -469,10 +469,12 @@ func (c Concourse) varSources(man manifest.Manifest) atc.VarSourceConfigs {
 				Name: "gcp",
 				Type: "vault",
 				Config: map[string]any{
-					"url":              "((platform/team-ro-app-role.vault_addr))",
-					"auth_backend":     "approle",
-					"path_prefix":      "gcp/impersonated-account/",
-					"lookup_templates": []string{}, // THIS IS WEIRD, BUT IMPORTANT! OTHERWISE WE WILL TRY TO LOOK IN BAD PLACES LIKE `gcp/impersonated-account/anura/nodejs-test/platform-artifacts/token`. I.e it will try to do the default precidence check, which teams dont have access to.
+					"url":          "((platform/team-ro-app-role.vault_addr))",
+					"auth_backend": "approle",
+					"path_prefix":  "gcp/impersonated-account/",
+					// The default is `["/{{.Team}}/{{.Pipeline}}/{{.Secret}}", "/{{.Team}}/{{.Secret}}"].` So we will try to resolve gcp/impersonated-account/anura/pipeline/name, gcp/impersonated-account/anura/name BEFORE we try the actual path gcp/impersonated-account/name.
+					// This will errors since our vault policy only allows reading `gcp/impersonated-account/platform-*`
+					"lookup_templates": []string{"{{.Secret}}"},
 					"auth_params": map[string]string{
 						"role_id":   "((platform/team-ro-app-role.vault_approle_id))",
 						"secret_id": "((platform/team-ro-app-role.vault_approle_secret_id))",
