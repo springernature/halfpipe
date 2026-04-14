@@ -118,8 +118,8 @@ func (c Concourse) gcpResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "engineering-enablement", "gcp-resource"),
 			"tag":        "latest",
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
+			"password":   "((gcp:platform-gar/token.token))",
+			"username":   "oauth2accesstoken",
 		},
 	}
 }

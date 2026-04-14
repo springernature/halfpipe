@@ -189,10 +189,10 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -344,10 +344,10 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -493,10 +493,10 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -720,10 +720,10 @@ resource_types:
 - check_every: 24h0m0s
   name: gcp-resource
   source:
-    password: ((halfpipe-gcr.private_key))
+    password: ((gcp:platform-gar/token.token))
     repository: eu.gcr.io/halfpipe-io/engineering-enablement/gcp-resource
     tag: latest
-    username: _json_key
+    username: oauth2accesstoken
   type: registry-image
 - check_every: 24h0m0s
   name: cf-resource
