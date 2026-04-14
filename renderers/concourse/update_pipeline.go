@@ -18,10 +18,10 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 		Config: &atc.TaskConfig{
 			Platform: "linux",
 			Params: map[string]string{
-				"CONCOURSE_URL":      "((concourse.url))",
-				"CONCOURSE_PASSWORD": "((concourse.password))",
-				"CONCOURSE_TEAM":     "((concourse.team))",
-				"CONCOURSE_USERNAME": "((concourse.username))",
+				"CONCOURSE_URL":      "((platform/concourse.url))",
+				"CONCOURSE_PASSWORD": "((platform/concourse.password))",
+				"CONCOURSE_TEAM":     "((platform/concourse.team))",
+				"CONCOURSE_USERNAME": "((platform/concourse.username))",
 				"PIPELINE_NAME":      pipelineName,
 				"HALFPIPE_DOMAIN":    config.Domain,
 				"HALFPIPE_PROJECT":   config.Project,

@@ -25,10 +25,10 @@ jobs:
       inputs:
       - name: git
       params:
-        CONCOURSE_PASSWORD: ((concourse.password))
-        CONCOURSE_TEAM: ((concourse.team))
-        CONCOURSE_URL: ((concourse.url))
-        CONCOURSE_USERNAME: ((concourse.username))
+        CONCOURSE_PASSWORD: ((platform/concourse.password))
+        CONCOURSE_TEAM: ((platform/concourse.team))
+        CONCOURSE_URL: ((platform/concourse.url))
+        CONCOURSE_USERNAME: ((platform/concourse.username))
         HALFPIPE_DOMAIN: halfpipe.io
         HALFPIPE_FILE_PATH: .halfpipe.io.yml
         HALFPIPE_PROJECT: halfpipe-io

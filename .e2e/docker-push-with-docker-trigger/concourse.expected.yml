@@ -186,13 +186,13 @@ resources:
   type: git
 - name: halfpipe-example-docker-push.docker-push
   source:
-    concourse_url: ((concourse.url))
+    concourse_url: ((platform/concourse.url))
     job: docker-push
-    password: ((concourse.password))
+    password: ((platform/concourse.password))
     pipeline: halfpipe-example-docker-push
     status: succeeded
     team: halfpipe-team
-    username: ((concourse.username))
+    username: ((platform/concourse.username))
   type: halfpipe-pipeline-trigger
 var_sources:
 - config:

@@ -36,9 +36,9 @@ var Concourse = Defaults{
 		URL:      "((artifactory.url))",
 	},
 	Concourse: ConcourseDefaults{
-		URL:      "((concourse.url))",
-		Username: "((concourse.username))",
-		Password: "((concourse.password))",
+		URL:      "((platform/concourse.url))",
+		Username: "((platform/concourse.username))",
+		Password: "((platform/concourse.password))",
 	},
 	MarkLogic: MarkLogicDefaults{
 		Username: "((halfpipe-ml-deploy.username))",
