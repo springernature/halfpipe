@@ -26,7 +26,7 @@ To migrate a Concourse pipeline to Actions you must do the following steps
    $ fly -t {{.Team}} pause-pipeline -p {{.Pipeline}}
 
 3. Add the necessary Vault tokens to the Github repo's secrets. If you have a mono repo you only need to do this once
-   $ vault kv get springernature/{{.Team}}/team-ro-app-role
+   $ vault kv get springernature/{{.Team}}/platform/team-ro-app-role
    # Write the secrets as VAULT_ROLE_ID and VAULT_SECRET_ID in https://github.com/springernature/{{.Project}}/settings/secrets/actions
 
 4. Update the halfpipe file with the new top level key, 'platform: actions'
