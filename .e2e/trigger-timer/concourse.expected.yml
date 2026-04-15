@@ -1,4 +1,4 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/trigger-timer/.halfpipe.io.yml for team halfpipe-team
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/trigger-timer/.halfpipe.io.yml for team engineering-enablement
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -33,7 +33,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_PLATFORM_TEAM: halfpipe-team
+        EE_PLATFORM_TEAM: engineering-enablement
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -77,10 +77,8 @@ resource_types:
 - check_every: 24h0m0s
   name: halfpipe-cron-resource
   source:
-    password: ((halfpipe-gcr.private_key))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-cron-resource
-    tag: stable
-    username: _json_key
+    repository: platformengineering/halfpipe-cron-resource
+    tag: sha256:cf4e7dd0acaa914e1202b846548d6478d2bb1a178f71484766ca9dfc027468a7
   type: registry-image
 resources:
 - check_every: 10m0s

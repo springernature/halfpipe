@@ -170,10 +170,8 @@ func cronResourceType() atc.ResourceType {
 		Type:       "registry-image",
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
-			"repository": path.Join(config.DockerRegistry, cronResourceTypeName),
-			"password":   "((halfpipe-gcr.private_key))",
-			"username":   "_json_key",
-			"tag":        "stable",
+			"repository": "platformengineering/halfpipe-cron-resource",
+			"tag":        "sha256:cf4e7dd0acaa914e1202b846548d6478d2bb1a178f71484766ca9dfc027468a7",
 		},
 	}
 }
