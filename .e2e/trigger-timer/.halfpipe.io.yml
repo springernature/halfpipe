@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=../../schema.json
 team: halfpipe-team
-pipeline: halfpipe-e2e-timer-trigger
+pipeline: halfpipe-e2e-trigger-timer
 
 triggers:
 - type: timer

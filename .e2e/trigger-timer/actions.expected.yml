@@ -1,5 +1,5 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/timer-trigger/.halfpipe.io.yml for team halfpipe-team
-name: halfpipe-e2e-timer-trigger
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/trigger-timer/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-trigger-timer
 "on":
   push:
     branches:
@@ -22,7 +22,7 @@ env:
   VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
 defaults:
   run:
-    working-directory: .e2e/timer-trigger
+    working-directory: .e2e/trigger-timer
 concurrency: ${{ github.workflow }}
 jobs:
   hello:
@@ -41,7 +41,7 @@ jobs:
       id: hello
       uses: docker://alpine
       with:
-        args: -c "cd .e2e/timer-trigger; \echo hello"
+        args: -c "cd .e2e/trigger-timer; \echo hello"
         entrypoint: /bin/sh
       env:
         CI: "true"
