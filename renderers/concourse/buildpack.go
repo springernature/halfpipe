@@ -47,7 +47,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 			Platform: "linux",
 			Params:   taskEnv,
 			ImageResource: c.imageResource(manifest.Docker{
-				Image:    path.Join(config.DockerRegistry, "engineering-enablement/halfpipe-buildx-pack"),
+				Image:    path.Join(config.DockerRegistry, "halfpipe-docker-compose:stable"),
 				Username: "_json_key",
 				Password: "((halfpipe-gcr.private_key))",
 			}),
