@@ -1,6 +1,6 @@
 package shared
 
-var CopyContainerImageScript = `set -euo pipefail
+var CopyContainerImageScript = `\set -euo pipefail
 
 # ------------------------------------------------------------------------------
 #

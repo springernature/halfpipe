@@ -15,19 +15,19 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
       params:
         AWS_ACCESS_KEY_ID: ((ee-aws-ecr-credentials.aws_access_key_id))
         AWS_SECRET_ACCESS_KEY: ((ee-aws-ecr-credentials.aws_secret_access_key))
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         SOURCE_URL: eu.gcr.io/halfpipe-io/team/image
         TARGET_URL: 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn
       platform: linux
@@ -36,11 +36,7 @@ jobs:
         - -c
         - |
           export GIT_REVISION=`cat ../../.git/ref`
-
-          \mkdir -p ~/.docker
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          %s
-          set -euo pipefail
+          \set -euo pipefail
 
           # ------------------------------------------------------------------------------
           #
@@ -225,19 +221,19 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
       params:
         AWS_ACCESS_KEY_ID: ((ee-aws-ecr-credentials.aws_access_key_id))
         AWS_SECRET_ACCESS_KEY: ((ee-aws-ecr-credentials.aws_secret_access_key))
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         SOURCE_URL: eu.gcr.io/halfpipe-io/team/image:tag
         TARGET_URL: 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn
       platform: linux
@@ -247,10 +243,7 @@ jobs:
         - |
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \mkdir -p ~/.docker
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
-          %s
-          set -euo pipefail
+          \set -euo pipefail
 
           # ------------------------------------------------------------------------------
           #

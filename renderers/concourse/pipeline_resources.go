@@ -15,12 +15,12 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-// var halfpipeDockerImage = manifest.Docker{
-// 	Image:      path.Join(config.DockerRegistry, "engineering-enablement", "halfpipe-docker:latest"),
-// 	Username:   "oauth2accesstoken",
-// 	Password:   "((gcp:platform-gar/token.token))",
-// 	Entrypoint: "docker.sh",
-// }
+var halfpipeDockerImage = manifest.Docker{
+	Image:      path.Join(config.DockerRegistry, "engineering-enablement", "halfpipe-docker:latest"),
+	Username:   "oauth2accesstoken",
+	Password:   "((gcp:platform-gar/token.token))",
+	Entrypoint: "docker.sh",
+}
 
 var halfpipeDockerComposeImage = manifest.Docker{
 	Image:      path.Join(config.DockerRegistry, "halfpipe-docker-compose:stable"),

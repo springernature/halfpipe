@@ -1,32 +1,25 @@
 package concourse
 
 import (
-	"strings"
-
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
 )
 
-func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage, man manifest.Manifest) manifest.Run {
-	script := []string{
-		"\\mkdir -p ~/.docker",
-		"echo $DOCKER_CONFIG_JSON > ~/.docker/config.json\n%s",
-		shared.CopyContainerImageScript,
-	}
-
+func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage) manifest.Run {
 	return manifest.Run{
 		Retries:    task.Retries,
 		Name:       task.GetName(),
-		Script:     strings.Join(script, "\n"),
-		Docker:     halfpipeDockerComposeImage,
+		Script:     shared.CopyContainerImageScript,
+		Docker:     halfpipeDockerImage,
 		Privileged: true,
 		Vars: manifest.Vars{
 			"SOURCE_URL":            task.Source,
 			"TARGET_URL":            task.Target,
 			"AWS_ACCESS_KEY_ID":     task.AwsAccessKeyID,
 			"AWS_SECRET_ACCESS_KEY": task.AwsSecretAccessKey,
-			"DOCKER_CONFIG_JSON":    "((halfpipe-gcr.docker_config))",
+			"GAR_TOKEN":             "((gcp:platform-gar/token.token))",
 		},
-		Timeout: task.GetTimeout(),
+		Timeout:       task.GetTimeout(),
+		Notifications: task.Notifications,
 	}
 }

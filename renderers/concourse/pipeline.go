@@ -338,7 +338,7 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 		job = c.PackJob(task, basePath, man)
 
 	case manifest.CopyContainerImage:
-		runTask := convertCopyContainerImageToRunTask(task, man)
+		runTask := convertCopyContainerImageToRunTask(task)
 		job = c.runJob(runTask, man, basePath)
 
 	case manifest.ConsumerIntegrationTest:

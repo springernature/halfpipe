@@ -50,7 +50,7 @@ jobs:
     - name: cp without tag
       id: cp-without-tag
       run: |
-        set -euo pipefail
+        \set -euo pipefail
 
         # ------------------------------------------------------------------------------
         #
@@ -241,7 +241,7 @@ jobs:
     - name: cp with tag
       id: cp-with-tag
       run: |
-        set -euo pipefail
+        \set -euo pipefail
 
         # ------------------------------------------------------------------------------
         #
