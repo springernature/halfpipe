@@ -371,12 +371,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-fly
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git

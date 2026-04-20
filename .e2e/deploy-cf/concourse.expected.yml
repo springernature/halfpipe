@@ -253,12 +253,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-fly
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -419,9 +419,9 @@ jobs:
     params:
       cliVersion: cf7
       command: halfpipe-all
-      dockerPassword: ((halfpipe-gcr.private_key))
+      dockerPassword: ((gcp:platform-gar/token.token))
       dockerTag: version/version
-      dockerUsername: _json_key
+      dockerUsername: oauth2accesstoken
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
@@ -627,12 +627,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/halfpipe-fly
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git

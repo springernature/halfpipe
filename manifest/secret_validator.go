@@ -140,7 +140,7 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 			}
 
 			if platform.IsConcourse() {
-				if !validateKeyValueSecret(secret) && !validateMultipleLevelSecret(secret) {
+				if !validateKeyValueSecret(secret) && !validateMultipleLevelSecret(secret) && !validateVarSourceSecret(secret) {
 					*errs = append(*errs, InvalidSecretConcourseError(secret, fieldName))
 					return
 				}
@@ -202,6 +202,15 @@ func validateMultipleLevelSecret(secret string) bool {
 func validateKeyValueSecret(secret string) bool {
 	splitSecret := strings.Split(secret, ".")
 	if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\([a-zA-Z0-9\-_\.]+\)\)$`).MatchString(secret) {
+		return false
+	}
+
+	return true
+}
+
+func validateVarSourceSecret(secret string) bool {
+	splitSecret := strings.Split(secret, ":")
+	if len(splitSecret) != 2 || !regexp.MustCompile(`^\(\(gcp:[a-zA-Z0-9\-_\.\/]+\)\)$`).MatchString(secret) {
 		return false
 	}
 

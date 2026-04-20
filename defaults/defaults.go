@@ -24,8 +24,8 @@ var Concourse = Defaults{
 		MaxChecks:     60,
 	},
 	Docker: DockerDefaults{
-		Username:       "_json_key",
-		Password:       "((halfpipe-gcr.private_key))",
+		Username:       "oauth2accesstoken",
+		Password:       "((gcp:platform-gar/token.token))",
 		ComposeService: "app",
 		ComposeFile:    []string{"docker-compose.yml"},
 		FilePath:       "Dockerfile",
