@@ -23,9 +23,7 @@ func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) 
 		Type:          "run",
 		Name:          "Deploy to Katee",
 		ManualTrigger: false,
-		Script: `\echo "Running vela up..."
-
-export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+		Script: `\export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
 if [ "$REVISION_FORMAT" == "gitref" ]; then
   export TAG="$GIT_REVISION"
 elif [ "$REVISION_FORMAT" == "version" ]; then
@@ -35,8 +33,8 @@ fi
 halfpipe-deploy`,
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli:latest",
-			Username: "_json_key",
-			Password: vaultSecrets.GCRPrivateKey,
+			Username: "oauth2accesstoken",
+			Password: vaultSecrets.GARToken,
 		},
 		Privileged: false,
 		Vars: manifest.Vars{

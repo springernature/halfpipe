@@ -223,12 +223,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -275,9 +275,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \echo "Running vela up..."
-
-          export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+          \export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
           if [ "$REVISION_FORMAT" == "gitref" ]; then
             export TAG="$GIT_REVISION"
           elif [ "$REVISION_FORMAT" == "version" ]; then
@@ -317,12 +315,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -369,9 +367,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \echo "Running vela up..."
-
-          export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
+          \export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
           if [ "$REVISION_FORMAT" == "gitref" ]; then
             export TAG="$GIT_REVISION"
           elif [ "$REVISION_FORMAT" == "version" ]; then
