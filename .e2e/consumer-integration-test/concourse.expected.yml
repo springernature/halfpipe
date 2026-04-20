@@ -15,12 +15,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -39,7 +39,7 @@ jobs:
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
-        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: --depth 100
         HALFPIPE_CACHE_TEAM: halfpipe-team
         K: value
@@ -57,8 +57,7 @@ jobs:
         - |
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
+          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?
@@ -88,12 +87,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -112,7 +111,7 @@ jobs:
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
-        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: --depth 100
         HALFPIPE_CACHE_TEAM: halfpipe-team
         K: value
@@ -129,8 +128,7 @@ jobs:
         - |
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI"
+          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?

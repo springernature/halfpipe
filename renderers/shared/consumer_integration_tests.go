@@ -30,7 +30,7 @@ func ConsumerIntegrationTestScript(keys []string, cacheDirs []CacheDirs, isConco
 	}
 	volumeOption := strings.Join(volumeFlags, " ")
 
-	return fmt.Sprintf(`export ENV_OPTIONS="%s"
+	return fmt.Sprintf(`\export ENV_OPTIONS="%s"
 export VOLUME_OPTIONS="%s"
 run-cdc.sh`, envOption, volumeOption)
 }

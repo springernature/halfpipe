@@ -15,12 +15,9 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	consumerGitParts := strings.Split(task.Consumer, "/")
 	consumerGitURI := fmt.Sprintf("git@github.com:springernature/%s", consumerGitParts[0])
 	consumerGitPath := ""
-	cdcScript := ""
 	if len(consumerGitParts) > 1 {
 		consumerGitPath = strings.Join(consumerGitParts[1:], "/")
 	}
-
-	dockerLogin := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`
 
 	var keys []string
 	for k := range task.Vars {
@@ -30,9 +27,6 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	for _, cacheDir := range config.DockerComposeCacheDirs {
 		cacheDirs = append(cacheDirs, shared.CacheDirs{RunnerDir: cacheDir, ContainerDir: cacheDir})
 	}
-	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs, true)
-
-	script := dockerLogin + "\n" + cdcScript
 
 	providerName := task.ProviderName
 	if providerName == "" {
@@ -43,8 +37,8 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	runTask := manifest.Run{
 		Retries:    task.Retries,
 		Name:       task.Name,
-		Script:     script,
-		Docker:     halfpipeDockerComposeImage,
+		Script:     shared.ConsumerIntegrationTestScript(keys, cacheDirs, true),
+		Docker:     halfpipeDockerImage,
 		Privileged: true,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
@@ -58,7 +52,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"PROVIDER_HOST":          task.ProviderHost,
 			"DOCKER_COMPOSE_FILE":    task.DockerComposeFile,
 			"DOCKER_COMPOSE_SERVICE": task.DockerComposeService,
-			"GCR_PRIVATE_KEY":        "((halfpipe-gcr.private_key))",
+			"GAR_TOKEN":              "((gcp:platform-gar/token.token))",
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 			"HALFPIPE_CACHE_TEAM":    man.Team,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
