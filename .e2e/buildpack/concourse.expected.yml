@@ -15,12 +15,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -29,9 +29,9 @@ jobs:
         ARTIFACTORY_URL: ((artifactory.url))
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -39,7 +39,6 @@ jobs:
         - -c
         - |
           export GIT_REVISION=`cat ../../.git/ref`
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path . \
           --builder paketobuildpacks/builder-jammy-buildpackless-base \
@@ -94,12 +93,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -110,9 +109,9 @@ jobs:
         BP_BAR: bar
         BP_FOO: foo
         CI: "true"
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -120,7 +119,6 @@ jobs:
         - -c
         - |
           export GIT_REVISION=`cat ../../.git/ref`
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path build/libs \
           --builder paketobuildpacks/builder-jammy-buildpackless-tiny \

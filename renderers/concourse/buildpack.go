@@ -33,7 +33,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 	taskEnv := make(atc.TaskEnv)
 	maps.Copy(taskEnv, task.Vars)
 
-	taskEnv["DOCKER_CONFIG_JSON"] = "((halfpipe-gcr.docker_config))"
+	taskEnv["GAR_TOKEN"] = "((gcp:platform-gar/token.token))"
 
 	var caches []atc.TaskCacheConfig
 	for _, dir := range config.CacheDirs {
@@ -46,7 +46,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 		Config: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        taskEnv,
-			ImageResource: c.imageResource(halfpipeDockerComposeImage),
+			ImageResource: c.imageResource(halfpipeDockerImage),
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  path.Join(gitDir, basePath),
@@ -89,8 +89,6 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 	if len(task.Path) > 0 {
 		appPath = task.Path
 	}
-
-	out = append(out, `echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`)
 
 	var envVars strings.Builder
 	for _, key := range slices.Sorted(maps.Keys(task.Vars)) {
