@@ -79,14 +79,6 @@ tasks:
     ENV4: ((another.secret))
 
 - type: deploy-cf
-  name: deploy with docker image
-  api: ((platform/cloudfoundry.api-snpaas))
-  org: ((platform/cloudfoundry.org-snpaas))
-  space: dev
-  manifest: manifest-docker.yml
-  docker_tag: version
-
-- type: deploy-cf
   name: deploy with sso route
   api: dev-api
   space: dev

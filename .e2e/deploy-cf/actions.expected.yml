@@ -310,65 +310,10 @@ jobs:
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
-  deploy_with_docker_image:
-    name: deploy with docker image
-    needs:
-    - deploy_with_vars_and_secrets
-    runs-on: ee-runner
-    timeout-minutes: 60
-    steps:
-    - name: Vault secrets
-      id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
-      with:
-        exportEnv: false
-        method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
-        secrets: |
-          /springernature/data/halfpipe-team/platform/cloudfoundry api-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas ;
-          /springernature/data/halfpipe-team/platform/cloudfoundry org-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas ;
-          /springernature/data/halfpipe-team/platform/cloudfoundry password-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas ;
-          /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
-          /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
-        url: https://vault.halfpipe.io
-    - name: Checkout code
-      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      with:
-        lfs: true
-        show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
-        submodules: recursive
-    - name: Deploy
-      uses: springernature/ee-action-deploy-cf@v1
-      with:
-        api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/deploy-cf
-        cliVersion: cf7
-        command: halfpipe-all
-        dockerPassword: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-gcr_private_key_base64 }}
-        dockerTag: ${{ env.BUILD_VERSION }}
-        dockerUsername: _json_key
-        eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
-        manifestPath: .e2e/deploy-cf/manifest-docker.yml
-        org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
-        password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}
-        space: dev
-        team: halfpipe-team
-        testDomain: springernature.app
-        username: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas }}
-      env:
-        CF_ENV_VAR_BUILD_URL: https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
-    - name: Summary
-      run: |-
-        echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_sso_route:
     name: deploy with sso route
     needs:
-    - deploy_with_docker_image
+    - deploy_with_vars_and_secrets
     runs-on: ee-runner
     timeout-minutes: 60
     steps:

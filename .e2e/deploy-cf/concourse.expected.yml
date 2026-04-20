@@ -398,49 +398,12 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: deploy with docker image
-  plan:
-  - attempts: 2
-    get: git
-    passed:
-    - deploy with vars and secrets
-    timeout: 2h
-    trigger: true
-  - attempts: 2
-    no_get: true
-    on_failure:
-      no_get: true
-      params:
-        cliVersion: cf7
-        command: halfpipe-logs
-        manifestPath: git/.e2e/deploy-cf/manifest-docker.yml
-      put: cf-logs
-      resource: cf-snpaas-dev
-    params:
-      cliVersion: cf7
-      command: halfpipe-all
-      dockerPassword: ((gcp:platform-gar/token.token))
-      dockerTag: version/version
-      dockerUsername: oauth2accesstoken
-      eaid: APPL-437
-      gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
-      manifestPath: git/.e2e/deploy-cf/manifest-docker.yml
-      team: halfpipe-team
-      testDomain: springernature.app
-      timeout: 1h
-    put: halfpipe-all
-    resource: cf-snpaas-dev
-    timeout: 1h
-  serial: true
-- build_log_retention:
-    minimum_succeeded_builds: 1
   name: deploy with sso route
   plan:
   - attempts: 2
     get: git
     passed:
-    - deploy with docker image
+    - deploy with vars and secrets
     timeout: 2h
     trigger: true
   - attempts: 2

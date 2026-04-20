@@ -74,8 +74,8 @@ jobs:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-all
-      dockerPassword: ((gcp:platform-gar/token.token))
-      dockerUsername: oauth2accesstoken
+      dockerPassword: ((halfpipe-gcr.private_key))
+      dockerUsername: _json_key
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
@@ -128,9 +128,9 @@ jobs:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-push
-      dockerPassword: ((gcp:platform-gar/token.token))
+      dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
-      dockerUsername: oauth2accesstoken
+      dockerUsername: _json_key
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
@@ -258,9 +258,9 @@ jobs:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
-      dockerPassword: ((gcp:platform-gar/token.token))
+      dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: version/version
-      dockerUsername: oauth2accesstoken
+      dockerUsername: _json_key
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
@@ -302,9 +302,9 @@ jobs:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-push
-      dockerPassword: ((gcp:platform-gar/token.token))
+      dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
-      dockerUsername: oauth2accesstoken
+      dockerUsername: _json_key
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
@@ -395,9 +395,9 @@ jobs:
       buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
-      dockerPassword: ((gcp:platform-gar/token.token))
+      dockerPassword: ((halfpipe-gcr.private_key))
       dockerTag: git/.git/ref
-      dockerUsername: oauth2accesstoken
+      dockerUsername: _json_key
       eaid: APPL-437
       gitRefPath: git/.git/ref
       gitUri: git@github.com:springernature/halfpipe.git
