@@ -22,13 +22,6 @@ var halfpipeDockerImage = manifest.Docker{
 	Entrypoint: "docker.sh",
 }
 
-var halfpipeDockerComposeImage = manifest.Docker{
-	Image:      path.Join(config.DockerRegistry, "halfpipe-docker-compose:stable"),
-	Username:   "_json_key",
-	Password:   "((halfpipe-gcr.private_key))",
-	Entrypoint: "docker.sh",
-}
-
 var longResourceCheckInterval = atc.CheckEvery{
 	Interval: 24 * time.Hour,
 }

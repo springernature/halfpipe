@@ -24,12 +24,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -43,7 +43,7 @@ jobs:
         CI: "true"
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
-        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         HALFPIPE_CACHE_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -66,8 +66,7 @@ jobs:
 
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          docker-compose run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          \docker-compose run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -136,12 +135,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -155,7 +154,7 @@ jobs:
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         F: foo
-        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         HALFPIPE_CACHE_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         S: ((very.secret))
@@ -169,8 +168,7 @@ jobs:
 
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          docker-compose -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -e S -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
+          \docker-compose -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e B -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e F -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -e S -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache customservice echo hello
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -199,12 +197,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-docker-compose
-          tag: stable
-          username: _json_key
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -215,7 +213,7 @@ jobs:
         CI: "true"
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
-        GCR_PRIVATE_KEY: ((halfpipe-gcr.private_key))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         HALFPIPE_CACHE_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -225,8 +223,7 @@ jobs:
         - |
           export GIT_REVISION=`cat ../../.git/ref`
 
-          \echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io
-          docker-compose -f docker-compose.yml -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app echo hello
+          \docker-compose -f docker-compose.yml -f custom-docker-compose.yml run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app echo hello
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then

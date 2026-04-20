@@ -13,14 +13,14 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 	if task.Vars == nil {
 		task.Vars = make(map[string]string)
 	}
-	task.Vars["GCR_PRIVATE_KEY"] = "((halfpipe-gcr.private_key))"
+	task.Vars["GAR_TOKEN"] = "((gcp:platform-gar/token.token))"
 	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
 	return manifest.Run{
 		Retries:                task.Retries,
 		Name:                   task.GetName(),
 		Script:                 dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
-		Docker:                 halfpipeDockerComposeImage,
+		Docker:                 halfpipeDockerImage,
 		Privileged:             true,
 		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,
@@ -33,7 +33,7 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) string {
 	envStrings := []string{"-e GIT_REVISION", `-e DOCKER_HOST="${DIND_HOST}"`}
 	for key := range task.Vars {
-		if key == "GCR_PRIVATE_KEY" {
+		if key == "GAR_TOKEN" {
 			continue
 		}
 		envStrings = append(envStrings, fmt.Sprintf("-e %s", key))
@@ -59,7 +59,7 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 	envOption := strings.Join(envStrings, " ")
 	volumeOption := strings.Join(cacheVolumeFlags, " ")
 
-	composeCommand := fmt.Sprintf("docker-compose%s run --use-aliases %s %s %s",
+	composeCommand := fmt.Sprintf(`\docker-compose%s run --use-aliases %s %s %s`,
 		composeFileOption,
 		envOption,
 		volumeOption,
@@ -70,6 +70,5 @@ func dockerComposeScript(task manifest.DockerCompose, versioningEnabled bool) st
 		composeCommand = fmt.Sprintf("%s %s", composeCommand, task.Command)
 	}
 
-	loginCommand := `\echo "$GCR_PRIVATE_KEY" | docker login -u _json_key --password-stdin https://eu.gcr.io`
-	return fmt.Sprintf("%s\n%s\n", loginCommand, composeCommand)
+	return fmt.Sprintf("%s\n", composeCommand)
 }
