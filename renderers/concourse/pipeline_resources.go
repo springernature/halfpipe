@@ -15,6 +15,20 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
+// var halfpipeDockerImage = manifest.Docker{
+// 	Image:      path.Join(config.DockerRegistry, "engineering-enablement", "halfpipe-docker:latest"),
+// 	Username:   "oauth2accesstoken",
+// 	Password:   "((gcp:platform-gar/token.token))",
+// 	Entrypoint: "docker.sh",
+// }
+
+var halfpipeDockerComposeImage = manifest.Docker{
+	Image:      path.Join(config.DockerRegistry, "halfpipe-docker-compose:stable"),
+	Username:   "_json_key",
+	Password:   "((halfpipe-gcr.private_key))",
+	Entrypoint: "docker.sh",
+}
+
 var longResourceCheckInterval = atc.CheckEvery{
 	Interval: 24 * time.Hour,
 }

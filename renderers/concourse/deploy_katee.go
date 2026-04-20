@@ -14,7 +14,7 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 	job.Name = task.GetName()
 	job.Serial = true
 
-	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task, man), man, false, basePath)
+	deployKateeRunJob := c.runJob(createDeployKateeRunTask(task, man), man, basePath)
 	job.PlanSequence = deployKateeRunJob.PlanSequence
 
 	return

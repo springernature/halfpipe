@@ -17,14 +17,10 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
 	return manifest.Run{
-		Retries: task.Retries,
-		Name:    task.GetName(),
-		Script:  dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
-		Docker: manifest.Docker{
-			Image:    config.DockerComposeImage,
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
-		},
+		Retries:                task.Retries,
+		Name:                   task.GetName(),
+		Script:                 dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
+		Docker:                 halfpipeDockerComposeImage,
 		Privileged:             true,
 		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,

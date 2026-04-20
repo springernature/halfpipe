@@ -11,7 +11,7 @@ import (
 	"github.com/springernature/halfpipe/manifest"
 )
 
-func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerCompose bool, basePath string) atc.JobConfig {
+func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, basePath string) atc.JobConfig {
 	taskInputs := func() []atc.TaskInputConfig {
 		inputs := []atc.TaskInputConfig{{Name: manifest.GitTrigger{}.GetTriggerName()}}
 		if task.RestoreArtifacts {
@@ -41,9 +41,9 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerComp
 		Serial: true,
 	}
 
-	taskPath := "/bin/sh"
-	if isDockerCompose {
-		taskPath = "docker.sh"
+	entrypoint := "/bin/sh"
+	if task.Docker.Entrypoint != "" {
+		entrypoint = task.Docker.Entrypoint
 	}
 
 	taskEnv := make(atc.TaskEnv)
@@ -62,9 +62,9 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, isDockerComp
 			Params:        taskEnv,
 			ImageResource: c.imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
-				Path: taskPath,
+				Path: entrypoint,
 				Dir:  path.Join(gitDir, basePath),
-				Args: runScriptArgs(task, man, !isDockerCompose, basePath),
+				Args: runScriptArgs(task, man, basePath),
 			},
 			Inputs:  taskInputs(),
 			Outputs: taskOutputs(),
@@ -115,7 +115,7 @@ then
 fi
 `
 
-func runScriptArgs(task manifest.Run, man manifest.Manifest, enableWarningMessages bool, basePath string) []string {
+func runScriptArgs(task manifest.Run, man manifest.Manifest, basePath string) []string {
 
 	script := task.Script
 	if !strings.HasPrefix(script, "./") && !strings.HasPrefix(script, "/") && !strings.HasPrefix(script, `\`) {
@@ -124,7 +124,7 @@ func runScriptArgs(task manifest.Run, man manifest.Manifest, enableWarningMessag
 
 	var out []string
 
-	if enableWarningMessages {
+	if task.Docker.Entrypoint == "" {
 		out = append(out, warningMissingBash, warningAlpineImage)
 	}
 

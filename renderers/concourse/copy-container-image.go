@@ -3,7 +3,6 @@ package concourse
 import (
 	"strings"
 
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
 )
@@ -16,14 +15,10 @@ func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage, man ma
 	}
 
 	return manifest.Run{
-		Retries: task.Retries,
-		Name:    task.GetName(),
-		Script:  strings.Join(script, "\n"),
-		Docker: manifest.Docker{
-			Image:    config.DockerComposeImage,
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
-		},
+		Retries:    task.Retries,
+		Name:       task.GetName(),
+		Script:     strings.Join(script, "\n"),
+		Docker:     halfpipeDockerComposeImage,
 		Privileged: true,
 		Vars: manifest.Vars{
 			"SOURCE_URL":            task.Source,

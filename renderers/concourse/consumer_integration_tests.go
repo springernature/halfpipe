@@ -41,14 +41,10 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
 	runTask := manifest.Run{
-		Retries: task.Retries,
-		Name:    task.Name,
-		Script:  script,
-		Docker: manifest.Docker{
-			Image:    config.DockerComposeImage,
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
-		},
+		Retries:    task.Retries,
+		Name:       task.Name,
+		Script:     script,
+		Docker:     halfpipeDockerComposeImage,
 		Privileged: true,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,

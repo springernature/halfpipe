@@ -44,13 +44,9 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 		Name:       restrictAllowedCharacterSet(task.GetName()),
 		Privileged: true,
 		Config: &atc.TaskConfig{
-			Platform: "linux",
-			Params:   taskEnv,
-			ImageResource: c.imageResource(manifest.Docker{
-				Image:    path.Join(config.DockerRegistry, "halfpipe-docker-compose:stable"),
-				Username: "_json_key",
-				Password: "((halfpipe-gcr.private_key))",
-			}),
+			Platform:      "linux",
+			Params:        taskEnv,
+			ImageResource: c.imageResource(halfpipeDockerComposeImage),
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  path.Join(gitDir, basePath),

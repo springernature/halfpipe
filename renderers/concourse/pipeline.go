@@ -319,11 +319,11 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 	switch task := task.(type) {
 	case manifest.Run:
-		job = c.runJob(task, man, false, basePath)
+		job = c.runJob(task, man, basePath)
 
 	case manifest.DockerCompose:
 		runTask := convertDockerComposeToRunTask(task, man)
-		job = c.runJob(runTask, man, true, basePath)
+		job = c.runJob(runTask, man, basePath)
 
 	case manifest.DeployCF:
 		job = c.deployCFJob(task, man, basePath)
@@ -339,19 +339,19 @@ func (c Concourse) taskToJobs(task manifest.Task, man manifest.Manifest, previou
 
 	case manifest.CopyContainerImage:
 		runTask := convertCopyContainerImageToRunTask(task, man)
-		job = c.runJob(runTask, man, true, basePath)
+		job = c.runJob(runTask, man, basePath)
 
 	case manifest.ConsumerIntegrationTest:
 		runTask := convertConsumerIntegrationTestToRunTask(task, man)
-		job = c.runJob(runTask, man, true, basePath)
+		job = c.runJob(runTask, man, basePath)
 
 	case manifest.DeployMLZip:
 		runTask := shared.ConvertDeployMLZip(task, man)
-		job = c.runJob(runTask, man, false, basePath)
+		job = c.runJob(runTask, man, basePath)
 
 	case manifest.DeployMLModules:
 		runTask := shared.ConvertDeployMLModules(task, man)
-		job = c.runJob(runTask, man, false, basePath)
+		job = c.runJob(runTask, man, basePath)
 
 	case manifest.Update:
 		job = c.updateJobConfig(task, man.PipelineName(), basePath)

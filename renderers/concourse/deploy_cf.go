@@ -2,9 +2,10 @@ package concourse
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/shared"
 	"path"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/shared"
 
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/defaults"
@@ -323,21 +324,21 @@ func (c Concourse) prePromoteTasks(deploy deployCF) []atc.Step {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
-			ppJob = c.runJob(ppTask, deploy.halfpipeManifest, false, deploy.basePath)
+			ppJob = c.runJob(ppTask, deploy.halfpipeManifest, deploy.basePath)
 		case manifest.DockerCompose:
 			if len(ppTask.Vars) == 0 {
 				ppTask.Vars = make(map[string]string)
 			}
 			ppTask.Vars["TEST_ROUTE"] = testRoute
 			runTask := convertDockerComposeToRunTask(ppTask, deploy.halfpipeManifest)
-			ppJob = c.runJob(runTask, deploy.halfpipeManifest, true, deploy.basePath)
+			ppJob = c.runJob(runTask, deploy.halfpipeManifest, deploy.basePath)
 
 		case manifest.ConsumerIntegrationTest:
 			if ppTask.ProviderHost == "" {
 				ppTask.ProviderHost = testRoute
 			}
 			runTask := convertConsumerIntegrationTestToRunTask(ppTask, deploy.halfpipeManifest)
-			ppJob = c.runJob(runTask, deploy.halfpipeManifest, true, deploy.basePath)
+			ppJob = c.runJob(runTask, deploy.halfpipeManifest, deploy.basePath)
 		}
 		prePromoteTasks = append(prePromoteTasks, ppJob.PlanSequence...)
 	}
