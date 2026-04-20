@@ -33,7 +33,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 	taskEnv := make(atc.TaskEnv)
 	maps.Copy(taskEnv, task.Vars)
 
-	taskEnv["GAR_TOKEN"] = "((gcp:platform-gar/token.token))"
+	taskEnv["GAR_TOKEN"] = vaultSecrets.GARToken
 
 	var caches []atc.TaskCacheConfig
 	for _, dir := range config.CacheDirs {

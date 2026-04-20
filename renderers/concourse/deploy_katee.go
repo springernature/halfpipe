@@ -1,10 +1,8 @@
 package concourse
 
 import (
-	"fmt"
 	"maps"
 	"strconv"
-	"strings"
 
 	"github.com/concourse/concourse/atc"
 	"github.com/springernature/halfpipe/manifest"
@@ -38,14 +36,14 @@ halfpipe-deploy`,
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli:latest",
 			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
+			Password: vaultSecrets.GCRPrivateKey,
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
 			"CHECK_INTERVAL":        strconv.Itoa(task.CheckInterval),
 			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
-			"KATEE_GKE_CREDENTIALS": fmt.Sprintf(`((%s-service-account-prod.key))`, strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
+			"KATEE_GKE_CREDENTIALS": vaultSecrets.Katee(task.Namespace),
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
 			"REVISION_FORMAT":       task.Tag,
 		},

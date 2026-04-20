@@ -136,7 +136,7 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
+				"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -212,10 +212,10 @@ export GHAS_TOKEN=$(curl -s -X POST \
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON":     "((halfpipe-gcr.docker_config))",
-				"GITHUB_APP_ID":          "((halfpipe-bot.app_id))",
-				"GITHUB_INSTALLATION_ID": "((halfpipe-bot.installation_id))",
-				"GITHUB_PRIVATE_KEY":     "((halfpipe-bot.private_key))",
+				"DOCKER_CONFIG_JSON":     vaultSecrets.DockerConfig,
+				"GITHUB_APP_ID":          vaultSecrets.HalfpipeBotAppID,
+				"GITHUB_INSTALLATION_ID": vaultSecrets.HalfpipeBotInstallationID,
+				"GITHUB_PRIVATE_KEY":     vaultSecrets.HalfpipeBotPrivateKey,
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -241,7 +241,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	}
 
 	params := atc.TaskEnv{
-		"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
+		"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
 	}
 
 	var buildStep *atc.TaskStep
@@ -292,7 +292,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 				Source: atc.Source{
 					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
 					"tag":        "latest",
-					"password":   "((halfpipe-gcr.private_key))",
+					"password":   vaultSecrets.GCRPrivateKey,
 					"username":   "_json_key",
 				},
 			},
@@ -338,12 +338,12 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 				Source: atc.Source{
 					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
 					"tag":        "latest",
-					"password":   "((halfpipe-gcr.private_key))",
+					"password":   vaultSecrets.GCRPrivateKey,
 					"username":   "_json_key",
 				},
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": "((halfpipe-gcr.docker_config))",
+				"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
 			},
 			Run: atc.TaskRunConfig{
 				Path: "/bin/sh",

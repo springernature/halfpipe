@@ -18,7 +18,7 @@ import (
 var halfpipeDockerImage = manifest.Docker{
 	Image:      path.Join(config.DockerRegistry, "engineering-enablement", "halfpipe-docker:latest"),
 	Username:   "oauth2accesstoken",
-	Password:   "((gcp:platform-gar/token.token))",
+	Password:   vaultSecrets.GARToken,
 	Entrypoint: "docker.sh",
 }
 
@@ -76,7 +76,7 @@ func (c Concourse) slackResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-slack-resource"),
 			"tag":        "latest",
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}
@@ -104,7 +104,7 @@ func (c Concourse) teamsResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-teams-resource"),
 			"tag":        "latest",
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}
@@ -126,7 +126,7 @@ func (c Concourse) gcpResourceType() atc.ResourceType {
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "engineering-enablement", "gcp-resource"),
 			"tag":        "latest",
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}
@@ -145,7 +145,7 @@ func (c Concourse) artifactResource(man manifest.Manifest) atc.ResourceConfig {
 		Source: atc.Source{
 			"bucket": config.ArtifactsBucket,
 			"folder": path.Join(filter(man.Team), filter(man.PipelineName())),
-			"token":  "((gcp:platform-artifacts/token.token))",
+			"token":  vaultSecrets.GCPArtifactsToken,
 		},
 	}
 }
@@ -190,7 +190,7 @@ func halfpipePipelineTriggerResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "halfpipe-pipeline-trigger-resource"),
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}
@@ -207,7 +207,7 @@ func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": fullPath,
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}
@@ -324,7 +324,7 @@ func (c Concourse) githubStatusesResourceType() atc.ResourceType {
 		CheckEvery: &longResourceCheckInterval,
 		Source: atc.Source{
 			"repository": path.Join(config.DockerRegistry, "engineering-enablement/github-status-resource"),
-			"password":   "((gcp:platform-gar/token.token))",
+			"password":   vaultSecrets.GARToken,
 			"username":   "oauth2accesstoken",
 		},
 	}

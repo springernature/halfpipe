@@ -17,7 +17,7 @@ func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage) manife
 			"TARGET_URL":            task.Target,
 			"AWS_ACCESS_KEY_ID":     task.AwsAccessKeyID,
 			"AWS_SECRET_ACCESS_KEY": task.AwsSecretAccessKey,
-			"GAR_TOKEN":             "((gcp:platform-gar/token.token))",
+			"GAR_TOKEN":             vaultSecrets.GARToken,
 		},
 		Timeout:       task.GetTimeout(),
 		Notifications: task.Notifications,
