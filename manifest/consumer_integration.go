@@ -13,7 +13,7 @@ type ConsumerIntegrationTest struct {
 	DockerComposeService   string        `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
 	Vars                   Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	Retries                int           `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`

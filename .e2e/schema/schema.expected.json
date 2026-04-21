@@ -36,7 +36,9 @@
           "type": "string"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "manual_trigger": {
           "type": "boolean"
@@ -104,7 +106,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -154,7 +158,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -274,7 +280,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -339,7 +347,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -351,13 +361,17 @@
           "type": "integer"
         },
         "environment": {
-          "type": "string"
+          "type": "string",
+          "deprecated": true,
+          "deprecationMessage": "no longer used - safe to delete"
         },
         "namespace": {
           "type": "string"
         },
         "deployment_check_timeout": {
-          "type": "integer"
+          "type": "integer",
+          "deprecated": true,
+          "deprecationMessage": "use max_checks and check_interval instead"
         },
         "check_interval": {
           "type": "integer"
@@ -407,7 +421,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -466,7 +482,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -553,7 +571,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -612,7 +632,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -736,7 +758,9 @@
     "NotificationChannel": {
       "properties": {
         "slack": {
-          "type": "string"
+          "type": "string",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         },
         "teams": {
           "type": "string"
@@ -760,19 +784,27 @@
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         },
         "on_success_message": {
-          "type": "string"
+          "type": "string",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         },
         "on_failure": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         },
         "on_failure_message": {
-          "type": "string"
+          "type": "string",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         },
         "success": {
           "$ref": "#/$defs/NotificationChannels"
@@ -920,7 +952,9 @@
           "type": "integer"
         },
         "notify_on_success": {
-          "type": "boolean"
+          "type": "boolean",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
         },
         "notifications": {
           "$ref": "#/$defs/Notifications"
@@ -1046,16 +1080,22 @@
       "type": "string"
     },
     "slack_channel": {
-      "type": "string"
+      "type": "string",
+      "deprecated": true,
+      "deprecationMessage": "Slack notifications are no longer supported"
     },
     "teams_webhook": {
       "type": "string"
     },
     "slack_success_message": {
-      "type": "string"
+      "type": "string",
+      "deprecated": true,
+      "deprecationMessage": "Slack notifications are no longer supported"
     },
     "slack_failure_message": {
-      "type": "string"
+      "type": "string",
+      "deprecated": true,
+      "deprecationMessage": "Slack notifications are no longer supported"
     },
     "feature_toggles": {
       "items": {

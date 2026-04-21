@@ -10,7 +10,7 @@ import (
 type Vars map[string]string
 
 type NotificationChannel struct {
-	Slack   string `json:"slack,omitempty" yaml:"slack,omitempty"`
+	Slack   string `json:"slack,omitempty" yaml:"slack,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	Teams   string `json:"teams,omitempty" yaml:"teams,omitempty"`
 	Message string `json:"message,omitempty" yaml:"message,omitempty"`
 }
@@ -36,10 +36,10 @@ func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
 }
 
 type Notifications struct {
-	OnSuccess        []string             `json:"on_success,omitempty" yaml:"on_success,omitempty"`
-	OnSuccessMessage string               `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty"`
-	OnFailure        []string             `json:"on_failure,omitempty" yaml:"on_failure,omitempty"`
-	OnFailureMessage string               `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty"`
+	OnSuccess        []string             `json:"on_success,omitempty" yaml:"on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
+	OnSuccessMessage string               `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
+	OnFailure        []string             `json:"on_failure,omitempty" yaml:"on_failure,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
+	OnFailureMessage string               `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	Success          NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
 	Failure          NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
 }
@@ -243,10 +243,10 @@ type OpsLevel struct {
 type Manifest struct {
 	Team                string         `json:"team,omitempty" yaml:"team,omitempty"`
 	Pipeline            string         `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
-	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty"`
+	SlackChannel        string         `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	TeamsWebhook        string         `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty" secretAllowed:"true"`
-	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty"`
-	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty"`
+	SlackSuccessMessage string         `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
+	SlackFailureMessage string         `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	FeatureToggles      FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	Triggers            TriggerList    `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	Tasks               TaskList       `json:"tasks,omitempty" yaml:"tasks,omitempty"`

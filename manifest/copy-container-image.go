@@ -5,7 +5,7 @@ type CopyContainerImage struct {
 	Name            string        `json:"name,omitempty" yaml:"name,omitempty"`
 	ManualTrigger   bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	Retries         int           `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	Notifications   Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout         string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	BuildHistory    int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`

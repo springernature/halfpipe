@@ -13,7 +13,7 @@ type DockerPush struct {
 	Secrets               Vars          `json:"secrets,omitempty" yaml:"secrets,omitempty" secretAllowed:"true"`
 	RestoreArtifacts      bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
 	Retries               int           `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess       bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	Notifications         Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Timeout               string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	DockerfilePath        string        `json:"dockerfile_path,omitempty" yaml:"dockerfile_path,omitempty"`

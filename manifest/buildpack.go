@@ -10,7 +10,7 @@ type Buildpack struct {
 	BuildHistory     int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	Notifications    Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	Name             string        `json:"name,omitempty" yaml:"name,omitempty"`
-	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess  bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	ManualTrigger    bool          `json:"manual_trigger,omitempty" yaml:"manual_trigger,omitempty"`
 	RestoreArtifacts bool          `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty"`
 	Retries          int           `json:"retries,omitempty" yaml:"retries,omitempty"`

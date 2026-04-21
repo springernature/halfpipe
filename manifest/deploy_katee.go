@@ -8,13 +8,13 @@ type DeployKatee struct {
 	Vars                   Vars              `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	VelaManifest           string            `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
 	Retries                int               `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
 	Tag                    string            `json:"tag,omitempty" yaml:"tag,omitempty"`
 	BuildHistory           int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Environment            string            `json:"environment,omitempty" yaml:"environment,omitempty"`
+	Environment            string            `json:"environment,omitempty" yaml:"environment,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	Namespace              string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty"`
+	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use max_checks and check_interval instead"`
 	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
 	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
 	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`

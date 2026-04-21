@@ -22,7 +22,7 @@ type DeployCF struct {
 	PrePromote             TaskList          `json:"pre_promote" yaml:"pre_promote,omitempty"`
 	Timeout                string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	Retries                int               `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty"`
+	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
 	PreStart               []string          `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	Rolling                bool              `json:"rolling,omitempty" yaml:"rolling,omitempty"`
