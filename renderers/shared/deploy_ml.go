@@ -2,9 +2,10 @@ package shared
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/config"
 	"path"
 	"strings"
+
+	"github.com/springernature/halfpipe/config"
 
 	"github.com/springernature/halfpipe/manifest"
 )
@@ -16,8 +17,8 @@ func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manife
 		Script:  "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
+			Username: "oauth2accesstoken",
+			Password: "((gcp:platform-gar/token.token))",
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
@@ -46,8 +47,8 @@ func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) mani
 		Script:  "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
-			Username: "_json_key",
-			Password: "((halfpipe-gcr.private_key))",
+			Username: "oauth2accesstoken",
+			Password: "((gcp:platform-gar/token.token))",
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":     strings.Join(mlTask.Targets, ","),
