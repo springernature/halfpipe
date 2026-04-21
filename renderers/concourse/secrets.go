@@ -10,7 +10,6 @@ var vaultSecrets = struct {
 	GARToken,
 	GCPArtifactsToken,
 	GCRPrivateKey,
-	DockerConfig,
 	HalfpipeBotAppID,
 	HalfpipeBotInstallationID,
 	HalfpipeBotPrivateKey,
@@ -28,7 +27,6 @@ var vaultSecrets = struct {
 	GARToken:          "((gcp:platform-gar/token.token))",
 	GCPArtifactsToken: "((gcp:platform-artifacts/token.token))",
 	GCRPrivateKey:     "((halfpipe-gcr.private_key))",
-	DockerConfig:      "((halfpipe-gcr.docker_config))",
 
 	HalfpipeBotAppID:          "((halfpipe-bot.app_id))",
 	HalfpipeBotInstallationID: "((halfpipe-bot.installation_id))",

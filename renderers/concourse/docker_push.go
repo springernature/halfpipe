@@ -135,7 +135,8 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
+				"TRIVY_PASSWORD": vaultSecrets.GARToken,
+				"TRIVY_USERNAME": "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},

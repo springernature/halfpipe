@@ -649,7 +649,8 @@ jobs:
       - name: git
       - name: docker_build
       params:
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        TRIVY_PASSWORD: ((gcp:platform-gar/token.token))
+        TRIVY_USERNAME: oauth2accesstoken
       platform: linux
       run:
         args:
