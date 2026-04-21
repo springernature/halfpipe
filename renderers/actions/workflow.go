@@ -136,15 +136,6 @@ type Env map[string]string
 
 type Outputs map[string]string
 
-func (e Env) ToString() string {
-	out := []string{}
-	for k, v := range e {
-		out = append(out, fmt.Sprintf("%s=%v\n", k, v))
-	}
-	sort.Strings(out)
-	return strings.Join(out, "")
-}
-
 func (w Workflow) asYAML() (string, error) {
 	yaml.FutureLineWrap()
 	output, err := yaml.Marshal(w)
