@@ -1,38 +1,63 @@
 package manifest
 
 import (
-	"code.cloudfoundry.org/cli/util/manifestparser"
 	"slices"
 	"strings"
+
+	"code.cloudfoundry.org/cli/util/manifestparser"
 )
 
 type DeployCF struct {
-	Type                   string            `json:"type,omitempty" yaml:"type,omitempty"`
-	Name                   string            `json:"name,omitempty" yaml:"name,omitempty"`
-	ManualTrigger          bool              `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	API                    string            `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true"`
-	Space                  string            `json:"space,omitempty" yaml:"space,omitempty" secretAllowed:"true"`
-	Org                    string            `json:"org,omitempty" yaml:"org,omitempty" secretAllowed:"true"`
-	Username               string            `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
-	Password               string            `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	Manifest               string            `json:"manifest,omitempty" yaml:"manifest,omitempty"`
-	TestDomain             string            `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
-	Vars                   Vars              `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
-	DeployArtifact         string            `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
-	PrePromote             TaskList          `json:"pre_promote" yaml:"pre_promote,omitempty"`
-	Timeout                string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Retries                int               `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
-	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
-	PreStart               []string          `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
-	Rolling                bool              `json:"rolling,omitempty" yaml:"rolling,omitempty"`
-	StopCandidateOnFailure bool              `json:"stop_candidate_on_failure,omitempty" yaml:"stop_candidate_on_failure,omitempty"`
-	IsDockerPush           bool              `json:"-" yaml:"-"`
-	CliVersion             string            `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
-	DockerTag              string            `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
-	BuildHistory           int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	SSORoute               string            `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
-	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Optional display name.
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Task must be manually triggered (Concourse only).
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	// Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas)).
+	API string `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true"`
+	// Cloud Foundry space to deploy to.
+	Space string `json:"space,omitempty" yaml:"space,omitempty" secretAllowed:"true"`
+	// Cloud Foundry organisation. Defaults to the value of team.
+	Org string `json:"org,omitempty" yaml:"org,omitempty" secretAllowed:"true"`
+	// Cloud Foundry username. Defaults to ((cloudfoundry.username)).
+	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
+	// Cloud Foundry password. Defaults to ((cloudfoundry.password)).
+	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
+	// Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Defaults to manifest.yml.
+	Manifest string `json:"manifest,omitempty" yaml:"manifest,omitempty"`
+	// Domain used when pushing the app as a candidate. Derived from the API by default.
+	TestDomain string `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
+	// Environment variables injected into the CF app environment.
+	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	// Path to a file or directory saved by a previous task to deploy to CF.
+	DeployArtifact string `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
+	// Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected.
+	PrePromote TaskList `json:"pre_promote" yaml:"pre_promote,omitempty"`
+	// Timeout duration for the task. If exceeded the task fails. Defaults to 1h.
+	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	// Number of times to retry the task if it fails.
+	Retries int `json:"retries,omitempty" yaml:"retries,omitempty"`
+	// Deprecated: use notifications instead.
+	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
+	// Notification channels for this task.
+	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
+	// CF CLI commands to run immediately before the candidate app is started.
+	PreStart []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
+	// Use rolling deployment instead of blue-green.
+	Rolling bool `json:"rolling,omitempty" yaml:"rolling,omitempty"`
+	// Stop the candidate app if deployment fails.
+	StopCandidateOnFailure bool `json:"stop_candidate_on_failure,omitempty" yaml:"stop_candidate_on_failure,omitempty"`
+	IsDockerPush           bool `json:"-" yaml:"-"`
+	// CF CLI version to use. Allowed values: cf7, cf8. Defaults to cf7.
+	CliVersion string `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
+	// Docker image tag to deploy. Required when deploying a Docker image: version or gitref.
+	DockerTag string `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
+	// Number of build logs to retain. Defaults to 20 (Concourse only).
+	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	// Route to configure with SSO.
+	SSORoute string `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
+	// GitHub environment to associate with this deployment.
+	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 
 	CfApplication manifestparser.Application `json:"-" yaml:"-"`
 }

@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"slices"
 	"strings"
 	"testing"
 
@@ -140,10 +141,8 @@ func TestBuildSchema_EachDefHasTypeRequired(t *testing.T) {
 		if !ok {
 			return
 		}
-		for _, req := range def.Required {
-			if req == "type" {
-				return
-			}
+		if slices.Contains(def.Required, "type") {
+			return
 		}
 		t.Errorf("def %q: 'type' not in required list", defKey)
 	}

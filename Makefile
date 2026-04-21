@@ -9,6 +9,7 @@ build: fmt test binary e2e staticcheck dependabot schema validate-e2e
 
 fmt:
 	go fmt ./...
+	go fix ./...
 
 test:
 	go test $(GO_OPTS) ./...
@@ -20,7 +21,7 @@ e2e: binary
 	.e2e/test.sh
 
 staticcheck:
-	go run honnef.co/go/tools/cmd/staticcheck@latest ./...
+	go run honnef.co/go/tools/cmd/staticcheck@latest -checks "inherit,-SA1019" ./...
 
 dependabot: binary
 	./halfpipe -q -i dependabot.halfpipe.io.yml

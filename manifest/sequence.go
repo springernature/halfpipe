@@ -3,7 +3,8 @@ package manifest
 import "slices"
 
 type Sequence struct {
-	Type  string   `json:"type,omitempty" yaml:"type,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Tasks to run in sequence within a parallel group. Can only be used inside a parallel task.
 	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 }
 

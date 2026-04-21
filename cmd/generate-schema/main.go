@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
+	"slices"
 
 	"github.com/invopop/jsonschema"
 	"github.com/springernature/halfpipe/manifest"
@@ -33,8 +35,41 @@ var reflectorConfig = jsonschema.Reflector{
 	RequiredFromJSONSchemaTags: true, // only fields tagged `jsonschema:"required"` are required
 }
 
+func findModuleRoot() (string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	for {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			return "", fmt.Errorf("go.mod not found from %s", dir)
+		}
+		dir = parent
+	}
+}
+
 func buildSchema() *jsonschema.Schema {
 	r := reflectorConfig
+
+	root, err := findModuleRoot()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: could not find module root: %v\n", err)
+		os.Exit(1)
+	}
+	// AddGoComments requires a relative path so the package keys are built correctly.
+	// Temporarily change to the module root so "./manifest" resolves properly.
+	if cwd, err := os.Getwd(); err == nil && cwd != root {
+		_ = os.Chdir(root)
+		defer os.Chdir(cwd)
+	}
+	if err := r.AddGoComments("github.com/springernature/halfpipe", "./manifest"); err != nil {
+		fmt.Fprintf(os.Stderr, "error: could not load go comments: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Reflect the top-level manifest to get all $defs populated
 	topSchema := r.Reflect(manifest.Manifest{})
@@ -56,7 +91,7 @@ func buildSchema() *jsonschema.Schema {
 		}
 		if prop, ok := topSchema.Properties.Get("platform"); ok {
 			prop.Type = "string"
-			prop.Enum = []interface{}{"", "concourse", "actions"}
+			prop.Enum = []any{"", "concourse", "actions"}
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("feature_toggles"); ok {
@@ -126,7 +161,7 @@ func buildSchema() *jsonschema.Schema {
 	// Set schema metadata
 	topSchema.Version = "https://json-schema.org/draft/2020-12/schema"
 	topSchema.Title = "Halfpipe Manifest"
-	topSchema.Description = "Schema for the halfpipe CI/CD manifest (.halfpipe.io, .halfpipe.io.yml, .halfpipe.io.yaml)"
+	topSchema.Description = "Schema for the halfpipe CI/CD manifest"
 	topSchema.AdditionalProperties = jsonschema.FalseSchema
 
 	return topSchema
@@ -134,9 +169,9 @@ func buildSchema() *jsonschema.Schema {
 
 // typeDefEntry describes a single task or trigger type for schema generation.
 type typeDefEntry struct {
-	typeName string      // value of the "type" discriminator field (e.g. "run", "deploy-cf")
-	defKey   string      // key used in JSON Schema $defs (e.g. "Run", "DeployCF")
-	value    interface{} // zero-value of the Go struct to reflect
+	typeName string // value of the "type" discriminator field (e.g. "run", "deploy-cf")
+	defKey   string // key used in JSON Schema $defs (e.g. "Run", "DeployCF")
+	value    any    // zero-value of the Go struct to reflect
 }
 
 var taskTypes = []typeDefEntry{
@@ -185,7 +220,7 @@ func defKeyFor(entries []typeDefEntry, typeName string) string {
 // featureToggleSchema returns a schema for a single feature toggle string,
 // derived from manifest.AvailableFeatureToggles so it stays in sync automatically.
 func featureToggleSchema() *jsonschema.Schema {
-	enums := make([]interface{}, len(manifest.AvailableFeatureToggles))
+	enums := make([]any, len(manifest.AvailableFeatureToggles))
 	for i, f := range manifest.AvailableFeatureToggles {
 		enums[i] = f
 	}
@@ -197,9 +232,8 @@ func featureToggleSchema() *jsonschema.Schema {
 
 // reflectTaskOrTrigger reflects a concrete task/trigger struct and adds a const
 // discriminator on the "type" field, plus additionalProperties: false.
-func reflectTaskOrTrigger(r *jsonschema.Reflector, v interface{}, typeValue string, defs jsonschema.Definitions) *jsonschema.Schema {
-	inner := reflectorConfig
-	s := inner.Reflect(v)
+func reflectTaskOrTrigger(r *jsonschema.Reflector, v any, typeValue string, defs jsonschema.Definitions) *jsonschema.Schema {
+	s := r.Reflect(v)
 
 	// Merge any new $defs discovered into the parent defs map
 	for k, v := range s.Definitions {
@@ -226,13 +260,7 @@ func reflectTaskOrTrigger(r *jsonschema.Reflector, v interface{}, typeValue stri
 	s.Properties.Set("type", typeProp)
 
 	// Make "type" required
-	typeRequired := false
-	for _, req := range s.Required {
-		if req == "type" {
-			typeRequired = true
-			break
-		}
-	}
+	typeRequired := slices.Contains(s.Required, "type")
 	if !typeRequired {
 		s.Required = append([]string{"type"}, s.Required...)
 	}

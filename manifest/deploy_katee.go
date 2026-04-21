@@ -1,24 +1,40 @@
 package manifest
 
 type DeployKatee struct {
-	Type                   string            `json:"type,omitempty" yaml:"type,omitempty"`
-	Name                   string            `json:"name,omitempty" yaml:"name,omitempty"`
-	ManualTrigger          bool              `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Timeout                string            `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	Vars                   Vars              `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
-	VelaManifest           string            `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
-	Retries                int               `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool              `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
-	Notifications          Notifications     `json:"notifications" yaml:"notifications,omitempty"`
-	Tag                    string            `json:"tag,omitempty" yaml:"tag,omitempty"`
-	BuildHistory           int               `json:"build_history,omitempty" yaml:"build_history,omitempty"`
-	Environment            string            `json:"environment,omitempty" yaml:"environment,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
-	Namespace              string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	DeploymentCheckTimeout int               `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use max_checks and check_interval instead"`
-	CheckInterval          int               `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
-	MaxChecks              int               `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
-	GitHubEnvironment      GitHubEnvironment `json:"github_environment,omitempty" yaml:"github_environment,omitempty"`
-	KateeManifest          VelaManifest      `json:"-" yaml:"-"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Optional display name.
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Task must be manually triggered (Concourse only).
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	// Timeout duration for the task. If exceeded the task fails. Defaults to 1h.
+	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	// Environment variables available to the vela manifest.
+	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	// Path to the vela manifest. Defaults to vela.yaml.
+	VelaManifest string `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
+	// Number of times to retry the task if it fails.
+	Retries int `json:"retries,omitempty" yaml:"retries,omitempty"`
+	// Deprecated: use notifications instead.
+	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
+	// Notification channels for this task.
+	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
+	// Deprecated: no longer used - safe to delete.
+	Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
+	// Number of build logs to retain. Defaults to 20 (Concourse only).
+	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	// Deprecated: no longer used - safe to delete.
+	Environment string `json:"environment,omitempty" yaml:"environment,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
+	// Vela namespace to deploy to. Defaults to katee-<team>.
+	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	// Deprecated: use max_checks and check_interval instead.
+	DeploymentCheckTimeout int `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use max_checks and check_interval instead"`
+	// Seconds between each deployment status check. Defaults to 2.
+	CheckInterval int `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
+	// Maximum number of status checks before the deployment is considered failed. Defaults to 60.
+	MaxChecks int `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
+	// GitHub environment to associate with this deployment.
+	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
+	KateeManifest     VelaManifest      `json:"-" yaml:"-"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {

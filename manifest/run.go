@@ -6,28 +6,45 @@ import (
 )
 
 type Docker struct {
-	Image      string `json:"image,omitempty" yaml:"image,omitempty"`
-	Username   string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
+	// Path to docker image
+	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+	// Username for private Docker registries.
+	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
+	// Password for private Docker registries.
 	Password   string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
 	Entrypoint string `json:"-" yaml:"-"`
 }
 
 type Run struct {
-	Type                   string        `json:"type,omitempty" yaml:"type,omitempty"`
-	Name                   string        `json:"name,omitempty" yaml:"name,omitempty"`
-	ManualTrigger          bool          `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
-	Script                 string        `json:"script,omitempty" yaml:"script,omitempty"`
-	Docker                 Docker        `json:"docker,omitempty" yaml:"docker,omitempty"`
-	Privileged             bool          `json:"privileged,omitempty" yaml:"privileged,omitempty"`
-	Vars                   Vars          `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
-	SaveArtifacts          []string      `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
-	RestoreArtifacts       bool          `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
-	SaveArtifactsOnFailure []string      `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
-	Retries                int           `json:"retries,omitempty" yaml:"retries,omitempty"`
-	NotifyOnSuccess        bool          `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
-	Notifications          Notifications `json:"notifications" yaml:"notifications,omitempty"`
-	Timeout                string        `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	BuildHistory           int           `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Optional display name.
+	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Task must be manually triggered (Concourse only).
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	// Path to the script to execute, relative to the manifest. Prefix with \ to run a system command e.g. \make.
+	Script string `json:"script,omitempty" yaml:"script,omitempty"`
+	// Docker configuration for the task to run in.
+	Docker Docker `json:"docker" yaml:"docker,omitempty"`
+	// Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker.
+	Privileged bool `json:"privileged,omitempty" yaml:"privileged,omitempty"`
+	// Environment variables available to the script.
+	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
+	// Paths to files or directories to save for use in subsequent tasks.
+	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
+	// Restore artifacts saved by previous tasks.
+	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	// Paths to save when the task fails, useful for test reports.
+	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
+	// Number of times to retry the task if it fails.
+	Retries int `json:"retries,omitempty" yaml:"retries,omitempty"`
+	// Deprecated: use notifications instead.
+	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
+	// Notification channels for this task.
+	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
+	// Timeout duration for the task. If exceeded the task fails. Defaults to 1h.
+	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
+	// Number of build logs to retain. Defaults to 20 (Concourse only).
+	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 }
 
 func (r Run) GetBuildHistory() int {

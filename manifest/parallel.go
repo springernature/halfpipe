@@ -3,7 +3,8 @@ package manifest
 import "slices"
 
 type Parallel struct {
-	Type  string   `json:"type,omitempty" yaml:"type,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Tasks to run in parallel. All tasks start simultaneously; the group succeeds when all complete.
 	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 }
 

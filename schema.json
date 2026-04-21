@@ -9,48 +9,61 @@
           "description": "Must be \"buildpack\""
         },
         "builder": {
-          "type": "string"
+          "type": "string",
+          "description": "Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base."
         },
         "buildpacks": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java."
         },
         "path": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the application source code to build. Defaults to current directory."
         },
         "image": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "restore_artifacts": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Restore artifacts saved by previous tasks."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables passed to the pack build command."
         }
       },
       "additionalProperties": false,
@@ -73,66 +86,84 @@
           "description": "Must be \"consumer-integration-test\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "consumer": {
-          "type": "string"
+          "type": "string",
+          "description": "GitHub repository name of the consumer, with optional sub-directory for monorepos e.g. repo-name or monorepo/dir."
         },
         "consumer_host": {
-          "type": "string"
+          "type": "string",
+          "description": "Address of the consumer application in the same environment as the provider."
         },
         "git_clone_options": {
-          "type": "string"
+          "type": "string",
+          "description": "Custom options for git clone of the consumer repository e.g. --depth 100."
         },
         "provider_host": {
-          "type": "string"
+          "type": "string",
+          "description": "Address of the provider application to test. Defaults to the candidate route in pre_promote."
         },
         "provider_name": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name."
         },
         "script": {
-          "type": "string"
+          "type": "string",
+          "description": "Consumer test script to execute."
         },
         "docker_compose_file": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the consumer docker-compose file. Defaults to docker-compose.yml."
         },
         "docker_compose_service": {
-          "type": "string"
+          "type": "string",
+          "description": "Service name in the consumer docker-compose. Defaults to code."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables available to the docker-compose service."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "use_covenant": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enable Covenant contract testing support."
         },
         "save_artifacts": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to files or directories to save for use in subsequent tasks."
         },
         "save_artifacts_on_failure": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to save when the task fails, useful for test reports."
         }
       },
       "additionalProperties": false,
@@ -149,39 +180,50 @@
           "description": "Must be \"copy-container-image\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "aws_access_key_id": {
-          "type": "string"
+          "type": "string",
+          "description": "AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault."
         },
         "aws_secret_access_key": {
-          "type": "string"
+          "type": "string",
+          "description": "AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault."
         },
         "source": {
-          "type": "string"
+          "type": "string",
+          "description": "Full source image URL in the halfpipe registry, with or without tag."
         },
         "target": {
-          "type": "string"
+          "type": "string",
+          "description": "Target ECR image URL or bare ECR registry URL."
         }
       },
       "additionalProperties": false,
@@ -198,37 +240,48 @@
           "description": "Must be \"deploy-cf\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "api": {
-          "type": "string"
+          "type": "string",
+          "description": "Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas))."
         },
         "space": {
-          "type": "string"
+          "type": "string",
+          "description": "Cloud Foundry space to deploy to."
         },
         "org": {
-          "type": "string"
+          "type": "string",
+          "description": "Cloud Foundry organisation. Defaults to the value of team."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Cloud Foundry username. Defaults to ((cloudfoundry.username))."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Cloud Foundry password. Defaults to ((cloudfoundry.password))."
         },
         "manifest": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Defaults to manifest.yml."
         },
         "test_domain": {
-          "type": "string"
+          "type": "string",
+          "description": "Domain used when pushing the app as a candidate. Derived from the API by default."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables injected into the CF app environment."
         },
         "deploy_artifact": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to a file or directory saved by a previous task to deploy to CF."
         },
         "pre_promote": {
           "items": {
@@ -271,48 +324,61 @@
               }
             ]
           },
-          "type": "array"
+          "type": "array",
+          "description": "Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "pre_start": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "CF CLI commands to run immediately before the candidate app is started."
         },
         "rolling": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Use rolling deployment instead of blue-green."
         },
         "stop_candidate_on_failure": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Stop the candidate app if deployment fails."
         },
         "cli_version": {
-          "type": "string"
+          "type": "string",
+          "description": "CF CLI version to use. Allowed values: cf7, cf8. Defaults to cf7."
         },
         "docker_tag": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker image tag to deploy. Required when deploying a Docker image: version or gitref."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "sso_route": {
-          "type": "string"
+          "type": "string",
+          "description": "Route to configure with SSO."
         },
         "github_environment": {
-          "$ref": "#/$defs/GitHubEnvironment"
+          "$ref": "#/$defs/GitHubEnvironment",
+          "description": "GitHub environment to associate with this deployment."
         }
       },
       "additionalProperties": false,
@@ -329,58 +395,74 @@
           "description": "Must be \"deploy-katee\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables available to the vela manifest."
         },
         "vela_manifest": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the vela manifest. Defaults to vela.yaml."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "tag": {
-          "type": "string"
+          "type": "string",
+          "description": "Deprecated: no longer used - safe to delete."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "environment": {
           "type": "string",
+          "description": "Deprecated: no longer used - safe to delete.",
           "deprecated": true,
           "deprecationMessage": "no longer used - safe to delete"
         },
         "namespace": {
-          "type": "string"
+          "type": "string",
+          "description": "Vela namespace to deploy to. Defaults to katee-\u003cteam\u003e."
         },
         "deployment_check_timeout": {
           "type": "integer",
+          "description": "Deprecated: use max_checks and check_interval instead.",
           "deprecated": true,
           "deprecationMessage": "use max_checks and check_interval instead"
         },
         "check_interval": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Seconds between each deployment status check. Defaults to 2."
         },
         "max_checks": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Maximum number of status checks before the deployment is considered failed. Defaults to 60."
         },
         "github_environment": {
-          "$ref": "#/$defs/GitHubEnvironment"
+          "$ref": "#/$defs/GitHubEnvironment",
+          "description": "GitHub environment to associate with this deployment."
         }
       },
       "additionalProperties": false,
@@ -397,51 +479,65 @@
           "description": "Must be \"deploy-ml-modules\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "ml_modules_version": {
-          "type": "string"
+          "type": "string",
+          "description": "Version of the ml-modules artifact in Artifactory."
         },
         "app_name": {
-          "type": "string"
+          "type": "string",
+          "description": "App name in MarkLogic. Defaults to the pipeline name."
         },
         "app_version": {
-          "type": "string"
+          "type": "string",
+          "description": "App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version."
         },
         "targets": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "MarkLogic instances to deploy to."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "use_build_version": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -458,51 +554,65 @@
           "description": "Must be \"deploy-ml-zip\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "deploy_zip": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the zip file containing XQuery source files, relative to the manifest."
         },
         "app_name": {
-          "type": "string"
+          "type": "string",
+          "description": "App name in MarkLogic. Defaults to the pipeline name."
         },
         "app_version": {
-          "type": "string"
+          "type": "string",
+          "description": "App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version."
         },
         "targets": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "MarkLogic instances to deploy to."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "use_build_version": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -514,13 +624,16 @@
     "Docker": {
       "properties": {
         "image": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to docker image"
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username for private Docker registries."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Password for private Docker registries."
         }
       },
       "additionalProperties": false,
@@ -534,19 +647,24 @@
           "description": "Must be \"docker-compose\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "command": {
-          "type": "string"
+          "type": "string",
+          "description": "Command to run against the service. If omitted the default service command is used."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables available to docker-compose."
         },
         "service": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the docker-compose service to run. Defaults to app."
         },
         "compose_file": {
           "type": "string",
@@ -556,33 +674,41 @@
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to files or directories to save for use in subsequent tasks."
         },
         "restore_artifacts": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Restore artifacts saved by previous tasks."
         },
         "save_artifacts_on_failure": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to save when the task fails, useful for test reports."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -599,69 +725,89 @@
           "description": "Must be \"docker-push\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username for the target Docker registry."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Password for the target Docker registry."
         },
         "image": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
         "ignore_vulnerabilities": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Do not fail the build if critical vulnerabilities are found during image scanning."
         },
         "scan_timeout": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of minutes a Trivy vulnerability scan is allowed to run before timing out."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Docker build-time variables (ARGs). Do not use for secrets - values are visible in docker history."
         },
         "secrets": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Docker build-time secrets, mounted securely during build."
         },
         "restore_artifacts": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Restore artifacts saved by previous tasks."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "dockerfile_path": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the Dockerfile, relative to the manifest. Defaults to Dockerfile."
         },
         "build_path": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the folder to use as the Docker build context, relative to the manifest."
         },
         "tag": {
-          "type": "string"
+          "type": "string",
+          "description": "Deprecated: no longer used - safe to delete."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "platforms": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64."
         },
         "use_cache": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Enable layer caching to speed up builds by reusing layers from previous builds."
         }
       },
       "additionalProperties": false,
@@ -678,13 +824,16 @@
           "description": "Must be \"docker\""
         },
         "image": {
-          "type": "string"
+          "type": "string",
+          "description": "Docker image to watch for updates."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Username for private Docker registries."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Password for private Docker registries."
         }
       },
       "additionalProperties": false,
@@ -702,10 +851,12 @@
     "GitHubEnvironment": {
       "properties": {
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the GitHub environment to deploy to."
         },
         "url": {
-          "type": "string"
+          "type": "string",
+          "description": "URL associated with the GitHub environment."
         }
       },
       "additionalProperties": false,
@@ -719,34 +870,42 @@
           "description": "Must be \"git\""
         },
         "uri": {
-          "type": "string"
+          "type": "string",
+          "description": "Git repository URI. Defaults to the URI resolved from .git/config."
         },
         "private_key": {
-          "type": "string"
+          "type": "string",
+          "description": "SSH private key for cloning the repository. Defaults to ((github.private_key))."
         },
         "watched_paths": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Only trigger when changes occur in these paths (globs supported)."
         },
         "ignored_paths": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Do not trigger when changes occur only in these paths (globs supported)."
         },
         "git_crypt_key": {
-          "type": "string"
+          "type": "string",
+          "description": "Base64-encoded git-crypt key to unlock an encrypted repository."
         },
         "branch": {
-          "type": "string"
+          "type": "string",
+          "description": "Branch to track. Required when running halfpipe on a non-default branch."
         },
         "shallow": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Shallow clone the repository (--depth 1). Defaults to false in Concourse and true in GitHub Actions."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Disable automatic triggering on commits."
         }
       },
       "additionalProperties": false,
@@ -759,14 +918,17 @@
       "properties": {
         "slack": {
           "type": "string",
+          "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
         },
         "teams": {
-          "type": "string"
+          "type": "string",
+          "description": "Microsoft Teams channel webhook URL."
         },
         "message": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional message to include in the notification."
         }
       },
       "additionalProperties": false,
@@ -785,11 +947,13 @@
             "type": "string"
           },
           "type": "array",
+          "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
         },
         "on_success_message": {
           "type": "string",
+          "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
         },
@@ -798,19 +962,23 @@
             "type": "string"
           },
           "type": "array",
+          "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
         },
         "on_failure_message": {
           "type": "string",
+          "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
         },
         "success": {
-          "$ref": "#/$defs/NotificationChannels"
+          "$ref": "#/$defs/NotificationChannels",
+          "description": "Notification channels to notify on task success."
         },
         "failure": {
-          "$ref": "#/$defs/NotificationChannels"
+          "$ref": "#/$defs/NotificationChannels",
+          "description": "Notification channels to notify on task failure."
         }
       },
       "additionalProperties": false,
@@ -864,7 +1032,8 @@
               }
             ]
           },
-          "type": "array"
+          "type": "array",
+          "description": "Tasks to run in parallel. All tasks start simultaneously; the group succeeds when all complete."
         }
       },
       "additionalProperties": false,
@@ -881,25 +1050,32 @@
           "description": "Must be \"pipeline\""
         },
         "concourse_url": {
-          "type": "string"
+          "type": "string",
+          "description": "Concourse URL. Defaults to the current Concourse instance."
         },
         "username": {
-          "type": "string"
+          "type": "string",
+          "description": "Concourse username."
         },
         "password": {
-          "type": "string"
+          "type": "string",
+          "description": "Concourse password."
         },
         "team": {
-          "type": "string"
+          "type": "string",
+          "description": "Team that owns the pipeline to trigger from. Must be the same team."
         },
         "pipeline": {
-          "type": "string"
+          "type": "string",
+          "description": "Name of the pipeline to trigger from."
         },
         "job": {
-          "type": "string"
+          "type": "string",
+          "description": "Job name within the pipeline to trigger from."
         },
         "status": {
-          "type": "string"
+          "type": "string",
+          "description": "Job status to trigger on. Allowed values: succeeded, failed, errored, aborted. Defaults to succeeded."
         }
       },
       "additionalProperties": false,
@@ -916,54 +1092,68 @@
           "description": "Must be \"run\""
         },
         "name": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional display name."
         },
         "manual_trigger": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Task must be manually triggered (Concourse only)."
         },
         "script": {
-          "type": "string"
+          "type": "string",
+          "description": "Path to the script to execute, relative to the manifest. Prefix with \\ to run a system command e.g. \\make."
         },
         "docker": {
-          "$ref": "#/$defs/Docker"
+          "$ref": "#/$defs/Docker",
+          "description": "Docker configuration for the task to run in."
         },
         "privileged": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker."
         },
         "vars": {
-          "$ref": "#/$defs/Vars"
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables available to the script."
         },
         "save_artifacts": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to files or directories to save for use in subsequent tasks."
         },
         "restore_artifacts": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Restore artifacts saved by previous tasks."
         },
         "save_artifacts_on_failure": {
           "items": {
             "type": "string"
           },
-          "type": "array"
+          "type": "array",
+          "description": "Paths to save when the task fails, useful for test reports."
         },
         "retries": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
         "notifications": {
-          "$ref": "#/$defs/Notifications"
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
         "timeout": {
-          "type": "string"
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
         "build_history": {
-          "type": "integer"
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -1020,7 +1210,8 @@
               }
             ]
           },
-          "type": "array"
+          "type": "array",
+          "description": "Tasks to run in sequence within a parallel group. Can only be used inside a parallel task."
         }
       },
       "additionalProperties": false,
@@ -1041,7 +1232,8 @@
           "description": "Must be \"timer\""
         },
         "cron": {
-          "type": "string"
+          "type": "string",
+          "description": "Cron expression for the timer schedule. Times must be in UTC."
         }
       },
       "additionalProperties": false,
@@ -1074,26 +1266,32 @@
   },
   "properties": {
     "team": {
-      "type": "string"
+      "type": "string",
+      "description": "The platform team that owns this pipeline."
     },
     "pipeline": {
-      "type": "string"
+      "type": "string",
+      "description": "The name of the pipeline."
     },
     "slack_channel": {
       "type": "string",
+      "description": "Deprecated: Slack notifications are no longer supported.",
       "deprecated": true,
       "deprecationMessage": "Slack notifications are no longer supported"
     },
     "teams_webhook": {
-      "type": "string"
+      "type": "string",
+      "description": "A Microsoft Teams webhook URL for pipeline-level notifications."
     },
     "slack_success_message": {
       "type": "string",
+      "description": "Deprecated: Slack notifications are no longer supported.",
       "deprecated": true,
       "deprecationMessage": "Slack notifications are no longer supported"
     },
     "slack_failure_message": {
       "type": "string",
+      "description": "Deprecated: Slack notifications are no longer supported.",
       "deprecated": true,
       "deprecationMessage": "Slack notifications are no longer supported"
     },
@@ -1107,7 +1305,8 @@
           "ghas"
         ]
       },
-      "type": "array"
+      "type": "array",
+      "description": "Optional feature toggles"
     },
     "triggers": {
       "items": {
@@ -1126,7 +1325,8 @@
           }
         ]
       },
-      "type": "array"
+      "type": "array",
+      "description": "The triggers that cause this pipeline to run."
     },
     "tasks": {
       "items": {
@@ -1169,7 +1369,8 @@
           }
         ]
       },
-      "type": "array"
+      "type": "array",
+      "description": "The tasks that make up this pipeline."
     },
     "platform": {
       "type": "string",
@@ -1177,14 +1378,16 @@
         "",
         "concourse",
         "actions"
-      ]
+      ],
+      "description": "The CI platform to target. Defaults to concourse."
     },
     "notifications": {
-      "$ref": "#/$defs/Notifications"
+      "$ref": "#/$defs/Notifications",
+      "description": "Default notifications for all tasks."
     }
   },
   "additionalProperties": false,
   "type": "object",
   "title": "Halfpipe Manifest",
-  "description": "Schema for the halfpipe CI/CD manifest (.halfpipe.io, .halfpipe.io.yml, .halfpipe.io.yaml)"
+  "description": "Schema for the halfpipe CI/CD manifest"
 }

@@ -7,14 +7,21 @@ import (
 )
 
 type PipelineTrigger struct {
-	Type         string `json:"type,omitempty" yaml:"type,omitempty"`
+	Type string `json:"type,omitempty" yaml:"type,omitempty"`
+	// Concourse URL. Defaults to the current Concourse instance.
 	ConcourseURL string `json:"concourse_url,omitempty" yaml:"concourse_url,omitempty" secretAllowed:"true"`
-	Username     string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
-	Password     string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	Team         string `json:"team,omitempty" yaml:"team,omitempty"`
-	Pipeline     string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
-	Job          string `json:"job,omitempty" yaml:"job,omitempty"`
-	Status       string `json:"status,omitempty" yaml:"status,omitempty"`
+	// Concourse username.
+	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
+	// Concourse password.
+	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
+	// Team that owns the pipeline to trigger from. Must be the same team.
+	Team string `json:"team,omitempty" yaml:"team,omitempty"`
+	// Name of the pipeline to trigger from.
+	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+	// Job name within the pipeline to trigger from.
+	Job string `json:"job,omitempty" yaml:"job,omitempty"`
+	// Job status to trigger on. Allowed values: succeeded, failed, errored, aborted. Defaults to succeeded.
+	Status string `json:"status,omitempty" yaml:"status,omitempty"`
 }
 
 func (p PipelineTrigger) GetTriggerAttempts() int {
