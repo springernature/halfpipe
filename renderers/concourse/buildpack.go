@@ -46,7 +46,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 		Config: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        taskEnv,
-			ImageResource: c.imageResource(halfpipeDockerImage),
+			ImageResource: imageResource(halfpipeDockerImage),
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",
 				Dir:  path.Join(gitDir, basePath),

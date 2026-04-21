@@ -60,7 +60,7 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, basePath str
 		Config: &atc.TaskConfig{
 			Platform:      "linux",
 			Params:        taskEnv,
-			ImageResource: c.imageResource(task.Docker),
+			ImageResource: imageResource(task.Docker),
 			Run: atc.TaskRunConfig{
 				Path: entrypoint,
 				Dir:  path.Join(gitDir, basePath),

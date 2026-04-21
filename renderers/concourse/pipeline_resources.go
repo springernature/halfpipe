@@ -267,7 +267,7 @@ func (c Concourse) dockerTriggerResource(trigger manifest.DockerTrigger) atc.Res
 	return config
 }
 
-func (c Concourse) imageResource(docker manifest.Docker) *atc.ImageResource {
+func imageResource(docker manifest.Docker) *atc.ImageResource {
 	repo, tag := docker.Image, "latest"
 	if strings.Contains(docker.Image, ":") {
 		split := strings.Split(docker.Image, ":")

@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/concourse/concourse/atc"
-	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
 )
@@ -212,10 +211,11 @@ export GHAS_TOKEN=$(curl -s -X POST \
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON":     vaultSecrets.DockerConfig,
 				"GITHUB_APP_ID":          vaultSecrets.HalfpipeBotAppID,
 				"GITHUB_INSTALLATION_ID": vaultSecrets.HalfpipeBotInstallationID,
 				"GITHUB_PRIVATE_KEY":     vaultSecrets.HalfpipeBotPrivateKey,
+				"TRIVY_PASSWORD":         vaultSecrets.GARToken,
+				"TRIVY_USERNAME":         "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
 				{Name: gitDir},
@@ -241,7 +241,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	}
 
 	params := atc.TaskEnv{
-		"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
+		"GAR_TOKEN": vaultSecrets.GARToken,
 	}
 
 	var buildStep *atc.TaskStep
@@ -286,21 +286,12 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 		Name:       "build",
 		Privileged: true,
 		Config: &atc.TaskConfig{
-			Platform: "linux",
-			ImageResource: &atc.ImageResource{
-				Type: "registry-image",
-				Source: atc.Source{
-					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
-					"tag":        "latest",
-					"password":   vaultSecrets.GCRPrivateKey,
-					"username":   "_json_key",
-				},
-			},
-			Params: params,
+			Platform:      "linux",
+			ImageResource: imageResource(halfpipeDockerImage),
+			Params:        params,
 			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
+				Path: "docker.sh",
 				Args: []string{"-c", strings.Join([]string{
-					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
 					fmt.Sprintf(`echo $ %s`, buildCommandStr),
 					buildCommandStr}, "\n"),
 				},
@@ -332,23 +323,15 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 		Name:       "publish-final-image",
 		Privileged: true,
 		Config: &atc.TaskConfig{
-			Platform: "linux",
-			ImageResource: &atc.ImageResource{
-				Type: "registry-image",
-				Source: atc.Source{
-					"repository": path.Join(config.DockerRegistry, "halfpipe-buildx"),
-					"tag":        "latest",
-					"password":   vaultSecrets.GCRPrivateKey,
-					"username":   "_json_key",
-				},
-			},
+			Platform:      "linux",
+			ImageResource: imageResource(halfpipeDockerImage),
 			Params: atc.TaskEnv{
-				"DOCKER_CONFIG_JSON": vaultSecrets.DockerConfig,
+				"GAR_TOKEN": vaultSecrets.GARToken,
 			},
 			Run: atc.TaskRunConfig{
-				Path: "/bin/sh",
+				Path: "docker.sh",
 				Args: []string{"-c", strings.Join([]string{
-					`echo $DOCKER_CONFIG_JSON > ~/.docker/config.json`,
+					`echo updating tags..`,
 					publishCommand,
 				}, "\n"),
 				},

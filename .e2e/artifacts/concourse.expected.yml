@@ -568,10 +568,12 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -584,16 +586,15 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         B: b
         CI: "true"
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
         - -c
         - |-
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
           echo $ docker buildx build \
             -f docker_build/.e2e/artifacts/Dockerfile \
             --push \
@@ -632,7 +633,7 @@ jobs:
             --secret id=ARTIFACTORY_URL \
             --secret id=ARTIFACTORY_USERNAME \
             docker_build/.e2e/artifacts
-        path: /bin/sh
+        path: docker.sh
     privileged: true
     task: build
     timeout: 1h
@@ -665,24 +666,26 @@ jobs:
       image_resource:
         name: ""
         source:
-          password: ((halfpipe-gcr.private_key))
-          repository: eu.gcr.io/halfpipe-io/halfpipe-buildx
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
           tag: latest
-          username: _json_key
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
       - name: tagList
       params:
-        DOCKER_CONFIG_JSON: ((halfpipe-gcr.docker_config))
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
       platform: linux
       run:
         args:
         - -c
         - |-
-          echo $DOCKER_CONFIG_JSON > ~/.docker/config.json
+          echo updating tags..
           for tag in $(cat tagList/tagList) ; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/halfpipe-fly:$(cat git/.git/ref) --tag eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly:$tag; done
-        path: /bin/sh
+        path: docker.sh
     privileged: true
     task: publish-final-image
     timeout: 1h
