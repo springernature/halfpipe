@@ -5,7 +5,7 @@ endif
 
 default: build
 
-build: fmt test binary e2e staticcheck dependabot schema validate-e2e
+build: fmt test binary e2e staticcheck dependabot docs schema validate-e2e
 
 fmt:
 	go fmt ./...
@@ -35,6 +35,9 @@ update-actions:
 schema:
 	go run ./cmd/generate-schema > schema.json
 
+docs: schema
+	go run ./cmd/generate-docs > docs/manifest-reference.md
+
 validate-e2e:
 	@if ! which check-jsonschema > /dev/null 2>&1; then \
 		echo "WARNING: check-jsonschema not installed, skipping schema validation of e2e tests"; \
@@ -60,4 +63,4 @@ coverage:
 	} \
 	END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
 
-.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions schema fix-e2e coverage validate-e2e
+.PHONY: build fmt test binary e2e staticcheck dependabot update-deps update-actions schema docs fix-e2e coverage validate-e2e
