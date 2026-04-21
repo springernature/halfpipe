@@ -55,7 +55,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 	switch v.Type() {
 
 	case reflect.TypeFor[Manifest](),
-		reflect.TypeFor[Repo](),
 		reflect.TypeFor[Run](),
 		reflect.TypeFor[Docker](),
 		reflect.TypeFor[DockerPush](),
