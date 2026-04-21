@@ -149,7 +149,7 @@ func (d deployCF) pushCandidateApp() atc.Step {
 
 	if d.task.IsDockerPush {
 		push.Params["dockerUsername"] = "_json_key"
-		push.Params["dockerPassword"] = vaultSecrets.GCRPrivateKey
+		push.Params["dockerPassword"] = secrets.GCRPrivateKey
 		if d.task.DockerTag != "" {
 			if d.task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")
@@ -223,7 +223,7 @@ func (d deployCF) pushApp() atc.Step {
 
 	if d.task.IsDockerPush {
 		push.Params["dockerUsername"] = "_json_key"
-		push.Params["dockerPassword"] = vaultSecrets.GCRPrivateKey
+		push.Params["dockerPassword"] = secrets.GCRPrivateKey
 		if d.task.DockerTag != "" {
 			if d.task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")

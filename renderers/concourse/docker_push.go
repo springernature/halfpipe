@@ -135,7 +135,7 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"TRIVY_PASSWORD": vaultSecrets.GARToken,
+				"TRIVY_PASSWORD": secrets.GARToken,
 				"TRIVY_USERNAME": "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -212,10 +212,10 @@ export GHAS_TOKEN=$(curl -s -X POST \
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"GITHUB_APP_ID":          vaultSecrets.HalfpipeBotAppID,
-				"GITHUB_INSTALLATION_ID": vaultSecrets.HalfpipeBotInstallationID,
-				"GITHUB_PRIVATE_KEY":     vaultSecrets.HalfpipeBotPrivateKey,
-				"TRIVY_PASSWORD":         vaultSecrets.GARToken,
+				"GITHUB_APP_ID":          secrets.HalfpipeBotAppID,
+				"GITHUB_INSTALLATION_ID": secrets.HalfpipeBotInstallationID,
+				"GITHUB_PRIVATE_KEY":     secrets.HalfpipeBotPrivateKey,
+				"TRIVY_PASSWORD":         secrets.GARToken,
 				"TRIVY_USERNAME":         "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -242,7 +242,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	}
 
 	params := atc.TaskEnv{
-		"GAR_TOKEN": vaultSecrets.GARToken,
+		"GAR_TOKEN": secrets.GARToken,
 	}
 
 	var buildStep *atc.TaskStep
@@ -264,14 +264,13 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	slices.Sort(buildArgs)
 	buildCommand = append(buildCommand, buildArgs...)
 
-	secrets := []string{}
+	buildSecrets := []string{}
 	for k, v := range convertVars(task.Secrets) {
 		params[k] = v.(string)
-		secrets = append(secrets, fmt.Sprintf("--secret id=%s", k))
-
+		buildSecrets = append(buildSecrets, fmt.Sprintf("--secret id=%s", k))
 	}
-	slices.Sort(secrets)
-	buildCommand = append(buildCommand, secrets...)
+	slices.Sort(buildSecrets)
+	buildCommand = append(buildCommand, buildSecrets...)
 
 	if task.UseCache {
 		buildCommand = append(buildCommand, fmt.Sprintf("--tag %s", shared.CachePath(task, "buildcache")))
@@ -327,7 +326,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 			Platform:      "linux",
 			ImageResource: imageResource(halfpipeDockerImage),
 			Params: atc.TaskEnv{
-				"GAR_TOKEN": vaultSecrets.GARToken,
+				"GAR_TOKEN": secrets.GARToken,
 			},
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",

@@ -52,11 +52,9 @@ var DevVersion = semver.Version{
 	Pre:   []semver.PRVersion{{VersionStr: "DEV"}},
 }
 
-const HalfpipeFile = ".halfpipe.io"
-const HalfpipeFileWithYML = ".halfpipe.io.yml"
-const HalfpipeFileWithYAML = ".halfpipe.io.yaml"
+var HalfpipeFilenameOptions = []string{".halfpipe.io", ".halfpipe.io.yml", ".halfpipe.io.yaml"}
 
-var HalfpipeFilenameOptions = []string{HalfpipeFile, HalfpipeFileWithYML, HalfpipeFileWithYAML}
+const PlatformAPIMessageURL = "https://platform-api.ee.springernature.io/api/v1/message"
 
 func GetVersion() (semver.Version, error) {
 	if Version == "" {
@@ -76,15 +74,3 @@ func getEnv(key string, defaultVal string) string {
 
 	return defaultVal
 }
-
-const VersionBucket = "((halfpipe-semver.bucket))"
-const VersionJSONKey = "((halfpipe-semver.private_key))"
-
-const ArtifactsBucket = "((halfpipe-artifacts.bucket))"
-const ArtifactsJSONKey = "((halfpipe-artifacts.private_key))"
-
-const SlackToken = "((halfpipe-slack.token))"
-
-const GithubToken = "((halfpipe-github.statuses-token))"
-
-const PlatformAPIMessageURL = "https://platform-api.ee.springernature.io/api/v1/message"
