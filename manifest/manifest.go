@@ -157,13 +157,6 @@ func (m Manifest) PipelineName() (pipelineName string) {
 	return pipelineName
 }
 
-type ArtifactConfig struct {
-	// Google Cloud Storage bucket for storing artifacts.
-	Bucket string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true" jsonschema:"required"`
-	// JSON key for a service account with read/write access to the bucket.
-	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true" jsonschema:"required"`
-}
-
 // GitHub environment to associate with this deployment.
 type GitHubEnvironment struct {
 	// Name of the GitHub environment.

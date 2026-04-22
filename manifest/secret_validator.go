@@ -65,7 +65,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[ConsumerIntegrationTest](),
 		reflect.TypeFor[DeployMLZip](),
 		reflect.TypeFor[DeployMLModules](),
-		reflect.TypeFor[ArtifactConfig](),
 		reflect.TypeFor[GitTrigger](),
 		reflect.TypeFor[TimerTrigger](),
 		reflect.TypeFor[DockerTrigger](),
