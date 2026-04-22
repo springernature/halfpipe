@@ -2,7 +2,7 @@ package manifest
 
 import "strings"
 
-// GitTrigger defines which git repo halfpipe will operate on. By convention
+// git trigger defines which git repo halfpipe will operate on. By convention
 // there is always a git trigger as default. To disable it, set manual_trigger
 // to true.
 type GitTrigger struct {

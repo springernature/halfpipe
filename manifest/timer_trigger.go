@@ -1,6 +1,6 @@
 package manifest
 
-// TimerTrigger runs the pipeline on a schedule. The cron expression must be
+// timer trigger runs the pipeline on a schedule. The cron expression must be
 // valid; remember to specify times in UTC. See [crontab.guru] for help
 // writing cron expressions.
 //

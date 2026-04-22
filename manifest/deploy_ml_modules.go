@@ -1,6 +1,6 @@
 package manifest
 
-// DeployMLModules deploys a version of the shared ml modules library from
+// deploy-ml-modules deploys a version of the shared ml modules library from
 // artifactory.
 type DeployMLModules struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`

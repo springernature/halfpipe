@@ -1,0 +1,4 @@
+# Associate a GitHub environment with a deployment
+github_environment:
+  name: production
+  url: https://my-app.example.com

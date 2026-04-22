@@ -1,6 +1,6 @@
 package manifest
 
-// Buildpack generates a container image using Cloud Native Buildpacks and
+// buildpack generates a container image using Cloud Native Buildpacks and
 // publishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]
 // which is an implementation of the Cloud Native Buildpacks specification.
 //

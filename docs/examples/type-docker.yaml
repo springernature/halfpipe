@@ -1,0 +1,9 @@
+# Halfpipe or public registry
+docker:
+  image: eu.gcr.io/halfpipe-io/team/image:tag
+---
+# Private registry
+docker:
+  image: eu.gcr.io/halfpipe-io/my-team/my-image
+  username: ((registry.username))
+  password: ((registry.password))

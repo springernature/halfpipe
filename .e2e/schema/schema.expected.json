@@ -6,7 +6,7 @@
         "type": {
           "type": "string",
           "const": "buildpack",
-          "description": "Buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
+          "description": "buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
         },
         "name": {
           "type": "string",
@@ -73,7 +73,7 @@
         "image",
         "buildpacks"
       ],
-      "description": "Buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
+      "description": "buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
     },
     "ComposeFiles": {
       "items": {
@@ -86,7 +86,7 @@
         "type": {
           "type": "string",
           "const": "consumer-integration-test",
-          "description": "ConsumerIntegrationTest is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
+          "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
         },
         "name": {
           "type": "string",
@@ -181,14 +181,14 @@
         "consumer_host",
         "script"
       ],
-      "description": "ConsumerIntegrationTest is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
+      "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
     },
     "CopyContainerImage": {
       "properties": {
         "type": {
           "type": "string",
           "const": "copy-container-image",
-          "description": "CopyContainerImage copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
+          "description": "copy-container-image copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
         },
         "name": {
           "type": "string",
@@ -244,14 +244,14 @@
         "source",
         "target"
       ],
-      "description": "CopyContainerImage copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
+      "description": "copy-container-image copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
     },
     "DeployCF": {
       "properties": {
         "type": {
           "type": "string",
           "const": "deploy-cf",
-          "description": "DeployCF deploys an app to Cloud Foundry with zero downtime."
+          "description": "deploy-cf deploys an app to Cloud Foundry."
         },
         "name": {
           "type": "string",
@@ -401,14 +401,14 @@
         "type",
         "space"
       ],
-      "description": "DeployCF deploys an app to Cloud Foundry with zero downtime."
+      "description": "deploy-cf deploys an app to Cloud Foundry."
     },
     "DeployKatee": {
       "properties": {
         "type": {
           "type": "string",
           "const": "deploy-katee",
-          "description": "DeployKatee deploys an app to Katee."
+          "description": "deploy-katee deploys an application to Katee."
         },
         "name": {
           "type": "string",
@@ -424,7 +424,9 @@
         },
         "tag": {
           "type": "string",
-          "description": "Deprecated: no longer used - safe to delete."
+          "description": "Deprecated: no longer used - safe to delete.",
+          "deprecated": true,
+          "deprecationMessage": "no longer used - safe to delete"
         },
         "environment": {
           "type": "string",
@@ -486,14 +488,14 @@
       "required": [
         "type"
       ],
-      "description": "DeployKatee deploys an app to Katee."
+      "description": "deploy-katee deploys an application to Katee."
     },
     "DeployMLModules": {
       "properties": {
         "type": {
           "type": "string",
           "const": "deploy-ml-modules",
-          "description": "DeployMLModules deploys a version of the shared ml modules library from\nartifactory."
+          "description": "deploy-ml-modules deploys a version of the shared ml modules library from\nartifactory."
         },
         "name": {
           "type": "string",
@@ -564,14 +566,14 @@
         "ml_modules_version",
         "targets"
       ],
-      "description": "DeployMLModules deploys a version of the shared ml modules library from\nartifactory."
+      "description": "deploy-ml-modules deploys a version of the shared ml modules library from\nartifactory."
     },
     "DeployMLZip": {
       "properties": {
         "type": {
           "type": "string",
           "const": "deploy-ml-zip",
-          "description": "DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy."
+          "description": "deploy-ml-zip deploys local XQuery files to MarkLogic using ml-deploy."
         },
         "name": {
           "type": "string",
@@ -642,13 +644,13 @@
         "deploy_zip",
         "targets"
       ],
-      "description": "DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy."
+      "description": "deploy-ml-zip deploys local XQuery files to MarkLogic using ml-deploy."
     },
     "Docker": {
       "properties": {
         "image": {
           "type": "string",
-          "description": "Path to docker image"
+          "description": "Path of docker image in registry including tag."
         },
         "username": {
           "type": "string",
@@ -663,14 +665,15 @@
       "type": "object",
       "required": [
         "image"
-      ]
+      ],
+      "description": "Docker image configuration"
     },
     "DockerCompose": {
       "properties": {
         "type": {
           "type": "string",
           "const": "docker-compose",
-          "description": "DockerCompose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
+          "description": "docker-compose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
         },
         "name": {
           "type": "string",
@@ -742,14 +745,14 @@
       "required": [
         "type"
       ],
-      "description": "DockerCompose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
+      "description": "docker-compose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
     },
     "DockerPush": {
       "properties": {
         "type": {
           "type": "string",
           "const": "docker-push",
-          "description": "DockerPush builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
+          "description": "docker-push builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
         },
         "name": {
           "type": "string",
@@ -797,7 +800,9 @@
         },
         "tag": {
           "type": "string",
-          "description": "Deprecated: no longer used - safe to delete."
+          "description": "Deprecated: no longer used - safe to delete.",
+          "deprecated": true,
+          "deprecationMessage": "no longer used - safe to delete"
         },
         "platforms": {
           "items": {
@@ -843,14 +848,14 @@
         "type",
         "image"
       ],
-      "description": "DockerPush builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
+      "description": "docker-push builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
     },
     "DockerTrigger": {
       "properties": {
         "type": {
           "type": "string",
           "const": "docker",
-          "description": "DockerTrigger runs the pipeline when a docker image has been updated."
+          "description": "docker trigger runs the pipeline when a docker image has been updated."
         },
         "image": {
           "type": "string",
@@ -871,13 +876,14 @@
         "type",
         "image"
       ],
-      "description": "DockerTrigger runs the pipeline when a docker image has been updated."
+      "description": "docker trigger runs the pipeline when a docker image has been updated."
     },
     "FeatureToggles": {
       "items": {
         "type": "string"
       },
-      "type": "array"
+      "type": "array",
+      "description": "FeatureToggles enable optional pipeline behaviours.\n\n| Toggle | Description |\n|--------|-------------|\n| `update-pipeline` | Inserts a job that keeps the pipeline/workflow in sync with the halfpipe manifest. Sets BUILD_VERSION. |\n| `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `\u003cPIPELINE_NAME\u003e/v\u003cBUILD_VERSION\u003e`. |\n| `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |\n| `ghas` | Enables GitHub Advanced Security scanning on docker-push tasks. |"
     },
     "GitHubEnvironment": {
       "properties": {
@@ -899,7 +905,7 @@
         "type": {
           "type": "string",
           "const": "git",
-          "description": "GitTrigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
+          "description": "git trigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
         },
         "uri": {
           "type": "string",
@@ -945,7 +951,7 @@
       "required": [
         "type"
       ],
-      "description": "GitTrigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
+      "description": "git trigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
     },
     "NotificationChannel": {
       "properties": {
@@ -965,7 +971,8 @@
         }
       },
       "additionalProperties": false,
-      "type": "object"
+      "type": "object",
+      "description": "notification channel defines where to send a notification."
     },
     "NotificationChannels": {
       "items": {
@@ -1015,14 +1022,15 @@
         }
       },
       "additionalProperties": false,
-      "type": "object"
+      "type": "object",
+      "description": "notifications configure which channels to notify on task success or failure."
     },
     "Parallel": {
       "properties": {
         "type": {
           "type": "string",
           "const": "parallel",
-          "description": "Parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
+          "description": "parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
         },
         "tasks": {
           "items": {
@@ -1075,14 +1083,14 @@
         "type",
         "tasks"
       ],
-      "description": "Parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
+      "description": "parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
     },
     "PipelineTrigger": {
       "properties": {
         "type": {
           "type": "string",
           "const": "pipeline",
-          "description": "PipelineTrigger triggers a pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
+          "description": "pipeline trigger runs the pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
         },
         "concourse_url": {
           "type": "string",
@@ -1120,14 +1128,14 @@
         "pipeline",
         "job"
       ],
-      "description": "PipelineTrigger triggers a pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
+      "description": "pipeline trigger runs the pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
     },
     "Run": {
       "properties": {
         "type": {
           "type": "string",
           "const": "run",
-          "description": "Run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
+          "description": "run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
         },
         "name": {
           "type": "string",
@@ -1201,14 +1209,14 @@
         "script",
         "docker"
       ],
-      "description": "Run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
+      "description": "run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
     },
     "Sequence": {
       "properties": {
         "type": {
           "type": "string",
           "const": "sequence",
-          "description": "Sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
+          "description": "sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
         },
         "tasks": {
           "items": {
@@ -1261,7 +1269,7 @@
         "type",
         "tasks"
       ],
-      "description": "Sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
+      "description": "sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
     },
     "TaskList": {
       "items": true,
@@ -1272,7 +1280,7 @@
         "type": {
           "type": "string",
           "const": "timer",
-          "description": "TimerTrigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
+          "description": "timer trigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
         },
         "cron": {
           "type": "string",
@@ -1285,7 +1293,7 @@
         "type",
         "cron"
       ],
-      "description": "TimerTrigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
+      "description": "timer trigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
     },
     "TriggerList": {
       "items": true,
@@ -1371,7 +1379,7 @@
         ]
       },
       "type": "array",
-      "description": "The triggers that cause this pipeline to run."
+      "description": "The triggers that cause this pipeline to run. Defaults to git."
     },
     "tasks": {
       "items": {

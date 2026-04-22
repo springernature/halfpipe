@@ -2,7 +2,7 @@ package manifest
 
 import "slices"
 
-// Sequence enables running tasks in sequence within a parallel group. It can
+// sequence enables running tasks in sequence within a parallel group. It can
 // only be used inside a parallel task.
 type Sequence struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`

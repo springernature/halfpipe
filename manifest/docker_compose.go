@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-// DockerCompose executes docker-compose based on a docker-compose.yml file.
+// docker-compose executes docker-compose based on a docker-compose.yml file.
 // This file must be present in the same directory as the halfpipe manifest.
 type DockerCompose struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`

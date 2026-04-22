@@ -2,7 +2,7 @@ package manifest
 
 import "strings"
 
-// DockerTrigger runs the pipeline when a docker image has been updated.
+// docker trigger runs the pipeline when a docker image has been updated.
 type DockerTrigger struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Docker image to watch for updates.

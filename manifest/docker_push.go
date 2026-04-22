@@ -1,6 +1,6 @@
 package manifest
 
-// DockerPush builds a Docker image and pushes it to a docker registry. The
+// docker-push builds a Docker image and pushes it to a docker registry. The
 // image will be tagged with the latest tag, the gitref and pipeline version
 // by default.
 type DockerPush struct {
@@ -28,7 +28,7 @@ type DockerPush struct {
 	// Path to the folder to use as the Docker build context, relative to the manifest.
 	BuildPath string `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 	// Deprecated: no longer used - safe to delete.
-	Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
+	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64.
 	Platforms []string `json:"platforms,omitempty" yaml:"platforms,omitempty"`
 	// Enable layer caching to speed up builds by reusing layers from previous builds.

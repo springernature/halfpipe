@@ -7,8 +7,10 @@ import (
 	"strings"
 )
 
+// vars are key-value pairs of environment variables. Values are coerced to strings.
 type Vars map[string]string
 
+// notification channel defines where to send a notification.
 type NotificationChannel struct {
 	// Microsoft Teams channel webhook URL.
 	Teams string `json:"teams,omitempty" yaml:"teams,omitempty"`
@@ -38,6 +40,7 @@ func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
 	return ncs
 }
 
+// notifications configure which channels to notify on task success or failure.
 type Notifications struct {
 	// Notification channels to notify on task success.
 	Success NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
@@ -127,7 +130,7 @@ type Manifest struct {
 	SlackFailureMessage string `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Optional feature toggles
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
-	// The triggers that cause this pipeline to run.
+	// The triggers that cause this pipeline to run. Defaults to git.
 	Triggers TriggerList `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	// The tasks that make up this pipeline.
 	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty" jsonschema:"required"`

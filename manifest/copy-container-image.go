@@ -1,6 +1,6 @@
 package manifest
 
-// CopyContainerImage copies an image from the halfpipe registry
+// copy-container-image copies an image from the halfpipe registry
 // (eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is
 // supported as the target. Normally this would be used after a docker-push
 // or buildpack task.

@@ -1,6 +1,6 @@
 package manifest
 
-// ConsumerIntegrationTest is designed to run in a provider's pipeline. The
+// consumer-integration-test is designed to run in a provider's pipeline. The
 // task allows for a test script to be run. The script is passed two environment
 // variables automatically: DEPENDENCY_NAME (set by provider_name) and
 // <DEPENDENCY_NAME>_DEPLOYED_HOST (set by provider_host).

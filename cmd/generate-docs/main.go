@@ -13,6 +13,7 @@ import (
 type Schema struct {
 	Defs       map[string]*SchemaDef `json:"$defs"`
 	Properties map[string]*Property  `json:"properties"`
+	Required   []string              `json:"required"`
 	Title      string                `json:"title"`
 	Desc       string                `json:"description"`
 }
@@ -105,11 +106,21 @@ func buildAnchorMap(schema *Schema) {
 
 	// Supporting types: plain ### headings
 	anchorMap["Notifications"] = "notifications"
-	anchorMap["NotificationChannel"] = "notificationchannel"
-	anchorMap["NotificationChannels"] = "notificationchannel" // alias — array of NotificationChannel
+	anchorMap["NotificationChannel"] = "notification-channel"
+	anchorMap["NotificationChannels"] = "notification-channel" // alias — array of NotificationChannel
 	anchorMap["Docker"] = "docker"
-	anchorMap["GitHubEnvironment"] = "githubenvironment"
+	anchorMap["GitHubEnvironment"] = "github_environment"
 	anchorMap["Vars"] = "vars"
+}
+
+// defDisplayName maps $defs names to their user-facing yaml-style display names.
+var defDisplayName = map[string]string{
+	"Notifications":        "notifications",
+	"NotificationChannel":  "notification channel",
+	"NotificationChannels": "notification channel",
+	"Docker":               "docker",
+	"GitHubEnvironment":    "github_environment",
+	"Vars":                 "vars",
 }
 
 func refLink(defName string) string {
@@ -117,7 +128,11 @@ func refLink(defName string) string {
 	if !ok {
 		return defName
 	}
-	return fmt.Sprintf("[%s](#%s)", defName, anchor)
+	display := defName
+	if d, ok := defDisplayName[defName]; ok {
+		display = d
+	}
+	return fmt.Sprintf("[%s](#%s)", display, anchor)
 }
 
 func main() {
@@ -150,7 +165,7 @@ func main() {
 		if typeName == "" {
 			continue
 		}
-		b.WriteString(fmt.Sprintf("  - [`%s`](#%s)\n", typeName, anchorMap[name]))
+		b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
 	}
 	b.WriteString("- [Tasks](#tasks)\n")
 	for _, name := range sortedDefKeys(schema.Defs, "") {
@@ -162,20 +177,20 @@ func main() {
 		if typeName == "" {
 			continue
 		}
-		b.WriteString(fmt.Sprintf("  - [`%s`](#%s)\n", typeName, anchorMap[name]))
+		b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
 	}
 	b.WriteString("- [Supporting Types](#supporting-types)\n")
-	b.WriteString("  - [Notifications](#notifications)\n")
-	b.WriteString("  - [NotificationChannel](#notificationchannel)\n")
-	b.WriteString("  - [Vars](#vars)\n")
-	b.WriteString("  - [Docker](#docker)\n")
-	b.WriteString("  - [GitHubEnvironment](#githubenvironment)\n")
-	b.WriteString("  - [Feature Toggles](#feature-toggles)\n")
+	b.WriteString("  - [notifications](#notifications)\n")
+	b.WriteString("  - [notification channel](#notification-channel)\n")
+	b.WriteString("  - [vars](#vars)\n")
+	b.WriteString("  - [docker](#docker)\n")
+	b.WriteString("  - [github_environment](#github_environment)\n")
+	b.WriteString("  - [feature_toggles](#feature_toggles)\n")
 	b.WriteString("\n")
 
 	// Top-level fields
 	b.WriteString("## Top-Level Fields\n\n")
-	writePropsTable(&b, topLevelOrdered(schema.Properties), nil, nil, &schema)
+	writePropsTable(&b, topLevelOrdered(schema.Properties), nil, schema.Required, &schema)
 
 	// Triggers
 	b.WriteString("\n## Triggers\n\n")
@@ -212,36 +227,41 @@ func main() {
 	b.WriteString("\n## Supporting Types\n\n")
 
 	if def, ok := schema.Defs["Notifications"]; ok {
-		b.WriteString("### Notifications\n\n")
+		b.WriteString("### `notifications`\n\n")
 		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "type-notifications")
 	}
 	if def, ok := schema.Defs["NotificationChannel"]; ok {
-		b.WriteString("### NotificationChannel\n\n")
+		b.WriteString("### `notification channel`\n\n")
 		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "type-notificationchannel")
 	}
 	// Vars
-	b.WriteString("### Vars\n\n")
-	b.WriteString("Key-value pairs of environment variables. Values are coerced to strings.\n\n")
-	b.WriteString("```yaml\nvars:\n  FOO: bar\n  PORT: 8080\n  DEBUG: true\n```\n\n")
-
-	if def, ok := schema.Defs["Docker"]; ok {
-		b.WriteString("### Docker\n\n")
-		b.WriteString("Docker image configuration used by the [`run`](#run) task.\n\n")
+	b.WriteString("### `vars`\n\n")
+	if def, ok := schema.Defs["Vars"]; ok {
 		writeDefTable(&b, def, &schema)
 	}
-	if def, ok := schema.Defs["GitHubEnvironment"]; ok {
-		b.WriteString("### GitHubEnvironment\n\n")
+	writeExample(&b, root, "type-vars")
+
+	if def, ok := schema.Defs["Docker"]; ok {
+		b.WriteString("### `docker`\n\n")
 		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "type-docker")
+	}
+	if def, ok := schema.Defs["GitHubEnvironment"]; ok {
+		b.WriteString("### `github_environment`\n\n")
+		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "type-githubenvironment")
 	}
 
 	// Feature toggles
-	b.WriteString("### Feature Toggles\n\n")
-	b.WriteString("Available values for the `feature_toggles` array:\n\n")
-	if prop, ok := schema.Properties["feature_toggles"]; ok && prop.Items != nil {
-		for _, e := range prop.Items.Enum {
-			b.WriteString(fmt.Sprintf("- `%v`\n", e))
-		}
+	b.WriteString("### `feature_toggles`\n\n")
+	if def, ok := schema.Defs["FeatureToggles"]; ok && def.Desc != "" {
+		desc := strings.TrimPrefix(def.Desc, "FeatureToggles ")
+		desc = strings.ToUpper(desc[:1]) + desc[1:]
+		b.WriteString(desc + "\n\n")
 	}
+	writeExample(&b, root, "type-feature-toggles")
 	b.WriteString("\n")
 
 	fmt.Print(b.String())
@@ -331,6 +351,16 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 func resolveType(prop *Property, schema *Schema) string {
 	if prop.Ref != "" {
 		name := strings.TrimPrefix(prop.Ref, "#/$defs/")
+		// If the referenced def is itself an array, render as itemType[]
+		if def, ok := schema.Defs[name]; ok && typeString(def.Type) == "array" && def.Items != nil {
+			var itemRef string
+			if err := json.Unmarshal(def.Items, &struct {
+				Ref *string `json:"$ref"`
+			}{Ref: &itemRef}); err == nil && itemRef != "" {
+				itemName := strings.TrimPrefix(itemRef, "#/$defs/")
+				return refLink(itemName) + "[]"
+			}
+		}
 		return refLink(name)
 	}
 	if prop.Enum != nil {

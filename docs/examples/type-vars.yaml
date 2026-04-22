@@ -1,0 +1,5 @@
+vars:
+  PORT: 8080
+  DEBUG: true
+  LOG_LEVEL: "error"
+  VAULT_SECRET: ((my-app.my-secret-in-vault))

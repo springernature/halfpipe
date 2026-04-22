@@ -2,6 +2,50 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
+  name: update
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 2h
+    trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((platform/concourse.password))
+        CONCOURSE_TEAM: ((platform/concourse.team))
+        CONCOURSE_URL: ((platform/concourse.url))
+        CONCOURSE_USERNAME: ((platform/concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: halfpipe-e2e-artifacts
+      platform: linux
+      run:
+        dir: git/.e2e/artifacts
+        path: update-pipeline
+    task: update
+    timeout: 2h
+  - attempts: 2
+    no_get: true
+    params:
+      bump: minor
+    put: version
+    timeout: 2h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
   name: create-artifact
   on_failure:
     attempts: 2
@@ -14,9 +58,17 @@ jobs:
     timeout: 2h
   plan:
   - attempts: 2
-    get: git
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
     timeout: 2h
-    trigger: true
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -31,6 +83,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: artifacts-out
       - name: artifacts-out-failure
@@ -82,6 +135,7 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./a
           EXIT_STATUS=$?
@@ -112,11 +166,17 @@ jobs:
   name: read-artifact
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - create-artifact
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - create-artifact
+      - get: version
+        passed:
+        - create-artifact
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -159,6 +219,7 @@ jobs:
       inputs:
       - name: git
       - name: artifacts
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -197,6 +258,7 @@ jobs:
           cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./a
           EXIT_STATUS=$?
@@ -222,11 +284,17 @@ jobs:
     timeout: 2h
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - read-artifact
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - read-artifact
+      - get: version
+        passed:
+        - read-artifact
+        trigger: true
     timeout: 2h
-    trigger: true
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -241,6 +309,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: artifacts-out
       - name: artifacts-out-failure
@@ -292,6 +361,7 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \mkdir target; echo foo > foo.txt; echo bar > target/bar.txt
           EXIT_STATUS=$?
@@ -332,11 +402,17 @@ jobs:
   name: deploy to staging
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - build
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - build
+      - get: version
+        passed:
+        - build
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -376,6 +452,7 @@ jobs:
       resource: cf-snpaas-pe-staging
     params:
       appPath: git/.e2e/artifacts
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-push
       eaid: APPL-437
@@ -418,6 +495,7 @@ jobs:
       inputs:
       - name: git
       - name: artifacts
+      - name: version
       params:
         A: blah
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -458,6 +536,7 @@ jobs:
           cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./a
           EXIT_STATUS=$?
@@ -485,11 +564,17 @@ jobs:
   name: push to docker registry
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy to staging
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy to staging
+      - get: version
+        passed:
+        - deploy to staging
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -550,6 +635,7 @@ jobs:
           digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: tagList
       platform: linux
@@ -705,11 +791,17 @@ jobs:
     timeout: 2h
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - push to docker registry
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - push to docker registry
+      - get: version
+        passed:
+        - push to docker registry
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -754,6 +846,7 @@ jobs:
       inputs:
       - name: git
       - name: artifacts
+      - name: version
       outputs:
       - name: artifacts-out-failure
       params:
@@ -789,8 +882,9 @@ jobs:
           cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
-          \docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          \docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -809,11 +903,17 @@ jobs:
   name: deploy-ml-zip
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - docker-compose
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - docker-compose
+      - get: version
+        passed:
+        - docker-compose
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -858,6 +958,7 @@ jobs:
       inputs:
       - name: git
       - name: artifacts
+      - name: version
       params:
         APP_NAME: halfpipe-e2e-artifacts
         DEPLOY_ZIP: target/xquery.zip
@@ -895,6 +996,7 @@ jobs:
           cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
@@ -920,11 +1022,17 @@ jobs:
     timeout: 2h
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy-ml-zip
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy-ml-zip
+      - get: version
+        passed:
+        - deploy-ml-zip
+        trigger: true
     timeout: 2h
-    trigger: true
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -941,6 +1049,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: artifacts-out
       - name: artifacts-out-failure
@@ -986,6 +1095,7 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
@@ -1053,6 +1163,14 @@ resources:
     folder: halfpipe-team/halfpipe-e2e-artifacts
     token: ((gcp:platform-artifacts/token.token))
   type: gcp-resource
+- check_every: 24h0m0s
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-artifacts
+  type: semver
 - check_every: 24h0m0s
   name: cf-snpaas-pe-staging
   source:

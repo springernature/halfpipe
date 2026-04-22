@@ -5,8 +5,9 @@ import (
 	"strings"
 )
 
+// Docker image configuration
 type Docker struct {
-	// Path to docker image
+	// Path of docker image in registry including tag.
 	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Username for private Docker registries.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
@@ -15,7 +16,7 @@ type Docker struct {
 	Entrypoint string `json:"-" yaml:"-"`
 }
 
-// Run is the most generic piece of work you can do. It represents a job in a
+// run is the most generic piece of work you can do. It represents a job in a
 // pipeline where a script will be run in a docker container. If the script
 // returns a non-zero exit code the task will be considered failed and any
 // subsequent tasks will not run.

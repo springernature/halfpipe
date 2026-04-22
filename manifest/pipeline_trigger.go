@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// PipelineTrigger triggers a pipeline when another pipeline job has completed.
+// pipeline trigger runs the pipeline when another pipeline job has completed.
 // Note that you cannot trigger on pipelines from another team.
 type PipelineTrigger struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`

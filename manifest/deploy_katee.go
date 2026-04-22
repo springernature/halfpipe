@@ -1,6 +1,6 @@
 package manifest
 
-// DeployKatee deploys an app to Katee.
+// deploy-katee deploys an application to Katee.
 type DeployKatee struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
@@ -10,7 +10,7 @@ type DeployKatee struct {
 	// Path to the vela manifest. Defaults to vela.yaml.
 	VelaManifest string `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
 	// Deprecated: no longer used - safe to delete.
-	Tag string `json:"tag,omitempty" yaml:"tag,omitempty"`
+	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Deprecated: no longer used - safe to delete.
 	Environment string `json:"environment,omitempty" yaml:"environment,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Vela namespace to deploy to. Defaults to katee-<team>.
