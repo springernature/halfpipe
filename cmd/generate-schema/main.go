@@ -255,7 +255,7 @@ func reflectTaskOrTrigger(r *jsonschema.Reflector, v any, typeValue string, defs
 	typeProp := &jsonschema.Schema{
 		Type:        "string",
 		Const:       typeValue,
-		Description: fmt.Sprintf("Must be %q", typeValue),
+		Description: s.Description,
 	}
 	s.Properties.Set("type", typeProp)
 

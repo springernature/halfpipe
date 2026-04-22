@@ -12,10 +12,10 @@ type DeployCF struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Cloud Foundry space to deploy to.
+	Space string `json:"space,omitempty" yaml:"space,omitempty" secretAllowed:"true" jsonschema:"required"`
 	// Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas)).
 	API string `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true"`
-	// Cloud Foundry space to deploy to.
-	Space string `json:"space,omitempty" yaml:"space,omitempty" secretAllowed:"true"`
 	// Cloud Foundry organisation. Defaults to the value of team.
 	Org string `json:"org,omitempty" yaml:"org,omitempty" secretAllowed:"true"`
 	// Cloud Foundry username. Defaults to ((cloudfoundry.username)).

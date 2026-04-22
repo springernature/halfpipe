@@ -7,16 +7,16 @@ package manifest
 // [Paketo Buildpacks]: https://paketo.io
 type Buildpack struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
-	// Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base.
-	Builder string `json:"builder" yaml:"builder"`
-	// Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java.
-	Buildpacks []string `json:"buildpacks" yaml:"buildpacks"`
-	// Path to the application source code to build. Defaults to current directory.
-	Path string `json:"path" yaml:"path"`
-	// Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/<team>/<image-name>.
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/<team>/<image-name>.
+	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
+	// Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java.
+	Buildpacks []string `json:"buildpacks" yaml:"buildpacks" jsonschema:"required"`
+	// Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base.
+	Builder string `json:"builder" yaml:"builder"`
+	// Path to the application source code to build. Defaults to current directory.
+	Path string `json:"path" yaml:"path"`
 	// Restore artifacts saved by previous tasks.
 	RestoreArtifacts bool `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty"`
 	// Environment variables passed to the pack build command.

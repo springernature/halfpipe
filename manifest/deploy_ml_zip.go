@@ -6,13 +6,13 @@ type DeployMLZip struct {
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Path to the zip file containing XQuery source files, relative to the manifest.
-	DeployZip string `json:"deploy_zip" yaml:"deploy_zip,omitempty"`
+	DeployZip string `json:"deploy_zip" yaml:"deploy_zip,omitempty" jsonschema:"required"`
+	// MarkLogic instances to deploy to.
+	Targets []string `json:"targets,omitempty" yaml:"targets,omitempty" secretAllowed:"true" jsonschema:"required"`
 	// App name in MarkLogic. Defaults to the pipeline name.
 	AppName string `json:"app_name" yaml:"app_name,omitempty"`
 	// App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version.
 	AppVersion string `json:"app_version" yaml:"app_version,omitempty"`
-	// MarkLogic instances to deploy to.
-	Targets []string `json:"targets,omitempty" yaml:"targets,omitempty" secretAllowed:"true"`
 	// Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version.
 	UseBuildVersion bool `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
 	// Username to connect to MarkLogic. Defaults to the shared vault secret.

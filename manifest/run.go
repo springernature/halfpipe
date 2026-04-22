@@ -7,7 +7,7 @@ import (
 
 type Docker struct {
 	// Path to docker image
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Username for private Docker registries.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	// Password for private Docker registries.
@@ -24,9 +24,9 @@ type Run struct {
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Path to the script to execute, relative to the manifest. Prefix with \ to run a system command e.g. \make.
-	Script string `json:"script,omitempty" yaml:"script,omitempty"`
+	Script string `json:"script,omitempty" yaml:"script,omitempty" jsonschema:"required"`
 	// Docker configuration for the task to run in.
-	Docker Docker `json:"docker" yaml:"docker,omitempty"`
+	Docker Docker `json:"docker" yaml:"docker,omitempty" jsonschema:"required"`
 	// Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker.
 	Privileged bool `json:"privileged,omitempty" yaml:"privileged,omitempty"`
 	// Environment variables available to the script.

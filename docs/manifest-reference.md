@@ -56,7 +56,7 @@ DockerTrigger runs the pipeline when a docker image has been updated.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `image` | string | optional | Docker image to watch for updates. |
+| `image` | string | required | Docker image to watch for updates. |
 | `username` | string | optional | Username for private Docker registries. |
 | `password` | string | optional | Password for private Docker registries. |
 
@@ -125,8 +125,8 @@ Note that you cannot trigger on pipelines from another team.
 | `username` | string | optional | Concourse username. |
 | `password` | string | optional | Concourse password. |
 | `team` | string | optional | Team that owns the pipeline to trigger from. Must be the same team. |
-| `pipeline` | string | optional | Name of the pipeline to trigger from. |
-| `job` | string | optional | Job name within the pipeline to trigger from. |
+| `pipeline` | string | required | Name of the pipeline to trigger from. |
+| `job` | string | required | Job name within the pipeline to trigger from. |
 | `status` | string | optional | Job status to trigger on. Allowed values: succeeded, failed, errored, aborted. Defaults to succeeded. |
 
 **Example:**
@@ -149,7 +149,7 @@ writing cron expressions.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `cron` | string | optional | Cron expression for the timer schedule. Times must be in UTC. |
+| `cron` | string | required | Cron expression for the timer schedule. Times must be in UTC. |
 
 **Example:**
 
@@ -174,11 +174,11 @@ which is an implementation of the Cloud Native Buildpacks specification.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `builder` | string | optional | Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base. |
-| `buildpacks` | string[] | optional | Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java. |
-| `path` | string | optional | Path to the application source code to build. Defaults to current directory. |
-| `image` | string | optional | Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
 | `name` | string | optional | Optional display name. |
+| `image` | string | required | Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
+| `buildpacks` | string[] | required | Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java. |
+| `builder` | string | optional | Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base. |
+| `path` | string | optional | Path to the application source code to build. Defaults to current directory. |
 | `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. |
 | `vars` | [Vars](#vars) | optional | Environment variables passed to the pack build command. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
@@ -224,12 +224,12 @@ variables automatically: DEPENDENCY_NAME (set by provider_name) and
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `consumer` | string | optional | GitHub repository name of the consumer, with optional sub-directory for monorepos e.g. repo-name or monorepo/dir. |
-| `consumer_host` | string | optional | Address of the consumer application in the same environment as the provider. |
+| `consumer` | string | required | GitHub repository name of the consumer, with optional sub-directory for monorepos e.g. repo-name or monorepo/dir. |
+| `consumer_host` | string | required | Address of the consumer application in the same environment as the provider. |
+| `script` | string | required | Consumer test script to execute. |
 | `git_clone_options` | string | optional | Custom options for git clone of the consumer repository e.g. --depth 100. |
 | `provider_host` | string | optional | Address of the provider application to test. Defaults to the candidate route in pre_promote. |
 | `provider_name` | string | optional | Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name. |
-| `script` | string | optional | Consumer test script to execute. |
 | `docker_compose_file` | string | optional | Path to the consumer docker-compose file. Defaults to docker-compose.yml. |
 | `docker_compose_service` | string | optional | Service name in the consumer docker-compose. Defaults to code. |
 | `vars` | [Vars](#vars) | optional | Environment variables available to the docker-compose service. |
@@ -279,10 +279,10 @@ or buildpack task.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
+| `source` | string | required | Full source image URL in the halfpipe registry, with or without tag. |
+| `target` | string | required | Target ECR image URL or bare ECR registry URL. |
 | `aws_access_key_id` | string | optional | AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault. |
 | `aws_secret_access_key` | string | optional | AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault. |
-| `source` | string | optional | Full source image URL in the halfpipe registry, with or without tag. |
-| `target` | string | optional | Target ECR image URL or bare ECR registry URL. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
 | `retries` | integer | optional | Number of times to retry the task if it fails. |
 | `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
@@ -321,8 +321,8 @@ DeployCF deploys an app to Cloud Foundry with zero downtime.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
+| `space` | string | required | Cloud Foundry space to deploy to. |
 | `api` | string | optional | Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas)). |
-| `space` | string | optional | Cloud Foundry space to deploy to. |
 | `org` | string | optional | Cloud Foundry organisation. Defaults to the value of team. |
 | `username` | string | optional | Cloud Foundry username. Defaults to ((cloudfoundry.username)). |
 | `password` | string | optional | Cloud Foundry password. Defaults to ((cloudfoundry.password)). |
@@ -438,10 +438,10 @@ artifactory.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `ml_modules_version` | string | optional | Version of the ml-modules artifact in Artifactory. |
+| `ml_modules_version` | string | required | Version of the ml-modules artifact in Artifactory. |
+| `targets` | string[] | required | MarkLogic instances to deploy to. |
 | `app_name` | string | optional | App name in MarkLogic. Defaults to the pipeline name. |
 | `app_version` | string | optional | App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version. |
-| `targets` | string[] | optional | MarkLogic instances to deploy to. |
 | `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. |
 | `username` | string | optional | Username to connect to MarkLogic. Defaults to the shared vault secret. |
 | `password` | string | optional | Password to connect to MarkLogic. Defaults to the shared vault secret. |
@@ -482,10 +482,10 @@ DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `deploy_zip` | string | optional | Path to the zip file containing XQuery source files, relative to the manifest. |
+| `deploy_zip` | string | required | Path to the zip file containing XQuery source files, relative to the manifest. |
+| `targets` | string[] | required | MarkLogic instances to deploy to. |
 | `app_name` | string | optional | App name in MarkLogic. Defaults to the pipeline name. |
 | `app_version` | string | optional | App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version. |
-| `targets` | string[] | optional | MarkLogic instances to deploy to. |
 | `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. |
 | `username` | string | optional | Username to connect to MarkLogic. Defaults to the shared vault secret. |
 | `password` | string | optional | Password to connect to MarkLogic. Defaults to the shared vault secret. |
@@ -566,9 +566,9 @@ by default.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
+| `image` | string | required | Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
 | `username` | string | optional | Username for the target Docker registry. |
 | `password` | string | optional | Password for the target Docker registry. |
-| `image` | string | optional | Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
 | `ignore_vulnerabilities` | boolean | optional | Do not fail the build if critical vulnerabilities are found during image scanning. |
 | `scan_timeout` | integer | optional | Number of minutes a Trivy vulnerability scan is allowed to run before timing out. |
 | `vars` | [Vars](#vars) | optional | Docker build-time variables (ARGs). Do not use for secrets - values are visible in docker history. |
@@ -619,7 +619,7 @@ the group succeeds when all complete.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `tasks` | [Task](#tasks)[] | optional | Tasks to run in parallel. All tasks start simultaneously; the group succeeds when all complete. |
+| `tasks` | [Task](#tasks)[] | required | Tasks to run in parallel. All tasks start simultaneously; the group succeeds when all complete. |
 
 **Example:**
 
@@ -659,8 +659,8 @@ subsequent tasks will not run.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `script` | string | optional | Path to the script to execute, relative to the manifest. Prefix with \ to run a system command e.g. \make. |
-| `docker` | [Docker](#docker) | optional | Docker configuration for the task to run in. |
+| `script` | string | required | Path to the script to execute, relative to the manifest. Prefix with \ to run a system command e.g. \make. |
+| `docker` | [Docker](#docker) | required | Docker configuration for the task to run in. |
 | `privileged` | boolean | optional | Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker. |
 | `vars` | [Vars](#vars) | optional | Environment variables available to the script. |
 | `save_artifacts` | string[] | optional | Paths to files or directories to save for use in subsequent tasks. |
@@ -726,7 +726,7 @@ only be used inside a parallel task.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `tasks` | [Task](#tasks)[] | optional | Tasks to run in sequence within a parallel group. Can only be used inside a parallel task. |
+| `tasks` | [Task](#tasks)[] | required | Tasks to run in sequence within a parallel group. Can only be used inside a parallel task. |
 
 **Example:**
 
@@ -771,20 +771,20 @@ tasks:
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
+| `success` | [NotificationChannels](#notificationchannel) | optional | Notification channels to notify on task success. |
+| `failure` | [NotificationChannels](#notificationchannel) | optional | Notification channels to notify on task failure. |
 | `on_success` | string[] | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `on_success_message` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `on_failure` | string[] | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `on_failure_message` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
-| `success` | [NotificationChannels](#notificationchannel) | optional | Notification channels to notify on task success. |
-| `failure` | [NotificationChannels](#notificationchannel) | optional | Notification channels to notify on task failure. |
 
 ### NotificationChannel
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `slack` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `teams` | string | optional | Microsoft Teams channel webhook URL. |
 | `message` | string | optional | Optional message to include in the notification. |
+| `slack` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 
 ### Vars
 
@@ -803,7 +803,7 @@ Docker image configuration used by the [`run`](#run) task.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `image` | string | optional | Path to docker image |
+| `image` | string | required | Path to docker image |
 | `username` | string | optional | Username for private Docker registries. |
 | `password` | string | optional | Password for private Docker registries. |
 

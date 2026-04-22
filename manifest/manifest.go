@@ -10,12 +10,12 @@ import (
 type Vars map[string]string
 
 type NotificationChannel struct {
-	// Deprecated: Slack notifications are no longer supported.
-	Slack string `json:"slack,omitempty" yaml:"slack,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Microsoft Teams channel webhook URL.
 	Teams string `json:"teams,omitempty" yaml:"teams,omitempty"`
 	// Optional message to include in the notification.
 	Message string `json:"message,omitempty" yaml:"message,omitempty"`
+	// Deprecated: Slack notifications are no longer supported.
+	Slack string `json:"slack,omitempty" yaml:"slack,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 }
 
 type NotificationChannels []NotificationChannel
@@ -39,6 +39,10 @@ func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
 }
 
 type Notifications struct {
+	// Notification channels to notify on task success.
+	Success NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
+	// Notification channels to notify on task failure.
+	Failure NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
 	// Deprecated: Slack notifications are no longer supported.
 	OnSuccess []string `json:"on_success,omitempty" yaml:"on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Deprecated: Slack notifications are no longer supported.
@@ -47,10 +51,6 @@ type Notifications struct {
 	OnFailure []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Deprecated: Slack notifications are no longer supported.
 	OnFailureMessage string `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
-	// Notification channels to notify on task success.
-	Success NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
-	// Notification channels to notify on task failure.
-	Failure NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
@@ -114,9 +114,9 @@ type OpsLevel struct {
 
 type Manifest struct {
 	// The platform team that owns this pipeline.
-	Team string `json:"team,omitempty" yaml:"team,omitempty"`
+	Team string `json:"team,omitempty" yaml:"team,omitempty" jsonschema:"required"`
 	// The name of the pipeline.
-	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty"`
+	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty" jsonschema:"required"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackChannel string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// A Microsoft Teams webhook URL for pipeline-level notifications.
@@ -130,7 +130,7 @@ type Manifest struct {
 	// The triggers that cause this pipeline to run.
 	Triggers TriggerList `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	// The tasks that make up this pipeline.
-	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty"`
+	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty" jsonschema:"required"`
 	// The CI platform to target. Defaults to concourse.
 	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
 	// Default notifications for all tasks.
@@ -159,9 +159,9 @@ func (m Manifest) PipelineName() (pipelineName string) {
 
 type ArtifactConfig struct {
 	// Google Cloud Storage bucket for storing artifacts.
-	Bucket string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true"`
+	Bucket string `json:"bucket" yaml:"bucket,omitempty" secretAllowed:"true" jsonschema:"required"`
 	// JSON key for a service account with read/write access to the bucket.
-	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
+	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true" jsonschema:"required"`
 }
 
 // GitHub environment to associate with this deployment.

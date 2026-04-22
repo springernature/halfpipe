@@ -8,3 +8,5 @@ triggers:
   ignored_paths:
   - README.md
   - '**.js'
+
+tasks: []

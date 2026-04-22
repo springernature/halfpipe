@@ -6,7 +6,7 @@ import "strings"
 type DockerTrigger struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Docker image to watch for updates.
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
+	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Username for private Docker registries.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	// Password for private Docker registries.

@@ -7,12 +7,12 @@ type DockerPush struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>.
+	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Username for the target Docker registry.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	// Password for the target Docker registry.
 	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	// Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>.
-	Image string `json:"image,omitempty" yaml:"image,omitempty"`
 	// Do not fail the build if critical vulnerabilities are found during image scanning.
 	IgnoreVulnerabilities bool `json:"ignore_vulnerabilities,omitempty" yaml:"ignore_vulnerabilities,omitempty"`
 	// Number of minutes a Trivy vulnerability scan is allowed to run before timing out.

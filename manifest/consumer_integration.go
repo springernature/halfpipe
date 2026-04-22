@@ -9,17 +9,17 @@ type ConsumerIntegrationTest struct {
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// GitHub repository name of the consumer, with optional sub-directory for monorepos e.g. repo-name or monorepo/dir.
-	Consumer string `json:"consumer,omitempty" yaml:"consumer,omitempty"`
+	Consumer string `json:"consumer,omitempty" yaml:"consumer,omitempty" jsonschema:"required"`
 	// Address of the consumer application in the same environment as the provider.
-	ConsumerHost string `json:"consumer_host" yaml:"consumer_host,omitempty"`
+	ConsumerHost string `json:"consumer_host" yaml:"consumer_host,omitempty" jsonschema:"required"`
+	// Consumer test script to execute.
+	Script string `json:"script,omitempty" yaml:"script,omitempty" jsonschema:"required"`
 	// Custom options for git clone of the consumer repository e.g. --depth 100.
 	GitCloneOptions string `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
 	// Address of the provider application to test. Defaults to the candidate route in pre_promote.
 	ProviderHost string `json:"provider_host" yaml:"provider_host,omitempty"`
 	// Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name.
 	ProviderName string `json:"provider_name,omitempty" yaml:"provider_name,omitempty"`
-	// Consumer test script to execute.
-	Script string `json:"script,omitempty" yaml:"script,omitempty"`
 	// Path to the consumer docker-compose file. Defaults to docker-compose.yml.
 	DockerComposeFile string `json:"docker_compose_file" yaml:"docker_compose_file,omitempty"`
 	// Service name in the consumer docker-compose. Defaults to code.

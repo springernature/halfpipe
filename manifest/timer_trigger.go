@@ -8,7 +8,7 @@ package manifest
 type TimerTrigger struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Cron expression for the timer schedule. Times must be in UTC.
-	Cron string `json:"cron,omitempty" yaml:"cron,omitempty"`
+	Cron string `json:"cron,omitempty" yaml:"cron,omitempty" jsonschema:"required"`
 }
 
 func (t TimerTrigger) GetTriggerAttempts() int {

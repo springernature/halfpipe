@@ -6,11 +6,15 @@
         "type": {
           "type": "string",
           "const": "buildpack",
-          "description": "Must be \"buildpack\""
+          "description": "Buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
         },
-        "builder": {
+        "name": {
           "type": "string",
-          "description": "Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base."
+          "description": "Optional display name."
+        },
+        "image": {
+          "type": "string",
+          "description": "Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
         "buildpacks": {
           "items": {
@@ -19,17 +23,13 @@
           "type": "array",
           "description": "Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java."
         },
+        "builder": {
+          "type": "string",
+          "description": "Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base."
+        },
         "path": {
           "type": "string",
           "description": "Path to the application source code to build. Defaults to current directory."
-        },
-        "image": {
-          "type": "string",
-          "description": "Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
-        },
-        "name": {
-          "type": "string",
-          "description": "Optional display name."
         },
         "restore_artifacts": {
           "type": "boolean",
@@ -69,7 +69,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "image",
+        "buildpacks"
       ],
       "description": "Buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
     },
@@ -84,7 +86,7 @@
         "type": {
           "type": "string",
           "const": "consumer-integration-test",
-          "description": "Must be \"consumer-integration-test\""
+          "description": "ConsumerIntegrationTest is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
         },
         "name": {
           "type": "string",
@@ -98,6 +100,10 @@
           "type": "string",
           "description": "Address of the consumer application in the same environment as the provider."
         },
+        "script": {
+          "type": "string",
+          "description": "Consumer test script to execute."
+        },
         "git_clone_options": {
           "type": "string",
           "description": "Custom options for git clone of the consumer repository e.g. --depth 100."
@@ -109,10 +115,6 @@
         "provider_name": {
           "type": "string",
           "description": "Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name."
-        },
-        "script": {
-          "type": "string",
-          "description": "Consumer test script to execute."
         },
         "docker_compose_file": {
           "type": "string",
@@ -174,7 +176,10 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "consumer",
+        "consumer_host",
+        "script"
       ],
       "description": "ConsumerIntegrationTest is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
     },
@@ -183,19 +188,11 @@
         "type": {
           "type": "string",
           "const": "copy-container-image",
-          "description": "Must be \"copy-container-image\""
+          "description": "CopyContainerImage copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
         },
         "name": {
           "type": "string",
           "description": "Optional display name."
-        },
-        "aws_access_key_id": {
-          "type": "string",
-          "description": "AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault."
-        },
-        "aws_secret_access_key": {
-          "type": "string",
-          "description": "AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault."
         },
         "source": {
           "type": "string",
@@ -204,6 +201,14 @@
         "target": {
           "type": "string",
           "description": "Target ECR image URL or bare ECR registry URL."
+        },
+        "aws_access_key_id": {
+          "type": "string",
+          "description": "AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault."
+        },
+        "aws_secret_access_key": {
+          "type": "string",
+          "description": "AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault."
         },
         "manual_trigger": {
           "type": "boolean",
@@ -235,7 +240,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "source",
+        "target"
       ],
       "description": "CopyContainerImage copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
     },
@@ -244,19 +251,19 @@
         "type": {
           "type": "string",
           "const": "deploy-cf",
-          "description": "Must be \"deploy-cf\""
+          "description": "DeployCF deploys an app to Cloud Foundry with zero downtime."
         },
         "name": {
           "type": "string",
           "description": "Optional display name."
         },
-        "api": {
-          "type": "string",
-          "description": "Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas))."
-        },
         "space": {
           "type": "string",
           "description": "Cloud Foundry space to deploy to."
+        },
+        "api": {
+          "type": "string",
+          "description": "Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas))."
         },
         "org": {
           "type": "string",
@@ -391,7 +398,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "space"
       ],
       "description": "DeployCF deploys an app to Cloud Foundry with zero downtime."
     },
@@ -400,7 +408,7 @@
         "type": {
           "type": "string",
           "const": "deploy-katee",
-          "description": "Must be \"deploy-katee\""
+          "description": "DeployKatee deploys an app to Katee."
         },
         "name": {
           "type": "string",
@@ -485,7 +493,7 @@
         "type": {
           "type": "string",
           "const": "deploy-ml-modules",
-          "description": "Must be \"deploy-ml-modules\""
+          "description": "DeployMLModules deploys a version of the shared ml modules library from\nartifactory."
         },
         "name": {
           "type": "string",
@@ -495,6 +503,13 @@
           "type": "string",
           "description": "Version of the ml-modules artifact in Artifactory."
         },
+        "targets": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "MarkLogic instances to deploy to."
+        },
         "app_name": {
           "type": "string",
           "description": "App name in MarkLogic. Defaults to the pipeline name."
@@ -502,13 +517,6 @@
         "app_version": {
           "type": "string",
           "description": "App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version."
-        },
-        "targets": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "MarkLogic instances to deploy to."
         },
         "use_build_version": {
           "type": "boolean",
@@ -552,7 +560,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "ml_modules_version",
+        "targets"
       ],
       "description": "DeployMLModules deploys a version of the shared ml modules library from\nartifactory."
     },
@@ -561,7 +571,7 @@
         "type": {
           "type": "string",
           "const": "deploy-ml-zip",
-          "description": "Must be \"deploy-ml-zip\""
+          "description": "DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy."
         },
         "name": {
           "type": "string",
@@ -571,6 +581,13 @@
           "type": "string",
           "description": "Path to the zip file containing XQuery source files, relative to the manifest."
         },
+        "targets": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "MarkLogic instances to deploy to."
+        },
         "app_name": {
           "type": "string",
           "description": "App name in MarkLogic. Defaults to the pipeline name."
@@ -578,13 +595,6 @@
         "app_version": {
           "type": "string",
           "description": "App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version."
-        },
-        "targets": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "MarkLogic instances to deploy to."
         },
         "use_build_version": {
           "type": "boolean",
@@ -628,7 +638,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "deploy_zip",
+        "targets"
       ],
       "description": "DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy."
     },
@@ -648,14 +660,17 @@
         }
       },
       "additionalProperties": false,
-      "type": "object"
+      "type": "object",
+      "required": [
+        "image"
+      ]
     },
     "DockerCompose": {
       "properties": {
         "type": {
           "type": "string",
           "const": "docker-compose",
-          "description": "Must be \"docker-compose\""
+          "description": "DockerCompose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
         },
         "name": {
           "type": "string",
@@ -734,11 +749,15 @@
         "type": {
           "type": "string",
           "const": "docker-push",
-          "description": "Must be \"docker-push\""
+          "description": "DockerPush builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
         },
         "name": {
           "type": "string",
           "description": "Optional display name."
+        },
+        "image": {
+          "type": "string",
+          "description": "Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
         "username": {
           "type": "string",
@@ -747,10 +766,6 @@
         "password": {
           "type": "string",
           "description": "Password for the target Docker registry."
-        },
-        "image": {
-          "type": "string",
-          "description": "Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
         "ignore_vulnerabilities": {
           "type": "boolean",
@@ -825,7 +840,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "image"
       ],
       "description": "DockerPush builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
     },
@@ -834,7 +850,7 @@
         "type": {
           "type": "string",
           "const": "docker",
-          "description": "Must be \"docker\""
+          "description": "DockerTrigger runs the pipeline when a docker image has been updated."
         },
         "image": {
           "type": "string",
@@ -852,7 +868,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "image"
       ],
       "description": "DockerTrigger runs the pipeline when a docker image has been updated."
     },
@@ -882,7 +899,7 @@
         "type": {
           "type": "string",
           "const": "git",
-          "description": "Must be \"git\""
+          "description": "GitTrigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
         },
         "uri": {
           "type": "string",
@@ -932,12 +949,6 @@
     },
     "NotificationChannel": {
       "properties": {
-        "slack": {
-          "type": "string",
-          "description": "Deprecated: Slack notifications are no longer supported.",
-          "deprecated": true,
-          "deprecationMessage": "Slack notifications are no longer supported"
-        },
         "teams": {
           "type": "string",
           "description": "Microsoft Teams channel webhook URL."
@@ -945,6 +956,12 @@
         "message": {
           "type": "string",
           "description": "Optional message to include in the notification."
+        },
+        "slack": {
+          "type": "string",
+          "description": "Deprecated: Slack notifications are no longer supported.",
+          "deprecated": true,
+          "deprecationMessage": "Slack notifications are no longer supported"
         }
       },
       "additionalProperties": false,
@@ -958,6 +975,14 @@
     },
     "Notifications": {
       "properties": {
+        "success": {
+          "$ref": "#/$defs/NotificationChannels",
+          "description": "Notification channels to notify on task success."
+        },
+        "failure": {
+          "$ref": "#/$defs/NotificationChannels",
+          "description": "Notification channels to notify on task failure."
+        },
         "on_success": {
           "items": {
             "type": "string"
@@ -987,14 +1012,6 @@
           "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
-        },
-        "success": {
-          "$ref": "#/$defs/NotificationChannels",
-          "description": "Notification channels to notify on task success."
-        },
-        "failure": {
-          "$ref": "#/$defs/NotificationChannels",
-          "description": "Notification channels to notify on task failure."
         }
       },
       "additionalProperties": false,
@@ -1005,7 +1022,7 @@
         "type": {
           "type": "string",
           "const": "parallel",
-          "description": "Must be \"parallel\""
+          "description": "Parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
         },
         "tasks": {
           "items": {
@@ -1055,7 +1072,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "tasks"
       ],
       "description": "Parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
     },
@@ -1064,7 +1082,7 @@
         "type": {
           "type": "string",
           "const": "pipeline",
-          "description": "Must be \"pipeline\""
+          "description": "PipelineTrigger triggers a pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
         },
         "concourse_url": {
           "type": "string",
@@ -1098,7 +1116,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "pipeline",
+        "job"
       ],
       "description": "PipelineTrigger triggers a pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
     },
@@ -1107,7 +1127,7 @@
         "type": {
           "type": "string",
           "const": "run",
-          "description": "Must be \"run\""
+          "description": "Run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
         },
         "name": {
           "type": "string",
@@ -1177,7 +1197,9 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "script",
+        "docker"
       ],
       "description": "Run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
     },
@@ -1186,7 +1208,7 @@
         "type": {
           "type": "string",
           "const": "sequence",
-          "description": "Must be \"sequence\""
+          "description": "Sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
         },
         "tasks": {
           "items": {
@@ -1236,7 +1258,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "tasks"
       ],
       "description": "Sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
     },
@@ -1249,7 +1272,7 @@
         "type": {
           "type": "string",
           "const": "timer",
-          "description": "Must be \"timer\""
+          "description": "TimerTrigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
         },
         "cron": {
           "type": "string",
@@ -1259,7 +1282,8 @@
       "additionalProperties": false,
       "type": "object",
       "required": [
-        "type"
+        "type",
+        "cron"
       ],
       "description": "TimerTrigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
     },
@@ -1409,6 +1433,11 @@
   },
   "additionalProperties": false,
   "type": "object",
+  "required": [
+    "team",
+    "pipeline",
+    "tasks"
+  ],
   "title": "Halfpipe Manifest",
   "description": "Schema for the halfpipe CI/CD manifest"
 }

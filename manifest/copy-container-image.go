@@ -8,15 +8,15 @@ type CopyContainerImage struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
+	// Full source image URL in the halfpipe registry, with or without tag.
+	Source string `json:"source,omitempty" yaml:"source,omitempty" jsonschema:"required"`
+	// Target ECR image URL or bare ECR registry URL.
+	Target string `json:"target,omitempty" yaml:"target,omitempty" jsonschema:"required"`
 	// AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault.
 	AwsAccessKeyID string `json:"aws_access_key_id,omitempty" yaml:"aws_access_key_id,omitempty" secretAllowed:"true"`
 	// AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault.
 	AwsSecretAccessKey string `json:"aws_secret_access_key,omitempty" yaml:"aws_secret_access_key,omitempty" secretAllowed:"true"`
-	// Full source image URL in the halfpipe registry, with or without tag.
-	Source string `json:"source,omitempty" yaml:"source,omitempty"`
-	// Target ECR image URL or bare ECR registry URL.
-	Target   string `json:"target,omitempty" yaml:"target,omitempty"`
-	TaskBase `yaml:",inline"`
+	TaskBase           `yaml:",inline"`
 }
 
 func (r CopyContainerImage) SetNotifications(notifications Notifications) Task {
