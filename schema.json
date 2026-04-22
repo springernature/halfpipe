@@ -866,7 +866,7 @@
       "properties": {
         "name": {
           "type": "string",
-          "description": "Name of the GitHub environment to deploy to."
+          "description": "Name of the GitHub environment."
         },
         "url": {
           "type": "string",
@@ -874,7 +874,8 @@
         }
       },
       "additionalProperties": false,
-      "type": "object"
+      "type": "object",
+      "description": "GitHub environment to associate with this deployment."
     },
     "GitTrigger": {
       "properties": {

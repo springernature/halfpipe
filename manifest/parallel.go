@@ -50,7 +50,3 @@ func (p Parallel) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 func (Parallel) GetName() string {
 	panic("GetName should never be used in the rendering for a parallel task as we only care about sub tasks")
 }
-
-func (Parallel) GetGitHubEnvironment() GitHubEnvironment {
-	panic("GetGitHubEnvironment should never be used in the rendering for a parallel task as we only care about sub tasks")
-}

@@ -66,7 +66,3 @@ func (r DeployMLModules) SavesArtifacts() bool {
 func (r DeployMLModules) ReadsFromArtifacts() bool {
 	return false
 }
-
-func (r DeployMLModules) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

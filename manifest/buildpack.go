@@ -67,7 +67,3 @@ func (p Buildpack) SavesArtifacts() bool {
 func (p Buildpack) ReadsFromArtifacts() bool {
 	return p.RestoreArtifacts
 }
-
-func (p Buildpack) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

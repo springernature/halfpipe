@@ -44,7 +44,3 @@ func (u Update) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 func (Update) GetName() string {
 	return "update"
 }
-
-func (Update) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

@@ -809,9 +809,11 @@ Docker image configuration used by the [`run`](#run) task.
 
 ### GitHubEnvironment
 
+GitHub environment to associate with this deployment.
+
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| `name` | string | optional | Name of the GitHub environment to deploy to. |
+| `name` | string | optional | Name of the GitHub environment. |
 | `url` | string | optional | URL associated with the GitHub environment. |
 
 ### Feature Toggles

@@ -72,10 +72,6 @@ func (r DockerCompose) ReadsFromArtifacts() bool {
 	return r.RestoreArtifacts
 }
 
-func (r DockerCompose) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}
-
 type ComposeFiles []string
 
 func (c ComposeFiles) MarshalYAML() (any, error) {

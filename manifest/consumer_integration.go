@@ -78,7 +78,3 @@ func (r ConsumerIntegrationTest) SavesArtifacts() bool {
 func (r ConsumerIntegrationTest) ReadsFromArtifacts() bool {
 	return false
 }
-
-func (r ConsumerIntegrationTest) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

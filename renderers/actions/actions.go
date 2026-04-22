@@ -99,11 +99,13 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			job.If = "needs.update.outputs.synced == 'true'"
 		}
 
-		gitHubEnv := task.GetGitHubEnvironment()
-		if gitHubEnv.IsValid() {
-			job.Environment = Environment{
-				Name: gitHubEnv.Name,
-				Url:  gitHubEnv.Url,
+		if ghTask, ok := task.(manifest.GitHubEnvironmentTask); ok {
+			gitHubEnv := ghTask.GetGitHubEnvironment()
+			if gitHubEnv.IsValid() {
+				job.Environment = Environment{
+					Name: gitHubEnv.Name,
+					Url:  gitHubEnv.Url,
+				}
 			}
 		}
 

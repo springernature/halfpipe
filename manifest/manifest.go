@@ -164,8 +164,9 @@ type ArtifactConfig struct {
 	JSONKey string `json:"json_key" yaml:"json_key,omitempty" secretAllowed:"true"`
 }
 
+// GitHub environment to associate with this deployment.
 type GitHubEnvironment struct {
-	// Name of the GitHub environment to deploy to.
+	// Name of the GitHub environment.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// URL associated with the GitHub environment.
 	Url string `json:"url,omitempty" yaml:"url,omitempty"`
@@ -173,4 +174,8 @@ type GitHubEnvironment struct {
 
 func (g GitHubEnvironment) IsValid() bool {
 	return g.Name != "" && g.Url != ""
+}
+
+type GitHubEnvironmentTask interface {
+	GetGitHubEnvironment() GitHubEnvironment
 }

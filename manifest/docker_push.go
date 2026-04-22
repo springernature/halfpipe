@@ -79,7 +79,3 @@ func (r DockerPush) SavesArtifacts() bool {
 func (r DockerPush) ReadsFromArtifacts() bool {
 	return r.RestoreArtifacts
 }
-
-func (r DockerPush) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

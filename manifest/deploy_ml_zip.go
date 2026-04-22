@@ -65,7 +65,3 @@ func (r DeployMLZip) SavesArtifacts() bool {
 func (r DeployMLZip) ReadsFromArtifacts() bool {
 	return true
 }
-
-func (r DeployMLZip) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

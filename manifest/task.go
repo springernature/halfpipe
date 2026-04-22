@@ -12,7 +12,6 @@ type Task interface {
 	SetName(name string) Task
 	SetNotifications(notifications Notifications) Task
 	SetNotifyOnSuccess(notifyOnSuccess bool) Task
-	GetGitHubEnvironment() GitHubEnvironment
 	MarshalYAML() (any, error) // To make sure type is always set when marshalling to yaml
 }
 

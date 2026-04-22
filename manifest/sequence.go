@@ -46,10 +46,6 @@ func (s Sequence) GetName() string {
 	panic("GetName should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
-func (s Sequence) GetGitHubEnvironment() GitHubEnvironment {
-	panic("GetGitHubEnvironment should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-
 func (s Sequence) MarshalYAML() (any, error) {
 	s.Type = "sequence"
 	return s, nil

@@ -307,6 +307,12 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 
 		typStr := resolveType(prop, schema)
 		desc := prop.Desc
+		if desc == "" && prop.Ref != "" {
+			refName := strings.TrimPrefix(prop.Ref, "#/$defs/")
+			if refDef, ok := schema.Defs[refName]; ok {
+				desc = refDef.Desc
+			}
+		}
 		if prop.Deprecated {
 			desc = "⚠️ " + desc
 		}

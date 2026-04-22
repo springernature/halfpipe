@@ -62,7 +62,3 @@ func (r CopyContainerImage) SavesArtifacts() bool {
 func (r CopyContainerImage) ReadsFromArtifacts() bool {
 	return false
 }
-
-func (r CopyContainerImage) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}

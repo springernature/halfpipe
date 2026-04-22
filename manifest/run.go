@@ -83,7 +83,3 @@ func (r Run) SavesArtifacts() bool {
 func (r Run) ReadsFromArtifacts() bool {
 	return r.RestoreArtifacts
 }
-
-func (r Run) GetGitHubEnvironment() GitHubEnvironment {
-	return GitHubEnvironment{}
-}
