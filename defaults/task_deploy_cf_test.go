@@ -19,6 +19,7 @@ func TestCFDeployDefaults(t *testing.T) {
 			TestDomain: "springernature.app",
 			Manifest:   Concourse.CF.ManifestPath,
 			CliVersion: Concourse.CF.Version,
+			TaskBase:   manifest.TaskBase{Retries: 1},
 		}
 
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{}, Concourse, man))
@@ -35,6 +36,7 @@ func TestCFDeployDefaults(t *testing.T) {
 			TestDomain: "springernature.app",
 			Manifest:   Concourse.CF.ManifestPath,
 			CliVersion: Concourse.CF.Version,
+			TaskBase:   manifest.TaskBase{Retries: 1},
 		}
 
 		assert.Equal(t, expected, deployCfDefaulter(manifest.DeployCF{API: "((cloudfoundry.api-snpaas))", Org: "((cloudfoundry.org-snpaas))"}, Concourse, man))
@@ -55,6 +57,7 @@ func TestDoesntOverride(t *testing.T) {
 		Manifest:   "e",
 		TestDomain: "f",
 		CliVersion: "g",
+		TaskBase:   manifest.TaskBase{Retries: 3},
 	}
 
 	updated := deployCfDefaulter(input, Concourse, manifest.Manifest{})

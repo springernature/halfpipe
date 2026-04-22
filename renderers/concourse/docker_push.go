@@ -60,7 +60,7 @@ func restoreArtifacts(task manifest.DockerPush) []atc.Step {
 				},
 			},
 		}
-		return append([]atc.Step{}, stepWithAttemptsAndTimeout(copyArtifact, task.GetAttempts(), task.Timeout))
+		return append([]atc.Step{}, stepWithAttemptsAndTimeout(copyArtifact, task.TaskBase))
 	}
 	return []atc.Step{}
 }
@@ -102,7 +102,7 @@ func createTagList(task manifest.DockerPush, updatePipeline bool) []atc.Step {
 	if updatePipeline {
 		createTagList.Config.Inputs = append(createTagList.Config.Inputs, atc.TaskInputConfig{Name: versionName})
 	}
-	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.GetAttempts(), task.Timeout))
+	return append([]atc.Step{}, stepWithAttemptsAndTimeout(createTagList, task.TaskBase))
 }
 
 func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) atc.StepConfig {
@@ -307,7 +307,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 		buildStep.Config.Inputs = append(buildStep.Config.Inputs, atc.TaskInputConfig{Name: dockerBuildTmpDir})
 	}
 
-	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, stepWithAttemptsAndTimeout(buildStep, task.TaskBase))
 
 	var trivy atc.StepConfig
 	if man.FeatureToggles.Ghas() {
@@ -315,7 +315,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	} else {
 		trivy = trivyStep(task, fullBasePath, basePath)
 	}
-	steps = append(steps, stepWithAttemptsAndTimeout(trivy, task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, stepWithAttemptsAndTimeout(trivy, task.TaskBase))
 
 	publishCommand := fmt.Sprintf(`for tag in $(cat %s) %s; do docker buildx imagetools create %s:$(cat git/.git/ref) --tag %s:$tag; done`, tagListFile, tag, dockerImageWithCachePath, image)
 
@@ -342,7 +342,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 			},
 		},
 	}
-	steps = append(steps, stepWithAttemptsAndTimeout(pushStep, task.GetAttempts(), task.GetTimeout()))
+	steps = append(steps, stepWithAttemptsAndTimeout(pushStep, task.TaskBase))
 
 	return steps
 }

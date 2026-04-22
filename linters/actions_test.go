@@ -93,10 +93,10 @@ func TestActionsLinter_UnsupportedTaskOptions(t *testing.T) {
 	man := manifest.Manifest{
 		Platform: "actions",
 		Tasks: manifest.TaskList{
-			manifest.DockerPush{ManualTrigger: true},
-			manifest.Run{ManualTrigger: true},
+			manifest.DockerPush{TaskBase: manifest.TaskBase{ManualTrigger: true}},
+			manifest.Run{TaskBase: manifest.TaskBase{ManualTrigger: true}},
 			manifest.DeployCF{
-				ManualTrigger:          true,
+				TaskBase:               manifest.TaskBase{ManualTrigger: true},
 				PrePromote:             manifest.TaskList{manifest.Run{}},
 				Rolling:                true,
 				StopCandidateOnFailure: true,

@@ -278,12 +278,14 @@ tasks:
 					"FOO": "fOo",
 					"BAR": "1",
 				},
-				Notifications: Notifications{
-					OnSuccess: []string{"asdf", "kehe"},
-					OnFailure: []string{"kfds", "oasdf"},
+				TaskBase: TaskBase{
+					Notifications: Notifications{
+						OnSuccess: []string{"asdf", "kehe"},
+						OnFailure: []string{"kfds", "oasdf"},
+					},
+					Timeout: "1h",
 				},
-				Timeout: "1h",
-				Tag:     "version",
+				Tag: "version",
 			},
 			DeployCF{
 				Name:       "deploy cf task",
@@ -318,21 +320,22 @@ tasks:
 					}},
 			},
 			DeployKatee{
-				Name:          "deploy katee task",
-				ManualTrigger: false,
-				Timeout:       "30s",
-				Namespace:     "some-team",
+				Name:      "deploy katee task",
+				Namespace: "some-team",
 				Vars: Vars{
 					"FOO": "fOo",
 					"BAR": "1",
 				},
-				VelaManifest:    "blah",
-				NotifyOnSuccess: false,
-				Notifications: Notifications{
-					OnSuccess: []string{"asdf", "kehe"},
-					OnFailure: []string{"kfds", "oasdf"},
+				VelaManifest: "blah",
+				Tag:          "latest",
+				TaskBase: TaskBase{
+					Timeout:         "30s",
+					NotifyOnSuccess: false,
+					Notifications: Notifications{
+						OnSuccess: []string{"asdf", "kehe"},
+						OnFailure: []string{"kfds", "oasdf"},
+					},
 				},
-				Tag: "latest",
 			},
 			DockerCompose{
 				Name:    "docker compose task 2",
@@ -363,7 +366,7 @@ tasks:
 				Targets:          []string{"target1", "target2"},
 				UseBuildVersion:  false,
 				Password:         "p",
-				BuildHistory:     10,
+				TaskBase:         TaskBase{BuildHistory: 10},
 			},
 			Parallel{
 				Tasks: TaskList{

@@ -9,10 +9,10 @@ func LintPrePromoteTask(task manifest.Task) (errs []error) {
 	case manifest.Run,
 		manifest.DockerCompose,
 		manifest.ConsumerIntegrationTest:
-		if task.IsManualTrigger() {
+		if task.GetBase().ManualTrigger {
 			errs = append(errs, NewErrInvalidField("manual_trigger", "you are not allowed to have a manual trigger inside a pre promote task"))
 		}
-		if task.GetNotifications().NotificationsDefined() {
+		if task.GetBase().Notifications.NotificationsDefined() {
 			errs = append(errs, NewErrInvalidField("notifications", "you are not allowed to configure notifications inside a pre promote task"))
 		}
 	default:

@@ -64,13 +64,13 @@ func TestDockerComposeRetries(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("docker-compose.yml", []byte(validDockerCompose), 0777)
 
-	errors := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, Retries: -1}, fs)
+	errors := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, TaskBase: manifest.TaskBase{Retries: -1}}, fs)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
-	errors = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, Retries: 6}, fs)
+	errors = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, TaskBase: manifest.TaskBase{Retries: 6}}, fs)
 	assertContainsError(t, errors, ErrInvalidField.WithValue("retries"))
 
-	errors = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, Retries: 5}, fs)
+	errors = LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"docker-compose.yml"}, TaskBase: manifest.TaskBase{Retries: 5}}, fs)
 	assert.Len(t, errors, 0)
 }
 
@@ -86,6 +86,6 @@ func TestLintDockerComposeWhenFileIsGarbage(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 	fs.WriteFile("foo.yml", []byte("not valid yaml"), 0777)
 
-	errors := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"foo.yml"}, Retries: 1}, fs)
+	errors := LintDockerComposeTask(manifest.DockerCompose{Service: "app", ComposeFiles: []string{"foo.yml"}, TaskBase: manifest.TaskBase{Retries: 1}}, fs)
 	assertContainsError(t, errors, ErrFileInvalid)
 }

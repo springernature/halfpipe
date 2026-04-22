@@ -43,40 +43,42 @@ func TestSetsCorrectTimeout(t *testing.T) {
 		},
 	}
 
+	tb := func(timeout string) manifest.TaskBase { return manifest.TaskBase{Timeout: timeout} }
+
 	expected := manifest.TaskList{
-		manifest.DockerCompose{Timeout: Concourse.Timeout},
-		manifest.Update{Timeout: Concourse.Timeout},
-		manifest.Run{Timeout: Concourse.Timeout},
-		manifest.DeployKatee{Timeout: Concourse.Timeout},
+		manifest.DockerCompose{TaskBase: tb(Concourse.Timeout)},
+		manifest.Update{TaskBase: tb(Concourse.Timeout)},
+		manifest.Run{TaskBase: tb(Concourse.Timeout)},
+		manifest.DeployKatee{TaskBase: tb(Concourse.Timeout)},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Timeout: Concourse.Timeout},
+				manifest.Run{TaskBase: tb(Concourse.Timeout)},
 				manifest.DeployCF{
-					Timeout: Concourse.Timeout,
+					TaskBase: tb(Concourse.Timeout),
 					PrePromote: manifest.TaskList{
-						manifest.Run{Timeout: Concourse.Timeout},
+						manifest.Run{TaskBase: tb(Concourse.Timeout)},
 					},
 				},
 			},
 		},
-		manifest.DockerPush{Timeout: Concourse.Timeout},
+		manifest.DockerPush{TaskBase: tb(Concourse.Timeout)},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
-						manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
-						manifest.DeployMLModules{Timeout: Concourse.Timeout},
+						manifest.ConsumerIntegrationTest{TaskBase: tb(Concourse.Timeout)},
+						manifest.DeployMLModules{TaskBase: tb(Concourse.Timeout)},
 					},
 				},
-				manifest.DeployMLModules{Timeout: Concourse.Timeout},
+				manifest.DeployMLModules{TaskBase: tb(Concourse.Timeout)},
 			},
 		},
 		manifest.DeployCF{
-			Timeout: Concourse.Timeout,
+			TaskBase: tb(Concourse.Timeout),
 			PrePromote: manifest.TaskList{
-				manifest.DeployMLModules{Timeout: Concourse.Timeout},
-				manifest.ConsumerIntegrationTest{Timeout: Concourse.Timeout},
-				manifest.Run{Timeout: Concourse.Timeout},
+				manifest.DeployMLModules{TaskBase: tb(Concourse.Timeout)},
+				manifest.ConsumerIntegrationTest{TaskBase: tb(Concourse.Timeout)},
+				manifest.Run{TaskBase: tb(Concourse.Timeout)},
 			},
 		},
 	}
@@ -86,39 +88,41 @@ func TestSetsCorrectTimeout(t *testing.T) {
 
 func TestDoesntOverrideTimeout(t *testing.T) {
 	expectedTimeout := "1337h"
+	tb := func() manifest.TaskBase { return manifest.TaskBase{Timeout: expectedTimeout} }
+
 	input := manifest.TaskList{
-		manifest.Update{Timeout: expectedTimeout},
-		manifest.Run{Timeout: expectedTimeout},
-		manifest.DockerCompose{Timeout: expectedTimeout},
+		manifest.Update{TaskBase: tb()},
+		manifest.Run{TaskBase: tb()},
+		manifest.DockerCompose{TaskBase: tb()},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
-				manifest.Run{Timeout: expectedTimeout},
+				manifest.Run{TaskBase: tb()},
 				manifest.DeployCF{
-					Timeout: expectedTimeout,
+					TaskBase: tb(),
 					PrePromote: manifest.TaskList{
-						manifest.Run{Timeout: expectedTimeout},
+						manifest.Run{TaskBase: tb()},
 					},
 				},
 			},
 		},
-		manifest.DockerPush{Timeout: expectedTimeout},
+		manifest.DockerPush{TaskBase: tb()},
 		manifest.Parallel{
 			Tasks: manifest.TaskList{
 				manifest.Sequence{
 					Tasks: manifest.TaskList{
-						manifest.ConsumerIntegrationTest{Timeout: expectedTimeout},
-						manifest.DeployMLModules{Timeout: expectedTimeout},
+						manifest.ConsumerIntegrationTest{TaskBase: tb()},
+						manifest.DeployMLModules{TaskBase: tb()},
 					},
 				},
-				manifest.DeployMLModules{Timeout: expectedTimeout},
+				manifest.DeployMLModules{TaskBase: tb()},
 			},
 		},
 		manifest.DeployCF{
-			Timeout: expectedTimeout,
+			TaskBase: tb(),
 			PrePromote: manifest.TaskList{
-				manifest.DeployMLModules{Timeout: expectedTimeout},
-				manifest.ConsumerIntegrationTest{Timeout: expectedTimeout},
-				manifest.Run{Timeout: expectedTimeout},
+				manifest.DeployMLModules{TaskBase: tb()},
+				manifest.ConsumerIntegrationTest{TaskBase: tb()},
+				manifest.Run{TaskBase: tb()},
 			},
 		},
 	}

@@ -21,7 +21,7 @@ func (t tasksTimeoutDefaulter) Apply(original manifest.TaskList, defaults Defaul
 			tt = task
 		default:
 			tt = task
-			if task.GetTimeout() == "" {
+			if task.GetBase().Timeout == "" {
 				tt = tt.SetTimeout(defaults.Timeout)
 			}
 

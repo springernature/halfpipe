@@ -20,9 +20,8 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 
 func createDeployKateeRunTask(task manifest.DeployKatee, man manifest.Manifest) manifest.Run {
 	run := manifest.Run{
-		Type:          "run",
-		Name:          "Deploy to Katee",
-		ManualTrigger: false,
+		Type: "run",
+		Name: "Deploy to Katee",
 		Script: `\export TAG="${BUILD_VERSION:-$GIT_REVISION}-$(date +%s)"
 if [ "$REVISION_FORMAT" == "gitref" ]; then
   export TAG="$GIT_REVISION"
@@ -45,11 +44,7 @@ halfpipe-deploy`,
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
 			"REVISION_FORMAT":       task.Tag,
 		},
-		Retries:         task.Retries,
-		NotifyOnSuccess: task.NotifyOnSuccess,
-		Notifications:   task.Notifications,
-		Timeout:         task.Timeout,
-		BuildHistory:    task.BuildHistory,
+		TaskBase: task.TaskBase,
 	}
 
 	maps.Copy(run.Vars, task.Vars)

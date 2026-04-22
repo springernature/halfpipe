@@ -47,8 +47,8 @@ func LintDeployCFTask(task manifest.DeployCF, readCfManifest cf.ManifestReader, 
 		}
 	}
 
-	for i, prePromoteTask := range task.PrePromote {
-		if prePromoteTask.GetNotifications().NotificationsDefined() {
+	for i, ppTask := range task.PrePromote {
+		if ppTask.GetBase().Notifications.NotificationsDefined() {
 			errs = append(errs, NewErrInvalidField(
 				fmt.Sprintf("pre_promote[%d].notifications", i), "pre_promote tasks are not allowed to specify notifications. Please move them up to the 'deploy-cf' task"))
 		}

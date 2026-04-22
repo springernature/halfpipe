@@ -37,9 +37,6 @@ const artifactsInDir = "artifacts"
 const artifactsOnFailureName = "artifacts-on-failure"
 const artifactsOutDirOnFailure = "artifacts-out-failure"
 
-const defaultStepAttempts = 2
-const defaultStepTimeout = "2h"
-
 const gitDir = "git"
 
 const dockerBuildTmpDir = "docker_build"
@@ -110,7 +107,7 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 		},
 	}
 
-	return stepWithAttemptsAndTimeout(taskStep, defaultStepAttempts, defaultStepTimeout)
+	return stepWithDefaultAttemptsAndTimeout(taskStep)
 }
 
 func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previousTaskNames []string) []atc.Step {
@@ -163,7 +160,7 @@ func (c Concourse) initialPlan(man manifest.Manifest, task manifest.Task, previo
 		getSteps = append(getSteps, atc.Step{Config: getVersion})
 	}
 
-	parallelSteps := stepWithAttemptsAndTimeout(parallelizeSteps(getSteps).Config, defaultStepAttempts, defaultStepTimeout)
+	parallelSteps := stepWithDefaultAttemptsAndTimeout(parallelizeSteps(getSteps).Config)
 	parallelGetStep := c.configureTriggerOnGets(c.addPassedJobsToGets(parallelSteps, previousTaskNames), task, man)
 
 	steps := []atc.Step{parallelGetStep}
@@ -270,7 +267,7 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 		sequence = append(sequence, saveArtifactOnFailurePlan())
 	}
 
-	notifications := task.GetNotifications()
+	notifications := task.GetBase().Notifications
 	for _, channel := range notifications.Failure.Slack() {
 		sequence = append(sequence, slackOnFailurePlan(channel.Slack, channel.Message))
 	}
@@ -286,14 +283,14 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 		return nil
 	}
 
-	onFailure := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
+	onFailure := stepWithDefaultAttemptsAndTimeout(parallelizeSteps(sequence).Config)
 	return &onFailure
 }
 
 func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Step {
 	var sequence []atc.Step
 
-	notifications := task.GetNotifications()
+	notifications := task.GetBase().Notifications
 	for _, channel := range notifications.Success.Slack() {
 		sequence = append(sequence, slackOnSuccessPlan(channel.Slack, channel.Message))
 	}
@@ -309,7 +306,7 @@ func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Ste
 		return nil
 	}
 
-	onSuccess := stepWithAttemptsAndTimeout(parallelizeSteps(sequence).Config, defaultStepAttempts, defaultStepTimeout)
+	onSuccess := stepWithDefaultAttemptsAndTimeout(parallelizeSteps(sequence).Config)
 	return &onSuccess
 }
 
@@ -423,15 +420,15 @@ func (c Concourse) buildLogRetention(task manifest.Task) *atc.BuildLogRetention 
 	retention := atc.BuildLogRetention{
 		MinimumSucceededBuilds: 1,
 	}
-	if task.GetBuildHistory() != 0 {
-		retention.Builds = task.GetBuildHistory()
+	if task.GetBase().BuildHistory != 0 {
+		retention.Builds = task.GetBase().BuildHistory
 	}
 
 	return &retention
 }
 
 func (c Concourse) configureTriggerOnGets(step atc.Step, task manifest.Task, man manifest.Manifest) atc.Step {
-	if task.IsManualTrigger() {
+	if task.GetBase().ManualTrigger {
 		return step
 	}
 
@@ -562,20 +559,27 @@ func saveArtifactOnFailurePlan() atc.Step {
 	}
 }
 
-func stepWithAttemptsAndTimeout(stepConfig atc.StepConfig, attempts int, timeout string) atc.Step {
+func stepWithAttemptsAndTimeout(stepConfig atc.StepConfig, taskBase manifest.TaskBase) atc.Step {
 	timeoutStep := &atc.TimeoutStep{
 		Step:     stepConfig,
-		Duration: timeout,
+		Duration: taskBase.Timeout,
 	}
 
-	if attempts == 1 {
+	if taskBase.Retries == 0 {
 		return atc.Step{Config: timeoutStep}
 	}
 
 	return atc.Step{
 		Config: &atc.RetryStep{
 			Step:     timeoutStep,
-			Attempts: attempts,
+			Attempts: taskBase.Retries + 1,
 		},
 	}
+}
+
+func stepWithDefaultAttemptsAndTimeout(stepConfig atc.StepConfig) atc.Step {
+	return stepWithAttemptsAndTimeout(stepConfig, manifest.TaskBase{
+		Retries: 1,
+		Timeout: "2h",
+	})
 }

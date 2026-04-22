@@ -40,7 +40,7 @@ func (n notificationsMapper) migrateTaskNotifications(tasks manifest.TaskList) (
 			task.Tasks = n.migrateTaskNotifications(task.Tasks)
 			updated = append(updated, task)
 		default:
-			taskNotifications := task.GetNotifications()
+			taskNotifications := task.GetBase().Notifications
 			if len(taskNotifications.Success) == 0 && len(taskNotifications.Failure) == 0 {
 				for _, n := range taskNotifications.OnFailure {
 					not := manifest.NotificationChannel{Slack: n}
@@ -81,12 +81,12 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMe
 			task.Tasks = n.updateTasks(task.Tasks, slackSuccessMessage, topLevelNotifications)
 			updated = append(updated, task)
 		default:
-			if task.GetNotifications().Equal(manifest.Notifications{}) {
+			if task.GetBase().Notifications.Equal(manifest.Notifications{}) {
 				if topLevelNotifications.NotificationsDefined() {
 					task = task.SetNotifications(topLevelNotifications)
 				}
-				if task.NotifiesOnSuccess() {
-					taskNotifications := task.GetNotifications()
+				if task.GetBase().NotifyOnSuccess {
+					taskNotifications := task.GetBase().Notifications
 					if len(taskNotifications.Failure.Slack()) > 0 {
 						not := taskNotifications.Failure.Slack()[0]
 						not.Message = slackSuccessMessage

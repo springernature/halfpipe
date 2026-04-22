@@ -10,16 +10,8 @@ type Sequence struct {
 	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty"`
 }
 
-func (s Sequence) GetBuildHistory() int {
-	panic("GetBuildHistory should never be used for a sequence task as we only care about sub tasks")
-}
-
-func (s Sequence) SetBuildHistory(buildHistory int) Task {
-	panic("SetBuildHistory should never be used for a sequence task as we only care about sub tasks")
-}
-
-func (s Sequence) GetNotifications() Notifications {
-	panic("GetNotifications should never be used for a sequence task as we only care about sub tasks")
+func (p Sequence) GetBase() TaskBase {
+	return TaskBase{}
 }
 
 func (s Sequence) SetNotifications(notifications Notifications) Task {
@@ -38,10 +30,6 @@ func (s Sequence) ReadsFromArtifacts() bool {
 	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.ReadsFromArtifacts() })
 }
 
-func (s Sequence) GetAttempts() int {
-	panic("GetAttempts should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-
 func (s Sequence) SavesArtifacts() bool {
 	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.SavesArtifacts() })
 }
@@ -50,19 +38,8 @@ func (s Sequence) SavesArtifactsOnFailure() bool {
 	return slices.ContainsFunc(s.Tasks, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
-func (s Sequence) IsManualTrigger() bool {
-	panic("IsManualTrigger should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-
-func (s Sequence) NotifiesOnSuccess() bool {
-	panic("NotifiesOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-
 func (p Sequence) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 	panic("SetNotifyOnSuccess should never be used in the rendering for a sequence task as we only care about sub tasks")
-}
-func (s Sequence) GetTimeout() string {
-	panic("GetTimeout should never be used in the rendering for a sequence task as we only care about sub tasks")
 }
 
 func (s Sequence) GetName() string {

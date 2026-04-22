@@ -55,6 +55,7 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 	switch v.Type() {
 
 	case reflect.TypeFor[Manifest](),
+		reflect.TypeFor[TaskBase](),
 		reflect.TypeFor[Run](),
 		reflect.TypeFor[Docker](),
 		reflect.TypeFor[DockerPush](),
@@ -79,7 +80,10 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 			secretTag := v.Type().Field(i).Tag.Get(tagName)
 
 			var realFieldName string
-			if fieldName == "" {
+			if v.Type().Field(i).Anonymous {
+				// Embedded struct — inline its fields at the same path level
+				realFieldName = fieldName
+			} else if fieldName == "" {
 				realFieldName = s.getRealFieldName(name, jsonTag)
 			} else {
 				realFieldName = fmt.Sprintf("%s.%s", fieldName, s.getRealFieldName(name, jsonTag))

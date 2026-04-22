@@ -18,14 +18,14 @@ func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
-				Notifications: manifest.Notifications{
+				TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 					Failure: manifest.NotificationChannels{
 						{Slack: "#alerts"},
 					},
 					Success: manifest.NotificationChannels{
 						{Slack: "#deploys"},
 					},
-				},
+				}},
 			},
 		},
 	}
@@ -34,7 +34,7 @@ func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
-				Notifications: manifest.Notifications{
+				TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 					Failure: manifest.NotificationChannels{
 						{Slack: "#alerts"},
 						{Teams: slackWebhookURL},
@@ -43,7 +43,7 @@ func TestSlackToTeamsMapper_SetsTeamsFromSlack(t *testing.T) {
 						{Slack: "#deploys"},
 						{Teams: slackWebhookURL},
 					},
-				},
+				}},
 			},
 		},
 	}
@@ -62,11 +62,11 @@ func TestSlackToTeamsMapper_RecursesIntoContainerTasks(t *testing.T) {
 					manifest.Parallel{
 						Tasks: manifest.TaskList{
 							manifest.Run{
-								Notifications: manifest.Notifications{
+								TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 									Failure: manifest.NotificationChannels{
 										{Slack: "#deep"},
 									},
-								},
+								}},
 							},
 						},
 					},
@@ -91,12 +91,12 @@ func TestSlackToTeamsMapper_DoesNotOverwriteExistingTeamsURL(t *testing.T) {
 		Team: team,
 		Tasks: manifest.TaskList{
 			manifest.Run{
-				Notifications: manifest.Notifications{
+				TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 					Failure: manifest.NotificationChannels{
 						{Slack: "#alerts"},
 						{Teams: existingURL},
 					},
-				},
+				}},
 			},
 		},
 	}
@@ -114,12 +114,12 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
-					Notifications: manifest.Notifications{
+					TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 						Failure: manifest.NotificationChannels{
 							{Slack: "#alerts"},
 							{Slack: "#errors"},
 						},
-					},
+					}},
 				},
 			},
 		}
@@ -139,12 +139,12 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
-					Notifications: manifest.Notifications{
+					TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 						Failure: manifest.NotificationChannels{
 							{Teams: slackWebhookURL},
 							{Slack: "#alerts"},
 						},
-					},
+					}},
 				},
 			},
 		}
@@ -159,7 +159,7 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 			Team: team,
 			Tasks: manifest.TaskList{
 				manifest.Run{
-					Notifications: manifest.Notifications{
+					TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 						Failure: manifest.NotificationChannels{
 							{Slack: "#alerts"},
 							{Slack: "#errors"},
@@ -168,7 +168,7 @@ func TestSlackToTeamsMapper_NoDuplicateTeamsMessages(t *testing.T) {
 							{Slack: "#deploys"},
 							{Slack: "#releases"},
 						},
-					},
+					}},
 				},
 			},
 		}

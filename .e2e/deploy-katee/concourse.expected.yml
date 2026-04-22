@@ -36,13 +36,13 @@ jobs:
         dir: git/.e2e/deploy-katee
         path: update-pipeline
     task: update
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     params:
       bump: minor
     put: version
-    timeout: 15m
+    timeout: 2h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
@@ -220,7 +220,8 @@ jobs:
         - Push default
         trigger: true
     timeout: 2h
-  - config:
+  - attempts: 2
+    config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache
@@ -312,7 +313,8 @@ jobs:
         - deploy to katee
         trigger: true
     timeout: 2h
-  - config:
+  - attempts: 2
+    config:
       caches:
       - path: ../../../var/halfpipe/cache
       - path: ../../../halfpipe-cache

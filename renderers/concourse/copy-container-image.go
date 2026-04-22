@@ -7,7 +7,6 @@ import (
 
 func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage) manifest.Run {
 	return manifest.Run{
-		Retries:    task.Retries,
 		Name:       task.GetName(),
 		Script:     shared.CopyContainerImageScript,
 		Docker:     halfpipeDockerImage,
@@ -19,7 +18,6 @@ func convertCopyContainerImageToRunTask(task manifest.CopyContainerImage) manife
 			"AWS_SECRET_ACCESS_KEY": task.AwsSecretAccessKey,
 			"GAR_TOKEN":             secrets.GARToken,
 		},
-		Timeout:       task.GetTimeout(),
-		Notifications: task.Notifications,
+		TaskBase: task.TaskBase,
 	}
 }

@@ -35,7 +35,6 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	providerHostKey := fmt.Sprintf("%s_DEPLOYED_HOST", toEnvironmentKey(providerName))
 
 	runTask := manifest.Run{
-		Retries:    task.Retries,
 		Name:       task.Name,
 		Script:     shared.ConsumerIntegrationTestScript(keys, cacheDirs, true),
 		Docker:     halfpipeDockerImage,
@@ -57,9 +56,9 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"HALFPIPE_CACHE_TEAM":    man.Team,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
-		Timeout:                task.GetTimeout(),
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
 		SaveArtifacts:          task.SaveArtifacts,
+		TaskBase:               task.TaskBase,
 	}
 
 	maps.Copy(runTask.Vars, task.Vars)

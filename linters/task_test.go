@@ -598,17 +598,17 @@ func TestLintTimeout(t *testing.T) {
 
 	man := manifest.Manifest{
 		Tasks: []manifest.Task{
-			manifest.Run{Timeout: badTime},
+			manifest.Run{TaskBase: manifest.TaskBase{Timeout: badTime}},
 			manifest.DeployCF{
 				PrePromote: []manifest.Task{
 					manifest.Run{
-						Timeout: badTime,
+						TaskBase: manifest.TaskBase{Timeout: badTime},
 					},
 				},
-				Timeout: badTime,
+				TaskBase: manifest.TaskBase{Timeout: badTime},
 			},
 			manifest.DockerPush{
-				Timeout: badTime,
+				TaskBase: manifest.TaskBase{Timeout: badTime},
 			},
 		},
 	}

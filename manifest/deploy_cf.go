@@ -12,8 +12,6 @@ type DeployCF struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
-	// Task must be manually triggered (Concourse only).
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
 	// Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas)).
 	API string `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true"`
 	// Cloud Foundry space to deploy to.
@@ -34,14 +32,6 @@ type DeployCF struct {
 	DeployArtifact string `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
 	// Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected.
 	PrePromote TaskList `json:"pre_promote" yaml:"pre_promote,omitempty"`
-	// Timeout duration for the task. If exceeded the task fails. Defaults to 1h.
-	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	// Number of times to retry the task if it fails.
-	Retries int `json:"retries,omitempty" yaml:"retries,omitempty"`
-	// Deprecated: use notifications instead.
-	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
-	// Notification channels for this task.
-	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	// CF CLI commands to run immediately before the candidate app is started.
 	PreStart []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	// Use rolling deployment instead of blue-green.
@@ -53,33 +43,20 @@ type DeployCF struct {
 	CliVersion string `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
 	// Docker image tag to deploy. Required when deploying a Docker image: version or gitref.
 	DockerTag string `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
-	// Number of build logs to retain. Defaults to 20 (Concourse only).
-	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty"`
 	// Route to configure with SSO.
 	SSORoute string `json:"sso_route,omitempty" yaml:"sso_route,omitempty"`
 	// GitHub environment to associate with this deployment.
 	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 
 	CfApplication manifestparser.Application `json:"-" yaml:"-"`
-}
-
-func (r DeployCF) GetBuildHistory() int {
-	return r.BuildHistory
-}
-
-func (r DeployCF) SetBuildHistory(buildHistory int) Task {
-	r.BuildHistory = buildHistory
-	return r
-}
-
-func (r DeployCF) GetNotifications() Notifications {
-	return r.Notifications
+	TaskBase      `yaml:",inline"`
 }
 
 func (r DeployCF) SetNotifications(notifications Notifications) Task {
 	r.Notifications = notifications
 	return r
 }
+
 func (r DeployCF) SetTimeout(timeout string) Task {
 	r.Timeout = timeout
 	return r
@@ -102,13 +79,6 @@ func (r DeployCF) GetName() string {
 	return r.Name
 }
 
-func (r DeployCF) GetTimeout() string {
-	return r.Timeout
-}
-
-func (r DeployCF) NotifiesOnSuccess() bool {
-	return r.NotifyOnSuccess
-}
 func (r DeployCF) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 	r.NotifyOnSuccess = notifyOnSuccess
 	return r
@@ -116,10 +86,6 @@ func (r DeployCF) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 
 func (r DeployCF) SavesArtifactsOnFailure() bool {
 	return slices.ContainsFunc(r.PrePromote, func(t Task) bool { return t.SavesArtifactsOnFailure() })
-}
-
-func (r DeployCF) IsManualTrigger() bool {
-	return r.ManualTrigger
 }
 
 func (r DeployCF) SavesArtifacts() bool {
@@ -132,10 +98,6 @@ func (r DeployCF) ReadsFromArtifacts() bool {
 	}
 
 	return slices.ContainsFunc(r.PrePromote, func(t Task) bool { return t.ReadsFromArtifacts() })
-}
-
-func (r DeployCF) GetAttempts() int {
-	return 2 + r.Retries
 }
 
 func (r DeployCF) GetGitHubEnvironment() GitHubEnvironment {

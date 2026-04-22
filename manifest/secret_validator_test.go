@@ -296,9 +296,12 @@ func TestDeployCF(t *testing.T) {
 
 		Tasks: manifest.TaskList{
 			manifest.DeployCF{
-				Notifications: manifest.Notifications{
-					OnSuccess: []string{"Ok", "Ok", "((not.ok))", "Ok"},
-					OnFailure: []string{"Ok", "((not.ok))", "Ok"},
+				TaskBase: manifest.TaskBase{
+					Notifications: manifest.Notifications{
+						OnSuccess: []string{"Ok", "Ok", "((not.ok))", "Ok"},
+						OnFailure: []string{"Ok", "((not.ok))", "Ok"},
+					},
+					Timeout: "((not.ok))",
 				},
 
 				Type:       "((not.ok))",
@@ -315,7 +318,6 @@ func TestDeployCF(t *testing.T) {
 					"((not.ok))": "blurgh",
 				},
 				DeployArtifact: "((not.ok))",
-				Timeout:        "((not.ok))",
 			},
 		},
 	}

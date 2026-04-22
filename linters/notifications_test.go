@@ -8,17 +8,17 @@ import (
 
 func TestLintNotifications(t *testing.T) {
 	t.Run("does nothing if there is nothing to be done", func(t *testing.T) {
-		task := manifest.Run{Notifications: manifest.Notifications{}}
+		task := manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{}}}
 		assert.Len(t, LintNotifications(task), 0)
 	})
 
 	t.Run("warns if any of the deprecated fields are used", func(t *testing.T) {
-		task := manifest.DockerPush{Notifications: manifest.Notifications{
+		task := manifest.DockerPush{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 			OnSuccess:        []string{"#yo"},
 			OnSuccessMessage: "blah",
 			OnFailure:        []string{"#howdie"},
 			OnFailureMessage: "bluh",
-		}}
+		}}}
 
 		result := LintNotifications(task)
 
@@ -36,7 +36,7 @@ func TestLintNotifications(t *testing.T) {
 
 	t.Run("not allowed to have both teams and slack defined", func(t *testing.T) {
 		task := manifest.Run{
-			Notifications: manifest.Notifications{
+			TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 				Success: manifest.NotificationChannels{
 					{Slack: "1"},
 					{Slack: "2", Teams: "2.5"},
@@ -47,7 +47,7 @@ func TestLintNotifications(t *testing.T) {
 					{Slack: "b", Teams: "bb"},
 					{Teams: "c"},
 				},
-			},
+			}},
 		}
 
 		errs := LintNotifications(task)

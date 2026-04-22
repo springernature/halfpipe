@@ -48,9 +48,7 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 	cdcScript = shared.ConsumerIntegrationTestScript(keys, cacheDirs, false)
 
 	runTask := manifest.Run{
-		Retries: task.Retries,
-		Name:    task.Name,
-
+		Name:   task.Name,
 		Script: cdcScript,
 		Vars: manifest.Vars{
 			"CONSUMER_GIT_URI":       consumerGitURI,
@@ -67,9 +65,9 @@ func convertConsumerIntegrationTestToRunTask(task manifest.ConsumerIntegrationTe
 			"GIT_CLONE_OPTIONS":      task.GitCloneOptions,
 			"USE_COVENANT":           fmt.Sprintf("%v", task.UseCovenant),
 		},
-		Timeout:                task.GetTimeout(),
 		SaveArtifacts:          task.SaveArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
+		TaskBase:               task.TaskBase,
 	}
 
 	maps.Copy(runTask.Vars, task.Vars)

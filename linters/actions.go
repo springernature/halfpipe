@@ -39,7 +39,7 @@ func unsupportedTasks(tasks manifest.TaskList, man manifest.Manifest, taskListId
 		case manifest.Sequence:
 			errors = append(errors, unsupportedTasks(task.Tasks, man, taskIdx)...)
 		default:
-			if task.IsManualTrigger() {
+			if task.GetBase().ManualTrigger {
 				appendError(ErrUnsupportedManualTrigger.AsWarning())
 			}
 		}

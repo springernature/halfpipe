@@ -38,13 +38,13 @@ jobs:
         dir: git/.e2e/parallel
         path: update-pipeline
     task: update
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     params:
       bump: minor
     put: version
-    timeout: 15m
+    timeout: 2h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

@@ -88,7 +88,7 @@ func (d deployCF) cleanupOldApps() *atc.Step {
 		cleanup.Params["timeout"] = d.task.Timeout
 	}
 
-	step := stepWithAttemptsAndTimeout(cleanup, d.task.GetAttempts(), d.task.GetTimeout())
+	step := stepWithAttemptsAndTimeout(cleanup, d.task.TaskBase)
 	return &step
 }
 
@@ -107,7 +107,7 @@ func (d deployCF) promoteCandidateAppToLive() atc.Step {
 	if d.task.Timeout != "" {
 		promote.Params["timeout"] = d.task.Timeout
 	}
-	return stepWithAttemptsAndTimeout(&promote, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&promote, d.task.TaskBase)
 }
 
 func (d deployCF) checkApp() atc.Step {
@@ -124,7 +124,7 @@ func (d deployCF) checkApp() atc.Step {
 	if d.task.Timeout != "" {
 		check.Params["timeout"] = d.task.Timeout
 	}
-	return stepWithAttemptsAndTimeout(&check, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&check, d.task.TaskBase)
 }
 
 func (d deployCF) pushCandidateApp() atc.Step {
@@ -179,7 +179,7 @@ func (d deployCF) pushCandidateApp() atc.Step {
 		push.Params["instances"] = 1
 	}
 
-	return stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&push, d.task.TaskBase)
 }
 
 func (d deployCF) removeTestApp() atc.Step {
@@ -192,7 +192,7 @@ func (d deployCF) removeTestApp() atc.Step {
 		},
 		NoGet: true,
 	}
-	return stepWithAttemptsAndTimeout(&remove, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&remove, d.task.TaskBase)
 }
 
 func (d deployCF) pushApp() atc.Step {
@@ -248,7 +248,7 @@ func (d deployCF) pushApp() atc.Step {
 		push.Params["buildVersionPath"] = path.Join("version", "version")
 	}
 
-	return d.logsOnFailure(stepWithAttemptsAndTimeout(&push, d.task.GetAttempts(), d.task.GetTimeout()))
+	return d.logsOnFailure(stepWithAttemptsAndTimeout(&push, d.task.TaskBase))
 }
 
 func (d deployCF) stopCandidateOnFailure(stepConfig atc.Step) atc.Step {
@@ -303,7 +303,7 @@ func (d deployCF) configureSSO() atc.Step {
 		},
 		NoGet: true,
 	}
-	return stepWithAttemptsAndTimeout(&configure, d.task.GetAttempts(), d.task.GetTimeout())
+	return stepWithAttemptsAndTimeout(&configure, d.task.TaskBase)
 }
 
 func (c Concourse) prePromoteTasks(deploy deployCF) []atc.Step {

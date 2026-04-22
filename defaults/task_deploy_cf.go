@@ -39,5 +39,9 @@ func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manife
 		updated.CliVersion = defaults.CF.Version
 	}
 
+	if original.Retries == 0 {
+		updated.Retries = 1
+	}
+
 	return updated
 }

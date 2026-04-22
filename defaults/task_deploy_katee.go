@@ -25,5 +25,9 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.CheckInterval = defaults.Katee.CheckInterval
 	}
 
+	if original.Retries == 0 {
+		updated.Retries = 1
+	}
+
 	return updated
 }

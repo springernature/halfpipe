@@ -12,9 +12,8 @@ import (
 
 func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
-		Retries: mlTask.Retries,
-		Name:    mlTask.Name,
-		Script:  "/ml-deploy/deploy-ml-modules",
+		Name:   mlTask.Name,
+		Script: "/ml-deploy/deploy-ml-modules",
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "oauth2accesstoken",
@@ -30,8 +29,7 @@ func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manife
 			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
 			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
-		ManualTrigger: mlTask.ManualTrigger,
-		Timeout:       mlTask.GetTimeout(),
+		TaskBase: mlTask.TaskBase,
 	}
 
 	if mlTask.AppVersion != "" {
@@ -42,9 +40,8 @@ func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manife
 
 func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) manifest.Run {
 	runTask := manifest.Run{
-		Retries: mlTask.Retries,
-		Name:    mlTask.Name,
-		Script:  "/ml-deploy/deploy-local-zip",
+		Name:   mlTask.Name,
+		Script: "/ml-deploy/deploy-local-zip",
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "oauth2accesstoken",
@@ -58,9 +55,8 @@ func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) mani
 			"DEPLOY_ZIP":         mlTask.DeployZip,
 			"USE_BUILD_VERSION":  fmt.Sprint(mlTask.UseBuildVersion),
 		},
-		ManualTrigger:    mlTask.ManualTrigger,
 		RestoreArtifacts: true,
-		Timeout:          mlTask.GetTimeout(),
+		TaskBase:         mlTask.TaskBase,
 	}
 
 	if mlTask.AppVersion != "" {

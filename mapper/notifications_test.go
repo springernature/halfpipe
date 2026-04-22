@@ -122,13 +122,13 @@ func TestTopLevelNotification(t *testing.T) {
 			SlackSuccessMessage: "Yo",
 			Tasks: manifest.TaskList{
 				manifest.Run{},
-				manifest.Run{NotifyOnSuccess: true},
-				manifest.Run{Notifications: manifest.Notifications{
+				manifest.Run{TaskBase: manifest.TaskBase{NotifyOnSuccess: true}},
+				manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 					Success: manifest.NotificationChannels{
 						{Slack: "#yo", Message: "Hello"},
 						{Slack: "#yo"},
 					},
-				}},
+				}}},
 			},
 		}
 
@@ -138,22 +138,26 @@ func TestTopLevelNotification(t *testing.T) {
 			},
 			Tasks: manifest.TaskList{
 				manifest.Run{
-					Notifications: manifest.Notifications{
-						Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+					TaskBase: manifest.TaskBase{
+						Notifications: manifest.Notifications{
+							Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+						},
 					},
 				},
 				manifest.Run{
-					Notifications: manifest.Notifications{
-						Failure: manifest.NotificationChannels{{Slack: "Blah"}},
-						Success: manifest.NotificationChannels{{Slack: "Blah", Message: "Yo"}},
+					TaskBase: manifest.TaskBase{
+						Notifications: manifest.Notifications{
+							Failure: manifest.NotificationChannels{{Slack: "Blah"}},
+							Success: manifest.NotificationChannels{{Slack: "Blah", Message: "Yo"}},
+						},
 					},
 				},
-				manifest.Run{Notifications: manifest.Notifications{
+				manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 					Success: manifest.NotificationChannels{
 						{Slack: "#yo", Message: "Hello"},
 						{Slack: "#yo"},
 					},
-				}},
+				}}},
 			},
 		}
 
@@ -183,15 +187,15 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 
 	input := manifest.Manifest{
 		Tasks: manifest.TaskList{
-			manifest.Run{Notifications: inputNotification},
-			manifest.DockerPush{Notifications: inputNotification},
+			manifest.Run{TaskBase: manifest.TaskBase{Notifications: inputNotification}},
+			manifest.DockerPush{TaskBase: manifest.TaskBase{Notifications: inputNotification}},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.DeployMLZip{Notifications: inputNotification},
+					manifest.DeployMLZip{TaskBase: manifest.TaskBase{Notifications: inputNotification}},
 					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.DeployCF{},
-							manifest.ConsumerIntegrationTest{Notifications: inputNotification},
+							manifest.ConsumerIntegrationTest{TaskBase: manifest.TaskBase{Notifications: inputNotification}},
 						},
 					},
 				},
@@ -201,15 +205,15 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 
 	expected := manifest.Manifest{
 		Tasks: manifest.TaskList{
-			manifest.Run{Notifications: expectedNotification},
-			manifest.DockerPush{Notifications: expectedNotification},
+			manifest.Run{TaskBase: manifest.TaskBase{Notifications: expectedNotification}},
+			manifest.DockerPush{TaskBase: manifest.TaskBase{Notifications: expectedNotification}},
 			manifest.Parallel{
 				Tasks: manifest.TaskList{
-					manifest.DeployMLZip{Notifications: expectedNotification},
+					manifest.DeployMLZip{TaskBase: manifest.TaskBase{Notifications: expectedNotification}},
 					manifest.Sequence{
 						Tasks: manifest.TaskList{
 							manifest.DeployCF{},
-							manifest.ConsumerIntegrationTest{Notifications: expectedNotification},
+							manifest.ConsumerIntegrationTest{TaskBase: manifest.TaskBase{Notifications: expectedNotification}},
 						},
 					},
 				},
@@ -230,7 +234,7 @@ func TestNotifyOnSuccess(t *testing.T) {
 		TeamsWebhook: teams,
 		Tasks: manifest.TaskList{
 			manifest.Run{},
-			manifest.Run{NotifyOnSuccess: true},
+			manifest.Run{TaskBase: manifest.TaskBase{NotifyOnSuccess: true}},
 		},
 	}
 
@@ -244,8 +248,8 @@ func TestNotifyOnSuccess(t *testing.T) {
 	expected := manifest.Manifest{
 		Notifications: expectedNotifications,
 		Tasks: manifest.TaskList{
-			manifest.Run{Notifications: expectedNotifications},
-			manifest.Run{Notifications: manifest.Notifications{
+			manifest.Run{TaskBase: manifest.TaskBase{Notifications: expectedNotifications}},
+			manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 				Failure: manifest.NotificationChannels{
 					{Slack: slack},
 					{Teams: teams},
@@ -254,7 +258,7 @@ func TestNotifyOnSuccess(t *testing.T) {
 					{Slack: slack},
 					{Teams: teams},
 				},
-			}},
+			}}},
 		},
 	}
 	updated, _ := NewNotificationsMapper().Apply(input)

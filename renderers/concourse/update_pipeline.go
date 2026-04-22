@@ -9,10 +9,6 @@ import (
 )
 
 func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, basePath string) atc.JobConfig {
-
-	const updateTaskAttempts = 2
-	const updateTaskTimeout = "15m"
-
 	update := &atc.TaskStep{
 		Name: "update",
 		Config: &atc.TaskConfig{
@@ -49,8 +45,8 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 	}
 
 	steps := []atc.Step{
-		stepWithAttemptsAndTimeout(update, updateTaskAttempts, updateTaskTimeout),
-		stepWithAttemptsAndTimeout(bumpVersion, updateTaskAttempts, updateTaskTimeout),
+		stepWithDefaultAttemptsAndTimeout(update),
+		stepWithDefaultAttemptsAndTimeout(bumpVersion),
 	}
 
 	if task.TagRepo {
@@ -67,7 +63,7 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 			},
 			NoGet: true,
 		}
-		steps = append(steps, stepWithAttemptsAndTimeout(tagRepo, updateTaskAttempts, updateTaskTimeout))
+		steps = append(steps, stepWithDefaultAttemptsAndTimeout(tagRepo))
 	}
 
 	return atc.JobConfig{

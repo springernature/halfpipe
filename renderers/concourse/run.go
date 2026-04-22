@@ -72,7 +72,7 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, basePath str
 		},
 	}
 
-	step := stepWithAttemptsAndTimeout(runStep, task.GetAttempts(), task.GetTimeout())
+	step := stepWithAttemptsAndTimeout(runStep, task.TaskBase)
 
 	jobConfig.PlanSequence = append(jobConfig.PlanSequence, step)
 
@@ -86,7 +86,7 @@ func (c Concourse) runJob(task manifest.Run, man manifest.Manifest, basePath str
 			NoGet: true,
 		}
 
-		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithAttemptsAndTimeout(artifactPut, defaultStepAttempts, defaultStepTimeout))
+		jobConfig.PlanSequence = append(jobConfig.PlanSequence, stepWithDefaultAttemptsAndTimeout(artifactPut))
 	}
 
 	return jobConfig

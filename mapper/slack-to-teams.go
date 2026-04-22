@@ -51,7 +51,7 @@ func convertTasks(tasks manifest.TaskList, webhookURL string) manifest.TaskList 
 			t.Tasks = convertTasks(t.Tasks, webhookURL)
 			updated[i] = t
 		default:
-			updated[i] = task.SetNotifications(convertNotifications(task.GetNotifications(), webhookURL))
+			updated[i] = task.SetNotifications(convertNotifications(task.GetBase().Notifications, webhookURL))
 		}
 	}
 	return updated

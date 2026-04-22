@@ -36,12 +36,12 @@ jobs:
         dir: git/.e2e/update-pipeline-and-tag
         path: update-pipeline
     task: update
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     params:
       bump: minor
     put: version
-    timeout: 15m
+    timeout: 2h
   - attempts: 2
     no_get: true
     params:
@@ -51,7 +51,7 @@ jobs:
       tag_prefix: pipeline-name/v
     put: tag-git-repository
     resource: git
-    timeout: 15m
+    timeout: 2h
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1

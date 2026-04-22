@@ -27,14 +27,13 @@ func dockerCleanup(task manifest.DockerCompose) Step {
 
 func convertDockerComposeToRunTask(task manifest.DockerCompose, team string) manifest.Run {
 	return manifest.Run{
-		Retries:                task.Retries,
 		Name:                   task.GetName(),
 		Script:                 dockerComposeScript(task, team),
 		Vars:                   task.Vars,
 		SaveArtifacts:          task.SaveArtifacts,
 		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
-		Timeout:                task.GetTimeout(),
+		TaskBase:               task.TaskBase,
 	}
 }
 

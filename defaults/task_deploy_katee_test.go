@@ -16,6 +16,7 @@ func TestKateeDeployDefaults(t *testing.T) {
 			Namespace:     "katee-" + man.Team,
 			CheckInterval: Actions.Katee.CheckInterval,
 			MaxChecks:     Actions.Katee.MaxChecks,
+			TaskBase:      manifest.TaskBase{Retries: 1},
 		}
 
 		assert.Equal(t, expected, deployKateeDefaulter(manifest.DeployKatee{}, Actions, man))

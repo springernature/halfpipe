@@ -27,21 +27,25 @@
           "type": "string",
           "description": "Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
         },
-        "timeout": {
-          "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
-        },
-        "build_history": {
-          "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
-        },
-        "notifications": {
-          "$ref": "#/$defs/Notifications",
-          "description": "Notification channels for this task."
-        },
         "name": {
           "type": "string",
           "description": "Optional display name."
+        },
+        "restore_artifacts": {
+          "type": "boolean",
+          "description": "Restore artifacts saved by previous tasks."
+        },
+        "vars": {
+          "$ref": "#/$defs/Vars",
+          "description": "Environment variables passed to the pack build command."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
+        },
+        "retries": {
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
         },
         "notify_on_success": {
           "type": "boolean",
@@ -49,21 +53,17 @@
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+        "notifications": {
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
         },
-        "restore_artifacts": {
-          "type": "boolean",
-          "description": "Restore artifacts saved by previous tasks."
+        "timeout": {
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
-        "retries": {
+        "build_history": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
-        },
-        "vars": {
-          "$ref": "#/$defs/Vars",
-          "description": "Environment variables passed to the pack build command."
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -126,6 +126,28 @@
           "$ref": "#/$defs/Vars",
           "description": "Environment variables available to the docker-compose service."
         },
+        "use_covenant": {
+          "type": "boolean",
+          "description": "Enable Covenant contract testing support."
+        },
+        "save_artifacts": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Paths to files or directories to save for use in subsequent tasks."
+        },
+        "save_artifacts_on_failure": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Paths to save when the task fails, useful for test reports."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
+        },
         "retries": {
           "type": "integer",
           "description": "Number of times to retry the task if it fails."
@@ -147,24 +169,6 @@
         "build_history": {
           "type": "integer",
           "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
-        },
-        "use_covenant": {
-          "type": "boolean",
-          "description": "Enable Covenant contract testing support."
-        },
-        "save_artifacts": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Paths to files or directories to save for use in subsequent tasks."
-        },
-        "save_artifacts_on_failure": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Paths to save when the task fails, useful for test reports."
         }
       },
       "additionalProperties": false,
@@ -185,9 +189,25 @@
           "type": "string",
           "description": "Optional display name."
         },
+        "aws_access_key_id": {
+          "type": "string",
+          "description": "AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault."
+        },
+        "aws_secret_access_key": {
+          "type": "string",
+          "description": "AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault."
+        },
+        "source": {
+          "type": "string",
+          "description": "Full source image URL in the halfpipe registry, with or without tag."
+        },
+        "target": {
+          "type": "string",
+          "description": "Target ECR image URL or bare ECR registry URL."
+        },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "retries": {
           "type": "integer",
@@ -210,22 +230,6 @@
         "build_history": {
           "type": "integer",
           "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
-        },
-        "aws_access_key_id": {
-          "type": "string",
-          "description": "AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault."
-        },
-        "aws_secret_access_key": {
-          "type": "string",
-          "description": "AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault."
-        },
-        "source": {
-          "type": "string",
-          "description": "Full source image URL in the halfpipe registry, with or without tag."
-        },
-        "target": {
-          "type": "string",
-          "description": "Target ECR image URL or bare ECR registry URL."
         }
       },
       "additionalProperties": false,
@@ -245,10 +249,6 @@
         "name": {
           "type": "string",
           "description": "Optional display name."
-        },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
         },
         "api": {
           "type": "string",
@@ -330,24 +330,6 @@
           "type": "array",
           "description": "Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected."
         },
-        "timeout": {
-          "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
-        },
-        "retries": {
-          "type": "integer",
-          "description": "Number of times to retry the task if it fails."
-        },
-        "notify_on_success": {
-          "type": "boolean",
-          "description": "Deprecated: use notifications instead.",
-          "deprecated": true,
-          "deprecationMessage": "use notifications instead"
-        },
-        "notifications": {
-          "$ref": "#/$defs/Notifications",
-          "description": "Notification channels for this task."
-        },
         "pre_start": {
           "items": {
             "type": "string"
@@ -371,10 +353,6 @@
           "type": "string",
           "description": "Docker image tag to deploy. Required when deploying a Docker image: version or gitref."
         },
-        "build_history": {
-          "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
-        },
         "sso_route": {
           "type": "string",
           "description": "Route to configure with SSO."
@@ -382,6 +360,32 @@
         "github_environment": {
           "$ref": "#/$defs/GitHubEnvironment",
           "description": "GitHub environment to associate with this deployment."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
+        },
+        "retries": {
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
+        },
+        "notify_on_success": {
+          "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+        },
+        "build_history": {
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -402,14 +406,6 @@
           "type": "string",
           "description": "Optional display name."
         },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
-        },
-        "timeout": {
-          "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
-        },
         "vars": {
           "$ref": "#/$defs/Vars",
           "description": "Environment variables available to the vela manifest."
@@ -418,27 +414,9 @@
           "type": "string",
           "description": "Path to the vela manifest. Defaults to vela.yaml."
         },
-        "retries": {
-          "type": "integer",
-          "description": "Number of times to retry the task if it fails."
-        },
-        "notify_on_success": {
-          "type": "boolean",
-          "description": "Deprecated: use notifications instead.",
-          "deprecated": true,
-          "deprecationMessage": "use notifications instead"
-        },
-        "notifications": {
-          "$ref": "#/$defs/Notifications",
-          "description": "Notification channels for this task."
-        },
         "tag": {
           "type": "string",
           "description": "Deprecated: no longer used - safe to delete."
-        },
-        "build_history": {
-          "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         },
         "environment": {
           "type": "string",
@@ -467,6 +445,32 @@
         "github_environment": {
           "$ref": "#/$defs/GitHubEnvironment",
           "description": "GitHub environment to associate with this deployment."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
+        },
+        "retries": {
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails."
+        },
+        "notify_on_success": {
+          "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+        },
+        "build_history": {
+          "type": "integer",
+          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
         }
       },
       "additionalProperties": false,
@@ -506,9 +510,21 @@
           "type": "array",
           "description": "MarkLogic instances to deploy to."
         },
+        "use_build_version": {
+          "type": "boolean",
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
+        },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "retries": {
           "type": "integer",
@@ -527,18 +543,6 @@
         "timeout": {
           "type": "string",
           "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
-        },
-        "use_build_version": {
-          "type": "boolean",
-          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
-        },
-        "username": {
-          "type": "string",
-          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
-        },
-        "password": {
-          "type": "string",
-          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "build_history": {
           "type": "integer",
@@ -582,9 +586,21 @@
           "type": "array",
           "description": "MarkLogic instances to deploy to."
         },
+        "use_build_version": {
+          "type": "boolean",
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
+        },
+        "username": {
+          "type": "string",
+          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
+        },
+        "password": {
+          "type": "string",
+          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
+        },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "retries": {
           "type": "integer",
@@ -603,18 +619,6 @@
         "timeout": {
           "type": "string",
           "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
-        },
-        "use_build_version": {
-          "type": "boolean",
-          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
-        },
-        "username": {
-          "type": "string",
-          "description": "Username to connect to MarkLogic. Defaults to the shared vault secret."
-        },
-        "password": {
-          "type": "string",
-          "description": "Password to connect to MarkLogic. Defaults to the shared vault secret."
         },
         "build_history": {
           "type": "integer",
@@ -661,10 +665,6 @@
           "type": "string",
           "description": "Command to run against the service. If omitted the default service command is used."
         },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
-        },
         "vars": {
           "$ref": "#/$defs/Vars",
           "description": "Environment variables available to docker-compose."
@@ -694,6 +694,10 @@
           },
           "type": "array",
           "description": "Paths to save when the task fails, useful for test reports."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "retries": {
           "type": "integer",
@@ -736,10 +740,6 @@
           "type": "string",
           "description": "Optional display name."
         },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
-        },
         "username": {
           "type": "string",
           "description": "Username for the target Docker registry."
@@ -772,6 +772,33 @@
           "type": "boolean",
           "description": "Restore artifacts saved by previous tasks."
         },
+        "dockerfile_path": {
+          "type": "string",
+          "description": "Path to the Dockerfile, relative to the manifest. Defaults to Dockerfile."
+        },
+        "build_path": {
+          "type": "string",
+          "description": "Path to the folder to use as the Docker build context, relative to the manifest."
+        },
+        "tag": {
+          "type": "string",
+          "description": "Deprecated: no longer used - safe to delete."
+        },
+        "platforms": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "description": "Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64."
+        },
+        "use_cache": {
+          "type": "boolean",
+          "description": "Enable layer caching to speed up builds by reusing layers from previous builds."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
+        },
         "retries": {
           "type": "integer",
           "description": "Number of times to retry the task if it fails."
@@ -790,32 +817,9 @@
           "type": "string",
           "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
         },
-        "dockerfile_path": {
-          "type": "string",
-          "description": "Path to the Dockerfile, relative to the manifest. Defaults to Dockerfile."
-        },
-        "build_path": {
-          "type": "string",
-          "description": "Path to the folder to use as the Docker build context, relative to the manifest."
-        },
-        "tag": {
-          "type": "string",
-          "description": "Deprecated: no longer used - safe to delete."
-        },
         "build_history": {
           "type": "integer",
           "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
-        },
-        "platforms": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64."
-        },
-        "use_cache": {
-          "type": "boolean",
-          "description": "Enable layer caching to speed up builds by reusing layers from previous builds."
         }
       },
       "additionalProperties": false,
@@ -1108,10 +1112,6 @@
           "type": "string",
           "description": "Optional display name."
         },
-        "manual_trigger": {
-          "type": "boolean",
-          "description": "Task must be manually triggered (Concourse only)."
-        },
         "script": {
           "type": "string",
           "description": "Path to the script to execute, relative to the manifest. Prefix with \\ to run a system command e.g. \\make."
@@ -1145,6 +1145,10 @@
           },
           "type": "array",
           "description": "Paths to save when the task fails, useful for test reports."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only)."
         },
         "retries": {
           "type": "integer",

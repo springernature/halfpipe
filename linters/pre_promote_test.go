@@ -10,7 +10,7 @@ func TestLintPrePromoteTasks(t *testing.T) {
 
 	t.Run("Manual trigger", func(t *testing.T) {
 		task := manifest.Run{
-			ManualTrigger: true,
+			TaskBase: manifest.TaskBase{ManualTrigger: true},
 		}
 		errors := LintPrePromoteTask(task)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("manual_trigger"))
@@ -18,11 +18,11 @@ func TestLintPrePromoteTasks(t *testing.T) {
 
 	t.Run("Notifications", func(t *testing.T) {
 		task := manifest.Run{
-			Notifications: manifest.Notifications{
+			TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 				Success: manifest.NotificationChannels{
 					{Slack: "#kehe"},
 				},
-			},
+			}},
 		}
 		errors := LintPrePromoteTask(task)
 		assertContainsError(t, errors, ErrInvalidField.WithValue("notifications"))

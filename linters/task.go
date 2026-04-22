@@ -143,8 +143,8 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			errs = append(errs, artifactErr...)
 		}
 
-		if lintTimeout && t.GetTimeout() != "" {
-			_, err := time.ParseDuration(t.GetTimeout())
+		if lintTimeout && t.GetBase().Timeout != "" {
+			_, err := time.ParseDuration(t.GetBase().Timeout)
 			if err != nil {
 				errs = append(errs, NewErrInvalidField("timeout", err.Error()))
 			}

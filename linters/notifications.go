@@ -9,7 +9,7 @@ func LintNotifications(task manifest.Task) (errs []error) {
 	case manifest.Parallel, manifest.Sequence:
 		break
 	default:
-		n := task.GetNotifications()
+		n := task.GetBase().Notifications
 		if len(n.OnSuccess) > 0 {
 			errs = append(errs, NewErrDeprecatedField("on_success", notificationReasons).AsWarning())
 		}

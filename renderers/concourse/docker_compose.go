@@ -17,7 +17,6 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
 	return manifest.Run{
-		Retries:                task.Retries,
 		Name:                   task.GetName(),
 		Script:                 dockerComposeScript(task, man.FeatureToggles.UpdatePipeline()),
 		Docker:                 halfpipeDockerImage,
@@ -26,7 +25,7 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 		SaveArtifacts:          task.SaveArtifacts,
 		RestoreArtifacts:       task.RestoreArtifacts,
 		SaveArtifactsOnFailure: task.SaveArtifactsOnFailure,
-		Timeout:                task.GetTimeout(),
+		TaskBase:               task.TaskBase,
 	}
 }
 

@@ -1,24 +1,9 @@
 package manifest
 
 type Update struct {
-	Type          string
-	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
-	Timeout       string
-	BuildHistory  int
-	TagRepo       bool
-}
-
-func (u Update) GetBuildHistory() int {
-	return u.BuildHistory
-}
-
-func (u Update) SetBuildHistory(buildHistory int) Task {
-	u.BuildHistory = buildHistory
-	return u
-}
-
-func (u Update) GetNotifications() Notifications {
-	return u.Notifications
+	Type     string
+	TagRepo  bool
+	TaskBase `yaml:",inline"`
 }
 
 func (u Update) SetNotifications(notifications Notifications) Task {
@@ -44,10 +29,6 @@ func (Update) ReadsFromArtifacts() bool {
 	return false
 }
 
-func (Update) GetAttempts() int {
-	return 1
-}
-
 func (Update) SavesArtifacts() bool {
 	return false
 }
@@ -56,26 +37,14 @@ func (Update) SavesArtifactsOnFailure() bool {
 	return false
 }
 
-func (Update) IsManualTrigger() bool {
-	return false
-}
-
-func (Update) NotifiesOnSuccess() bool {
-	return false
-}
-
 func (u Update) SetNotifyOnSuccess(notifyOnSuccess bool) Task {
 	return u
-}
-
-func (u Update) GetTimeout() string {
-	return u.Timeout
 }
 
 func (Update) GetName() string {
 	return "update"
 }
 
-func (r Update) GetGitHubEnvironment() GitHubEnvironment {
+func (Update) GetGitHubEnvironment() GitHubEnvironment {
 	return GitHubEnvironment{}
 }

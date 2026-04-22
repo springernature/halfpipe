@@ -57,7 +57,7 @@ func (c Concourse) PackJob(task manifest.Buildpack, basePath string, man manifes
 		},
 	}
 
-	step := stepWithAttemptsAndTimeout(packStep, task.GetAttempts(), task.GetTimeout())
+	step := stepWithAttemptsAndTimeout(packStep, task.TaskBase)
 
 	jobConfig.PlanSequence = append(jobConfig.PlanSequence, step)
 

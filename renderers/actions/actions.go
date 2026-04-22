@@ -79,7 +79,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 		}
 		steps = append(steps, taskSteps...)
 
-		notifications := task.GetNotifications()
+		notifications := task.GetBase().Notifications
 		if notifications.NotificationsDefined() {
 			steps = append(steps, notify(notifications)...)
 		}
@@ -88,7 +88,7 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 			Name:           task.GetName(),
 			RunsOn:         config.ActionsRunnerName,
 			Steps:          convertSecrets(steps, man.Team),
-			TimeoutMinutes: timeoutInMinutes(task.GetTimeout()),
+			TimeoutMinutes: timeoutInMinutes(task.GetBase().Timeout),
 			Needs:          needs,
 		}
 
