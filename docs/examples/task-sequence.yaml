@@ -1,0 +1,31 @@
+# Sequence inside parallel:
+#
+#        +----b1----b2----\
+#        |                 \
+#  a-----|----c1----c2----c3----e
+#        |                 /
+#        +----d-----------/
+#
+tasks:
+  - type: run
+    name: a
+  - type: parallel
+    tasks:
+      - type: sequence
+        tasks:
+          - type: run
+            name: b1
+          - type: run
+            name: b2
+      - type: sequence
+        tasks:
+          - type: run
+            name: c1
+          - type: run
+            name: c2
+          - type: run
+            name: c3
+      - type: run
+        name: d
+  - type: run
+    name: e

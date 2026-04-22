@@ -1,0 +1,20 @@
+# Override the default uri and private key
+- type: git
+  uri: git@github.com:org/repo.git
+  private_key: ((repo-name.private-key))
+---
+# Only trigger when there are changes in src/main,
+# unlock the encrypted repo, and shallow clone.
+- type: git
+  uri: git@github.com:organisation/repo-name.git
+  private_key: ((repo-name.private-key))
+  git_crypt_key: ((git-crypt-keys.repo-name))
+  watched_paths:
+    - src/main
+  shallow: true
+---
+# Disable automatic git triggering, use a cron timer instead
+- type: git
+  manual_trigger: true
+- type: timer
+  cron: "0 8 * * *"

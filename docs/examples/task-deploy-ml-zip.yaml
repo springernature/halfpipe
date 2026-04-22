@@ -1,0 +1,16 @@
+# Minimal
+- type: deploy-ml-zip
+  deploy_zip: target/xquery.zip
+  targets:
+    - marklogic.host
+---
+# Complete with custom app name, version and multiple targets
+- type: deploy-ml-zip
+  name: deploy xquery - dev
+  deploy_zip: target/xquery.zip
+  app_name: example-app
+  app_version: v1
+  targets:
+    - marklogic.dev.host
+    - marklogic.qa.host
+    - marklogic.live.host

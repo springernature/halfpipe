@@ -1,5 +1,8 @@
 package manifest
 
+// DockerPush builds a Docker image and pushes it to a docker registry. The
+// image will be tagged with the latest tag, the gitref and pipeline version
+// by default.
 type DockerPush struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

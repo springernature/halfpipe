@@ -1,0 +1,35 @@
+# Minimal
+- type: run
+  script: test.sh
+  docker:
+    image: golang
+---
+# More complex with vars, artifacts and private registry
+- type: run
+  name: run tests
+  script: test.sh
+  docker:
+    image: golang
+    username: user1
+    password: very-secret
+  vars:
+    TEST_API: https://test-api.com
+    MY_SECRET: ((myapp.my-secret-in-vault))
+  save_artifacts:
+    - target/distribution/artifact.zip
+  save_artifacts_on_failure:
+    - testReports
+---
+# Restore artifacts from a previous task
+- type: run
+  script: build.sh
+  docker:
+    image: eu.gcr.io/halfpipe-io/your-private-image
+  restore_artifacts: true
+---
+# Run a system command instead of a script
+- type: run
+  name: Run uptime from the container
+  script: \uptime
+  docker:
+    image: eu.gcr.io/halfpipe-io/your-private-image

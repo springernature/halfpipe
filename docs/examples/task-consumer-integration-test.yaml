@@ -1,0 +1,19 @@
+# In pre_promote stage (TEST_ROUTE is injected automatically)
+tasks:
+  - type: deploy-cf
+    space: dev
+    pre_promote:
+      - type: consumer-integration-test
+        name: example consumer tests
+        consumer: consumer-repo/optional-sub-directory
+        consumer_host: consumer-a.dev.private.springernature.io
+        script: ci/run-external-and-cdcs-dev
+        docker_compose_service: app
+---
+# Standalone with explicit provider_host
+- type: consumer-integration-test
+  name: example consumer tests
+  consumer: consumer-repo/optional-sub-directory
+  consumer_host: consumer-a.dev.private.springernature.io
+  provider_host: provider-a.dev.private.springernature.io
+  script: ci/run-external-and-cdcs-dev

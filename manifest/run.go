@@ -15,6 +15,10 @@ type Docker struct {
 	Entrypoint string `json:"-" yaml:"-"`
 }
 
+// Run is the most generic piece of work you can do. It represents a job in a
+// pipeline where a script will be run in a docker container. If the script
+// returns a non-zero exit code the task will be considered failed and any
+// subsequent tasks will not run.
 type Run struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

@@ -1,0 +1,17 @@
+# Copy image using BUILD_VERSION tag (default)
+- type: buildpack
+  image: eu.gcr.io/halfpipe-io/my-team/my-app
+  buildpacks:
+    - paketo-buildpacks/java
+
+- type: copy-container-image
+  source: eu.gcr.io/halfpipe-io/my-team/my-app
+  target: 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn
+---
+# Copy to a custom target path and tag
+- type: docker-push
+  image: eu.gcr.io/halfpipe-io/my-team/my-app
+
+- type: copy-container-image
+  source: eu.gcr.io/halfpipe-io/my-team/my-app
+  target: 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn/another-team/another-image:1.0.0

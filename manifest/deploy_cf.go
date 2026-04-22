@@ -7,6 +7,7 @@ import (
 	"code.cloudfoundry.org/cli/util/manifestparser"
 )
 
+// DeployCF deploys an app to Cloud Foundry with zero downtime.
 type DeployCF struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

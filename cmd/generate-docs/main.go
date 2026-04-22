@@ -175,7 +175,7 @@ func main() {
 
 	// Top-level fields
 	b.WriteString("## Top-Level Fields\n\n")
-	writePropsTable(&b, topLevelOrdered(schema.Properties), nil, &schema)
+	writePropsTable(&b, topLevelOrdered(schema.Properties), nil, nil, &schema)
 
 	// Triggers
 	b.WriteString("\n## Triggers\n\n")
@@ -188,6 +188,7 @@ func main() {
 		}
 		b.WriteString(fmt.Sprintf("### `%s` (trigger)\n\n", typeName))
 		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "trigger-"+typeName)
 	}
 
 	// Tasks
@@ -204,6 +205,7 @@ func main() {
 		}
 		b.WriteString(fmt.Sprintf("### `%s`\n\n", typeName))
 		writeDefTable(&b, def, &schema)
+		writeExample(&b, root, "task-"+typeName)
 	}
 
 	// Supporting types
@@ -252,10 +254,34 @@ func writeDefTable(b *strings.Builder, def *SchemaDef, schema *Schema) {
 	if len(def.Properties.keys) == 0 {
 		return
 	}
-	writePropsTable(b, def.Properties.keys, def.Properties.values, schema)
+	writePropsTable(b, def.Properties.keys, def.Properties.values, def.Required, schema)
 }
 
-func writePropsTable(b *strings.Builder, keys []string, values map[string]*Property, schema *Schema) {
+func writeExample(b *strings.Builder, root, name string) {
+	examplePath := filepath.Join(root, "docs", "examples", name+".yaml")
+	data, err := os.ReadFile(examplePath)
+	if err != nil {
+		return
+	}
+	parts := strings.Split(string(data), "\n---\n")
+	if len(parts) == 1 {
+		b.WriteString("**Example:**\n\n")
+	} else {
+		b.WriteString("**Examples:**\n\n")
+	}
+	for _, part := range parts {
+		b.WriteString("```yaml\n")
+		b.WriteString(strings.TrimRight(part, "\n"))
+		b.WriteString("\n```\n\n")
+	}
+}
+
+func writePropsTable(b *strings.Builder, keys []string, values map[string]*Property, required []string, schema *Schema) {
+	requiredSet := make(map[string]bool)
+	for _, r := range required {
+		requiredSet[r] = true
+	}
+
 	getVal := func(key string) *Property {
 		if values != nil {
 			return values[key]
@@ -266,8 +292,8 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 		return nil
 	}
 
-	b.WriteString("| Field | Type | Description |\n")
-	b.WriteString("|-------|------|-------------|\n")
+	b.WriteString("| Field | Type | Required | Description |\n")
+	b.WriteString("|-------|------|----------|-------------|\n")
 
 	for _, key := range keys {
 		prop := getVal(key)
@@ -282,11 +308,16 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 		typStr := resolveType(prop, schema)
 		desc := prop.Desc
 		if prop.Deprecated {
-			desc = "**Deprecated.** " + desc
+			desc = "⚠️ " + desc
 		}
 		desc = strings.ReplaceAll(desc, "|", "\\|")
 
-		b.WriteString(fmt.Sprintf("| `%s` | %s | %s |\n", key, typStr, desc))
+		req := "optional"
+		if requiredSet[key] {
+			req = "required"
+		}
+
+		b.WriteString(fmt.Sprintf("| `%s` | %s | %s | %s |\n", key, typStr, req, desc))
 	}
 	b.WriteString("\n")
 }
@@ -314,10 +345,10 @@ func resolveType(prop *Property, schema *Schema) string {
 		if prop.Items.OneOf != nil {
 			for _, o := range prop.Items.OneOf {
 				if o.Ref != "" && strings.Contains(o.Ref, "Trigger") {
-					return "Trigger[]"
+					return "[Trigger](#triggers)[]"
 				}
 			}
-			return "Task[]"
+			return "[Task](#tasks)[]"
 		}
 		if prop.Items.Ref != "" {
 			name := strings.TrimPrefix(prop.Items.Ref, "#/$defs/")

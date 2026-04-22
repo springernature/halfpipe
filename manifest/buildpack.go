@@ -1,5 +1,10 @@
 package manifest
 
+// Buildpack generates a container image using Cloud Native Buildpacks and
+// publishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]
+// which is an implementation of the Cloud Native Buildpacks specification.
+//
+// [Paketo Buildpacks]: https://paketo.io
 type Buildpack struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base.

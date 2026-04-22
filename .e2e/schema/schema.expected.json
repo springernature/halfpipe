@@ -70,7 +70,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "Buildpack generates a container image using Cloud Native Buildpacks and\npublishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]\nwhich is an implementation of the Cloud Native Buildpacks specification.\n\n[Paketo Buildpacks]: https://paketo.io"
     },
     "ComposeFiles": {
       "items": {
@@ -170,7 +171,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "ConsumerIntegrationTest is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
     },
     "CopyContainerImage": {
       "properties": {
@@ -230,7 +232,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "CopyContainerImage copies an image from the halfpipe registry\n(eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is\nsupported as the target. Normally this would be used after a docker-push\nor buildpack task."
     },
     "DeployCF": {
       "properties": {
@@ -385,7 +388,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DeployCF deploys an app to Cloud Foundry with zero downtime."
     },
     "DeployKatee": {
       "properties": {
@@ -469,7 +473,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DeployKatee deploys an app to Katee."
     },
     "DeployMLModules": {
       "properties": {
@@ -544,7 +549,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DeployMLModules deploys a version of the shared ml modules library from\nartifactory."
     },
     "DeployMLZip": {
       "properties": {
@@ -619,7 +625,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy."
     },
     "Docker": {
       "properties": {
@@ -715,7 +722,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DockerCompose executes docker-compose based on a docker-compose.yml file.\nThis file must be present in the same directory as the halfpipe manifest."
     },
     "DockerPush": {
       "properties": {
@@ -814,7 +822,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DockerPush builds a Docker image and pushes it to a docker registry. The\nimage will be tagged with the latest tag, the gitref and pipeline version\nby default."
     },
     "DockerTrigger": {
       "properties": {
@@ -840,7 +849,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "DockerTrigger runs the pipeline when a docker image has been updated."
     },
     "FeatureToggles": {
       "items": {
@@ -912,7 +922,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "GitTrigger defines which git repo halfpipe will operate on. By convention\nthere is always a git trigger as default. To disable it, set manual_trigger\nto true."
     },
     "NotificationChannel": {
       "properties": {
@@ -1040,7 +1051,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "Parallel enables running tasks in parallel. All tasks start simultaneously;\nthe group succeeds when all complete."
     },
     "PipelineTrigger": {
       "properties": {
@@ -1082,7 +1094,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "PipelineTrigger triggers a pipeline when another pipeline job has completed.\nNote that you cannot trigger on pipelines from another team."
     },
     "Run": {
       "properties": {
@@ -1160,7 +1173,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "Run is the most generic piece of work you can do. It represents a job in a\npipeline where a script will be run in a docker container. If the script\nreturns a non-zero exit code the task will be considered failed and any\nsubsequent tasks will not run."
     },
     "Sequence": {
       "properties": {
@@ -1218,7 +1232,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "Sequence enables running tasks in sequence within a parallel group. It can\nonly be used inside a parallel task."
     },
     "TaskList": {
       "items": true,
@@ -1240,7 +1255,8 @@
       "type": "object",
       "required": [
         "type"
-      ]
+      ],
+      "description": "TimerTrigger runs the pipeline on a schedule. The cron expression must be\nvalid; remember to specify times in UTC. See [crontab.guru] for help\nwriting cron expressions.\n\n[crontab.guru]: https://crontab.guru/"
     },
     "TriggerList": {
       "items": true,

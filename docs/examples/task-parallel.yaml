@@ -1,0 +1,23 @@
+# Build, then deploy to dev and QA in parallel
+tasks:
+  - type: run
+    name: build
+    script: build.sh
+    docker:
+      image: golang
+  - type: parallel
+    tasks:
+      - type: deploy-cf
+        name: deploy to dev
+        space: dev
+      - type: deploy-cf
+        name: deploy to QA
+        space: qa
+  - type: parallel
+    tasks:
+      - type: deploy-cf
+        name: deploy live staging
+        space: live-staging
+      - type: deploy-cf
+        name: deploy live
+        space: live

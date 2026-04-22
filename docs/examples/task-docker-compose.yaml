@@ -1,0 +1,9 @@
+# Minimal
+- type: docker-compose
+---
+# With name and vars
+- type: docker-compose
+  name: run tests
+  vars:
+    TEST_API: https://test-api.com
+    MY_SECRET: ((my-app.my-secret-in-vault))

@@ -1,0 +1,3 @@
+# Run every 10 minutes on weekdays
+- type: timer
+  cron: "*/10 * * * 1-5"

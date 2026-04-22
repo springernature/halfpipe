@@ -1,0 +1,3 @@
+# Trigger when a docker image is updated
+- type: docker
+  image: "eu.gcr.io/halfpipe-io/halfpipe-example-docker"

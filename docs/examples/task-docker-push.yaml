@@ -1,0 +1,17 @@
+# Using the Halfpipe Private Registry (no credentials needed)
+- type: docker-push
+  image: eu.gcr.io/halfpipe-io/team/image-name
+---
+# Using official Docker Hub
+- type: docker-push
+  name: push to docker hub
+  username: username
+  password: ((my.password))
+  image: username/image-name
+---
+# Using relative paths for build dir and Dockerfile
+- type: docker-push
+  name: push GCR
+  build_path: buildFolder
+  dockerfile_path: ../ops/dockerfiles/Dockerfile
+  image: eu.gcr.io/halfpipe-io/team/image-name

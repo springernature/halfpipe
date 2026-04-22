@@ -1,0 +1,14 @@
+# Minimal
+- type: deploy-katee
+---
+# More complex with namespace, vars and custom checks
+- type: deploy-katee
+  namespace: katee-springerlink-prod
+  vela_manifest: ./config/vela-manifest-prod.yml
+  check_interval: 5
+  max_checks: 12
+  vars:
+    ENV1: 1234
+    ENV2: ((secret.something))
+    ENV3: '{"a": "b", "c": "d"}'
+    API_KEY: ((api.key))

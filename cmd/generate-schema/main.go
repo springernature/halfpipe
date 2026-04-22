@@ -66,7 +66,7 @@ func buildSchema() *jsonschema.Schema {
 		_ = os.Chdir(root)
 		defer os.Chdir(cwd)
 	}
-	if err := r.AddGoComments("github.com/springernature/halfpipe", "./manifest"); err != nil {
+	if err := r.AddGoComments("github.com/springernature/halfpipe", "./manifest", jsonschema.WithFullComment()); err != nil {
 		fmt.Fprintf(os.Stderr, "error: could not load go comments: %v\n", err)
 		os.Exit(1)
 	}

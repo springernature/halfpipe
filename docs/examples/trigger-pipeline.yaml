@@ -1,0 +1,5 @@
+# Trigger when another pipeline job fails
+- type: pipeline
+  pipeline: my-cool-pipeline
+  job: Deploy to SNPaaS
+  status: failed

@@ -1,5 +1,6 @@
 package manifest
 
+// DeployKatee deploys an app to Katee.
 type DeployKatee struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

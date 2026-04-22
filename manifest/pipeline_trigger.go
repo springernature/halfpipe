@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// PipelineTrigger triggers a pipeline when another pipeline job has completed.
+// Note that you cannot trigger on pipelines from another team.
 type PipelineTrigger struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Concourse URL. Defaults to the current Concourse instance.

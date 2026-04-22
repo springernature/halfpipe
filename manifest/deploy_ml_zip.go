@@ -1,5 +1,6 @@
 package manifest
 
+// DeployMLZip deploys local XQuery files to MarkLogic using ml-deploy.
 type DeployMLZip struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

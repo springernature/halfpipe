@@ -1,0 +1,32 @@
+# Minimal
+- type: deploy-cf
+  space: test
+---
+# More complex with vars, pre_start and pre_promote
+- type: deploy-cf
+  name: deploy to live
+  api: ((cloudfoundry.api-snpaas))
+  org: engineering-enablement
+  space: live
+  manifest: ci/manifest.yml
+  vars:
+    API_ENDPOINT: https://api.com
+    SKIP_SSL_CHECK: true
+    APP_SECRET: ((myapp.app_secret_name))
+  deploy_artifact: target/distribution/artifact.zip
+  pre_start:
+    - cf add-network-policy myapp-CANDIDATE --destination-app myapp-CANDIDATE --protocol tcp --port 7600
+    - cf events myapp-CANDIDATE
+  pre_promote:
+    - type: run
+      name: run-smoke-tests
+      script: ./smoke.sh
+      docker:
+        image: alpine
+---
+# Deploy a docker image from CF manifest
+- type: deploy-cf
+  name: deploy docker img
+  api: ((cloudfoundry.api-snpaas))
+  space: live
+  docker_tag: version

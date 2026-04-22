@@ -2,6 +2,8 @@ package manifest
 
 import "slices"
 
+// Parallel enables running tasks in parallel. All tasks start simultaneously;
+// the group succeeds when all complete.
 type Parallel struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Tasks to run in parallel. All tasks start simultaneously; the group succeeds when all complete.

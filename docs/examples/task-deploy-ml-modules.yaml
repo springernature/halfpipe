@@ -1,0 +1,16 @@
+# Minimal
+- type: deploy-ml-modules
+  ml_modules_version: "2.1428"
+  targets:
+    - marklogic.host
+---
+# Complete with custom app name, version and multiple targets
+- type: deploy-ml-modules
+  name: deploy xquery - dev
+  ml_modules_version: "2.1428"
+  app_name: example-app
+  app_version: v1
+  targets:
+    - marklogic.dev.host
+    - marklogic.qa.host
+    - marklogic.live.host

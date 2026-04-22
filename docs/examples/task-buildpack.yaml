@@ -1,0 +1,19 @@
+# Minimal
+- type: buildpack
+  image: eu.gcr.io/halfpipe-io/my-team/my-app
+  buildpacks:
+    - paketo-buildpacks/java
+---
+# More complex with custom builder, multiple buildpacks and vars
+- type: buildpack
+  image: eu.gcr.io/halfpipe-io/my-team/my-app
+  builder: paketobuildpacks/builder-jammy-buildpackless-full
+  buildpacks:
+    - paketo-buildpacks/java
+    - paketo-buildpacks/nodejs
+  path: target/my-app.jar
+  vars:
+    ENV1: 1234
+    ENV2: ((secret.something))
+    ENV3: '{"a": "b", "c": "d"}'
+    API_KEY: ((api.key))
