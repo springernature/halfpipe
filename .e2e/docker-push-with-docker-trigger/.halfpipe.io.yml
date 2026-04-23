@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../schema.json
+# yaml-language-server: $schema=../../.generated/schema.json
 team: halfpipe-team
 pipeline: halfpipe-e2e-docker-push-with-docker-trigger
 
@@ -22,4 +22,3 @@ tasks:
   vars:
     A: a
     B: b
-

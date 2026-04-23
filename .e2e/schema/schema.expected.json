@@ -1356,7 +1356,7 @@
     },
     "feature_toggles": {
       "$ref": "#/$defs/FeatureToggles",
-      "description": "Optional feature toggles"
+      "description": "Enable optional pipeline features"
     },
     "triggers": {
       "items": {

@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=../../schema.json
+# yaml-language-server: $schema=../../.generated/schema.json
 team: halfpipe-team
 pipeline: halfpipe-e2e-buildpack
 

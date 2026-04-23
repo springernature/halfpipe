@@ -39,7 +39,7 @@
 | `triggers` | [Trigger](#triggers)[] | optional | The triggers that cause this pipeline to run. Defaults to git. |
 | `tasks` | [Task](#tasks)[] | required | The tasks that make up this pipeline. |
 | `notifications` | [notifications](#notifications) | optional | Default notifications for all tasks. |
-| `feature_toggles` | [feature_toggles](#feature_toggles) | optional | Optional feature toggles |
+| `feature_toggles` | [feature_toggles](#feature_toggles) | optional | Enable optional pipeline features |
 | `teams_webhook` | string | optional | A Microsoft Teams webhook URL for pipeline-level notifications. |
 | `slack_channel` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `slack_failure_message` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |

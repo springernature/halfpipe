@@ -128,7 +128,7 @@ type Manifest struct {
 	SlackSuccessMessage string `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackFailureMessage string `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
-	// Optional feature toggles
+	// Enable optional pipeline features
 	FeatureToggles FeatureToggles `json:"feature_toggles,omitempty" yaml:"feature_toggles,omitempty"`
 	// The triggers that cause this pipeline to run. Defaults to git.
 	Triggers TriggerList `json:"triggers,omitempty" yaml:"triggers,omitempty"`

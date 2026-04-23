@@ -5,7 +5,7 @@ endif
 
 default: build
 
-build: fmt test binary e2e staticcheck dependabot docs schema validate-e2e
+build: fmt test binary e2e staticcheck dependabot schema docs validate-e2e
 
 fmt:
 	go fmt ./...
@@ -33,16 +33,16 @@ update-actions:
 	go run ./cmd/update-actions
 
 schema:
-	go run ./cmd/generate-schema > schema.json
+	go run ./cmd/generate-schema > .generated/schema.json
 
 docs: schema
-	go run ./cmd/generate-docs > docs/manifest-reference.md
+	go run ./cmd/generate-docs > .generated/docs/manifest-reference.md
 
 validate-e2e:
 	@if ! which check-jsonschema > /dev/null 2>&1; then \
 		echo "WARNING: check-jsonschema not installed, skipping schema validation of e2e tests"; \
 	else \
-		find .e2e -name '.halfpipe.io*' | xargs check-jsonschema --default-filetype yaml --schemafile schema.json; \
+		find .e2e -name '.halfpipe.io*' | xargs check-jsonschema --default-filetype yaml --schemafile .generated/schema.json; \
 	fi
 
 fix-e2e:

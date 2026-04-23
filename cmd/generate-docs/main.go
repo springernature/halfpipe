@@ -139,7 +139,7 @@ func refLink(defName string) string {
 
 func main() {
 	root := findModuleRoot()
-	data, err := os.ReadFile(filepath.Join(root, "schema.json"))
+	data, err := os.ReadFile(filepath.Join(root, ".generated", "schema.json"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error reading schema.json: %v\n", err)
 		os.Exit(1)

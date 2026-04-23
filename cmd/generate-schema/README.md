@@ -39,7 +39,7 @@ pipeline: my-pipeline
 For a local schema (e.g. during development):
 
 ```yaml
-# yaml-language-server: $schema=../../schema.json
+# yaml-language-server: $schema=../../.generated/schema.json
 ```
 
 ## Adding a new task or trigger type
