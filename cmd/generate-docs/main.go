@@ -280,7 +280,6 @@ func main() {
 		b.WriteString(desc + "\n\n")
 	}
 	writeExample(&b, root, "type-feature-toggles")
-	b.WriteString("\n")
 
 	fmt.Print(b.String())
 }
