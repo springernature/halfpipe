@@ -158,21 +158,30 @@ func TestBuildSchema_EachDefHasTypeRequired(t *testing.T) {
 func TestBuildSchema_FeatureTogglesMatchAvailable(t *testing.T) {
 	schema := buildSchema()
 
+	// The top-level feature_toggles property is a $ref to FeatureToggles
 	prop, ok := schema.Properties.Get("feature_toggles")
 	if !ok {
 		t.Fatal("feature_toggles property not found")
 	}
-	if prop.Items == nil {
-		t.Fatal("feature_toggles items not set")
+	if prop.Ref != "#/$defs/FeatureToggles" {
+		t.Fatalf("expected feature_toggles to be a $ref to FeatureToggles, got ref=%q", prop.Ref)
 	}
 
-	if got, want := len(prop.Items.Enum), len(manifest.AvailableFeatureToggles); got != want {
+	def, ok := schema.Definitions["FeatureToggles"]
+	if !ok {
+		t.Fatal("FeatureToggles $def not found")
+	}
+	if def.Items == nil {
+		t.Fatal("FeatureToggles items not set")
+	}
+
+	if got, want := len(def.Items.Enum), len(manifest.AvailableFeatureToggles); got != want {
 		t.Errorf("feature_toggles enum has %d entries, AvailableFeatureToggles has %d", got, want)
 	}
 
 	for _, ft := range manifest.AvailableFeatureToggles {
 		found := false
-		for _, e := range prop.Items.Enum {
+		for _, e := range def.Items.Enum {
 			if e == ft {
 				found = true
 				break

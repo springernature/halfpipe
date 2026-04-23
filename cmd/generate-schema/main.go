@@ -95,15 +95,20 @@ func buildSchema() *jsonschema.Schema {
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("feature_toggles"); ok {
-			prop.Type = "array"
-			prop.Items = featureToggleSchema()
-			prop.Ref = ""
+			prop.Type = ""
+			prop.Items = nil
+			prop.Ref = "#/$defs/FeatureToggles"
 		}
 	}
 
 	// Ensure $defs map exists
 	if topSchema.Definitions == nil {
 		topSchema.Definitions = make(jsonschema.Definitions)
+	}
+
+	// Enrich the FeatureToggles $def with enum values on items
+	if ftDef, ok := topSchema.Definitions["FeatureToggles"]; ok {
+		ftDef.Items = featureToggleSchema()
 	}
 
 	// Add concrete task and trigger type definitions (each with type const + additionalProperties: false)

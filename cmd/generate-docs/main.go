@@ -111,6 +111,7 @@ func buildAnchorMap(schema *Schema) {
 	anchorMap["Docker"] = "docker"
 	anchorMap["GitHubEnvironment"] = "github_environment"
 	anchorMap["Vars"] = "vars"
+	anchorMap["FeatureToggles"] = "feature_toggles"
 }
 
 // defDisplayName maps $defs names to their user-facing yaml-style display names.
@@ -121,6 +122,7 @@ var defDisplayName = map[string]string{
 	"Docker":               "docker",
 	"GitHubEnvironment":    "github_environment",
 	"Vars":                 "vars",
+	"FeatureToggles":       "feature_toggles",
 }
 
 func refLink(defName string) string {
@@ -351,7 +353,9 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 func resolveType(prop *Property, schema *Schema) string {
 	if prop.Ref != "" {
 		name := strings.TrimPrefix(prop.Ref, "#/$defs/")
-		// If the referenced def is itself an array, render as itemType[]
+		// If the referenced def is itself an array, either link to its own docs
+		// section (when items are primitives) or render as itemType[] (when items
+		// reference another def).
 		if def, ok := schema.Defs[name]; ok && typeString(def.Type) == "array" && def.Items != nil {
 			var itemRef string
 			if err := json.Unmarshal(def.Items, &struct {
@@ -359,6 +363,10 @@ func resolveType(prop *Property, schema *Schema) string {
 			}{Ref: &itemRef}); err == nil && itemRef != "" {
 				itemName := strings.TrimPrefix(itemRef, "#/$defs/")
 				return refLink(itemName) + "[]"
+			}
+			// Primitive-item arrays with their own section: link to the section.
+			if _, ok := anchorMap[name]; ok {
+				return refLink(name)
 			}
 		}
 		return refLink(name)
