@@ -247,7 +247,7 @@ jobs:
     params:
       globs:
       - binaries/halfpipe_*
-      - halfpipe/schema.json
+      - halfpipe/.generated/*
       name: version/version
       tag: version/version
   - put: artifactory-darwin
