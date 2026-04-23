@@ -41,7 +41,7 @@ tasks:
 
 Triggers cause the pipeline to run. Specified under the `triggers` key.
 
-### `docker` (trigger)
+### <a id="docker-trigger"></a>`docker`
 
 docker trigger runs the pipeline when a docker image has been updated.
 
@@ -59,7 +59,7 @@ docker trigger runs the pipeline when a docker image has been updated.
   image: "eu.gcr.io/halfpipe-io/halfpipe-example-docker"
 ```
 
-### `git` (trigger)
+### <a id="git-trigger"></a>`git`
 
 git trigger defines which git repo halfpipe will operate on. By convention
 there is always a git trigger as default. To disable it, set manual_trigger
@@ -105,7 +105,7 @@ to true.
   cron: "0 8 * * *"
 ```
 
-### `pipeline` (trigger)
+### <a id="pipeline-trigger"></a>`pipeline`
 
 pipeline trigger runs the pipeline when another pipeline job has completed.
 Note that you cannot trigger on pipelines from another team.
@@ -130,7 +130,7 @@ Note that you cannot trigger on pipelines from another team.
   status: failed
 ```
 
-### `timer` (trigger)
+### <a id="timer-trigger"></a>`timer`
 
 timer trigger runs the pipeline on a schedule. The cron expression must be
 valid; remember to specify times in UTC. See [crontab.guru] for help

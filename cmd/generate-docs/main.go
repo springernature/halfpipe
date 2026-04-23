@@ -219,7 +219,7 @@ func main() {
 		if typeName == "" {
 			continue
 		}
-		b.WriteString(fmt.Sprintf("### `%s` (trigger)\n\n", typeName))
+		b.WriteString(fmt.Sprintf("### <a id=\"%s-trigger\"></a>`%s`\n\n", typeName, typeName))
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "trigger-"+typeName)
 	}
