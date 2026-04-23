@@ -4,9 +4,7 @@
 .DS_Store
 vendor
 
-# .e2e
-*.actual.yml
-*.actual.txt
-*.actual.json
+# ignore actual files in .e2e
+/.e2e/**/*.actual.*
 
 AGENTS.md
