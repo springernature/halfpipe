@@ -31,7 +31,7 @@ type DockerPush struct {
 	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64.
 	Platforms []string `json:"platforms,omitempty" yaml:"platforms,omitempty"`
-	// Enable layer caching to speed up builds by reusing layers from previous builds.
+	// Enable layer caching to speed up builds by reusing layers from previous builds. Defaults to false.
 	UseCache bool `json:"use_cache,omitempty" yaml:"use_cache,omitempty"`
 	TaskBase `yaml:",inline"`
 }

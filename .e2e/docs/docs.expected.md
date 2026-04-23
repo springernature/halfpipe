@@ -601,7 +601,7 @@ by default.
 | `build_path` | string | optional | Path to the folder to use as the Docker build context, relative to the manifest. |
 | `tag` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
 | `platforms` | string[] | optional | Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64. |
-| `use_cache` | boolean | optional | Enable layer caching to speed up builds by reusing layers from previous builds. |
+| `use_cache` | boolean | optional | Enable layer caching to speed up builds by reusing layers from previous builds. Defaults to false. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
 | `retries` | integer | optional | Number of times to retry the task if it fails. |
 | `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |

@@ -813,7 +813,7 @@
         },
         "use_cache": {
           "type": "boolean",
-          "description": "Enable layer caching to speed up builds by reusing layers from previous builds."
+          "description": "Enable layer caching to speed up builds by reusing layers from previous builds. Defaults to false."
         },
         "manual_trigger": {
           "type": "boolean",

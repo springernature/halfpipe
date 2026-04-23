@@ -5,7 +5,7 @@ endif
 
 default: build
 
-build: fmt test binary e2e staticcheck dependabot schema docs validate-e2e
+build: fmt test binary schema docs e2e staticcheck dependabot validate-e2e
 
 fmt:
 	go fmt ./...
