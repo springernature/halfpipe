@@ -1,5 +1,7 @@
-team: CHANGE-ME
+# yaml-language-server: $schema=https://github.com/springernature/halfpipe/releases/latest/download/schema.json
+team: <team name>
 pipeline: halfpipe-.e2e-init
+platform: concourse
 feature_toggles:
 - update-pipeline
 triggers:
@@ -8,7 +10,7 @@ triggers:
   - .e2e/init
 tasks:
 - type: run
-  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
-  script: ./gradlew CHANGE-ME
+  name: <task name>
+  script: <script>
   docker:
-    image: CHANGE-ME:tag
+    image: <image:tag>

@@ -1332,6 +1332,15 @@
       "type": "string",
       "description": "The name of the pipeline."
     },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "",
+        "concourse",
+        "actions"
+      ],
+      "description": "The CI platform to target. Defaults to concourse."
+    },
     "slack_channel": {
       "type": "string",
       "description": "Deprecated: Slack notifications are no longer supported.",
@@ -1421,15 +1430,6 @@
       },
       "type": "array",
       "description": "The tasks that make up this pipeline."
-    },
-    "platform": {
-      "type": "string",
-      "enum": [
-        "",
-        "concourse",
-        "actions"
-      ],
-      "description": "The CI platform to target. Defaults to concourse."
     },
     "notifications": {
       "$ref": "#/$defs/Notifications",

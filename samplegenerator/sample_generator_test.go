@@ -1,11 +1,12 @@
 package samplegenerator
 
 import (
+	"testing"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/project"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type FakeProjectResolver struct {
@@ -52,18 +53,20 @@ func TestWritesSample(t *testing.T) {
 	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
-	expected := `team: CHANGE-ME
+	expected := `# yaml-language-server: $schema=https://github.com/springernature/halfpipe/releases/latest/download/schema.json
+team: <team name>
 pipeline: myApp
+platform: concourse
 feature_toggles:
 - update-pipeline
 tasks:
 - type: run
-  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
-  script: ./gradlew CHANGE-ME
+  name: <task name>
+  script: <script>
   docker:
-    image: CHANGE-ME:tag
+    image: <image:tag>
 `
-	assert.Equal(t, string(bytes), expected)
+	assert.Equal(t, expected, string(bytes))
 }
 
 func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
@@ -82,8 +85,10 @@ func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
-	expected := `team: CHANGE-ME
+	expected := `# yaml-language-server: $schema=https://github.com/springernature/halfpipe/releases/latest/download/schema.json
+team: <team name>
 pipeline: myApp-subApp
+platform: concourse
 feature_toggles:
 - update-pipeline
 triggers:
@@ -92,10 +97,10 @@ triggers:
   - subApp
 tasks:
 - type: run
-  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
-  script: ./gradlew CHANGE-ME
+  name: <task name>
+  script: <script>
   docker:
-    image: CHANGE-ME:tag
+    image: <image:tag>
 `
 	assert.Equal(t, expected, string(bytes))
 }
@@ -116,8 +121,10 @@ func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 	bytes, err := fs.ReadFile(".halfpipe.io.yml")
 	assert.Nil(t, err)
 
-	expected := `team: CHANGE-ME
+	expected := `# yaml-language-server: $schema=https://github.com/springernature/halfpipe/releases/latest/download/schema.json
+team: <team name>
 pipeline: myApp-subFolder-subApp
+platform: concourse
 feature_toggles:
 - update-pipeline
 triggers:
@@ -126,10 +133,10 @@ triggers:
   - subFolder/subApp
 tasks:
 - type: run
-  name: CHANGE-ME OPTIONAL NAME IN CONCOURSE UI
-  script: ./gradlew CHANGE-ME
+  name: <task name>
+  script: <script>
   docker:
-    image: CHANGE-ME:tag
+    image: <image:tag>
 `
-	assert.Equal(t, string(bytes), expected)
+	assert.Equal(t, expected, string(bytes))
 }

@@ -159,6 +159,7 @@ func main() {
 
 	// Table of contents
 	b.WriteString("## Contents\n\n")
+	b.WriteString("- [Schema](#schema)\n")
 	b.WriteString("- [Top-Level Fields](#top-level-fields)\n")
 	b.WriteString("- [Triggers](#triggers)\n")
 	for _, name := range sortedDefKeys(schema.Defs, "Trigger") {
@@ -189,6 +190,15 @@ func main() {
 	b.WriteString("  - [github_environment](#github_environment)\n")
 	b.WriteString("  - [feature_toggles](#feature_toggles)\n")
 	b.WriteString("\n")
+
+	// Schema section
+	schemaDoc, err := os.ReadFile(filepath.Join(root, "docs", "schema.md"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading docs/schema.md: %v\n", err)
+		os.Exit(1)
+	}
+	b.WriteString("## Schema\n\n")
+	b.WriteString(strings.TrimRight(string(schemaDoc), "\n") + "\n\n")
 
 	// Top-level fields
 	b.WriteString("## Top-Level Fields\n\n")

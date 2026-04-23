@@ -120,6 +120,8 @@ type Manifest struct {
 	Team string `json:"team,omitempty" yaml:"team,omitempty" jsonschema:"required"`
 	// The name of the pipeline.
 	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty" jsonschema:"required"`
+	// The CI platform to target. Defaults to concourse.
+	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackChannel string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// A Microsoft Teams webhook URL for pipeline-level notifications.
@@ -134,8 +136,6 @@ type Manifest struct {
 	Triggers TriggerList `json:"triggers,omitempty" yaml:"triggers,omitempty"`
 	// The tasks that make up this pipeline.
 	Tasks TaskList `json:"tasks,omitempty" yaml:"tasks,omitempty" jsonschema:"required"`
-	// The CI platform to target. Defaults to concourse.
-	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
 	// Default notifications for all tasks.
 	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
 	OpsLevel      OpsLevel      `json:"-" yaml:"-"`

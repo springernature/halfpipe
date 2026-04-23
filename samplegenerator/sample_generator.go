@@ -3,12 +3,13 @@ package samplegenerator
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/project"
 	"gopkg.in/yaml.v2"
-	"strings"
 )
 
 var ErrHalfpipeAlreadyExists = errors.New("'.halfpipe.io.yml' already exists")
@@ -42,15 +43,15 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 
 	man := manifest.Manifest{
-		Team: "CHANGE-ME",
-
+		Team:     "<team name>",
+		Platform: "concourse",
 		Tasks: []manifest.Task{
 			manifest.Run{
 				Type:   "run",
-				Name:   "CHANGE-ME OPTIONAL NAME IN CONCOURSE UI",
-				Script: "./gradlew CHANGE-ME",
+				Name:   "<task name>",
+				Script: "<script>",
 				Docker: manifest.Docker{
-					Image: "CHANGE-ME:tag",
+					Image: "<image:tag>",
 				},
 			},
 		},
@@ -75,6 +76,8 @@ func (s sampleGenerator) Generate() (err error) {
 		return err
 	}
 
+	schemaComment := "# yaml-language-server: $schema=https://github.com/springernature/halfpipe/releases/latest/download/schema.json"
+	out = fmt.Appendf(nil, "%s\n%s", schemaComment, out)
 	return s.fs.WriteFile(".halfpipe.io.yml", out, 0644)
 }
 
