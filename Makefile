@@ -37,6 +37,7 @@ schema:
 
 docs: schema
 	go run ./cmd/generate-docs > .generated/docs/manifest-reference.md
+	go run ./cmd/generate-docs --no-header > .generated/docs/manifest-reference-no-header.md
 
 validate-e2e:
 	@if ! which check-jsonschema > /dev/null 2>&1; then \

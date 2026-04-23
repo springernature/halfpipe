@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -138,6 +139,9 @@ func refLink(defName string) string {
 }
 
 func main() {
+	noHeader := flag.Bool("no-header", false, "Omit the top-level heading and table of contents")
+	flag.Parse()
+
 	root := findModuleRoot()
 	data, err := os.ReadFile(filepath.Join(root, ".generated", "schema.json"))
 	if err != nil {
@@ -155,41 +159,43 @@ func main() {
 
 	var b strings.Builder
 
-	b.WriteString("# Halfpipe Manifest Reference\n\n")
+	if !*noHeader {
+		b.WriteString("# Halfpipe Manifest Reference\n\n")
 
-	// Table of contents
-	b.WriteString("## Contents\n\n")
-	b.WriteString("- [Schema](#schema)\n")
-	b.WriteString("- [Top-Level Fields](#top-level-fields)\n")
-	b.WriteString("- [Triggers](#triggers)\n")
-	for _, name := range sortedDefKeys(schema.Defs, "Trigger") {
-		def := schema.Defs[name]
-		typeName := typeConstFromDef(def)
-		if typeName == "" {
-			continue
+		// Table of contents
+		b.WriteString("## Contents\n\n")
+		b.WriteString("- [Schema](#schema)\n")
+		b.WriteString("- [Top-Level Fields](#top-level-fields)\n")
+		b.WriteString("- [Triggers](#triggers)\n")
+		for _, name := range sortedDefKeys(schema.Defs, "Trigger") {
+			def := schema.Defs[name]
+			typeName := typeConstFromDef(def)
+			if typeName == "" {
+				continue
+			}
+			b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
 		}
-		b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
+		b.WriteString("- [Tasks](#tasks)\n")
+		for _, name := range sortedDefKeys(schema.Defs, "") {
+			if strings.Contains(name, "Trigger") || isHelperDef(name) {
+				continue
+			}
+			def := schema.Defs[name]
+			typeName := typeConstFromDef(def)
+			if typeName == "" {
+				continue
+			}
+			b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
+		}
+		b.WriteString("- [Supporting Types](#supporting-types)\n")
+		b.WriteString("  - [notifications](#notifications)\n")
+		b.WriteString("  - [notification channel](#notification-channel)\n")
+		b.WriteString("  - [vars](#vars)\n")
+		b.WriteString("  - [docker](#docker)\n")
+		b.WriteString("  - [github_environment](#github_environment)\n")
+		b.WriteString("  - [feature_toggles](#feature_toggles)\n")
+		b.WriteString("\n")
 	}
-	b.WriteString("- [Tasks](#tasks)\n")
-	for _, name := range sortedDefKeys(schema.Defs, "") {
-		if strings.Contains(name, "Trigger") || isHelperDef(name) {
-			continue
-		}
-		def := schema.Defs[name]
-		typeName := typeConstFromDef(def)
-		if typeName == "" {
-			continue
-		}
-		b.WriteString(fmt.Sprintf("  - [%s](#%s)\n", typeName, anchorMap[name]))
-	}
-	b.WriteString("- [Supporting Types](#supporting-types)\n")
-	b.WriteString("  - [notifications](#notifications)\n")
-	b.WriteString("  - [notification channel](#notification-channel)\n")
-	b.WriteString("  - [vars](#vars)\n")
-	b.WriteString("  - [docker](#docker)\n")
-	b.WriteString("  - [github_environment](#github_environment)\n")
-	b.WriteString("  - [feature_toggles](#feature_toggles)\n")
-	b.WriteString("\n")
 
 	// Schema section
 	schemaDoc, err := os.ReadFile(filepath.Join(root, "docs", "schema.md"))
