@@ -58,7 +58,7 @@ tasks:
 |-------|------|----------|-------------|
 | `team` | string | required | The platform team that owns this pipeline. |
 | `pipeline` | string | required | The name of the pipeline. |
-| `platform` | `concourse`, `actions` | optional | The CI platform to target. |
+| `platform` | `concourse`, `actions` | optional | The CI platform to target. Default: `concourse`. |
 | `triggers` | [Trigger](#triggers)[] | optional | The triggers that cause this pipeline to run. Defaults to git. |
 | `tasks` | [Task](#tasks)[] | required | The tasks that make up this pipeline. |
 | `notifications` | [notifications](#notifications) | optional | Default notifications for all tasks. |
@@ -106,7 +106,7 @@ to true.
 | `git_crypt_key` | string | optional | Base64-encoded git-crypt key to unlock an encrypted repository. |
 | `branch` | string | optional | Branch to track. Required when running halfpipe on a non-default branch. |
 | `shallow` | boolean | optional | Shallow clone the repository (--depth 1). Defaults to false in Concourse and true in GitHub Actions. |
-| `manual_trigger` | boolean | optional | Disable automatic triggering on commits. |
+| `manual_trigger` | boolean | optional | Disable automatic triggering on commits. Default: `false`. |
 
 **Examples:**
 
@@ -150,7 +150,7 @@ Note that you cannot trigger on pipelines from another team.
 | `team` | string | optional | Team that owns the pipeline to trigger from. Must be the same team. |
 | `pipeline` | string | required | Name of the pipeline to trigger from. |
 | `job` | string | required | Job name within the pipeline to trigger from. |
-| `status` | `succeeded`, `failed`, `errored`, `aborted` | optional | Job status to trigger on. |
+| `status` | `succeeded`, `failed`, `errored`, `aborted` | optional | Job status to trigger on. Default: `succeeded`. |
 
 **Example:**
 
@@ -200,16 +200,16 @@ which is an implementation of the Cloud Native Buildpacks specification.
 | `name` | string | optional | Optional display name. |
 | `image` | string | required | Docker image name to build and push. Format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
 | `buildpacks` | string[] | required | Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java. |
-| `builder` | string | optional | Paketo builder to use. |
-| `path` | string | optional | Path to the application source code to build. |
-| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. |
+| `builder` | string | optional | Paketo builder to use. Default: `paketobuildpacks/builder-jammy-buildpackless-base`. |
+| `path` | string | optional | Path to the application source code to build. Default: `.`. |
+| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. Default: `false`. |
 | `vars` | [vars](#vars) | optional | Environment variables passed to the pack build command. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -253,18 +253,18 @@ variables automatically: DEPENDENCY_NAME (set by provider_name) and
 | `git_clone_options` | string | optional | Custom options for git clone of the consumer repository e.g. --depth 100. |
 | `provider_host` | string | optional | Address of the provider application to test. Defaults to the candidate route in pre_promote. |
 | `provider_name` | string | optional | Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name. |
-| `docker_compose_file` | string | optional | Path to the consumer docker-compose file. |
-| `docker_compose_service` | string | optional | Service name in the consumer docker-compose. |
+| `docker_compose_file` | string | optional | Path to the consumer docker-compose file. Default: `docker-compose.yml`. |
+| `docker_compose_service` | string | optional | Service name in the consumer docker-compose. Default: `code`. |
 | `vars` | [vars](#vars) | optional | Environment variables available to the docker-compose service. |
-| `use_covenant` | boolean | optional | Enable Covenant contract testing support. |
+| `use_covenant` | boolean | optional | Enable Covenant contract testing support. Default: `true`. |
 | `save_artifacts` | string[] | optional | Paths to files or directories to save for use in subsequent tasks. |
 | `save_artifacts_on_failure` | string[] | optional | Paths to save when the task fails, useful for test reports. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -306,12 +306,12 @@ or buildpack task.
 | `target` | string | required | Target ECR image URL or bare ECR registry URL. |
 | `aws_access_key_id` | string | optional | AWS access key ID for the target ECR registry. Defaults to shared credentials from Vault. |
 | `aws_secret_access_key` | string | optional | AWS secret access key for the target ECR registry. Defaults to shared credentials from Vault. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -345,28 +345,28 @@ deploy-cf deploys an app to Cloud Foundry.
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
 | `space` | string | required | Cloud Foundry space to deploy to. |
-| `api` | string | optional | Cloud Foundry API endpoint. |
-| `org` | string | optional | Cloud Foundry organisation. |
-| `username` | string | optional | Cloud Foundry username. |
-| `password` | string | optional | Cloud Foundry password. |
-| `manifest` | string | optional | Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. |
+| `api` | string | optional | Cloud Foundry API endpoint. Default: `((platform/cloudfoundry.api-snpaas))`. |
+| `org` | string | optional | Cloud Foundry organisation. Default: `((platform/cloudfoundry.org-snpaas))`. |
+| `username` | string | optional | Cloud Foundry username. Default: `((platform/cloudfoundry.username))`. |
+| `password` | string | optional | Cloud Foundry password. Default: `((platform/cloudfoundry.password))`. |
+| `manifest` | string | optional | Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Default: `manifest.yml`. |
 | `test_domain` | string | optional | Domain used when pushing the app as a candidate. Derived from the API by default. |
 | `vars` | [vars](#vars) | optional | Environment variables injected into the CF app environment. |
 | `deploy_artifact` | string | optional | Path to a file or directory saved by a previous task to deploy to CF. |
 | `pre_promote` | [Task](#tasks)[] | optional | Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected. |
 | `pre_start` | string[] | optional | CF CLI commands to run immediately before the candidate app is started. |
-| `rolling` | boolean | optional | Use rolling deployment instead of blue-green. |
-| `stop_candidate_on_failure` | boolean | optional | Stop the candidate app if deployment fails. |
-| `cli_version` | `cf7`, `cf8` | optional | CF CLI version to use. |
+| `rolling` | boolean | optional | Use rolling deployment instead of blue-green. Default: `false`. |
+| `stop_candidate_on_failure` | boolean | optional | Stop the candidate app if deployment fails. Default: `false`. |
+| `cli_version` | `cf7`, `cf8` | optional | CF CLI version to use. Default: `cf7`. |
 | `docker_tag` | string | optional | Docker image tag to deploy. Required when deploying a Docker image: version or gitref. |
 | `sso_route` | string | optional | Route to configure with SSO. |
 | `github_environment` | [github_environment](#github_environment) | optional | GitHub environment to associate with this deployment. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -417,20 +417,20 @@ deploy-katee deploys an application to Katee.
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
 | `vars` | [vars](#vars) | optional | Environment variables available to the vela manifest. |
-| `vela_manifest` | string | optional | Path to the vela manifest. |
+| `vela_manifest` | string | optional | Path to the vela manifest. Default: `vela.yaml`. |
 | `tag` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
 | `environment` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
 | `namespace` | string | optional | Vela namespace to deploy to. Defaults to katee-<team>. |
 | `deployment_check_timeout` | integer | optional | ⚠️ Deprecated: use max_checks and check_interval instead. |
-| `check_interval` | integer | optional | Seconds between each deployment status check. |
-| `max_checks` | integer | optional | Maximum number of status checks before the deployment is considered failed. |
+| `check_interval` | integer | optional | Seconds between each deployment status check. Default: `2`. |
+| `max_checks` | integer | optional | Maximum number of status checks before the deployment is considered failed. Default: `60`. |
 | `github_environment` | [github_environment](#github_environment) | optional | GitHub environment to associate with this deployment. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -465,15 +465,15 @@ artifactory.
 | `targets` | string[] | required | MarkLogic instances to deploy to. |
 | `app_name` | string | optional | App name in MarkLogic. Defaults to the pipeline name. |
 | `app_version` | string | optional | App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version. |
-| `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. |
+| `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. Default: `false`. |
 | `username` | string | optional | Username to connect to MarkLogic. Defaults to the shared vault secret. |
 | `password` | string | optional | Password to connect to MarkLogic. Defaults to the shared vault secret. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -509,15 +509,15 @@ deploy-ml-zip deploys local XQuery files to MarkLogic using ml-deploy.
 | `targets` | string[] | required | MarkLogic instances to deploy to. |
 | `app_name` | string | optional | App name in MarkLogic. Defaults to the pipeline name. |
 | `app_version` | string | optional | App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version. |
-| `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. |
+| `use_build_version` | boolean | optional | Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version. Default: `false`. |
 | `username` | string | optional | Username to connect to MarkLogic. Defaults to the shared vault secret. |
 | `password` | string | optional | Password to connect to MarkLogic. Defaults to the shared vault secret. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -552,17 +552,17 @@ This file must be present in the same directory as the halfpipe manifest.
 | `name` | string | optional | Optional display name. |
 | `command` | string | optional | Command to run against the service. If omitted the default service command is used. |
 | `vars` | [vars](#vars) | optional | Environment variables available to docker-compose. |
-| `service` | string | optional | Name of the docker-compose service to run. |
+| `service` | string | optional | Name of the docker-compose service to run. Default: `app`. |
 | `compose_file` | string | optional | Space-separated list of docker-compose files |
 | `save_artifacts` | string[] | optional | Paths to files or directories to save for use in subsequent tasks. |
-| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. |
+| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. Default: `false`. |
 | `save_artifacts_on_failure` | string[] | optional | Paths to save when the task fails, useful for test reports. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -592,22 +592,22 @@ by default.
 | `image` | string | required | Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
 | `username` | string | optional | Username for the target Docker registry. |
 | `password` | string | optional | Password for the target Docker registry. |
-| `ignore_vulnerabilities` | boolean | optional | Do not fail the build if critical vulnerabilities are found during image scanning. |
-| `scan_timeout` | integer | optional | Number of minutes a Trivy vulnerability scan is allowed to run before timing out. |
+| `ignore_vulnerabilities` | boolean | optional | Do not fail the build if critical vulnerabilities are found during image scanning. Default: `false`. |
+| `scan_timeout` | integer | optional | Number of minutes a Trivy vulnerability scan is allowed to run before timing out. Default: `15`. |
 | `vars` | [vars](#vars) | optional | Docker build-time variables (ARGs). Do not use for secrets - values are visible in docker history. |
 | `secrets` | [vars](#vars) | optional | Docker build-time secrets, mounted securely during build. |
-| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. |
-| `dockerfile_path` | string | optional | Path to the Dockerfile, relative to the manifest. |
+| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. Default: `false`. |
+| `dockerfile_path` | string | optional | Path to the Dockerfile, relative to the manifest. Default: `Dockerfile`. |
 | `build_path` | string | optional | Path to the folder to use as the Docker build context, relative to the manifest. |
 | `tag` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
-| `platforms` | string[] | optional | Target platforms to build for. |
-| `use_cache` | boolean | optional | Enable layer caching to speed up builds by reusing layers from previous builds. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `platforms` | string[] | optional | Target platforms to build for. Default: `[linux/amd64]`. |
+| `use_cache` | boolean | optional | Enable layer caching to speed up builds by reusing layers from previous builds. Default: `false`. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 
@@ -684,17 +684,17 @@ subsequent tasks will not run.
 | `name` | string | optional | Optional display name. |
 | `script` | string | required | Path to the script to execute, relative to the manifest. Prefix with \ to run a system command e.g. \make. |
 | `docker` | [docker](#docker) | required | Docker configuration for the task to run in. |
-| `privileged` | boolean | optional | Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker. |
+| `privileged` | boolean | optional | Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker. Default: `false`. |
 | `vars` | [vars](#vars) | optional | Environment variables available to the script. |
 | `save_artifacts` | string[] | optional | Paths to files or directories to save for use in subsequent tasks. |
-| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. |
+| `restore_artifacts` | boolean | optional | Restore artifacts saved by previous tasks. Default: `false`. |
 | `save_artifacts_on_failure` | string[] | optional | Paths to save when the task fails, useful for test reports. |
-| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). |
-| `retries` | integer | optional | Number of times to retry the task if it fails. |
-| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
-| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. |
-| `build_history` | integer | optional | Number of build logs to retain (Concourse only). |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 **Examples:**
 

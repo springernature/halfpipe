@@ -31,6 +31,7 @@ type SchemaDef struct {
 type Property struct {
 	Type               any         `json:"type"`
 	Desc               string      `json:"description"`
+	Default            any         `json:"default"`
 	Ref                string      `json:"$ref"`
 	Const              any         `json:"const"`
 	Enum               []any       `json:"enum"`
@@ -352,6 +353,9 @@ func writePropsTable(b *strings.Builder, keys []string, values map[string]*Prope
 		}
 		if prop.Deprecated {
 			desc = "⚠️ " + desc
+		}
+		if prop.Default != nil {
+			desc = fmt.Sprintf("%s Default: `%v`.", desc, prop.Default)
 		}
 		desc = strings.ReplaceAll(desc, "|", "\\|")
 
