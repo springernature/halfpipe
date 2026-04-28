@@ -12,8 +12,9 @@ type Docker struct {
 	// Username for private Docker registries.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
 	// Password for private Docker registries.
-	Password   string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	Entrypoint string `json:"-" yaml:"-"`
+	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
+	// Override default entrypoint
+	Entrypoint string `json:"entrypoint,omitempty" yaml:"entrypoint,omitempty"`
 }
 
 // run is the most generic piece of work you can do. It represents a job in a

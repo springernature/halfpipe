@@ -659,6 +659,10 @@
         "password": {
           "type": "string",
           "description": "Password for private Docker registries."
+        },
+        "entrypoint": {
+          "type": "string",
+          "description": "Override default entrypoint"
         }
       },
       "additionalProperties": false,

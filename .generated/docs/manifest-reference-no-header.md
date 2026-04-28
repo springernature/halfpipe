@@ -817,6 +817,7 @@ Docker image configuration
 | `image` | string | required | Path of docker image in registry including tag. |
 | `username` | string | optional | Username for private Docker registries. |
 | `password` | string | optional | Password for private Docker registries. |
+| `entrypoint` | string | optional | Override default entrypoint |
 
 **Examples:**
 
