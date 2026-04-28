@@ -30,13 +30,13 @@ type Run struct {
 	// Docker configuration for the task to run in.
 	Docker Docker `json:"docker" yaml:"docker,omitempty" jsonschema:"required"`
 	// Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker.
-	Privileged bool `json:"privileged,omitempty" yaml:"privileged,omitempty"`
+	Privileged bool `json:"privileged,omitempty" yaml:"privileged,omitempty" jsonschema:"default=false"`
 	// Environment variables available to the script.
 	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	// Paths to files or directories to save for use in subsequent tasks.
 	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	// Restore artifacts saved by previous tasks.
-	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts,omitempty" jsonschema:"default=false"`
 	// Paths to save when the task fails, useful for test reports.
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	TaskBase               `yaml:",inline"`

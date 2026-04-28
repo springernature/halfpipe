@@ -1,6 +1,7 @@
 docker compose \ 
   -f docker-compose.yml \ 
   run \ 
+  --rm \ 
   -v "$PWD":/app \ 
   -w /app \ 
   -e ARTIFACTORY_PASSWORD="$(vault kv get -field=password /springernature/shared/artifactory)" \ 

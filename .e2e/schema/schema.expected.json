@@ -25,15 +25,18 @@
         },
         "builder": {
           "type": "string",
-          "description": "Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base."
+          "description": "Paketo builder to use.",
+          "default": "paketobuildpacks/builder-jammy-buildpackless-base"
         },
         "path": {
           "type": "string",
-          "description": "Path to the application source code to build. Defaults to current directory."
+          "description": "Path to the application source code to build.",
+          "default": "."
         },
         "restore_artifacts": {
           "type": "boolean",
-          "description": "Restore artifacts saved by previous tasks."
+          "description": "Restore artifacts saved by previous tasks.",
+          "default": false
         },
         "vars": {
           "$ref": "#/$defs/Vars",
@@ -41,15 +44,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -59,11 +65,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -118,11 +126,13 @@
         },
         "docker_compose_file": {
           "type": "string",
-          "description": "Path to the consumer docker-compose file. Defaults to docker-compose.yml."
+          "description": "Path to the consumer docker-compose file.",
+          "default": "docker-compose.yml"
         },
         "docker_compose_service": {
           "type": "string",
-          "description": "Service name in the consumer docker-compose. Defaults to code."
+          "description": "Service name in the consumer docker-compose.",
+          "default": "code"
         },
         "vars": {
           "$ref": "#/$defs/Vars",
@@ -130,7 +140,8 @@
         },
         "use_covenant": {
           "type": "boolean",
-          "description": "Enable Covenant contract testing support."
+          "description": "Enable Covenant contract testing support.",
+          "default": true
         },
         "save_artifacts": {
           "items": {
@@ -148,15 +159,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -166,11 +180,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -212,15 +228,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -230,11 +249,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -263,23 +284,28 @@
         },
         "api": {
           "type": "string",
-          "description": "Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas))."
+          "description": "Cloud Foundry API endpoint.",
+          "default": "((platform/cloudfoundry.api-snpaas))"
         },
         "org": {
           "type": "string",
-          "description": "Cloud Foundry organisation. Defaults to the value of team."
+          "description": "Cloud Foundry organisation.",
+          "default": "((platform/cloudfoundry.org-snpaas))"
         },
         "username": {
           "type": "string",
-          "description": "Cloud Foundry username. Defaults to ((cloudfoundry.username))."
+          "description": "Cloud Foundry username.",
+          "default": "((platform/cloudfoundry.username))"
         },
         "password": {
           "type": "string",
-          "description": "Cloud Foundry password. Defaults to ((cloudfoundry.password))."
+          "description": "Cloud Foundry password.",
+          "default": "((platform/cloudfoundry.password))"
         },
         "manifest": {
           "type": "string",
-          "description": "Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Defaults to manifest.yml."
+          "description": "Path to the Cloud Foundry app manifest, relative to the halfpipe manifest.",
+          "default": "manifest.yml"
         },
         "test_domain": {
           "type": "string",
@@ -346,15 +372,22 @@
         },
         "rolling": {
           "type": "boolean",
-          "description": "Use rolling deployment instead of blue-green."
+          "description": "Use rolling deployment instead of blue-green.",
+          "default": false
         },
         "stop_candidate_on_failure": {
           "type": "boolean",
-          "description": "Stop the candidate app if deployment fails."
+          "description": "Stop the candidate app if deployment fails.",
+          "default": false
         },
         "cli_version": {
           "type": "string",
-          "description": "CF CLI version to use. Allowed values: cf7, cf8. Defaults to cf7."
+          "enum": [
+            "cf7",
+            "cf8"
+          ],
+          "description": "CF CLI version to use.",
+          "default": "cf7"
         },
         "docker_tag": {
           "type": "string",
@@ -370,15 +403,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -388,11 +424,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -420,7 +458,8 @@
         },
         "vela_manifest": {
           "type": "string",
-          "description": "Path to the vela manifest. Defaults to vela.yaml."
+          "description": "Path to the vela manifest.",
+          "default": "vela.yaml"
         },
         "tag": {
           "type": "string",
@@ -446,11 +485,13 @@
         },
         "check_interval": {
           "type": "integer",
-          "description": "Seconds between each deployment status check. Defaults to 2."
+          "description": "Seconds between each deployment status check.",
+          "default": 2
         },
         "max_checks": {
           "type": "integer",
-          "description": "Maximum number of status checks before the deployment is considered failed. Defaults to 60."
+          "description": "Maximum number of status checks before the deployment is considered failed.",
+          "default": 60
         },
         "github_environment": {
           "$ref": "#/$defs/GitHubEnvironment",
@@ -458,15 +499,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -476,11 +520,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -522,7 +568,8 @@
         },
         "use_build_version": {
           "type": "boolean",
-          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version.",
+          "default": false
         },
         "username": {
           "type": "string",
@@ -534,15 +581,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -552,11 +602,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -600,7 +652,8 @@
         },
         "use_build_version": {
           "type": "boolean",
-          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version."
+          "description": "Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version.",
+          "default": false
         },
         "username": {
           "type": "string",
@@ -612,15 +665,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -630,11 +686,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -693,7 +751,8 @@
         },
         "service": {
           "type": "string",
-          "description": "Name of the docker-compose service to run. Defaults to app."
+          "description": "Name of the docker-compose service to run.",
+          "default": "app"
         },
         "compose_file": {
           "type": "string",
@@ -708,7 +767,8 @@
         },
         "restore_artifacts": {
           "type": "boolean",
-          "description": "Restore artifacts saved by previous tasks."
+          "description": "Restore artifacts saved by previous tasks.",
+          "default": false
         },
         "save_artifacts_on_failure": {
           "items": {
@@ -719,15 +779,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -737,11 +800,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -776,11 +841,13 @@
         },
         "ignore_vulnerabilities": {
           "type": "boolean",
-          "description": "Do not fail the build if critical vulnerabilities are found during image scanning."
+          "description": "Do not fail the build if critical vulnerabilities are found during image scanning.",
+          "default": false
         },
         "scan_timeout": {
           "type": "integer",
-          "description": "Number of minutes a Trivy vulnerability scan is allowed to run before timing out."
+          "description": "Number of minutes a Trivy vulnerability scan is allowed to run before timing out.",
+          "default": 15
         },
         "vars": {
           "$ref": "#/$defs/Vars",
@@ -792,11 +859,13 @@
         },
         "restore_artifacts": {
           "type": "boolean",
-          "description": "Restore artifacts saved by previous tasks."
+          "description": "Restore artifacts saved by previous tasks.",
+          "default": false
         },
         "dockerfile_path": {
           "type": "string",
-          "description": "Path to the Dockerfile, relative to the manifest. Defaults to Dockerfile."
+          "description": "Path to the Dockerfile, relative to the manifest.",
+          "default": "Dockerfile"
         },
         "build_path": {
           "type": "string",
@@ -810,26 +879,37 @@
         },
         "platforms": {
           "items": {
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "linux/amd64",
+              "linux/arm64"
+            ]
           },
           "type": "array",
-          "description": "Target platforms to build for, e.g. linux/amd64, linux/arm64. Defaults to linux/amd64."
+          "description": "Target platforms to build for.",
+          "default": [
+            "linux/amd64"
+          ]
         },
         "use_cache": {
           "type": "boolean",
-          "description": "Enable layer caching to speed up builds by reusing layers from previous builds. Defaults to false."
+          "description": "Enable layer caching to speed up builds by reusing layers from previous builds.",
+          "default": false
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -839,11 +919,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -923,7 +1005,7 @@
         },
         "private_key": {
           "type": "string",
-          "description": "SSH private key for cloning the repository. Defaults to ((github.private_key))."
+          "description": "SSH private key for cloning the repository."
         },
         "watched_paths": {
           "items": {
@@ -953,7 +1035,8 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Disable automatic triggering on commits."
+          "description": "Disable automatic triggering on commits.",
+          "default": false
         }
       },
       "additionalProperties": false,
@@ -1128,7 +1211,14 @@
         },
         "status": {
           "type": "string",
-          "description": "Job status to trigger on. Allowed values: succeeded, failed, errored, aborted. Defaults to succeeded."
+          "enum": [
+            "succeeded",
+            "failed",
+            "errored",
+            "aborted"
+          ],
+          "description": "Job status to trigger on.",
+          "default": "succeeded"
         }
       },
       "additionalProperties": false,
@@ -1161,7 +1251,8 @@
         },
         "privileged": {
           "type": "boolean",
-          "description": "Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker."
+          "description": "Run the task as root. Not recommended but sometimes necessary e.g. for docker-in-docker.",
+          "default": false
         },
         "vars": {
           "$ref": "#/$defs/Vars",
@@ -1176,7 +1267,8 @@
         },
         "restore_artifacts": {
           "type": "boolean",
-          "description": "Restore artifacts saved by previous tasks."
+          "description": "Restore artifacts saved by previous tasks.",
+          "default": false
         },
         "save_artifacts_on_failure": {
           "items": {
@@ -1187,15 +1279,18 @@
         },
         "manual_trigger": {
           "type": "boolean",
-          "description": "Task must be triggered manually (Concourse only)."
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
         },
         "retries": {
           "type": "integer",
-          "description": "Number of times to retry the task if it fails."
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
         },
         "notify_on_success": {
           "type": "boolean",
           "description": "Deprecated: use notifications instead.",
+          "default": false,
           "deprecated": true,
           "deprecationMessage": "use notifications instead"
         },
@@ -1205,11 +1300,13 @@
         },
         "timeout": {
           "type": "string",
-          "description": "Timeout duration for the task. If exceeded the task fails. Defaults to 1h."
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
         },
         "build_history": {
           "type": "integer",
-          "description": "Number of build logs to retain. Defaults to 20 (Concourse only)."
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
         }
       },
       "additionalProperties": false,
@@ -1339,11 +1436,11 @@
     "platform": {
       "type": "string",
       "enum": [
-        "",
         "concourse",
         "actions"
       ],
-      "description": "The CI platform to target. Defaults to concourse."
+      "description": "The CI platform to target.",
+      "default": "concourse"
     },
     "slack_channel": {
       "type": "string",

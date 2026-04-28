@@ -22,8 +22,8 @@ type PipelineTrigger struct {
 	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty" jsonschema:"required"`
 	// Job name within the pipeline to trigger from.
 	Job string `json:"job,omitempty" yaml:"job,omitempty" jsonschema:"required"`
-	// Job status to trigger on. Allowed values: succeeded, failed, errored, aborted. Defaults to succeeded.
-	Status string `json:"status,omitempty" yaml:"status,omitempty"`
+	// Job status to trigger on.
+	Status string `json:"status,omitempty" yaml:"status,omitempty" jsonschema:"default=succeeded,enum=succeeded,enum=failed,enum=errored,enum=aborted"`
 }
 
 func (p PipelineTrigger) GetTriggerAttempts() int {

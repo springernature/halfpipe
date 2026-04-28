@@ -15,14 +15,14 @@ type DockerCompose struct {
 	Command string `json:"command,omitempty" yaml:"command,omitempty"`
 	// Environment variables available to docker-compose.
 	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
-	// Name of the docker-compose service to run. Defaults to app.
-	Service string `json:"service,omitempty" yaml:"service,omitempty"`
-	// Path(s) to docker-compose file(s), space-separated. Defaults to docker-compose.yml.
-	ComposeFiles ComposeFiles `json:"compose_file" yaml:"compose_file,omitempty"`
+	// Name of the docker-compose service to run.
+	Service string `json:"service,omitempty" yaml:"service,omitempty" jsonschema:"default=app"`
+	// Path(s) to docker-compose file(s), space-separated.
+	ComposeFiles ComposeFiles `json:"compose_file" yaml:"compose_file,omitempty" jsonschema:"default=docker-compose.yml"`
 	// Paths to files or directories to save for use in subsequent tasks.
 	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	// Restore artifacts saved by previous tasks.
-	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts,omitempty"`
+	RestoreArtifacts bool `json:"restore_artifacts" yaml:"restore_artifacts,omitempty" jsonschema:"default=false"`
 	// Paths to save when the task fails, useful for test reports.
 	SaveArtifactsOnFailure []string `json:"save_artifacts_on_failure" yaml:"save_artifacts_on_failure,omitempty"`
 	TaskBase               `yaml:",inline"`

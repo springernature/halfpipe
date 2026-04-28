@@ -14,16 +14,16 @@ type DeployCF struct {
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Cloud Foundry space to deploy to.
 	Space string `json:"space,omitempty" yaml:"space,omitempty" secretAllowed:"true" jsonschema:"required"`
-	// Cloud Foundry API endpoint. Defaults to ((cloudfoundry.api-snpaas)).
-	API string `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true"`
-	// Cloud Foundry organisation. Defaults to the value of team.
-	Org string `json:"org,omitempty" yaml:"org,omitempty" secretAllowed:"true"`
-	// Cloud Foundry username. Defaults to ((cloudfoundry.username)).
-	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`
-	// Cloud Foundry password. Defaults to ((cloudfoundry.password)).
-	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true"`
-	// Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Defaults to manifest.yml.
-	Manifest string `json:"manifest,omitempty" yaml:"manifest,omitempty"`
+	// Cloud Foundry API endpoint.
+	API string `json:"api,omitempty" yaml:"api,omitempty" secretAllowed:"true" jsonschema:"default=((platform/cloudfoundry.api-snpaas))"`
+	// Cloud Foundry organisation.
+	Org string `json:"org,omitempty" yaml:"org,omitempty" secretAllowed:"true" jsonschema:"default=((platform/cloudfoundry.org-snpaas))"`
+	// Cloud Foundry username.
+	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true" jsonschema:"default=((platform/cloudfoundry.username))"`
+	// Cloud Foundry password.
+	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true" jsonschema:"default=((platform/cloudfoundry.password))"`
+	// Path to the Cloud Foundry app manifest, relative to the halfpipe manifest.
+	Manifest string `json:"manifest,omitempty" yaml:"manifest,omitempty" jsonschema:"default=manifest.yml"`
 	// Domain used when pushing the app as a candidate. Derived from the API by default.
 	TestDomain string `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
 	// Environment variables injected into the CF app environment.
@@ -35,12 +35,12 @@ type DeployCF struct {
 	// CF CLI commands to run immediately before the candidate app is started.
 	PreStart []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`
 	// Use rolling deployment instead of blue-green.
-	Rolling bool `json:"rolling,omitempty" yaml:"rolling,omitempty"`
+	Rolling bool `json:"rolling,omitempty" yaml:"rolling,omitempty" jsonschema:"default=false"`
 	// Stop the candidate app if deployment fails.
-	StopCandidateOnFailure bool `json:"stop_candidate_on_failure,omitempty" yaml:"stop_candidate_on_failure,omitempty"`
+	StopCandidateOnFailure bool `json:"stop_candidate_on_failure,omitempty" yaml:"stop_candidate_on_failure,omitempty" jsonschema:"default=false"`
 	IsDockerPush           bool `json:"-" yaml:"-"`
-	// CF CLI version to use. Allowed values: cf7, cf8. Defaults to cf7.
-	CliVersion string `json:"cli_version,omitempty" yaml:"cli_version,omitempty"`
+	// CF CLI version to use.
+	CliVersion string `json:"cli_version,omitempty" yaml:"cli_version,omitempty" jsonschema:"default=cf7,enum=cf7,enum=cf8"`
 	// Docker image tag to deploy. Required when deploying a Docker image: version or gitref.
 	DockerTag string `json:"docker_tag,omitempty" yaml:"docker_tag,omitempty"`
 	// Route to configure with SSO.

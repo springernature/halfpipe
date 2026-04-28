@@ -7,8 +7,8 @@ type DeployKatee struct {
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
 	// Environment variables available to the vela manifest.
 	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
-	// Path to the vela manifest. Defaults to vela.yaml.
-	VelaManifest string `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty"`
+	// Path to the vela manifest.
+	VelaManifest string `json:"vela_manifest,omitempty" yaml:"vela_manifest,omitempty" jsonschema:"default=vela.yaml"`
 	// Deprecated: no longer used - safe to delete.
 	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Deprecated: no longer used - safe to delete.
@@ -17,10 +17,10 @@ type DeployKatee struct {
 	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	// Deprecated: use max_checks and check_interval instead.
 	DeploymentCheckTimeout int `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use max_checks and check_interval instead"`
-	// Seconds between each deployment status check. Defaults to 2.
-	CheckInterval int `json:"check_interval,omitempty" yaml:"check_interval,omitempty"`
-	// Maximum number of status checks before the deployment is considered failed. Defaults to 60.
-	MaxChecks int `json:"max_checks,omitempty" yaml:"max_checks,omitempty"`
+	// Seconds between each deployment status check.
+	CheckInterval int `json:"check_interval,omitempty" yaml:"check_interval,omitempty" jsonschema:"default=2"`
+	// Maximum number of status checks before the deployment is considered failed.
+	MaxChecks int `json:"max_checks,omitempty" yaml:"max_checks,omitempty" jsonschema:"default=60"`
 	// GitHub environment to associate with this deployment.
 	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 	KateeManifest     VelaManifest      `json:"-" yaml:"-"`

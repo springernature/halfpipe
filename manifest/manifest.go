@@ -120,8 +120,8 @@ type Manifest struct {
 	Team string `json:"team,omitempty" yaml:"team,omitempty" jsonschema:"required"`
 	// The name of the pipeline.
 	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty" jsonschema:"required"`
-	// The CI platform to target. Defaults to concourse.
-	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty"`
+	// The CI platform to target.
+	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty" jsonschema:"default=concourse,enum=concourse,enum=actions"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackChannel string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// A Microsoft Teams webhook URL for pipeline-level notifications.

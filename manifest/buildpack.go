@@ -13,12 +13,12 @@ type Buildpack struct {
 	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Buildpack identifiers to use for building the image e.g. paketo-buildpacks/java.
 	Buildpacks []string `json:"buildpacks" yaml:"buildpacks" jsonschema:"required"`
-	// Paketo builder to use. Defaults to paketobuildpacks/builder-jammy-buildpackless-base.
-	Builder string `json:"builder" yaml:"builder"`
-	// Path to the application source code to build. Defaults to current directory.
-	Path string `json:"path" yaml:"path"`
+	// Paketo builder to use.
+	Builder string `json:"builder" yaml:"builder" jsonschema:"default=paketobuildpacks/builder-jammy-buildpackless-base"`
+	// Path to the application source code to build.
+	Path string `json:"path" yaml:"path" jsonschema:"default=."`
 	// Restore artifacts saved by previous tasks.
-	RestoreArtifacts bool `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty"`
+	RestoreArtifacts bool `json:"restore_artifacts,omitempty" yaml:"restore_artifacts,omitempty" jsonschema:"default=false"`
 	// Environment variables passed to the pack build command.
 	Vars     Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	TaskBase `yaml:",inline"`

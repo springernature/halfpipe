@@ -128,17 +128,17 @@ func TaskNamesFromTask(t Task) (taskNames []string) {
 
 type TaskBase struct {
 	// Task must be triggered manually (Concourse only).
-	ManualTrigger bool `json:"manual_trigger,omitempty" yaml:"manual_trigger,omitempty"`
+	ManualTrigger bool `json:"manual_trigger,omitempty" yaml:"manual_trigger,omitempty" jsonschema:"default=false"`
 	// Number of times to retry the task if it fails.
-	Retries int `json:"retries,omitempty" yaml:"retries,omitempty"`
+	Retries int `json:"retries,omitempty" yaml:"retries,omitempty" jsonschema:"default=0"`
 	// Deprecated: use notifications instead.
-	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
+	NotifyOnSuccess bool `json:"notify_on_success,omitempty" yaml:"notify_on_success,omitempty" jsonschema:"default=false" jsonschema_extras:"deprecated=true,deprecationMessage=use notifications instead"`
 	// Notification channels for this task.
 	Notifications Notifications `json:"notifications" yaml:"notifications,omitempty"`
-	// Timeout duration for the task. If exceeded the task fails. Defaults to 1h.
-	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty"`
-	// Number of build logs to retain. Defaults to 20 (Concourse only).
-	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty"`
+	// Timeout duration for the task. If exceeded the task fails.
+	Timeout string `json:"timeout,omitempty" yaml:"timeout,omitempty" jsonschema:"default=1h"`
+	// Number of build logs to retain (Concourse only).
+	BuildHistory int `json:"build_history,omitempty" yaml:"build_history,omitempty" jsonschema:"default=20"`
 }
 
 func (t TaskBase) GetBase() TaskBase {

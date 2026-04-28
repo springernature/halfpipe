@@ -15,7 +15,7 @@ type DeployMLModules struct {
 	// App version in MarkLogic. Defaults to the git revision. Cannot be set with use_build_version.
 	AppVersion string `json:"app_version" yaml:"app_version,omitempty"`
 	// Use $BUILD_VERSION instead of $GIT_REVISION for the app version. Cannot be set with app_version.
-	UseBuildVersion bool `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty"`
+	UseBuildVersion bool `json:"use_build_version,omitempty" yaml:"use_build_version,omitempty" jsonschema:"default=false"`
 	// Username to connect to MarkLogic. Defaults to the shared vault secret.
 	Username string `json:"username" yaml:"username,omitempty" secretAllowed:"true"`
 	// Password to connect to MarkLogic. Defaults to the shared vault secret.

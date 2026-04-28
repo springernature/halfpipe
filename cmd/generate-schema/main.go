@@ -90,8 +90,6 @@ func buildSchema() *jsonschema.Schema {
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("platform"); ok {
-			prop.Type = "string"
-			prop.Enum = []any{"", "concourse", "actions"}
 			prop.Ref = ""
 		}
 		if prop, ok := topSchema.Properties.Get("feature_toggles"); ok {

@@ -10,7 +10,7 @@ type GitTrigger struct {
 	// Git repository URI. Defaults to the URI resolved from .git/config.
 	URI      string `json:"uri,omitempty" yaml:"uri,omitempty"`
 	BasePath string `json:"-" yaml:"-"` //don't auto unmarshal
-	// SSH private key for cloning the repository. Defaults to ((github.private_key)).
+	// SSH private key for cloning the repository.
 	PrivateKey string `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`
 	// Only trigger when changes occur in these paths (globs supported).
 	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
@@ -24,7 +24,7 @@ type GitTrigger struct {
 	Shallow        bool `json:"shallow,omitempty" yaml:"shallow,omitempty"`
 	ShallowDefined bool `json:"-" yaml:"-"` //don't auto unmarshal
 	// Disable automatic triggering on commits.
-	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty"`
+	ManualTrigger bool `json:"manual_trigger" yaml:"manual_trigger,omitempty" jsonschema:"default=false"`
 }
 
 func (git GitTrigger) GetTriggerAttempts() int {

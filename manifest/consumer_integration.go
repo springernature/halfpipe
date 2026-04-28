@@ -20,14 +20,14 @@ type ConsumerIntegrationTest struct {
 	ProviderHost string `json:"provider_host" yaml:"provider_host,omitempty"`
 	// Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name.
 	ProviderName string `json:"provider_name,omitempty" yaml:"provider_name,omitempty"`
-	// Path to the consumer docker-compose file. Defaults to docker-compose.yml.
-	DockerComposeFile string `json:"docker_compose_file" yaml:"docker_compose_file,omitempty"`
-	// Service name in the consumer docker-compose. Defaults to code.
-	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service,omitempty"`
+	// Path to the consumer docker-compose file.
+	DockerComposeFile string `json:"docker_compose_file" yaml:"docker_compose_file,omitempty" jsonschema:"default=docker-compose.yml"`
+	// Service name in the consumer docker-compose.
+	DockerComposeService string `json:"docker_compose_service" yaml:"docker_compose_service,omitempty" jsonschema:"default=code"`
 	// Environment variables available to the docker-compose service.
 	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	// Enable Covenant contract testing support.
-	UseCovenant bool `json:"use_covenant,omitempty" yaml:"use_covenant,omitempty"`
+	UseCovenant bool `json:"use_covenant,omitempty" yaml:"use_covenant,omitempty" jsonschema:"default=true"`
 	// Paths to files or directories to save for use in subsequent tasks.
 	SaveArtifacts []string `json:"save_artifacts" yaml:"save_artifacts,omitempty"`
 	// Paths to save when the task fails, useful for test reports.
