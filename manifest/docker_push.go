@@ -7,7 +7,7 @@ type DockerPush struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"name,omitempty"`
-	// Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>.
+	// Docker image to build and push. Format: eu.gcr.io/halfpipe-io/team/image.
 	Image string `json:"image,omitempty" yaml:"image,omitempty" jsonschema:"required"`
 	// Username for the target Docker registry.
 	Username string `json:"username,omitempty" yaml:"username,omitempty" secretAllowed:"true"`

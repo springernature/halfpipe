@@ -557,7 +557,7 @@ by default.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `image` | string | required | Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/<team>/<image-name>. |
+| `image` | string | required | Docker image to build and push. Format: eu.gcr.io/halfpipe-io/team/image. |
 | `username` | string | optional | Username for the target Docker registry. |
 | `password` | string | optional | Password for the target Docker registry. |
 | `ignore_vulnerabilities` | boolean | optional | Do not fail the build if critical vulnerabilities are found during image scanning. Default: `false`. |

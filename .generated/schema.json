@@ -829,7 +829,7 @@
         },
         "image": {
           "type": "string",
-          "description": "Docker image to build and push. Recommended format: eu.gcr.io/halfpipe-io/\u003cteam\u003e/\u003cimage-name\u003e."
+          "description": "Docker image to build and push. Format: eu.gcr.io/halfpipe-io/team/image."
         },
         "username": {
           "type": "string",
