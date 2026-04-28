@@ -142,7 +142,7 @@ jobs:
     - name: Deploy to Katee
       uses: springernature/ee-action-deploy-katee@v1
       with:
-        checkInterval: "2"
+        checkInterval: "5"
         credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
         eaid: APPL-437
         maxChecks: "120"

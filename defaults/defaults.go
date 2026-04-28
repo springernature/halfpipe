@@ -20,7 +20,7 @@ var Concourse = Defaults{
 	Katee: KateeDefaults{
 		VelaManifest:  "vela.yaml",
 		Tag:           "version",
-		CheckInterval: 2,
+		CheckInterval: 5,
 		MaxChecks:     60,
 	},
 	Docker: DockerDefaults{
@@ -80,7 +80,7 @@ var Actions = Defaults{
 	Katee: KateeDefaults{
 		VelaManifest:  "vela.yaml",
 		Tag:           "version",
-		CheckInterval: 2,
+		CheckInterval: 5,
 		MaxChecks:     60,
 	},
 	Buildpack: BuildpackDefaults{

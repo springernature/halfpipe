@@ -239,7 +239,7 @@ jobs:
       - name: git
       - name: version
       params:
-        CHECK_INTERVAL: "2"
+        CHECK_INTERVAL: "5"
         EAID: APPL-437
         ENV1: "1234"
         ENV2: ((secret.something))
