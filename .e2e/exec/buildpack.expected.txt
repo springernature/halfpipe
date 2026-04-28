@@ -1,0 +1,17 @@
+pack build eu.gcr.io/halfpipe-io/halfpipe-team/myapp \
+  --path . \
+  --builder paketobuildpacks/builder-jammy-buildpackless-base \
+  --buildpack paketo-buildpacks/java \
+  --buildpack paketo-buildpacks/procfile \
+  --env ARTIFACTORY_PASSWORD="$(vault kv get -field=password /springernature/shared/artifactory)" \
+  --env ARTIFACTORY_URL="$(vault kv get -field=url /springernature/shared/artifactory)" \
+  --env ARTIFACTORY_USERNAME="$(vault kv get -field=username /springernature/shared/artifactory)" \
+  --env CI='true' \
+  --env EAID='APPL-437' \
+  --env EE_PLATFORM_TEAM='halfpipe-team' \
+  --env ENV1='1234' \
+  --env ENV2="$(vault kv get -field=something /springernature/halfpipe-team/secret)" \
+  --env ENV3='{"a": "b", "c": "d"}' \
+  --env RUNNING_IN_CI='true' \
+  --tag eu.gcr.io/halfpipe-io/halfpipe-team/myapp:local \
+  --trust-builder

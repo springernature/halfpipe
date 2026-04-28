@@ -32,3 +32,14 @@ tasks:
     ENV3: '{"a": "b", "c": "d"}'
     ENV4: ((another.secret))
     VERY_SECRET: blah
+
+- type: buildpack
+  name: buildpack
+  image: eu.gcr.io/halfpipe-io/halfpipe-team/myapp
+  buildpacks:
+  - paketo-buildpacks/java
+  - paketo-buildpacks/procfile
+  vars:
+    ENV1: 1234
+    ENV2: ((secret.something))
+    ENV3: '{"a": "b", "c": "d"}'

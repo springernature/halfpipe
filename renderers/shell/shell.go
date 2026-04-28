@@ -2,11 +2,12 @@ package shell
 
 import (
 	"fmt"
+	"sort"
+	"strings"
+
 	"github.com/springernature/halfpipe"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared/secrets"
-	"sort"
-	"strings"
 )
 
 type shell struct {
@@ -26,30 +27,33 @@ func (s shell) Render(man manifest.Manifest) (string, error) {
 	case manifest.DockerCompose:
 		return renderDockerComposeCommand(t, man.Team), nil
 	case manifest.Buildpack:
-		return renderBuildpackCommand(t), nil
+		return renderBuildpackCommand(t, man.Team), nil
 	}
 
-	var errMsg strings.Builder
-	errMsg.WriteString("task not found with name '%s' and type 'run', 'docker-compose' or 'buildpack'\n\navailable tasks:\n")
+	availableTasks := []string{}
 	for _, t := range man.Tasks.Flatten() {
 		switch t := t.(type) {
 		case manifest.Run, manifest.DockerCompose, manifest.Buildpack:
-			errMsg.WriteString(fmt.Sprintf("  %s\n", t.GetName()))
+			availableTasks = append(availableTasks, fmt.Sprintf("  %s", t.GetName()))
 		}
 	}
-	return "", fmt.Errorf(errMsg.String(), s.taskName)
+
+	return "", fmt.Errorf("task not found named '%s'. Supported task types for exec command are run, docker-compose and buildpack.\n\navailable tasks:\n%s",
+		s.taskName,
+		strings.Join(availableTasks, "\n"),
+	)
 }
 
 func renderRunCommand(task manifest.Run, team string) string {
 	s := []string{
-		"docker run -it",
+		"docker run -it --rm",
 		`-v "$PWD":/app`,
 		"-w /app",
 	}
 
 	vars := []string{}
 	for k, v := range task.Vars {
-		vars = append(vars, fmt.Sprintf(`-e %s="%s"`, k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf("-e %s=%s", k, quoteValue(v, team)))
 	}
 	sort.Strings(vars)
 	s = append(s, vars...)
@@ -59,18 +63,27 @@ func renderRunCommand(task manifest.Run, team string) string {
 	return strings.Join(s, " \\ \n  ")
 }
 
+func quoteValue(v string, team string) string {
+	secret := secrets.New(v, team)
+	if secret != nil {
+		return fmt.Sprintf("\"$(vault kv get -field=%s /springernature/%s)\"", secret.Key, secret.MapPath)
+	}
+	return fmt.Sprintf("'%s'", v)
+}
+
 func renderDockerComposeCommand(task manifest.DockerCompose, team string) string {
 	s := []string{"docker compose"}
 	s = append(s, toMultipleArgs("-f", task.ComposeFiles)...)
 	s = append(s,
 		"run",
+		"--rm",
 		`-v "$PWD":/app`,
 		"-w /app",
 	)
 
 	vars := []string{}
 	for k, v := range task.Vars {
-		vars = append(vars, fmt.Sprintf(`-e %s="%s"`, k, convertSecret(v, team)))
+		vars = append(vars, fmt.Sprintf("-e %s=%s", k, quoteValue(v, team)))
 	}
 	sort.Strings(vars)
 	s = append(s, vars...)
@@ -84,14 +97,6 @@ func renderDockerComposeCommand(task manifest.DockerCompose, team string) string
 	return strings.Join(s, " \\ \n  ")
 }
 
-func convertSecret(s string, team string) string {
-	secret := secrets.New(s, team)
-	if secret == nil {
-		return s
-	}
-	return fmt.Sprintf("$(vault kv get -field=%s /springernature/%s)", secret.Key, secret.MapPath)
-}
-
 func toMultipleArgs(flag string, args []string) []string {
 	out := []string{}
 	for _, arg := range args {
@@ -100,17 +105,31 @@ func toMultipleArgs(flag string, args []string) []string {
 	return out
 }
 
-func renderBuildpackCommand(task manifest.Buildpack) string {
+func renderBuildpackCommand(task manifest.Buildpack, team string) string {
 	path := "."
 	if task.Path != "" {
 		path = task.Path
 	}
-	return fmt.Sprintf(`pack build %s \
---path %s \
---builder paketobuildpacks/builder-jammy-buildpackless-full \
---buildpack %s \
---tag %s:local \
---trust-builder
-`, task.Image, path, task.Buildpacks, task.Image)
 
+	s := []string{
+		fmt.Sprintf("pack build %s", task.Image),
+		fmt.Sprintf("--path %s", path),
+		fmt.Sprintf("--builder %s", task.Builder),
+	}
+
+	for _, bp := range task.Buildpacks {
+		s = append(s, fmt.Sprintf("--buildpack %s", bp))
+	}
+
+	vars := []string{}
+	for k, v := range task.Vars {
+		vars = append(vars, fmt.Sprintf("--env %s=%s", k, quoteValue(v, team)))
+	}
+	sort.Strings(vars)
+	s = append(s, vars...)
+
+	s = append(s, fmt.Sprintf("--tag %s:local", task.Image))
+	s = append(s, "--trust-builder")
+
+	return strings.Join(s, " \\\n  ")
 }
