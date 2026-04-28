@@ -7,7 +7,7 @@ import (
 
 var secrets = struct {
 	GitHubPrivateKey, GithubStatusesToken, HalfpipeBotAppID, HalfpipeBotInstallationID, HalfpipeBotPrivateKey,
-	GARToken, GCPArtifactsToken, GCRPrivateKey, VersionBucket, VersionJSONKey, ArtifactsBucket, ArtifactsJSONKey,
+	GARToken, GCPArtifactsToken, GCRPrivateKey, VersionBucket, VersionJSONKey, ArtifactsBucket,
 	VaultAddr, VaultRoleID, VaultSecretID,
 	ConcourseURL, ConcoursePassword, ConcourseTeam, ConcourseUsername,
 	SlackToken string
@@ -27,7 +27,6 @@ var secrets = struct {
 	VersionBucket:     "((halfpipe-semver.bucket))",
 	VersionJSONKey:    "((halfpipe-semver.private_key))",
 	ArtifactsBucket:   "((halfpipe-artifacts.bucket))",
-	ArtifactsJSONKey:  "((halfpipe-artifacts.private_key))",
 
 	// vault
 	VaultAddr:     "((platform/team-ro-app-role.vault_addr))",
