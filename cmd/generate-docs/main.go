@@ -220,7 +220,7 @@ func main() {
 		if typeName == "" {
 			continue
 		}
-		b.WriteString(fmt.Sprintf("### <a id=\"%s-trigger\"></a>`%s`\n\n", typeName, typeName))
+		b.WriteString(fmt.Sprintf("### <a id=\"%s-trigger\"></a>%s\n\n", typeName, typeName))
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "trigger-"+typeName)
 	}
@@ -237,7 +237,7 @@ func main() {
 		if typeName == "" {
 			continue
 		}
-		b.WriteString(fmt.Sprintf("### `%s`\n\n", typeName))
+		b.WriteString(fmt.Sprintf("### %s\n\n", typeName))
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "task-"+typeName)
 	}
@@ -246,35 +246,35 @@ func main() {
 	b.WriteString("\n## Supporting Types\n\n")
 
 	if def, ok := schema.Defs["Notifications"]; ok {
-		b.WriteString("### `notifications`\n\n")
+		b.WriteString("### notifications\n\n")
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "type-notifications")
 	}
 	if def, ok := schema.Defs["NotificationChannel"]; ok {
-		b.WriteString("### `notification channel`\n\n")
+		b.WriteString("### notification channel\n\n")
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "type-notificationchannel")
 	}
 	// Vars
-	b.WriteString("### `vars`\n\n")
+	b.WriteString("### vars\n\n")
 	if def, ok := schema.Defs["Vars"]; ok {
 		writeDefTable(&b, def, &schema)
 	}
 	writeExample(&b, root, "type-vars")
 
 	if def, ok := schema.Defs["Docker"]; ok {
-		b.WriteString("### `docker`\n\n")
+		b.WriteString("### docker\n\n")
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "type-docker")
 	}
 	if def, ok := schema.Defs["GitHubEnvironment"]; ok {
-		b.WriteString("### `github_environment`\n\n")
+		b.WriteString("### github_environment\n\n")
 		writeDefTable(&b, def, &schema)
 		writeExample(&b, root, "type-githubenvironment")
 	}
 
 	// Feature toggles
-	b.WriteString("### `feature_toggles`\n\n")
+	b.WriteString("### feature_toggles\n\n")
 	if def, ok := schema.Defs["FeatureToggles"]; ok && def.Desc != "" {
 		desc := strings.TrimPrefix(def.Desc, "FeatureToggles ")
 		desc = strings.ToUpper(desc[:1]) + desc[1:]

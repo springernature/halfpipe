@@ -41,7 +41,7 @@ tasks:
 
 Triggers cause the pipeline to run. Specified under the `triggers` key.
 
-### <a id="docker-trigger"></a>`docker`
+### <a id="docker-trigger"></a>docker
 
 docker trigger runs the pipeline when a docker image has been updated.
 
@@ -59,7 +59,7 @@ docker trigger runs the pipeline when a docker image has been updated.
   image: "eu.gcr.io/halfpipe-io/halfpipe-example-docker"
 ```
 
-### <a id="git-trigger"></a>`git`
+### <a id="git-trigger"></a>git
 
 git trigger defines which git repo halfpipe will operate on. By convention
 there is always a git trigger as default. To disable it, set manual_trigger
@@ -105,7 +105,7 @@ to true.
   cron: "0 8 * * *"
 ```
 
-### <a id="pipeline-trigger"></a>`pipeline`
+### <a id="pipeline-trigger"></a>pipeline
 
 pipeline trigger runs the pipeline when another pipeline job has completed.
 Note that you cannot trigger on pipelines from another team.
@@ -130,7 +130,7 @@ Note that you cannot trigger on pipelines from another team.
   status: failed
 ```
 
-### <a id="timer-trigger"></a>`timer`
+### <a id="timer-trigger"></a>timer
 
 timer trigger runs the pipeline on a schedule. The cron expression must be
 valid; remember to specify times in UTC. See [crontab.guru] for help
@@ -155,7 +155,7 @@ writing cron expressions.
 
 Tasks define the steps in your pipeline. Specified under the `tasks` key.
 
-### `buildpack`
+### buildpack
 
 buildpack generates a container image using Cloud Native Buildpacks and
 publishes it to the Halfpipe registry. The task uses [Paketo Buildpacks]
@@ -205,7 +205,7 @@ which is an implementation of the Cloud Native Buildpacks specification.
     API_KEY: ((api.key))
 ```
 
-### `consumer-integration-test`
+### consumer-integration-test
 
 consumer-integration-test is designed to run in a provider's pipeline. The
 task allows for a test script to be run. The script is passed two environment
@@ -260,7 +260,7 @@ tasks:
   script: ci/run-external-and-cdcs-dev
 ```
 
-### `copy-container-image`
+### copy-container-image
 
 copy-container-image copies an image from the halfpipe registry
 (eu.gcr.io/halfpipe-io/) to another registry. Currently only AWS ECR is
@@ -305,7 +305,7 @@ or buildpack task.
   target: 1234567890.dkr.ecr.cn-northwest-1.amazonaws.com.cn/another-team/another-image:1.0.0
 ```
 
-### `deploy-cf`
+### deploy-cf
 
 deploy-cf deploys an app to Cloud Foundry.
 
@@ -377,7 +377,7 @@ deploy-cf deploys an app to Cloud Foundry.
   docker_tag: version
 ```
 
-### `deploy-katee`
+### deploy-katee
 
 deploy-katee deploys an application to Katee.
 
@@ -421,7 +421,7 @@ deploy-katee deploys an application to Katee.
     API_KEY: ((api.key))
 ```
 
-### `deploy-ml-modules`
+### deploy-ml-modules
 
 deploy-ml-modules deploys a version of the shared ml modules library from
 artifactory.
@@ -466,7 +466,7 @@ artifactory.
     - marklogic.live.host
 ```
 
-### `deploy-ml-zip`
+### deploy-ml-zip
 
 deploy-ml-zip deploys local XQuery files to MarkLogic using ml-deploy.
 
@@ -510,7 +510,7 @@ deploy-ml-zip deploys local XQuery files to MarkLogic using ml-deploy.
     - marklogic.live.host
 ```
 
-### `docker-compose`
+### docker-compose
 
 docker-compose executes docker-compose based on a docker-compose.yml file.
 This file must be present in the same directory as the halfpipe manifest.
@@ -548,7 +548,7 @@ This file must be present in the same directory as the halfpipe manifest.
     MY_SECRET: ((my-app.my-secret-in-vault))
 ```
 
-### `docker-push`
+### docker-push
 
 docker-push builds a Docker image and pushes it to a docker registry. The
 image will be tagged with the latest tag, the gitref and pipeline version
@@ -603,7 +603,7 @@ by default.
   image: eu.gcr.io/halfpipe-io/team/image-name
 ```
 
-### `parallel`
+### parallel
 
 parallel enables running tasks in parallel. All tasks start simultaneously;
 the group succeeds when all complete.
@@ -640,7 +640,7 @@ tasks:
         space: live
 ```
 
-### `run`
+### run
 
 run is the most generic piece of work you can do. It represents a job in a
 pipeline where a script will be run in a docker container. If the script
@@ -710,7 +710,7 @@ subsequent tasks will not run.
     image: eu.gcr.io/halfpipe-io/your-private-image
 ```
 
-### `sequence`
+### sequence
 
 sequence enables running tasks in sequence within a parallel group. It can
 only be used inside a parallel task.
@@ -758,7 +758,7 @@ tasks:
 
 ## Supporting Types
 
-### `notifications`
+### notifications
 
 notifications configure which channels to notify on task success or failure.
 
@@ -771,7 +771,7 @@ notifications configure which channels to notify on task success or failure.
 | `on_failure` | string[] | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 | `on_failure_message` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 
-### `notification channel`
+### notification channel
 
 notification channel defines where to send a notification.
 
@@ -794,7 +794,7 @@ notifications:
     - teams: ((my-app.teams-webhook))
 ```
 
-### `vars`
+### vars
 
 Key-value pairs of environment variables (values are coerced to strings)
 
@@ -808,7 +808,7 @@ vars:
   VAULT_SECRET: ((my-app.my-secret-in-vault))
 ```
 
-### `docker`
+### docker
 
 Docker image configuration
 
@@ -835,7 +835,7 @@ docker:
   password: ((registry.password))
 ```
 
-### `github_environment`
+### github_environment
 
 GitHub environment to associate with this deployment.
 
@@ -853,7 +853,7 @@ github_environment:
   url: https://my-app.example.com
 ```
 
-### `feature_toggles`
+### feature_toggles
 
 Enable optional pipeline behaviours.
 
