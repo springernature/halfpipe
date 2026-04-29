@@ -13,10 +13,10 @@ func deployCfDefaulter(original manifest.DeployCF, defaults Defaults, man manife
 		if updated.Org == "" || updated.Org == "((cloudfoundry.org-snpaas))" {
 			updated.Org = defaults.CF.SnPaaS.Org
 		}
-		if updated.Username == "" || updated.Org == "((cloudfoundry.username))" {
+		if updated.Username == "" || updated.Org == "((cloudfoundry.username-snpaas))" {
 			updated.Username = defaults.CF.SnPaaS.Username
 		}
-		if updated.Password == "" || updated.Org == "((cloudfoundry.password))" {
+		if updated.Password == "" || updated.Org == "((cloudfoundry.password-snpaas))" {
 			updated.Password = defaults.CF.SnPaaS.Password
 		}
 	} else {
