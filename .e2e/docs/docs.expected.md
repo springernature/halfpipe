@@ -241,8 +241,8 @@ which is an implementation of the Cloud Native Buildpacks specification.
 
 consumer-integration-test is designed to run in a provider's pipeline. The
 task allows for a test script to be run. The script is passed two environment
-variables automatically: DEPENDENCY_NAME (set by provider_name) and
-<DEPENDENCY_NAME>_DEPLOYED_HOST (set by provider_host).
+variables automatically: `DEPENDENCY_NAME` (set by provider_name) and
+`<DEPENDENCY_NAME>_DEPLOYED_HOST` (set by provider_host).
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
@@ -252,7 +252,7 @@ variables automatically: DEPENDENCY_NAME (set by provider_name) and
 | `script` | string | required | Consumer test script to execute. |
 | `git_clone_options` | string | optional | Custom options for git clone of the consumer repository e.g. --depth 100. |
 | `provider_host` | string | optional | Address of the provider application to test. Defaults to the candidate route in pre_promote. |
-| `provider_name` | string | optional | Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name. |
+| `provider_name` | string | optional | Name of the provider app, exposed as `DEPENDENCY_NAME`. Defaults to the pipeline name. |
 | `docker_compose_file` | string | optional | Path to the consumer docker-compose file. Default: `docker-compose.yml`. |
 | `docker_compose_service` | string | optional | Service name in the consumer docker-compose. Default: `code`. |
 | `vars` | [vars](#vars) | optional | Environment variables available to the docker-compose service. |
@@ -350,10 +350,10 @@ deploy-cf deploys an app to Cloud Foundry.
 | `username` | string | optional | Cloud Foundry username. Default: `((platform/cloudfoundry.username))`. |
 | `password` | string | optional | Cloud Foundry password. Default: `((platform/cloudfoundry.password))`. |
 | `manifest` | string | optional | Path to the Cloud Foundry app manifest, relative to the halfpipe manifest. Default: `manifest.yml`. |
-| `test_domain` | string | optional | Domain used when pushing the app as a candidate. Derived from the API by default. |
+| `test_domain` | string | optional | Domain used when pushing the app as a candidate. Default: `springernature.app`. |
 | `vars` | [vars](#vars) | optional | Environment variables injected into the CF app environment. |
 | `deploy_artifact` | string | optional | Path to a file or directory saved by a previous task to deploy to CF. |
-| `pre_promote` | [Task](#tasks)[] | optional | Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected. |
+| `pre_promote` | [Task](#tasks)[] | optional | Tasks to run after the candidate is deployed but before it is promoted to live. `TEST_ROUTE` is injected. |
 | `pre_start` | string[] | optional | CF CLI commands to run immediately before the candidate app is started. |
 | `rolling` | boolean | optional | Use rolling deployment instead of blue-green. Default: `false`. |
 | `stop_candidate_on_failure` | boolean | optional | Stop the candidate app if deployment fails. Default: `false`. |

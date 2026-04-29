@@ -24,13 +24,13 @@ type DeployCF struct {
 	Password string `json:"password,omitempty" yaml:"password,omitempty" secretAllowed:"true" jsonschema:"default=((platform/cloudfoundry.password))"`
 	// Path to the Cloud Foundry app manifest, relative to the halfpipe manifest.
 	Manifest string `json:"manifest,omitempty" yaml:"manifest,omitempty" jsonschema:"default=manifest.yml"`
-	// Domain used when pushing the app as a candidate. Derived from the API by default.
-	TestDomain string `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true"`
+	// Domain used when pushing the app as a candidate.
+	TestDomain string `json:"test_domain" yaml:"test_domain,omitempty" secretAllowed:"true" jsonschema:"default=springernature.app"`
 	// Environment variables injected into the CF app environment.
 	Vars Vars `json:"vars,omitempty" yaml:"vars,omitempty" secretAllowed:"true"`
 	// Path to a file or directory saved by a previous task to deploy to CF.
 	DeployArtifact string `json:"deploy_artifact" yaml:"deploy_artifact,omitempty"`
-	// Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected.
+	// Tasks to run after the candidate is deployed but before it is promoted to live. `TEST_ROUTE` is injected.
 	PrePromote TaskList `json:"pre_promote" yaml:"pre_promote,omitempty"`
 	// CF CLI commands to run immediately before the candidate app is started.
 	PreStart []string `json:"pre_start,omitempty" yaml:"pre_start,omitempty"`

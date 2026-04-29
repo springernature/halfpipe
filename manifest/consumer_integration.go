@@ -2,8 +2,8 @@ package manifest
 
 // consumer-integration-test is designed to run in a provider's pipeline. The
 // task allows for a test script to be run. The script is passed two environment
-// variables automatically: DEPENDENCY_NAME (set by provider_name) and
-// <DEPENDENCY_NAME>_DEPLOYED_HOST (set by provider_host).
+// variables automatically: `DEPENDENCY_NAME` (set by provider_name) and
+// `<DEPENDENCY_NAME>_DEPLOYED_HOST` (set by provider_host).
 type ConsumerIntegrationTest struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.
@@ -18,7 +18,7 @@ type ConsumerIntegrationTest struct {
 	GitCloneOptions string `json:"git_clone_options,omitempty" yaml:"git_clone_options,omitempty"`
 	// Address of the provider application to test. Defaults to the candidate route in pre_promote.
 	ProviderHost string `json:"provider_host" yaml:"provider_host,omitempty"`
-	// Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name.
+	// Name of the provider app, exposed as `DEPENDENCY_NAME`. Defaults to the pipeline name.
 	ProviderName string `json:"provider_name,omitempty" yaml:"provider_name,omitempty"`
 	// Path to the consumer docker-compose file.
 	DockerComposeFile string `json:"docker_compose_file" yaml:"docker_compose_file,omitempty" jsonschema:"default=docker-compose.yml"`

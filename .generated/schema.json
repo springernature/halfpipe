@@ -94,7 +94,7 @@
         "type": {
           "type": "string",
           "const": "consumer-integration-test",
-          "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
+          "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: `DEPENDENCY_NAME` (set by provider_name) and\n`\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST` (set by provider_host)."
         },
         "name": {
           "type": "string",
@@ -122,7 +122,7 @@
         },
         "provider_name": {
           "type": "string",
-          "description": "Name of the provider app, exposed as DEPENDENCY_NAME. Defaults to the pipeline name."
+          "description": "Name of the provider app, exposed as `DEPENDENCY_NAME`. Defaults to the pipeline name."
         },
         "docker_compose_file": {
           "type": "string",
@@ -197,7 +197,7 @@
         "consumer_host",
         "script"
       ],
-      "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: DEPENDENCY_NAME (set by provider_name) and\n\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST (set by provider_host)."
+      "description": "consumer-integration-test is designed to run in a provider's pipeline. The\ntask allows for a test script to be run. The script is passed two environment\nvariables automatically: `DEPENDENCY_NAME` (set by provider_name) and\n`\u003cDEPENDENCY_NAME\u003e_DEPLOYED_HOST` (set by provider_host)."
     },
     "CopyContainerImage": {
       "properties": {
@@ -309,7 +309,8 @@
         },
         "test_domain": {
           "type": "string",
-          "description": "Domain used when pushing the app as a candidate. Derived from the API by default."
+          "description": "Domain used when pushing the app as a candidate.",
+          "default": "springernature.app"
         },
         "vars": {
           "$ref": "#/$defs/Vars",
@@ -361,7 +362,7 @@
             ]
           },
           "type": "array",
-          "description": "Tasks to run after the candidate is deployed but before it is promoted to live. TEST_ROUTE is injected."
+          "description": "Tasks to run after the candidate is deployed but before it is promoted to live. `TEST_ROUTE` is injected."
         },
         "pre_start": {
           "items": {
