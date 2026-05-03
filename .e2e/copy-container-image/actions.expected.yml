@@ -16,8 +16,6 @@ env:
   BUILD_VERSION: 2.${{ github.run_number }}.0
   GIT_REVISION: ${{ github.sha }}
   RUNNING_IN_CI: "true"
-  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
-  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
 defaults:
   run:
     working-directory: .e2e/copy-container-image
@@ -34,8 +32,8 @@ jobs:
       with:
         exportEnv: false
         method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
         secrets: |
           /springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id | springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id ;
           /springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key | springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key ;
@@ -225,8 +223,8 @@ jobs:
       with:
         exportEnv: false
         method: approle
-        roleId: ${{ env.VAULT_ROLE_ID }}
-        secretId: ${{ env.VAULT_SECRET_ID }}
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
         secrets: |
           /springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id | springernature_data_shared_ee-aws-ecr-credentials_aws_access_key_id ;
           /springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key | springernature_data_shared_ee-aws-ecr-credentials_aws_secret_access_key ;

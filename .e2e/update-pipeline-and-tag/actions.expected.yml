@@ -16,8 +16,6 @@ env:
   BUILD_VERSION: 2.${{ github.run_number }}.0
   GIT_REVISION: ${{ github.sha }}
   RUNNING_IN_CI: "true"
-  VAULT_ROLE_ID: ${{ secrets.VAULT_ROLE_ID }}
-  VAULT_SECRET_ID: ${{ secrets.VAULT_SECRET_ID }}
 defaults:
   run:
     working-directory: .e2e/update-pipeline-and-tag
@@ -121,8 +119,6 @@ jobs:
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
           -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
@@ -164,8 +160,6 @@ jobs:
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
           -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app
@@ -207,8 +201,6 @@ jobs:
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
-          -e VAULT_ROLE_ID \
-          -e VAULT_SECRET_ID \
           -v /mnt/halfpipe-cache/halfpipe-team:/var/halfpipe/shared-cache \
           -v /var/run/docker.sock:/var/run/docker.sock \
           app

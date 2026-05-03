@@ -68,8 +68,8 @@ func fetchSecrets(secrets []*secrets.Secret) Step {
 		With: With{
 			"url":       "https://vault.halfpipe.io",
 			"method":    "approle",
-			"roleId":    "${{ env.VAULT_ROLE_ID }}",
-			"secretId":  "${{ env.VAULT_SECRET_ID }}",
+			"roleId":    githubSecrets.VaultRoleID,
+			"secretId":  githubSecrets.VaultSecretID,
 			"exportEnv": false,
 			"secrets":   secretsToActionsSecret(secrets),
 		},

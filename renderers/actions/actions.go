@@ -20,8 +20,6 @@ var globalEnv = Env{
 	"BUILD_VERSION":        "2.${{ github.run_number }}.0",
 	"GIT_REVISION":         "${{ github.sha }}",
 	"RUNNING_IN_CI":        "true",
-	"VAULT_ROLE_ID":        githubSecrets.VaultRoleID,
-	"VAULT_SECRET_ID":      githubSecrets.VaultSecretID,
 }
 
 type Actions struct {
