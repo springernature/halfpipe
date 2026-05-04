@@ -1,4 +1,73 @@
 # Generated using halfpipe cli version 0.0.0-DEV from file .e2e/trigger-git-ignore-paths-only/.halfpipe.io.yml for team halfpipe-team
+jobs:
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: run \echo hello
+  plan:
+  - attempts: 2
+    get: git
+    timeout: 2h
+    trigger: true
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: ubuntu
+          tag: latest
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |
+          if ! which bash > /dev/null && [ "$SUPPRESS_BASH_WARNING" != "true" ]; then
+            echo "WARNING: Bash is not present in the docker image"
+            echo "If your script depends on bash you will get a strange error message like:"
+            echo "  sh: yourscript.sh: command not found"
+            echo "To fix, make sure your docker image contains bash!"
+            echo "Or if you are sure you don't need bash you can suppress this warning by setting the environment variable \"SUPPRESS_BASH_WARNING\" to \"true\"."
+            echo ""
+            echo ""
+          fi
+
+          if [ -e /etc/alpine-release ]
+          then
+            echo "WARNING: you are running your build in an Alpine based image"
+            echo "There is a known issue where DNS resolving does not work as expected"
+            echo "https://github.com/gliderlabs/docker-alpine/issues/255"
+            echo "If you see any errors related to resolving hostnames the best course of action is to switch to another image"
+            echo "we recommend debian as an alternative"
+            echo ""
+            echo ""
+          fi
+
+          export GIT_REVISION=`cat ../../.git/ref`
+
+          \echo hello
+          EXIT_STATUS=$?
+          if [ $EXIT_STATUS != 0 ] ; then
+            exit 1
+          fi
+        dir: git/.e2e/trigger-git-ignore-paths-only
+        path: /bin/sh
+    task: run-echo-hello
+    timeout: 1h
+  serial: true
 resources:
 - check_every: 10m0s
   name: git

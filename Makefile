@@ -44,6 +44,7 @@ validate-e2e:
 		echo "WARNING: check-jsonschema not installed, skipping schema validation of e2e tests"; \
 	else \
 		find .e2e -name '.halfpipe.io*' | xargs check-jsonschema --default-filetype yaml --schemafile .generated/schema.json; \
+		find .e2e -name actions.expected.yml | xargs check-jsonschema --default-filetype yaml --schemafile https://json.schemastore.org/github-workflow.json; \
 	fi
 
 fix-e2e:

@@ -9,4 +9,8 @@ triggers:
   - README.md
   - '**.js'
 
-tasks: []
+tasks:
+- type: run
+  docker:
+    image: ubuntu
+  script: \echo hello
