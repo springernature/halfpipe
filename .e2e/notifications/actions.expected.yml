@@ -60,7 +60,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: 'Notify slack #yo (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -82,7 +82,7 @@ jobs:
         style: attention
         summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #yo (success)'
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -128,7 +128,7 @@ jobs:
         RUNNING_IN_CI: "true"
     - name: Notify slack kehe (failure)
       if: failure()
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -137,7 +137,7 @@ jobs:
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify slack whoop (failure)
       if: failure()
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -152,7 +152,7 @@ jobs:
         style: attention
         summary: ❌ GitHub Actions workflow failed
     - name: Notify slack asdf (success)
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -160,7 +160,7 @@ jobs:
           text: "Wiiiie! \o/"
         token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify slack prws (success)
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -293,7 +293,7 @@ jobs:
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
     - name: 'Notify slack #yo (failure)'
       if: failure()
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-
@@ -315,7 +315,7 @@ jobs:
         style: attention
         summary: ❌ GitHub Actions workflow failed
     - name: 'Notify slack #yo (success)'
-      uses: slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c # v3.0.2
+      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
       with:
         method: chat.postMessage
         payload: |-

@@ -33,7 +33,7 @@ var ExternalActions = struct {
 	DockerPush:         ExternalAction{Ref: "springernature/ee-action-docker-push@v1"},
 	DownloadArtifact:   ExternalAction{Ref: "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", Version: "v8.0.1"},
 	RepositoryDispatch: ExternalAction{Ref: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", Version: "v4.0.1"},
-	Slack:              ExternalAction{Ref: "slackapi/slack-github-action@03ea5433c137af7c0495bc0cad1af10403fc800c", Version: "v3.0.2"},
+	Slack:              ExternalAction{Ref: "slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c", Version: "v3.0.3"},
 	Teams:              ExternalAction{Ref: "springernature/ee-action-ms-teams@v1"},
 	UploadArtifact:     ExternalAction{Ref: "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a", Version: "v7.0.1"},
 	Vault:              ExternalAction{Ref: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", Version: "v3.4.0"},
