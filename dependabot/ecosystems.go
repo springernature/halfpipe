@@ -4,7 +4,6 @@ package dependabot
 // including which files indicate its presence and how to render its dependabot entry.
 type ecosystemConfig struct {
 	files              []string // filenames that indicate this ecosystem
-	directories        []string // directories for the dependabot entry; nil means use the default ["/**"]
 	versioningStrategy string   // empty means omit from output
 	groups             Groups   // nil means omit from output
 	registries         []string // registry names to reference; nil means omit from output
@@ -37,7 +36,7 @@ var ecosystems = map[string]ecosystemConfig{
 	"docker":         {files: []string{"Dockerfile"}},
 	"docker-compose": {files: []string{"docker-compose.yml", "docker-compose.yaml", "compose.yml", "compose.yaml"}},
 	"elm":            {files: []string{"elm.json"}, versioningStrategy: "increase", groups: semverGroups},
-	"github-actions": {directories: []string{"/"}}, // detected via .github/workflows prefix, not by filename
+	"github-actions": {}, // detected via .github/workflows prefix, not by filename
 	"gomod":          {files: []string{"go.mod"}, groups: semverGroups},
 	"gradle":         {files: []string{"build.gradle", "build.gradle.kt"}, groups: semverGroups, registries: []string{"sn-artifactory"}},
 	"helm":           {files: []string{"Chart.yaml"}},

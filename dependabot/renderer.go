@@ -1,19 +1,27 @@
 package dependabot
 
 import (
+	"path/filepath"
 	"sort"
 )
 
-var defaultDirectories = []string{"/**"}
-
 func Render(matchedPaths MatchedPaths) Config {
-	seen := map[string]bool{}
-	ecosystemNames := []string{}
-	for _, ecosystem := range matchedPaths {
-		if !seen[ecosystem] {
-			seen[ecosystem] = true
-			ecosystemNames = append(ecosystemNames, ecosystem)
+	// Group discovered paths by ecosystem and derive directories.
+	ecosystemDirs := map[string]map[string]bool{}
+	for filePath, ecosystem := range matchedPaths {
+		if ecosystemDirs[ecosystem] == nil {
+			ecosystemDirs[ecosystem] = map[string]bool{}
 		}
+		dir := "/" + filepath.Dir(filePath)
+		if dir == "/." || dir == "//" {
+			dir = "/"
+		}
+		ecosystemDirs[ecosystem][dir] = true
+	}
+
+	ecosystemNames := make([]string, 0, len(ecosystemDirs))
+	for name := range ecosystemDirs {
+		ecosystemNames = append(ecosystemNames, name)
 	}
 	sort.Strings(ecosystemNames)
 
@@ -21,10 +29,13 @@ func Render(matchedPaths MatchedPaths) Config {
 	updates := []Dependency{}
 	for _, name := range ecosystemNames {
 		cfg := ecosystems[name]
-		dirs := cfg.directories
-		if dirs == nil {
-			dirs = defaultDirectories
+
+		dirSet := ecosystemDirs[name]
+		dirs := make([]string, 0, len(dirSet))
+		for d := range dirSet {
+			dirs = append(dirs, d)
 		}
+		sort.Strings(dirs)
 		updates = append(updates, Dependency{
 			PackageEcosystem:      name,
 			Directories:           dirs,

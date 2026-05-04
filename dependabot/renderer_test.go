@@ -17,7 +17,7 @@ func TestRender(t *testing.T) {
 
 	commitMessage := CommitMessage{Prefix: "chore", Include: "scope"}
 
-	t.Run("Emits one entry per ecosystem regardless of how many paths matched", func(t *testing.T) {
+	t.Run("Emits one entry per ecosystem with discovered directories", func(t *testing.T) {
 		config := Render(MatchedPaths{
 			"Dockerfile":        "docker",
 			"a/Dockerfile":      "docker",
@@ -27,9 +27,9 @@ func TestRender(t *testing.T) {
 		assert.Equal(t, Config{
 			Version: 2,
 			Updates: []Dependency{
-				{PackageEcosystem: "docker", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}, CommitMessage: commitMessage},
+				{PackageEcosystem: "docker", Directories: []string{"/", "/a"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}, CommitMessage: commitMessage},
 				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}, CommitMessage: commitMessage},
-				{PackageEcosystem: "npm", Directories: []string{"/**"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, CommitMessage: commitMessage, VersioningStrategy: "increase", Groups: semverGroups},
+				{PackageEcosystem: "npm", Directories: []string{"/a/b/c/d"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, CommitMessage: commitMessage, VersioningStrategy: "increase", Groups: semverGroups},
 			},
 		}, config)
 	})
@@ -66,6 +66,7 @@ func TestRender(t *testing.T) {
 	t.Run("No registries block when no ecosystem needs one", func(t *testing.T) {
 		config := Render(MatchedPaths{"go.mod": "gomod"})
 		assert.Nil(t, config.Registries)
+		assert.Equal(t, []string{"/"}, config.Updates[0].Directories)
 	})
 
 	t.Run("github-actions gets directory / not /**", func(t *testing.T) {
