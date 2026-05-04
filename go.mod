@@ -7,12 +7,12 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/cloudfoundry/bosh-cli v6.4.1+incompatible
 	github.com/concourse/concourse v1.6.1-0.20240109225805-4c9be50ffbcb // between v7.11.0 and v7.11.1
-	github.com/gookit/color v1.6.0
+	github.com/gookit/color v1.6.1
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75
 	github.com/gosimple/slug v1.15.0
 	github.com/inconshreveable/go-update v0.0.0-20160112193335-8152e7eb6ccf
 	github.com/invopop/jsonschema v0.14.0
-	github.com/onsi/gomega v1.39.1
+	github.com/onsi/gomega v1.40.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.9.4
 	github.com/spf13/afero v1.15.0
@@ -30,9 +30,9 @@ require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/bmatcuk/doublestar v1.3.4 // indirect
 	github.com/bmizerany/pat v0.0.0-20210406213842-e4b6760bdd6f // indirect
-	github.com/buger/jsonparser v1.1.2 // indirect
+	github.com/buger/jsonparser v1.2.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/cloudfoundry/bosh-utils v0.0.607 // indirect
+	github.com/cloudfoundry/bosh-utils v0.0.608 // indirect
 	github.com/cppforlife/go-patch v0.2.0 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
