@@ -14,4 +14,5 @@ pack build eu.gcr.io/halfpipe-io/halfpipe-team/myapp \
   --env ENV3='{"a": "b", "c": "d"}' \
   --env RUNNING_IN_CI='true' \
   --tag eu.gcr.io/halfpipe-io/halfpipe-team/myapp:local \
-  --trust-builder
+  --trust-builder \
+  --platform linux/amd64

@@ -130,6 +130,7 @@ func renderBuildpackCommand(task manifest.Buildpack, team string) string {
 
 	s = append(s, fmt.Sprintf("--tag %s:local", task.Image))
 	s = append(s, "--trust-builder")
+	s = append(s, "--platform linux/amd64")
 
 	return strings.Join(s, " \\\n  ")
 }
