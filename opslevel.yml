@@ -7,7 +7,11 @@ component:
   owner: engineering-enablement
   language: go
   lifecycle: core
-  tier: mission-critical
+  tier: Internal-Only
   properties:
     pipelines:
       - concourse_engineering-enablement_halfpipe-cli_3186
+  tools:
+    - category: issue_tracking
+      name: GitHub
+      url: https://github.com/springernature/halfpipe/issues
