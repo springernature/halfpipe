@@ -26,13 +26,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: create zip for ml task
       id: create-zip-for-ml-task
       uses: docker://alpine
@@ -60,13 +72,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Download artifacts
       uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
       with:
@@ -106,13 +130,25 @@ jobs:
           /springernature/data/shared/artifactory password | springernature_data_shared_artifactory_password ;
           /springernature/data/shared/artifactory username | springernature_data_shared_artifactory_username ;
         url: https://vault.halfpipe.io
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Deploy ml-modules artifact
       id: deploy-ml-modules-artifact
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-ml-deploy

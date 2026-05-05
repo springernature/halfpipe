@@ -26,13 +26,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 1
       id: task-1
       uses: docker://alpine:latest
@@ -51,13 +63,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 2
       id: task-2
       uses: docker://alpine:latest
@@ -76,13 +100,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 3
       id: task-3
       uses: docker://alpine:latest
@@ -101,13 +137,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 4.1
       id: task-4-1
       uses: docker://alpine:latest
@@ -126,13 +174,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 4.2
       id: task-4-2
       uses: docker://alpine:latest
@@ -151,13 +211,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 4.3.1
       id: task-4-3-1
       uses: docker://alpine:latest
@@ -176,13 +248,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 4.3.2
       id: task-4-3-2
       uses: docker://alpine:latest
@@ -203,13 +287,25 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: task 5
       id: task-5
       uses: docker://alpine:latest

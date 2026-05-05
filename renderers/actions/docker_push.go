@@ -53,7 +53,7 @@ func repositoryDispatch(name string) Step {
 		Name: "Repository dispatch",
 		Uses: ExternalActions.RepositoryDispatch.Ref,
 		With: With{
-			"token":      githubSecrets.RepositoryDispatchToken,
+			"token":      "${{ steps.app-token.outputs.token }}",
 			"event-type": "docker-push:" + name,
 		},
 	}

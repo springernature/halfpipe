@@ -31,13 +31,25 @@ jobs:
     outputs:
       synced: ${{ steps.sync.outputs.synced }}
     steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Sync workflow with halfpipe manifest
       id: sync
       run: halfpipe-update-workflow
@@ -46,8 +58,6 @@ jobs:
     - name: Commit and push changes to workflow
       if: steps.sync.outputs.synced == 'false'
       run: |
-        git config user.name halfpipe-io
-        git config user.email halfpipe-io@springernature.com
         if git commit -am "[halfpipe] synced workflow $GITHUB_WORKFLOW with halfpipe manifest" && git push; then
           echo ':white_check_mark: Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
           echo >> $GITHUB_STEP_SUMMARY
@@ -85,13 +95,25 @@ jobs:
           /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
           /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
         url: https://vault.halfpipe.io
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Deploy
       uses: springernature/ee-action-deploy-cf@v1
       with:
@@ -139,13 +161,25 @@ jobs:
           /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
           /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
         url: https://vault.halfpipe.io
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Push
       uses: springernature/ee-action-deploy-cf@v1
       with:
@@ -261,13 +295,25 @@ jobs:
           /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
           /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
         url: https://vault.halfpipe.io
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Deploy
       uses: springernature/ee-action-deploy-cf@v1
       with:
@@ -316,13 +362,25 @@ jobs:
           /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
           /springernature/data/shared/halfpipe-gcr private_key_base64 | springernature_data_shared_halfpipe-gcr_private_key_base64 ;
         url: https://vault.halfpipe.io
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      with:
+        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+    - name: Configure git for GitHub App token
+      run: |-
+        git config --global user.name 'halfpipe-io[bot]'
+        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         lfs: true
         show-progress: false
-        ssh-key: ${{ secrets.EE_GITHUB_PRIVATE_KEY }}
         submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
     - name: Push
       uses: springernature/ee-action-deploy-cf@v1
       with:

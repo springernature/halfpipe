@@ -8,26 +8,31 @@ import (
 	"github.com/springernature/halfpipe/renderers/shared/secrets"
 )
 
+// GitHubAppSlug is the slug of the GitHub App used for authentication.
+// Update this value to match your GitHub App's slug.
+// The bot user identity will be "<slug>[bot]".
+const GitHubAppSlug = "halfpipe-io"
+
 var githubSecrets = struct {
 	ArtifactoryUsername,
 	ArtifactoryPassword,
 	ArtifactoryURL,
 	GCRPrivateKey,
-	GitHubPrivateKey,
-	RepositoryDispatchToken,
+	GitHubAppClientID,
+	GitHubAppPrivateKey,
 	SlackToken,
 	VaultRoleID,
 	VaultSecretID string
 }{
-	ArtifactoryUsername:     "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
-	ArtifactoryPassword:     "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
-	ArtifactoryURL:          "${{ secrets.EE_ARTIFACTORY_URL }}",
-	GCRPrivateKey:           "${{ secrets.EE_GCR_PRIVATE_KEY }}",
-	GitHubPrivateKey:        "${{ secrets.EE_GITHUB_PRIVATE_KEY }}",
-	RepositoryDispatchToken: "${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}",
-	SlackToken:              "${{ secrets.EE_SLACK_TOKEN }}",
-	VaultRoleID:             "${{ secrets.VAULT_ROLE_ID }}",
-	VaultSecretID:           "${{ secrets.VAULT_SECRET_ID }}",
+	ArtifactoryUsername: "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
+	ArtifactoryPassword: "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
+	ArtifactoryURL:      "${{ secrets.EE_ARTIFACTORY_URL }}",
+	GCRPrivateKey:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",
+	GitHubAppClientID:   "${{ secrets.EE_GITHUB_APP_CLIENT_ID }}",
+	GitHubAppPrivateKey: "${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}",
+	SlackToken:          "${{ secrets.EE_SLACK_TOKEN }}",
+	VaultRoleID:         "${{ secrets.VAULT_ROLE_ID }}",
+	VaultSecretID:       "${{ secrets.VAULT_SECRET_ID }}",
 }
 
 func secretVar(s *secrets.Secret) string {
