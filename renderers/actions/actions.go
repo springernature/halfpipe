@@ -164,10 +164,11 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 		},
 	}
 	configureGit := Step{
-		Name: "Configure git for GitHub App token",
+		Name: "Configure git",
 		Run: fmt.Sprintf(`git config --global user.name '%[1]s[bot]'
 git config --global user.email '%[1]s[bot]@users.noreply.github.com'
 git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"`, GitHubAppSlug),
+		WorkingDirectory: ".",
 	}
 	checkout := Step{
 		Name: "Checkout code",

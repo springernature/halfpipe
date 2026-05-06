@@ -47,11 +47,12 @@ jobs:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
         private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
-    - name: Configure git for GitHub App token
+    - name: Configure git
       run: |-
         git config --global user.name 'halfpipe-bot[bot]'
         git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
@@ -115,11 +116,12 @@ jobs:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
         private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
-    - name: Configure git for GitHub App token
+    - name: Configure git
       run: |-
         git config --global user.name 'halfpipe-bot[bot]'
         git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
@@ -210,11 +212,12 @@ jobs:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
         private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
-    - name: Configure git for GitHub App token
+    - name: Configure git
       run: |-
         git config --global user.name 'halfpipe-bot[bot]'
         git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
