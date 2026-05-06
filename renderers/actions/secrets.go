@@ -9,9 +9,8 @@ import (
 )
 
 // GitHubAppSlug is the slug of the GitHub App used for authentication.
-// Update this value to match your GitHub App's slug.
 // The bot user identity will be "<slug>[bot]".
-const GitHubAppSlug = "halfpipe-io"
+const GitHubAppSlug = "halfpipe-bot"
 
 var githubSecrets = struct {
 	ArtifactoryUsername,
@@ -28,8 +27,8 @@ var githubSecrets = struct {
 	ArtifactoryPassword: "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
 	ArtifactoryURL:      "${{ secrets.EE_ARTIFACTORY_URL }}",
 	GCRPrivateKey:       "${{ secrets.EE_GCR_PRIVATE_KEY }}",
-	GitHubAppClientID:   "${{ secrets.EE_GITHUB_APP_CLIENT_ID }}",
-	GitHubAppPrivateKey: "${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}",
+	GitHubAppClientID:   "${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}",
+	GitHubAppPrivateKey: "${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}",
 	SlackToken:          "${{ secrets.EE_SLACK_TOKEN }}",
 	VaultRoleID:         "${{ secrets.VAULT_ROLE_ID }}",
 	VaultSecretID:       "${{ secrets.VAULT_SECRET_ID }}",

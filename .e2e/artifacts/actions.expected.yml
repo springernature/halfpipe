@@ -35,13 +35,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -84,13 +84,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -141,13 +141,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -185,13 +185,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -253,13 +253,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -378,13 +378,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -443,13 +443,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -516,13 +516,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -562,13 +562,13 @@ jobs:
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
       with:
-        client-id: ${{ secrets.EE_GITHUB_APP_CLIENT_ID }}
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
-        private-key: ${{ secrets.EE_GITHUB_APP_PRIVATE_KEY }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
     - name: Configure git for GitHub App token
       run: |-
-        git config --global user.name 'halfpipe-io[bot]'
-        git config --global user.email 'halfpipe-io[bot]@users.noreply.github.com'
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
         git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
     - name: Checkout code
       uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
