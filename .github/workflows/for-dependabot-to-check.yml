@@ -47,22 +47,6 @@ jobs:
         name: artifacts-${{ github.job }}
         path: /tmp/halfpipe-artifacts-${{ github.job }}.tar
         retention-days: 2
-    - name: 'Notify slack #halfpipe-dev (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#halfpipe-dev"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: attention
-        summary: ❌ GitHub Actions workflow failed
   run__exit_1__1_:
     name: run \exit 1 (1)
     needs:
@@ -95,22 +79,6 @@ jobs:
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: 'Notify slack #halfpipe-dev (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#halfpipe-dev"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: attention
-        summary: ❌ GitHub Actions workflow failed
   deploy-cf:
     name: deploy-cf
     needs:
@@ -162,22 +130,6 @@ jobs:
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
-    - name: 'Notify slack #halfpipe-dev (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#halfpipe-dev"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: attention
-        summary: ❌ GitHub Actions workflow failed
   docker-push:
     name: docker-push
     needs:
@@ -222,22 +174,6 @@ jobs:
       with:
         event-type: docker-push:eu.gcr.io/halfpipe-io/halfpipe-team/blah
         token: ${{ secrets.EE_REPOSITORY_DISPATCH_TOKEN }}
-    - name: 'Notify slack #halfpipe-dev (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#halfpipe-dev"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: attention
-        summary: ❌ GitHub Actions workflow failed
   docker-compose:
     name: docker-compose
     needs:
@@ -279,19 +215,3 @@ jobs:
     - name: Docker cleanup
       if: always()
       run: docker-compose -f .e2e/docker-compose/docker-compose.yml down
-    - name: 'Notify slack #halfpipe-dev (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#halfpipe-dev"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (failure)
-      if: failure()
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: attention
-        summary: ❌ GitHub Actions workflow failed

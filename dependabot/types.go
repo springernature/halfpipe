@@ -23,7 +23,8 @@ type Cooldown struct {
 }
 
 type Group struct {
-	UpdateTypes []string `yaml:"update-types"`
+	Patterns    []string `yaml:"patterns,omitempty"`
+	UpdateTypes []string `yaml:"update-types,omitempty"`
 }
 
 type Groups map[string]Group
@@ -31,6 +32,11 @@ type Groups map[string]Group
 type CommitMessage struct {
 	Prefix  string `yaml:"prefix"`
 	Include string `yaml:"include"`
+}
+
+type Ignore struct {
+	DependencyName string   `yaml:"dependency-name"`
+	UpdateTypes    []string `yaml:"update-types,omitempty"`
 }
 
 // Dependency represents a single dependabot update entry.
@@ -45,6 +51,7 @@ type Dependency struct {
 	CommitMessage         CommitMessage `yaml:"commit-message"`
 	VersioningStrategy    string        `yaml:"versioning-strategy,omitempty"`
 	Groups                Groups        `yaml:"groups,omitempty"`
+	Ignore                []Ignore      `yaml:"ignore,omitempty"`
 	Registries            []string      `yaml:"registries,omitempty"`
 }
 

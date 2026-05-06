@@ -9,11 +9,6 @@ import (
 func TestRender(t *testing.T) {
 	schedule := Schedule{"weekly"}
 	cooldown := Cooldown{DefaultDays: 5}
-	semverGroups := Groups{
-		"minor-and-patch": Group{
-			UpdateTypes: []string{"minor", "patch"},
-		},
-	}
 
 	commitMessage := CommitMessage{Prefix: "chore", Include: "scope"}
 
@@ -27,8 +22,8 @@ func TestRender(t *testing.T) {
 		assert.Equal(t, Config{
 			Version: 2,
 			Updates: []Dependency{
-				{PackageEcosystem: "docker", Directories: []string{"/", "/a"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}, CommitMessage: commitMessage},
-				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}, CommitMessage: commitMessage},
+				{PackageEcosystem: "docker", Directories: []string{"/", "/a"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "docker"}, CommitMessage: commitMessage, Groups: allGroup},
+				{PackageEcosystem: "github-actions", Directories: []string{"/"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "github-actions"}, CommitMessage: commitMessage, Groups: allGroup, Ignore: []Ignore{{DependencyName: "springernature/*", UpdateTypes: []string{"version-update:semver-minor", "version-update:semver-patch"}}}},
 				{PackageEcosystem: "npm", Directories: []string{"/a/b/c/d"}, Schedule: schedule, Cooldown: cooldown, OpenPullRequestsLimit: 10, Labels: []string{"dependencies", "npm"}, CommitMessage: commitMessage, VersioningStrategy: "increase", Groups: semverGroups},
 			},
 		}, config)

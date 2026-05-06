@@ -46,6 +46,7 @@ func Render(matchedPaths MatchedPaths) Config {
 			CommitMessage:         CommitMessage{Prefix: "chore", Include: "scope"},
 			VersioningStrategy:    cfg.versioningStrategy,
 			Groups:                cfg.groups,
+			Ignore:                cfg.ignore,
 			Registries:            cfg.registries,
 		})
 		for _, r := range cfg.registries {

@@ -4,7 +4,6 @@
 team: halfpipe-team
 pipeline: for-dependabot-to-check
 platform: actions
-slack_channel: '#halfpipe-dev'
 
 triggers:
 - type: git
