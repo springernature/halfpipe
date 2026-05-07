@@ -153,15 +153,32 @@ func (a *Actions) jobs(tasks manifest.TaskList, man manifest.Manifest, parent *p
 }
 
 func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
+	token := Step{
+		Name: "Generate GitHub App token",
+		ID:   "app-token",
+		Uses: ExternalActions.CreateGitHubAppToken.Ref,
+		With: With{
+			"client-id":   githubSecrets.HalfpipeBotClientID,
+			"private-key": githubSecrets.HalfpipeBotPrivateKey,
+			"owner":       "${{ github.repository_owner }}",
+		},
+	}
+	configureGit := Step{
+		Name: "Configure git",
+		Run: fmt.Sprintf(`git config --global user.name '%[1]s[bot]'
+git config --global user.email '%[1]s[bot]@users.noreply.github.com'
+git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"`, HalfpipeBotName),
+		WorkingDirectory: ".",
+	}
 	checkout := Step{
 		Name: "Checkout code",
 		Uses: ExternalActions.Checkout.Ref,
-		With: With{"lfs": true, "submodules": "recursive", "ssh-key": githubSecrets.GitHubPrivateKey, "show-progress": false},
+		With: With{"lfs": true, "submodules": "recursive", "token": "${{ steps.app-token.outputs.token }}", "show-progress": false},
 	}
 	if !gitTrigger.Shallow {
 		checkout.With["fetch-depth"] = 0
 	}
-	steps := Steps{checkout}
+	steps := Steps{token, configureGit, checkout}
 	if gitTrigger.GitCryptKey != "" {
 		steps = append(steps, Step{
 			Name: "git-crypt unlock",
