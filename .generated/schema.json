@@ -476,7 +476,7 @@
         },
         "namespace": {
           "type": "string",
-          "description": "Vela namespace to deploy to. Defaults to katee-\u003cteam\u003e."
+          "description": "Vela namespace to deploy to. Defaults to `katee-\u003cteam\u003e`."
         },
         "deployment_check_timeout": {
           "type": "integer",

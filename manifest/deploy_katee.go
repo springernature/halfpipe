@@ -13,7 +13,7 @@ type DeployKatee struct {
 	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
 	// Deprecated: no longer used - safe to delete.
 	Environment string `json:"environment,omitempty" yaml:"environment,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
-	// Vela namespace to deploy to. Defaults to katee-<team>.
+	// Vela namespace to deploy to. Defaults to `katee-<team>`.
 	Namespace string `json:"namespace,omitempty" yaml:"namespace,omitempty"`
 	// Deprecated: use max_checks and check_interval instead.
 	DeploymentCheckTimeout int `json:"deployment_check_timeout,omitempty" yaml:"deployment_check_timeout,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=use max_checks and check_interval instead"`

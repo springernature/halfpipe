@@ -420,7 +420,7 @@ deploy-katee deploys an application to Katee.
 | `vela_manifest` | string | optional | Path to the vela manifest. Default: `vela.yaml`. |
 | `tag` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
 | `environment` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
-| `namespace` | string | optional | Vela namespace to deploy to. Defaults to katee-<team>. |
+| `namespace` | string | optional | Vela namespace to deploy to. Defaults to `katee-<team>`. |
 | `deployment_check_timeout` | integer | optional | ⚠️ Deprecated: use max_checks and check_interval instead. |
 | `check_interval` | integer | optional | Seconds between each deployment status check. Default: `2`. |
 | `max_checks` | integer | optional | Maximum number of status checks before the deployment is considered failed. Default: `60`. |
