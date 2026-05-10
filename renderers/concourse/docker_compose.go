@@ -13,7 +13,7 @@ func convertDockerComposeToRunTask(task manifest.DockerCompose, man manifest.Man
 	if task.Vars == nil {
 		task.Vars = make(map[string]string)
 	}
-	task.Vars["GAR_TOKEN"] = secrets.GARToken
+	task.Vars["GAR_TOKEN"] = config.VaultSecrets.GARToken
 	task.Vars["HALFPIPE_CACHE_TEAM"] = man.Team
 
 	return manifest.Run{

@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
 )
@@ -87,7 +88,7 @@ func (a *Actions) pushStep(task manifest.DeployCF, manifestPath string, appPath 
 
 	if task.CfApplication.Docker != nil {
 		push.With["dockerUsername"] = "_json_key"
-		push.With["dockerPassword"] = "((halfpipe-gcr.private_key_base64))"
+		push.With["dockerPassword"] = config.VaultSecrets.GCRPrivateKeyBase64
 
 		if task.DockerTag == "gitref" {
 			push.With["dockerTag"] = "${{ env.GIT_REVISION }}"

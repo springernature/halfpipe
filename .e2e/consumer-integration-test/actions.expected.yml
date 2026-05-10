@@ -39,7 +39,7 @@ jobs:
         secretId: ${{ secrets.VAULT_SECRET_ID }}
         secrets: |
           /springernature/data/halfpipe-team/very secret | springernature_data_halfpipe-team_very_secret ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1

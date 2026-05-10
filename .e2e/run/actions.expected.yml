@@ -43,7 +43,7 @@ jobs:
           /springernature/data/halfpipe-team/something cool | springernature_data_halfpipe-team_something_cool ;
           /springernature/data/halfpipe-team/something cooler | springernature_data_halfpipe-team_something_cooler ;
           /springernature/data/shared/halfpipe-slack token | springernature_data_shared_halfpipe-slack_token ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1

@@ -57,6 +57,8 @@ func isKeyValueSecret(s string) bool {
 	return len(strings.Split(s, ".")) == 2
 }
 
+// this hack is because actions doesn't look in multiple places for each secret.
+// for these we should look in shared instead of team dir.
 func isSharedSecret(s string) bool {
 	return map[string]bool{
 		"PPG-gradle-version-reporter":         true,
@@ -70,6 +72,7 @@ func isSharedSecret(s string) bool {
 		"content_hub-casper-credentials-qa":   true,
 		"contrastsecurity":                    true,
 		"eas-sigrid":                          true,
+		"ee-aws-ecr-credentials":              true,
 		"ee-sso-route-service":                true,
 		"fastly":                              true,
 		"grafana":                             true,

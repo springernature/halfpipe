@@ -17,15 +17,15 @@ func ConvertDeployMLModules(mlTask manifest.DeployMLModules, man manifest.Manife
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "oauth2accesstoken",
-			Password: "((gcp:platform-gar/token.token))",
+			Password: config.VaultSecrets.GARToken,
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":       strings.Join(mlTask.Targets, ","),
 			"MARKLOGIC_USERNAME":   mlTask.Username,
 			"MARKLOGIC_PASSWORD":   mlTask.Password,
 			"APP_NAME":             defaultValue(mlTask.AppName, man.Pipeline),
-			"ARTIFACTORY_USERNAME": "((artifactory.username))",
-			"ARTIFACTORY_PASSWORD": "((artifactory.password))",
+			"ARTIFACTORY_USERNAME": config.VaultSecrets.ArtifactoryUsername,
+			"ARTIFACTORY_PASSWORD": config.VaultSecrets.ArtifactoryPassword,
 			"ML_MODULES_VERSION":   mlTask.MLModulesVersion,
 			"USE_BUILD_VERSION":    fmt.Sprint(mlTask.UseBuildVersion),
 		},
@@ -45,7 +45,7 @@ func ConvertDeployMLZip(mlTask manifest.DeployMLZip, man manifest.Manifest) mani
 		Docker: manifest.Docker{
 			Image:    path.Join(config.DockerRegistry, "halfpipe-ml-deploy"),
 			Username: "oauth2accesstoken",
-			Password: "((gcp:platform-gar/token.token))",
+			Password: config.VaultSecrets.GARToken,
 		},
 		Vars: manifest.Vars{
 			"MARKLOGIC_HOST":     strings.Join(mlTask.Targets, ","),

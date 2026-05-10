@@ -131,7 +131,7 @@ jobs:
         secrets: |
           /springernature/data/shared/artifactory password | springernature_data_shared_artifactory_password ;
           /springernature/data/shared/artifactory username | springernature_data_shared_artifactory_username ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1

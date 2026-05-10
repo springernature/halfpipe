@@ -5,32 +5,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/renderers/shared/secrets"
 )
-
-const HalfpipeBotName = "halfpipe-bot"
-
-var githubSecrets = struct {
-	ArtifactoryUsername,
-	ArtifactoryPassword,
-	ArtifactoryURL,
-	GCRPrivateKey,
-	HalfpipeBotClientID,
-	HalfpipeBotPrivateKey,
-	SlackToken,
-	VaultRoleID,
-	VaultSecretID string
-}{
-	ArtifactoryUsername:   "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
-	ArtifactoryPassword:   "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
-	ArtifactoryURL:        "${{ secrets.EE_ARTIFACTORY_URL }}",
-	GCRPrivateKey:         "${{ secrets.EE_GCR_PRIVATE_KEY }}",
-	HalfpipeBotClientID:   "${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}",
-	HalfpipeBotPrivateKey: "${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}",
-	SlackToken:            "${{ secrets.EE_SLACK_TOKEN }}",
-	VaultRoleID:           "${{ secrets.VAULT_ROLE_ID }}",
-	VaultSecretID:         "${{ secrets.VAULT_SECRET_ID }}",
-}
 
 func secretVar(s *secrets.Secret) string {
 	return fmt.Sprintf("${{ steps.secrets.outputs.%s }}", secretOutputVar(s))
@@ -68,10 +45,10 @@ func fetchSecrets(secrets []*secrets.Secret) Step {
 		ID:   "secrets",
 		Uses: ExternalActions.Vault.Ref,
 		With: With{
-			"url":       "https://vault.halfpipe.io",
+			"url":       config.GitHubSecrets.VaultAddr,
 			"method":    "approle",
-			"roleId":    githubSecrets.VaultRoleID,
-			"secretId":  githubSecrets.VaultSecretID,
+			"roleId":    config.GitHubSecrets.VaultRoleID,
+			"secretId":  config.GitHubSecrets.VaultSecretID,
 			"exportEnv": false,
 			"secrets":   secretsToActionsSecret(secrets),
 		},

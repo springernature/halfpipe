@@ -153,7 +153,7 @@ jobs:
           /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
           /springernature/data/halfpipe-team/katee-v2-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key ;
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
@@ -211,7 +211,7 @@ jobs:
           /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
           /springernature/data/halfpipe-team/katee-v2-different-namespace-service-account-prod key | springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key ;
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1

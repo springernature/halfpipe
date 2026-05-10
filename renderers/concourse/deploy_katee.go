@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/concourse/concourse/atc"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -33,14 +34,14 @@ halfpipe-deploy`,
 		Docker: manifest.Docker{
 			Image:    "eu.gcr.io/halfpipe-io/ee-run/docker/ee-katee-vela-cli:latest",
 			Username: "oauth2accesstoken",
-			Password: secrets.GARToken,
+			Password: config.VaultSecrets.GARToken,
 		},
 		Privileged: false,
 		Vars: manifest.Vars{
 			"CHECK_INTERVAL":        strconv.Itoa(task.CheckInterval),
 			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
-			"KATEE_GKE_CREDENTIALS": secrets.KateeKey(task.Namespace),
+			"KATEE_GKE_CREDENTIALS": config.VaultSecrets.KateeKey(task.Namespace),
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
 			"REVISION_FORMAT":       task.Tag,
 		},

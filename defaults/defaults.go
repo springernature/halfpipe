@@ -1,19 +1,21 @@
 package defaults
 
+import "github.com/springernature/halfpipe/config"
+
 var Concourse = Defaults{
-	RepoPrivateKey: "((halfpipe-github.private_key))",
+	RepoPrivateKey: config.VaultSecrets.GitHubPrivateKey,
 	ShallowClone:   false,
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
-			Username: "((platform/cloudfoundry.username-snpaas))",
-			Password: "((platform/cloudfoundry.password-snpaas))",
-			Org:      "((platform/cloudfoundry.org-snpaas))",
-			API:      "((platform/cloudfoundry.api-snpaas))",
+			Username: config.VaultSecrets.CFSnPaaSUsername,
+			Password: config.VaultSecrets.CFSnPaaSPassword,
+			Org:      config.VaultSecrets.CFSnPaaSOrg,
+			API:      config.VaultSecrets.CFSnPaaSAPI,
 		},
 		ManifestPath: "manifest.yml",
 		TestDomains: map[string]string{
-			"https://api.snpaas.eu":                "springernature.app",
-			"((platform/cloudfoundry.api-snpaas))": "springernature.app",
+			"https://api.snpaas.eu":         "springernature.app",
+			config.VaultSecrets.CFSnPaaSAPI: "springernature.app",
 		},
 		Version: "cf7",
 	},
@@ -25,24 +27,24 @@ var Concourse = Defaults{
 	},
 	Docker: DockerDefaults{
 		Username:       "oauth2accesstoken",
-		Password:       "((gcp:platform-gar/token.token))",
+		Password:       config.VaultSecrets.GARToken,
 		ComposeService: "app",
 		ComposeFile:    []string{"docker-compose.yml"},
 		FilePath:       "Dockerfile",
 	},
 	Artifactory: ArtifactoryDefaults{
-		Username: "((artifactory.username))",
-		Password: "((artifactory.password))",
-		URL:      "((artifactory.url))",
+		Username: config.VaultSecrets.ArtifactoryUsername,
+		Password: config.VaultSecrets.ArtifactoryPassword,
+		URL:      config.VaultSecrets.ArtifactoryURL,
 	},
 	Concourse: ConcourseDefaults{
-		URL:      "((platform/concourse.url))",
-		Username: "((platform/concourse.username))",
-		Password: "((platform/concourse.password))",
+		URL:      config.VaultSecrets.ConcourseURL,
+		Username: config.VaultSecrets.ConcourseUsername,
+		Password: config.VaultSecrets.ConcoursePassword,
 	},
 	MarkLogic: MarkLogicDefaults{
-		Username: "((halfpipe-ml-deploy.username))",
-		Password: "((halfpipe-ml-deploy.password))",
+		Username: config.VaultSecrets.MarkLogicUsername,
+		Password: config.VaultSecrets.MarkLogicPassword,
 	},
 	Timeout: "1h",
 	Buildpack: BuildpackDefaults{
@@ -50,8 +52,8 @@ var Concourse = Defaults{
 	},
 	AWSDocker: AWSDockerDefaults{
 		Region:          "cn-northwest-1",
-		AccessKeyID:     "((ee-aws-ecr-credentials.aws_access_key_id))",
-		SecretAccessKey: "((ee-aws-ecr-credentials.aws_secret_access_key))",
+		AccessKeyID:     config.VaultSecrets.AWSECRAccessKeyID,
+		SecretAccessKey: config.VaultSecrets.AWSECRSecretAccessKey,
 	},
 }
 
@@ -65,15 +67,15 @@ var Actions = Defaults{
 
 	CF: CFDefaults{
 		SnPaaS: CFSnPaaS{
-			Username: "((platform/cloudfoundry.username-snpaas))",
-			Password: "((platform/cloudfoundry.password-snpaas))",
-			Org:      "((platform/cloudfoundry.org-snpaas))",
-			API:      "((platform/cloudfoundry.api-snpaas))",
+			Username: config.VaultSecrets.CFSnPaaSUsername,
+			Password: config.VaultSecrets.CFSnPaaSPassword,
+			Org:      config.VaultSecrets.CFSnPaaSOrg,
+			API:      config.VaultSecrets.CFSnPaaSAPI,
 		},
 		ManifestPath: "manifest.yml",
 		TestDomains: map[string]string{
-			"https://api.snpaas.eu":                "springernature.app",
-			"((platform/cloudfoundry.api-snpaas))": "springernature.app",
+			"https://api.snpaas.eu":         "springernature.app",
+			config.VaultSecrets.CFSnPaaSAPI: "springernature.app",
 		},
 		Version: "cf7",
 	},
@@ -88,7 +90,7 @@ var Actions = Defaults{
 	},
 	AWSDocker: AWSDockerDefaults{
 		Region:          "cn-northwest-1",
-		AccessKeyID:     "((/springernature/data/shared/ee-aws-ecr-credentials aws_access_key_id))",
-		SecretAccessKey: "((/springernature/data/shared/ee-aws-ecr-credentials aws_secret_access_key))",
+		AccessKeyID:     config.VaultSecrets.AWSECRAccessKeyID,
+		SecretAccessKey: config.VaultSecrets.AWSECRSecretAccessKey,
 	},
 }

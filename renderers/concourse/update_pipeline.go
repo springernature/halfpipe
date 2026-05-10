@@ -14,10 +14,10 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 		Config: &atc.TaskConfig{
 			Platform: "linux",
 			Params: map[string]string{
-				"CONCOURSE_URL":      secrets.ConcourseURL,
-				"CONCOURSE_PASSWORD": secrets.ConcoursePassword,
-				"CONCOURSE_TEAM":     secrets.ConcourseTeam,
-				"CONCOURSE_USERNAME": secrets.ConcourseUsername,
+				"CONCOURSE_URL":      config.VaultSecrets.ConcourseURL,
+				"CONCOURSE_PASSWORD": config.VaultSecrets.ConcoursePassword,
+				"CONCOURSE_TEAM":     config.VaultSecrets.ConcourseTeam,
+				"CONCOURSE_USERNAME": config.VaultSecrets.ConcourseUsername,
 				"PIPELINE_NAME":      pipelineName,
 				"HALFPIPE_DOMAIN":    config.Domain,
 				"HALFPIPE_PROJECT":   config.Project,
@@ -26,7 +26,7 @@ func (c Concourse) updateJobConfig(task manifest.Update, pipelineName string, ba
 			ImageResource: imageResource(manifest.Docker{
 				Image:    path.Join(config.DockerRegistry, "halfpipe-auto-update"),
 				Username: "oauth2accesstoken",
-				Password: secrets.GARToken,
+				Password: config.VaultSecrets.GARToken,
 			}),
 			Run: atc.TaskRunConfig{
 				Path: "update-pipeline",

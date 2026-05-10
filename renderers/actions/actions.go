@@ -14,9 +14,9 @@ import (
 )
 
 var globalEnv = Env{
-	"ARTIFACTORY_PASSWORD": githubSecrets.ArtifactoryPassword,
-	"ARTIFACTORY_URL":      githubSecrets.ArtifactoryURL,
-	"ARTIFACTORY_USERNAME": githubSecrets.ArtifactoryUsername,
+	"ARTIFACTORY_PASSWORD": config.GitHubSecrets.ArtifactoryPassword,
+	"ARTIFACTORY_URL":      config.GitHubSecrets.ArtifactoryURL,
+	"ARTIFACTORY_USERNAME": config.GitHubSecrets.ArtifactoryUsername,
 	"BUILD_VERSION":        "2.${{ github.run_number }}.0",
 	"GIT_REVISION":         "${{ github.sha }}",
 	"RUNNING_IN_CI":        "true",
@@ -158,8 +158,8 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 		ID:   "app-token",
 		Uses: ExternalActions.CreateGitHubAppToken.Ref,
 		With: With{
-			"client-id":   githubSecrets.HalfpipeBotClientID,
-			"private-key": githubSecrets.HalfpipeBotPrivateKey,
+			"client-id":   config.GitHubSecrets.HalfpipeBotClientID,
+			"private-key": config.GitHubSecrets.HalfpipeBotPrivateKey,
 			"owner":       "${{ github.repository_owner }}",
 		},
 	}
@@ -167,7 +167,7 @@ func checkoutCode(gitTrigger manifest.GitTrigger) Steps {
 		Name: "Configure git",
 		Run: fmt.Sprintf(`git config --global user.name '%[1]s[bot]'
 git config --global user.email '%[1]s[bot]@users.noreply.github.com'
-git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"`, HalfpipeBotName),
+git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"`, config.HalfpipeBotName),
 		WorkingDirectory: ".",
 	}
 	checkout := Step{

@@ -125,7 +125,7 @@ jobs:
           /springernature/data/halfpipe-team/platform/cloudfoundry org-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas ;
           /springernature/data/halfpipe-team/platform/cloudfoundry password-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas ;
           /springernature/data/halfpipe-team/platform/cloudfoundry username-snpaas | springernature_data_halfpipe-team_platform_cloudfoundry_username-snpaas ;
-        url: https://vault.halfpipe.io
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1

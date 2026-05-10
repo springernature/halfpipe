@@ -5,6 +5,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/renderers/shared"
 
 	"github.com/concourse/concourse/atc"
@@ -149,7 +150,7 @@ func (d deployCF) pushCandidateApp() atc.Step {
 
 	if d.task.IsDockerPush {
 		push.Params["dockerUsername"] = "_json_key"
-		push.Params["dockerPassword"] = secrets.GCRPrivateKey
+		push.Params["dockerPassword"] = config.VaultSecrets.GCRPrivateKey
 		if d.task.DockerTag != "" {
 			if d.task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")
@@ -223,7 +224,7 @@ func (d deployCF) pushApp() atc.Step {
 
 	if d.task.IsDockerPush {
 		push.Params["dockerUsername"] = "_json_key"
-		push.Params["dockerPassword"] = secrets.GCRPrivateKey
+		push.Params["dockerPassword"] = config.VaultSecrets.GCRPrivateKey
 		if d.task.DockerTag != "" {
 			if d.task.DockerTag == "version" {
 				push.Params["dockerTag"] = path.Join(versionName, "version")

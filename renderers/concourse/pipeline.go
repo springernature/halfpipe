@@ -83,14 +83,14 @@ func restoreArtifactTask(man manifest.Manifest) atc.Step {
 				Source: atc.Source{
 					"repository": path.Join(config.DockerRegistry, "engineering-enablement", "gcp-resource"),
 					"tag":        "latest",
-					"password":   secrets.GARToken,
+					"password":   config.VaultSecrets.GARToken,
 					"username":   "oauth2accesstoken",
 				},
 			},
 			Params: map[string]string{
-				"BUCKET":       secrets.ArtifactsBucket,
+				"BUCKET":       config.VaultSecrets.ArtifactsBucket,
 				"FOLDER":       path.Join(filter(man.Team), filter(man.PipelineName())),
-				"TOKEN":        secrets.GCPArtifactsToken,
+				"TOKEN":        config.VaultSecrets.GCPArtifactsToken,
 				"VERSION_FILE": "git/.git/ref",
 			},
 			Run: atc.TaskRunConfig{
@@ -465,15 +465,15 @@ func (c Concourse) shortLivedGCPTokenVarSource() atc.VarSourceConfig {
 		Name: "gcp",
 		Type: "vault",
 		Config: map[string]any{
-			"url":          secrets.VaultAddr,
+			"url":          config.VaultSecrets.VaultAddr,
 			"auth_backend": "approle",
 			"path_prefix":  "gcp/impersonated-account/",
 			// The default is `["/{{.Team}}/{{.Pipeline}}/{{.Secret}}", "/{{.Team}}/{{.Secret}}"].` So we will try to resolve gcp/impersonated-account/anura/pipeline/name, gcp/impersonated-account/anura/name BEFORE we try the actual path gcp/impersonated-account/name.
 			// This will errors since our vault policy only allows reading `gcp/impersonated-account/platform-*`
 			"lookup_templates": []string{"{{.Secret}}"},
 			"auth_params": map[string]string{
-				"role_id":   secrets.VaultRoleID,
-				"secret_id": secrets.VaultSecretID,
+				"role_id":   config.VaultSecrets.VaultRoleID,
+				"secret_id": config.VaultSecrets.VaultSecretID,
 			},
 		},
 	}

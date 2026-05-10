@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/concourse/concourse/atc"
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/springernature/halfpipe/renderers/shared"
 )
@@ -135,7 +136,7 @@ func trivyStep(task manifest.DockerPush, fullBasePath string, basePath string) a
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"TRIVY_PASSWORD": secrets.GARToken,
+				"TRIVY_PASSWORD": config.VaultSecrets.GARToken,
 				"TRIVY_USERNAME": "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -212,10 +213,10 @@ export GHAS_TOKEN=$(curl -s -X POST \
 				Dir: fullBasePath,
 			},
 			Params: atc.TaskEnv{
-				"GITHUB_APP_ID":          secrets.HalfpipeBotAppID,
-				"GITHUB_INSTALLATION_ID": secrets.HalfpipeBotInstallationID,
-				"GITHUB_PRIVATE_KEY":     secrets.HalfpipeBotPrivateKey,
-				"TRIVY_PASSWORD":         secrets.GARToken,
+				"GITHUB_APP_ID":          config.VaultSecrets.HalfpipeBotAppID,
+				"GITHUB_INSTALLATION_ID": config.VaultSecrets.HalfpipeBotInstallationID,
+				"GITHUB_PRIVATE_KEY":     config.VaultSecrets.HalfpipeBotPrivateKey,
+				"TRIVY_PASSWORD":         config.VaultSecrets.GARToken,
 				"TRIVY_USERNAME":         "oauth2accesstoken",
 			},
 			Inputs: []atc.TaskInputConfig{
@@ -242,7 +243,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 	}
 
 	params := atc.TaskEnv{
-		"GAR_TOKEN": secrets.GARToken,
+		"GAR_TOKEN": config.VaultSecrets.GARToken,
 	}
 
 	var buildStep *atc.TaskStep
@@ -326,7 +327,7 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 			Platform:      "linux",
 			ImageResource: imageResource(halfpipeDockerImage),
 			Params: atc.TaskEnv{
-				"GAR_TOKEN": secrets.GARToken,
+				"GAR_TOKEN": config.VaultSecrets.GARToken,
 			},
 			Run: atc.TaskRunConfig{
 				Path: "docker.sh",

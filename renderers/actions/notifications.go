@@ -45,7 +45,7 @@ func notifySlack(channel string, msg string, success bool) Step {
 		Uses: ExternalActions.Slack.Ref,
 		With: With{
 			"method": "chat.postMessage",
-			"token":  githubSecrets.SlackToken,
+			"token":  config.GitHubSecrets.SlackToken,
 			"payload": fmt.Sprintf(`channel: "%s"
 text: "%s"`, channel, strings.ReplaceAll(msg, `"`, `\"`)),
 		},

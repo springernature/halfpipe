@@ -1,12 +1,11 @@
 package actions
 
 import (
-	"fmt"
 	"maps"
 	"path"
 	"strconv"
-	"strings"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 )
 
@@ -23,7 +22,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manif
 		Name: "Deploy to Katee",
 		Uses: ExternalActions.DeployKatee.Ref,
 		With: With{
-			"credentials":   fmt.Sprintf("((%s-service-account-prod.key))", strings.Replace(task.Namespace, "katee", "katee-v2", 1)),
+			"credentials":   config.VaultSecrets.KateeKey(task.Namespace),
 			"namespace":     task.Namespace,
 			"revision":      revision,
 			"velaFile":      path.Join(a.workingDir, task.VelaManifest),
