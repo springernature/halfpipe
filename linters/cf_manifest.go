@@ -2,11 +2,11 @@ package linters
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/cf"
-	"github.com/springernature/halfpipe/config"
-	"github.com/springernature/halfpipe/renderers/shared/secrets"
 	"slices"
 	"strings"
+
+	"github.com/springernature/halfpipe/cf"
+	"github.com/springernature/halfpipe/config"
 
 	"code.cloudfoundry.org/cli/util/manifestparser"
 	"github.com/springernature/halfpipe/manifest"
@@ -52,7 +52,7 @@ func LintCfManifest(task manifest.DeployCF, readCfManifest cf.ManifestReader) (e
 }
 
 func lintCandidateAppRoute(task manifest.DeployCF, m manifestparser.Manifest) (errs []error) {
-	if secrets.IsSecret(task.Space) {
+	if strings.HasPrefix(task.Space, "((") && strings.HasSuffix(task.Space, "))") {
 		return errs
 	}
 
