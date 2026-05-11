@@ -165,6 +165,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/docker-push-with-update-pipeline
         dockerfile: .e2e/docker-push-with-update-pipeline/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/image1
         platforms: linux/amd64
         secrets: |
@@ -224,6 +226,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/docker-push-with-update-pipeline
         dockerfile: .e2e/docker-push-with-update-pipeline/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/image2
         platforms: linux/amd64
         secrets: |
@@ -290,6 +294,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/docker-push-with-update-pipeline
         dockerfile: .e2e/docker-push-with-update-pipeline/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/image3
         platforms: linux/amd64
         secrets: |
@@ -356,6 +362,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/docker-push-with-update-pipeline
         dockerfile: .e2e/docker-push-with-update-pipeline/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/image4
         platforms: linux/amd64
         secrets: |

@@ -116,6 +116,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/deploy-katee
         dockerfile: .e2e/deploy-katee/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/someImage
         platforms: linux/amd64
         secrets: |

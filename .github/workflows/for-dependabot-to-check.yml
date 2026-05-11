@@ -211,6 +211,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .
         dockerfile: .e2e/docker-push/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/blah
         platforms: linux/amd64
         secrets: |

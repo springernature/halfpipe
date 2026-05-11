@@ -40,10 +40,8 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		push.With["useCache"] = "${{ inputs.useCache == '' || inputs.useCache == 'true' }}"
 	}
 
-	if man.FeatureToggles.Ghas() {
-		push.With["ghas"] = "true"
-		push.With["githubPat"] = "${{ secrets.GITHUB_TOKEN }}"
-	}
+	push.With["ghas"] = "true"
+	push.With["githubPat"] = "${{ steps.app-token.outputs.token }}"
 
 	return Steps{push, repositoryDispatch(task.Image)}
 }

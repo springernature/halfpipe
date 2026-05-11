@@ -69,6 +69,8 @@ jobs:
           "RUNNING_IN_CI=true"
         context: .e2e/docker-push-with-docker-trigger
         dockerfile: .e2e/docker-push-with-docker-trigger/Dockerfile
+        ghas: "true"
+        githubPat: ${{ steps.app-token.outputs.token }}
         image: eu.gcr.io/halfpipe-io/halfpipe-team/halfpipe-fly
         platforms: linux/amd64
         secrets: |
