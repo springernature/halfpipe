@@ -971,12 +971,11 @@
         "enum": [
           "update-pipeline",
           "update-pipeline-and-tag",
-          "github-statuses",
-          "ghas"
+          "github-statuses"
         ]
       },
       "type": "array",
-      "description": "FeatureToggles enable optional pipeline behaviours.\n\n| Toggle | Description |\n|--------|-------------|\n| `update-pipeline` | Inserts a job that keeps the pipeline/workflow in sync with the halfpipe manifest. Sets BUILD_VERSION. |\n| `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `\u003cPIPELINE_NAME\u003e/v\u003cBUILD_VERSION\u003e`. |\n| `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |\n| `ghas` | Enables GitHub Advanced Security scanning on docker-push tasks. |"
+      "description": "FeatureToggles enable optional pipeline behaviours.\n\n| Toggle | Description |\n|--------|-------------|\n| `update-pipeline` | Inserts a job that keeps the pipeline/workflow in sync with the halfpipe manifest. Sets BUILD_VERSION. |\n| `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `\u003cPIPELINE_NAME\u003e/v\u003cBUILD_VERSION\u003e`. |\n| `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |"
     },
     "GitHubEnvironment": {
       "properties": {

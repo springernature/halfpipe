@@ -894,7 +894,6 @@ Enable optional pipeline behaviours.
 | `update-pipeline` | Inserts a job that keeps the pipeline/workflow in sync with the halfpipe manifest. Sets BUILD_VERSION. |
 | `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `<PIPELINE_NAME>/v<BUILD_VERSION>`. |
 | `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |
-| `ghas` | Enables GitHub Advanced Security scanning on docker-push tasks. |
 
 **Example:**
 
@@ -902,6 +901,5 @@ Enable optional pipeline behaviours.
 # Enable multiple features
 feature_toggles:
   - update-pipeline
-  - ghas
 ```
 

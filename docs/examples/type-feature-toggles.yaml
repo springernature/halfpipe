@@ -1,4 +1,3 @@
 # Enable multiple features
 feature_toggles:
   - update-pipeline
-  - ghas

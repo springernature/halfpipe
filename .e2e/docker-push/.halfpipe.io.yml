@@ -2,9 +2,6 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-docker-push
 
-feature_toggles:
-- ghas
-
 triggers:
 - type: git
   branch: main
