@@ -7,17 +7,6 @@ type ecosystemConfig struct {
 	versioningStrategy string   // empty means omit from output
 	groups             Groups   // nil means omit from output
 	ignore             []Ignore // nil means omit from output
-	registries         []string // registry names to reference; nil means omit from output
-}
-
-// registryDefinitions defines the private registries that dependabot should use.
-var registryDefinitions = map[string]Registry{
-	"sn-artifactory": {
-		Type:     "maven-repository",
-		URL:      "https://springernature.jfrog.io/artifactory/libs-release/",
-		Username: "${{ secrets.EE_ARTIFACTORY_USERNAME }}",
-		Password: "${{ secrets.EE_ARTIFACTORY_PASSWORD }}",
-	},
 }
 
 // semverGroups separates major (breaking) from minor+patch updates.
@@ -49,9 +38,9 @@ var ecosystems = map[string]ecosystemConfig{
 	"elm":            {files: []string{"elm.json"}, versioningStrategy: "increase", groups: semverGroups},
 	"github-actions": {groups: allGroup, ignore: []Ignore{{DependencyName: "springernature/*", UpdateTypes: []string{"version-update:semver-minor", "version-update:semver-patch"}}}}, // detected via .github/workflows prefix, not by filename
 	"gomod":          {files: []string{"go.mod"}, groups: semverGroups},
-	"gradle":         {files: []string{"build.gradle", "build.gradle.kt"}, groups: semverGroups, registries: []string{"sn-artifactory"}},
+	"gradle":         {files: []string{"build.gradle", "build.gradle.kt"}, groups: semverGroups},
 	"helm":           {files: []string{"Chart.yaml"}, groups: allGroup},
-	"maven":          {files: []string{"pom.xml"}, groups: semverGroups, registries: []string{"sn-artifactory"}},
+	"maven":          {files: []string{"pom.xml"}, groups: semverGroups},
 	"mix":            {files: []string{"mix.lock"}, versioningStrategy: "increase", groups: semverGroups},
 	"npm":            {files: []string{"package-lock.json", "yarn.lock"}, versioningStrategy: "increase", groups: semverGroups},
 	"nuget":          {files: []string{"packages.config"}, groups: semverGroups},

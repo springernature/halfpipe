@@ -25,7 +25,6 @@ func Render(matchedPaths MatchedPaths) Config {
 	}
 	sort.Strings(ecosystemNames)
 
-	usedRegistries := map[string]bool{}
 	updates := []Dependency{}
 	for _, name := range ecosystemNames {
 		cfg := ecosystems[name]
@@ -47,24 +46,11 @@ func Render(matchedPaths MatchedPaths) Config {
 			VersioningStrategy:    cfg.versioningStrategy,
 			Groups:                cfg.groups,
 			Ignore:                cfg.ignore,
-			Registries:            cfg.registries,
 		})
-		for _, r := range cfg.registries {
-			usedRegistries[r] = true
-		}
-	}
-
-	var registries map[string]Registry
-	if len(usedRegistries) > 0 {
-		registries = map[string]Registry{}
-		for name := range usedRegistries {
-			registries[name] = registryDefinitions[name]
-		}
 	}
 
 	return Config{
-		Version:    2,
-		Registries: registries,
-		Updates:    updates,
+		Version: 2,
+		Updates: updates,
 	}
 }

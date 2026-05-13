@@ -4,12 +4,6 @@
 #   for label in dependencies docker docker-compose github-actions gomod gradle; do gh label create "$label" --force; done
 #
 version: 2
-registries:
-  sn-artifactory:
-    type: maven-repository
-    url: https://springernature.jfrog.io/artifactory/libs-release/
-    username: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
-    password: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
 updates:
 - package-ecosystem: docker
   directories:
@@ -128,5 +122,3 @@ updates:
       update-types:
       - minor
       - patch
-  registries:
-  - sn-artifactory
