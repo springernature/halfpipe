@@ -33,7 +33,7 @@ jobs:
     steps:
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
@@ -83,7 +83,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
       with:
         exportEnv: false
         method: approle
@@ -98,7 +98,7 @@ jobs:
         url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
@@ -150,7 +150,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
       with:
         exportEnv: false
         method: approle
@@ -165,7 +165,7 @@ jobs:
         url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
@@ -285,7 +285,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
       with:
         exportEnv: false
         method: approle
@@ -300,7 +300,7 @@ jobs:
         url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}
@@ -353,7 +353,7 @@ jobs:
     steps:
     - name: Vault secrets
       id: secrets
-      uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
       with:
         exportEnv: false
         method: approle
@@ -368,7 +368,7 @@ jobs:
         url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
-      uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3.1.1
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
       with:
         client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
         owner: ${{ github.repository_owner }}

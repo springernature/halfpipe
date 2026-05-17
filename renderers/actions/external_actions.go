@@ -28,7 +28,7 @@ var ExternalActions = struct {
 }{
 	Buildpack:            ExternalAction{Ref: "springernature/ee-action-buildpack@v1"},
 	Checkout:             ExternalAction{Ref: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd", Version: "v6.0.2"},
-	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3", Version: "v3.1.1"},
+	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1", Version: "v3.2.0"},
 	DeployCF:             ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
 	DeployKatee:          ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
 	DockerLogin:          ExternalAction{Ref: "docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121", Version: "v4.1.0"},
@@ -38,7 +38,7 @@ var ExternalActions = struct {
 	Slack:                ExternalAction{Ref: "slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c", Version: "v3.0.3"},
 	Teams:                ExternalAction{Ref: "springernature/ee-action-ms-teams@v1"},
 	UploadArtifact:       ExternalAction{Ref: "actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a", Version: "v7.0.1"},
-	Vault:                ExternalAction{Ref: "hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b", Version: "v3.4.0"},
+	Vault:                ExternalAction{Ref: "hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc", Version: "v4.0.0"},
 }
 
 // GetAllSHAPinnedActions returns a map of SHA to version for all SHA-pinned actions.
