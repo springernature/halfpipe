@@ -90,8 +90,11 @@ func packScriptArgs(task manifest.Buildpack, man manifest.Manifest, basePath str
 		appPath = task.Path
 	}
 
+	envKeys := slices.AppendSeq([]string{"BUILD_VERSION", "GIT_REVISION"}, maps.Keys(task.Vars))
+	slices.Sort(envKeys)
+
 	var envVars strings.Builder
-	for _, key := range slices.Sorted(maps.Keys(task.Vars)) {
+	for _, key := range envKeys {
 		envVars.WriteString(fmt.Sprintf(`--env %s \
 `, key))
 	}

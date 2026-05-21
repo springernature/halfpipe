@@ -48,9 +48,11 @@ jobs:
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
+          --env BUILD_VERSION \
           --env CI \
           --env EAID \
           --env EE_PLATFORM_TEAM \
+          --env GIT_REVISION \
           --env RUNNING_IN_CI \
           --publish \
           --trust-builder
@@ -64,9 +66,11 @@ jobs:
           --env ARTIFACTORY_PASSWORD \
           --env ARTIFACTORY_URL \
           --env ARTIFACTORY_USERNAME \
+          --env BUILD_VERSION \
           --env CI \
           --env EAID \
           --env EE_PLATFORM_TEAM \
+          --env GIT_REVISION \
           --env RUNNING_IN_CI \
           --publish \
           --trust-builder
@@ -131,9 +135,11 @@ jobs:
           --env ARTIFACTORY_USERNAME \
           --env BP_BAR \
           --env BP_FOO \
+          --env BUILD_VERSION \
           --env CI \
           --env EAID \
           --env EE_PLATFORM_TEAM \
+          --env GIT_REVISION \
           --env RUNNING_IN_CI \
           --publish \
           --trust-builder
@@ -150,9 +156,11 @@ jobs:
           --env ARTIFACTORY_USERNAME \
           --env BP_BAR \
           --env BP_FOO \
+          --env BUILD_VERSION \
           --env CI \
           --env EAID \
           --env EE_PLATFORM_TEAM \
+          --env GIT_REVISION \
           --env RUNNING_IN_CI \
           --publish \
           --trust-builder
