@@ -64,9 +64,14 @@ jobs:
         path: .e2e/buildpack
         tags: ${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}
       env:
+        ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+        ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+        ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+        BUILD_VERSION: 2.${{ github.run_number }}.0
         CI: "true"
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
+        GIT_REVISION: ${{ github.sha }}
         RUNNING_IN_CI: "true"
   with-path-and-builder:
     name: with-path-and-builder
@@ -112,9 +117,14 @@ jobs:
         path: .e2e/buildpack/build/libs
         tags: ${{ env.BUILD_VERSION }},${{ env.GIT_REVISION }}
       env:
+        ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+        ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+        ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
         BP_BAR: bar
         BP_FOO: foo
+        BUILD_VERSION: 2.${{ github.run_number }}.0
         CI: "true"
         EAID: APPL-437
         EE_PLATFORM_TEAM: halfpipe-team
+        GIT_REVISION: ${{ github.sha }}
         RUNNING_IN_CI: "true"

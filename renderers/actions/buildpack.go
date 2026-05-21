@@ -1,6 +1,7 @@
 package actions
 
 import (
+	"maps"
 	"path"
 	"strings"
 
@@ -15,10 +16,13 @@ func (a *Actions) buildpackSteps(task manifest.Buildpack) (steps Steps) {
 		appPath = path.Join(appPath, task.Path)
 	}
 
+	allEnvVars := maps.Clone(globalEnv)
+	maps.Copy(allEnvVars, task.Vars)
+
 	step := Step{
 		Name: task.GetName(),
 		ID:   slug.Make(task.GetName()),
-		Env:  Env(task.Vars),
+		Env:  allEnvVars,
 		Uses: ExternalActions.Buildpack.Ref,
 		With: With{
 			"builder":    task.Builder,
