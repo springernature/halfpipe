@@ -2,12 +2,13 @@ package cmds
 
 import (
 	"fmt"
-	"github.com/springernature/halfpipe/renderers/concourse"
 	"os"
 	"path"
 	"path/filepath"
 	"runtime"
 	"strings"
+
+	"github.com/springernature/halfpipe/renderers/concourse"
 
 	"github.com/spf13/afero"
 	"github.com/springernature/halfpipe"
@@ -106,18 +107,17 @@ func renderResponse(r halfpipe.Response, man manifest.Manifest, filePath string)
 	}
 }
 
-func createDefaulter(projectData project.Data, renderer halfpipe.Renderer) defaults.Defaults {
-	switch renderer.(type) {
-	case actions.Actions:
+func createDefaulter(projectData project.Data, platform manifest.Platform) defaults.Defaults {
+	if platform.IsActions() {
 		return defaults.New(defaults.Actions, projectData)
-	default:
-		return defaults.New(defaults.Concourse, projectData)
 	}
+
+	return defaults.New(defaults.Concourse, projectData)
 }
 
-func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer) halfpipe.Controller {
+func createController(projectData project.Data, fs afero.Afero, currentDir string, renderer halfpipe.Renderer, platform manifest.Platform) halfpipe.Controller {
 	return halfpipe.NewController(
-		createDefaulter(projectData, renderer),
+		createDefaulter(projectData, platform),
 		mapper.New(fs),
 		[]linters.Linter{
 			linters.NewTopLevelLinter(),
@@ -171,7 +171,7 @@ func getManifestAndController(halfpipeFilenameOptions []string, renderer halfpip
 			renderer = concourse.NewPipeline(projectData.HalfpipeFilePath)
 		}
 	}
-	controller := createController(projectData, fs, currentDir, renderer)
+	controller := createController(projectData, fs, currentDir, renderer, man.Platform)
 
 	return man, controller
 }
