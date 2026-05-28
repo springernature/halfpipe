@@ -12,7 +12,7 @@ type GitTrigger struct {
 	BasePath string `json:"-" yaml:"-"` //don't auto unmarshal
 	// SSH private key for cloning the repository.
 	PrivateKey string `json:"private_key,omitempty" yaml:"private_key,omitempty" secretAllowed:"true"`
-	// Only trigger when changes occur in these paths (globs supported).
+	// Only trigger when changes occur in these paths (globs supported). Paths should be relative to the repository root.
 	WatchedPaths []string `json:"watched_paths,omitempty" yaml:"watched_paths,omitempty"`
 	// Do not trigger when changes occur only in these paths (globs supported).
 	IgnoredPaths []string `json:"ignored_paths,omitempty" yaml:"ignored_paths,omitempty"`

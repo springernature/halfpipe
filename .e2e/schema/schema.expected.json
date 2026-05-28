@@ -1012,7 +1012,7 @@
             "type": "string"
           },
           "type": "array",
-          "description": "Only trigger when changes occur in these paths (globs supported)."
+          "description": "Only trigger when changes occur in these paths (globs supported). Paths should be relative to the repository root."
         },
         "ignored_paths": {
           "items": {

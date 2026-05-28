@@ -101,7 +101,7 @@ to true.
 |-------|------|----------|-------------|
 | `uri` | string | optional | Git repository URI. Defaults to the URI resolved from .git/config. |
 | `private_key` | string | optional | SSH private key for cloning the repository. |
-| `watched_paths` | string[] | optional | Only trigger when changes occur in these paths (globs supported). |
+| `watched_paths` | string[] | optional | Only trigger when changes occur in these paths (globs supported). Paths should be relative to the repository root. |
 | `ignored_paths` | string[] | optional | Do not trigger when changes occur only in these paths (globs supported). |
 | `git_crypt_key` | string | optional | Base64-encoded git-crypt key to unlock an encrypted repository. |
 | `branch` | string | optional | Branch to track. Required when running halfpipe on a non-default branch. |
