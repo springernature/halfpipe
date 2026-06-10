@@ -211,6 +211,10 @@ func buildAndPush(task manifest.DockerPush, basePath string, man manifest.Manife
 		fmt.Sprintf("--tag %s", shared.CachePath(task, "$(cat git/.git/ref)")),
 	}
 
+	if task.Target != "" {
+		buildCommand = append(buildCommand, fmt.Sprintf("--target %s", task.Target))
+	}
+
 	buildArgs := []string{}
 	for k, v := range convertVars(task.Vars) {
 		params[k] = v.(string)

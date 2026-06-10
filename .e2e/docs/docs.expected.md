@@ -600,7 +600,8 @@ by default.
 | `dockerfile_path` | string | optional | Path to the Dockerfile, relative to the manifest. Default: `Dockerfile`. |
 | `build_path` | string | optional | Path to the folder to use as the Docker build context, relative to the manifest. |
 | `tag` | string | optional | ⚠️ Deprecated: no longer used - safe to delete. |
-| `platforms` | string[] | optional | Target platforms to build for. Default: `[linux/amd64]`. |
+| `target` | string | optional | Target stage to build. |
+| `platforms` | string[] | optional | Platforms to build for. Default: `[linux/amd64]`. |
 | `use_cache` | boolean | optional | Enable layer caching to speed up builds by reusing layers from previous builds. Default: `false`. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
 | `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |

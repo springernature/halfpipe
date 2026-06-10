@@ -878,6 +878,10 @@
           "deprecated": true,
           "deprecationMessage": "no longer used - safe to delete"
         },
+        "target": {
+          "type": "string",
+          "description": "Target stage to build."
+        },
         "platforms": {
           "items": {
             "type": "string",
@@ -887,7 +891,7 @@
             ]
           },
           "type": "array",
-          "description": "Target platforms to build for.",
+          "description": "Platforms to build for.",
           "default": [
             "linux/amd64"
           ]

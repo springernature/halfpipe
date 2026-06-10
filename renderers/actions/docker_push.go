@@ -34,6 +34,10 @@ func (a *Actions) dockerPushSteps(task manifest.DockerPush, man manifest.Manifes
 		},
 	}
 
+	if task.Target != "" {
+		push.With["target"] = task.Target
+	}
+
 	// useCache will be set on manual "workflow dispatch" trigger.
 	// otherwise it will be an empty string and we default it to true
 	if task.UseCache {

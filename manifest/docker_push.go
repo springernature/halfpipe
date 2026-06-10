@@ -29,7 +29,9 @@ type DockerPush struct {
 	BuildPath string `json:"build_path,omitempty" yaml:"build_path,omitempty"`
 	// Deprecated: no longer used - safe to delete.
 	Tag string `json:"tag,omitempty" yaml:"tag,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=no longer used - safe to delete"`
-	// Target platforms to build for.
+	// Target stage to build.
+	Target string `json:"target,omitempty" yaml:"target,omitempty"`
+	// Platforms to build for.
 	Platforms []string `json:"platforms,omitempty" yaml:"platforms,omitempty" jsonschema:"default=linux/amd64,enum=linux/amd64,enum=linux/arm64"`
 	// Enable layer caching to speed up builds by reusing layers from previous builds.
 	UseCache bool `json:"use_cache,omitempty" yaml:"use_cache,omitempty" jsonschema:"default=false"`

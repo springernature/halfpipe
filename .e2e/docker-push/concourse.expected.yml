@@ -1651,6 +1651,192 @@ jobs:
     task: publish-final-image
     timeout: 1h
   serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: push with target
+  plan:
+  - attempts: 2
+    get: git
+    passed:
+    - push without credentials
+    timeout: 2h
+    trigger: true
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: alpine
+        type: docker-image
+        version:
+          digest: sha256:25109184c71bdad752c8312a8623239686a9a2071e8825f20acb8f2198c3f659
+      inputs:
+      - name: git
+      outputs:
+      - name: tagList
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          GIT_REF=`[ -f git/.git/ref ] && cat git/.git/ref || true`
+          VERSION=`[ -f version/version ] && cat version/version || true`
+          printf "%s %s latest" "$GIT_REF" "$VERSION" > tagList/tagList
+          printf "Image will be tagged with: %s\n" $(cat tagList/tagList)
+        path: /bin/sh
+    task: create-tag-list
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
+        RUNNING_IN_CI: "true"
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo $ docker buildx build \
+            -f git/.e2e/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage-target:$(cat git/.git/ref) \
+            --target target1 \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg CI \
+            --build-arg EAID \
+            --build-arg EE_PLATFORM_TEAM \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            git/.e2e/docker-push
+          docker buildx build \
+            -f git/.e2e/docker-push/Dockerfile \
+            --push \
+            --provenance false \
+            --platform linux/amd64 \
+            --tag eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage-target:$(cat git/.git/ref) \
+            --target target1 \
+            --build-arg ARTIFACTORY_PASSWORD \
+            --build-arg ARTIFACTORY_URL \
+            --build-arg ARTIFACTORY_USERNAME \
+            --build-arg CI \
+            --build-arg EAID \
+            --build-arg EE_PLATFORM_TEAM \
+            --build-arg RUNNING_IN_CI \
+            --secret id=ARTIFACTORY_PASSWORD \
+            --secret id=ARTIFACTORY_URL \
+            --secret id=ARTIFACTORY_USERNAME \
+            git/.e2e/docker-push
+        path: docker.sh
+    privileged: true
+    task: build
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          repository: aquasec/trivy
+        type: docker-image
+        version:
+          digest: sha256:bcc376de8d77cfe086a917230e818dc9f8528e3c852f7b1aff648949b6258d1c
+      inputs:
+      - name: git
+      params:
+        GITHUB_APP_ID: ((halfpipe-bot.app_id))
+        GITHUB_INSTALLATION_ID: ((halfpipe-bot.installation_id))
+        GITHUB_PRIVATE_KEY: ((halfpipe-bot.private_key))
+        TRIVY_PASSWORD: ((gcp:platform-gar/token.token))
+        TRIVY_USERNAME: oauth2accesstoken
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          [ -f .trivyignore ] && echo "Ignoring the following CVE's due to .trivyignore" || true
+          [ -f .trivyignore ] && cat .trivyignore; echo || true
+          apk add curl openssl
+          trivy image \
+            --timeout 15m \
+            --ignore-unfixed \
+            --severity CRITICAL \
+            --format sarif \
+            --output /tmp/trivy.sarif \
+            --exit-code 0 \
+            eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage-target:$(cat ../../.git/ref) || true
+          header_base64=$(echo -n '{"alg":"RS256","typ":"JWT"}' | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          iat=$(date +%s)
+          exp=$((iat + 600))
+          payload_base64=$(echo -n "{\"iat\":$iat,\"exp\":$exp,\"iss\":$GITHUB_APP_ID}" | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          unsigned_token="$header_base64.$payload_base64"
+          echo "$GITHUB_PRIVATE_KEY" > /tmp/key
+          signature=$(echo -n "$unsigned_token" | openssl dgst -sha256 -sign /tmp/key | openssl base64 -e | tr -d '\n=' | tr '/+' '_-')
+          jwt="$unsigned_token.$signature"
+
+          export GHAS_TOKEN=$(curl -s -X POST \
+            -H "Authorization: Bearer $jwt" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/app/installations/$GITHUB_INSTALLATION_ID/access_tokens" | grep '"token":' | sed -E 's/.*"token": ?"([^"]+)".*/\1/')
+          curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GHAS_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/springernature/halfpipe/code-scanning/sarifs \
+            -d '{"commit_sha":"'$(cat ../../.git/ref)'","ref":"refs/heads/main","sarif":"'$(gzip -c /tmp/trivy.sarif | base64 -w0)'"}'
+        dir: git/.e2e/docker-push
+        path: /bin/sh
+    task: trivy
+    timeout: 1h
+  - config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/halfpipe-docker
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      - name: tagList
+      params:
+        GAR_TOKEN: ((gcp:platform-gar/token.token))
+      platform: linux
+      run:
+        args:
+        - -c
+        - |-
+          echo updating tags..
+          for tag in $(cat tagList/tagList) ; do docker buildx imagetools create eu.gcr.io/halfpipe-io/cache/halfpipe-team/someImage-target:$(cat git/.git/ref) --tag eu.gcr.io/halfpipe-io/halfpipe-team/someImage-target:$tag; done
+        path: docker.sh
+    privileged: true
+    task: publish-final-image
+    timeout: 1h
+  serial: true
 resource_types:
 - check_every: 24h0m0s
   name: gcp-resource
