@@ -27,11 +27,11 @@ var ExternalActions = struct {
 	Vault                ExternalAction
 }{
 	Buildpack:            ExternalAction{Ref: "springernature/ee-action-buildpack@v1"},
-	Checkout:             ExternalAction{Ref: "actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd", Version: "v6.0.2"},
+	Checkout:             ExternalAction{Ref: "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10", Version: "v6.0.3"},
 	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1", Version: "v3.2.0"},
 	DeployCF:             ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
 	DeployKatee:          ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
-	DockerLogin:          ExternalAction{Ref: "docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121", Version: "v4.1.0"},
+	DockerLogin:          ExternalAction{Ref: "docker/login-action@650006c6eb7dba73a995cc03b0b2d7f5ca915bee", Version: "v4.2.0"},
 	DockerPush:           ExternalAction{Ref: "springernature/ee-action-docker-push@v1"},
 	DownloadArtifact:     ExternalAction{Ref: "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", Version: "v8.0.1"},
 	RepositoryDispatch:   ExternalAction{Ref: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", Version: "v4.0.1"},
