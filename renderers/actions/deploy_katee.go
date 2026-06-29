@@ -22,7 +22,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manif
 		Name: "Deploy to Katee",
 		Uses: ExternalActions.DeployKatee.Ref,
 		With: With{
-			"credentials":   config.VaultSecrets.KateeKey(task.Namespace),
+			"credentials":   config.VaultSecrets.KateeKey(man.Team, task.Namespace),
 			"namespace":     task.Namespace,
 			"revision":      revision,
 			"velaFile":      path.Join(a.workingDir, task.VelaManifest),

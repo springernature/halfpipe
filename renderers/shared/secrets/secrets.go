@@ -21,13 +21,22 @@ func New(s string, team string) *Secret {
 
 	secretValue := strings.TrimSpace(s[2 : len(s)-2])
 
+	if strings.HasPrefix(secretValue, "gcp:") {
+		p := strings.Split(secretValue, ":")[1]
+		parts := strings.Split(p, ".")
+		return &Secret{
+			MapPath: fmt.Sprintf("/gcp/impersonated-account/%s", parts[0]),
+			Key:     parts[1],
+		}
+	}
+
 	if isKeyValueSecret(secretValue) {
 		parts := strings.Split(secretValue, ".")
 		if isSharedSecret(parts[0]) {
 			team = "shared"
 		}
 		return &Secret{
-			MapPath: fmt.Sprintf("%s/%s", team, parts[0]),
+			MapPath: fmt.Sprintf("/springernature/data/%s/%s", team, parts[0]),
 			Key:     parts[1],
 		}
 	}

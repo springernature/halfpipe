@@ -152,8 +152,8 @@ jobs:
         roleId: ${{ secrets.VAULT_ROLE_ID }}
         secretId: ${{ secrets.VAULT_SECRET_ID }}
         secrets: |
+          /gcp/impersonated-account/halfpipe-team-katee-halfpipe-team/token token | gcp_impersonated-account_halfpipe-team-katee-halfpipe-team_token_token ;
           /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
-          /springernature/data/halfpipe-team/katee-v2-halfpipe-team-service-account-prod key | springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key ;
           /springernature/data/halfpipe-team/path/to/map key | springernature_data_halfpipe-team_path_to_map_key ;
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: ${{ secrets.EE_VAULT_ADDR }}
@@ -181,7 +181,7 @@ jobs:
       uses: springernature/ee-action-deploy-katee@v1
       with:
         checkInterval: "5"
-        credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-halfpipe-team-service-account-prod_key }}
+        credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-halfpipe-team_token_token }}
         eaid: APPL-437
         maxChecks: "120"
         namespace: katee-halfpipe-team
@@ -212,8 +212,8 @@ jobs:
         roleId: ${{ secrets.VAULT_ROLE_ID }}
         secretId: ${{ secrets.VAULT_SECRET_ID }}
         secrets: |
+          /gcp/impersonated-account/halfpipe-team-katee-different-namespace/token token | gcp_impersonated-account_halfpipe-team-katee-different-namespace_token_token ;
           /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
-          /springernature/data/halfpipe-team/katee-v2-different-namespace-service-account-prod key | springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key ;
           /springernature/data/halfpipe-team/secret something | springernature_data_halfpipe-team_secret_something ;
         url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
@@ -240,7 +240,7 @@ jobs:
       uses: springernature/ee-action-deploy-katee@v1
       with:
         checkInterval: "3"
-        credentials: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_katee-v2-different-namespace-service-account-prod_key }}
+        credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-different-namespace_token_token }}
         eaid: APPL-437
         maxChecks: "4"
         namespace: katee-different-namespace

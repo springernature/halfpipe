@@ -66,7 +66,9 @@ func renderRunCommand(task manifest.Run, team string) string {
 func quoteValue(v string, team string) string {
 	secret := secrets.New(v, team)
 	if secret != nil {
-		return fmt.Sprintf("\"$(vault kv get -field=%s /springernature/%s)\"", secret.Key, secret.MapPath)
+		field := secret.Key
+		path := strings.Replace(secret.MapPath, "/springernature/data/", "/springernature/", 1)
+		return fmt.Sprintf("\"$(vault kv get -field=%s %s)\"", field, path)
 	}
 	return fmt.Sprintf("'%s'", v)
 }

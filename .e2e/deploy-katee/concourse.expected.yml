@@ -277,7 +277,7 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: vela.yaml
-        KATEE_GKE_CREDENTIALS: ((katee-v2-halfpipe-team-service-account-prod.key))
+        KATEE_GKE_CREDENTIALS: ((gcp:halfpipe-team-katee-halfpipe-team/token.token))
         KATEE_NAMESPACE: katee-halfpipe-team
         LONG_SECRET: ((path/to/map.key))
         MAX_CHECKS: "120"
@@ -371,7 +371,7 @@ jobs:
         ENV3: '{"a": "b", "c": "d"}'
         ENV4: ((another.secret))
         KATEE_APPFILE: custom-vela-path.yaml
-        KATEE_GKE_CREDENTIALS: ((katee-v2-different-namespace-service-account-prod.key))
+        KATEE_GKE_CREDENTIALS: ((gcp:halfpipe-team-katee-different-namespace/token.token))
         KATEE_NAMESPACE: katee-different-namespace
         MAX_CHECKS: "4"
         REVISION_FORMAT: version

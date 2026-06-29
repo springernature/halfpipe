@@ -2,7 +2,6 @@ package config
 
 import (
 	"fmt"
-	"strings"
 )
 
 var VaultSecrets = struct {
@@ -15,7 +14,7 @@ var VaultSecrets = struct {
 	MarkLogicUsername, MarkLogicPassword,
 	AWSECRAccessKeyID, AWSECRSecretAccessKey,
 	SlackToken string
-	KateeKey func(string) string
+	KateeKey func(string, string) string
 }{
 	// github
 	GitHubPrivateKey:          "((halfpipe-github.private_key))",
@@ -67,7 +66,7 @@ var VaultSecrets = struct {
 	SlackToken: "((halfpipe-slack.token))",
 
 	// katee
-	KateeKey: func(namespace string) string {
-		return fmt.Sprintf(`((%s-service-account-prod.key))`, strings.ReplaceAll(namespace, "katee", "katee-v2"))
+	KateeKey: func(team, namespace string) string {
+		return fmt.Sprintf(`((gcp:%s-%s/token.token))`, team, namespace)
 	},
 }

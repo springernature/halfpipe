@@ -14,7 +14,7 @@ func secretVar(s *secrets.Secret) string {
 }
 
 func secretVaultPath(s *secrets.Secret) string {
-	return fmt.Sprintf("/springernature/data/%s %s", s.MapPath, s.Key)
+	return fmt.Sprintf("%s %s", s.MapPath, s.Key)
 }
 func secretOutputVar(s *secrets.Secret) string {
 	ov := strings.ReplaceAll(secretVaultPath(s), "/", "_")
