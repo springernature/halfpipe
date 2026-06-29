@@ -43,10 +43,8 @@ func New(s string, team string) *Secret {
 
 	if isAbsolutePathSecret(secretValue) {
 		parts := strings.Split(secretValue, " ")
-		mapPath := strings.TrimPrefix(parts[0], "/springernature/data/")
-		mapPath = strings.TrimPrefix(mapPath, "/springernature/")
 		return &Secret{
-			MapPath: mapPath,
+			MapPath: parts[0],
 			Key:     parts[1],
 		}
 	}
