@@ -27,7 +27,7 @@ var ExternalActions = struct {
 	Vault                ExternalAction
 }{
 	Buildpack:            ExternalAction{Ref: "springernature/ee-action-buildpack@v1"},
-	Checkout:             ExternalAction{Ref: "actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10", Version: "v6.0.3"},
+	Checkout:             ExternalAction{Ref: "actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0", Version: "v7.0.0"},
 	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1", Version: "v3.2.0"},
 	DeployCF:             ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
 	DeployKatee:          ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
