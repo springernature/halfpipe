@@ -43,21 +43,6 @@ func TestKateeDeployTag(t *testing.T) {
 		assertNotContainsError(t, errors, expectedTagError)
 	})
 
-	t.Run("version with update-pipeline feature", func(t *testing.T) {
-		manifestWithUpdate := manifest.Manifest{FeatureToggles: manifest.FeatureToggles{manifest.FeatureUpdatePipeline}}
-		task.Tag = "version"
-		errors := LintDeployKateeTask(task, manifestWithUpdate, fs)
-		assertNotContainsError(t, errors, expectedTagError)
-	})
-
-	t.Run("version without update-pipeline feature", func(t *testing.T) {
-		manifestConcourse := manifest.Manifest{Platform: "concourse"}
-		task.Tag = "version"
-		errors := LintDeployKateeTask(task, manifestConcourse, fs)
-		assertContainsError(t, errors, expectedTagError)
-
-	})
-
 	t.Run("version without update-pipeline feature", func(t *testing.T) {
 		manifestActions := manifest.Manifest{Platform: "actions"}
 		task.Tag = "version"

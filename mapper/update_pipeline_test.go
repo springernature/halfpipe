@@ -16,15 +16,8 @@ func TestUpdatePipeline(t *testing.T) {
 		},
 	}
 
-	t.Run("doesnt do anything when feature toggle is not enabled", func(t *testing.T) {
-		updated, err := mapper.Apply(originalManifest)
-		assert.NoError(t, err)
-		assert.Equal(t, originalManifest, updated)
-	})
-
-	t.Run("adds update job as first job if feature toggle is enabled", func(t *testing.T) {
+	t.Run("adds update job as first job", func(t *testing.T) {
 		man := originalManifest
-		man.FeatureToggles = manifest.FeatureToggles{manifest.FeatureUpdatePipeline}
 
 		expectedTasks := manifest.TaskList{
 			manifest.Update{},

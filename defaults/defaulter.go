@@ -89,15 +89,13 @@ type Defaults struct {
 
 	Timeout string
 
-	triggersDefaulter       TriggersDefaulter
-	tasksDefaulter          TasksDefaulter
-	outputDefaulter         OutputDefaulter
-	featureTogglesDefaulter FeatureTogglesDefaulter
+	triggersDefaulter TriggersDefaulter
+	tasksDefaulter    TasksDefaulter
+	outputDefaulter   OutputDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	updated = d.featureTogglesDefaulter.Apply(original)
-	updated = d.outputDefaulter.Apply(updated)
+	updated = d.outputDefaulter.Apply(original)
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 	return updated
@@ -108,7 +106,6 @@ func New(defaultValues Defaults, project project.Data) Defaults {
 	defaultValues.triggersDefaulter = NewTriggersDefaulter()
 	defaultValues.tasksDefaulter = NewTaskDefaulter()
 	defaultValues.outputDefaulter = NewOutputDefaulter()
-	defaultValues.featureTogglesDefaulter = NewFeatureTogglesDefaulter()
 
 	return defaultValues
 }

@@ -22,14 +22,6 @@ type testTasksDefaulter struct {
 	apply func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList)
 }
 
-type testFeatureTogglesDefaulter struct {
-	apply func(original manifest.Manifest) (updated manifest.Manifest)
-}
-
-func (t testFeatureTogglesDefaulter) Apply(original manifest.Manifest) (updated manifest.Manifest) {
-	return t.apply(original)
-}
-
 func (t testTriggersDefaulter) Apply(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
 	return t.apply(original, defaults, man)
 }
@@ -63,50 +55,7 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
 			return original
 		}},
-		featureTogglesDefaulter: testFeatureTogglesDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
-			return original
-		}},
 	}
 
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))
-}
-
-func TestApplyFeatureToggleDefaults(t *testing.T) {
-	defaults := Defaults{
-		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
-			return manifest.TriggerList{}
-		}},
-		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
-			return manifest.TaskList{}
-		}},
-		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
-			return original
-		}},
-		featureTogglesDefaulter: testFeatureTogglesDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
-			return original
-		}},
-	}
-
-	man := manifest.Manifest{
-		FeatureToggles: []string{manifest.FeatureUpdatePipeline},
-	}
-	assert.Equal(t, man.FeatureToggles, defaults.Apply(man).FeatureToggles)
-}
-
-func TestApplyCallsFeatureTogglesDefaulterFirst(t *testing.T) {
-	defaults := Defaults{
-		triggersDefaulter: testTriggersDefaulter{apply: func(original manifest.TriggerList, defaults Defaults, man manifest.Manifest) (updated manifest.TriggerList) {
-			return manifest.TriggerList{}
-		}},
-		tasksDefaulter: testTasksDefaulter{apply: func(original manifest.TaskList, defaults Defaults, man manifest.Manifest) (updated manifest.TaskList) {
-			return manifest.TaskList{}
-		}},
-		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
-			return original
-		}},
-		featureTogglesDefaulter: NewFeatureTogglesDefaulter(),
-	}
-
-	man := manifest.Manifest{}
-	assert.Equal(t, manifest.FeatureToggles{manifest.FeatureUpdatePipeline}, defaults.Apply(man).FeatureToggles)
 }

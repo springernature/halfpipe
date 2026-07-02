@@ -8,9 +8,6 @@ team: team-name
 pipeline: pipeline-name
 platform: actions
 
-feature_toggles:
-- update-pipeline
-
 triggers:
   ...
  
