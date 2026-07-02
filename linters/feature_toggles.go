@@ -21,6 +21,9 @@ func (f featureToggleLinter) Lint(manifest manifest.Manifest) (result LintResult
 	result.DocsURL = "https://ee.public.springernature.app/rel-eng/halfpipe/manifest/#feature_toggles"
 
 	for _, feature := range manifest.FeatureToggles {
+		if feature == "update-pipeline" {
+			result.Add(ErrUpdatePipeline.AsWarning())
+		}
 		if !f.featureInAvailableFeatures(feature) {
 			if feature == "versioned" {
 				result.Add(ErrUnsupportedFeatureVersioned.AsWarning())

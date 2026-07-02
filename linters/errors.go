@@ -80,6 +80,7 @@ var (
 	ErrReadsFromSavedArtifacts = newError("reads from saved artifacts, but there are no previous tasks that saves any")
 
 	ErrUnsupportedFeature          = newError("unsupported feature")
+	ErrUpdatePipeline              = newError("feature 'update-pipeline' is deprecated as it is now enabled by default.")
 	ErrUnsupportedFeatureVersioned = newError("feature 'versioned' is no longer supported. The same functionality is included in the 'update-pipeline' feature")
 	ErrUnsupportedDockerDecompose  = newError("feature 'docker-decompose' is no longer supported. docker-compose tasks will not be modified")
 
