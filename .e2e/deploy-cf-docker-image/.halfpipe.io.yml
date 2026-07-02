@@ -2,8 +2,7 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-deploy-cf-docker-image
 
-feature_toggles:
-- update-pipeline
+
 
 triggers:
 - type: git

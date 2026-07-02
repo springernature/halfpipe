@@ -2,8 +2,6 @@
 team: halfpipe-team
 pipeline: docker-push-with-update-pipeline
 
-feature_toggles:
-- update-pipeline
 
 triggers:
 - type: git

@@ -121,7 +121,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          ./../update-pipeline/a
+          ./../disable-update-pipeline/a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1

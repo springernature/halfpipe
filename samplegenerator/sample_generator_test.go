@@ -57,8 +57,6 @@ func TestWritesSample(t *testing.T) {
 team: <team name>
 pipeline: myApp
 platform: concourse
-feature_toggles:
-- update-pipeline
 tasks:
 - type: run
   name: <task name>
@@ -89,8 +87,6 @@ func TestWritesSampleWhenExecutedInASubDirectory(t *testing.T) {
 team: <team name>
 pipeline: myApp-subApp
 platform: concourse
-feature_toggles:
-- update-pipeline
 triggers:
 - type: git
   watched_paths:
@@ -125,8 +121,6 @@ func TestWritesSampleWhenExecutedInASubSubDirectory(t *testing.T) {
 team: <team name>
 pipeline: myApp-subFolder-subApp
 platform: concourse
-feature_toggles:
-- update-pipeline
 triggers:
 - type: git
   watched_paths:

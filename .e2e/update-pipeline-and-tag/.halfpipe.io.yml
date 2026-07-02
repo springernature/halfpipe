@@ -8,7 +8,7 @@ feature_toggles:
 tasks:
 - type: run
   name: test
-  script: ../update-pipeline/a
+  script: ../disable-update-pipeline/a
   docker:
     image: node:9.5.0-alpine
 

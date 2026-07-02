@@ -2,8 +2,6 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-deploy-katee
 
-feature_toggles:
-- update-pipeline
 
 triggers:
   - type: git

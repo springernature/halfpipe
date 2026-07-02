@@ -9,13 +9,13 @@ updates:
   directories:
   - /.e2e/artifacts
   - /.e2e/deploy-katee
+  - /.e2e/disable-update-pipeline
   - /.e2e/docker-push
   - /.e2e/docker-push-with-docker-trigger
   - /.e2e/docker-push-with-update-pipeline
   - /.e2e/docker-push/dockerfiles
   - /.e2e/exec
   - /.e2e/trigger-timer
-  - /.e2e/update-pipeline
   schedule:
     interval: weekly
   cooldown:
@@ -36,9 +36,9 @@ updates:
   - /.e2e/artifacts
   - /.e2e/consumer-integration-test
   - /.e2e/deploy-cf
+  - /.e2e/disable-update-pipeline
   - /.e2e/docker-compose
   - /.e2e/exec
-  - /.e2e/update-pipeline
   - /.e2e/update-pipeline-and-tag
   schedule:
     interval: weekly

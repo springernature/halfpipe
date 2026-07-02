@@ -21,8 +21,60 @@ defaults:
     working-directory: .e2e/deploy-ml
 concurrency: ${{ github.workflow }}
 jobs:
+  update:
+    name: update
+    runs-on: ee-runner
+    timeout-minutes: 60
+    outputs:
+      synced: ${{ steps.sync.outputs.synced }}
+    steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: Sync workflow with halfpipe manifest
+      id: sync
+      run: halfpipe-update-workflow
+      env:
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+    - name: Commit and push changes to workflow
+      if: steps.sync.outputs.synced == 'false'
+      run: |
+        if git commit -am "[halfpipe] synced workflow $GITHUB_WORKFLOW with halfpipe manifest" && git push; then
+          echo ':white_check_mark: Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This happened because the workflow was generated from a halfpipe manifest with the `update-pipeline` feature enabled. It keeps the workflow in sync with the halfpipe manifest.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://ee.public.springernature.app/rel-eng/halfpipe/features/#update_pipeline)' >> $GITHUB_STEP_SUMMARY
+        else
+          echo ':x: Halfpipe failed to update the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This may have happened because newer git commits have already been pushed. Check for newer pipeline runs or manually trigger the workflow.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://ee.public.springernature.app/rel-eng/halfpipe/features/#update_pipeline)' >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
   create_zip_for_ml_task:
     name: create zip for ml task
+    needs:
+    - update
+    if: needs.update.outputs.synced == 'true'
     runs-on: ee-runner
     timeout-minutes: 60
     steps:

@@ -106,7 +106,7 @@ jobs:
       id: test
       uses: docker://node:9.5.0-alpine
       with:
-        args: -c "cd .e2e/update-pipeline-and-tag; ./../update-pipeline/a"
+        args: -c "cd .e2e/update-pipeline-and-tag; ./../disable-update-pipeline/a"
         entrypoint: /bin/sh
       env:
         CI: "true"

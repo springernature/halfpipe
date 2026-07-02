@@ -6,12 +6,12 @@ triggers:
 - type: git
   branch: main
   watched_paths:
-  - .e2e/update-pipeline
+  - .e2e/disable-update-pipeline
 - type: timer
   cron: '*/30 * * * *'
 
 feature_toggles:
-- update-pipeline
+- disable-update-pipeline
 
 tasks:
 - type: run

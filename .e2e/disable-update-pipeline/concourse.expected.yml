@@ -1,54 +1,5 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/update-pipeline/.halfpipe.io.yml for team halfpipe-team
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/disable-update-pipeline/.halfpipe.io.yml for team halfpipe-team
 jobs:
-- build_log_retention:
-    minimum_succeeded_builds: 1
-  name: update
-  plan:
-  - attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - get: git
-        trigger: true
-      - get: cron
-        trigger: true
-    timeout: 2h
-  - attempts: 2
-    config:
-      image_resource:
-        name: ""
-        source:
-          password: ((gcp:platform-gar/token.token))
-          registry_mirror:
-            host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
-          tag: latest
-          username: oauth2accesstoken
-        type: registry-image
-      inputs:
-      - name: git
-      params:
-        CONCOURSE_PASSWORD: ((platform/concourse.password))
-        CONCOURSE_TEAM: ((platform/concourse.team))
-        CONCOURSE_URL: ((platform/concourse.url))
-        CONCOURSE_USERNAME: ((platform/concourse.username))
-        HALFPIPE_DOMAIN: halfpipe.io
-        HALFPIPE_FILE_PATH: .halfpipe.io.yml
-        HALFPIPE_PROJECT: halfpipe-io
-        PIPELINE_NAME: halfpipe-e2e-update-pipeline
-      platform: linux
-      run:
-        dir: git/.e2e/update-pipeline
-        path: update-pipeline
-    task: update
-    timeout: 2h
-  - attempts: 2
-    no_get: true
-    params:
-      bump: minor
-    put: version
-    timeout: 2h
-  serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: Test
@@ -58,11 +9,8 @@ jobs:
       fail_fast: true
       steps:
       - get: git
-        passed:
-        - update
-      - get: version
-        passed:
-        - update
+        trigger: true
+      - get: cron
         trigger: true
     timeout: 2h
   - config:
@@ -79,7 +27,6 @@ jobs:
         type: registry-image
       inputs:
       - name: git
-      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -115,14 +62,13 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
 
           ./a
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/.e2e/update-pipeline
+        dir: git/.e2e/disable-update-pipeline
         path: /bin/sh
     task: test
     timeout: 1h
@@ -138,7 +84,8 @@ jobs:
       - get: git
         passed:
         - Test
-      - get: version
+        trigger: true
+      - get: cron
         passed:
         - Test
         trigger: true
@@ -159,7 +106,6 @@ jobs:
         type: registry-image
       inputs:
       - name: git
-      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -176,15 +122,14 @@ jobs:
         - -c
         - |
           export GIT_REVISION=`cat ../../.git/ref`
-          export BUILD_VERSION=`cat ../../../version/version`
 
-          \docker-compose run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          \docker-compose run --use-aliases -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
-        dir: git/.e2e/update-pipeline
+        dir: git/.e2e/disable-update-pipeline
         path: docker.sh
     privileged: true
     task: docker-compose
@@ -203,7 +148,7 @@ resources:
   source:
     branch: main
     paths:
-    - .e2e/update-pipeline
+    - .e2e/disable-update-pipeline
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
@@ -214,14 +159,6 @@ resources:
     fire_immediately: true
     location: UTC
   type: halfpipe-cron-resource
-- check_every: 24h0m0s
-  name: version
-  source:
-    bucket: ((halfpipe-semver.bucket))
-    driver: gcs
-    json_key: ((halfpipe-semver.private_key))
-    key: halfpipe-team-halfpipe-e2e-update-pipeline
-  type: semver
 var_sources:
 - config:
     auth_backend: approle

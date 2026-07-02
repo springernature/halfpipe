@@ -2,10 +2,62 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: test
+  name: update
   plan:
   - attempts: 2
     get: git
+    timeout: 2h
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((platform/concourse.password))
+        CONCOURSE_TEAM: ((platform/concourse.team))
+        CONCOURSE_URL: ((platform/concourse.url))
+        CONCOURSE_USERNAME: ((platform/concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: halfpipe-e2e-manual-git-trigger
+      platform: linux
+      run:
+        dir: git/.e2e/manual-git-trigger
+        path: update-pipeline
+    task: update
+    timeout: 2h
+  - attempts: 2
+    no_get: true
+    params:
+      bump: minor
+    put: version
+    timeout: 2h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: test
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
     timeout: 2h
   - config:
       caches:
@@ -21,6 +73,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       params:
         ARTIFACTORY_PASSWORD: ((artifactory.password))
         ARTIFACTORY_URL: ((artifactory.url))
@@ -56,6 +109,7 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./a
           EXIT_STATUS=$?
@@ -75,6 +129,14 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe.git
   type: git
+- check_every: 24h0m0s
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-manual-git-trigger
+  type: semver
 var_sources:
 - config:
     auth_backend: approle

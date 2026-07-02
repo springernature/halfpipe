@@ -2,9 +2,6 @@
 team: halfpipe-team
 pipeline: pipeline-name
 
-feature_toggles:
-- update-pipeline
-
 tasks:
 - type: run
   name: run

@@ -2,8 +2,7 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-artifacts
 
-feature_toggles:
-- update-pipeline
+
 
 triggers:
 - type: git

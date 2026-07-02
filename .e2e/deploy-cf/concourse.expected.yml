@@ -2,12 +2,64 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: make binary
+  name: update
   plan:
   - attempts: 2
     get: git
     timeout: 2h
     trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((platform/concourse.password))
+        CONCOURSE_TEAM: ((platform/concourse.team))
+        CONCOURSE_URL: ((platform/concourse.url))
+        CONCOURSE_USERNAME: ((platform/concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: halfpipe-e2e-deploy-cf
+      platform: linux
+      run:
+        dir: git/.e2e/deploy-cf
+        path: update-pipeline
+    task: update
+    timeout: 2h
+  - attempts: 2
+    no_get: true
+    params:
+      bump: minor
+    put: version
+    timeout: 2h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: make binary
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -22,6 +74,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: artifacts-out
       params:
@@ -72,6 +125,7 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \echo foo > foo.html
           EXIT_STATUS=$?
@@ -98,11 +152,17 @@ jobs:
   name: deploy with username and password
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - make binary
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - make binary
+      - get: version
+        passed:
+        - make binary
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     no_get: true
     on_failure:
@@ -115,6 +175,7 @@ jobs:
       resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-all
       eaid: APPL-437
@@ -133,11 +194,17 @@ jobs:
   name: deploy with cf8
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy with username and password
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy with username and password
+      - get: version
+        passed:
+        - deploy with username and password
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     no_get: true
     on_failure:
@@ -150,6 +217,7 @@ jobs:
       resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf8
       command: halfpipe-all
       eaid: APPL-437
@@ -179,11 +247,17 @@ jobs:
   name: deploy with pre-start and pre-promote
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy with cf8
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy with cf8
+      - get: version
+        passed:
+        - deploy with cf8
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -223,6 +297,7 @@ jobs:
       resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: artifacts/.e2e/deploy-cf/foo.html
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-push
       eaid: APPL-437
@@ -262,6 +337,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       params:
         A: blah
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -299,6 +375,7 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./smoke-test.sh
           EXIT_STATUS=$?
@@ -334,11 +411,17 @@ jobs:
   name: deploy with vars and secrets
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy with pre-start and pre-promote
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy with pre-start and pre-promote
+      - get: version
+        passed:
+        - deploy with pre-start and pre-promote
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -378,6 +461,7 @@ jobs:
       resource: cf-snpaas-dev
     params:
       appPath: artifacts/.e2e/deploy-cf/foo.html
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-all
       eaid: APPL-437
@@ -401,11 +485,17 @@ jobs:
   name: deploy with sso route
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy with vars and secrets
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy with vars and secrets
+      - get: version
+        passed:
+        - deploy with vars and secrets
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     no_get: true
     params:
@@ -428,6 +518,7 @@ jobs:
       resource: cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-all
       eaid: APPL-437
@@ -446,11 +537,17 @@ jobs:
   name: deploy rolling with sso
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy with sso route
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy with sso route
+      - get: version
+        passed:
+        - deploy with sso route
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -500,6 +597,7 @@ jobs:
       resource: rolling-cf-snpaas-dev
     params:
       appPath: artifacts/.e2e/deploy-cf/foo.html
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       eaid: APPL-437
@@ -518,11 +616,17 @@ jobs:
   name: deploy rolling plain
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy rolling with sso
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy rolling with sso
+      - get: version
+        passed:
+        - deploy rolling with sso
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     no_get: true
     on_failure:
@@ -535,6 +639,7 @@ jobs:
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       eaid: APPL-437
@@ -553,11 +658,17 @@ jobs:
   name: deploy rolling with pre-promote
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy rolling plain
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy rolling plain
+      - get: version
+        passed:
+        - deploy rolling plain
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     no_get: true
     on_failure:
@@ -570,6 +681,7 @@ jobs:
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-push
       eaid: APPL-437
@@ -599,6 +711,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       params:
         A: blah
         ARTIFACTORY_PASSWORD: ((artifactory.password))
@@ -636,6 +749,7 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           ./smoke-test.sh
           EXIT_STATUS=$?
@@ -658,6 +772,7 @@ jobs:
       resource: rolling-cf-dev-api-halfpipe-team-dev
     params:
       appPath: git/.e2e/deploy-cf
+      buildVersionPath: version/version
       cliVersion: cf7
       command: halfpipe-rolling-deploy
       eaid: APPL-437
@@ -712,6 +827,14 @@ resources:
     folder: halfpipe-team/halfpipe-e2e-deploy-cf
     token: ((gcp:platform-artifacts/token.token))
   type: gcp-resource
+- check_every: 24h0m0s
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-halfpipe-e2e-deploy-cf
+  type: semver
 - check_every: 24h0m0s
   name: cf-dev-api-halfpipe-team-dev
   source:

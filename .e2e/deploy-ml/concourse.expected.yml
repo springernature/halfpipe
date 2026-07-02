@@ -2,12 +2,64 @@
 jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: create zip for ml task
+  name: update
   plan:
   - attempts: 2
     get: git
     timeout: 2h
     trigger: true
+  - attempts: 2
+    config:
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/halfpipe-auto-update
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      params:
+        CONCOURSE_PASSWORD: ((platform/concourse.password))
+        CONCOURSE_TEAM: ((platform/concourse.team))
+        CONCOURSE_URL: ((platform/concourse.url))
+        CONCOURSE_USERNAME: ((platform/concourse.username))
+        HALFPIPE_DOMAIN: halfpipe.io
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+        HALFPIPE_PROJECT: halfpipe-io
+        PIPELINE_NAME: pipeline-name
+      platform: linux
+      run:
+        dir: git/.e2e/deploy-ml
+        path: update-pipeline
+    task: update
+    timeout: 2h
+  - attempts: 2
+    no_get: true
+    params:
+      bump: minor
+    put: version
+    timeout: 2h
+  serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: create zip for ml task
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - update
+      - get: version
+        passed:
+        - update
+        trigger: true
+    timeout: 2h
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -22,6 +74,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       outputs:
       - name: artifacts-out
       params:
@@ -72,6 +125,7 @@ jobs:
           }
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           \package.sh
           EXIT_STATUS=$?
@@ -98,11 +152,17 @@ jobs:
   name: deploy-ml-zip
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - create zip for ml task
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - create zip for ml task
+      - get: version
+        passed:
+        - create zip for ml task
+        trigger: true
     timeout: 2h
-    trigger: true
   - attempts: 2
     config:
       image_resource:
@@ -147,6 +207,7 @@ jobs:
       inputs:
       - name: git
       - name: artifacts
+      - name: version
       params:
         APP_NAME: pipeline-name
         DEPLOY_ZIP: target/xquery.zip
@@ -184,6 +245,7 @@ jobs:
           cp -r ../../../artifacts/. ../..
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           /ml-deploy/deploy-local-zip
           EXIT_STATUS=$?
@@ -200,11 +262,17 @@ jobs:
   name: Deploy ml-modules artifact
   plan:
   - attempts: 2
-    get: git
-    passed:
-    - deploy-ml-zip
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - deploy-ml-zip
+      - get: version
+        passed:
+        - deploy-ml-zip
+        trigger: true
     timeout: 2h
-    trigger: true
   - config:
       caches:
       - path: ../../../var/halfpipe/cache
@@ -221,6 +289,7 @@ jobs:
         type: registry-image
       inputs:
       - name: git
+      - name: version
       params:
         APP_NAME: my-app
         APP_VERSION: v1
@@ -258,6 +327,7 @@ jobs:
           fi
 
           export GIT_REVISION=`cat ../../.git/ref`
+          export BUILD_VERSION=`cat ../../../version/version`
 
           /ml-deploy/deploy-ml-modules
           EXIT_STATUS=$?
@@ -293,6 +363,14 @@ resources:
     folder: halfpipe-team/pipeline-name
     token: ((gcp:platform-artifacts/token.token))
   type: gcp-resource
+- check_every: 24h0m0s
+  name: version
+  source:
+    bucket: ((halfpipe-semver.bucket))
+    driver: gcs
+    json_key: ((halfpipe-semver.private_key))
+    key: halfpipe-team-pipeline-name
+  type: semver
 var_sources:
 - config:
     auth_backend: approle

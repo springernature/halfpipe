@@ -2,8 +2,6 @@
 team: <team name>
 pipeline: halfpipe-.e2e-init
 platform: concourse
-feature_toggles:
-- update-pipeline
 triggers:
 - type: git
   watched_paths:

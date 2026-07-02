@@ -9,9 +9,6 @@ triggers:
   watched_paths:
   - .e2e/parallel
 
-feature_toggles:
-- update-pipeline
-
 tasks:
 - type: run
   name: first job

@@ -69,8 +69,6 @@ func (s sampleGenerator) Generate() (err error) {
 	}
 	man.Pipeline = createPipelineName(proj)
 
-	man.FeatureToggles = manifest.FeatureToggles{manifest.FeatureUpdatePipeline}
-
 	out, err := yaml.Marshal(man)
 	if err != nil {
 		return err
