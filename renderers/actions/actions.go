@@ -46,6 +46,7 @@ func (a Actions) Render(man manifest.Manifest) (string, error) {
 		Contents:       "read",
 		Actions:        "read",
 		SecurityEvents: "write",
+		Packages:       "read",
 	}
 	w.Concurrency = "${{ github.workflow }}"
 	if len(man.Tasks) > 0 {

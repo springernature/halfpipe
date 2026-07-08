@@ -23,6 +23,7 @@ type Permissions struct {
 	Contents       string `yaml:"contents,omitempty"`
 	Actions        string `yaml:"actions,omitempty"`
 	SecurityEvents string `yaml:"security-events,omitempty"`
+	Packages       string `yaml:"packages,omitempty"`
 }
 
 type On struct {
