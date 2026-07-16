@@ -54,7 +54,7 @@ halfpipe-deploy`,
 	}
 
 	if task.Env == "dev" {
-		run.Vars["KATE_GKE_PROJECT"] = "dev"
+		run.Vars["KATEE_GKE_PROJECT"] = "dev"
 	}
 
 	return run

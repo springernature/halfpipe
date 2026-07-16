@@ -459,9 +459,9 @@ jobs:
       params:
         CHECK_INTERVAL: "5"
         EAID: APPL-437
-        KATE_GKE_PROJECT: dev
         KATEE_APPFILE: vela.yaml
         KATEE_GKE_CREDENTIALS: ((gcp:halfpipe-team-katee-dev-namespace-dev/token.token))
+        KATEE_GKE_PROJECT: dev
         KATEE_NAMESPACE: katee-dev-namespace
         MAX_CHECKS: "60"
         REVISION_FORMAT: version
