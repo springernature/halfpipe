@@ -44,3 +44,11 @@ tasks:
       ENV3: '{"a": "b", "c": "d"}'
       ENV4: ((another.secret))
       VERY_SECRET: ((another.secret))
+
+  - type: deploy-katee
+    name: deploy to katee dev cluster
+    tag: version
+    namespace: katee-dev-namespace
+    env: dev
+    vars:
+      VERY_SECRET: ((another.secret))

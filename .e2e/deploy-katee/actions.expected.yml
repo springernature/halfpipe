@@ -255,3 +255,57 @@ jobs:
         ENV4: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
         GIT_REVISION: ${{ env.GIT_REVISION }}
         VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}
+  deploy_to_katee_dev_cluster:
+    name: deploy to katee dev cluster
+    needs:
+    - deploy_to_katee_different_team
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        secrets: |
+          /gcp/impersonated-account/halfpipe-team-katee-dev-namespace-dev/token token | gcp_impersonated-account_halfpipe-team-katee-dev-namespace-dev_token_token ;
+          /springernature/data/halfpipe-team/another secret | springernature_data_halfpipe-team_another_secret ;
+        url: ${{ secrets.EE_VAULT_ADDR }}
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: Deploy to Katee
+      uses: springernature/ee-action-deploy-katee@v1
+      with:
+        checkInterval: "5"
+        credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-dev-namespace-dev_token_token }}
+        eaid: APPL-437
+        maxChecks: "60"
+        namespace: katee-dev-namespace
+        revision: ${{ env.BUILD_VERSION }}
+        velaFile: .e2e/deploy-katee/vela.yaml
+      env:
+        BUILD_VERSION: ${{ env.BUILD_VERSION }}
+        GIT_REVISION: ${{ env.GIT_REVISION }}
+        KATEE_GKE_PROJECT: dev
+        VERY_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_another_secret }}

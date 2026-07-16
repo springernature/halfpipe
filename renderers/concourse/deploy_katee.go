@@ -41,7 +41,7 @@ halfpipe-deploy`,
 			"CHECK_INTERVAL":        strconv.Itoa(task.CheckInterval),
 			"KATEE_NAMESPACE":       task.Namespace,
 			"KATEE_APPFILE":         task.VelaManifest,
-			"KATEE_GKE_CREDENTIALS": config.VaultSecrets.KateeKey(man.Team, task.Namespace),
+			"KATEE_GKE_CREDENTIALS": config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
 			"MAX_CHECKS":            strconv.Itoa(task.MaxChecks),
 			"REVISION_FORMAT":       task.Tag,
 		},
@@ -51,6 +51,10 @@ halfpipe-deploy`,
 	maps.Copy(run.Vars, task.Vars)
 	if man.OpsLevel.System != "" {
 		run.Vars["EAID"] = man.OpsLevel.System
+	}
+
+	if task.Env == "dev" {
+		run.Vars["KATE_GKE_PROJECT"] = "dev"
 	}
 
 	return run

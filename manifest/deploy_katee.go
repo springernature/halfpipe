@@ -24,7 +24,9 @@ type DeployKatee struct {
 	// GitHub environment to associate with this deployment.
 	GitHubEnvironment GitHubEnvironment `json:"github_environment" yaml:"github_environment,omitempty"`
 	KateeManifest     VelaManifest      `json:"-" yaml:"-"`
-	TaskBase          `yaml:",inline"`
+	// As a user you should never set this. It's only for testing the dev katee cluster.
+	Env      string `json:"env,omitempty" yaml:"env,omitempty" jsonschema_extras:"deprecated=true"`
+	TaskBase `yaml:",inline"`
 }
 
 func (d DeployKatee) ReadsFromArtifacts() bool {

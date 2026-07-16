@@ -25,8 +25,6 @@ spec:
             value: apps.k8s.springernature.io
           - name: BUILD_VERSION
             value: ${BUILD_VERSION}
-          - name: VERY_SECRET
-            value: ${VERY_SECRET}
           - name: GIT_REVISION
             value: ${GIT_REVISION}
           - name: BLAH

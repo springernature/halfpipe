@@ -498,6 +498,11 @@
           "$ref": "#/$defs/GitHubEnvironment",
           "description": "GitHub environment to associate with this deployment."
         },
+        "env": {
+          "type": "string",
+          "description": "As a user you should never set this. It's only for testing the dev katee cluster.",
+          "deprecated": true
+        },
         "manual_trigger": {
           "type": "boolean",
           "description": "Task must be triggered manually (Concourse only).",

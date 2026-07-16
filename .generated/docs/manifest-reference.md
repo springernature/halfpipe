@@ -422,6 +422,7 @@ deploy-katee deploys an application to Katee.
 | `check_interval` | integer | optional | Seconds between each deployment status check. Default: `2`. |
 | `max_checks` | integer | optional | Maximum number of status checks before the deployment is considered failed. Default: `60`. |
 | `github_environment` | [github_environment](#github_environment) | optional | GitHub environment to associate with this deployment. |
+| `env` | string | optional | ⚠️ As a user you should never set this. It's only for testing the dev katee cluster. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
 | `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
 | `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |

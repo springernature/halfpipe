@@ -22,7 +22,7 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manif
 		Name: "Deploy to Katee",
 		Uses: ExternalActions.DeployKatee.Ref,
 		With: With{
-			"credentials":   config.VaultSecrets.KateeKey(man.Team, task.Namespace),
+			"credentials":   config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
 			"namespace":     task.Namespace,
 			"revision":      revision,
 			"velaFile":      path.Join(a.workingDir, task.VelaManifest),
@@ -33,6 +33,10 @@ func (a *Actions) deployKateeSteps(task manifest.DeployKatee, man manifest.Manif
 			"BUILD_VERSION": "${{ env.BUILD_VERSION }}",
 			"GIT_REVISION":  "${{ env.GIT_REVISION }}",
 		},
+	}
+
+	if task.Env == "dev" {
+		deployKatee.Env["KATEE_GKE_PROJECT"] = "dev"
 	}
 
 	maps.Copy(deployKatee.Env, task.Vars)
