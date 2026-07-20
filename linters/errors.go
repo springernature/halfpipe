@@ -41,7 +41,6 @@ var (
 	ErrCFCandidateRouteTooLong = newError("cf does not allow routes of more than 64 characters")
 
 	ErrCFLabelTeamWillBeOverwritten = newError("deployment will overwrite metadata.labels.team that was set in the CF manifest").AsWarning()
-	ErrCFLabelProductIsMissing      = newError("CF manifest is missing 'product' label. If 'product' is set on the CF space you can safely ignore this warning.").AsWarning()
 	ErrCFStack                      = newError("CF stack 'cflinuxfs3' is deprecated. Please see <https://ee.public.springernature.app/paas/cf/stacks/>").AsWarning()
 	ErrCFLabelEnvironmentIsMissing  = newError("CF manifest is missing 'environment' label. If 'environment' is set on the CF space you can safely ignore this warning.").AsWarning()
 

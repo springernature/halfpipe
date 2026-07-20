@@ -152,10 +152,6 @@ func lintLabels(app manifestparser.Application) (errs []error) {
 		errs = append(errs, ErrCFLabelTeamWillBeOverwritten)
 	}
 
-	if _, productFound := labels["product"]; !productFound {
-		errs = append(errs, ErrCFLabelProductIsMissing)
-	}
-
 	if _, environmentFound := labels["environment"]; !environmentFound {
 		errs = append(errs, ErrCFLabelEnvironmentIsMissing)
 	}

@@ -266,15 +266,6 @@ applications:
 		assertContainsError(t, errs, ErrCFLabelTeamWillBeOverwritten)
 	})
 
-	t.Run("Warning if product is missing in manifest", func(t *testing.T) {
-		cfManifest := `
-applications:
-- name: test
-`
-		errs := LintCfManifest(manifest.DeployCF{Space: "Yo"}, cfManifestReader(cfManifest, nil))
-		assertContainsError(t, errs, ErrCFLabelProductIsMissing)
-	})
-
 	t.Run("Warning if environment is missing in manifest", func(t *testing.T) {
 		cfManifest := `
 applications:
@@ -288,16 +279,6 @@ applications:
 
 	})
 
-	t.Run("Warning if neither product or environment is missing in manifest", func(t *testing.T) {
-		cfManifest := `
-applications:
-- name: test
-`
-		errs := LintCfManifest(manifest.DeployCF{Space: "Yo"}, cfManifestReader(cfManifest, nil))
-		assertContainsError(t, errs, ErrCFLabelProductIsMissing)
-		assertContainsError(t, errs, ErrCFLabelEnvironmentIsMissing)
-	})
-
 	t.Run("No Warning if both product or environment is in manifest", func(t *testing.T) {
 		cfManifest := `
 applications:
@@ -309,7 +290,6 @@ applications:
 `
 		errs := LintCfManifest(manifest.DeployCF{Space: "Yo"}, cfManifestReader(cfManifest, nil))
 
-		assertNotContainsError(t, errs, ErrCFLabelProductIsMissing)
 		assertNotContainsError(t, errs, ErrCFLabelEnvironmentIsMissing)
 	})
 
