@@ -106,12 +106,10 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
-          repository: eu.gcr.io/halfpipe-io/engineering-enablement/debian-mise
+          repository: ghcr.io/amartani/mise-imagesmise
           tag: latest
-          username: oauth2accesstoken
       run:
         path: /bin/bash
         args:
