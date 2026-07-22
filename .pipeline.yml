@@ -114,6 +114,7 @@ jobs:
         - -ec
         - |
           cd halfpipe
+          apt-get update -y && apt-get install -y git
           mise run
       params:
         CI: true
