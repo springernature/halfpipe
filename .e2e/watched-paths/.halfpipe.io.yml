@@ -7,7 +7,7 @@ triggers:
   branch: main
   watched_paths:
   - go.*
-  - Makefile
+  - mise.toml
 
 tasks:
 - type: run
