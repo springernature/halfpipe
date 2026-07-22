@@ -117,6 +117,7 @@ jobs:
         args:
         - -ec
         - |
+          cd halfpipe
           mise run
       params:
         CI: true
