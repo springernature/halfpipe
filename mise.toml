@@ -1,0 +1,103 @@
+[tools]
+go = "latest"
+"pipx:check-jsonschema" = "0.37.4"
+
+[tasks.default]
+description = "Build and validate the project"
+depends = ["build"]
+
+[tasks.build]
+description = "Build and validate the project"
+run = [
+  { task = "fmt" },
+  { task = "test" },
+  { task = "binary" },
+  { task = "schema" },
+  { task = "docs" },
+  { task = "e2e" },
+  { task = "staticcheck" },
+  { task = "dependabot" },
+  { task = "validate-e2e" },
+]
+
+[tasks.fmt]
+description = "Format and modernise Go code"
+run = ["go fmt ./...", "go fix ./..."]
+
+[tasks.test]
+description = "Run unit tests"
+run = "go test ${CI:+-mod=readonly} ./..."
+
+[tasks.binary]
+description = "Build the halfpipe binary"
+run = "go build ${CI:+-mod=readonly} -o halfpipe cmd/halfpipe.go"
+
+[tasks.e2e]
+description = "Run end-to-end tests"
+depends = ["binary"]
+run = ".e2e/test.sh"
+
+[tasks.staticcheck]
+description = "Run staticcheck"
+run = 'go run honnef.co/go/tools/cmd/staticcheck@latest -checks "inherit,-SA1019" ./...'
+
+[tasks.dependabot]
+description = "Validate the Dependabot manifest"
+depends = ["binary"]
+run = "./halfpipe -q -i dependabot.halfpipe.io.yml"
+
+[tasks.update-deps]
+description = "Update Go dependencies"
+run = "go get -t -u ./... && go mod tidy"
+
+[tasks.update-actions]
+description = "Update rendered GitHub Actions"
+run = "go run ./cmd/update-actions"
+
+[tasks.schema]
+description = "Generate the manifest schema"
+run = "go run ./cmd/generate-schema > .generated/schema.json"
+
+[tasks.docs]
+description = "Generate manifest reference documentation"
+depends = ["schema"]
+run = [
+  "go run ./cmd/generate-docs > .generated/docs/manifest-reference.md",
+  "go run ./cmd/generate-docs --no-header > .generated/docs/manifest-reference-no-header.md",
+]
+
+[tasks.validate-e2e]
+description = "Validate end-to-end test fixtures against their schemas"
+run = '''
+#!/usr/bin/env bash
+find .e2e -name '.halfpipe.io*' | xargs check-jsonschema --default-filetype yaml --schemafile .generated/schema.json
+find .e2e -name actions.expected.yml | xargs check-jsonschema --default-filetype yaml --builtin-schema vendor.github-workflows
+'''
+
+[tasks.fix-e2e]
+description = "Accept end-to-end test output"
+run = '''
+#!/usr/bin/env bash
+for f in ./.e2e/*/*.actual.*; do
+  cp "$f" "${f/actual/expected}"
+done
+'''
+
+[tasks.coverage]
+description = "Report average statement coverage by package"
+run = '''
+#!/usr/bin/env bash
+HALFPIPE_ENABLE_COVERAGE_TESTS=true go test ${CI:+-mod=readonly} -coverpkg=./... -coverprofile=/tmp/halfpipe-coverage.out ./... > /dev/null
+go tool cover -func=/tmp/halfpipe-coverage.out | grep -v '^total:' | awk '
+BEGIN { FS="\t" }
+{
+  split($1, a, ":"); path = a[1];
+  sub(/^github\.com\/springernature\/halfpipe\//, "", path);
+  n = split(path, parts, "/");
+  pkg = ""; for (i=1; i<n; i++) pkg = pkg (i>1 ? "/" : "") parts[i];
+  if (pkg == "") pkg = ".";
+  pct = $NF; sub(/%$/, "", pct);
+  sum[pkg] += pct; count[pkg]++;
+}
+END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
+'''

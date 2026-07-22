@@ -5,10 +5,10 @@ Generates the JSON Schema for the halfpipe manifest file (`.halfpipe.io`, `.half
 ## Usage
 
 ```sh
-make schema
+mise run schema
 ```
 
-This runs the generator and writes the output to `schema.json` at the repo root. The schema is also validated against the e2e test fixtures as part of `make build`.
+This runs the generator and writes the output to `schema.json` at the repo root. The schema is also validated against the e2e test fixtures as part of `mise run build`.
 
 To run manually:
 
@@ -46,6 +46,6 @@ For a local schema (e.g. during development):
 
 1. Add the Go struct to the `manifest` package.
 2. Add an entry to `taskTypes` (or `triggerTypes`) in `main.go`.
-3. Run `make schema` to regenerate `schema.json`.
+3. Run `mise run schema` to regenerate `schema.json`.
 
 The `oneOf` refs and `$defs` entries are derived from those slices automatically — no other changes needed in this package.
