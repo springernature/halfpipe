@@ -18,7 +18,7 @@ Multiple examples in one file are separated by `---`.
 ## Usage
 
 ```
-make docs
+mise run docs
 ```
 
-This runs `make schema` first (regenerating `schema.json` from Go structs), then runs this generator.
+This runs `mise run schema` first (regenerating `schema.json` from Go structs), then runs this generator.

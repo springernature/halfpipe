@@ -6,7 +6,7 @@ name: pipeline-name
     - main
     paths:
     - go.*
-    - Makefile**
+    - mise.toml**
     - .github/workflows/pipeline-name.yml
   workflow_dispatch: {}
 permissions:
