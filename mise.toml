@@ -1,5 +1,6 @@
 [tools]
 go = "latest"
+pipx = "latest"
 "pipx:check-jsonschema" = "0.37.4"
 
 [tasks.default]
