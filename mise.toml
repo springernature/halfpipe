@@ -103,3 +103,6 @@ BEGIN { FS="\t" }
 }
 END { for (pkg in sum) printf "%-40s %.1f%%\n", pkg, sum[pkg]/count[pkg] }' | sort
 '''
+
+[bootstrap.packages]
+"apt:git" = "latest"
