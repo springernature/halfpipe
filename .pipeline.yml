@@ -114,7 +114,7 @@ jobs:
         - -ec
         - |
           cd halfpipe
-          mise bootstrap packages apply
+          mise bootstrap packages apply -y
           mise run
       params:
         CI: true
