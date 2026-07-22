@@ -1,4 +1,4 @@
-# fly -tee sp -p halfpipe-cli -c .pipeline.yml
+# fly -t engineering-enablement sp -p halfpipe-cli -c .pipeline.yml
 groups: []
 resources:
 - name: artifactory-linux
@@ -106,20 +106,20 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: debian
-          tag: "13-slim"
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/debian-mise
+          tag: latest
+          username: oauth2accesstoken
       run:
         path: /bin/bash
         args:
         - -ec
         - |
-          apt-get update
-          apt-get install -y --no-install-recommends build-essential ca-certificates curl git
-          export GOMODCACHE=/var/halfpipe/cache/gomodcache
-          export CI=true
-          cd halfpipe
-          curl https://mise.run | MISE_INSTALL_PATH=/usr/local/bin/mise sh
           mise run
+      params:
+        CI: true
       inputs:
       - name: halfpipe
       caches:
@@ -310,3 +310,16 @@ jobs:
     params:
       repository: homebrew-halfpipe
       rebase: true
+
+var_sources:
+  - config:
+      auth_backend: approle
+      auth_params:
+        role_id: ((platform/team-ro-app-role.vault_approle_id))
+        secret_id: ((platform/team-ro-app-role.vault_approle_secret_id))
+      lookup_templates:
+        - '{{.Secret}}'
+      path_prefix: gcp/impersonated-account/
+      url: ((platform/team-ro-app-role.vault_addr))
+    name: gcp
+    type: vault
