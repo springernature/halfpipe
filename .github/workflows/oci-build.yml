@@ -7,7 +7,6 @@ on:
 
 jobs:
   build:
-    runs-on: ee-runner
     steps:
       - uses: actions/checkout@v7
 
