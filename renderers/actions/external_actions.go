@@ -31,7 +31,7 @@ var ExternalActions = struct {
 	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1", Version: "v3.2.0"},
 	DeployCF:             ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
 	DeployKatee:          ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
-	DockerLogin:          ExternalAction{Ref: "docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0", Version: "v4.4.0"},
+	DockerLogin:          ExternalAction{Ref: "docker/login-action@06fb636fac595d6fb4b28a5dfcb21a6f5091859c", Version: "v4.5.0"},
 	DockerPush:           ExternalAction{Ref: "springernature/ee-action-docker-push@v1"},
 	DownloadArtifact:     ExternalAction{Ref: "actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c", Version: "v8.0.1"},
 	RepositoryDispatch:   ExternalAction{Ref: "peter-evans/repository-dispatch@28959ce8df70de7be546dd1250a005dd32156697", Version: "v4.0.1"},
