@@ -20,19 +20,19 @@ func (opsLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 	result.DocsURL = "https://springernature.atlassian.net/wiki/spaces/ENG/pages/600703533/Developer+Portal"
 
 	if manifest.OpsLevel.RelativePath == "" {
-		result.Add(ErrOpsLevelNotFound.AsWarning())
+		result.Add(ErrOpsLevelNotFound)
 		return result
 	}
 
 	if manifest.OpsLevel.ParseError != "" {
-		result.Add(ErrOpsLevelInvalid.WithValue(manifest.OpsLevel.ParseError).WithValue(manifest.OpsLevel.RelativePath).AsWarning())
+		result.Add(ErrOpsLevelInvalid.WithValue(manifest.OpsLevel.ParseError).WithValue(manifest.OpsLevel.RelativePath))
 		return result
 	}
 
 	if !opsLevelSystemRegex.MatchString(manifest.OpsLevel.System) {
 		result.Add(NewErrInvalidField(
 			"component.system",
-			fmt.Sprintf("must match %s", opsLevelSystemRegex)).WithValue(manifest.OpsLevel.RelativePath).AsWarning())
+			fmt.Sprintf("must match %s", opsLevelSystemRegex)).WithValue(manifest.OpsLevel.RelativePath))
 	}
 
 	return result
