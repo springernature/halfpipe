@@ -180,7 +180,7 @@ jobs:
       command: halfpipe-all
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -222,7 +222,7 @@ jobs:
       command: halfpipe-all
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -302,7 +302,7 @@ jobs:
       command: halfpipe-push
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       preStartCommand: cf apps; cf events myapp-CANDIDATE
       team: halfpipe-team
@@ -466,7 +466,7 @@ jobs:
       command: halfpipe-all
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app
@@ -523,7 +523,7 @@ jobs:
       command: halfpipe-all
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -602,7 +602,7 @@ jobs:
       command: halfpipe-rolling-deploy
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: springernature.app
@@ -644,7 +644,7 @@ jobs:
       command: halfpipe-rolling-deploy
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -686,7 +686,7 @@ jobs:
       command: halfpipe-push
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       instances: 1
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
@@ -777,7 +777,7 @@ jobs:
       command: halfpipe-rolling-deploy
       eaid: APPL-437
       gitRefPath: git/.git/ref
-      gitUri: git@github.com:springernature/halfpipe.git
+      gitUri: git@github.com:springernature/halfpipe
       manifestPath: git/.e2e/deploy-cf/manifest.yml
       team: halfpipe-team
       testDomain: some.random.domain.com
@@ -818,7 +818,7 @@ resources:
     paths:
     - .e2e/deploy-cf
     private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
+    uri: git@github.com:springernature/halfpipe
   type: git
 - check_every: 24h0m0s
   name: artifacts

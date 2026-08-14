@@ -110,7 +110,7 @@ to true.
 ```yaml
 # Override the default uri and private key
 - type: git
-  uri: git@github.com:org/repo.git
+  uri: git@github.com:org/repo
   private_key: ((repo-name.private-key))
 ```
 
@@ -118,7 +118,7 @@ to true.
 # Only trigger when there are changes in src/main,
 # unlock the encrypted repo, and shallow clone.
 - type: git
-  uri: git@github.com:organisation/repo-name.git
+  uri: git@github.com:organisation/repo-name
   private_key: ((repo-name.private-key))
   git_crypt_key: ((git-crypt-keys.repo-name))
   watched_paths:

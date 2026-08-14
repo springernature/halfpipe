@@ -302,7 +302,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-push
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/notifications_new_format/manifest.yml
         org: pe
         password: very-secret

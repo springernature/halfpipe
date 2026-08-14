@@ -127,7 +127,7 @@ jobs:
         dockerPassword: ${{ steps.secrets.outputs.springernature_data_shared_halfpipe-gcr_private_key_base64 }}
         dockerUsername: _json_key
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/deploy-cf-docker-image/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}
@@ -195,7 +195,7 @@ jobs:
         dockerTag: ${{ env.GIT_REVISION }}
         dockerUsername: _json_key
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/deploy-cf-docker-image/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}
@@ -330,7 +330,7 @@ jobs:
         dockerTag: ${{ env.BUILD_VERSION }}
         dockerUsername: _json_key
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/deploy-cf-docker-image/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}
@@ -398,7 +398,7 @@ jobs:
         dockerTag: ${{ env.GIT_REVISION }}
         dockerUsername: _json_key
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/deploy-cf-docker-image/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}

@@ -2,13 +2,14 @@ package project
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/spf13/afero"
-	"github.com/tcnksm/go-gitconfig"
 	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
+	"github.com/tcnksm/go-gitconfig"
 )
 
 type Data struct {
@@ -90,6 +91,11 @@ func (c projectResolver) Parse(workingDir string, ignoreMissingHalfpipeFile bool
 		err = ErrNoOriginConfigured
 		return p, err
 	}
+
+	// keep origin url consistent
+	// in local `.git/config` it sometimes has `.git` suffix depending on how the repo was cloned
+	// on runner the checkout action doesn't include it
+	origin = strings.TrimSuffix(origin, ".git")
 
 	halfpipeFilePath, e := c.GetHalfpipeFileName(workingDir, halfpipeFilenameOptions)
 	if errors.Is(e, ErrHalfpipeFileNotFound) && !ignoreMissingHalfpipeFile {

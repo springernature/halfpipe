@@ -207,7 +207,7 @@ jobs:
         cliVersion: cf7
         command: halfpipe-all
         eaid: APPL-437
-        gitUri: git@github.com:springernature/halfpipe.git
+        gitUri: git@github.com:springernature/halfpipe
         manifestPath: .e2e/deploy-cf/manifest.yml
         org: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_org-snpaas }}
         password: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_password-snpaas }}

@@ -131,7 +131,7 @@ resources:
     - go.*
     - mise.toml
     private_key: ((halfpipe-github.private_key))
-    uri: git@github.com:springernature/halfpipe.git
+    uri: git@github.com:springernature/halfpipe
   type: git
 - check_every: 24h0m0s
   name: version
