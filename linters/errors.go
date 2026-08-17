@@ -85,7 +85,7 @@ var (
 
 	ErrCopyContainerSource = newError("source must be in format 'eu.gcr.io/halfpipe-io/<team>/<image>[:<tag>]'")
 
-	ErrOpsLevelNotFound = newError("opslevel.yml not found in current directory or any parent")
+	ErrOpsLevelNotFound = newError("opslevel.yml not found in current directory or any parent. Please see <https://teams.microsoft.com/l/message/19:6cbi2SE9sz_QmBrvpYjV0ZzNS7IzdkUylaRPpFYg-Lc1@thread.tacv2/1786951535615?tenantId=d9aabe7c-608b-4fe1-957c-0739cb0dfe22&groupId=8b62b825-a115-4575-a969-ce4b8b7c5ef0&parentMessageId=1786951535615&teamName=Engineering%20Enablement&channelName=Ask%20Engineering%20Enablement&createdTime=1786951535615&ngc=true&allowXTenantAccess=true> ")
 	ErrOpsLevelInvalid  = newError("opslevel.yml is invalid")
 )
 
