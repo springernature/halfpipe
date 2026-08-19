@@ -156,7 +156,7 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 						return
 					}
 				} else {
-					if !validateKeyValueSecret(secret) && !validateMultipleLevelSecret(secret) {
+					if !validateKeyValueSecret(secret) && !validateMultipleLevelSecret(secret) && !validateVarSourceSecret(secret) {
 						*errs = append(*errs, InvalidSecretActionsError(secret, fieldName))
 						return
 					}

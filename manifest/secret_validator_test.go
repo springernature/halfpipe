@@ -537,3 +537,27 @@ func TestBadKeysInParallel(t *testing.T) {
 	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].api"))
 	assert.Contains(t, errors, manifest.InvalidSecretConcourseError("((this_is_a_invalid$secret.@with_special_chars))", "tasks[1][0][1].pre_promote[0].vars[SuperSecret]"))
 }
+
+func TestShortLivedTokens(t *testing.T) {
+	man := manifest.Manifest{
+		Platform: "actions",
+		Tasks: manifest.TaskList{
+			manifest.Run{
+				Vars: map[string]string{
+					"secret": "((gcp:TEAM-katee-NAMESPACE/token.token))",
+				},
+			},
+			manifest.Parallel{
+				Tasks: manifest.TaskList{
+					manifest.Run{
+						Vars: map[string]string{
+							"secret": "((gcp:TEAM-katee-NAMESPACE/token.token))",
+						},
+					},
+				},
+			},
+		},
+	}
+	errors := secretValidator.Validate(man)
+	assert.Empty(t, errors)
+}
