@@ -111,7 +111,7 @@ jobs:
           "EAID=APPL-437"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "RUNNING_IN_CI=true"
-        builder: paketobuildpacks/builder-jammy-buildpackless-base
+        builder: paketobuildpacks/builder-jammy-buildpackless-base@sha256:c2d014abe528e7cab7fa675aab5829e4deee982d01eac993ffd841052133cb79
         buildpacks: gcr.io/paketo-buildpacks/java:18.5.0
         image: eu.gcr.io/halfpipe-io/halfpipe-e2e-pact
         path: .e2e/buildpack

@@ -31,7 +31,7 @@ var commonDocker = DockerDefaults{
 }
 
 var commonBuildpack = BuildpackDefaults{
-	Builder: "paketobuildpacks/builder-jammy-buildpackless-base",
+	Builder: "paketobuildpacks/builder-jammy-buildpackless-base@sha256:c2d014abe528e7cab7fa675aab5829e4deee982d01eac993ffd841052133cb79",
 }
 
 var commonAWSDocker = AWSDockerDefaults{

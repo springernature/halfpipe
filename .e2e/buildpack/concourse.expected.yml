@@ -95,7 +95,7 @@ jobs:
           export BUILD_VERSION=`cat ../../../version/version`
           echo pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path . \
-          --builder paketobuildpacks/builder-jammy-buildpackless-base \
+          --builder paketobuildpacks/builder-jammy-buildpackless-base@sha256:c2d014abe528e7cab7fa675aab5829e4deee982d01eac993ffd841052133cb79 \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION} --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${BUILD_VERSION}  \
           --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
@@ -113,7 +113,7 @@ jobs:
 
           pack build eu.gcr.io/halfpipe-io/halfpipe-e2e-pact \
           --path . \
-          --builder paketobuildpacks/builder-jammy-buildpackless-base \
+          --builder paketobuildpacks/builder-jammy-buildpackless-base@sha256:c2d014abe528e7cab7fa675aab5829e4deee982d01eac993ffd841052133cb79 \
           --buildpack gcr.io/paketo-buildpacks/java:18.5.0 \
           --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${GIT_REVISION} --tag eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:${BUILD_VERSION}  \
           --cache-image eu.gcr.io/halfpipe-io/halfpipe-e2e-pact:buildcache \
