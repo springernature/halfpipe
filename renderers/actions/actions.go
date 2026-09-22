@@ -230,8 +230,7 @@ func dockerLogin(image, username, password string) Steps {
 	// set registry if not docker hub by counting slashes
 	// docker hub format: repository:tag or user/repository:tag
 	// other registries:  another.registry/user/repository:tag
-	if strings.Count(image, "/") > 1 {
-		registry := strings.Split(image, "/")[0]
+	if registry, _, found := strings.Cut(image, "/"); found {
 		step.With["registry"] = registry
 	}
 	return Steps{step}

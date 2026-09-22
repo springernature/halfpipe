@@ -1,5 +1,5 @@
 [tools]
-go = "latest"
+go = "1.27.1"
 python = "latest"
 pipx = "latest"
 "pipx:check-jsonschema" = "0.37.4"
