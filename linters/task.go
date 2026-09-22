@@ -29,6 +29,7 @@ type taskLinter struct {
 	lintNotifications               func(task manifest.Task) []error
 	lintBuildpackTask               func(task manifest.Buildpack) []error
 	lintCopyContainerImageTask      func(task manifest.CopyContainerImage) []error
+	lintUploadSLOsTask              func(task manifest.UploadSLOs, fs afero.Afero) (errs []error)
 	os                              string
 }
 
@@ -50,6 +51,7 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintNotifications:               LintNotifications,
 		lintBuildpackTask:               LintBuildpackTask,
 		lintCopyContainerImageTask:      LintCopyContainerImageTask,
+		lintUploadSLOsTask:              LintUploadSLOsTask,
 		os:                              os,
 	}
 }
@@ -119,6 +121,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 			errs = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
 		case manifest.UploadSLOs:
+			errs = linter.lintUploadSLOsTask(task, linter.Fs)
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
 		case manifest.CopyContainerImage:
