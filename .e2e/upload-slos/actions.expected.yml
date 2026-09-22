@@ -74,3 +74,80 @@ jobs:
           echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
+  upload-slos:
+    name: upload-slos
+    needs:
+    - update
+    if: needs.update.outputs.synced == 'true'
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: upload-slos
+      id: upload-slos
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10
+      with:
+        args: -c "cd .e2e/upload-slos; \upload-slos -i slos"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+  upload-slos__1_:
+    name: upload-slos (1)
+    needs:
+    - upload-slos
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: upload-slos (1)
+      id: upload-slos-1
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10
+      with:
+        args: -c "cd .e2e/upload-slos; \upload-slos -i other-slos"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"

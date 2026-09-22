@@ -8,6 +8,9 @@ type UploadSLOs struct {
 	// Optional path where SLOs can be found.
 	Folder   string `json:"folder,omitempty" yaml:"folder,omitempty" jsonschema:"default=slos"`
 	TaskBase `yaml:",inline"`
+	// todo: prevent this from being included in the docs
+	// todo: why do the e2e tests for upload-slos not fail for gh actions when secretAllow is not set? It fails for concourse.
+	Vars Vars `secretAllowed:"true"`
 }
 
 func (r UploadSLOs) SetNotifications(notifications Notifications) Task {
