@@ -22,6 +22,7 @@
   - [parallel](#parallel)
   - [run](#run)
   - [sequence](#sequence)
+  - [upload-slos](#upload-slos)
 - [Supporting Types](#supporting-types)
   - [notifications](#notifications)
   - [notification channel](#notification-channel)
@@ -785,6 +786,21 @@ tasks:
   - type: run
     name: e
 ```
+
+### upload-slos
+
+upload-slos uploads the SLOs within the specified folder to the central Grafana.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | optional | Optional display name. |
+| `folder` | string | optional | Optional path where SLOs can be found. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
+| `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
 
 ## Supporting Types

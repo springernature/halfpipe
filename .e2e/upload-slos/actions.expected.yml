@@ -1,0 +1,76 @@
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/upload-slos/.halfpipe.io.yml for team halfpipe-team
+name: halfpipe-e2e-upload-slos
+"on":
+  push:
+    branches:
+    - main
+    paths:
+    - .e2e/upload-slos**
+    - .github/workflows/halfpipe-e2e-upload-slos.yml
+  workflow_dispatch: {}
+permissions:
+  contents: read
+  actions: read
+  security-events: write
+  packages: read
+env:
+  ARTIFACTORY_PASSWORD: ${{ secrets.EE_ARTIFACTORY_PASSWORD }}
+  ARTIFACTORY_URL: ${{ secrets.EE_ARTIFACTORY_URL }}
+  ARTIFACTORY_USERNAME: ${{ secrets.EE_ARTIFACTORY_USERNAME }}
+  BUILD_VERSION: 2.${{ github.run_number }}.0
+  GIT_REVISION: ${{ github.sha }}
+  RUNNING_IN_CI: "true"
+defaults:
+  run:
+    working-directory: .e2e/upload-slos
+concurrency: ${{ github.workflow }}
+jobs:
+  update:
+    name: update
+    runs-on: ee-runner
+    timeout-minutes: 60
+    outputs:
+      synced: ${{ steps.sync.outputs.synced }}
+    steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: Sync workflow with halfpipe manifest
+      id: sync
+      run: halfpipe-update-workflow
+      env:
+        HALFPIPE_FILE_PATH: .halfpipe.io.yml
+    - name: Commit and push changes to workflow
+      if: steps.sync.outputs.synced == 'false'
+      run: |
+        if git commit -am "[halfpipe] synced workflow $GITHUB_WORKFLOW with halfpipe manifest" && git push; then
+          echo ':white_check_mark: Halfpipe successfully updated the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This happened because the workflow was out of sync with the halfpipe manifest. To disable the syncing use the feature toggle `disable-update-pipeline`.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
+        else
+          echo ':x: Halfpipe failed to update the workflow' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo 'This may have happened because newer git commits have already been pushed. Check for newer pipeline runs or manually trigger the workflow.' >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi

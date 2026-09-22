@@ -70,7 +70,8 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[DockerTrigger](),
 		reflect.TypeFor[Buildpack](),
 		reflect.TypeFor[CopyContainerImage](),
-		reflect.TypeFor[PipelineTrigger]():
+		reflect.TypeFor[PipelineTrigger](),
+		reflect.TypeFor[UploadSLOs]():
 
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)

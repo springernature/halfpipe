@@ -196,6 +196,11 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t
+	case "upload-slos":
+		t := UploadSLOs{}
+		err = unmarshal(&t)
+		t.Type = ""
+		task = t
 
 	default:
 		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'buildpack', 'copy-container-image', 'parallel', 'sequence'", taskIndex, taskType)

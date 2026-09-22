@@ -190,6 +190,7 @@ var taskTypes = []typeDefEntry{
 	{"sequence", "Sequence", manifest.Sequence{}},
 	{"buildpack", "Buildpack", manifest.Buildpack{}},
 	{"copy-container-image", "CopyContainerImage", manifest.CopyContainerImage{}},
+	{"upload-slos", "UploadSLOs", manifest.UploadSLOs{}},
 }
 
 var triggerTypes = []typeDefEntry{

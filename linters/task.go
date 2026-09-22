@@ -118,6 +118,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.DeployMLModules:
 			errs = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
+		case manifest.UploadSLOs:
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
 		case manifest.CopyContainerImage:

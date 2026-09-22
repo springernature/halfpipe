@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=../../.generated/schema.json
+team: halfpipe-team
+pipeline: halfpipe-e2e-upload-slos
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/upload-slos
+
+tasks:
+- type: upload-slos
+  folder: slos

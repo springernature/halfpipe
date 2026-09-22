@@ -358,6 +358,9 @@
               },
               {
                 "$ref": "#/$defs/CopyContainerImage"
+              },
+              {
+                "$ref": "#/$defs/UploadSLOs"
               }
             ]
           },
@@ -1172,6 +1175,9 @@
               },
               {
                 "$ref": "#/$defs/CopyContainerImage"
+              },
+              {
+                "$ref": "#/$defs/UploadSLOs"
               }
             ]
           },
@@ -1372,6 +1378,9 @@
               },
               {
                 "$ref": "#/$defs/CopyContainerImage"
+              },
+              {
+                "$ref": "#/$defs/UploadSLOs"
               }
             ]
           },
@@ -1414,6 +1423,60 @@
     "TriggerList": {
       "items": true,
       "type": "array"
+    },
+    "UploadSLOs": {
+      "properties": {
+        "type": {
+          "type": "string",
+          "const": "upload-slos",
+          "description": "upload-slos uploads the SLOs within the specified folder to the central Grafana."
+        },
+        "name": {
+          "type": "string",
+          "description": "Optional display name."
+        },
+        "folder": {
+          "type": "string",
+          "description": "Optional path where SLOs can be found."
+        },
+        "manual_trigger": {
+          "type": "boolean",
+          "description": "Task must be triggered manually (Concourse only).",
+          "default": false
+        },
+        "retries": {
+          "type": "integer",
+          "description": "Number of times to retry the task if it fails.",
+          "default": 0
+        },
+        "notify_on_success": {
+          "type": "boolean",
+          "description": "Deprecated: use notifications instead.",
+          "default": false,
+          "deprecated": true,
+          "deprecationMessage": "use notifications instead"
+        },
+        "notifications": {
+          "$ref": "#/$defs/Notifications",
+          "description": "Notification channels for this task."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout duration for the task. If exceeded the task fails.",
+          "default": "1h"
+        },
+        "build_history": {
+          "type": "integer",
+          "description": "Number of build logs to retain (Concourse only).",
+          "default": 20
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "required": [
+        "type"
+      ],
+      "description": "upload-slos uploads the SLOs within the specified folder to the central Grafana."
     },
     "Vars": {
       "additionalProperties": {
@@ -1535,6 +1598,9 @@
           },
           {
             "$ref": "#/$defs/CopyContainerImage"
+          },
+          {
+            "$ref": "#/$defs/UploadSLOs"
           }
         ]
       },

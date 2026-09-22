@@ -1,6 +1,10 @@
 package defaults
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"fmt"
+
+	"github.com/springernature/halfpipe/manifest"
+)
 
 type TasksRenamer interface {
 	Apply(original manifest.TaskList) (updated manifest.TaskList)
@@ -88,6 +92,10 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = task
 		case manifest.CopyContainerImage:
 			tt = t.copyContainerImageDefaulter(task, defaults)
+		case manifest.UploadSLOs:
+			tt = task
+		default:
+			panic(fmt.Sprintf("Task %s has no defaults specified", task))
 		}
 
 		tasksWithDefaultsApplied = append(tasksWithDefaultsApplied, tt)
