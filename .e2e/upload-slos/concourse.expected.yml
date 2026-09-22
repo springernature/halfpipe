@@ -60,6 +60,22 @@ jobs:
         - update
         trigger: true
     timeout: 2h
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: ""
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - upload-slos
+      - get: version
+        passed:
+        - upload-slos
+        trigger: true
+    timeout: 2h
 resources:
 - check_every: 10m0s
   name: git

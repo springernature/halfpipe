@@ -6,7 +6,7 @@ type UploadSLOs struct {
 	// Optional display name.
 	Name string `json:"name,omitempty" yaml:"nam,omitempty"`
 	// Optional path where SLOs can be found.
-	Folder   string `json:"folder,omitempty" yaml:"folder,omitempty"`
+	Folder   string `json:"folder,omitempty" yaml:"folder,omitempty" jsonschema:"default=slos"`
 	TaskBase `yaml:",inline"`
 }
 

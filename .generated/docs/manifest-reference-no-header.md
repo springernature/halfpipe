@@ -761,7 +761,7 @@ upload-slos uploads the SLOs within the specified folder to the central Grafana.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
-| `folder` | string | optional | Optional path where SLOs can be found. |
+| `folder` | string | optional | Optional path where SLOs can be found. Default: `slos`. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
 | `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
 | `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |

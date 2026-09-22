@@ -1437,7 +1437,8 @@
         },
         "folder": {
           "type": "string",
-          "description": "Optional path where SLOs can be found."
+          "description": "Optional path where SLOs can be found.",
+          "default": "slos"
         },
         "manual_trigger": {
           "type": "boolean",

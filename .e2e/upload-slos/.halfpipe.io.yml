@@ -10,4 +10,5 @@ triggers:
 
 tasks:
 - type: upload-slos
-  folder: slos
+- type: upload-slos
+  folder: other-slos
