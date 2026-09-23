@@ -13,8 +13,7 @@ func TestUploadSLOsMapper_ReturnsErrorWhenManifestCannotBeOpened(t *testing.T) {
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{manifest.UploadSLOs{
 		Folder: "the-folder",
 		Name:   "the-name",
-		Vars:   manifest.Vars{"BOB": "BEN"},
-	}}})
+	}.SetVars(manifest.Vars{"BOB": "BEN"})}})
 	assert.NoError(t, err)
 
 	run := updated.Tasks[0].(manifest.Run)

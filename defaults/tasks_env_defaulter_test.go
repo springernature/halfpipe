@@ -86,7 +86,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 				manifest.Run{Vars: expectedVars},
 			},
 		},
-		manifest.UploadSLOs{Vars: expectedVars},
+		manifest.UploadSLOs{}.SetVars(expectedVars),
 	}
 
 	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, Concourse, manifest.Manifest{Team: "test"}))

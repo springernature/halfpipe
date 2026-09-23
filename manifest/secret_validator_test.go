@@ -561,3 +561,13 @@ func TestShortLivedTokens(t *testing.T) {
 	errors := secretValidator.Validate(man)
 	assert.Empty(t, errors)
 }
+
+func TestThatWeCanSkipValiadationsOfSpecificFields(t *testing.T) {
+	// UploadSLOs have a private Vars, this causes panic, so we added skipSecretsValidator tag to skip checking it
+	man := manifest.Manifest{Tasks: manifest.TaskList{
+		manifest.UploadSLOs{}.SetVars(manifest.Vars{"secret": "((a.b))"}),
+	}}
+
+	errors := secretValidator.Validate(man)
+	assert.Empty(t, errors, 1)
+}

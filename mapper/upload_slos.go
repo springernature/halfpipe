@@ -55,7 +55,7 @@ func (k uploadSlos) mapUploadSLOs(task manifest.UploadSLOs) (mapped manifest.Run
 	mapped.Docker.Image = "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10"
 	mapped.Script = fmt.Sprintf(`\upload-slos -i %s`, task.Folder)
 	mapped.Name = task.Name
-	mapped.Vars = task.Vars
+	mapped.Vars = task.GetVars()
 	return mapped, nil
 }
 

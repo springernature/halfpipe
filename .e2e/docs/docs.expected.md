@@ -801,8 +801,6 @@ upload-slos uploads the SLOs within the specified folder to the central Grafana.
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
 | `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
 | `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
-| `Vars` | [vars](#vars) | optional | todo: prevent this from being included in the docs
-todo: why do the e2e tests for upload-slos not fail for gh actions when secretAllow is not set? It fails for concourse. |
 
 
 ## Supporting Types

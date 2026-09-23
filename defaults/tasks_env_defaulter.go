@@ -61,8 +61,7 @@ func (t tasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaul
 			task.Vars = t.addDefaultsToVars(task.Vars, defaults, man)
 			tt = task
 		case manifest.UploadSLOs:
-			task.Vars = t.addDefaultsToVars(task.Vars, defaults, man)
-			tt = task
+			tt = task.SetVars(t.addDefaultsToVars(manifest.Vars{}, defaults, man))
 		default:
 			tt = task
 		}

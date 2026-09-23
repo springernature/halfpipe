@@ -1470,10 +1470,6 @@
           "type": "integer",
           "description": "Number of build logs to retain (Concourse only).",
           "default": 20
-        },
-        "Vars": {
-          "$ref": "#/$defs/Vars",
-          "description": "todo: prevent this from being included in the docs\ntodo: why do the e2e tests for upload-slos not fail for gh actions when secretAllow is not set? It fails for concourse."
         }
       },
       "additionalProperties": false,

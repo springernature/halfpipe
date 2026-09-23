@@ -10,7 +10,7 @@ type UploadSLOs struct {
 	TaskBase `yaml:",inline"`
 	// todo: prevent this from being included in the docs
 	// todo: why do the e2e tests for upload-slos not fail for gh actions when secretAllow is not set? It fails for concourse.
-	Vars Vars `secretAllowed:"true"`
+	vars Vars `skipSecretsValidator:"true"`
 }
 
 func (r UploadSLOs) SetNotifications(notifications Notifications) Task {
@@ -56,4 +56,13 @@ func (r UploadSLOs) SavesArtifacts() bool {
 
 func (r UploadSLOs) ReadsFromArtifacts() bool {
 	return false
+}
+
+func (r UploadSLOs) SetVars(vars Vars) UploadSLOs {
+	r.vars = vars
+	return r
+}
+
+func (r UploadSLOs) GetVars() Vars {
+	return r.vars
 }

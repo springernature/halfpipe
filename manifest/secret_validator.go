@@ -11,6 +11,7 @@ import (
 )
 
 const tagName = "secretAllowed"
+const disableSecretsLinter = "skipSecretsValidator"
 
 var reservedKeyNames = []string{"value"}
 
@@ -53,7 +54,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 	v := reflect.ValueOf(i)
 
 	switch v.Type() {
-
 	case reflect.TypeFor[Manifest](),
 		reflect.TypeFor[TaskBase](),
 		reflect.TypeFor[Run](),
@@ -78,7 +78,10 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 			name := v.Type().Field(i).Name
 			jsonTag := v.Type().Field(i).Tag.Get("json")
 			secretTag := v.Type().Field(i).Tag.Get(tagName)
-
+			disableCheckTag := v.Type().Field(i).Tag.Get(disableSecretsLinter)
+			if disableCheckTag == "true" {
+				continue
+			}
 			var realFieldName string
 			if v.Type().Field(i).Anonymous {
 				// Embedded struct — inline its fields at the same path level
