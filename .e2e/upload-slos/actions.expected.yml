@@ -104,7 +104,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: upload-slos
       id: upload-slos
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.11
       with:
         args: -c "cd .e2e/upload-slos; \upload-slos -i slos"
         entrypoint: /bin/sh
@@ -142,7 +142,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: upload-slos (1)
       id: upload-slos-1
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.11
       with:
         args: -c "cd .e2e/upload-slos; \upload-slos -i other-slos"
         entrypoint: /bin/sh

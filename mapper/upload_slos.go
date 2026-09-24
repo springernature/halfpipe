@@ -52,7 +52,7 @@ func (k uploadSlos) updateTasks(tasks manifest.TaskList) (updated manifest.TaskL
 }
 
 func (k uploadSlos) mapUploadSLOs(task manifest.UploadSLOs) (mapped manifest.Run, err error) {
-	mapped.Docker.Image = "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.10"
+	mapped.Docker.Image = "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.11"
 	mapped.Script = fmt.Sprintf(`\upload-slos -i %s`, task.Folder)
 	mapped.Name = task.Name
 	mapped.Vars = task.GetVars()

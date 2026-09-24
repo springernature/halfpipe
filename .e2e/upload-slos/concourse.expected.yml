@@ -70,7 +70,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: 0.2.10
+          tag: 0.2.11
         type: registry-image
       inputs:
       - name: git
@@ -148,7 +148,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: 0.2.10
+          tag: 0.2.11
         type: registry-image
       inputs:
       - name: git
