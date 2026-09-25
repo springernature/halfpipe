@@ -67,10 +67,12 @@ jobs:
       image_resource:
         name: ""
         source:
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
           tag: 0.2.11
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
@@ -145,10 +147,12 @@ jobs:
       image_resource:
         name: ""
         source:
+          password: ((gcp:platform-gar/token.token))
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
           tag: 0.2.11
+          username: oauth2accesstoken
         type: registry-image
       inputs:
       - name: git
