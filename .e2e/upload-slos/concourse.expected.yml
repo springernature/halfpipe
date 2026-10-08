@@ -71,7 +71,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: 0.2.11
+          tag: latest
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -151,7 +151,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: 0.2.11
+          tag: latest
           username: oauth2accesstoken
         type: registry-image
       inputs:

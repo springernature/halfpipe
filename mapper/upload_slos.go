@@ -54,7 +54,7 @@ func (k uploadSlos) updateTasks(tasks manifest.TaskList) (updated manifest.TaskL
 
 func (k uploadSlos) mapUploadSLOs(task manifest.UploadSLOs) (mapped manifest.Run, err error) {
 	mapped.Docker = manifest.Docker{
-		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:0.2.11",
+		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest",
 		Username: "oauth2accesstoken",
 		Password: config.VaultSecrets.GARToken,
 	}
