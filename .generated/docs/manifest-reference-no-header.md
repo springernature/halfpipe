@@ -769,6 +769,13 @@ upload-slos uploads the SLOs within the specified folder to the central Grafana.
 | `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
 | `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
+**Example:**
+
+```yaml
+- type: upload-slos
+  folder: my-slos # optional path. defaults to `slos`
+```
+
 
 ## Supporting Types
 
