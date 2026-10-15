@@ -46,8 +46,8 @@ var ExternalActions = struct {
 func GetAllSHAPinnedActions() map[string]string {
 	result := make(map[string]string)
 	v := reflect.ValueOf(ExternalActions)
-	for i := 0; i < v.NumField(); i++ {
-		a := v.Field(i).Interface().(ExternalAction)
+	for _, field := range v.Fields() {
+		a := field.Interface().(ExternalAction)
 		if a.Version != "" {
 			if _, sha, found := strings.Cut(a.Ref, "@"); found {
 				result[sha] = a.Version
