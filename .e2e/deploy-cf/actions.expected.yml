@@ -171,7 +171,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_cf8:
     name: deploy with cf8
     needs:
@@ -221,7 +221,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_pre-start_and_pre-promote:
     name: deploy with pre-start and pre-promote
     needs:
@@ -345,7 +345,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_vars_and_secrets:
     name: deploy with vars and secrets
     needs:
@@ -425,7 +425,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_with_sso_route:
     name: deploy with sso route
     needs:
@@ -489,7 +489,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_rolling_with_sso:
     name: deploy rolling with sso
     needs:
@@ -574,7 +574,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_rolling_plain:
     name: deploy rolling plain
     needs:
@@ -624,7 +624,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_rolling_with_pre-promote:
     name: deploy rolling with pre-promote
     needs:
@@ -741,4 +741,4 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY

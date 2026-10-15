@@ -141,7 +141,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_with_pre_promote:
     name: deploy to cf with pre promote
     needs:
@@ -276,7 +276,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_simple_-_rolling_deploy:
     name: deploy to cf simple - rolling deploy
     needs:
@@ -344,7 +344,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   deploy_to_cf_with_pre_promote_-_rolling_deploy:
     name: deploy to cf with pre promote - rolling deploy
     needs:
@@ -479,4 +479,4 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY

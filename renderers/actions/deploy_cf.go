@@ -178,7 +178,7 @@ func (a *Actions) SummaryStep() Step {
 	sRun := []string{}
 	sRun = append(sRun, `echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY`)
 	sRun = append(sRun, `echo "" >> $GITHUB_STEP_SUMMARY`)
-	sRun = append(sRun, `echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY`)
+	sRun = append(sRun, `echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY`)
 	return Step{
 		Name: "Summary",
 		Run:  strings.Join(sRun, "\n"),

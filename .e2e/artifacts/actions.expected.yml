@@ -372,7 +372,7 @@ jobs:
       run: |-
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "[SNPaaS Mission Control](https://mission-control.snpaas.eu/)" >> $GITHUB_STEP_SUMMARY
+        echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
   push_to_docker_registry:
     name: push to docker registry
     needs:
