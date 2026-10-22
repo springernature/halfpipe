@@ -116,6 +116,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -137,6 +138,7 @@ jobs:
             --build-arg B \
             --build-arg CI \
             --build-arg EAID \
+            --build-arg EE_GIT_REPO \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -156,6 +158,7 @@ jobs:
             --build-arg B \
             --build-arg CI \
             --build-arg EAID \
+            --build-arg EE_GIT_REPO \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \

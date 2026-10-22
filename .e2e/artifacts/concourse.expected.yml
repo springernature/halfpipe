@@ -93,6 +93,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -226,6 +227,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -319,6 +321,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -503,6 +506,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
@@ -673,6 +677,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -694,6 +699,7 @@ jobs:
             --build-arg B \
             --build-arg CI \
             --build-arg EAID \
+            --build-arg EE_GIT_REPO \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -713,6 +719,7 @@ jobs:
             --build-arg B \
             --build-arg CI \
             --build-arg EAID \
+            --build-arg EE_GIT_REPO \
             --build-arg EE_PLATFORM_TEAM \
             --build-arg RUNNING_IN_CI \
             --secret id=ARTIFACTORY_PASSWORD \
@@ -887,6 +894,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         HALFPIPE_CACHE_TEAM: halfpipe-team
@@ -915,7 +923,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
+          \docker-compose run --use-aliases -e A -e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e BUILD_VERSION -e CI -e DOCKER_HOST="${DIND_HOST}" -e EAID -e EE_GIT_REPO -e EE_PLATFORM_TEAM -e GIT_REVISION -e HALFPIPE_CACHE_TEAM -e RUNNING_IN_CI -v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache app
 
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
@@ -1098,6 +1106,7 @@ jobs:
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: ""
@@ -1128,7 +1137,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
+          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_GIT_REPO -e EE_PLATFORM_TEAM -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?

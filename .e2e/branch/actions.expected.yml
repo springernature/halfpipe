@@ -128,6 +128,7 @@ jobs:
         CI: "true"
         DEEP_SECRET: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_path_to_map_key }}
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         FOO: foo
         MULTIPLE: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_levels_secret_deep_secret }}
@@ -177,5 +178,6 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"

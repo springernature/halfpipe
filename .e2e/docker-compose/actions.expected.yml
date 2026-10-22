@@ -115,6 +115,7 @@ jobs:
           -e BUILD_VERSION \
           -e CI \
           -e EAID \
+          -e EE_GIT_REPO \
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
@@ -124,6 +125,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -208,6 +210,7 @@ jobs:
           -e BUILD_VERSION \
           -e CI \
           -e EAID \
+          -e EE_GIT_REPO \
           -e EE_PLATFORM_TEAM \
           -e F \
           -e GIT_REVISION \
@@ -221,6 +224,7 @@ jobs:
         B: bar
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         F: foo
         RUNNING_IN_CI: "true"
@@ -269,6 +273,7 @@ jobs:
           -e BUILD_VERSION \
           -e CI \
           -e EAID \
+          -e EE_GIT_REPO \
           -e EE_PLATFORM_TEAM \
           -e GIT_REVISION \
           -e RUNNING_IN_CI \
@@ -279,6 +284,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Docker cleanup

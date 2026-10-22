@@ -1,6 +1,10 @@
 package defaults
 
-import "github.com/springernature/halfpipe/manifest"
+import (
+	"strings"
+
+	"github.com/springernature/halfpipe/manifest"
+)
 
 type tasksEnvVarsDefaulter struct {
 }
@@ -27,6 +31,10 @@ func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults De
 	vars["RUNNING_IN_CI"] = "true"
 	vars["CI"] = "true"
 	vars["EE_PLATFORM_TEAM"] = man.Team
+
+	gitRepo := strings.TrimPrefix(defaults.Project.GitURI, "git@github.com:springernature/")
+	gitRepo = strings.TrimSuffix(gitRepo, ".git")
+	vars["EE_GIT_REPO"] = gitRepo
 
 	return vars
 }

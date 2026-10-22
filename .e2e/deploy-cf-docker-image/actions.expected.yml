@@ -242,6 +242,7 @@ jobs:
         A: blah
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app
@@ -445,6 +446,7 @@ jobs:
         A: blah
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-dev-CANDIDATE.springernature.app

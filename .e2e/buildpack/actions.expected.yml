@@ -109,6 +109,7 @@ jobs:
         buildEnv: |
           "CI=true"
           "EAID=APPL-437"
+          "EE_GIT_REPO=halfpipe"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "RUNNING_IN_CI=true"
         builder: paketobuildpacks/builder-jammy-buildpackless-base@sha256:c2d014abe528e7cab7fa675aab5829e4deee982d01eac993ffd841052133cb79
@@ -123,6 +124,7 @@ jobs:
         BUILD_VERSION: 2.${{ github.run_number }}.0
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_REVISION: ${{ github.sha }}
         RUNNING_IN_CI: "true"
@@ -162,6 +164,7 @@ jobs:
           "BP_FOO=foo"
           "CI=true"
           "EAID=APPL-437"
+          "EE_GIT_REPO=halfpipe"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "RUNNING_IN_CI=true"
         builder: paketobuildpacks/builder-jammy-buildpackless-tiny
@@ -178,6 +181,7 @@ jobs:
         BUILD_VERSION: 2.${{ github.run_number }}.0
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_REVISION: ${{ github.sha }}
         RUNNING_IN_CI: "true"

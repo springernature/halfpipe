@@ -91,6 +91,7 @@ jobs:
         DOCKER_COMPOSE_FILE: custom-docker-compose.yml
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: --depth 100
@@ -111,7 +112,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
+          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_GIT_REPO -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI -e S1"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?
@@ -171,6 +172,7 @@ jobs:
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: --depth 100
@@ -190,7 +192,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI"
+          \export ENV_OPTIONS="-e ARTIFACTORY_PASSWORD -e ARTIFACTORY_URL -e ARTIFACTORY_USERNAME -e CI -e EAID -e EE_GIT_REPO -e EE_PLATFORM_TEAM -e K -e K1 -e RUNNING_IN_CI"
           export VOLUME_OPTIONS="-v /var/halfpipe/cache:/var/halfpipe/cache -v /var/halfpipe/shared-cache:/var/halfpipe/shared-cache -v /var/run/docker.sock:/var/run/docker.sock"
           run-cdc.sh
           EXIT_STATUS=$?

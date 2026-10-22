@@ -4,10 +4,12 @@ import (
 	"testing"
 
 	"github.com/springernature/halfpipe/manifest"
+	"github.com/springernature/halfpipe/project"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
+
 	expectedVars := map[string]string{
 		"ARTIFACTORY_URL":      Concourse.Artifactory.URL,
 		"ARTIFACTORY_USERNAME": Concourse.Artifactory.Username,
@@ -15,6 +17,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		"RUNNING_IN_CI":        "true",
 		"CI":                   "true",
 		"EE_PLATFORM_TEAM":     "test",
+		"EE_GIT_REPO":          "some-repo",
 	}
 
 	input := manifest.TaskList{
@@ -89,5 +92,10 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		manifest.UploadSLOs{}.SetVars(expectedVars),
 	}
 
-	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, Concourse, manifest.Manifest{Team: "test"}))
+	defaults := Concourse
+	defaults.Project = project.Data{
+		GitURI: "git@github.com:springernature/some-repo.git",
+	}
+
+	assert.Equal(t, expected, NewTasksEnvVarsDefaulter().Apply(input, defaults, manifest.Manifest{Team: "test"}))
 }

@@ -111,6 +111,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_1_1:
@@ -149,6 +150,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_1_2:
@@ -187,6 +189,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_1_3:
@@ -225,6 +228,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_1_1:
@@ -265,6 +269,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_1_2:
@@ -303,6 +308,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_1_2a:
@@ -341,6 +347,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_1_2b:
@@ -379,6 +386,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_2_1:
@@ -419,6 +427,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_2_2:
@@ -457,6 +466,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_sequence_2_3:
@@ -495,6 +505,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   parallel_2_1:
@@ -535,6 +546,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   after_parallel:
@@ -576,5 +588,6 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
+        EE_GIT_REPO: halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
