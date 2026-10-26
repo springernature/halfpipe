@@ -83,7 +83,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -211,7 +211,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -411,7 +411,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -662,7 +662,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -914,7 +914,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"

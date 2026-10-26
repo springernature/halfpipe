@@ -10,7 +10,7 @@ docker compose \
   -e ARTIFACTORY_USERNAME="$(vault kv get -field=username /springernature/shared/artifactory)" \ 
   -e CI='true' \ 
   -e EAID='APPL-437' \ 
-  -e EE_GIT_REPO='halfpipe' \ 
+  -e EE_GIT_REPO='https://github.com/springernature/halfpipe' \ 
   -e EE_PLATFORM_TEAM='halfpipe-team' \ 
   -e ENV1='1234' \ 
   -e ENV2="$(vault kv get -field=something /springernature/halfpipe-team/secret)" \ 

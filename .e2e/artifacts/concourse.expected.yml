@@ -93,7 +93,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -227,7 +227,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -321,7 +321,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
       platform: linux
@@ -506,7 +506,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
@@ -677,7 +677,7 @@ jobs:
         B: b
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         RUNNING_IN_CI: "true"
@@ -894,7 +894,7 @@ jobs:
         ARTIFACTORY_USERNAME: ((artifactory.username))
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         HALFPIPE_CACHE_TEAM: halfpipe-team
@@ -1106,7 +1106,7 @@ jobs:
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GAR_TOKEN: ((gcp:platform-gar/token.token))
         GIT_CLONE_OPTIONS: ""

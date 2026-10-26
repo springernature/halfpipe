@@ -125,7 +125,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -224,7 +224,7 @@ jobs:
         B: bar
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         F: foo
         RUNNING_IN_CI: "true"
@@ -284,7 +284,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Docker cleanup

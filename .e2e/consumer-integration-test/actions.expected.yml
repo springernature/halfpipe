@@ -129,7 +129,7 @@ jobs:
         DOCKER_COMPOSE_FILE: custom-docker-compose.yml
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value
@@ -183,7 +183,7 @@ jobs:
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: potato
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: --depth 100
         K: value

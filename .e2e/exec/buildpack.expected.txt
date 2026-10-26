@@ -8,7 +8,7 @@ pack build eu.gcr.io/halfpipe-io/halfpipe-team/myapp \
   --env ARTIFACTORY_USERNAME="$(vault kv get -field=username /springernature/shared/artifactory)" \
   --env CI='true' \
   --env EAID='APPL-437' \
-  --env EE_GIT_REPO='halfpipe' \
+  --env EE_GIT_REPO='https://github.com/springernature/halfpipe' \
   --env EE_PLATFORM_TEAM='halfpipe-team' \
   --env ENV1='1234' \
   --env ENV2="$(vault kv get -field=something /springernature/halfpipe-team/secret)" \

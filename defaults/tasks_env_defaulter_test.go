@@ -17,7 +17,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 		"RUNNING_IN_CI":        "true",
 		"CI":                   "true",
 		"EE_PLATFORM_TEAM":     "test",
-		"EE_GIT_REPO":          "some-repo",
+		"EE_GIT_REPO":          "https://github.com/springernature/some-repo",
 	}
 
 	input := manifest.TaskList{

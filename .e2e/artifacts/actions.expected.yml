@@ -111,7 +111,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -177,7 +177,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
   build:
@@ -216,7 +216,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts
@@ -341,7 +341,7 @@ jobs:
         A: blah
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
@@ -423,7 +423,7 @@ jobs:
           "BUILD_VERSION"
           "CI=true"
           "EAID=APPL-437"
-          "EE_GIT_REPO=halfpipe"
+          "EE_GIT_REPO=https://github.com/springernature/halfpipe"
           "EE_PLATFORM_TEAM=halfpipe-team"
           "GIT_REVISION"
           "RUNNING_IN_CI=true"
@@ -505,7 +505,7 @@ jobs:
         A: a
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Package artifacts-failure
@@ -624,7 +624,7 @@ jobs:
         DOCKER_COMPOSE_FILE: ""
         DOCKER_COMPOSE_SERVICE: ""
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         GIT_CLONE_OPTIONS: ""
         PROVIDER_HOST: ""

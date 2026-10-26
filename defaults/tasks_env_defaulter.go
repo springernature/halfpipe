@@ -32,7 +32,7 @@ func (t tasksEnvVarsDefaulter) addDefaultsToVars(vars manifest.Vars, defaults De
 	vars["CI"] = "true"
 	vars["EE_PLATFORM_TEAM"] = man.Team
 
-	gitRepo := strings.TrimPrefix(defaults.Project.GitURI, "git@github.com:springernature/")
+	gitRepo := strings.Replace(defaults.Project.GitURI, "git@github.com:", "https://github.com/", 1)
 	gitRepo = strings.TrimSuffix(gitRepo, ".git")
 	vars["EE_GIT_REPO"] = gitRepo
 

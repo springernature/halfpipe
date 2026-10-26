@@ -138,7 +138,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         MULTIPLE: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_levels_secret_deep_secret }}
         RUNNING_IN_CI: "true"
@@ -208,7 +208,7 @@ jobs:
       env:
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
     - name: Notify slack kehe (failure)
@@ -353,7 +353,7 @@ jobs:
         A: blah
         CI: "true"
         EAID: APPL-437
-        EE_GIT_REPO: halfpipe
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
         TEST_ROUTE: halfpipe-example-kotlin-dev-staging-CANDIDATE.springernature.app
