@@ -184,8 +184,8 @@ jobs:
       image_resource:
         type: docker-image
         source:
-          repository: quay.io/giantswarm/signcode-util
-          tag: latest
+          repository: trojnara/osslsigncode
+          tag: v2.14
       run:
         path: /bin/sh
         args:
