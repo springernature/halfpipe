@@ -176,10 +176,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 			s.validate(success, fieldName, secretTag, errs, platform)
 		}
 
-		for ni, success := range notifications.OnFailure {
-			fieldName := fmt.Sprintf("%s.on_failure[%d]", fieldName, ni)
-			s.validate(success, fieldName, secretTag, errs, platform)
-		}
 		return
 
 	// Stuff that we don't care about as they cannot contain secrets.

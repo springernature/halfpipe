@@ -16,17 +16,13 @@ func TestLintNotifications(t *testing.T) {
 		task := manifest.DockerPush{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
 			OnSuccess:        []string{"#yo"},
 			OnSuccessMessage: "blah",
-			OnFailure:        []string{"#howdie"},
-			OnFailureMessage: "bluh",
 		}}}
 
 		result := LintNotifications(task)
 
-		assert.Len(t, result, 4)
+		assert.Len(t, result, 2)
 		assert.Contains(t, result, NewErrDeprecatedField("on_success", notificationReasons).AsWarning())
 		assert.Contains(t, result, NewErrDeprecatedField("on_success_message", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewErrDeprecatedField("on_failure", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewErrDeprecatedField("on_failure_message", notificationReasons).AsWarning())
 	})
 
 	t.Run("does nothing for sequence or parallel", func(t *testing.T) {

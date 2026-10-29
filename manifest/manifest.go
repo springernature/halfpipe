@@ -50,10 +50,6 @@ type Notifications struct {
 	OnSuccess []string `json:"on_success,omitempty" yaml:"on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Deprecated: Slack notifications are no longer supported.
 	OnSuccessMessage string `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
-	// Deprecated: Slack notifications are no longer supported.
-	OnFailure []string `json:"on_failure,omitempty" yaml:"on_failure,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
-	// Deprecated: Slack notifications are no longer supported.
-	OnFailureMessage string `json:"on_failure_message,omitempty" yaml:"on_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
@@ -62,11 +58,9 @@ func (n Notifications) NotificationsDefined() bool {
 
 func (n Notifications) Equal(n2 Notifications) bool {
 
-	return slices.Equal(n.OnFailure, n2.OnFailure) &&
-		slices.Equal(n.OnSuccess, n2.OnSuccess) &&
+	return slices.Equal(n.OnSuccess, n2.OnSuccess) &&
 		slices.Equal(n.Failure, n2.Failure) &&
 		slices.Equal(n.Success, n2.Success) &&
-		n.OnFailureMessage == n2.OnFailureMessage &&
 		n.OnSuccessMessage == n2.OnSuccessMessage
 }
 

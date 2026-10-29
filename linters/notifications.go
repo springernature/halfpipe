@@ -16,13 +16,6 @@ func LintNotifications(task manifest.Task) (errs []error) {
 		if n.OnSuccessMessage != "" {
 			errs = append(errs, NewErrDeprecatedField("on_success_message", notificationReasons).AsWarning())
 		}
-		if len(n.OnFailure) > 0 {
-			errs = append(errs, NewErrDeprecatedField("on_failure", notificationReasons).AsWarning())
-
-		}
-		if len(n.OnFailureMessage) > 0 {
-			errs = append(errs, NewErrDeprecatedField("on_failure_message", notificationReasons).AsWarning())
-		}
 
 		for _, n := range append(n.Failure, n.Success...) {
 			if n.Slack != "" && n.Teams != "" {

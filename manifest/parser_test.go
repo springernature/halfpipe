@@ -90,9 +90,6 @@ tasks:
     on_success:
     - asdf
     - kehe
-    on_failure:
-    - kfds
-    - oasdf
   vars:
     FOO: fOo
     BAR: "1"
@@ -138,9 +135,6 @@ tasks:
     on_success:
     - asdf
     - kehe
-    on_failure:
-    - kfds
-    - oasdf
   vars:
     FOO: fOo
     BAR: "1"
@@ -281,7 +275,6 @@ tasks:
 				TaskBase: TaskBase{
 					Notifications: Notifications{
 						OnSuccess: []string{"asdf", "kehe"},
-						OnFailure: []string{"kfds", "oasdf"},
 					},
 					Timeout: "1h",
 				},
@@ -333,7 +326,6 @@ tasks:
 					NotifyOnSuccess: false,
 					Notifications: Notifications{
 						OnSuccess: []string{"asdf", "kehe"},
-						OnFailure: []string{"kfds", "oasdf"},
 					},
 				},
 			},

@@ -168,17 +168,11 @@ func TestTopLevelNotification(t *testing.T) {
 
 func TestMigrateTaskLevelNotifications(t *testing.T) {
 	inputNotification := manifest.Notifications{
-		OnFailure:        []string{"1", "2"},
-		OnFailureMessage: "Failure",
 		OnSuccess:        []string{"a", "b"},
 		OnSuccessMessage: "Success",
 	}
 
 	expectedNotification := manifest.Notifications{
-		Failure: manifest.NotificationChannels{
-			{Slack: "1", Message: "Failure"},
-			{Slack: "2", Message: "Failure"},
-		},
 		Success: manifest.NotificationChannels{
 			{Slack: "a", Message: "Success"},
 			{Slack: "b", Message: "Success"},

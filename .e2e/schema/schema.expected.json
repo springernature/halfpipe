@@ -1109,21 +1109,6 @@
           "description": "Deprecated: Slack notifications are no longer supported.",
           "deprecated": true,
           "deprecationMessage": "Slack notifications are no longer supported"
-        },
-        "on_failure": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Deprecated: Slack notifications are no longer supported.",
-          "deprecated": true,
-          "deprecationMessage": "Slack notifications are no longer supported"
-        },
-        "on_failure_message": {
-          "type": "string",
-          "description": "Deprecated: Slack notifications are no longer supported.",
-          "deprecated": true,
-          "deprecationMessage": "Slack notifications are no longer supported"
         }
       },
       "additionalProperties": false,
