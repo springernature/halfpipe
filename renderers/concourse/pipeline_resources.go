@@ -65,34 +65,6 @@ func (c Concourse) gitResource(trigger manifest.GitTrigger) atc.ResourceConfig {
 	return cfg
 }
 
-const slackResourceName = "slack"
-const slackResourceTypeName = "halfpipe-slack-resource"
-
-func (c Concourse) slackResourceType() atc.ResourceType {
-	return atc.ResourceType{
-		Name:       slackResourceTypeName,
-		Type:       "registry-image",
-		CheckEvery: &longResourceCheckInterval,
-		Source: atc.Source{
-			"repository": path.Join(config.DockerRegistry, "halfpipe-slack-resource"),
-			"tag":        "latest",
-			"password":   config.VaultSecrets.GARToken,
-			"username":   "oauth2accesstoken",
-		},
-	}
-}
-
-func (c Concourse) slackResource() atc.ResourceConfig {
-	return atc.ResourceConfig{
-		Name:       slackResourceName,
-		Type:       slackResourceTypeName,
-		CheckEvery: &longResourceCheckInterval,
-		Source: atc.Source{
-			"token": config.VaultSecrets.SlackToken,
-		},
-	}
-}
-
 const teamsResourceName = "teams"
 const teamsResourceTypeName = "halfpipe-teams-resource"
 

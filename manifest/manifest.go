@@ -22,15 +22,6 @@ type NotificationChannel struct {
 
 type NotificationChannels []NotificationChannel
 
-func (nc NotificationChannels) Slack() (ncs NotificationChannels) {
-	for _, n := range nc {
-		if n.Slack != "" && n.Teams == "" {
-			ncs = append(ncs, n)
-		}
-	}
-	return ncs
-}
-
 func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
 	for _, n := range nc {
 		if n.Slack == "" && n.Teams != "" {

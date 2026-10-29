@@ -220,11 +220,6 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 		}
 	}
 
-	if man.Tasks.UsesSlackNotifications() {
-		resourceTypes = append(resourceTypes, c.slackResourceType())
-		resourceConfigs = append(resourceConfigs, c.slackResource())
-	}
-
 	if man.Tasks.UsesTeamsNotifications() {
 		resourceTypes = append(resourceTypes, c.teamsResourceType())
 		resourceConfigs = append(resourceConfigs, c.teamsResource())
@@ -268,9 +263,6 @@ func (c Concourse) onFailure(task manifest.Task, man manifest.Manifest) *atc.Ste
 	}
 
 	notifications := task.GetBase().Notifications
-	for _, channel := range notifications.Failure.Slack() {
-		sequence = append(sequence, slackOnFailurePlan(channel.Slack, channel.Message))
-	}
 	for _, channel := range notifications.Failure.Teams() {
 		sequence = append(sequence, teamsOnFailurePlan(channel.Teams, channel.Message))
 	}
@@ -291,9 +283,6 @@ func (c Concourse) onSuccess(task manifest.Task, man manifest.Manifest) *atc.Ste
 	var sequence []atc.Step
 
 	notifications := task.GetBase().Notifications
-	for _, channel := range notifications.Success.Slack() {
-		sequence = append(sequence, slackOnSuccessPlan(channel.Slack, channel.Message))
-	}
 	for _, channel := range notifications.Success.Teams() {
 		sequence = append(sequence, teamsOnSuccessPlan(channel.Teams, channel.Message))
 	}

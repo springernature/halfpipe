@@ -85,15 +85,6 @@ jobs:
           echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
-    - name: 'Notify slack #yo (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#yo"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
       uses: springernature/ee-action-ms-teams@v1
@@ -159,15 +150,6 @@ jobs:
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: 'Notify slack #yo (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#yo"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
       uses: springernature/ee-action-ms-teams@v1
@@ -182,26 +164,12 @@ jobs:
         platform-team: halfpipe-team
         style: attention
         summary: ❌ GitHub Actions workflow failed
-    - name: 'Notify slack #yo (success)'
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#yo"
-          text: "✅ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (success) (1)
+    - name: Notify teams (success)
       uses: springernature/ee-action-ms-teams@v1
       with:
         style: good
         summary: ✅ GitHub Actions workflow passed
         webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-    - name: Notify teams (success) (2)
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: good
-        summary: ✅ GitHub Actions workflow passed
   task2:
     name: task2
     needs:
@@ -241,22 +209,6 @@ jobs:
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: Notify slack asdf (success)
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "asdf"
-          text: "Wiiiie! \o/"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify slack prws (success)
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "prws"
-          text: "Wiiiie! \o/"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (success)
       uses: springernature/ee-action-ms-teams@v1
       with:
@@ -395,15 +347,6 @@ jobs:
         echo ":rocket: **Deployment Successful**" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "[EE Grafana](https://grafana.ee.springernature.io/)" >> $GITHUB_STEP_SUMMARY
-    - name: 'Notify slack #yo (failure)'
-      if: failure()
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#yo"
-          text: "❌ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
     - name: Notify teams (failure) (1)
       if: failure()
       uses: springernature/ee-action-ms-teams@v1
@@ -418,23 +361,9 @@ jobs:
         platform-team: halfpipe-team
         style: attention
         summary: ❌ GitHub Actions workflow failed
-    - name: 'Notify slack #yo (success)'
-      uses: slackapi/slack-github-action@dcb1066f776dd043e64d0e8ba94ca15cc7e1875d # v4.0.0
-      with:
-        method: chat.postMessage
-        payload: |-
-          channel: "#yo"
-          text: "✅ workflow ${{ job.status }} `${{ github.workflow }}` ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-        token: ${{ secrets.EE_SLACK_TOKEN }}
-    - name: Notify teams (success) (1)
+    - name: Notify teams (success)
       uses: springernature/ee-action-ms-teams@v1
       with:
         style: good
         summary: ✅ GitHub Actions workflow passed
         webhook-url: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_teams_webhook }}
-    - name: Notify teams (success) (2)
-      uses: springernature/ee-action-ms-teams@v1
-      with:
-        platform-team: halfpipe-team
-        style: good
-        summary: ✅ GitHub Actions workflow passed

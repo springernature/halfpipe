@@ -26,26 +26,6 @@ func (tl TaskList) SavesArtifactsOnFailure() bool {
 	return slices.ContainsFunc(tl, func(t Task) bool { return t.SavesArtifactsOnFailure() })
 }
 
-func (tl TaskList) UsesSlackNotifications() bool {
-	for _, task := range tl {
-		switch task := task.(type) {
-		case Parallel:
-			if task.Tasks.UsesSlackNotifications() {
-				return true
-			}
-		case Sequence:
-			if task.Tasks.UsesSlackNotifications() {
-				return true
-			}
-		default:
-			if len(task.GetBase().Notifications.Success.Slack()) > 0 || len(task.GetBase().Notifications.Failure.Slack()) > 0 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 func (tl TaskList) UsesDockerPushWithCache() bool {
 	return slices.ContainsFunc(tl.Flatten(), func(t Task) bool {
 		if d, ok := t.(DockerPush); ok {

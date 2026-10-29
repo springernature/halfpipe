@@ -77,13 +77,6 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMe
 				}
 				if task.GetBase().NotifyOnSuccess {
 					taskNotifications := task.GetBase().Notifications
-					if len(taskNotifications.Failure.Slack()) > 0 {
-						not := taskNotifications.Failure.Slack()[0]
-						not.Message = slackSuccessMessage
-						taskNotifications.Success = append(taskNotifications.Success, not)
-						task = task.SetNotifications(taskNotifications)
-					}
-
 					if len(taskNotifications.Failure.Teams()) > 0 {
 						taskNotifications.Success = append(taskNotifications.Success, taskNotifications.Failure.Teams()[0])
 						task = task.SetNotifications(taskNotifications)

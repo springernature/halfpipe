@@ -10,14 +10,6 @@ jobs:
       steps:
       - no_get: true
         params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
           icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
           title: ❌ Concourse pipeline failed
@@ -82,14 +74,6 @@ jobs:
       steps:
       - no_get: true
         params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
           icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
           title: ❌ Concourse pipeline failed
@@ -105,32 +89,13 @@ jobs:
     timeout: 2h
   on_success:
     attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - no_get: true
-        params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded.
-            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ Concourse pipeline passed
-          webhook: ((teams.webhook))
-        put: teams
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ Concourse pipeline passed
-          webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        put: teams
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+      title: ✅ Concourse pipeline passed
+      webhook: ((teams.webhook))
+    put: teams
     timeout: 2h
   plan:
   - attempts: 2
@@ -213,30 +178,13 @@ jobs:
   name: task2
   on_success:
     attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - no_get: true
-        params:
-          channel: asdf
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Wiiiie! \o/
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          channel: prws
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Wiiiie! \o/
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ Concourse pipeline passed
-          webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        put: teams
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+      title: ✅ Concourse pipeline passed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
     timeout: 2h
   plan:
   - attempts: 2
@@ -335,14 +283,6 @@ jobs:
       steps:
       - no_get: true
         params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-failed.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` failed. <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
           icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
           text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
           title: ❌ Concourse pipeline failed
@@ -358,32 +298,13 @@ jobs:
     timeout: 2h
   on_success:
     attempts: 2
-    in_parallel:
-      fail_fast: true
-      steps:
-      - no_get: true
-        params:
-          channel: '#yo'
-          icon_url: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME`, task `$BUILD_JOB_NAME` succeeded.
-            <$ATC_EXTERNAL_URL/teams/$BUILD_TEAM_NAME/pipelines/$BUILD_PIPELINE_NAME/jobs/$BUILD_JOB_NAME_URLENCODED/builds/$BUILD_NAME|View
-            Pipeline>
-          username: Halfpipe
-        put: slack
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ Concourse pipeline passed
-          webhook: ((teams.webhook))
-        put: teams
-      - no_get: true
-        params:
-          icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
-          text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
-          title: ✅ Concourse pipeline passed
-          webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
-        put: teams
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-succeeded.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` succeeded.
+      title: ✅ Concourse pipeline passed
+      webhook: ((teams.webhook))
+    put: teams
     timeout: 2h
   plan:
   - attempts: 2
@@ -516,14 +437,6 @@ jobs:
   serial: true
 resource_types:
 - check_every: 24h0m0s
-  name: halfpipe-slack-resource
-  source:
-    password: ((gcp:platform-gar/token.token))
-    repository: eu.gcr.io/halfpipe-io/halfpipe-slack-resource
-    tag: latest
-    username: oauth2accesstoken
-  type: registry-image
-- check_every: 24h0m0s
   name: halfpipe-teams-resource
   source:
     password: ((gcp:platform-gar/token.token))
@@ -548,11 +461,6 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe
   type: git
-- check_every: 24h0m0s
-  name: slack
-  source:
-    token: ((halfpipe-slack.token))
-  type: halfpipe-slack-resource
 - check_every: 24h0m0s
   name: teams
   source: null

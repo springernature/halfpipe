@@ -115,55 +115,6 @@ func TestTopLevelNotification(t *testing.T) {
 
 		})
 	})
-
-	t.Run("slack_success_message", func(t *testing.T) {
-		input := manifest.Manifest{
-			SlackChannel:        "Blah",
-			SlackSuccessMessage: "Yo",
-			Tasks: manifest.TaskList{
-				manifest.Run{},
-				manifest.Run{TaskBase: manifest.TaskBase{NotifyOnSuccess: true}},
-				manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
-					Success: manifest.NotificationChannels{
-						{Slack: "#yo", Message: "Hello"},
-						{Slack: "#yo"},
-					},
-				}}},
-			},
-		}
-
-		expected := manifest.Manifest{
-			Notifications: manifest.Notifications{
-				Failure: manifest.NotificationChannels{{Slack: "Blah"}},
-			},
-			Tasks: manifest.TaskList{
-				manifest.Run{
-					TaskBase: manifest.TaskBase{
-						Notifications: manifest.Notifications{
-							Failure: manifest.NotificationChannels{{Slack: "Blah"}},
-						},
-					},
-				},
-				manifest.Run{
-					TaskBase: manifest.TaskBase{
-						Notifications: manifest.Notifications{
-							Failure: manifest.NotificationChannels{{Slack: "Blah"}},
-							Success: manifest.NotificationChannels{{Slack: "Blah", Message: "Yo"}},
-						},
-					},
-				},
-				manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
-					Success: manifest.NotificationChannels{
-						{Slack: "#yo", Message: "Hello"},
-						{Slack: "#yo"},
-					},
-				}}},
-			},
-		}
-
-		updated, _ := NewNotificationsMapper().Apply(input)
-		assert.Equal(t, expected, updated)
-	})
 }
 
 func TestMigrateTaskLevelNotifications(t *testing.T) {
@@ -215,46 +166,6 @@ func TestMigrateTaskLevelNotifications(t *testing.T) {
 		},
 	}
 
-	updated, _ := NewNotificationsMapper().Apply(input)
-	assert.Equal(t, expected, updated)
-}
-
-func TestNotifyOnSuccess(t *testing.T) {
-	slack := "yo"
-	teams := "kehe"
-
-	input := manifest.Manifest{
-		SlackChannel: slack,
-		TeamsWebhook: teams,
-		Tasks: manifest.TaskList{
-			manifest.Run{},
-			manifest.Run{TaskBase: manifest.TaskBase{NotifyOnSuccess: true}},
-		},
-	}
-
-	expectedNotifications := manifest.Notifications{
-		Failure: manifest.NotificationChannels{
-			{Slack: slack},
-			{Teams: teams},
-		},
-	}
-
-	expected := manifest.Manifest{
-		Notifications: expectedNotifications,
-		Tasks: manifest.TaskList{
-			manifest.Run{TaskBase: manifest.TaskBase{Notifications: expectedNotifications}},
-			manifest.Run{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
-				Failure: manifest.NotificationChannels{
-					{Slack: slack},
-					{Teams: teams},
-				},
-				Success: manifest.NotificationChannels{
-					{Slack: slack},
-					{Teams: teams},
-				},
-			}}},
-		},
-	}
 	updated, _ := NewNotificationsMapper().Apply(input)
 	assert.Equal(t, expected, updated)
 }
