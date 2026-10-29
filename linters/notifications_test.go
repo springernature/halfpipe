@@ -12,19 +12,6 @@ func TestLintNotifications(t *testing.T) {
 		assert.Len(t, LintNotifications(task), 0)
 	})
 
-	t.Run("warns if any of the deprecated fields are used", func(t *testing.T) {
-		task := manifest.DockerPush{TaskBase: manifest.TaskBase{Notifications: manifest.Notifications{
-			OnSuccess:        []string{"#yo"},
-			OnSuccessMessage: "blah",
-		}}}
-
-		result := LintNotifications(task)
-
-		assert.Len(t, result, 2)
-		assert.Contains(t, result, NewErrDeprecatedField("on_success", notificationReasons).AsWarning())
-		assert.Contains(t, result, NewErrDeprecatedField("on_success_message", notificationReasons).AsWarning())
-	})
-
 	t.Run("does nothing for sequence or parallel", func(t *testing.T) {
 		assert.Len(t, LintNotifications(manifest.Parallel{}), 0)
 		assert.Len(t, LintNotifications(manifest.Sequence{}), 0)

@@ -37,10 +37,6 @@ type Notifications struct {
 	Success NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
 	// Notification channels to notify on task failure.
 	Failure NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
-	// Deprecated: Slack notifications are no longer supported.
-	OnSuccess []string `json:"on_success,omitempty" yaml:"on_success,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
-	// Deprecated: Slack notifications are no longer supported.
-	OnSuccessMessage string `json:"on_success_message,omitempty" yaml:"on_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 }
 
 func (n Notifications) NotificationsDefined() bool {
@@ -49,10 +45,8 @@ func (n Notifications) NotificationsDefined() bool {
 
 func (n Notifications) Equal(n2 Notifications) bool {
 
-	return slices.Equal(n.OnSuccess, n2.OnSuccess) &&
-		slices.Equal(n.Failure, n2.Failure) &&
-		slices.Equal(n.Success, n2.Success) &&
-		n.OnSuccessMessage == n2.OnSuccessMessage
+	return slices.Equal(n.Failure, n2.Failure) &&
+		slices.Equal(n.Success, n2.Success)
 }
 
 type Trigger interface {

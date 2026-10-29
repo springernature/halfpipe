@@ -820,8 +820,6 @@ notifications configure which channels to notify on task success or failure.
 |-------|------|----------|-------------|
 | `success` | [notification channel](#notification-channel)[] | optional | Notification channels to notify on task success. |
 | `failure` | [notification channel](#notification-channel)[] | optional | Notification channels to notify on task failure. |
-| `on_success` | string[] | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
-| `on_success_message` | string | optional | ⚠️ Deprecated: Slack notifications are no longer supported. |
 
 ### notification channel
 

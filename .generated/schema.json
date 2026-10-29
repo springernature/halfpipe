@@ -1094,21 +1094,6 @@
         "failure": {
           "$ref": "#/$defs/NotificationChannels",
           "description": "Notification channels to notify on task failure."
-        },
-        "on_success": {
-          "items": {
-            "type": "string"
-          },
-          "type": "array",
-          "description": "Deprecated: Slack notifications are no longer supported.",
-          "deprecated": true,
-          "deprecationMessage": "Slack notifications are no longer supported"
-        },
-        "on_success_message": {
-          "type": "string",
-          "description": "Deprecated: Slack notifications are no longer supported.",
-          "deprecated": true,
-          "deprecationMessage": "Slack notifications are no longer supported"
         }
       },
       "additionalProperties": false,

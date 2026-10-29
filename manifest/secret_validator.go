@@ -169,13 +169,6 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		}
 
 	case reflect.TypeFor[Notifications]():
-		notifications := v.Interface().(Notifications)
-
-		for ni, success := range notifications.OnSuccess {
-			fieldName := fmt.Sprintf("%s.on_success[%d]", fieldName, ni)
-			s.validate(success, fieldName, secretTag, errs, platform)
-		}
-
 		return
 
 	// Stuff that we don't care about as they cannot contain secrets.

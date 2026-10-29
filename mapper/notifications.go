@@ -30,37 +30,6 @@ func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manife
 	return notifications
 }
 
-func (n notificationsMapper) migrateTaskNotifications(tasks manifest.TaskList) (updated manifest.TaskList) {
-	for _, task := range tasks {
-		switch task := task.(type) {
-		case manifest.Parallel:
-			task.Tasks = n.migrateTaskNotifications(task.Tasks)
-			updated = append(updated, task)
-		case manifest.Sequence:
-			task.Tasks = n.migrateTaskNotifications(task.Tasks)
-			updated = append(updated, task)
-		default:
-			taskNotifications := task.GetBase().Notifications
-			if len(taskNotifications.Success) == 0 && len(taskNotifications.Failure) == 0 {
-				for _, n := range taskNotifications.OnSuccess {
-					not := manifest.NotificationChannel{Slack: n}
-					if taskNotifications.OnSuccessMessage != "" {
-						not.Message = taskNotifications.OnSuccessMessage
-					}
-					taskNotifications.Success = append(taskNotifications.Success, not)
-				}
-			}
-
-			taskNotifications.OnSuccess = nil
-			taskNotifications.OnSuccessMessage = ""
-
-			updated = append(updated, task.SetNotifications(taskNotifications))
-		}
-	}
-
-	return updated
-}
-
 func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMessage string, topLevelNotifications manifest.Notifications) (updated manifest.TaskList) {
 	for _, task := range tasks {
 		switch task := task.(type) {
@@ -93,7 +62,6 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMe
 
 func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
 	man.Notifications = n.topLevelNotifications(man)
-	man.Tasks = n.migrateTaskNotifications(man.Tasks)
 	man.Tasks = n.updateTasks(man.Tasks, man.SlackSuccessMessage, man.Notifications)
 	man.SlackChannel = ""
 	man.SlackSuccessMessage = ""

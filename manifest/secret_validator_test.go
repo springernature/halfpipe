@@ -297,9 +297,6 @@ func TestDeployCF(t *testing.T) {
 		Tasks: manifest.TaskList{
 			manifest.DeployCF{
 				TaskBase: manifest.TaskBase{
-					Notifications: manifest.Notifications{
-						OnSuccess: []string{"Ok", "Ok", "((not.ok))", "Ok"},
-					},
 					Timeout: "((not.ok))",
 				},
 
@@ -322,14 +319,13 @@ func TestDeployCF(t *testing.T) {
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 7)
+	assert.Len(t, errors, 6)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].type"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].name"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].manifest"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("key tasks[0].vars[((not.ok))]"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].deploy_artifact"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].timeout"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("tasks[0].notifications.on_success[2]"))
 
 	badPrePromote := manifest.Manifest{
 		Tasks: manifest.TaskList{

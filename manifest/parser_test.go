@@ -86,10 +86,6 @@ tasks:
   username: user
   password: pass
   image: golang:latest
-  notifications:
-    on_success:
-    - asdf
-    - kehe
   vars:
     FOO: fOo
     BAR: "1"
@@ -131,10 +127,6 @@ tasks:
   namespace: some-team
   timeout: 30s
   tag: latest
-  notifications:
-    on_success:
-    - asdf
-    - kehe
   vars:
     FOO: fOo
     BAR: "1"
@@ -273,10 +265,8 @@ tasks:
 					"BAR": "1",
 				},
 				TaskBase: TaskBase{
-					Notifications: Notifications{
-						OnSuccess: []string{"asdf", "kehe"},
-					},
-					Timeout: "1h",
+					Notifications: Notifications{},
+					Timeout:       "1h",
 				},
 				Tag: "version",
 			},
@@ -324,9 +314,7 @@ tasks:
 				TaskBase: TaskBase{
 					Timeout:         "30s",
 					NotifyOnSuccess: false,
-					Notifications: Notifications{
-						OnSuccess: []string{"asdf", "kehe"},
-					},
+					Notifications:   Notifications{},
 				},
 			},
 			DockerCompose{
