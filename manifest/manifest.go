@@ -24,11 +24,15 @@ type NotificationChannels []NotificationChannel
 
 func (nc NotificationChannels) Teams() (ncs NotificationChannels) {
 	for _, n := range nc {
-		if n.Slack == "" && n.Teams != "" {
+		if n.Teams != "" {
 			ncs = append(ncs, n)
 		}
 	}
 	return ncs
+}
+
+func (n Notifications) NotificationsDefined() bool {
+	return len(n.Failure) > 0 || len(n.Success) > 0
 }
 
 // notifications configure which channels to notify on task success or failure.
@@ -37,10 +41,6 @@ type Notifications struct {
 	Success NotificationChannels `json:"success,omitempty" yaml:"success,omitempty"`
 	// Notification channels to notify on task failure.
 	Failure NotificationChannels `json:"failure,omitempty" yaml:"failure,omitempty"`
-}
-
-func (n Notifications) NotificationsDefined() bool {
-	return len(n.Failure) > 0 || len(n.Success) > 0
 }
 
 func (n Notifications) Equal(n2 Notifications) bool {

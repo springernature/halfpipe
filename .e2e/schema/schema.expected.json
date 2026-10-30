@@ -1485,17 +1485,17 @@
       "description": "The CI platform to target.",
       "default": "concourse"
     },
-    "slack_channel": {
-      "type": "string",
-      "description": "Deprecated: Slack notifications are no longer supported.",
-      "deprecated": true,
-      "deprecationMessage": "Slack notifications are no longer supported"
-    },
     "teams_webhook": {
       "type": "string",
       "description": "A Microsoft Teams webhook URL for pipeline-level notifications."
     },
     "slack_success_message": {
+      "type": "string",
+      "description": "Deprecated: Slack notifications are no longer supported.",
+      "deprecated": true,
+      "deprecationMessage": "Slack notifications are no longer supported"
+    },
+    "slack_channel": {
       "type": "string",
       "description": "Deprecated: Slack notifications are no longer supported.",
       "deprecated": true,

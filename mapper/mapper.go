@@ -31,7 +31,6 @@ func New(fs afero.Afero) Mapper {
 		mappers: []Mapper{
 			NewUpdatePipelineMapper(),
 			NewNotificationsMapper(),
-			NewSlackToTeamsMapper(),
 			NewCfMapper(),
 			NewKateeMapper(fs),
 			NewGitTriggerMapper(),
