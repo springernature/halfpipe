@@ -10,6 +10,7 @@ triggers:
   - .e2e/github-statuses
 
 feature_toggles:
+- disable-automatic-notifications
 - github-statuses
 
 tasks:

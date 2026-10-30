@@ -2,6 +2,9 @@
 team: halfpipe-team
 pipeline: docker-push-with-update-pipeline
 
+feature_toggles:
+- disable-automatic-notifications
+
 
 triggers:
 - type: git

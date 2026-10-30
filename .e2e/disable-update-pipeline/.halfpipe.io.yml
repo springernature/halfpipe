@@ -11,6 +11,7 @@ triggers:
   cron: '*/30 * * * *'
 
 feature_toggles:
+- disable-automatic-notifications
 - disable-update-pipeline
 
 tasks:

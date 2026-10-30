@@ -3,6 +3,7 @@ team: halfpipe-team
 pipeline: pipeline-name
 
 feature_toggles:
+- disable-automatic-notifications
 - update-pipeline-and-tag
 
 tasks:

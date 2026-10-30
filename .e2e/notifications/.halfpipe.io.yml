@@ -1,16 +1,13 @@
 # yaml-language-server: $schema=../../.generated/schema.json
 team: halfpipe-team
 pipeline: halfpipe-e2e-notifications
-notifications:
-  failure:
-  - slack: "#yo"
 
 triggers:
 - type: git
   branch: main
   shallow: true
   watched_paths:
-  - .e2e/notifications_new_format
+  - .e2e/notifications
 
 tasks:
 - type: run
@@ -31,14 +28,14 @@ tasks:
     image: alpine
   notifications:
     success:
-    - slack: asdf
+    - teams: asdf
       message: "Wiiiie! \\o/"
-    - slack: prws
+    - teams: prws
       message: "Wiiiie! \\o/"
     failure:
-    - slack: kehe
+    - teams: kehe
       message: "Nooooes >:c"
-    - slack: whoop
+    - teams: whoop
       message: "Nooooes >:c"
 
 - type: deploy-cf

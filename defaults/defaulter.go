@@ -17,6 +17,10 @@ type OutputDefaulter interface {
 	Apply(original manifest.Manifest) (updated manifest.Manifest)
 }
 
+type NotificationsDefaulter interface {
+	Apply(original manifest.Manifest) (updated manifest.Manifest)
+}
+
 type CFSnPaaS struct {
 	Username string
 	Password string
@@ -89,13 +93,15 @@ type Defaults struct {
 
 	Timeout string
 
-	triggersDefaulter TriggersDefaulter
-	tasksDefaulter    TasksDefaulter
-	outputDefaulter   OutputDefaulter
+	triggersDefaulter      TriggersDefaulter
+	tasksDefaulter         TasksDefaulter
+	outputDefaulter        OutputDefaulter
+	notificationsDefaulter NotificationsDefaulter
 }
 
 func (d Defaults) Apply(original manifest.Manifest) (updated manifest.Manifest) {
 	updated = d.outputDefaulter.Apply(original)
+	updated = d.notificationsDefaulter.Apply(updated)
 	updated.Triggers = d.triggersDefaulter.Apply(updated.Triggers, d, original)
 	updated.Tasks = d.tasksDefaulter.Apply(updated.Tasks, d, updated)
 	return updated
@@ -106,6 +112,7 @@ func New(defaultValues Defaults, project project.Data) Defaults {
 	defaultValues.triggersDefaulter = NewTriggersDefaulter()
 	defaultValues.tasksDefaulter = NewTaskDefaulter()
 	defaultValues.outputDefaulter = NewOutputDefaulter()
+	defaultValues.notificationsDefaulter = NewNotificationsDefaulter()
 
 	return defaultValues
 }

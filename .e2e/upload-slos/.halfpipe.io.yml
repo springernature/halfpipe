@@ -2,6 +2,9 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-upload-slos
 
+feature_toggles:
+- disable-automatic-notifications
+
 triggers:
 - type: git
   branch: main

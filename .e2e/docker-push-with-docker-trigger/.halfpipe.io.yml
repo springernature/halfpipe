@@ -2,6 +2,9 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-docker-push-with-docker-trigger
 
+feature_toggles:
+- disable-automatic-notifications
+
 triggers:
 - type: docker
   image: springernature/alpine:tag

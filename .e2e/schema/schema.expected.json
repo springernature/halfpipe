@@ -983,11 +983,12 @@
         "enum": [
           "update-pipeline-and-tag",
           "disable-update-pipeline",
-          "github-statuses"
+          "github-statuses",
+          "disable-automatic-notifications"
         ]
       },
       "type": "array",
-      "description": "FeatureToggles enable optional pipeline behaviours.\n\n| Toggle | Description |\n|--------|-------------|\n| `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `\u003cPIPELINE_NAME\u003e/v\u003cBUILD_VERSION\u003e`. |\n| `disable-update-pipeline` | Opts out of the `update-pipeline` feature being enabled by default. |\n| `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |"
+      "description": "FeatureToggles enable optional pipeline behaviours.\n\n| Toggle | Description |\n|--------|-------------|\n| `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `\u003cPIPELINE_NAME\u003e/v\u003cBUILD_VERSION\u003e`. |\n| `disable-update-pipeline` | Opts out of the `update-pipeline` feature being enabled by default. |\n| `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |\n| `disable-automatic-notifications` | Opts out of the default failure notification to the team's Teams channel. |"
     },
     "GitHubEnvironment": {
       "properties": {

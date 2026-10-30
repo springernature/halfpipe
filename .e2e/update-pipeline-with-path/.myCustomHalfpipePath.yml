@@ -1,6 +1,9 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-update-pipeline-with-path
 
+feature_toggles:
+- disable-automatic-notifications
+
 triggers:
 - type: git
   watched_paths:

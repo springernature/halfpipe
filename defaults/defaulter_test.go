@@ -55,6 +55,9 @@ func TestCallsOutToDefaulters(t *testing.T) {
 		outputDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
 			return original
 		}},
+		notificationsDefaulter: testOutputDefaulter{apply: func(original manifest.Manifest) (updated manifest.Manifest) {
+			return original
+		}},
 	}
 
 	assert.Equal(t, manifest.Manifest{Triggers: expectedTriggers, Tasks: expectedTasks}, defaults.Apply(manifest.Manifest{}))

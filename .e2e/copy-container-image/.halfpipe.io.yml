@@ -2,6 +2,9 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-copy-container-image
 
+feature_toggles:
+- disable-automatic-notifications
+
 tasks:
   - type: copy-container-image
     name: cp without tag

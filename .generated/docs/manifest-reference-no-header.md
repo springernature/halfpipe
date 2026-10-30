@@ -879,6 +879,7 @@ Enable optional pipeline behaviours.
 | `update-pipeline-and-tag` | Like update-pipeline, but also tags the git repo with `<PIPELINE_NAME>/v<BUILD_VERSION>`. |
 | `disable-update-pipeline` | Opts out of the `update-pipeline` feature being enabled by default. |
 | `github-statuses` | Updates GitHub commit statuses from Concourse job results (Actions does this by default). |
+| `disable-automatic-notifications` | Opts out of the default failure notification to the team's Teams channel. |
 
 **Example:**
 

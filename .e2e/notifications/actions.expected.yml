@@ -1,11 +1,11 @@
-# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/notifications_new_format/.halfpipe.io.yml for team halfpipe-team
+# Generated using halfpipe cli version 0.0.0-DEV from file .e2e/notifications/.halfpipe.io.yml for team halfpipe-team
 name: halfpipe-e2e-notifications
 "on":
   push:
     branches:
     - main
     paths:
-    - .e2e/notifications_new_format**
+    - .e2e/notifications**
     - .github/workflows/halfpipe-e2e-notifications.yml
   workflow_dispatch: {}
 permissions:
@@ -22,7 +22,7 @@ env:
   RUNNING_IN_CI: "true"
 defaults:
   run:
-    working-directory: .e2e/notifications_new_format
+    working-directory: .e2e/notifications
 concurrency: ${{ github.workflow }}
 jobs:
   update:
@@ -124,7 +124,7 @@ jobs:
       id: task1
       uses: docker://alpine
       with:
-        args: -c "cd .e2e/notifications_new_format; ./a"
+        args: -c "cd .e2e/notifications; ./a"
         entrypoint: /bin/sh
       env:
         CI: "true"
@@ -140,6 +140,12 @@ jobs:
         platform-team: halfpipe-team
         style: attention
         summary: ❌ GitHub Actions workflow failed
+    - name: Notify teams (success)
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        platform-team: halfpipe-team
+        style: good
+        summary: ✅ GitHub Actions workflow passed
   task2:
     name: task2
     needs:
@@ -171,7 +177,7 @@ jobs:
       id: task2
       uses: docker://alpine
       with:
-        args: -c "cd .e2e/notifications_new_format; ./a"
+        args: -c "cd .e2e/notifications; ./a"
         entrypoint: /bin/sh
       env:
         CI: "true"
@@ -179,19 +185,32 @@ jobs:
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
         RUNNING_IN_CI: "true"
-    - name: Notify teams (failure)
+    - name: Notify teams (failure) (1)
       if: failure()
       uses: springernature/ee-action-ms-teams@v1
       with:
-        platform-team: halfpipe-team
         style: attention
-        summary: ❌ GitHub Actions workflow failed
-    - name: Notify teams (success)
+        summary: Nooooes >:c
+        webhook-url: kehe
+    - name: Notify teams (failure) (2)
+      if: failure()
       uses: springernature/ee-action-ms-teams@v1
       with:
-        platform-team: halfpipe-team
+        style: attention
+        summary: Nooooes >:c
+        webhook-url: whoop
+    - name: Notify teams (success) (1)
+      uses: springernature/ee-action-ms-teams@v1
+      with:
         style: good
-        summary: ✅ GitHub Actions workflow passed
+        summary: Wiiiie! \o/
+        webhook-url: asdf
+    - name: Notify teams (success) (2)
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        style: good
+        summary: Wiiiie! \o/
+        webhook-url: prws
   deploy_to_staging:
     name: deploy to staging
     needs:
@@ -234,12 +253,12 @@ jobs:
       uses: springernature/ee-action-deploy-cf@v1
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/notifications_new_format
+        appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-push
         eaid: APPL-437
         gitUri: git@github.com:springernature/halfpipe
-        manifestPath: .e2e/notifications_new_format/manifest.yml
+        manifestPath: .e2e/notifications/manifest.yml
         org: pe
         password: very-secret
         space: staging
@@ -255,10 +274,10 @@ jobs:
       uses: springernature/ee-action-deploy-cf@v1
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/notifications_new_format
+        appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-logs
-        manifestPath: .e2e/notifications_new_format/manifest.yml
+        manifestPath: .e2e/notifications/manifest.yml
         org: pe
         password: very-secret
         space: staging
@@ -268,10 +287,10 @@ jobs:
       uses: springernature/ee-action-deploy-cf@v1
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/notifications_new_format
+        appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-check
-        manifestPath: .e2e/notifications_new_format/manifest.yml
+        manifestPath: .e2e/notifications/manifest.yml
         org: pe
         password: very-secret
         space: staging
@@ -281,7 +300,7 @@ jobs:
       id: run-a
       uses: docker://eu.gcr.io/halfpipe-io/halfpipe-fly
       with:
-        args: -c "cd .e2e/notifications_new_format; ./a"
+        args: -c "cd .e2e/notifications; ./a"
         entrypoint: /bin/sh
       env:
         A: blah
@@ -295,10 +314,10 @@ jobs:
       uses: springernature/ee-action-deploy-cf@v1
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/notifications_new_format
+        appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-promote
-        manifestPath: .e2e/notifications_new_format/manifest.yml
+        manifestPath: .e2e/notifications/manifest.yml
         org: pe
         password: very-secret
         space: staging
@@ -309,10 +328,10 @@ jobs:
       uses: springernature/ee-action-deploy-cf@v1
       with:
         api: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_cloudfoundry_api-snpaas }}
-        appPath: .e2e/notifications_new_format
+        appPath: .e2e/notifications
         cliVersion: cf7
         command: halfpipe-cleanup
-        manifestPath: .e2e/notifications_new_format/manifest.yml
+        manifestPath: .e2e/notifications/manifest.yml
         org: pe
         password: very-secret
         space: staging
@@ -330,3 +349,9 @@ jobs:
         platform-team: halfpipe-team
         style: attention
         summary: ❌ GitHub Actions workflow failed
+    - name: Notify teams (success)
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        platform-team: halfpipe-team
+        style: good
+        summary: ✅ GitHub Actions workflow passed

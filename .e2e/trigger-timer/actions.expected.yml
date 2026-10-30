@@ -73,6 +73,13 @@ jobs:
           echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
+    - name: Notify teams (failure)
+      if: failure()
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        platform-team: engineering-enablement
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
   hello:
     name: hello
     needs:

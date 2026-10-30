@@ -2,6 +2,9 @@
 team: halfpipe-team
 pipeline: par-seq
 
+feature_toggles:
+- disable-automatic-notifications
+
 tasks:
 - type: run
   name: task 1
