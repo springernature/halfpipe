@@ -11,14 +11,6 @@ func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manife
 	notifications := man.Notifications
 
 	if notifications.Equal(manifest.Notifications{}) {
-		if man.SlackChannel != "" {
-			not := manifest.NotificationChannel{Slack: man.SlackChannel}
-			if man.SlackFailureMessage != "" {
-				not.Message = man.SlackFailureMessage
-			}
-			notifications.Failure = append(notifications.Failure, not)
-		}
-
 		if man.TeamsWebhook != "" {
 			notifications.Failure = append(notifications.Failure, manifest.NotificationChannel{
 				Teams: man.TeamsWebhook,
@@ -30,14 +22,14 @@ func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manife
 	return notifications
 }
 
-func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMessage string, topLevelNotifications manifest.Notifications) (updated manifest.TaskList) {
+func (n notificationsMapper) updateTasks(tasks manifest.TaskList, topLevelNotifications manifest.Notifications) (updated manifest.TaskList) {
 	for _, task := range tasks {
 		switch task := task.(type) {
 		case manifest.Parallel:
-			task.Tasks = n.updateTasks(task.Tasks, slackSuccessMessage, topLevelNotifications)
+			task.Tasks = n.updateTasks(task.Tasks, topLevelNotifications)
 			updated = append(updated, task)
 		case manifest.Sequence:
-			task.Tasks = n.updateTasks(task.Tasks, slackSuccessMessage, topLevelNotifications)
+			task.Tasks = n.updateTasks(task.Tasks, topLevelNotifications)
 			updated = append(updated, task)
 		default:
 			if task.GetBase().Notifications.Equal(manifest.Notifications{}) {
@@ -62,10 +54,7 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, slackSuccessMe
 
 func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
 	man.Notifications = n.topLevelNotifications(man)
-	man.Tasks = n.updateTasks(man.Tasks, man.SlackSuccessMessage, man.Notifications)
-	man.SlackChannel = ""
-	man.SlackSuccessMessage = ""
-	man.SlackFailureMessage = ""
+	man.Tasks = n.updateTasks(man.Tasks, man.Notifications)
 	man.TeamsWebhook = ""
 	return man, nil
 }

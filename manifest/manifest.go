@@ -101,12 +101,12 @@ type Manifest struct {
 	Pipeline string `json:"pipeline,omitempty" yaml:"pipeline,omitempty" jsonschema:"required"`
 	// The CI platform to target.
 	Platform Platform `json:"platform,omitempty" yaml:"platform,omitempty" jsonschema:"default=concourse,enum=concourse,enum=actions"`
-	// Deprecated: Slack notifications are no longer supported.
-	SlackChannel string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// A Microsoft Teams webhook URL for pipeline-level notifications.
 	TeamsWebhook string `json:"teams_webhook,omitempty" yaml:"teams_webhook,omitempty" secretAllowed:"true"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackSuccessMessage string `json:"slack_success_message,omitempty" yaml:"slack_success_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
+	// Deprecated: Slack notifications are no longer supported.
+	SlackChannel string `json:"slack_channel,omitempty" yaml:"slack_channel,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Deprecated: Slack notifications are no longer supported.
 	SlackFailureMessage string `json:"slack_failure_message,omitempty" yaml:"slack_failure_message,omitempty" jsonschema_extras:"deprecated=true,deprecationMessage=Slack notifications are no longer supported"`
 	// Enable optional pipeline features

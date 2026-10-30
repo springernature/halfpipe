@@ -19,9 +19,6 @@ func TestValidYaml_Everything(t *testing.T) {
 	man, errs := Parse(`
 team: my team
 pipeline: my pipeline
-slack_channel: "#ee-activity"
-slack_success_message: "success"
-slack_failure_message: "failure"
 triggers:
 - type: git
   uri: git@github.com:..
@@ -176,11 +173,8 @@ tasks:
 `)
 
 	expected := Manifest{
-		Team:                "my team",
-		Pipeline:            "my pipeline",
-		SlackChannel:        "#ee-activity",
-		SlackSuccessMessage: "success",
-		SlackFailureMessage: "failure",
+		Team:     "my team",
+		Pipeline: "my pipeline",
 		FeatureToggles: FeatureToggles{
 			"feature1",
 			"feature2",

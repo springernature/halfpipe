@@ -11,21 +11,18 @@ var secretValidator = manifest.NewSecretValidator()
 func TestTopLevelManifest(t *testing.T) {
 
 	bad := manifest.Manifest{
-		Team:         "something ((secret.stuff))",
-		Pipeline:     "((kehe.kehu))",
-		SlackChannel: "((asdf.dsa))",
+		Team:     "something ((secret.stuff))",
+		Pipeline: "((kehe.kehu))",
 	}
 
 	errors := secretValidator.Validate(bad)
-	assert.Len(t, errors, 3)
+	assert.Len(t, errors, 2)
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("team"))
 	assert.Contains(t, errors, manifest.UnsupportedSecretError("pipeline"))
-	assert.Contains(t, errors, manifest.UnsupportedSecretError("slack_channel"))
 
 	good := manifest.Manifest{
-		Team:         "a",
-		Pipeline:     "b",
-		SlackChannel: "c",
+		Team:     "a",
+		Pipeline: "b",
 	}
 
 	assert.Empty(t, secretValidator.Validate(good))

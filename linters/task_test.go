@@ -95,9 +95,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	var wasCalledFromParallelTask []bool
 	calledLintSeqTasksNum := 0
 
-	calledLintNotifications := false
-	calledLintNotificationsNum := 0
-
 	taskLinter := taskLinter{
 		Fs: afero.Afero{
 			Fs: nil,
@@ -156,11 +153,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 			wasCalledFromParallelTask = append(wasCalledFromParallelTask, cameFromAParallel)
 			return
 		},
-		lintNotifications: func(task manifest.Task) (errs []error) {
-			calledLintNotifications = true
-			calledLintNotificationsNum++
-			return
-		},
 	}
 
 	result := taskLinter.Lint(man)
@@ -198,9 +190,6 @@ func TestCallsOutToTheLintersCorrectly(t *testing.T) {
 	for _, called := range wasCalledFromParallelTask {
 		assert.True(t, called)
 	}
-
-	assert.True(t, calledLintNotifications)
-	assert.Equal(t, 23, calledLintNotificationsNum)
 }
 
 func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
@@ -257,7 +246,6 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithPrePromote(t *testing.T) {
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 			return
 		},
-		lintNotifications: func(task manifest.Task) (errs []error) { return },
 	}
 
 	result := taskLinter.Lint(man)
@@ -352,7 +340,6 @@ func TestMergesTheErrorsAndWarningsCorrectlyWithParallel(t *testing.T) {
 		lintParallel: func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) {
 			return
 		},
-		lintNotifications: func(task manifest.Task) (errs []error) { return },
 	}
 
 	result := taskLinter.Lint(man)
@@ -390,10 +377,9 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
-			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
-			lintArtifacts:     LintArtifacts,
-			lintNotifications: func(task manifest.Task) (errs []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -423,10 +409,9 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
-			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
-			lintArtifacts:     LintArtifacts,
-			lintNotifications: func(task manifest.Task) (errs []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -455,10 +440,9 @@ func TestLintArtifactsWithParallelSeq(t *testing.T) {
 			lintRunTask: func(task manifest.Run, fs afero.Afero, os string) (errs []error) {
 				return
 			},
-			lintParallel:      func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
-			lintSequence:      func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
-			lintArtifacts:     LintArtifacts,
-			lintNotifications: func(task manifest.Task) (errs []error) { return },
+			lintParallel:  func(parallelTask manifest.Parallel, platform manifest.Platform) (errs []error) { return },
+			lintSequence:  func(seqTask manifest.Sequence, cameFromAParallel bool) (errs []error) { return },
+			lintArtifacts: LintArtifacts,
 		}
 
 		man := manifest.Manifest{
@@ -495,7 +479,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error) { return },
 			lintArtifacts:      LintArtifacts,
-			lintNotifications:  func(task manifest.Task) (errs []error) { return },
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -527,7 +510,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error) { return },
 			lintArtifacts:      LintArtifacts,
-			lintNotifications:  func(task manifest.Task) (errs []error) { return },
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -552,7 +534,6 @@ func TestLintArtifactsWithPrePromote(t *testing.T) {
 			},
 			LintPrePromoteTask: func(tasks manifest.Task) (errs []error) { return },
 			lintArtifacts:      LintArtifacts,
-			lintNotifications:  func(task manifest.Task) (errs []error) { return },
 		}
 		man := manifest.Manifest{
 			Tasks: []manifest.Task{
@@ -591,7 +572,6 @@ func TestLintTimeout(t *testing.T) {
 		lintArtifacts: func(currentTask manifest.Task, previousTasks []manifest.Task) (errs []error) {
 			return
 		},
-		lintNotifications: func(task manifest.Task) (errs []error) { return },
 	}
 
 	badTime := "immaBadTime"

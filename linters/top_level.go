@@ -34,20 +34,5 @@ func (topLevelLinter) Lint(manifest manifest.Manifest) (result LintResult) {
 		result.Add(NewErrInvalidField("platform", "must be either 'actions' or 'concourse'"))
 	}
 
-	if manifest.SlackSuccessMessage != "" {
-		result.Add(ErrSlackSuccessMessageFieldDeprecated.AsWarning())
-	}
-
-	if manifest.SlackFailureMessage != "" {
-		result.Add(ErrSlackFailureMessageFieldDeprecated.AsWarning())
-	}
-
-	nots := append(manifest.Notifications.Failure, manifest.Notifications.Success...)
-	for _, n := range nots {
-		if n.Slack != "" && n.Teams != "" {
-			result.Add(ErrOnlySlackOrTeamsAllowed)
-		}
-	}
-
 	return result
 }
