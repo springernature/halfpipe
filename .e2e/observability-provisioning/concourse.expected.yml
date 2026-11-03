@@ -106,7 +106,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \upload-slos -i slos
+          \upload-slos -i slos && \sync-metric-rules -i alerts
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1

@@ -58,7 +58,7 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 		Username: "oauth2accesstoken",
 		Password: config.VaultSecrets.GARToken,
 	}
-	mapped.Script = fmt.Sprintf(`\upload-slos -i %s`, task.SLOs)
+	mapped.Script = fmt.Sprintf(`\upload-slos -i %s && \sync-metric-rules -i %s`, task.SLOs, task.MetricRules)
 	mapped.Name = task.Name
 	mapped.Vars = task.GetVars()
 	return mapped, nil

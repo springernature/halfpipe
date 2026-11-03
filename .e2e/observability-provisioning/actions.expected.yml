@@ -106,5 +106,5 @@ jobs:
       id: observability-provisioning
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \upload-slos -i slos"
+        args: -c "cd .e2e/observability-provisioning; \upload-slos -i slos && \sync-metric-rules -i alerts"
         entrypoint: /bin/sh
