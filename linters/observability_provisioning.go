@@ -9,6 +9,9 @@ func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, 
 	if err := checkFolderExists(task.SLOs, fs); err != nil {
 		errs = append(errs, err)
 	}
+	if err := checkFolderExists(task.MetricRules, fs); err != nil {
+		errs = append(errs, err)
+	}
 	return errs
 }
 

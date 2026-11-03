@@ -8,20 +8,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestObservabilityProvisioningTaskWhenSpecifiedFolderDoesNotExist(t *testing.T) {
+func TestObservabilityProvisioningTaskWhenSLOFolderDoesNotExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{SLOs: "slos"}, fs)
 
 	assertContainsError(t, errors, NewErrFolderNotFound("slos"))
+	assert.Len(t, errors, 1, "there should be one error")
 }
 
-func TestObservabilityProvisioningTaskWhenSpecifiedFolderExists(t *testing.T) {
+func TestObservabilityProvisioningTaskWhenMetricRulesFolderDoesNotExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
-	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{}, fs)
+	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{MetricRules: "metric_rules"}, fs)
 
-	assert.Empty(t, errors, "there should be no errors")
+	assertContainsError(t, errors, NewErrFolderNotFound("metric_rules"))
+	assert.Len(t, errors, 1, "there should be one error")
 }
 
 // TODO: Add test to check if there not parameters for the task, to avoid having a task doing nothing.

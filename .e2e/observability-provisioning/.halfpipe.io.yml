@@ -14,4 +14,4 @@ triggers:
 tasks:
 - type: observability-provisioning
   slos: slos
-  metric_rules: alerts
+  metric_rules: metric_rules
