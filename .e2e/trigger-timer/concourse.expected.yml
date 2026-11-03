@@ -62,6 +62,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: hello
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=engineering-enablement
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -145,6 +155,14 @@ resource_types:
     repository: platformengineering/halfpipe-cron-resource
     tag: sha256:cf4e7dd0acaa914e1202b846548d6478d2bb1a178f71484766ca9dfc027468a7
   type: registry-image
+- check_every: 24h0m0s
+  name: halfpipe-teams-resource
+  source:
+    password: ((gcp:platform-gar/token.token))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-teams-resource
+    tag: latest
+    username: oauth2accesstoken
+  type: registry-image
 resources:
 - check_every: 10m0s
   name: cron
@@ -160,6 +178,10 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe
   type: git
+- check_every: 24h0m0s
+  name: teams
+  source: null
+  type: halfpipe-teams-resource
 - check_every: 24h0m0s
   name: version
   source:

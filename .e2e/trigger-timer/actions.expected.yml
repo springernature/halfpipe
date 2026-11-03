@@ -120,3 +120,10 @@ jobs:
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: engineering-enablement
         RUNNING_IN_CI: "true"
+    - name: Notify teams (failure)
+      if: failure()
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        platform-team: engineering-enablement
+        style: attention
+        summary: ❌ GitHub Actions workflow failed
