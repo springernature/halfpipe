@@ -13,7 +13,7 @@ func TestUploadSLOsTaskWhenSpecifiedFolderDoesNotExist(t *testing.T) {
 
 	errors := LintUploadSLOsTask(manifest.UploadSLOs{Folder: "slos"}, fs)
 
-	assertContainsError(t, errors, ErrSLOsDirectoryNotFound("slos"))
+	assertContainsError(t, errors, NewErrFolderNotFound("slos"))
 }
 
 func TestUploadSLOsTaskWhenSpecifiedFolderExists(t *testing.T) {

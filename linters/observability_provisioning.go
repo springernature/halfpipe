@@ -6,14 +6,19 @@ import (
 )
 
 func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error) {
-	exists, err := fs.DirExists(task.SLOs)
+	if err := checkFolderExists(task.SLOs, fs); err != nil {
+		errs = append(errs, err)
+	}
+	return errs
+}
+
+func checkFolderExists(folder string, fs afero.Afero) error {
+	exists, err := fs.DirExists(folder)
 	if err != nil {
-		return []error{err}
+		return err
 	}
-
 	if !exists {
-		return []error{ErrSLOsDirectoryNotFound(task.SLOs)}
+		return NewErrFolderNotFound(folder)
 	}
-
 	return nil
 }

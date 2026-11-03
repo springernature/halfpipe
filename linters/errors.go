@@ -19,6 +19,7 @@ var (
 	NewErrDeprecatedField = func(field string, reason string) Error { return ErrDeprecatedField.WithValue(field).WithValue(reason) }
 
 	ErrFolderNotFound    = newError("folder not found")
+	NewErrFolderNotFound = func(folder string) Error { return ErrFolderNotFound.WithFile(folder) }
 	ErrFileNotFound      = newError("file not found")
 	ErrFileCannotRead    = newError("file cannot be read")
 	ErrFileNotAFile      = newError("not a file")
@@ -84,8 +85,6 @@ var (
 
 	ErrOpsLevelNotFound = newError("opslevel.yml not found in current directory or any parent")
 	ErrOpsLevelInvalid  = newError("opslevel.yml is invalid")
-
-	ErrSLOsDirectoryNotFound = func(folder string) Error { return ErrFolderNotFound.WithFile(folder) }
 )
 
 type Error struct {

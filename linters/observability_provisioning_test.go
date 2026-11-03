@@ -13,7 +13,7 @@ func TestObservabilityProvisioningTaskWhenSpecifiedFolderDoesNotExist(t *testing
 
 	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{SLOs: "slos"}, fs)
 
-	assertContainsError(t, errors, ErrSLOsDirectoryNotFound("slos"))
+	assertContainsError(t, errors, NewErrFolderNotFound("slos"))
 }
 
 func TestObservabilityProvisioningTaskWhenSpecifiedFolderExists(t *testing.T) {

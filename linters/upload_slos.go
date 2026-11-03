@@ -12,7 +12,7 @@ func LintUploadSLOsTask(task manifest.UploadSLOs, fs afero.Afero) (errs []error)
 	}
 
 	if !exists {
-		return []error{ErrSLOsDirectoryNotFound(task.Folder)}
+		return []error{NewErrFolderNotFound(task.Folder)}
 	}
 
 	return nil
