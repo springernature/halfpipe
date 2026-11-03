@@ -71,7 +71,8 @@ func (s secretValidator) validate(i any, fieldName string, secretTag string, err
 		reflect.TypeFor[Buildpack](),
 		reflect.TypeFor[CopyContainerImage](),
 		reflect.TypeFor[PipelineTrigger](),
-		reflect.TypeFor[UploadSLOs]():
+		reflect.TypeFor[UploadSLOs](),
+		reflect.TypeFor[ObservabilityProvisioning]():
 
 		for i := 0; i < v.NumField(); i++ {
 			field := v.Field(i)

@@ -191,6 +191,7 @@ var taskTypes = []typeDefEntry{
 	{"buildpack", "Buildpack", manifest.Buildpack{}},
 	{"copy-container-image", "CopyContainerImage", manifest.CopyContainerImage{}},
 	{"upload-slos", "UploadSLOs", manifest.UploadSLOs{}},
+	{"observability-provisioning", "ObservabilityProvisioning", manifest.ObservabilityProvisioning{}},
 }
 
 var triggerTypes = []typeDefEntry{

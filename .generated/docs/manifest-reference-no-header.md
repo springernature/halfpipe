@@ -602,6 +602,21 @@ by default.
   image: eu.gcr.io/halfpipe-io/team/image-name
 ```
 
+### observability-provisioning
+
+observability-provisioning upload o11y resources
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `name` | string | optional | Optional display name. |
+| `slos` | string | optional | Optional path where SLOs can be found. If not set, SLOs will not be synced. |
+| `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |
+| `retries` | integer | optional | Number of times to retry the task if it fails. Default: `0`. |
+| `notify_on_success` | boolean | optional | ⚠️ Deprecated: use notifications instead. Default: `false`. |
+| `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
+| `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
+| `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
+
 ### parallel
 
 parallel enables running tasks in parallel. All tasks start simultaneously;

@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=../../.generated/schema.json
+team: halfpipe-team
+pipeline: halfpipe-e2e-observability-provisioning
+
+feature_toggles:
+- disable-automatic-notifications
+
+triggers:
+- type: git
+  branch: main
+  watched_paths:
+  - .e2e/observability-provisioning
+
+tasks:
+- type: observability-provisioning
+  slos: slos

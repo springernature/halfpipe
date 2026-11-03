@@ -96,6 +96,8 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = t.copyContainerImageDefaulter(task, defaults)
 		case manifest.UploadSLOs:
 			tt = t.uploadSLOsDefaulter(task)
+		case manifest.ObservabilityProvisioning:
+			tt = task
 		default:
 			panic(fmt.Sprintf("Task %s has no defaults specified", task))
 		}

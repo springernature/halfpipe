@@ -120,6 +120,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.Update:
 		case manifest.UploadSLOs:
 			errs = linter.lintUploadSLOsTask(task, linter.Fs)
+		case manifest.ObservabilityProvisioning:
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
 		case manifest.CopyContainerImage:
