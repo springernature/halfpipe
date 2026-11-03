@@ -13,44 +13,46 @@ import (
 )
 
 type taskLinter struct {
-	Fs                              afero.Afero
-	lintRunTask                     func(task manifest.Run, fs afero.Afero, os string) []error
-	lintDeployCFTask                func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) []error
-	lintDeployKateeTask             func(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) []error
-	LintPrePromoteTask              func(task manifest.Task) []error
-	lintDockerPushTask              func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) []error
-	lintDockerComposeTask           func(task manifest.DockerCompose, fs afero.Afero) []error
-	lintConsumerIntegrationTestTask func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) []error
-	lintDeployMLZipTask             func(task manifest.DeployMLZip) []error
-	lintDeployMLModulesTask         func(task manifest.DeployMLModules) []error
-	lintArtifacts                   func(currentTask manifest.Task, previousTasks []manifest.Task) []error
-	lintParallel                    func(parallelTask manifest.Parallel, platform manifest.Platform) []error
-	lintSequence                    func(seqTask manifest.Sequence, cameFromAParallel bool) []error
-	lintBuildpackTask               func(task manifest.Buildpack) []error
-	lintCopyContainerImageTask      func(task manifest.CopyContainerImage) []error
-	lintUploadSLOsTask              func(task manifest.UploadSLOs, fs afero.Afero) (errs []error)
-	os                              string
+	Fs                                afero.Afero
+	lintRunTask                       func(task manifest.Run, fs afero.Afero, os string) []error
+	lintDeployCFTask                  func(task manifest.DeployCF, readCfManifest cf.ManifestReader, fs afero.Afero) []error
+	lintDeployKateeTask               func(task manifest.DeployKatee, man manifest.Manifest, fs afero.Afero) []error
+	LintPrePromoteTask                func(task manifest.Task) []error
+	lintDockerPushTask                func(task manifest.DockerPush, man manifest.Manifest, fs afero.Afero) []error
+	lintDockerComposeTask             func(task manifest.DockerCompose, fs afero.Afero) []error
+	lintConsumerIntegrationTestTask   func(task manifest.ConsumerIntegrationTest, providerHostRequired bool) []error
+	lintDeployMLZipTask               func(task manifest.DeployMLZip) []error
+	lintDeployMLModulesTask           func(task manifest.DeployMLModules) []error
+	lintArtifacts                     func(currentTask manifest.Task, previousTasks []manifest.Task) []error
+	lintParallel                      func(parallelTask manifest.Parallel, platform manifest.Platform) []error
+	lintSequence                      func(seqTask manifest.Sequence, cameFromAParallel bool) []error
+	lintBuildpackTask                 func(task manifest.Buildpack) []error
+	lintCopyContainerImageTask        func(task manifest.CopyContainerImage) []error
+	lintUploadSLOsTask                func(task manifest.UploadSLOs, fs afero.Afero) (errs []error)
+	lintObservabilityProvisioningTask func(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error)
+	os                                string
 }
 
 func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 	return taskLinter{
-		Fs:                              fs,
-		lintRunTask:                     LintRunTask,
-		lintDeployCFTask:                LintDeployCFTask,
-		lintDeployKateeTask:             LintDeployKateeTask,
-		LintPrePromoteTask:              LintPrePromoteTask,
-		lintDockerPushTask:              LintDockerPushTask,
-		lintDockerComposeTask:           LintDockerComposeTask,
-		lintConsumerIntegrationTestTask: LintConsumerIntegrationTestTask,
-		lintDeployMLZipTask:             LintDeployMLZipTask,
-		lintDeployMLModulesTask:         LintDeployMLModulesTask,
-		lintArtifacts:                   LintArtifacts,
-		lintParallel:                    LintParallelTask,
-		lintSequence:                    LintSequenceTask,
-		lintBuildpackTask:               LintBuildpackTask,
-		lintCopyContainerImageTask:      LintCopyContainerImageTask,
-		lintUploadSLOsTask:              LintUploadSLOsTask,
-		os:                              os,
+		Fs:                                fs,
+		lintRunTask:                       LintRunTask,
+		lintDeployCFTask:                  LintDeployCFTask,
+		lintDeployKateeTask:               LintDeployKateeTask,
+		LintPrePromoteTask:                LintPrePromoteTask,
+		lintDockerPushTask:                LintDockerPushTask,
+		lintDockerComposeTask:             LintDockerComposeTask,
+		lintConsumerIntegrationTestTask:   LintConsumerIntegrationTestTask,
+		lintDeployMLZipTask:               LintDeployMLZipTask,
+		lintDeployMLModulesTask:           LintDeployMLModulesTask,
+		lintArtifacts:                     LintArtifacts,
+		lintParallel:                      LintParallelTask,
+		lintSequence:                      LintSequenceTask,
+		lintBuildpackTask:                 LintBuildpackTask,
+		lintCopyContainerImageTask:        LintCopyContainerImageTask,
+		lintUploadSLOsTask:                LintUploadSLOsTask,
+		lintObservabilityProvisioningTask: LintObservabilityProvisioningTask,
+		os:                                os,
 	}
 }
 
@@ -121,6 +123,7 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.UploadSLOs:
 			errs = linter.lintUploadSLOsTask(task, linter.Fs)
 		case manifest.ObservabilityProvisioning:
+			errs = linter.lintObservabilityProvisioningTask(task, linter.Fs)
 		case manifest.Buildpack:
 			errs = linter.lintBuildpackTask(task)
 		case manifest.CopyContainerImage:
