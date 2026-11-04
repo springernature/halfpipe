@@ -26,4 +26,10 @@ func TestObservabilityProvisioningTask_WhenMetricRulesFolderDoesNotExist(t *test
 	assert.Len(t, errors, 1, "there should be one error")
 }
 
-// TODO: Add test to check if there not parameters for the task, to avoid having a task doing nothing.
+func TestObservabilityProvisioningTask_WhenNoResourcesAreOptedInto(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{}, fs)
+
+	assertContainsError(t, errors, ErrNoObservabilityResourcesDefined)
+}

@@ -85,6 +85,8 @@ var (
 
 	ErrOpsLevelNotFound = newError("opslevel.yml not found in current directory or any parent")
 	ErrOpsLevelInvalid  = newError("opslevel.yml is invalid")
+
+	ErrNoObservabilityResourcesDefined = newError("no observability resources defined. You must opt-into at least one.")
 )
 
 type Error struct {
