@@ -9,8 +9,10 @@ type ObservabilityProvisioning struct {
 	SLOs string `json:"slos,omitempty" yaml:"slos,omitempty"`
 	// Optional folder where alerting and recording rules can be found. If not set, those rules will not be synced.
 	MetricRules string `json:"metric_rules,omitempty" yaml:"metric_rules,omitempty"`
-	TaskBase    `yaml:",inline"`
-	vars        Vars `skipSecretsValidator:"true"`
+	// Optional folder where alertmanager configuration and templates casn be found. If not set, the configuration will not be applied.
+	AlertManager string `json:"alertmanager,omitempty" yaml:"alertmanager,omitempty"`
+	TaskBase     `yaml:",inline"`
+	vars         Vars `skipSecretsValidator:"true"`
 }
 
 func (r ObservabilityProvisioning) SetNotifications(notifications Notifications) Task {
