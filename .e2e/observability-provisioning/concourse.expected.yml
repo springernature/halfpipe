@@ -115,7 +115,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager
+          \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager --dashboards dashboards
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
@@ -439,7 +439,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \provisioning
+          \provisioning --dashboards dashboards
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1

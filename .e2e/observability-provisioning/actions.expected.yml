@@ -106,7 +106,7 @@ jobs:
       id: opted-into-everything
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager --dashboards dashboards"
         entrypoint: /bin/sh
       env:
         CI: "true"
@@ -262,7 +262,7 @@ jobs:
       id: only-opted-into-dashboards
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \provisioning"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --dashboards dashboards"
         entrypoint: /bin/sh
       env:
         CI: "true"

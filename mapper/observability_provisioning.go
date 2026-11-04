@@ -70,6 +70,7 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 	addOptionalArg("--slos", task.SLOs)
 	addOptionalArg("--metric-rules", task.MetricRules)
 	addOptionalArg("--alertmanager", task.AlertManager)
+	addOptionalArg("--dashboards", task.Dashboards)
 	mapped.Script = strings.Join(args, " ")
 
 	return mapped, nil
