@@ -46,7 +46,7 @@ jobs:
   serial: true
 - build_log_retention:
     minimum_succeeded_builds: 1
-  name: observability-provisioning
+  name: opted into everything
   plan:
   - attempts: 2
     in_parallel:
@@ -106,14 +106,14 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \provisioning --slos slos --metric-rules metric_rules
+          \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
           fi
         dir: git/.e2e/observability-provisioning
         path: /bin/sh
-    task: observability-provisioning
+    task: opted-into-everything
     timeout: ""
   serial: true
 - build_log_retention:
@@ -126,10 +126,10 @@ jobs:
       steps:
       - get: git
         passed:
-        - observability-provisioning
+        - opted into everything
       - get: version
         passed:
-        - observability-provisioning
+        - opted into everything
         trigger: true
     timeout: 2h
   - config:
@@ -322,7 +322,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \provisioning
+          \provisioning --alertmanager alertmanager
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1

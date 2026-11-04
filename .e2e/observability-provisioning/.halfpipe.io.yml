@@ -13,6 +13,7 @@ triggers:
 
 tasks:
 - type: observability-provisioning
+  name: "opted into everything"
   slos: slos
   metric_rules: metric_rules
   alertmanager: alertmanager

@@ -65,6 +65,9 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 	if task.MetricRules != "" {
 		args = append(args, "--metric-rules", task.MetricRules)
 	}
+	if task.AlertManager != "" {
+		args = append(args, "--alertmanager", task.AlertManager)
+	}
 
 	mapped.Script = strings.Join(args, " ")
 	mapped.Name = task.Name

@@ -74,8 +74,8 @@ jobs:
           echo '[Halfpipe Documentation](https://docs.ee.springernature.io/rel-eng/halfpipe/features/#disable-update-pipeline)' >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
-  observability-provisioning:
-    name: observability-provisioning
+  opted_into_everything:
+    name: opted into everything
     needs:
     - update
     if: needs.update.outputs.synced == 'true'
@@ -102,16 +102,16 @@ jobs:
         show-progress: false
         submodules: recursive
         token: ${{ steps.app-token.outputs.token }}
-    - name: observability-provisioning
-      id: observability-provisioning
+    - name: opted into everything
+      id: opted-into-everything
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager"
         entrypoint: /bin/sh
   only_opted_into_slos:
     name: only opted into slos
     needs:
-    - observability-provisioning
+    - opted_into_everything
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
@@ -205,5 +205,5 @@ jobs:
       id: only-opted-into-alertmanager
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \provisioning"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --alertmanager alertmanager"
         entrypoint: /bin/sh
