@@ -1125,7 +1125,7 @@
         },
         "alertmanager": {
           "type": "string",
-          "description": "Optional folder where alertmanager configuration and templates casn be found. If not set, the configuration will not be applied."
+          "description": "Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the configuration will not be applied."
         },
         "manual_trigger": {
           "type": "boolean",
