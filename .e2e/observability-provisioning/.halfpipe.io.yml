@@ -15,9 +15,13 @@ tasks:
 - type: observability-provisioning
   slos: slos
   metric_rules: metric_rules
+  alertmanager: alertmanager
 - type: observability-provisioning
   name: "only opted into slos"
   slos: slos
 - type: observability-provisioning
   name: "only opted into metric_rules"
   metric_rules: metric_rules
+- type: observability-provisioning
+  name: "only opted into alertmanager"
+  alertmanager: alertmanager

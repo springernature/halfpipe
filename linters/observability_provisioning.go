@@ -6,7 +6,7 @@ import (
 )
 
 func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error) {
-	resources := []string{task.SLOs, task.MetricRules}
+	resources := []string{task.SLOs, task.MetricRules, task.AlertManager}
 	anyDefined := false
 
 	for _, res := range resources {
@@ -28,6 +28,7 @@ func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, 
 	return errs
 }
 
+// todo: rename to checkFolderIsNonEmpty and adjust tests/logic accordingly
 func checkFolderExists(folder string, fs afero.Afero) error {
 	exists, err := fs.DirExists(folder)
 	if err != nil {

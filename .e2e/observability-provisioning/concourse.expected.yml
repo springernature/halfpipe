@@ -246,6 +246,64 @@ jobs:
     task: only-opted-into-metric-rules
     timeout: ""
   serial: true
+- build_log_retention:
+    minimum_succeeded_builds: 1
+  name: only opted into alertmanager
+  plan:
+  - attempts: 2
+    in_parallel:
+      fail_fast: true
+      steps:
+      - get: git
+        passed:
+        - only opted into metric_rules
+      - get: version
+        passed:
+        - only opted into metric_rules
+        trigger: true
+    timeout: 2h
+  - config:
+      caches:
+      - path: ../../../var/halfpipe/cache
+      - path: ../../../halfpipe-cache
+      image_resource:
+        name: ""
+        source:
+          password: ((gcp:platform-gar/token.token))
+          registry_mirror:
+            host: eu-mirror.gcr.io
+          repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
+          tag: latest
+          username: oauth2accesstoken
+        type: registry-image
+      inputs:
+      - name: git
+      - name: version
+      platform: linux
+      run:
+        args:
+        - -c
+        - "if ! which bash > /dev/null && [ \"$SUPPRESS_BASH_WARNING\" != \"true\"
+          ]; then\n  echo \"WARNING: Bash is not present in the docker image\"\n  echo
+          \"If your script depends on bash you will get a strange error message like:\"\n
+          \ echo \"  sh: yourscript.sh: command not found\"\n  echo \"To fix, make
+          sure your docker image contains bash!\"\n  echo \"Or if you are sure you
+          don't need bash you can suppress this warning by setting the environment
+          variable \\\"SUPPRESS_BASH_WARNING\\\" to \\\"true\\\".\"\n  echo \"\"\n
+          \ echo \"\"\nfi\n\nif [ -e /etc/alpine-release ]\nthen\n  echo \"WARNING:
+          you are running your build in an Alpine based image\"\n  echo \"There is
+          a known issue where DNS resolving does not work as expected\"\n  echo \"https://github.com/gliderlabs/docker-alpine/issues/255\"\n
+          \ echo \"If you see any errors related to resolving hostnames the best course
+          of action is to switch to another image\"\n  echo \"we recommend debian
+          as an alternative\"\n  echo \"\"\n  echo \"\"\nfi\n\nexport GIT_REVISION=`cat
+          ../../.git/ref`\nexport BUILD_VERSION=`cat ../../../version/version`\n\n\\upload-slos
+          -i  && \\sync-metric-rules -i \nEXIT_STATUS=$?\nif [ $EXIT_STATUS != 0 ]
+          ; then\n  exit 1\nfi\n"
+        dir: git/.e2e/observability-provisioning
+        path: /bin/sh
+    task: only-opted-into-alertmanager
+    timeout: ""
+  serial: true
 resources:
 - check_every: 10m0s
   name: git
