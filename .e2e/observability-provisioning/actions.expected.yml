@@ -106,7 +106,7 @@ jobs:
       id: observability-provisioning
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \upload-slos -i slos && \sync-metric-rules -i metric_rules"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules"
         entrypoint: /bin/sh
   only_opted_into_slos:
     name: only opted into slos
@@ -139,7 +139,7 @@ jobs:
       id: only-opted-into-slos
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \upload-slos -i slos && \sync-metric-rules -i "
+        args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos"
         entrypoint: /bin/sh
   only_opted_into_metric_rules:
     name: only opted into metric_rules
@@ -172,7 +172,7 @@ jobs:
       id: only-opted-into-metric_rules
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \upload-slos -i  && \sync-metric-rules -i metric_rules"
+        args: -c "cd .e2e/observability-provisioning; \provisioning --metric-rules metric_rules"
         entrypoint: /bin/sh
   only_opted_into_alertmanager:
     name: only opted into alertmanager
@@ -205,5 +205,5 @@ jobs:
       id: only-opted-into-alertmanager
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/observability-provisioning; \upload-slos -i  && \sync-metric-rules -i "
+        args: -c "cd .e2e/observability-provisioning; \provisioning"
         entrypoint: /bin/sh

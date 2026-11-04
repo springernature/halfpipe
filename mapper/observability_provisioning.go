@@ -1,7 +1,7 @@
 package mapper
 
 import (
-	"fmt"
+	"strings"
 
 	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
@@ -58,7 +58,15 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 		Username: "oauth2accesstoken",
 		Password: config.VaultSecrets.GARToken,
 	}
-	mapped.Script = fmt.Sprintf(`\upload-slos -i %s && \sync-metric-rules -i %s`, task.SLOs, task.MetricRules)
+	args := []string{`\provisioning`}
+	if task.SLOs != "" {
+		args = append(args, "--slos", task.SLOs)
+	}
+	if task.MetricRules != "" {
+		args = append(args, "--metric-rules", task.MetricRules)
+	}
+
+	mapped.Script = strings.Join(args, " ")
 	mapped.Name = task.Name
 	mapped.Vars = task.GetVars()
 	return mapped, nil

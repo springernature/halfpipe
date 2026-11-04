@@ -21,7 +21,7 @@ func TestObservabilityProvisioningMapper_ReturnsRunTask(t *testing.T) {
 	assert.Equal(t, "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest", run.Docker.Image, "wrong image")
 	assert.NotEmpty(t, run.Docker.Username)
 	assert.NotEmpty(t, run.Docker.Password)
-	assert.Equal(t, `\upload-slos -i my-slos && \sync-metric-rules -i my-metric-rules`, run.Script, "wrong script")
+	assert.Equal(t, `\provisioning --slos my-slos --metric-rules my-metric-rules`, run.Script, "wrong script")
 	assert.Equal(t, "my-name", run.Name, "wrong name")
 	assert.Equal(t, manifest.Vars{"BOB": "BEN"}, run.Vars, "wrong vars")
 }
