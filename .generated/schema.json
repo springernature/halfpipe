@@ -1117,11 +1117,11 @@
         },
         "slos": {
           "type": "string",
-          "description": "Optional path where SLOs can be found. If not set, SLOs will not be synced."
+          "description": "Optional folder where SLOs can be found. If not set, SLOs will not be synced."
         },
         "metric_rules": {
           "type": "string",
-          "description": "Optional path where alerting and recording rules can be found. If not set, those rules will not be synced."
+          "description": "Optional folder where alerting and recording rules can be found. If not set, those rules will not be synced."
         },
         "manual_trigger": {
           "type": "boolean",
