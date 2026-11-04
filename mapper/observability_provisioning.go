@@ -53,25 +53,25 @@ func (k observabilityProvisioning) updateTasks(tasks manifest.TaskList) (updated
 }
 
 func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.ObservabilityProvisioning) (mapped manifest.Run, err error) {
+	mapped.Name = task.Name
+	mapped.Vars = task.GetVars()
 	mapped.Docker = manifest.Docker{
 		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest",
 		Username: "oauth2accesstoken",
 		Password: config.VaultSecrets.GARToken,
 	}
-	args := []string{`\provisioning`}
-	if task.SLOs != "" {
-		args = append(args, "--slos", task.SLOs)
-	}
-	if task.MetricRules != "" {
-		args = append(args, "--metric-rules", task.MetricRules)
-	}
-	if task.AlertManager != "" {
-		args = append(args, "--alertmanager", task.AlertManager)
-	}
 
+	args := []string{`\provisioning`}
+	addOptionalArg := func(flag string, value string) {
+		if value != "" {
+			args = append(args, flag, value)
+		}
+	}
+	addOptionalArg("--slos", task.SLOs)
+	addOptionalArg("--metric-rules", task.MetricRules)
+	addOptionalArg("--alertmanager", task.AlertManager)
 	mapped.Script = strings.Join(args, " ")
-	mapped.Name = task.Name
-	mapped.Vars = task.GetVars()
+
 	return mapped, nil
 }
 
