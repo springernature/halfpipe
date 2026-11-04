@@ -17,6 +17,7 @@ tasks:
   slos: slos
   metric_rules: metric_rules
   alertmanager: alertmanager
+  dashboards: dashboards
 - type: observability-provisioning
   name: "only opted into slos"
   slos: slos
@@ -26,3 +27,6 @@ tasks:
 - type: observability-provisioning
   name: "only opted into alertmanager"
   alertmanager: alertmanager
+- type: observability-provisioning
+  name: "only opted into dashboards"
+  dashboards: dashboards

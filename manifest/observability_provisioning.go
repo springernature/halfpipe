@@ -11,8 +11,10 @@ type ObservabilityProvisioning struct {
 	MetricRules string `json:"metric_rules,omitempty" yaml:"metric_rules,omitempty"`
 	// Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the configuration will not be applied.
 	AlertManager string `json:"alertmanager,omitempty" yaml:"alertmanager,omitempty"`
-	TaskBase     `yaml:",inline"`
-	vars         Vars `skipSecretsValidator:"true"`
+	// Optional folder where grafana dashboards can be found. If not set, these dashboards will not be uploaded.
+	Dashboards string `json:"dashboards,omitempty" yaml:"dashboards,omitempty"`
+	TaskBase   `yaml:",inline"`
+	vars       Vars `skipSecretsValidator:"true"`
 }
 
 func (r ObservabilityProvisioning) SetNotifications(notifications Notifications) Task {

@@ -6,7 +6,7 @@ import (
 )
 
 func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error) {
-	resources := []string{task.SLOs, task.MetricRules, task.AlertManager}
+	resources := []string{task.SLOs, task.MetricRules, task.AlertManager, task.Dashboards}
 	anyDefined := false
 
 	for _, res := range resources {

@@ -35,6 +35,15 @@ func TestObservabilityProvisioningTask_WhenAlertmanagerFolderDoesNotExist(t *tes
 	assert.Len(t, errors, 1, "there should be one error")
 }
 
+func TestObservabilityProvisioningTask_WhenDashboardsFolderDoesNotExist(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{Dashboards: "dashboards"}, fs)
+
+	assertContainsError(t, errors, NewErrFolderNotFound("dashboards"))
+	assert.Len(t, errors, 1, "there should be one error")
+}
+
 func TestObservabilityProvisioningTask_WhenNoResourcesAreOptedInto(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
