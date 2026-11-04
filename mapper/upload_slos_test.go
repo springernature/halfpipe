@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUploadSLOsMapper_ReturnsErrorWhenManifestCannotBeOpened(t *testing.T) {
+func TestUploadSLOsMapper_ReturnsRunTask(t *testing.T) {
 	mapper := NewUploadSlosMapper()
 
 	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{manifest.UploadSLOs{

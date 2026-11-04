@@ -77,6 +77,15 @@ jobs:
       inputs:
       - name: git
       - name: version
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -149,6 +158,15 @@ jobs:
       inputs:
       - name: git
       - name: version
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -221,6 +239,15 @@ jobs:
       inputs:
       - name: git
       - name: version
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:
@@ -293,6 +320,15 @@ jobs:
       inputs:
       - name: git
       - name: version
+      params:
+        ARTIFACTORY_PASSWORD: ((artifactory.password))
+        ARTIFACTORY_URL: ((artifactory.url))
+        ARTIFACTORY_USERNAME: ((artifactory.username))
+        CI: "true"
+        EAID: APPL-437
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
       platform: linux
       run:
         args:

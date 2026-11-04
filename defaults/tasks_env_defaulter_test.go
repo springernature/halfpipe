@@ -54,6 +54,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 			},
 		},
 		manifest.UploadSLOs{},
+		manifest.ObservabilityProvisioning{},
 	}
 
 	expected := manifest.TaskList{
@@ -90,6 +91,7 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 			},
 		},
 		manifest.UploadSLOs{}.SetVars(expectedVars),
+		manifest.ObservabilityProvisioning{}.SetVars(expectedVars),
 	}
 
 	defaults := Concourse
