@@ -13,6 +13,7 @@ var VaultSecrets = struct {
 	ArtifactoryUsername, ArtifactoryPassword, ArtifactoryURL,
 	MarkLogicUsername, MarkLogicPassword,
 	AWSECRAccessKeyID, AWSECRSecretAccessKey,
+	GrafanaOrgId, GrafanaToken,
 	SlackToken string
 	KateeKey func(string, string, string) string
 }{
@@ -72,4 +73,8 @@ var VaultSecrets = struct {
 		}
 		return fmt.Sprintf(`((gcp:%s-%s/token.token))`, team, namespace)
 	},
+
+	// grafana
+	GrafanaOrgId: "((platform/central-grafana.grafana_org_id))",
+	GrafanaToken: "((platform/central-grafana.sa_auth))",
 }

@@ -3,6 +3,7 @@ package mapper
 import (
 	"testing"
 
+	"github.com/springernature/halfpipe/config"
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,5 +24,14 @@ func TestObservabilityProvisioningMapper_ReturnsRunTask(t *testing.T) {
 	assert.NotEmpty(t, run.Docker.Password)
 	assert.Equal(t, `\provisioning --slos my-slos --metric-rules my-metric-rules`, run.Script, "wrong script")
 	assert.Equal(t, "my-name", run.Name, "wrong name")
-	assert.Equal(t, manifest.Vars{"BOB": "BEN"}, run.Vars, "wrong vars")
+	assert.Equal(
+		t,
+		manifest.Vars{
+			"BOB":            "BEN",
+			"GRAFANA_ORG_ID": config.VaultSecrets.GrafanaOrgId,
+			"GRAFANA_TOKEN":  config.VaultSecrets.GrafanaToken,
+		},
+		run.Vars,
+		"wrong vars",
+	)
 }
