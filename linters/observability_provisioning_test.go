@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestObservabilityProvisioningTaskWhenSLOFolderDoesNotExist(t *testing.T) {
+func TestObservabilityProvisioningTask_WhenSLOFolderDoesNotExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{SLOs: "slos"}, fs)
@@ -17,7 +17,7 @@ func TestObservabilityProvisioningTaskWhenSLOFolderDoesNotExist(t *testing.T) {
 	assert.Len(t, errors, 1, "there should be one error")
 }
 
-func TestObservabilityProvisioningTaskWhenMetricRulesFolderDoesNotExist(t *testing.T) {
+func TestObservabilityProvisioningTask_WhenMetricRulesFolderDoesNotExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 
 	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{MetricRules: "metric_rules"}, fs)

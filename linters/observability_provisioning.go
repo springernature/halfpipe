@@ -6,12 +6,14 @@ import (
 )
 
 func LintObservabilityProvisioningTask(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error) {
-	if err := checkFolderExists(task.SLOs, fs); err != nil {
+	if err := checkFolderExists(task.SLOs, fs); err != nil && task.SLOs != "" {
 		errs = append(errs, err)
 	}
-	if err := checkFolderExists(task.MetricRules, fs); err != nil {
+
+	if err := checkFolderExists(task.MetricRules, fs); err != nil && task.MetricRules != "" {
 		errs = append(errs, err)
 	}
+
 	return errs
 }
 
