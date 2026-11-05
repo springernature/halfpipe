@@ -34,7 +34,6 @@ func New(fs afero.Afero) Mapper {
 			NewCfMapper(),
 			NewKateeMapper(fs),
 			NewGitTriggerMapper(),
-			NewUploadSlosMapper(),
 			NewObservabilityProvisioningMapper(),
 		},
 	}

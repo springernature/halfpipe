@@ -45,6 +45,15 @@ func (k observabilityProvisioning) updateTasks(tasks manifest.TaskList) (updated
 				return
 			}
 			updated = append(updated, mappedTask)
+		// this is only here to make the mapping from upload-slos -> o11y-provisioning -> docker-run simpler.
+		// and because we're about to delete it anyway.
+		case manifest.UploadSLOs:
+			mappedTask, e := k.mapObservabilityProvisioning(k.mapToO11yTask(task))
+			if e != nil {
+				err = e
+				return
+			}
+			updated = append(updated, mappedTask)
 		default:
 			updated = append(updated, task)
 		}
@@ -77,6 +86,13 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 	mapped.Script = strings.Join(args, " ")
 
 	return mapped, nil
+}
+
+func (k observabilityProvisioning) mapToO11yTask(task manifest.UploadSLOs) manifest.ObservabilityProvisioning {
+	return manifest.ObservabilityProvisioning{
+		Name: task.Name,
+		SLOs: task.Folder,
+	}.SetVars(task.GetVars())
 }
 
 func NewObservabilityProvisioningMapper() Mapper {

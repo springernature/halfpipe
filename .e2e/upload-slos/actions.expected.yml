@@ -82,6 +82,18 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/platform/central-grafana grafana_org_id | springernature_data_halfpipe-team_platform_central-grafana_grafana_org_id ;
+          /springernature/data/halfpipe-team/platform/central-grafana sa_auth | springernature_data_halfpipe-team_platform_central-grafana_sa_auth ;
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
@@ -106,13 +118,15 @@ jobs:
       id: upload-slos
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/upload-slos; \upload-slos -i slos"
+        args: -c "cd .e2e/upload-slos; \provisioning --slos slos"
         entrypoint: /bin/sh
       env:
         CI: "true"
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
+        GRAFANA_ORG_ID: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_central-grafana_grafana_org_id }}
+        GRAFANA_TOKEN: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_central-grafana_sa_auth }}
         RUNNING_IN_CI: "true"
   upload-slos__1_:
     name: upload-slos (1)
@@ -121,6 +135,18 @@ jobs:
     runs-on: ee-runner
     timeout-minutes: 60
     steps:
+    - name: Vault secrets
+      id: secrets
+      uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
+      with:
+        exportEnv: false
+        method: approle
+        roleId: ${{ secrets.VAULT_ROLE_ID }}
+        secretId: ${{ secrets.VAULT_SECRET_ID }}
+        secrets: |
+          /springernature/data/halfpipe-team/platform/central-grafana grafana_org_id | springernature_data_halfpipe-team_platform_central-grafana_grafana_org_id ;
+          /springernature/data/halfpipe-team/platform/central-grafana sa_auth | springernature_data_halfpipe-team_platform_central-grafana_sa_auth ;
+        url: ${{ secrets.EE_VAULT_ADDR }}
     - name: Generate GitHub App token
       id: app-token
       uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
@@ -145,11 +171,13 @@ jobs:
       id: upload-slos-1
       uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
       with:
-        args: -c "cd .e2e/upload-slos; \upload-slos -i other-slos"
+        args: -c "cd .e2e/upload-slos; \provisioning --slos other-slos"
         entrypoint: /bin/sh
       env:
         CI: "true"
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
+        GRAFANA_ORG_ID: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_central-grafana_grafana_org_id }}
+        GRAFANA_TOKEN: ${{ steps.secrets.outputs.springernature_data_halfpipe-team_platform_central-grafana_sa_auth }}
         RUNNING_IN_CI: "true"

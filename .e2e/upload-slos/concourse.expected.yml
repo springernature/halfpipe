@@ -85,6 +85,8 @@ jobs:
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
+        GRAFANA_ORG_ID: ((platform/central-grafana.grafana_org_id))
+        GRAFANA_TOKEN: ((platform/central-grafana.sa_auth))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -115,7 +117,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \upload-slos -i slos
+          \provisioning --slos slos
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
@@ -166,6 +168,8 @@ jobs:
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
+        GRAFANA_ORG_ID: ((platform/central-grafana.grafana_org_id))
+        GRAFANA_TOKEN: ((platform/central-grafana.sa_auth))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -196,7 +200,7 @@ jobs:
           export GIT_REVISION=`cat ../../.git/ref`
           export BUILD_VERSION=`cat ../../../version/version`
 
-          \upload-slos -i other-slos
+          \provisioning --slos other-slos
           EXIT_STATUS=$?
           if [ $EXIT_STATUS != 0 ] ; then
             exit 1
