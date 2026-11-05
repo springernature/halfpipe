@@ -1,0 +1,2 @@
+- type: observability-provisioning
+  slos: my-slos # this will sync the SLOs in the given folder

@@ -654,6 +654,13 @@ observability-provisioning upload o11y resources
 | `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
 | `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
 
+**Example:**
+
+```yaml
+- type: observability-provisioning
+  slos: my-slos # this will sync the SLOs in the given folder
+```
+
 ### parallel
 
 parallel enables running tasks in parallel. All tasks start simultaneously;
@@ -820,13 +827,6 @@ tasks:
 | `notifications` | [notifications](#notifications) | optional | Notification channels for this task. |
 | `timeout` | string | optional | Timeout duration for the task. If exceeded the task fails. Default: `1h`. |
 | `build_history` | integer | optional | Number of build logs to retain (Concourse only). Default: `20`. |
-
-**Example:**
-
-```yaml
-- type: upload-slos
-  folder: my-slos # optional path. defaults to `slos`
-```
 
 
 ## Supporting Types
