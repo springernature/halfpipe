@@ -1,6 +1,6 @@
 package manifest
 
-// upload-slos uploads the SLOs within the specified folder to the central Grafana.
+// ⚠️ Deprecated: use observability-provisioning instead ⚠️. upload-slos uploads the SLOs within the specified folder to the central Grafana.
 type UploadSLOs struct {
 	Type string `json:"type,omitempty" yaml:"type,omitempty"`
 	// Optional display name.

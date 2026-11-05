@@ -774,7 +774,7 @@ tasks:
 
 ### upload-slos
 
-upload-slos uploads the SLOs within the specified folder to the central Grafana.
+⚠️ Deprecated: use observability-provisioning instead ⚠️. upload-slos uploads the SLOs within the specified folder to the central Grafana.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
