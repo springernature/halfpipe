@@ -63,10 +63,6 @@ func (k observabilityProvisioning) updateTasks(tasks manifest.TaskList) (updated
 
 func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.ObservabilityProvisioning) (mapped manifest.Run, err error) {
 	mapped.Name = task.Name
-	mapped.Vars = task.GetVars()
-	mapped.Vars["GRAFANA_ORG_ID"] = config.VaultSecrets.GrafanaOrgId
-	mapped.Vars["GRAFANA_TOKEN"] = config.VaultSecrets.GrafanaToken
-
 	mapped.Docker = manifest.Docker{
 		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest",
 		Username: "oauth2accesstoken",
@@ -84,6 +80,12 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 	addOptionalArg("--alertmanager", task.AlertManager)
 	addOptionalArg("--dashboards", task.Dashboards)
 	mapped.Script = strings.Join(args, " ")
+
+	mapped.Vars = task.GetVars()
+	if task.Dashboards != "" {
+		mapped.Vars["GRAFANA_ORG_ID"] = config.VaultSecrets.GrafanaOrgId
+		mapped.Vars["GRAFANA_TOKEN"] = config.VaultSecrets.GrafanaToken
+	}
 
 	return mapped, nil
 }

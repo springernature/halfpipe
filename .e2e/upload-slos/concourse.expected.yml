@@ -85,8 +85,6 @@ jobs:
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
-        GRAFANA_ORG_ID: ((platform/central-grafana.grafana_org_id))
-        GRAFANA_TOKEN: ((platform/central-grafana.sa_auth))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
@@ -168,8 +166,6 @@ jobs:
         EAID: APPL-437
         EE_GIT_REPO: https://github.com/springernature/halfpipe
         EE_PLATFORM_TEAM: halfpipe-team
-        GRAFANA_ORG_ID: ((platform/central-grafana.grafana_org_id))
-        GRAFANA_TOKEN: ((platform/central-grafana.sa_auth))
         RUNNING_IN_CI: "true"
       platform: linux
       run:
