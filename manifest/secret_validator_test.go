@@ -1,9 +1,10 @@
 package manifest_test
 
 import (
+	"testing"
+
 	"github.com/springernature/halfpipe/manifest"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 var secretValidator = manifest.NewSecretValidator()
@@ -556,7 +557,7 @@ func TestShortLivedTokens(t *testing.T) {
 func TestThatWeCanSkipValiadationsOfSpecificFields(t *testing.T) {
 	// UploadSLOs have a private Vars, this causes panic, so we added skipSecretsValidator tag to skip checking it
 	man := manifest.Manifest{Tasks: manifest.TaskList{
-		manifest.UploadSLOs{}.SetVars(manifest.Vars{"secret": "((a.b))"}),
+		manifest.ObservabilityProvisioning{}.SetVars(manifest.Vars{"secret": "((a.b))"}),
 	}}
 
 	errors := secretValidator.Validate(man)

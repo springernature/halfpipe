@@ -29,7 +29,6 @@ type tasksDefaulter struct {
 	deployMlModulesDefaulter             func(original manifest.DeployMLModules, defaults Defaults) (updated manifest.DeployMLModules)
 	buildpackDefaulter                   func(original manifest.Buildpack, defaults Defaults) (updated manifest.Buildpack)
 	copyContainerImageDefaulter          func(original manifest.CopyContainerImage, defaults Defaults) (updated manifest.CopyContainerImage)
-	uploadSLOsDefaulter                  func(original manifest.UploadSLOs) (updated manifest.UploadSLOs)
 
 	tasksRenamer          TasksRenamer
 	tasksTimeoutDefaulter TasksTimeoutDefaulter
@@ -48,7 +47,6 @@ func NewTaskDefaulter() TasksDefaulter {
 		deployMlModulesDefaulter:             deployMlModuleDefaulter,
 		buildpackDefaulter:                   buildpackDefaulter,
 		copyContainerImageDefaulter:          copyContainerImageDefaulter,
-		uploadSLOsDefaulter:                  uploadSLOsDefaulter,
 
 		tasksRenamer:          NewTasksRenamer(),
 		tasksTimeoutDefaulter: NewTasksTimeoutDefaulter(),
@@ -94,8 +92,6 @@ func (t tasksDefaulter) Apply(original manifest.TaskList, defaults Defaults, man
 			tt = task
 		case manifest.CopyContainerImage:
 			tt = t.copyContainerImageDefaulter(task, defaults)
-		case manifest.UploadSLOs:
-			tt = t.uploadSLOsDefaulter(task)
 		case manifest.ObservabilityProvisioning:
 			tt = task
 		default:

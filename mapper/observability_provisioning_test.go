@@ -35,21 +35,3 @@ func TestObservabilityProvisioningMapper_ReturnsRunTask(t *testing.T) {
 		"wrong vars",
 	)
 }
-
-func TestObservabilityProvisioningMapper_UploadSLOsTaskReturnsRunTask(t *testing.T) {
-	mapper := NewObservabilityProvisioningMapper()
-
-	updated, err := mapper.Apply(manifest.Manifest{Tasks: manifest.TaskList{manifest.UploadSLOs{
-		Folder: "the-folder",
-		Name:   "the-name",
-	}.SetVars(manifest.Vars{"BOB": "BEN"})}})
-
-	assert.NoError(t, err)
-	run := updated.Tasks[0].(manifest.Run)
-	assert.Equal(t, "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest", run.Docker.Image, "wrong image")
-	assert.NotEmpty(t, run.Docker.Username)
-	assert.NotEmpty(t, run.Docker.Password)
-	assert.Equal(t, `\provisioning --slos the-folder`, run.Script, "wrong script")
-	assert.Equal(t, "the-name", run.Name, "wrong name")
-	assert.Equal(t, manifest.Vars{"BOB": "BEN"}, run.Vars, "wrong vars")
-}

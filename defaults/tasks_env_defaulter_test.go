@@ -53,7 +53,6 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 				manifest.Run{},
 			},
 		},
-		manifest.UploadSLOs{},
 		manifest.ObservabilityProvisioning{},
 	}
 
@@ -90,7 +89,6 @@ func TestSetsCorrectEnvVarsToEmptyVars(t *testing.T) {
 				manifest.Run{Vars: expectedVars},
 			},
 		},
-		manifest.UploadSLOs{}.SetVars(expectedVars),
 		manifest.ObservabilityProvisioning{}.SetVars(expectedVars),
 	}
 

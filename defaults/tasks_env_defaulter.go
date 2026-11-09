@@ -68,8 +68,6 @@ func (t tasksEnvVarsDefaulter) Apply(original manifest.TaskList, defaults Defaul
 		case manifest.Buildpack:
 			task.Vars = t.addDefaultsToVars(task.Vars, defaults, man)
 			tt = task
-		case manifest.UploadSLOs:
-			tt = task.SetVars(t.addDefaultsToVars(manifest.Vars{}, defaults, man))
 		case manifest.ObservabilityProvisioning:
 			tt = task.SetVars(t.addDefaultsToVars(manifest.Vars{}, defaults, man))
 		default:

@@ -28,7 +28,6 @@ type taskLinter struct {
 	lintSequence                      func(seqTask manifest.Sequence, cameFromAParallel bool) []error
 	lintBuildpackTask                 func(task manifest.Buildpack) []error
 	lintCopyContainerImageTask        func(task manifest.CopyContainerImage) []error
-	lintUploadSLOsTask                func(task manifest.UploadSLOs, fs afero.Afero) (errs []error)
 	lintObservabilityProvisioningTask func(task manifest.ObservabilityProvisioning, fs afero.Afero) (errs []error)
 	os                                string
 }
@@ -50,7 +49,6 @@ func NewTasksLinter(fs afero.Afero, os string) taskLinter {
 		lintSequence:                      LintSequenceTask,
 		lintBuildpackTask:                 LintBuildpackTask,
 		lintCopyContainerImageTask:        LintCopyContainerImageTask,
-		lintUploadSLOsTask:                LintUploadSLOsTask,
 		lintObservabilityProvisioningTask: LintObservabilityProvisioningTask,
 		os:                                os,
 	}
@@ -120,8 +118,6 @@ func (linter taskLinter) lintTasks(listName string, ts []manifest.Task, man mani
 		case manifest.DeployMLModules:
 			errs = linter.lintDeployMLModulesTask(task)
 		case manifest.Update:
-		case manifest.UploadSLOs:
-			errs = linter.lintUploadSLOsTask(task, linter.Fs)
 		case manifest.ObservabilityProvisioning:
 			errs = linter.lintObservabilityProvisioningTask(task, linter.Fs)
 		case manifest.Buildpack:

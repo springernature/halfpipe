@@ -196,11 +196,6 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		err = unmarshal(&t)
 		t.Type = ""
 		task = t
-	case "upload-slos":
-		t := UploadSLOs{}
-		err = unmarshal(&t)
-		t.Type = ""
-		task = t
 	case "observability-provisioning":
 		t := ObservabilityProvisioning{}
 		err = unmarshal(&t)
@@ -208,7 +203,7 @@ func unmarshalTask(taskIndex int, rawTask json.RawMessage, taskType string) (tas
 		task = t
 
 	default:
-		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'buildpack', 'copy-container-image', 'parallel', 'sequence', 'upload-slos', 'observability-provisioning'", taskIndex, taskType)
+		err = fmt.Errorf("tasks[%v] unknown type '%s'. Must be one of 'run', 'docker-compose', 'deploy-cf', 'docker-push', 'consumer-integration-test', 'buildpack', 'copy-container-image', 'parallel', 'sequence', 'observability-provisioning'", taskIndex, taskType)
 	}
 
 	return task, err
