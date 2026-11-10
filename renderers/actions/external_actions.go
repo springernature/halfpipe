@@ -30,7 +30,7 @@ var ExternalActions = struct {
 	Checkout:             ExternalAction{Ref: "actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1", Version: "v7.0.1"},
 	CreateGitHubAppToken: ExternalAction{Ref: "actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510", Version: "v3.3.0"},
 	DeployCF:             ExternalAction{Ref: "springernature/ee-action-deploy-cf@v1"},
-	DeployKatee:          ExternalAction{Ref: "springernature/ee-action-deploy-katee@v1"},
+	DeployKatee:          ExternalAction{Ref: "springernature/halfpipe-deploy-katee-resource@v1"},
 	DockerLogin:          ExternalAction{Ref: "docker/login-action@dbcb813823bdd20940b903addbd779551569679f", Version: "v4.6.0"},
 	DockerPush:           ExternalAction{Ref: "springernature/ee-action-docker-push@v1"},
 	DownloadArtifact:     ExternalAction{Ref: "actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333", Version: "v8.0.2"},

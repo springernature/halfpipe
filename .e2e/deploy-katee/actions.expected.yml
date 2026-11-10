@@ -180,7 +180,7 @@ jobs:
         submodules: recursive
         token: ${{ steps.app-token.outputs.token }}
     - name: Deploy to Katee
-      uses: springernature/ee-action-deploy-katee@v1
+      uses: springernature/halfpipe-deploy-katee-resource@v1
       with:
         checkInterval: "5"
         credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-halfpipe-team_token_token }}
@@ -239,7 +239,7 @@ jobs:
         submodules: recursive
         token: ${{ steps.app-token.outputs.token }}
     - name: Deploy to Katee
-      uses: springernature/ee-action-deploy-katee@v1
+      uses: springernature/halfpipe-deploy-katee-resource@v1
       with:
         checkInterval: "3"
         credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-different-namespace_token_token }}
@@ -296,7 +296,7 @@ jobs:
         submodules: recursive
         token: ${{ steps.app-token.outputs.token }}
     - name: Deploy to Katee
-      uses: springernature/ee-action-deploy-katee@v1
+      uses: springernature/halfpipe-deploy-katee-resource@v1
       with:
         checkInterval: "5"
         credentials: ${{ steps.secrets.outputs.gcp_impersonated-account_halfpipe-team-katee-dev-namespace-dev_token_token }}
