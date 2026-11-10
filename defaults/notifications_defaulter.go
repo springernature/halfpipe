@@ -14,8 +14,12 @@ func (n notificationsDefaulter) Apply(original manifest.Manifest) (updated manif
 	if !slices.ContainsFunc(updated.Notifications.Failure, func(channel manifest.NotificationChannel) bool {
 		return channel.Teams != ""
 	}) && updated.FeatureToggles.AutomaticNotifications() {
+		channel := original.TeamsWebhook
+		if channel == "" {
+			channel = config.PlatformAPIMessageURL + "?team=" + updated.Team
+		}
 		updated.Notifications.Failure = manifest.NotificationChannels{
-			{Teams: config.PlatformAPIMessageURL + "?team=" + updated.Team},
+			{Teams: channel},
 		}
 	}
 	return updated

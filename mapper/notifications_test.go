@@ -15,15 +15,6 @@ func TestTopLevelNotification(t *testing.T) {
 	t.Run("teams_channel", func(t *testing.T) {
 		webhook := "https://blabla"
 
-		t.Run("set and notification not set", func(t *testing.T) {
-			updated, _ := NewNotificationsMapper().Apply(manifest.Manifest{TeamsWebhook: webhook})
-			assert.Equal(t, manifest.Manifest{Notifications: manifest.Notifications{
-				Failure: manifest.NotificationChannels{
-					{Teams: webhook},
-				},
-			}}, updated)
-		})
-
 		t.Run("set and notification set, should not override", func(t *testing.T) {
 			not := manifest.Notifications{Success: manifest.NotificationChannels{{Teams: "some-random-webhook"}}}
 

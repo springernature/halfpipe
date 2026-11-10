@@ -7,21 +7,6 @@ import (
 type notificationsMapper struct {
 }
 
-func (n notificationsMapper) topLevelNotifications(man manifest.Manifest) manifest.Notifications {
-	notifications := man.Notifications
-
-	if notifications.Equal(manifest.Notifications{}) {
-		if man.TeamsWebhook != "" {
-			notifications.Failure = append(notifications.Failure, manifest.NotificationChannel{
-				Teams: man.TeamsWebhook,
-			})
-		}
-
-	}
-
-	return notifications
-}
-
 func (n notificationsMapper) updateTasks(tasks manifest.TaskList, topLevelNotifications manifest.Notifications) (updated manifest.TaskList) {
 	for _, task := range tasks {
 		switch task := task.(type) {
@@ -53,7 +38,6 @@ func (n notificationsMapper) updateTasks(tasks manifest.TaskList, topLevelNotifi
 }
 
 func (n notificationsMapper) Apply(man manifest.Manifest) (manifest.Manifest, error) {
-	man.Notifications = n.topLevelNotifications(man)
 	man.Tasks = n.updateTasks(man.Tasks, man.Notifications)
 	man.TeamsWebhook = ""
 	return man, nil
