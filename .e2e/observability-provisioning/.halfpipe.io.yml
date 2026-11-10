@@ -2,9 +2,6 @@
 team: halfpipe-team
 pipeline: halfpipe-e2e-observability-provisioning
 
-feature_toggles:
-- disable-automatic-notifications
-
 triggers:
 - type: git
   branch: main

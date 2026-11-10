@@ -3,6 +3,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: update
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     get: git
@@ -47,6 +57,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: opted into everything
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -130,6 +150,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: only opted into slos
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -211,6 +241,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: only opted into metric_rules
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -292,6 +332,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: only opted into alertmanager
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -373,6 +423,16 @@ jobs:
 - build_log_retention:
     minimum_succeeded_builds: 1
   name: only opted into dashboards
+  on_failure:
+    attempts: 2
+    no_get: true
+    params:
+      icon: https://concourse.halfpipe.io/public/images/favicon-failed.png
+      text: Pipeline `$BUILD_PIPELINE_NAME` task `$BUILD_JOB_NAME` failed.
+      title: ❌ Concourse pipeline failed
+      webhook: https://platform-api.ee.springernature.io/api/v1/message?team=halfpipe-team
+    put: teams
+    timeout: 2h
   plan:
   - attempts: 2
     in_parallel:
@@ -453,6 +513,15 @@ jobs:
     task: only-opted-into-dashboards
     timeout: ""
   serial: true
+resource_types:
+- check_every: 24h0m0s
+  name: halfpipe-teams-resource
+  source:
+    password: ((gcp:platform-gar/token.token))
+    repository: eu.gcr.io/halfpipe-io/halfpipe-teams-resource
+    tag: latest
+    username: oauth2accesstoken
+  type: registry-image
 resources:
 - check_every: 10m0s
   name: git
@@ -463,6 +532,10 @@ resources:
     private_key: ((halfpipe-github.private_key))
     uri: git@github.com:springernature/halfpipe
   type: git
+- check_every: 24h0m0s
+  name: teams
+  source: null
+  type: halfpipe-teams-resource
 - check_every: 24h0m0s
   name: version
   source:

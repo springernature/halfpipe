@@ -54,6 +54,7 @@ func (k observabilityProvisioning) updateTasks(tasks manifest.TaskList) (updated
 
 func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.ObservabilityProvisioning) (mapped manifest.Run, err error) {
 	mapped.Name = task.Name
+	mapped.Notifications = task.Notifications
 	mapped.Docker = manifest.Docker{
 		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest",
 		Username: "oauth2accesstoken",
