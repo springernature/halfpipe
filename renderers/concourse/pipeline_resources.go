@@ -185,6 +185,20 @@ func (c Concourse) halfpipeCfDeployResourceType() atc.ResourceType {
 	}
 }
 
+func (c Concourse) halfpipeKateeDeployResourceType() atc.ResourceType {
+	return atc.ResourceType{
+		Name:       deployKateeResourceTypeName,
+		Type:       "registry-image",
+		CheckEvery: &longResourceCheckInterval,
+		Source: atc.Source{
+			"repository": path.Join(config.DockerRegistry, "engineering-enablement", "halfpipe-deploy-katee-resource"),
+			"password":   config.VaultSecrets.GARToken,
+			"username":   "oauth2accesstoken",
+			"tag":        "v1",
+		},
+	}
+}
+
 func (c Concourse) pipelineTriggerResource(pipelineTrigger manifest.PipelineTrigger) atc.ResourceConfig {
 	sources := atc.Source{
 		"concourse_url": pipelineTrigger.ConcourseURL,
@@ -212,6 +226,27 @@ func (c Concourse) deployCFResource(deployCF manifest.DeployCF, resourceName str
 		"space":    deployCF.Space,
 		"username": deployCF.Username,
 		"password": deployCF.Password,
+	}
+
+	return atc.ResourceConfig{
+		Name:       resourceName,
+		Type:       resourceType,
+		Source:     sources,
+		CheckEvery: &longResourceCheckInterval,
+	}
+}
+
+const deployKateeResourceTypeName = "katee-resource"
+
+func (c Concourse) deployKateeResource(deployKatee manifest.DeployKatee, resourceName string) atc.ResourceConfig {
+	resourceType := deployKateeResourceTypeName
+
+	sources := atc.Source{
+		"namespace": deployKatee.Namespace,
+	}
+
+	if deployKatee.Env != "" {
+		sources["cluster"] = deployKatee.Env
 	}
 
 	return atc.ResourceConfig{

@@ -207,6 +207,25 @@ func (c Concourse) cfPushResources(man manifest.Manifest) (resourceTypes atc.Res
 	return
 }
 
+func (c Concourse) kateeResources(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
+
+	for _, task := range man.Tasks.Flatten() {
+		switch task := task.(type) {
+		case manifest.DeployKatee:
+			resourceConfig := c.deployKateeResource(task, task.Namespace)
+			if _, found := resourceConfigs.Lookup(resourceConfig.Name); !found {
+				resourceConfigs = append(resourceConfigs, resourceConfig)
+			}
+		}
+	}
+
+	if len(resourceConfigs) > 0 {
+		resourceTypes = append(resourceTypes, c.halfpipeKateeDeployResourceType())
+	}
+
+	return
+}
+
 func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.ResourceTypes, resourceConfigs atc.ResourceConfigs) {
 	for _, trigger := range man.Triggers {
 		switch trigger := trigger.(type) {
@@ -243,6 +262,10 @@ func (c Concourse) resourceConfigs(man manifest.Manifest) (resourceTypes atc.Res
 	cfResourceTypes, cfResources := c.cfPushResources(man)
 	resourceTypes = append(resourceTypes, cfResourceTypes...)
 	resourceConfigs = append(resourceConfigs, cfResources...)
+
+	kateeResourceTypes, kateeResources := c.kateeResources(man)
+	resourceTypes = append(resourceTypes, kateeResourceTypes...)
+	resourceConfigs = append(resourceConfigs, kateeResources...)
 
 	pipelineResourceTypes, pipelineResources := c.pipelineResources(man.Triggers)
 	resourceTypes = append(resourceTypes, pipelineResourceTypes...)
