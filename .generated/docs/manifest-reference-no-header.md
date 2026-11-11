@@ -610,7 +610,7 @@ observability-provisioning upload o11y resources
 |-------|------|----------|-------------|
 | `name` | string | optional | Optional display name. |
 | `slos` | string | optional | Optional folder where SLOs can be found. If not set, SLOs will not be synced. |
-| `metric_rules` | string | optional | Optional folder where alerting and recording rules can be found. If not set, those rules will not be synced. |
+| `metric_rules` | string | optional | Optional folder where alerting and recording rules based on metrics can be found. If not set, those rules will not be synced. |
 | `alertmanager` | string | optional | Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the configuration will not be applied. |
 | `dashboards` | string | optional | Optional folder where grafana dashboards can be found. If not set, these dashboards will not be uploaded. |
 | `manual_trigger` | boolean | optional | Task must be triggered manually (Concourse only). Default: `false`. |

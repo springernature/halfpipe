@@ -7,7 +7,7 @@ type ObservabilityProvisioning struct {
 	Name string `json:"name,omitempty" yaml:"nam,omitempty"`
 	// Optional folder where SLOs can be found. If not set, SLOs will not be synced.
 	SLOs string `json:"slos,omitempty" yaml:"slos,omitempty"`
-	// Optional folder where alerting and recording rules can be found. If not set, those rules will not be synced.
+	// Optional folder where alerting and recording rules based on metrics can be found. If not set, those rules will not be synced.
 	MetricRules string `json:"metric_rules,omitempty" yaml:"metric_rules,omitempty"`
 	// Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the configuration will not be applied.
 	AlertManager string `json:"alertmanager,omitempty" yaml:"alertmanager,omitempty"`
