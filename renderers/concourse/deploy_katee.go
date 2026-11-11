@@ -20,11 +20,13 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 	}
 
 	params := atc.Params{
-		"credentials": config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
-		"velafile":    velaManifest,
-		"gitRefPath":  "git/.git/ref",
-		"vars":        task.Vars,
-		"eaid":        man.OpsLevel.System,
+		"credentials":   config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
+		"velafile":      velaManifest,
+		"gitRefPath":    "git/.git/ref",
+		"vars":          task.Vars,
+		"eaid":          man.OpsLevel.System,
+		"maxChecks":     task.MaxChecks,
+		"checkInterval": task.CheckInterval,
 	}
 	// Like run tasks, which export BUILD_VERSION when the pipeline has a version.
 	if man.FeatureToggles.UpdatePipeline() {

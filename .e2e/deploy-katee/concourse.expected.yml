@@ -258,9 +258,11 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
+      checkInterval: 5
       credentials: ((gcp:halfpipe-team-katee-halfpipe-team/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
+      maxChecks: 120
       vars:
         ENV1: "1234"
         ENV2: ((secret.something))
@@ -293,9 +295,11 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
+      checkInterval: 3
       credentials: ((gcp:halfpipe-team-katee-different-namespace/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
+      maxChecks: 4
       vars:
         ENV1: "1234"
         ENV2: ((secret.something))
@@ -327,9 +331,11 @@ jobs:
     no_get: true
     params:
       buildVersionPath: version/version
+      checkInterval: 5
       credentials: ((gcp:halfpipe-team-katee-dev-namespace-dev/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
+      maxChecks: 60
       vars:
         VERY_SECRET: ((another.secret))
       velafile: git/.e2e/deploy-katee/vela.yaml
