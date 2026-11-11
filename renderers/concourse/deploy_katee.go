@@ -19,17 +19,23 @@ func (c Concourse) deployKateeJob(task manifest.DeployKatee, man manifest.Manife
 		velaManifest = strings.TrimPrefix(task.VelaManifest, "../")
 	}
 
+	params := atc.Params{
+		"credentials": config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
+		"velafile":    velaManifest,
+		"gitRefPath":  "git/.git/ref",
+		"vars":        task.Vars,
+		"eaid":        man.OpsLevel.System,
+	}
+	// Like run tasks, which export BUILD_VERSION when the pipeline has a version.
+	if man.FeatureToggles.UpdatePipeline() {
+		params["buildVersionPath"] = path.Join(versionName, "version")
+	}
+
 	step := stepWithAttemptsAndTimeout(&atc.PutStep{
 		Name:     "Deploy to Katee",
 		Resource: task.Namespace,
-		Params: atc.Params{
-			"credentials": config.VaultSecrets.KateeKey(man.Team, task.Namespace, task.Env),
-			"velafile":    velaManifest,
-			"gitRefPath":  "git/.git/ref",
-			"vars":        task.Vars,
-			"eaid":        man.OpsLevel.System,
-		},
-		NoGet: true,
+		Params:   params,
+		NoGet:    true,
 	}, task.TaskBase)
 
 	job.PlanSequence = []atc.Step{

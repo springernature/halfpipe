@@ -257,6 +257,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
+      buildVersionPath: version/version
       credentials: ((gcp:halfpipe-team-katee-halfpipe-team/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
@@ -291,6 +292,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
+      buildVersionPath: version/version
       credentials: ((gcp:halfpipe-team-katee-different-namespace/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
@@ -324,6 +326,7 @@ jobs:
   - attempts: 2
     no_get: true
     params:
+      buildVersionPath: version/version
       credentials: ((gcp:halfpipe-team-katee-dev-namespace-dev/token.token))
       eaid: APPL-437
       gitRefPath: git/.git/ref
