@@ -26,6 +26,15 @@ func TestObservabilityProvisioningTask_WhenMetricRulesFolderDoesNotExist(t *test
 	assert.Len(t, errors, 1, "there should be one error")
 }
 
+func TestObservabilityProvisioningTask_WhenLogRulesFolderDoesNotExist(t *testing.T) {
+	fs := afero.Afero{Fs: afero.NewMemMapFs()}
+
+	errors := LintObservabilityProvisioningTask(manifest.ObservabilityProvisioning{LogRules: "log_rules"}, fs)
+
+	assertContainsError(t, errors, NewErrFolderNotFound("log_rules"))
+	assert.Len(t, errors, 1, "there should be one error")
+}
+
 func TestObservabilityProvisioningTask_WhenAlertmanagerFolderDoesNotExist(t *testing.T) {
 	fs := afero.Afero{Fs: afero.NewMemMapFs()}
 

@@ -340,3 +340,49 @@ jobs:
         platform-team: halfpipe-team
         style: attention
         summary: ❌ GitHub Actions workflow failed
+  only_opted_into_log_rules:
+    name: only opted into log_rules
+    needs:
+    - only_opted_into_dashboards
+    runs-on: ee-runner
+    timeout-minutes: 60
+    steps:
+    - name: Generate GitHub App token
+      id: app-token
+      uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+      with:
+        client-id: ${{ secrets.EE_HALFPIPE_BOT_CLIENT_ID }}
+        owner: ${{ github.repository_owner }}
+        private-key: ${{ secrets.EE_HALFPIPE_BOT_PRIVATE_KEY }}
+    - name: Configure git
+      run: |-
+        git config --global user.name 'halfpipe-bot[bot]'
+        git config --global user.email 'halfpipe-bot[bot]@users.noreply.github.com'
+        git config --global url."https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/".insteadOf "git@github.com:"
+      working-directory: .
+    - name: Checkout code
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        lfs: true
+        show-progress: false
+        submodules: recursive
+        token: ${{ steps.app-token.outputs.token }}
+    - name: only opted into log_rules
+      id: only-opted-into-log_rules
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      with:
+        args: -c "cd .e2e/observability-provisioning; \provisioning --log-rules log_rules"
+        entrypoint: /bin/sh
+      env:
+        CI: "true"
+        EAID: APPL-437
+        EE_GIT_REPO: https://github.com/springernature/halfpipe
+        EE_PLATFORM_TEAM: halfpipe-team
+        RUNNING_IN_CI: "true"
+    - name: Notify teams (failure)
+      if: failure()
+      uses: springernature/ee-action-ms-teams@v1
+      with:
+        platform-team: halfpipe-team
+        style: attention
+        summary: ❌ GitHub Actions workflow failed

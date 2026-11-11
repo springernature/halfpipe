@@ -27,3 +27,6 @@ tasks:
 - type: observability-provisioning
   name: "only opted into dashboards"
   dashboards: dashboards
+- type: observability-provisioning
+  name: "only opted into log_rules"
+  log_rules: log_rules
