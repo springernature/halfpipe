@@ -27,6 +27,13 @@ func TestKateeDeployDefaults(t *testing.T) {
 		assert.Equal(t, "Tjoho", deployKateeDefaulter(manifest.DeployKatee{Namespace: "Tjoho"}, Actions, man).Namespace)
 	})
 
+	t.Run("KATEE_NAMESPACE in vars wins over the default and the namespace field", func(t *testing.T) {
+		man := manifest.Manifest{Team: "asdf"}
+		vars := manifest.Vars{"KATEE_NAMESPACE": "katee-from-var"}
+		assert.Equal(t, "katee-from-var", deployKateeDefaulter(manifest.DeployKatee{Vars: vars}, Actions, man).Namespace)
+		assert.Equal(t, "katee-from-var", deployKateeDefaulter(manifest.DeployKatee{Vars: vars, Namespace: "Tjoho"}, Actions, man).Namespace)
+	})
+
 	t.Run("converts deploymentCheckTimeout to check_interval and max_checks", func(t *testing.T) {
 		man := manifest.Manifest{Team: "asdf"}
 		task := deployKateeDefaulter(manifest.DeployKatee{DeploymentCheckTimeout: 120}, Actions, man)

@@ -9,7 +9,10 @@ func deployKateeDefaulter(original manifest.DeployKatee, defaults Defaults, man 
 		updated.VelaManifest = defaults.Katee.VelaManifest
 	}
 
-	if original.Namespace == "" {
+	if ns := original.Vars["KATEE_NAMESPACE"]; ns != "" {
+		// The old Concourse task let vars override the namespace, and pipelines rely on it.
+		updated.Namespace = ns
+	} else if original.Namespace == "" {
 		updated.Namespace = "katee-" + man.Team
 	}
 
