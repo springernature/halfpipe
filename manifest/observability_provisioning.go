@@ -7,13 +7,13 @@ type ObservabilityProvisioning struct {
 	Name string `json:"name,omitempty" yaml:"nam,omitempty"`
 	// Optional folder where SLOs can be found. If not set, SLOs will not be synced.
 	SLOs string `json:"slos,omitempty" yaml:"slos,omitempty"`
-	// Optional folder where alerting and recording rules based on metrics can be found. If not set, those rules will not be synced.
+	// Optional folder where alerting and recording rules based on metrics can be found. If not set, metrics rules will not be synced.
 	MetricRules string `json:"metric_rules,omitempty" yaml:"metric_rules,omitempty"`
-	// Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the configuration will not be applied.
+	// Optional folder where alertmanager configuration (config.yml) and templates (*.tmpl) can be found. If not set, the alertmanager configuration will not be applied.
 	AlertManager string `json:"alertmanager,omitempty" yaml:"alertmanager,omitempty"`
 	// Optional folder where grafana dashboards can be found. If not set, these dashboards will not be uploaded.
 	Dashboards string `json:"dashboards,omitempty" yaml:"dashboards,omitempty"`
-	// Optional folder where alerting and recording rules based on logs can be found. If not set, those rules will not be synced.
+	// Optional folder where alerting and recording rules based on logs can be found. If not set, log rules will not be synced.
 	LogRules string `json:"log_rules,omitempty" yaml:"log_rules,omitempty"`
 	TaskBase `yaml:",inline"`
 	vars     Vars `skipSecretsValidator:"true"`
