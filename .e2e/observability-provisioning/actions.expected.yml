@@ -123,7 +123,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: opted into everything
       id: opted-into-everything
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos --metric-rules metric_rules --alertmanager alertmanager --dashboards dashboards"
         entrypoint: /bin/sh
@@ -171,7 +171,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: only opted into slos
       id: only-opted-into-slos
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --slos slos"
         entrypoint: /bin/sh
@@ -217,7 +217,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: only opted into metric_rules
       id: only-opted-into-metric_rules
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --metric-rules metric_rules"
         entrypoint: /bin/sh
@@ -263,7 +263,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: only opted into alertmanager
       id: only-opted-into-alertmanager
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --alertmanager alertmanager"
         entrypoint: /bin/sh
@@ -321,7 +321,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: only opted into dashboards
       id: only-opted-into-dashboards
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --dashboards dashboards"
         entrypoint: /bin/sh
@@ -369,7 +369,7 @@ jobs:
         token: ${{ steps.app-token.outputs.token }}
     - name: only opted into log_rules
       id: only-opted-into-log_rules
-      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest
+      uses: docker://eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1
       with:
         args: -c "cd .e2e/observability-provisioning; \provisioning --log-rules log_rules"
         entrypoint: /bin/sh

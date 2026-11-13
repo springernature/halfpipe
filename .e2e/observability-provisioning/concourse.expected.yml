@@ -91,7 +91,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -184,7 +184,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -275,7 +275,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -366,7 +366,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -457,7 +457,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:
@@ -550,7 +550,7 @@ jobs:
           registry_mirror:
             host: eu-mirror.gcr.io
           repository: eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool
-          tag: latest
+          tag: v1
           username: oauth2accesstoken
         type: registry-image
       inputs:

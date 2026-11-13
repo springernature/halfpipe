@@ -56,7 +56,7 @@ func (k observabilityProvisioning) mapObservabilityProvisioning(task manifest.Ob
 	mapped.Name = task.Name
 	mapped.Notifications = task.Notifications
 	mapped.Docker = manifest.Docker{
-		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest",
+		Image:    "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1",
 		Username: "oauth2accesstoken",
 		Password: config.VaultSecrets.GARToken,
 	}

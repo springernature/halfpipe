@@ -19,7 +19,7 @@ func TestObservabilityProvisioningMapper_ReturnsRunTask(t *testing.T) {
 
 	assert.NoError(t, err)
 	run := updated.Tasks[0].(manifest.Run)
-	assert.Equal(t, "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:latest", run.Docker.Image, "wrong image")
+	assert.Equal(t, "eu.gcr.io/halfpipe-io/engineering-enablement/o11ytool:v1", run.Docker.Image, "wrong image")
 	assert.NotEmpty(t, run.Docker.Username)
 	assert.NotEmpty(t, run.Docker.Password)
 	assert.Equal(t, `\provisioning --slos my-slos --dashboards my-dashboards`, run.Script, "wrong script")
