@@ -843,7 +843,7 @@ notifications:
   success:
     - teams: https://platform-api.ee.springernature.io/api/v1/message?team=my-team
   failure:
-    - teams: https://platform-api.ee.springernature.io/api/v1/message?channel=channel.id
+    - teams: https://platform-api.ee.springernature.io/api/v1/message?channelID=channel.id
       message: Deployment failed - please investigate.
     - teams: ((my-app.teams-webhook))
 ```
